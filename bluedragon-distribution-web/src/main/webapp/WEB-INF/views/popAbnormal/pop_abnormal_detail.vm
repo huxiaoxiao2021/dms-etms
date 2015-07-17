@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>POP包裹数量差异反馈明细</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	// 监听回车事件
+	$("#orderCode").keypress(function(e){
+		var curKey = e.which;
+		if(curKey == 13) {
+			this.blur();
+			if (checkNum(this.value)) {
+    			jQuery.ajax({
+    				type: 'POST',
+    				contentType : 'application/json',
+    				url : '#springUrl("/popAbnormal/getWaybillByOrderCode")',
+    				dataType : 'json',
+    				data : '{"orderCode": "' + this.value + '", "_temp": "' + new Date().getTime() + '"}',
+    				success : function(data) {
+    					if (data.success) {
+							var popAbnormal = data.result;
+							$("#popSupNo").val(popAbnormal.popSupNo);
+							$("#popSupName").val(popAbnormal.popSupName);
+							$("#currentNum").val(popAbnormal.currentNum);
+							$("#waybillCode").val(popAbnormal.waybillCode);
+							$("#orderCodeTip").html(popAbnormal.orderCode);
+							$("#popSupNoTip").html(popAbnormal.popSupNo);
+							$("#popSupNameTip").html(popAbnormal.popSupName);
+							$("#currentNumTip").html(popAbnormal.currentNum);
+							$("#waybillCodeTip").html(popAbnormal.waybillCode);
+							$("#orderCode").attr("readonly", true);
+    					} else {
+    						alert(data.result);
+    					}
+						return;
+    				},
+    				error : function(data) {
+    					alert("error");
+    				}
+    			});
+    			return false;
+    		}
+			return false;
+		}
+	});
+	
+	// 验证数字
+	$("#orderCode, #actualNum").blur(function() {
+		if (!checkNull(this.value)) {
+			return;
+		}
+		if (!checkNum(this.value)) {
+			alert("只能输入大于0的数字，请重新输入！");
+			$(this).val("");
+			return false;
+		}
+	});
+	
+	// 重置表单
+	$("#resetButton").click(function() {
+		$("#savePopAbnormal").reset;
+		$("#waybillCode, #orderCode, #popSupNo, #popSupName, #currentNum").val("");
+		$("span").html("");
+		$("#orderCode").attr("readonly", false);
+	});
+	
+	// 提交申请页面
+	var options = {
+		beforeSubmit: function() {
+			var isGo = checkNull($("#waybillCode").val()) 
+				&& checkNum($("#popSupNo").val())
+				&& checkNull($("#popSupName").val())
+				&& checkNum($("#currentNum").val());
+			if (!isGo) {
+				alert("获取运单数据有误！");
+				return false;
+			}
+			if (!checkNull($("#createSiteCode").val())) {
+				alert("操作人所属站点不能为空，请确认操作人是否属于分拣中心（具体查询青龙基础资料系统）！");
+				return false;
+			}
+			if (!checkNum($("#orderCode").val())) {
+				alert("订单号不能为空，也只能是大于0的数字！");
+				return false;
+			}
+			if (!checkNum($("#actualNum").val())) {
+				alert("实际数量不能为空，也只能是大于0的数字！");
+				return false;
+			}
+			if ($("#actualNum").val() == $("#currentNum").val()) {
+				alert("原包裹数等于实际数量，请重新输入!");
+				return false;
+			}
+			if ($("#actualNum").val() > 2000) {
+				alert("实际包裹数量不能大于2000，请重新输入!");
+				return false;
+			}
+			$("#submitPop").attr("disabled", true);
+			return true;
+		},
+        success: function(data) {
+			if (data.success) {
+       			alert(data.result);
+				location.href = '#springUrl("/popAbnormal/detail")';
+			} else {
+				$("#submitPop").attr("disabled", false);
+				alert(data.result);
+			}
+    	}
+	};
+
+	$("#submitPop").click(function() {
+		// 提交表单
+		$("#savePopAbnormal").ajaxSubmit(options);
+		return false;
+	});
+	
+	// 返回到查询列表页面
+	$("#goBack").click(function() {
+		location.href = '#springUrl("/popAbnormal/goListPage")';
+	});
+});
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">POP包裹数量差异反馈明细 </a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening" class="noborder">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <form id="savePopAbnormal" name="savePopAbnormal" action="#springUrl('/popAbnormal/savePopAbnormal')" method="POST">
+          <table width="100%" border="0" class="tb-x2" >
+            <tr>
+              <td align="right" class="tb_h1">申请人：</td>
+              <td>
+				<input type="hidden" id="operatorCode" name="operatorCode" value="$!paramMap.get('operatorCode')"/>
+				<input type="hidden" id="operatorName" name="operatorName" value="$!paramMap.get('operatorName')"/>
+				$!paramMap.get('erpUserCode') / $!paramMap.get('operatorName')
+			  </td>
+              <td align="right" class="tb_h1 noborder bgFF " >&nbsp;</td>
+              <td align="right" class="tb_h1">订单信息：</td>
+              <td><span id="orderCodeTip"></span></td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1">分拣中心：</td>
+              <td>
+				<input type="hidden" id="createSiteCode" name="createSiteCode" value="$!paramMap.get('createSiteCode')"/>
+				<input type="hidden" id="createSiteName" name="createSiteName" value="$!paramMap.get('createSiteName')"/>
+				$!paramMap.get('createSiteCode') / $!paramMap.get('createSiteName')
+			  </td>
+              <td align="right" class="tb_h1 noborder bgFF ">&nbsp;</td>
+              <td align="right" class="tb_h1">POP商家编号：</td>
+              <td>
+				<input type="hidden" id="popSupNo" name="popSupNo"/>
+				<span id="popSupNoTip"></span>
+			  </td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1">订单号：</td>
+              <td><input type="text" id="orderCode" name="orderCode" class="textField28"/></td>
+              <td align="right" class="tb_h1 noborder bgFF " style="width:10px;">&nbsp;</td>
+              <td align="right" class="tb_h1">POP商家名称：</td>
+              <td>
+				<input type="hidden" id="popSupName" name="popSupName"/>
+				<span id="popSupNameTip"></span>
+			  </td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1">异常类型：</td>
+              <td>
+				<select id="abnormalType" name="abnormalType" class="select18">
+                  <option value="1">POP包裹数不一致</option>
+                </select>
+			  </td>
+              <td align="right" class="tb_h1 noborder bgFF ">&nbsp;</td>
+              <td align="right" class="tb_h1">原包裹数：</td>
+              <td>
+				<input type="hidden" id="currentNum" name="currentNum"/>
+				<span id="currentNumTip"></span>
+			  </td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1">实际数量：</td>
+              <td><input type="text" id="actualNum" name="actualNum" class="textField18"/></td>
+              <td align="right" class="tb_h1 noborder bgFF ">&nbsp;</td>
+              <td align="right" class="tb_h1">运单号：</td>
+              <td>
+				<input type="hidden" id="waybillCode" name="waybillCode"/>
+				<span id="waybillCodeTip"></span>
+			  </td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1"> 备注：</td>
+              <td><input type="text" id="memo" name="memo" class="select18"/></td>
+              <td align="right" class="tb_h1 noborder bgFF ">&nbsp;</td>
+              <td align="right" class="tb_h1">提示：</td>
+              <td>
+				1、此功能目前只支持申请POP订单包裹数不一致的问题，请谨慎操作！<br />
+                2、操作时，输入订单号<font color="red"><b>必须回车</b></font>，确认有商家信息，才能提交申请！<br />
+				3、操作时，有商家信息后，若需更改订单号，请点击重置按钮，重新操作！
+			  </td>
+            </tr>
+            <tr>
+              <th></th>
+              <th colspan="4" align="left">
+				<input type="button" id="submitPop" value="提交申请" class="btn_c">
+                <input type="button" id="resetButton" value="重置" class="btn_c">
+                <input type="button" id="goBack" value="返回" class="btn_c">
+			  </th>
+            </tr>
+          </table>
+        </form>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  </div>
+  <!--opening end-->
+</div>
+</body></html>

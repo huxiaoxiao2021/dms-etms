@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.version.dao.ClientConfigDao">
+
+	<resultMap id="clientConfig" type="com.jd.bluedragon.distribution.version.domain.ClientConfig">
+		<result column="config_id" property="configId" />
+		<result column="site_code" property="siteCode" />
+		<result column="program_type" property="programType" />
+		<result column="version_code" property="versionCode" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+	</resultMap>
+	<resultMap id="versionEntity" type="com.jd.bluedragon.distribution.version.domain.VersionEntity">
+		<result column="site_code" property="siteCode" />
+		<result column="program_type" property="programType" />
+		<result column="version_code" property="versionCode" />
+		<result column="download_url" property="downloadUrl" />
+	</resultMap>
+
+	<sql id="Base_Select_Sql">
+		SELECT config_id, site_code, program_type, version_code,create_time,update_time, yn
+		FROM client_config
+	</sql>
+
+	<select id="getAll" resultMap="clientConfig">
+		<include refid="Base_Select_Sql" />
+	</select>
+
+	<select id="getBySiteCode" resultMap="clientConfig" parameterType="String">
+		<include refid="Base_Select_Sql" />
+		WHERE yn = 1 AND site_code = #{siteCode, jdbcType=VARCHAR}
+	</select>
+
+	<select id="getByProgramType" resultMap="clientConfig" parameterType="INTEGER">
+		<include refid="Base_Select_Sql" />
+		WHERE yn = 1 AND program_type = #{programType, jdbcType=INTEGER}
+	</select>
+
+	<select id="get" resultMap="clientConfig" parameterType="Long">
+		<include refid="Base_Select_Sql" />
+		WHERE config_id = #{configId, jdbcType=BIGINT}
+	</select>
+	
+	<select id="getVersionEntity" resultMap="versionEntity" parameterType="versionEntity">
+		SELECT site_code, program_type, cc.version_code, download_url
+		FROM client_config cc
+    	LEFT JOIN client_version cv ON version_type= program_type AND cv. version_code=cc.version_code
+		WHERE  cv.yn = 1 AND cc.yn=1 
+			AND program_type=#{programType, jdbcType=INTEGER}
+			AND site_code=#{siteCode, jdbcType=VARCHAR} 
+	</select>
+	
+	<select id="exists" resultType="Integer" parameterType="clientConfig">
+		SELECT 1 FROM dual
+		WHERE EXISTS (
+	    		SELECT 1 FROM client_config
+				WHERE yn = 1 
+					AND site_code = #{siteCode, jdbcType=VARCHAR} 
+					AND program_type = #{programType, jdbcType=INTEGER}
+			)
+	</select>
+	
+	<insert id="add" parameterType="clientConfig">
+		insert into client_config (config_id, site_code, program_type, version_code,create_time,update_time, yn)
+		values (
+		SEQ_CLIENT_CONFIG.NEXTVAL, #{siteCode, jdbcType=VARCHAR},
+		#{programType, jdbcType=INTEGER}, #{versionCode, jdbcType=VARCHAR}, 
+		sysdate, sysdate, 1
+		)
+	</insert>
+
+	<update id="update" parameterType="clientConfig">
+		update client_config
+		<set>
+			<if test="siteCode != null">
+				site_code = #{siteCode, jdbcType=VARCHAR},
+      		</if>
+			<if test="versionCode != null">
+				version_code = #{versionCode, jdbcType=VARCHAR},
+      		</if>
+			<if test="programType != null">
+				program_type = #{programType, jdbcType=INTEGER},
+			</if>
+			<if test="yn != null">
+				yn = #{yn, jdbcType=INTEGER},
+			</if>
+			update_time = sysdate,
+		</set>
+		where config_id = #{configId, jdbcType=INTEGER}
+	</update>
+	<update id="delete" parameterType="Long">update client_config set yn=0 where config_id = #{configId, jdbcType=BIGINT} </update>
+</mapper>

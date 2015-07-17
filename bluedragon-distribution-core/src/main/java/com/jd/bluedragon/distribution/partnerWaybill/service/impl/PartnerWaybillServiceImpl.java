@@ -1,0 +1,196 @@
+package com.jd.bluedragon.distribution.partnerWaybill.service.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.WayBillCodeRequest;
+import com.jd.bluedragon.distribution.partnerWaybill.dao.PartnerWaybillDao;
+import com.jd.bluedragon.distribution.partnerWaybill.domain.PartnerWaybill;
+import com.jd.bluedragon.distribution.partnerWaybill.service.PartnerWaybillService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.ThridPackageDto;
+import com.jd.etms.waybill.wss.WaybillUpdateWS;
+
+@Service("partnerWaybillService")
+public class PartnerWaybillServiceImpl implements PartnerWaybillService {
+
+	private final Logger logger = Logger
+			.getLogger(PartnerWaybillServiceImpl.class);
+
+	@Autowired
+	private PartnerWaybillDao partnerWaybillDao;
+
+	@Autowired
+	private WaybillUpdateWS waybillUpdateWS;
+
+	@Autowired
+	private TaskService taskService;
+
+	/**
+	 * 添加运单关联包裹信息
+	 */
+	@Profiled(tag = "partnerWaybillService.doCreateWayBillCode")
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public boolean doCreateWayBillCode(PartnerWaybill partnerWaybill) {
+		Date date = new Date();
+		partnerWaybill.setUpdateTime(date);
+		int reslut = this.partnerWaybillDao.checkHas(partnerWaybill);
+		if (reslut == 0) {
+			// 不存在
+			this.partnerWaybillDao.add(PartnerWaybillDao.namespace,
+					partnerWaybill);
+			// 添加到task表
+			this.taskService.add(this.toTask(JsonHelper.toJson(partnerWaybill),
+					partnerWaybill));
+		}
+		return true;
+	}
+
+	private Task toTask(String jsonVal, PartnerWaybill wayBillCode) {
+		Task task = new Task();
+		task.setTableName(Task.TABLE_NAME_INSPECTION);
+		task.setSequenceName(Task.getSequenceName(task.getTableName()));
+		task.setType(Task.TASK_TYPE_PARTNER_WAY_BILL_NOTIFY);
+		task.setKeyword1(wayBillCode.getWaybillCode());
+		task.setKeyword2(wayBillCode.getPartnerWaybillCode());
+		task.setBody(jsonVal);
+		String ownSign = BusinessHelper.getOwnSign();
+		task.setOwnSign(ownSign);
+		return task;
+	}
+
+	/**
+	 * 处理运单号关联包裹信息
+	 * 
+	 * @param inspections
+	 * @param receiveType
+	 * @return
+	 */
+	@Profiled(tag = "partnerWaybillService.doWayBillCodesProcessed")
+	public boolean doWayBillCodesProcessed(List<Task> taskList) {
+		this.logger.info("开始处理运单号关联包裹数据");
+		// 接口参数
+		List<ThridPackageDto> params = new ArrayList<ThridPackageDto>();
+		Map<Long, Task> taskMap = new HashMap<Long, Task>();
+		for (Task task : taskList) {
+			this.taskService.doLock(task);
+			try {
+				PartnerWaybill partnerWaybill = JsonHelper.fromJson(
+						task.getBody(), PartnerWaybill.class);
+				ThridPackageDto to = new ThridPackageDto();
+				to.setBizId(task.getId());
+				to.setPackageBarcode(partnerWaybill.getPackageBarcode());
+				to.setVendorBarcode(partnerWaybill.getPartnerWaybillCode());
+				to.setWaybillCode(partnerWaybill.getWaybillCode());
+				params.add(to);
+				taskMap.put(task.getId(), task);
+			} catch (Exception e) {
+				this.taskService.doError(task);
+				this.logger.error("处理收货任务失败[taskId=" + task.getId() + "]异常信息为："
+						+ e.getMessage(), e);
+				continue;
+			}
+		}
+		if (!params.isEmpty()) {
+			try {
+				BaseEntity<Map<Long, Boolean>> baseEntity = this.waybillUpdateWS
+						.updateThirdOrder(params);
+				if (baseEntity.getResultCode() == Constants.INTERFACE_CALL_SUCCESS) {
+					// 接口调用成功
+					Map<Long, Boolean> data = baseEntity.getData();
+					Iterator<Entry<Long, Task>> iter = taskMap.entrySet()
+							.iterator();
+					while (iter.hasNext()) {
+						Map.Entry<Long, Task> entry = iter.next();
+						Task task = entry.getValue();
+						Boolean bl = data.get(task.getId());
+						if (bl) {
+							this.taskService.doDone(task);
+						} else {
+							this.logger.error("接口处理失败:data.get(taskId)=false"
+									+ baseEntity.getMessage());
+							this.taskService.doRevert(task);
+						}
+					}
+					this.logger.info("处理运单号关联包裹数据完成");
+				} else {
+					this.logger.error("调用接口失败:resultCode!=1"
+							+ baseEntity.getMessage());
+					this.unLockTask(taskMap);
+				}
+			} catch (Exception e) {
+				this.logger.error("调用接口异常:" + e.getMessage(), e);
+				this.unLockTask(taskMap);
+			}
+		}
+		return true;
+	}
+
+	private void unLockTask(Map<Long, Task> taskMap) {
+		Iterator<Entry<Long, Task>> iter = taskMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<Long, Task> entry = iter.next();
+			Task task = entry.getValue();
+			this.taskService.doRevert(task);
+		}
+	}
+
+	/**
+	 * 解析json数据 json 串to WayBillCode 对象
+	 */
+	public PartnerWaybill doParse(Task task) {
+		String jsonReceive = task.getBody();
+		this.logger.info("运单号关联包裹json数据：" + jsonReceive);
+		List<WayBillCodeRequest> wayBillCodeRequests = Arrays.asList(JsonHelper
+				.jsonToArray(jsonReceive, WayBillCodeRequest[].class));
+		WayBillCodeRequest way = wayBillCodeRequests.get(0);
+		this.logger.info("运单号关联包裹json数据转化后：" + way);
+		PartnerWaybill wayBillCode = new PartnerWaybill();
+		// 第三方运单号
+		wayBillCode.setPartnerWaybillCode(way.getWaybillCode() == null ? ""
+				: way.getWaybillCode());
+		// 判断包裹号还是京东运单号
+		if (BusinessHelper.isPackageCode(way.getPackageBarcode())) {
+			// 包裹号
+			String pkCode = way.getPackageBarcode();
+			wayBillCode.setPackageBarcode(pkCode);
+			// 京东运单号
+			wayBillCode.setWaybillCode(BusinessHelper.getWaybillCode(pkCode));
+		} else {
+			// 包裹号
+			wayBillCode.setPackageBarcode("");
+			// 京东运单号
+			wayBillCode.setWaybillCode(way.getPackageBarcode() == null ? ""
+					: way.getPackageBarcode());
+		}
+		wayBillCode.setCreateSiteCode(way.getSiteCode());
+		wayBillCode
+				.setCreateTime(DateHelper.getSeverTime(way.getOperateTime()));
+		wayBillCode
+				.setUpdateTime(DateHelper.getSeverTime(way.getOperateTime()));
+		wayBillCode.setCreateUser(way.getUserName());
+		wayBillCode.setCreateUserCode(way.getUserCode());
+		wayBillCode.setPartnerSiteCode(way.getPartnerSiteCode());
+		return wayBillCode;
+	}
+
+}

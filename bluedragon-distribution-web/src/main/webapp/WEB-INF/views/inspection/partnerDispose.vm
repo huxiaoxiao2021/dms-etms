@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>三方分拣验货差异处理</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+   <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	<script type="text/javascript">
+		function querySubmit(){
+    		//$("#differenceList").attr("action", '#springUrl("/partnerInspection/partnerDifferentList")');
+    		//$("#differenceList").attr("method", "GET");
+			if(checkForm()){
+    			$("#differenceList").submit();
+			}else{
+				alert("当前erp帐户没有绑定分拣中心");
+			}
+		}
+		function operationConfirm(checkId){
+			if(confirm("是否确定处理？")){
+				alert(checkId);
+				$.ajax({
+					url:'#springUrl("/partnerInspection/disposeDifferent")',
+					type:'POST',
+					dateType:'json',
+					data:'checkId='+checkId+'&date='+new Date().getTime(),
+					success:function(response){
+						alert(response.result);
+					}
+				});
+			}else{
+				alert("error");
+			}
+		}
+		
+		function checkForm(){
+			var checkValue = $("#createSiteCode").val();
+			if(checkValue==''){
+				return false;
+			}
+			return true;
+		}
+    </script>
+</head>
+<body>
+	<div id="breadcrumb">
+      <p><a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">三方差异处理管理</a></p>
+    </div>
+	<!--[if !ie]>breadcrumb<![endif]-->
+	<div id="content">
+    	<div class="m">
+            <div class="tbl-n">
+				<form id="differenceList" name="differenceList" action="#springUrl('/partnerInspection/partnerDifferentList')" onSubmit="return checkForm()">
+					<input type="hidden" id="pageNo" name="pageNo" />
+					<input type="hidden" id="pageSize" name="pageSize" />
+					<table >
+						<tbody >
+							<tr>
+								<th align="right">运单号：</th>
+                                <td><input id="waybillCode" name="waybillCode" type="text" class="textField28"/></td>
+                                <th align="right">箱号：</th>
+                                <td><input id="boxCode" name="boxCode" type="text" class="textField28"/></td>
+                                <th align="right">包裹号：</th>
+                                <td><input id="packageBarcode" name="packageBarcode" type="text" class="textField28"/></td>
+                                <th align="right">验货异常类型：</th>
+                                <td><input id="inspectionECType" name="inspectionECType" type="text" class="textField28"/></td>
+                            </tr>
+                            <tr>
+                                <th align="right">创建人ID：</th>
+                                <td><input id="createUserCode" name="createUserCode" type="text" class="textField28"/></td>
+                                <th align="right">分拣中心ID：</th>
+                                <td>
+									<!--<input id="createSiteCode" name="createSiteCode" type="text" class="textField28"/>-->
+									<select id="createSiteCode" name="createSiteCode">
+										#if($null.isNull($!sortingCenters) || $!sortingCenters.size() != 1)
+                    						<option value="">请选择</option>
+                    					#end
+                    					#if(!$null.isNull($!sortingCenters))
+                        					#foreach($eachSite in $sortingCenters.entrySet())
+                                                <option value="$eachSite.key">$eachSite.value</option>
+                        					#end
+                    					#end
+                                    </select>
+								</td>
+                                <th align="right">三方ID：</th>
+                                <td><input id="receiveSiteCode" name="receiveSiteCode" type="text" class="textField28"/></td>
+            					<th align="right">最后操作人ID：</th>
+                                <td><input id="updateUserCode" name="updateUserCode" type="text" class="textField28"/></td>
+                            </tr>
+							<tr>
+								<th align="right" >&nbsp;</th>
+								<td>&nbsp;</td>
+								<th colspan="3">
+									<input id="search" type="button" value="查询" class="btn_c" onclick="querySubmit()"/>
+								</th>
+							</tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+		<!--[if !ie]>tbl-n<![endif]-->
+		<div id="opening">
+			<div class="tbl-list">
+				<div class="tbl-bg">
+                    <table cellspacing=0 cellpadding=0 width="100%" class="tb-x1">
+                      <thead>
+                        <tr>
+            			  <th>序号</th>
+                          <th>运单号</th>
+                          <th>箱号</th>
+                          <th>包裹号</th>
+                          <th>验货异常类型</th>
+                          <th>创建人</th>
+                          <th>创建时间</th>
+                          <th>分拣中心ID</th>
+                          <th>三方ID</th>
+                          <th>最后修改人名称</th>
+                          <th>最后修改时间</th>
+						  <th>操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+            			#if($null.isNull($!inspectionECs) || $!inspectionECs.size() == 0)
+            				<tr class="a2" style="">
+            					<td colspan="16" align="left">
+            						无差异数据！
+                                </td>
+                            </tr>
+            			#else
+            				#foreach($inspection in $!inspectionECs)
+            				<tr class="a2" style="">
+                              <td>$velocityCount</td>
+                              <td>$!inspection.waybillCode</td>
+                              <td>$!inspection.boxCode</td>
+                              <td>$!inspection.packageBarcode</td>
+                              <td>#if($!inspection.inspectionECType==2)多验#elseif($!inspection.inspectionECType==1)少验#end</td>
+                              <td>$!inspection.createUser</td>
+                              <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!inspection.createTime)</td>
+                              <td>$!inspection.createSiteCode</td>
+                              <td>$!inspection.receiveSiteCode</td>
+                              <td>$!inspection.updateUser</td>
+                              <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!inspection.updateTime)</td>
+                              <td>
+								<input type="button" value="#if($!inspection.inspectionECType==2)多验退回#elseif($!inspection.inspectionECType==1)少验取消#end" onclick="operationConfirm($!inspection.checkId)"></input>
+							  </td>
+                            </tr>
+            				#end
+            			#end
+                      </tbody>
+                    </table>
+				</div>
+			</div>
+			<!--[if !ie]>tbl-list<![endif]-->
+            <div class="tbl-n">
+        		#pageBar("#springUrl('')/partnerInspection/partnerDifferentList?waybillCode=$!inspectionDto.waybillCode&boxCode=$!inspectionDto.boxCode&packageBarcode=$!inspectionDto.packageBarcode&inspectionECType=$!inspectionDto.inspectionECType&exceptionStatus=$!inspectionDto.exceptionStatus&inspectionType=$!inspectionDto.inspectionType&exceptionType=$!inspectionDto.exceptionType&createUser=$!inspectionDto.createUser&createUserCode=$!inspectionDto.createUserCode&createSiteCode=$!inspectionDto.createSiteCode&receiveSiteCode=$!inspectionDto.receiveSiteCode&updateUser=$!inspectionDto.updateUser&updateUserCode=$!inspectionDto.updateUserCode" $pager.totalSize $pager.pageNo $pager.totalNo)
+            </div>
+		</div>
+		<!--opening end-->
+    </div>
+</body>
+</html>

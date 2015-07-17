@@ -1,0 +1,232 @@
+package com.jd.bluedragon;
+public class Constants {
+    
+    public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
+    public static final String REST_KEY = "REST_KEY";
+    
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String DATE_FORMAT1 = "yyyyMMdd";
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_TIME_MS_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String DATE_TIME_MS_STRING = "yyyyMMddHHmmssSSS";
+    /* 默认系统开始时间的标值 */
+    public static final String DATE_START = "2012-01-01";
+    
+    public static final String HTTP_METHOD_GET = "GET";
+    public static final String HTTP_METHOD_POST = "POST";
+    
+    public static final String MAIN_CONFIGNAME = "app.properties";
+    
+    public static final String IMPORTANT_CONFIGNAME = "important.properties";
+    
+    public static final String POPABNORMAL_CONFIGNAME = "popabnormal.properties";
+    
+    public static final String REST_URL = "/services";
+    
+    public static final String SEPARATOR_COMMA = ",";
+    public static final String SEPARATOR_APOSTROPHE = "'";
+    public static final String SEPARATOR_SEMICOLON = ";";
+    public static final String SEPARATOR_HYPHEN = "-";
+    
+    public static final String PUNCTUATION_OPEN_BRACKET = "[";
+    public static final String PUNCTUATION_CLOSE_BRACKET = "]";
+    
+    public static final String OPERATE_SUCCESS = "1";
+    public static final String OPERATE_FAIL = "0";
+    
+    public static final int RESULT_SUCCESS = 1;
+    public static final int RESULT_FAIL = 0;
+    
+    public static final Integer YN_YES = 1; // 使用
+    public static final Integer YN_NO = 0; // 已删除
+    
+    public static final int NO_MATCH_DATA = 0;
+    
+    public static final String ENCODE = "UTF-8";
+    
+    public static final Integer STATUS_UNHANDLED = 0; // 未处理
+    public static final Integer STATUS_FINISHED = 1; // 完成
+    
+    public static final Integer OPERATE_TYPE_INSPECTION = 1;
+    public static final Integer OPERATE_TYPE_SORTING = 2;
+    public static final Integer OPERATE_TYPE_SEND = 3;
+    
+    /** 业务类型 **/
+    public static final int BUSSINESS_TYPE_POSITIVE = 10;
+    public static final int BUSSINESS_TYPE_REVERSE = 20;
+    public static final int BUSSINESS_TYPE_THIRD_PARTY = 30;
+    public static final int BUSSINESS_TYPE_POP = 40;
+    public static final int BUSSINESS_TYPE_TRANSFER = 50;
+    public static final int BUSSINESS_TYPE_SITE = 60;//配送员上门接货
+    public static final int BUSSINESS_TYPE_BDB = 51;//夺宝岛
+    public static final int BUSSINESS_TYPE_OEM = 52;//OEM
+    public static final int BUSSINESS_TYPE_FC = 53;//返仓
+    public static final int BUSSINESS_TYPE_RCD = 57;//反调度重打包裹
+    public static final int BUSSINESS_TYPE_NEWTRANSFER=50; //包裹交接类型合一 所有类型都是50
+
+    public static final int BUSSINESS_TYPE_ZY_ORDERTYPE=0;//自营的订单类型/协同仓
+    public static final int BUSSINESS_TYPE_DBD_ORDERTYPE=2;//夺宝岛的
+    public static final int BUSSINESS_TYPE_OEM_52=52; //协同仓storeid
+    public static final int BUSSINESS_TYPE_OEM_58=58; //协同仓storeid
+    public static final int BUSSINESS_TYPE_OEM_59=59; //协同仓storeid
+    
+    /** 接口调用返回code **/
+    public static final int INTERFACE_CALL_SUCCESS = 1;
+    
+    /** 返调度再投状态 **/
+    public static final int RETURN_SCHEDULING_STATE = 140;
+    /** 三方退货站点类型 **/
+    public static final int RETURN_PARTNER_SITE_TYPE = 16;
+    /** 跨分拣中心收货站点类型一级 **/
+    public static final int TRANS_SORTING_SITE_TYPE = 64;
+    /** 跨分拣中心收货站点类型二级 **/
+    public static final int TRANS_SORTING_SITE_TYPE_SECOND = 256;
+    /** 操作类型 **/
+    public static final int TRANS_SORTING_OPERATE_TYPE = 1;
+    public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
+    public static final int POP_HANDOVER_OPERATE_TYPE = 3;
+    public static final int PARTNER_INSPECTION_OPERATE_TYPE = 4;
+    public static final int RETURN_SCHEDULING_OPERATE_TYPE = 5;
+    public static final int PICKUP_OPERATE_TYPE = 6;
+    public static final int SITE_RETURN_OPERATE_TYPE = 7;
+    public static final int RETURN_PARTNER_OPERATE_TYPE = 8;
+    public static final int OPERATE_TYPE_BDB = 9;
+    public static final int OPERATE_TYPE_OEM = 10;
+    public static final int OPERATE_TYPE_FC = 11;
+    public static final int OPERATE_TYPE_RCD = 12;
+    public static final int OPERATE_TYPE_SH = 26;//收货回传全程跟踪
+    public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
+    /** 大件包裹标识 **/
+    public static final String BOXING_TYPE = "2";
+    /* 基础资料SiteType: 16为三方，4为自营 */
+    public static final Integer BASE_SITE_TYPE_THIRD = 16;
+    /* 基础资料siteType:64为分拣中心 */
+    public static final Integer BASE_SITE_DISTRIBUTION_CENTER = 64;
+    /* 基础资料siteType:256为二级分拣中心 */
+    public static final Integer BASE_SITE_DISTRIBUTION_SUBSIDIARY_CENTER = 256;
+    
+    public static final int OPERATE_TYPE_THIRD_INSPECTION = 80;
+    
+    /**
+     * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
+     */
+    public static final Integer SENDUSERTYEP_DRIVER = 1;
+    public static final Integer SENDUSERTYEP_CARRIER = 0;
+    
+    public static final String DEFAULT_OWN_SIGN_KEY = "ownSign";
+    public static final String DEFAULT_OWN_SIGN_VALUE = "DMS";
+    
+    /**
+     * 基础资料默认分拣中心所属类型
+     */
+    public static final Integer DMS_SITE_TYPE = 64;
+    
+    /**
+     * POP订单类型
+     */
+    public static final Integer POP_FBP = 21;
+    public static final Integer POP_SOP = 22;
+    public static final Integer POP_LBP = 23;
+    public static final Integer POP_SOPL = 25;
+    public static final Integer ORDER_TYPE_B = 10000;
+    
+    public static final Integer POP_SOP_EMS_CODE = 999999999;
+    public static final String POP_SOP_EMS_NAME = "EMS全国直发";
+
+    
+    /**
+     * POP收货类型
+     */
+    public static final Integer POP_QUEUE_SUP = 1;
+    public static final Integer POP_QUEUE_EXPRESS = 2;
+    public static final Integer POP_QUEUE_DRIVER = 3;
+    public static final Integer POP_QUEUE_SITE = 4;
+    public static final Integer POP_QUEUE_PICKUP = 5;
+    
+    /**
+	 * 打印包裹
+	 */
+	public static final Integer PRINT_PACK_TYPE = 1;
+	/**
+	 * 打印发票
+	 */
+	public static final Integer PRINT_INVOICE_TYPE = 2;
+    
+    /**
+     * POP补全收货定义收货人
+     */
+    public static final String POP_RECEIVE_NAME = "分拣中心";
+    
+    /******************* 订单查询参数中的加载明细参数,可以多个 start ******************/
+    /**
+     * 只加载订单信息
+     */
+    public static final String KONG = "空";
+    /**
+     * 加载订单基本信息
+     */
+    public static final String JI_BEN_XIN_XI = "基本信息";
+    /**
+     * 加载订单状态信息
+     */
+    public static final String ZHUANG_TAI = "状态";
+    /**
+     * 加载订单顾客信息
+     */
+    public static final String GU_KE_XIN_XI = "顾客信息";
+    /**
+     * 加载订单金额信息
+     */
+    public static final String JIN_ER = "金额";
+    /**
+     * 加载订单支付信息
+     */
+    public static final String ZHI_FU = "支付";
+    /**
+     * 加载订单出库信息
+     */
+    public static final String CHU_KU = "出库";
+    /**
+     * 加载订单配送自提信息
+     */
+    public static final String PEI_SONG_ZI_TI = "配送自提";
+    /**
+     * 加载订单发票信息
+     */
+    public static final String FA_PIAO = "发票";
+    /**
+     * 加载订单拆分信息
+     */
+    public static final String CHAI_FEN = "拆分";
+    /**
+     * 加载订单备注信息
+     */
+    public static final String BEI_ZHU = "备注";
+    /**
+     * 加载订单全部信息
+     */
+    public static final String QUAN_BU = "全部";
+    
+    /**
+     * 加载订单配送区域信息
+     */
+    public static final String POP = "POP";
+    
+    /******************* 订单查询参数中的加载明细参数,可以多个 end ******************/
+
+    /******************* redis 相关   ******************/
+    /**
+     * 整体task mode key
+     */
+	public static final String TASK_MODE_KEY = "task.mode.key";
+	 
+    /**
+     * 本地缓存默认失效时间
+     */
+    public static final int POLLING_INTERVAL_TIME = 1500;// 秒    
+	/**
+	 * 亚一站点
+	 */
+	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
+
+}

@@ -1,0 +1,817 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>平台收货差异反馈列表</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#mainType").change(function(){
+            selectInt("#subType");
+            if (this.value == '') {
+                return;
+            }
+
+            jQuery.ajax({
+                type: "POST",
+                contentType : 'application/json',
+                url: "#springUrl('/popReceiveAbnormal/getSubReasons')",
+                dataType : 'json',
+                data: '{"mainType": "' + this.value + '", "_temp": "' + new Date().getTime() + '"}',
+                success: function(data){
+                    if (data.success) {
+                        var subReasons = data.result;
+                        if (subReasons == null) {
+                            $("#subType").attr("hidden", true);
+                        } else {
+                            $("#subType").attr("hidden", false);
+                            jQuery.each(subReasons,function(infoIndex,info){
+                                $("#subType").append("<option value='"+info.code+"' >"+info.name+"</option>");
+                            });
+                        }
+                    } else {
+                        alert(data.result);
+                    }
+                    return;
+                },
+                error : function(data) {
+                    alert("error");
+                }
+            });
+            return false;
+        });
+
+        $("#orgCode").change(function(){
+            selectInt("#createSiteCode");
+            if (this.value == '') {
+                return;
+            }
+            jQuery.ajax({
+                type: "POST",
+                url: "#springUrl('/common/getSiteByOrg')",
+                data: {orgCode: this.value},
+                success: function(msg){
+                    var tempStr = "";
+                    if(msg == 'exception'){
+                        Jd.alert("接口出现异常");
+                        return false;
+                    }
+                    jQuery.each(msg,function(infoIndex,info){
+                        $("#createSiteCode").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+                    });
+                    if ("$!popAbnormalQuery.createSiteCode" != "") {
+                        $("#createSiteCode").val("$!popAbnormalQuery.createSiteCode");
+                    }
+                }
+            });
+            return false;
+        });
+
+        if ("$!popAbnormalQuery" != "") {
+            // 初始化查询条件
+            $("#dateType").val("$!popAbnormalQuery.dateType");
+            $("#abnormalStatus").val("$!popAbnormalQuery.abnormalStatus");
+            $("#orderByString").val("$!popAbnormalQuery.orderByString");
+            if ("$!popAbnormalQuery.pager" != "") {
+                $("#pageNo").val($!popAbnormalQuery.pager.pageNo);
+                $("#pageSize").val($!popAbnormalQuery.pager.pageSize);
+            }
+        }
+
+        if ("$!subReasons" == "") {
+            $("#subType").attr("hidden", true);
+        }
+
+        // 验证数字
+        $("#popSupNo, #orderCode").blur(function() {
+            if (!checkNull(this.value)) {
+                return;
+            }
+            if (!checkNum(this.value)) {
+                alert("只能输入数字，请重新输入！");
+                $(this).val("");
+            }
+        });
+
+        // 导出数据
+        $("#exportData").click(function() {
+            // 提交表单
+            $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
+            $("#selectPopList").attr("method", "POST");
+            $("#selectPopList").submit();
+            return false;
+        });
+        // 提交查询
+        $("#search").click(function() {
+            $("#popSupNo, #waybillCode").blur();
+            $("#pageNo").val("");
+            $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/list")');
+            $("#selectPopList").attr("method", "GET");
+            $("#selectPopList").submit();
+        });
+        // 进入反馈页面
+        $("#insertPop").click(function() {
+            location.href = "#springUrl('/popReceiveAbnormal/addOrDetail')";
+        });
+        // 进入老数据查询页面
+        $("#searchPopOld").click(function() {
+            location.href = "#springUrl('/popAbnormal/goListPage')";
+        });
+    });
+
+    function selectInt(obj){
+        return $(obj).html("<option value=''>请选择</option>");
+    }
+
+    function cancel(abnormalId) {
+        if (abnormalId == '' || abnormalId <= 0) {
+            return;
+        }
+        jQuery.ajax({
+            type: 'POST',
+            contentType : 'application/json',
+            url : '#springUrl("/popReceiveAbnormal/cancelPopReceiveAbnormal")',
+            dataType : 'json',
+            data : '{"abnormalId": "' + abnormalId + '", "_temp": "' + new Date().getTime() + '"}',
+            success : function(data) {
+                alert(data.result);
+                if (data.success) {
+                    $("#search").click();
+                }
+                return;
+            },
+            error : function(data) {
+                alert("error");
+            }
+        });
+        return false;
+    }
+</script>
+
+<body>
+<div id="breadcrumb">
+    <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">收货差异反馈列表</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+<div class="m">
+    <div class="tbl-n">
+        <form id="selectPopList" name="selectPopList" action="#springUrl('/popReceiveAbnormal/list')" method="GET">
+            <input type="hidden" id="pageNo" name="pager.pageNo" />
+            <input type="hidden" id="pageSize" name="pager.pageSize" />
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                <tr>
+                    <th align="right">分拣中心：</th>
+                    <td width="25%">
+                        <select class="select12" id="orgCode" name="orgCode">
+                            #if($null.isNull($!orgList) || $!orgList.size() != 1)
+                                <option value="">请选择</option>
+                            #end
+                            #if(!$null.isNull($!orgList))
+                                #foreach($baseOrg in $orgList)
+                                    <option value="${baseOrg.orgId}"
+                                        #if( $!{userInfo.orgId} == ${baseOrg.orgId})
+                                            selected="selected"
+                                        #elseif( $!popAbnormalQuery.orgCode == $baseOrg.orgId)
+                                            selected="selected"
+                                        #end
+                                            >${baseOrg.orgName}</option>
+                                #end
+                            #end
+                        </select>
+                        <select class="select18" name="createSiteCode" id="createSiteCode">
+                            #if($null.isNull($!siteList) || $!siteList.size() != 1)
+                                <option value="">请选择</option>
+                            #end
+                            #if(!$null.isNull($!siteList))
+                                #foreach($baseStaffSiteOrgDto in $siteList)
+                                    <option value="${baseStaffSiteOrgDto.siteCode}"
+                                        #if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
+                                            selected="selected"
+                                        #elseif( $!popAbnormalQuery.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
+                                            selected="selected"
+                                        #end
+                                            >${baseStaffSiteOrgDto.siteName}</option>
+                                #end
+                            #end
+                        </select>
+                    </td>
+                    <th align="right">时间类型：</th>
+                    <td colspan="5">
+                        <select id="dateType" name="dateType" class="select18">
+                            <option value="1">发起时间</option>
+                            <option value="2">回复时间</option>
+                        </select>
+                        <input type="text" class="Wdate" id="startTime" name="startTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.startTime)" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+                        ~
+                        <input type="text" class="Wdate" id="endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.endTime)" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+                    </td>
+                    <th align="right" >发起人：</th>
+                    <td><input id="operatorName" name="operatorName" type="text" class="textField28" value="$!popAbnormalQuery.operatorName"/></td>
+                </tr>
+                <tr>
+                    <th align="right">差异类型：</th>
+                    <td>
+                        <select class="select12" id="mainType" name="mainType">
+                            #if($null.isNull($!mainReasons) || $!mainReasons.size() != 1)
+                                <option value="">请选择</option>
+                            #end
+                            #if(!$null.isNull($!mainReasons))
+                                #foreach($mainReason in $mainReasons)
+                                    <option value="${mainReason.code}"
+                                        #if($!popAbnormalQuery.mainType == ${mainReason.code})
+                                            selected="selected"
+                                        #end
+                                            >${mainReason.name}</option>
+                                #end
+                            #end
+                        </select>
+                        <select class="select18" name="subType" id="subType">
+                            <option value="">请选择</option>
+                            #foreach($subReason in $!subReasons)
+                                <option value="${subReason.code}"
+                                    #if($!popAbnormalQuery.subType == ${subReason.code})
+                                        selected="selected"
+                                    #end
+                                        >${subReason.name}</option>
+                            #end
+                        </select>
+                    </td>
+                    <th align="right">商家编号：</th>
+                    <td ><input id="popSupNo" name="popSupNo" type="text" class="textField28" value="$!popAbnormalQuery.popSupNo"/></td>
+                    <th align="right">运单号：</th>
+                    <td ><input id="waybillCode" name="waybillCode" type="text" class="textField28" value="$!popAbnormalQuery.waybillCode"/></td>
+                    <th colspan="2" align="center">
+                        &nbsp;&nbsp;
+                        &nbsp;&nbsp;
+                    </th>
+                    <th align="right">回复状态：</th>
+                    <td >
+                        <select id="abnormalStatus" name="abnormalStatus" class="select18">
+                            <option value="">所有状态</option>
+                            <option value="1">未回复</option>
+                            <option value="2">已回复</option>
+                            <option value="3">已完成</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">排序原则：</th>
+                    <td>
+                        <select id="orderByString" name="orderByString" class="select18">
+                            <option value="CREATE_TIME">默认排序</option>
+                            <option value="MAIN_TYPE">一级类型</option>
+                            <option value="SUB_TYPE">二级类型</option>
+                            <option value="WAYBILL_CODE">运单号</option>
+                            <option value="ORDER_CODE">订单号</option>
+                            <option value="POP_SUP_NO">商家编号</option>
+                            <option value="ABNORMAL_STATUE">回复状态</option>
+                            <option value="OPERATOR_NAME">发起人</option>
+                        </select>
+                    </td>
+                    <th align="right">商家名称：</th>
+                    <td ><input id="popSupName" name="popSupName" type="text" class="textField28" value="$!popAbnormalQuery.popSupName"/></td>
+                    <th align="right">订单号：</th>
+                    <td ><input id="orderCode" name="orderCode" type="text" class="textField28" value="$!popAbnormalQuery.orderCode"/></td>
+                    <th colspan="4" align="center">
+                        &nbsp;&nbsp;
+                        &nbsp;&nbsp;
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="9" align="center">
+                        <input id="search" type="button" value="查询" class="btn_c"/>
+                        &nbsp;&nbsp;
+                        <input id="insertPop" type="button" value="新增" class="btn_c" />
+                        &nbsp;&nbsp;
+                        <input id="exportData" type="button" value="导出" class="btn_c"/>
+                    </th>
+                    <td align="right">
+                        <input id="searchPopOld" type="button" value="查询老数据" class="btn_c"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+<!--[if !ie]>tbl-n<![endif]-->
+<div id="opening">
+    <div class="tbl-list">
+        <div class="tbl-bg">
+            <table cellspacing=0 cellpadding=0 width="100%" class="tb-x1">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>区域</th>
+                    <th>分拣中心</th>
+                    <th>异常类型</th>
+                    <th>运单号</th>
+                    <th>订单号</th>
+                    <th>回复状态</th>
+                    <th>商家编号</th>
+                    <th>商家名称</th>
+                    <th>发起人</th>
+                    <th>发起时间</th>
+                    <th>回复时间</th>
+                    <th>处理详情</th>
+                </tr>
+                </thead>
+                <tbody>
+                    #if($null.isNull($!popAbnormalQuery) || $null.isNull($!popAbnormalQuery.pager)
+                    || $null.isNull($!popAbnormalQuery.pager.data) || $!popAbnormalQuery.pager.data.size() == 0)
+                    <tr class="a2" style="">
+                        <td colspan="12" align="left">
+                            无数据！
+                        </td>
+                    </tr>
+                    #else
+                        #foreach($popAbnormal in $!popAbnormalQuery.pager.data)
+                        <tr class="a2" style="">
+                            <td>$velocityCount</td>
+                            <td>$!popAbnormal.orgName</td>
+                            <td>$!popAbnormal.createSiteName</td>
+                            <td>
+                                $!popAbnormal.mainTypeName
+                                #if("$!popAbnormal.subTypeName" != "")
+                                    - $!popAbnormal.subTypeName
+                                #end
+                            </td>
+                            <td><a href="http://cc.360buy.com/SiteManage/order/orderinfo.aspx?OrderId=$!popAbnormal.waybillCode" target="_blank">$!popAbnormal.waybillCode</a></td>
+                            <td>
+                                #if("$!popAbnormal.orderCode" != "")
+						$!popAbnormal.orderCode
+					#else
+                                    $!popAbnormal.waybillCode
+                                #end
+                            </td>
+                            <td>
+                                #if($!popAbnormal.abnormalStatus == 1)
+                                    未回复
+                                #elseif($!popAbnormal.abnormalStatus == 2)
+                                    <font color="blue">已回复</font>
+                                #elseif($!popAbnormal.abnormalStatus == 3)
+                                    <font color="green">已完成</font>
+                                #end
+                            </td>
+                            <td>
+                                #if("$!popAbnormal.popSupNo" != "null")
+						$!popAbnormal.popSupNo
+					#end
+                            </td>
+                            <td>
+                                #if("$!popAbnormal.popSupName" != "null")
+						$!popAbnormal.popSupName
+					#end
+                            </td>
+                            <td>$!popAbnormal.operatorName</td>
+                            <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.createTime)</td>
+                            <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.updateTime)</td>
+                            <td>
+                                <a href='#springUrl("")/popReceiveAbnormal/addOrDetail?abnormalId=$!popAbnormal.abnormalId'>
+                                    #if($!popAbnormal.abnormalStatus == 2)
+                                        处理
+                                    #else
+                                        查看
+                                    #end
+                                </a>
+                                #if("$!erpUser.userId" == "24779")
+                                    &nbsp;
+                                    <a href='javascript:void(0);' onclick="javascript:cancel($!popAbnormal.abnormalId);return false;">
+                                        取消
+                                    </a>
+                                #end
+                                </a>
+                            </td>
+                        </tr>
+                        #end
+                    #end
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+    <div class="tbl-n">
+        #pageBar("#springUrl('')/popReceiveAbnormal/list?orgCode=$!popAbnormalQuery.orgCode&createSiteCode=$!popAbnormalQuery.createSiteCode&dateType=$!popAbnormalQuery.dateType&startTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.startTime)&endTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.endTime)&mainType=$!popAbnormalQuery.mainType&subType=$!popAbnormalQuery.subType&popSupNo=$!popAbnormalQuery.popSupNo&waybillCode=$!popAbnormalQuery.waybillCode&abnormalStatus=$!popAbnormalQuery.abnormalStatus&operatorName=$!popAbnormalQuery.operatorName&orderByString=$!popAbnormalQuery.orderByString" $!popAbnormalQuery.pager.totalSize $!popAbnormalQuery.pager.pageNo $!popAbnormalQuery.pager.totalNo "pager.pageNo")
+    </div>
+</div>
+<!--opening end-->
+</div>
+</body>
+</html><!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>平台收货差异反馈列表</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#mainType").change(function(){
+            selectInt("#subType");
+            if (this.value == '') {
+                return;
+            }
+
+            jQuery.ajax({
+                type: "POST",
+                contentType : 'application/json',
+                url: "#springUrl('/popReceiveAbnormal/getSubReasons')",
+                dataType : 'json',
+                data: '{"mainType": "' + this.value + '", "_temp": "' + new Date().getTime() + '"}',
+                success: function(data){
+                    if (data.success) {
+                        var subReasons = data.result;
+                        if (subReasons == null) {
+                            $("#subType").attr("hidden", true);
+                        } else {
+                            $("#subType").attr("hidden", false);
+                            jQuery.each(subReasons,function(infoIndex,info){
+                                $("#subType").append("<option value='"+info.code+"' >"+info.name+"</option>");
+                            });
+                        }
+                    } else {
+                        alert(data.result);
+                    }
+                    return;
+                },
+                error : function(data) {
+                    alert("error");
+                }
+            });
+            return false;
+        });
+
+        $("#orgCode").change(function(){
+            selectInt("#createSiteCode");
+            if (this.value == '') {
+                return;
+            }
+            jQuery.ajax({
+                type: "POST",
+                url: "#springUrl('/common/getSiteByOrg')",
+                data: {orgCode: this.value},
+                success: function(msg){
+                    var tempStr = "";
+                    if(msg == 'exception'){
+                        Jd.alert("接口出现异常");
+                        return false;
+                    }
+                    jQuery.each(msg,function(infoIndex,info){
+                        $("#createSiteCode").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+                    });
+                    if ("$!popAbnormalQuery.createSiteCode" != "") {
+                        $("#createSiteCode").val("$!popAbnormalQuery.createSiteCode");
+                    }
+                }
+            });
+            return false;
+        });
+
+        if ("$!popAbnormalQuery" != "") {
+            // 初始化查询条件
+            $("#dateType").val("$!popAbnormalQuery.dateType");
+            $("#abnormalStatus").val("$!popAbnormalQuery.abnormalStatus");
+            $("#orderByString").val("$!popAbnormalQuery.orderByString");
+            if ("$!popAbnormalQuery.pager" != "") {
+                $("#pageNo").val($!popAbnormalQuery.pager.pageNo);
+                $("#pageSize").val($!popAbnormalQuery.pager.pageSize);
+            }
+        }
+
+        if ("$!subReasons" == "") {
+            $("#subType").attr("hidden", true);
+        }
+
+        // 验证数字
+        $("#popSupNo, #orderCode").blur(function() {
+            if (!checkNull(this.value)) {
+                return;
+            }
+            if (!checkNum(this.value)) {
+                alert("只能输入数字，请重新输入！");
+                $(this).val("");
+            }
+        });
+
+        // 导出数据
+        $("#exportData").click(function() {
+            // 提交表单
+            $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
+            $("#selectPopList").attr("method", "POST");
+            $("#selectPopList").submit();
+            return false;
+        });
+        // 提交查询
+        $("#search").click(function() {
+            $("#popSupNo, #waybillCode").blur();
+            $("#pageNo").val("");
+            $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/list")');
+            $("#selectPopList").attr("method", "GET");
+            $("#selectPopList").submit();
+        });
+        // 进入反馈页面
+        $("#insertPop").click(function() {
+            location.href = "#springUrl('/popReceiveAbnormal/addOrDetail')";
+        });
+        // 进入老数据查询页面
+        $("#searchPopOld").click(function() {
+            location.href = "#springUrl('/popAbnormal/goListPage')";
+        });
+    });
+
+    function selectInt(obj){
+        return $(obj).html("<option value=''>请选择</option>");
+    }
+
+    function cancel(abnormalId) {
+        if (abnormalId == '' || abnormalId <= 0) {
+            return;
+        }
+        jQuery.ajax({
+            type: 'POST',
+            contentType : 'application/json',
+            url : '#springUrl("/popReceiveAbnormal/cancelPopReceiveAbnormal")',
+            dataType : 'json',
+            data : '{"abnormalId": "' + abnormalId + '", "_temp": "' + new Date().getTime() + '"}',
+            success : function(data) {
+                alert(data.result);
+                if (data.success) {
+                    $("#search").click();
+                }
+                return;
+            },
+            error : function(data) {
+                alert("error");
+            }
+        });
+        return false;
+    }
+</script>
+
+<body>
+<div id="breadcrumb">
+    <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">收货差异反馈列表</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+<div class="m">
+    <div class="tbl-n">
+        <form id="selectPopList" name="selectPopList" action="#springUrl('/popReceiveAbnormal/list')" method="GET">
+            <input type="hidden" id="pageNo" name="pager.pageNo" />
+            <input type="hidden" id="pageSize" name="pager.pageSize" />
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                <tr>
+                    <th align="right">分拣中心：</th>
+                    <td width="25%">
+                        <select class="select12" id="orgCode" name="orgCode">
+                            #if($null.isNull($!orgList) || $!orgList.size() != 1)
+                                <option value="">请选择</option>
+                            #end
+                            #if(!$null.isNull($!orgList))
+                                #foreach($baseOrg in $orgList)
+                                    <option value="${baseOrg.orgId}"
+                                        #if( $!{userInfo.orgId} == ${baseOrg.orgId})
+                                            selected="selected"
+                                        #elseif( $!popAbnormalQuery.orgCode == $baseOrg.orgId)
+                                            selected="selected"
+                                        #end
+                                            >${baseOrg.orgName}</option>
+                                #end
+                            #end
+                        </select>
+                        <select class="select18" name="createSiteCode" id="createSiteCode">
+                            #if($null.isNull($!siteList) || $!siteList.size() != 1)
+                                <option value="">请选择</option>
+                            #end
+                            #if(!$null.isNull($!siteList))
+                                #foreach($baseStaffSiteOrgDto in $siteList)
+                                    <option value="${baseStaffSiteOrgDto.siteCode}"
+                                        #if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
+                                            selected="selected"
+                                        #elseif( $!popAbnormalQuery.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
+                                            selected="selected"
+                                        #end
+                                            >${baseStaffSiteOrgDto.siteName}</option>
+                                #end
+                            #end
+                        </select>
+                    </td>
+                    <th align="right">时间类型：</th>
+                    <td colspan="5">
+                        <select id="dateType" name="dateType" class="select18">
+                            <option value="1">发起时间</option>
+                            <option value="2">回复时间</option>
+                        </select>
+                        <input type="text" class="Wdate" id="startTime" name="startTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.startTime)" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+                        ~
+                        <input type="text" class="Wdate" id="endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.endTime)" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+                    </td>
+                    <th align="right" >发起人：</th>
+                    <td><input id="operatorName" name="operatorName" type="text" class="textField28" value="$!popAbnormalQuery.operatorName"/></td>
+                </tr>
+                <tr>
+                    <th align="right">差异类型：</th>
+                    <td>
+                        <select class="select12" id="mainType" name="mainType">
+                            #if($null.isNull($!mainReasons) || $!mainReasons.size() != 1)
+                                <option value="">请选择</option>
+                            #end
+                            #if(!$null.isNull($!mainReasons))
+                                #foreach($mainReason in $mainReasons)
+                                    <option value="${mainReason.code}"
+                                        #if($!popAbnormalQuery.mainType == ${mainReason.code})
+                                            selected="selected"
+                                        #end
+                                            >${mainReason.name}</option>
+                                #end
+                            #end
+                        </select>
+                        <select class="select18" name="subType" id="subType">
+                            <option value="">请选择</option>
+                            #foreach($subReason in $!subReasons)
+                                <option value="${subReason.code}"
+                                    #if($!popAbnormalQuery.subType == ${subReason.code})
+                                        selected="selected"
+                                    #end
+                                        >${subReason.name}</option>
+                            #end
+                        </select>
+                    </td>
+                    <th align="right">商家编号：</th>
+                    <td ><input id="popSupNo" name="popSupNo" type="text" class="textField28" value="$!popAbnormalQuery.popSupNo"/></td>
+                    <th align="right">运单号：</th>
+                    <td ><input id="waybillCode" name="waybillCode" type="text" class="textField28" value="$!popAbnormalQuery.waybillCode"/></td>
+                    <th colspan="2" align="center">
+                        &nbsp;&nbsp;
+                        &nbsp;&nbsp;
+                    </th>
+                    <th align="right">回复状态：</th>
+                    <td >
+                        <select id="abnormalStatus" name="abnormalStatus" class="select18">
+                            <option value="">所有状态</option>
+                            <option value="1">未回复</option>
+                            <option value="2">已回复</option>
+                            <option value="3">已完成</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">排序原则：</th>
+                    <td>
+                        <select id="orderByString" name="orderByString" class="select18">
+                            <option value="CREATE_TIME">默认排序</option>
+                            <option value="MAIN_TYPE">一级类型</option>
+                            <option value="SUB_TYPE">二级类型</option>
+                            <option value="WAYBILL_CODE">运单号</option>
+                            <option value="ORDER_CODE">订单号</option>
+                            <option value="POP_SUP_NO">商家编号</option>
+                            <option value="ABNORMAL_STATUE">回复状态</option>
+                            <option value="OPERATOR_NAME">发起人</option>
+                        </select>
+                    </td>
+                    <th align="right">商家名称：</th>
+                    <td ><input id="popSupName" name="popSupName" type="text" class="textField28" value="$!popAbnormalQuery.popSupName"/></td>
+                    <th align="right">订单号：</th>
+                    <td ><input id="orderCode" name="orderCode" type="text" class="textField28" value="$!popAbnormalQuery.orderCode"/></td>
+                    <th colspan="4" align="center">
+                        &nbsp;&nbsp;
+                        &nbsp;&nbsp;
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="9" align="center">
+                        <input id="search" type="button" value="查询" class="btn_c"/>
+                        &nbsp;&nbsp;
+                        <input id="insertPop" type="button" value="新增" class="btn_c" />
+                        &nbsp;&nbsp;
+                        <input id="exportData" type="button" value="导出" class="btn_c"/>
+                    </th>
+                    <td align="right">
+                        <input id="searchPopOld" type="button" value="查询老数据" class="btn_c"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+<!--[if !ie]>tbl-n<![endif]-->
+<div id="opening">
+    <div class="tbl-list">
+        <div class="tbl-bg">
+            <table cellspacing=0 cellpadding=0 width="100%" class="tb-x1">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>区域</th>
+                    <th>分拣中心</th>
+                    <th>异常类型</th>
+                    <th>运单号</th>
+                    <th>订单号</th>
+                    <th>回复状态</th>
+                    <th>商家编号</th>
+                    <th>商家名称</th>
+                    <th>发起人</th>
+                    <th>发起时间</th>
+                    <th>回复时间</th>
+                    <th>处理详情</th>
+                </tr>
+                </thead>
+                <tbody>
+                    #if($null.isNull($!popAbnormalQuery) || $null.isNull($!popAbnormalQuery.pager)
+                    || $null.isNull($!popAbnormalQuery.pager.data) || $!popAbnormalQuery.pager.data.size() == 0)
+                    <tr class="a2" style="">
+                        <td colspan="12" align="left">
+                            无数据！
+                        </td>
+                    </tr>
+                    #else
+                        #foreach($popAbnormal in $!popAbnormalQuery.pager.data)
+                        <tr class="a2" style="">
+                            <td>$velocityCount</td>
+                            <td>$!popAbnormal.orgName</td>
+                            <td>$!popAbnormal.createSiteName</td>
+                            <td>
+                                $!popAbnormal.mainTypeName
+                                #if("$!popAbnormal.subTypeName" != "")
+                                    - $!popAbnormal.subTypeName
+                                #end
+                            </td>
+                            <td><a href="http://cc.360buy.com/SiteManage/order/orderinfo.aspx?OrderId=$!popAbnormal.waybillCode" target="_blank">$!popAbnormal.waybillCode</a></td>
+                            <td>
+                                #if("$!popAbnormal.orderCode" != "")
+						$!popAbnormal.orderCode
+					#else
+                                    $!popAbnormal.waybillCode
+                                #end
+                            </td>
+                            <td>
+                                #if($!popAbnormal.abnormalStatus == 1)
+                                    未回复
+                                #elseif($!popAbnormal.abnormalStatus == 2)
+                                    <font color="blue">已回复</font>
+                                #elseif($!popAbnormal.abnormalStatus == 3)
+                                    <font color="green">已完成</font>
+                                #end
+                            </td>
+                            <td>
+                                #if("$!popAbnormal.popSupNo" != "null")
+						$!popAbnormal.popSupNo
+					#end
+                            </td>
+                            <td>
+                                #if("$!popAbnormal.popSupName" != "null")
+						$!popAbnormal.popSupName
+					#end
+                            </td>
+                            <td>$!popAbnormal.operatorName</td>
+                            <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.createTime)</td>
+                            <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.updateTime)</td>
+                            <td>
+                                <a href='#springUrl("")/popReceiveAbnormal/addOrDetail?abnormalId=$!popAbnormal.abnormalId'>
+                                    #if($!popAbnormal.abnormalStatus == 2)
+                                        处理
+                                    #else
+                                        查看
+                                    #end
+                                </a>
+                                #if("$!erpUser.userId" == "24779")
+                                    &nbsp;
+                                    <a href='javascript:void(0);' onclick="javascript:cancel($!popAbnormal.abnormalId);return false;">
+                                        取消
+                                    </a>
+                                #end
+                                </a>
+                            </td>
+                        </tr>
+                        #end
+                    #end
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+    <div class="tbl-n">
+        #pageBar("#springUrl('')/popReceiveAbnormal/list?orgCode=$!popAbnormalQuery.orgCode&createSiteCode=$!popAbnormalQuery.createSiteCode&dateType=$!popAbnormalQuery.dateType&startTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.startTime)&endTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalQuery.endTime)&mainType=$!popAbnormalQuery.mainType&subType=$!popAbnormalQuery.subType&popSupNo=$!popAbnormalQuery.popSupNo&waybillCode=$!popAbnormalQuery.waybillCode&abnormalStatus=$!popAbnormalQuery.abnormalStatus&operatorName=$!popAbnormalQuery.operatorName&orderByString=$!popAbnormalQuery.orderByString" $!popAbnormalQuery.pager.totalSize $!popAbnormalQuery.pager.pageNo $!popAbnormalQuery.pager.totalNo "pager.pageNo")
+    </div>
+</div>
+<!--opening end-->
+</div>
+</body>
+</html>

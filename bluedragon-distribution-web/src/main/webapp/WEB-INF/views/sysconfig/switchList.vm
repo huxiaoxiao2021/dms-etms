@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>系统开关设置</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+function selectInt(obj){
+return $(obj).html("<option value=''>请选择</option>");
+}
+
+
+$(document).ready(function() {
+
+
+
+
+$("#orgId").change(function(){
+selectInt("#site");
+var  parentId= this.value;
+jQuery.ajax({
+   type: "POST",
+   url: "#springUrl('')/common/getSiteByOrg",
+   data: {orgCode:parentId},
+   success: function(msg){
+   var tempStr="";
+   if(msg=='exception'){
+   Jd.alert("接口出现异常");
+   return false;
+   }
+    jQuery.each(msg,function(infoIndex,info){
+    $("#site").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+   });
+   }
+	});
+
+   });
+   
+
+	// 提交查询
+	$("#search").click(function() {
+	location.href="#springUrl('')/sysconfig/toAdd";
+	});
+	
+	
+});
+
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">系统设置</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">系统开关设置</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+      <form id="form1" name="form1" action="" method="GET">
+		<input type="hidden" id="pageNo" name="pageNo" />
+		<input type="hidden" id="pageSize" name="pageSize" />
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+			<colgroup >
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+            </colgroup>
+          <tbody>
+			<tr >
+			  <th align="right"></th>
+              <td >
+				
+			  </td>
+			  <th align="right"></th>
+              <td >
+			  </td>
+			   <th align="right"></th>
+              <td>
+			  </td>
+			   <td colspan="1"></td>
+			   <td align="left"><input id="search" type="button" value="添加" class="btn_c"/>
+			   </td>
+               <td colspan="2"></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;" class="tb-x1">
+          <thead>
+            <tr>
+			  <th>序号</th>
+			  <th>开关中文名称</th>
+			   <th>开关英文名称</th>
+              <th>数据库状态</th>
+              <th>redis状态</th>
+			  <th>创建时间</th>
+			  <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+			#if($null.isNull($!dataList) || $!dataList.size() == 0)
+				<tr class="a2" style="">
+					<td colspan="16" align="left">
+						无数据！
+                    </td>
+                </tr>
+			#else
+				#foreach($sysConfig in $!dataList)
+				<tr class="a2" style="">
+                  <td>$velocityCount</td>
+				  <td>$!sysConfig.memo</td>
+				   <td>$!sysConfig.configName</td>
+                  <td>
+					#if($!sysConfig.configContent==1)
+						<font color="green">打开</font>
+					#elseif($!sysConfig.configContent==0)
+                         <font color="blue">关闭</font>
+					#else
+                        <font color="green">数据异常</font>
+					#end
+				  </td>
+				  <td>
+				  #if($!sysConfig.redisContent==1)
+						<font color="green">打开</font>
+					#elseif($!sysConfig.redisContent==0)
+                         <font color="blue">关闭</font>
+					#else
+                        <font color="green">数据异常</font>
+					#end
+				  </td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!sysConfig.createTime)</td>
+				  <td>
+						<a href="#springUrl('/sysconfig/syncRedis?id=')$!sysConfig.configId" >同 步</a>
+						 #if($!sysConfig.redisContent==1)
+						<a href="#springUrl('/sysconfig/close?id=')$!sysConfig.configId" >关闭</a>
+						#else
+						<a href="#springUrl('/sysconfig/open?id=')$!sysConfig.configId" >打开</a>
+						#end
+                  </td>
+                </tr>
+				#end
+			#end
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

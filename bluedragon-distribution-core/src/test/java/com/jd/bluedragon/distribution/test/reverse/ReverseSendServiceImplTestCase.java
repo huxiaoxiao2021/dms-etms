@@ -1,0 +1,198 @@
+package com.jd.bluedragon.distribution.test.reverse;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Test;
+
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.reverse.domain.Product;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.utils.XmlHelper;
+
+public class ReverseSendServiceImplTestCase {
+	
+    private final Log logger = LogFactory.getLog(this.getClass());
+
+	public static void addMapWms(Map<String, String> m, String a, String b) {
+		if (m.containsKey(a)) {
+			//如果有重复包裹去重、
+			if(!m.get(a).contains(b)){
+				m.put(a, m.get(a) + "," + b);
+			}
+		} else {
+			m.put(a, b);
+		}
+	}
+	
+	public static void addMapWmsOld(Map<String, String> m, String a, String b) {
+		if (m.containsKey(a)) {
+			//如果有重复包裹去重、
+			if(!a.contains(b)){
+				m.put(a, m.get(a) + "," + b);
+			}
+		} else {
+			m.put(a, b);
+		}
+	}
+	
+	@Test
+	public void testSendAsiaWMS() {
+		ReverseSendAsiaWms send = null;
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReturnRequest><cky2>3</cky2><isInStore>1</isInStore><lossQuantity>0</lossQuantity><operateTime>2014-08-26 16:46:11</operateTime><orderId>1786592045</orderId><orgId>3</orgId><packageCodes>1786592045N1S1H110</packageCodes><productRequests><ProductRequest><productId>1092126</productId><productLoss>0</productLoss><productName>金典（GOLDEN） GD-50M 财务装订机</productName><productNum>1</productNum><productPrice>0</productPrice></ProductRequest></productRequests><sendCode>Y3011-47064-201408261640530</sendCode><storeId>80</storeId><userName>郭玉海</userName></ReturnRequest>";
+		
+		send = XmlHelper.xmlToObject(xml, ReverseSendAsiaWms.class, null);
+		send.setOrderSum(12);
+		send.setPackSum(133);
+		String messageValue = XmlHelper.toXml(send, ReverseSendAsiaWms.class);
+		
+		System.out.println(messageValue);
+	}
+	
+	@Test
+	public void testReverseSendWms() {
+
+		ReverseSendWms sendAssert = new ReverseSendWms();
+		sendAssert.setCky2(3);
+		sendAssert.setIsInStore(1);
+		sendAssert.setLossQuantity(0);
+		sendAssert.setOperateTime("2014-08-26 16:46:11");
+		sendAssert.setOrderId("1786592045");
+		sendAssert.setOrgId(3);
+		sendAssert.setPackageCodes("1786592045N1S1H110");
+		List<Product> proList = new ArrayList<Product>();
+		Product p = new Product();
+		p.setProductId("1092126");
+		p.setProductLoss("0");
+		p.setProductName("金典（GOLDEN） GD-50M 财务装订机");
+		p.setProductNum(1);
+		p.setProductPrice("12");
+		proList.add(p);
+		sendAssert.setProList(proList);
+		sendAssert.setSendCode("Y3011-47064-201408261640530");
+		sendAssert.setStoreId(80);
+		sendAssert.setUserName("郭玉海");
+		sendAssert.setType(12346);
+		sendAssert.setWaybillSign("waybillsi");
+		sendAssert.setSourceCode("1245");
+		
+		sendAssert.setReverseCode(10);
+		sendAssert.setReverseReason("打包不全");
+		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendWms.class);
+		logger.info(messageValue);
+		
+		ReverseSendWms send = new ReverseSendWms();
+		send =  (ReverseSendWms) XmlHelper.toObject(messageValue, ReverseSendWms.class);
+
+		Assert.assertEquals(null, send.getReverseCode());
+		Assert.assertEquals(null, send.getReverseReason());
+	}
+	
+	
+	@Test
+	public void testReverseSendAsiaWms() {
+
+		ReverseSendAsiaWms sendAssert = new ReverseSendAsiaWms();
+		sendAssert.setCky2(3);
+		sendAssert.setIsInStore(1);
+		sendAssert.setLossQuantity(0);
+		sendAssert.setOperateTime("2014-08-26 16:46:11");
+		sendAssert.setOrderId("1786592045");
+		sendAssert.setOrgId(3);
+		sendAssert.setPackageCodes("1786592045N1S1H110");
+		List<Product> proList = new ArrayList<Product>();
+		Product p = new Product();
+		p.setProductId("1092126");
+		p.setProductLoss("0");
+		p.setProductName("金典（GOLDEN） GD-50M 财务装订机");
+		p.setProductNum(1);
+		p.setProductPrice("12");
+		proList.add(p);
+		sendAssert.setProList(proList);
+		sendAssert.setSendCode("Y3011-47064-201408261640530");
+		sendAssert.setStoreId(80);
+		sendAssert.setUserName("郭玉海");
+		sendAssert.setType(12346);
+		sendAssert.setOrderSum(12);
+		sendAssert.setPackSum(133);
+		
+		sendAssert.setReverseCode(10);
+		sendAssert.setReverseReason("打包不全");
+		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendAsiaWms.class);
+		logger.info(messageValue);
+		
+		ReverseSendAsiaWms send = new ReverseSendAsiaWms();
+		send =  (ReverseSendAsiaWms) XmlHelper.toObject(messageValue, ReverseSendAsiaWms.class);
+
+		Assert.assertEquals(null, send.getReverseCode());
+		Assert.assertEquals(null, send.getReverseReason());
+	}
+	
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String args[]){
+		Map<String, String> m = new HashMap<String, String>();
+		Map<String, String> n = new HashMap<String, String>();
+		String a = "a";
+		String b = "b";
+		String[] as = {"1","1","2"};
+		for(String asi:as){
+			addMapWms(m, a, asi);
+			addMapWmsOld(n, a, asi);
+		}
+		for(String asi:as){
+			addMapWms(m, b, asi);
+			addMapWmsOld(n, b, asi);
+		}
+		System.out.println(m.toString());
+		System.out.println(n.toString());
+		
+//		ReverseSendAsiaWms send = new ReverseSendAsiaWms();
+		ReverseSendWms send = new ReverseSendWms();
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReturnRequest><cky2>3</cky2><isInStore>1</isInStore><lossQuantity>0</lossQuantity><operateTime>2014-08-26 16:46:11</operateTime><orderId>1786592045</orderId><orgId>3</orgId><packageCodes>1786592045N1S1H110</packageCodes><productRequests><ProductRequest><productId>1092126</productId><productLoss>0</productLoss><productName>金典（GOLDEN） GD-50M 财务装订机</productName><productNum>1</productNum><productPrice>0</productPrice></ProductRequest></productRequests><sendCode>Y3011-47064-201408261640530</sendCode><storeId>80</storeId><userName>郭玉海</userName></ReturnRequest>";
+		//send = XmlHelper.xmlToObject(xml, ReverseSendAsiaWms.class, null);
+		send.setCky2(3);
+		send.setIsInStore(1);
+		send.setLossQuantity(0);
+		send.setOperateTime("2014-08-26 16:46:11");
+		send.setOrderId("1786592045");
+		send.setOrgId(3);
+		send.setPackageCodes("1786592045N1S1H110");
+		List<Product> proList = new ArrayList<Product>();
+		Product p = new Product();
+		p.setProductId("1092126");
+		p.setProductLoss("0");
+		p.setProductName("金典（GOLDEN） GD-50M 财务装订机");
+		p.setProductNum(1);
+		p.setProductPrice("12");
+		proList.add(p);
+		send.setProList(proList);
+		send.setSendCode("Y3011-47064-201408261640530");
+		send.setStoreId(80);
+		send.setUserName("郭玉海");
+		send.setType(12346);
+		send.setWaybillSign("waybillsi");
+		send.setSourceCode("1245");
+//		send.setOrderSum(12);
+//		send.setPackSum(133);
+		
+//		send.setReverseCode(10);
+//		send.setReverseReason("打包不全");
+		String messageValue = XmlHelper.toXml(send, ReverseSendWms.class);
+		String jsonx = JsonHelper.toJson(send);
+		System.out.println(messageValue);
+		System.out.println(jsonx);
+		
+	}
+
+
+}

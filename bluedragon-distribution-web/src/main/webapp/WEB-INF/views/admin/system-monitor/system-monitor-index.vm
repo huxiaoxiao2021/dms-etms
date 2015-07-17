@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DMS REDIS 任务监控</title>
+	<link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+	<link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+	<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+	
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/admin/system-monitor/system-monitor-index.js')"></script>
+</head>
+
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+
+<div class="easyui-tabs" fit="true">
+    <div title="Redis" style="padding:0px">
+		<div class="easyui-layout" fit="true">
+            <div data-options="region:'center',title:''">
+				<div id="redisTable-tb" style="padding:3px;height:auto">
+					Queue：<input type="text" id="queue" name="queue"/>
+        			<a id="searchBtn" href="javascript:void(0)" title="搜索" class="easyui-linkbutton" iconCls="icon-search" plain="true"></a>
+					<a id="addBtn" href="javascript:void(0)" title="添加" class="easyui-linkbutton" iconCls="icon-add" plain="true"></a>  
+					<a id="removeBtn" href="javascript:void(0)" title="移除" class="easyui-linkbutton" iconCls="icon-remove" plain="true"></a>
+					<a id="sumBtn" href="javascript:void(0)" title="求和" class="easyui-linkbutton" iconCls="icon-sum" plain="true"></a>
+                    <a id="reloadBtn" href="javascript:void(0)" title="刷新" class="easyui-linkbutton" iconCls="icon-reload" plain="true"></a>  
+    			</div>
+    			<table id="redisTable" ></table>
+			</div>
+			<div data-options="region:'east',split:true" title="查询条件" style="width:320px;">
+				<div class="easyui-panel" title="通用查询" data-options="iconCls:'icon-search',collapsible:true" style="padding:10px;height:200px;">
+					<form id="form1" method="post">
+					 <table>
+                        <tr>
+                            <td>qName：</td>
+                            <td>
+								<textarea id="qName" name="qName" style="width:200px;height:50px;"></textarea>
+							</td>  
+                        </tr>
+                        <tr>
+                            <td>qSign：</td>
+                            <td><input type="text" id="qSign" name="qSign" style="width:200px;"/></td>  
+                        </tr>  
+                        <tr>  
+                            <td>qSize：</td>  
+                            <td><input type="text" id="qSize" name="qSize" style="width:200px;" class="easyui-numberbox"/></td>  
+                        </tr>
+                    </table></form>
+					<div style="text-align:center;padding:5px">
+						<a id="queryBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search">Query</a>  
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" onclick="$('#form1').form('clear');">Clear</a>  
+                    </div>
+				</div>
+				<div class="easyui-panel" title="选择查询" data-options="iconCls:'icon-search',collapsible:true">
+					<table id="redisQueueTable" style="width:auto;height:220px"></table>
+					<div style="text-align:center;padding:5px;">
+						<a id="selectQueryBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search">Query</a>  
+						<a id="move2DBBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search">Move2DB</a>  
+                    </div>
+                </div>
+			</div>
+        </div>
+    </div>
+    <div title="Task" style="padding:10px">  
+		
+    </div>  
+    <div title="Help" data-options="iconCls:'icon-help',closable:true" style="padding:10px">  
+        This is the help content.
+    </div>
+</div>
+
+<div id="redisDetailDlg" class="easyui-dialog" title="Redis Queue Details" style="width:500px;height:300px;padding:0px" 
+	data-options="iconCls:'icon-tip',resizable:true,closed:true,cache:false">
+	<div class="easyui-layout" fit="true">
+		<div data-options="region:'center'">
+			<div id="redisDetailTable-tb" style="padding:3px;height:auto">
+        		Queue：<input type="text" id="queueKey" name="queueKey" style="width:200px;"/>
+        		Page：<input type="text" id="currentPage" name="currentPage" value="1" style="width:40px;" class="easyui-numberbox"/>
+        		<a id="queryDetailBtn" href="javascript:void(0)" title="刷新" class="easyui-linkbutton" iconCls="icon-reload" plain="true"></a>
+			</div>
+			<table id="redisDetailTable" ></table>
+        </div>
+		<div data-options="region:'south',split:true" style="height:80px;padding:3px">
+			<textarea id="detailData" name="detailData" style="width:99%;height:100%;"></textarea>
+		</div>
+	</div>
+	
+</div>  
+</body>
+</html>

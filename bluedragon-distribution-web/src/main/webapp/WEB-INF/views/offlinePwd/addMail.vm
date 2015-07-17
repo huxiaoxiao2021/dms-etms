@@ -1,0 +1,102 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>离线密码管理</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+
+
+
+
+function add(){
+		var myReg = /^\w{2,}@\w+.[a-zA-Z]+$/;
+		var configName=$("#configName").val();
+		var configId=$("#configId").val();
+        if (!myReg.test(configName)) {
+            alert("邮箱格式不正确，请重新输入！");
+            $('#configName').focus();
+            return false;
+        }
+	$.ajax({
+               type: "POST",
+               url: "#springUrl('')/offlinePwd/checkMail",
+               data: {email:configName,configId:configId},
+               success: function(msg){
+               var tempStr="";
+               if(msg==0){//
+               	document.form1.action="#springUrl('')/offlinePwd/save";
+                document.form1.method="post";
+                document.form1.submit();
+                $("input[type='button']").attr("disabled","disabled")
+               	}else{
+				alert("操作失败！邮箱名已经存在");
+				}
+               }
+            }); 	
+		
+		
+
+}
+
+
+$(function(){
+$("#form1").validateInit();
+
+});
+
+
+function back(){
+location.href="#springUrl('')/offlinePwd/list";
+}
+
+</script>
+<body>
+<div id="breadcrumb">
+  <p><a href="#">离线密码管理</a>&nbsp;&gt;&nbsp;<a href="#">编辑收件人</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening" class="noborder">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <form id="form1" name="form1" action="" method="post"  >
+		 <input type="hidden" id="configId" name="configId" value="$!sysConfig.configId">
+          <table width="100%" border="0" class="tb-x2" >
+			<tr>
+              <td align="right" class="tb_h1"> 邮箱<span style="color:red">*</span>：</td>
+              <td><input type="text" name="configName" id="configName" value="$!sysConfig.configName" /></td>
+			  <td></td><td></td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1">分拣中心：</td>
+              <td >
+              <input type="text" name="configContent" id="configContent" value="$!sysConfig.configContent" >
+              </td>
+			  <td></td><td></td>
+            </tr>
+            <tr>
+              <th></th>
+              <th colspan="3" align="left"><input name="search" id="search" value="保存" class="btn_c" type="button" onclick="add();">&nbsp;&nbsp;
+                <input name="search" id="search" value="返回" class="btn_c" type="button" onclick="back();"></th>
+            </tr>
+          </table>
+		  
+		  <INPUT TYPE="hidden" name="configType" value="-1">
+        </form>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  </div>
+  <!--opening end-->
+</div>
+
+</body>
+</html>

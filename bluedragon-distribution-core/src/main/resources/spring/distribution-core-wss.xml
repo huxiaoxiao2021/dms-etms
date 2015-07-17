@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- 运单服务缓存 -->
+	<bean id="cacheUtils" class="com.jd.common.cached.CacheUtils">
+		<property name="cacheServerAddress">
+			<list>
+				<value>${memcached.address}</value>
+			</list>
+		</property>
+	</bean>
+
+<!-- 	<bean id="waybillCacheProxy" class="com.jd.etms.cache.CachedWaybillWS">
+		<property name="cacheUtils" ref="cacheUtils"></property>
+	</bean>
+
+	<bean id="waybillQueryCacheProxy" class="com.jd.etms.cache.CachedWaybillQueryWS">
+		<property name="cacheUtils" ref="cacheUtils"></property>
+	</bean> -->
+
+	
+	<bean id="waybillcontextInfo" class="com.jd.wss.context.ContextInfo">
+	    <property name="user" value="${user}"/>
+	    <property name="token" value="${waybill.token}"/>
+	    <property name="ownSign" value="${wss.ownSign}" />
+	</bean>
+	
+	<bean id="waybillreadcontextInfo" class="com.jd.wss.context.ContextInfo">
+	    <property name="user" value="${user}"/>
+	    <property name="token" value="${waybill.token}"/>
+	    <property name="ownSign" value="${wssread.ownSign}" />
+	</bean>
+
+	<bean id="basecontextInfo" class="com.jd.wss.context.ContextInfo">
+	    <property name="user" value="${user}"/>
+	    <property name="token" value="${base.token}"/>
+	    <property name="ownSign" value="${wss.ownSign}" />
+	</bean>
+    
+    <bean id="ws3plcontextInfo" class="com.jd.wss.context.ContextInfo">
+	    <property name="user" value="${user}"/>
+	    <property name="token" value="${3pl_ws.token}"/>
+	    <property name="ownSign" value="${wss.ownSign}" />
+	</bean>
+    
+    <bean id="financecontextInfo" class="com.jd.wss.context.ContextInfo">
+	    <property name="user" value="${user}"/>
+	    <property name="token" value="${finance.token}"/>
+	    <property name="ownSign" value="${wss.ownSign}" />
+	</bean>
+	
+	<bean id="etmsWscontextInfo" class="com.jd.wss.context.ContextInfo">
+	    <property name="user" value="${user}"/>
+	    <property name="token" value="${etmsWs.token}"/>
+	    <property name="ownSign" value="${wss.ownSign}" />
+	</bean>
+    
+	<!-- 预分配wss客服端调用 -->
+<!-- 	<bean id="sendWaybillInfoProxy" class="com.jd.wss.rpc.factory.ClientProxyFactory">
+		<property name="contextInfo" ref="ws3plcontextInfo"/>
+		<property name="testUrl" value="http://192.168.200.204:9191/etms-erp-ws/hessian/sendWaybillService"/>
+		<property name="clientApp" value="${proxy.clientApp}" />
+		<property name="centerDomain" value="${centerDomain}"/>
+		<property name="protocol" value="${protocols}" />
+		<property name="version" value="${sendWaybillInfoService.version}" />
+		<property name="serviceInterface"
+			value="com.jd.etms.erp.ws.SendWaybillInfoServiceInterface" /> 
+	</bean>-->
+
+	<!-- 获取发货交接单号客户端 -->
+ 	<!-- <bean id="supportServiceProxy" class="com.jd.wss.rpc.factory.ClientProxyFactory">
+		<property name="contextInfo" ref="ws3plcontextInfo"/>
+		<property name="clientApp" value="${proxy.clientApp}" />
+		<property name="centerDomain" value="${centerDomain}"/>
+		<property name="protocol" value="${protocols}" />
+		<property name="version" value="${supportService.version}" />
+		<property name="serviceInterface" value="com.jd.etms.erp.ws.SupportServiceInterface" />
+	</bean>
+	
+	<bean id="waybillData3PLServiceWS" class="com.jd.wss.rpc.factory.ClientProxyFactory">
+		<property name="contextInfo" ref="financecontextInfo"/>
+		<property name="testUrl" value="http://10.12.148.41:8080/etms-finance-settlement-web/hessian/waybillService"/>
+		<property name="clientApp" value="${proxy.clientApp}" />
+		<property name="centerDomain" value="${centerDomain}"/>
+		<property name="protocol" value="${protocols}" />
+		<property name="version" value="${waybillData3PLServiceWS.version}" />
+		<property name="serviceInterface" value="com.jd.etms.finance.wss.WaybillDataServiceWS" />
+	</bean>
+
+   <bean id="bizServiceWS" class="com.jd.wss.rpc.factory.ClientProxyFactory">
+		<property name="contextInfo" ref="etmsWscontextInfo"/>
+		<property name="testUrl" value="http://10.12.148.41:8080/etms-finance-settlement-web/hessian/waybillService"/>
+		<property name="clientApp" value="${proxy.clientApp}" />
+		<property name="centerDomain" value="${centerDomain}"/>
+		<property name="protocol" value="${protocols}" />
+		<property name="version" value="${BizServiceInterface.version}" />
+		<property name="serviceInterface" value="com.jd.etms.erp.ws.BizServiceInterface" />
+	</bean> -->
+</beans>

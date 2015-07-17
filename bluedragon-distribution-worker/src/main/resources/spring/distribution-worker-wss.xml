@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+    http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	
+	<context:property-placeholder location="classpath:configured/mqsender.properties" ignore-unresolvable="false"/>
+	
+	<bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${wss.dataSource.driverClassName}"/>
+		<property name="url" value="${wss.dataSource.new.url}"/>
+		<property name="username" value="${wss.dataSource.username}"/>
+		<property name="password" value="${wss.dataSource.password}"/>
+		<property name="defaultAutoCommit" value="${wss.dataSource.defaultAutoCommit}" />
+		<property name="maxActive" value="${wss.dataSource.maxActive}" />
+		<property name="maxIdle" value="${wss.dataSource.maxIdle}" />
+		<property name="maxWait" value="${wss.dataSource.maxWait}" />
+		<property name="initialSize" value="${wss.dataSource.initialSize}" />
+		<property name="minIdle" value="${wss.dataSource.minIdle}" />
+		<property name="minEvictableIdleTimeMillis" value="${wss.dataSource.minEvictableIdleTimeMillis}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${wss.dataSource.timeBetweenEvictionRunsMillis}" />
+	</bean>
+	
+</beans>

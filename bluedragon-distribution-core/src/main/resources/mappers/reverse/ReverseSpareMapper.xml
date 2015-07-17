@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao" >
+
+	<resultMap id="reverseSpare" type="com.jd.bluedragon.distribution.reverse.domain.ReverseSpare" >
+		<result column="system_id" property="systemId" />
+		<result column="spare_code" property="spareCode" />
+		<result column="send_code" property="sendCode" />
+		<result column="waybill_code" property="waybillCode" />
+        <result column="product_id" property="productId" />
+        <result column="product_code" property="productCode" />
+		<result column="product_name" property="productName" />
+		<result column="arrt_code1" property="arrtCode1" />
+		<result column="arrt_desc1" property="arrtDesc1" />
+		<result column="arrt_code2" property="arrtCode2" />
+		<result column="arrt_desc2" property="arrtDesc2" />
+		<result column="arrt_code3" property="arrtCode3" />
+		<result column="arrt_desc3" property="arrtDesc3" />
+		<result column="arrt_code4" property="arrtCode4" />
+		<result column="arrt_desc4" property="arrtDesc4" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+		<result column="product_price" property="productPrice" />
+		<result column="spare_tran_code"  property="spareTranCode" />
+	</resultMap>
+	
+	<insert id="add" parameterType="reverseSpare" >
+		INSERT INTO reverse_spare (
+			system_id, spare_code, send_code, waybill_code, product_id,
+		    product_code, product_name, arrt_code1, arrt_desc1,
+            arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
+            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price, spare_tran_code)
+		VALUES (
+			SEQ_REVERSE_SPARE.NEXTVAL, 
+			#{spareCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
+			#{waybillCode,jdbcType=VARCHAR},#{productId,jdbcType=INTEGER},
+			#{productCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR},
+			#{arrtCode1,jdbcType=INTEGER}, #{arrtDesc1,jdbcType=VARCHAR},
+			#{arrtCode2,jdbcType=INTEGER}, #{arrtDesc2,jdbcType=VARCHAR},
+			#{arrtCode3,jdbcType=INTEGER}, #{arrtDesc3,jdbcType=VARCHAR},
+			#{arrtCode4,jdbcType=INTEGER}, #{arrtDesc4,jdbcType=VARCHAR},
+			SYSDATE, SYSDATE, 1, #{productPrice,jdbcType=DOUBLE}, #{spareTranCode,jdbcType=VARCHAR})
+	</insert>
+	
+	<select id="queryBySpareCode" resultMap="reverseSpare" parameterType="String" >
+		SELECT system_id, spare_code, send_code, waybill_code, product_id,
+		    product_code, product_name, arrt_code1, arrt_desc1,
+            arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
+            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price
+		FROM reverse_spare
+		WHERE yn = 1 AND spare_code = #{spareCode}
+			AND ROWNUM <![CDATA[<=]]> 1
+	</select>
+	
+	<select id="queryByWayBillCode" resultMap="reverseSpare" parameterType="reverseSpare" >
+		SELECT system_id, spare_code, send_code, waybill_code, product_id,
+		    product_code, product_name, arrt_code1, arrt_desc1,
+            arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
+            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price,spare_tran_code
+		FROM reverse_spare
+		WHERE yn = 1 AND waybill_code = #{waybillCode,jdbcType=VARCHAR} AND send_code = #{sendCode,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="findByWayBillCode" resultMap="reverseSpare" parameterType="reverseSpare" >
+		SELECT system_id, spare_code, send_code, waybill_code, product_id,
+		    product_code, product_name, arrt_code1, arrt_desc1,
+            arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
+            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price,spare_tran_code
+		FROM reverse_spare
+		WHERE yn = 1 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="update"  parameterType="reverseSpare" >
+		UPDATE reverse_spare
+		<set>
+            <if test="sendCode != null">
+                send_code = #{sendCode,jdbcType=VARCHAR},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=INTEGER},
+            </if>
+    		<if test="productCode != null and productCode != ''">
+                product_code = #{productCode,jdbcType=VARCHAR},
+            </if>
+            <if test="productName != null and productName != ''">
+                product_name = #{productName,jdbcType=VARCHAR},
+            </if>
+            <if test="productPrice != null">
+                product_price = #{productPrice,jdbcType=DOUBLE},
+            </if>
+            <if test="arrtCode1 != null">
+            	arrt_code1 = #{arrtCode1,jdbcType=INTEGER},
+            </if>
+            <if test="arrtDesc1 != null">
+	            arrt_desc1 = #{arrtDesc1,jdbcType=VARCHAR},
+            </if>
+            <if test="arrtCode2 != null">
+            	arrt_code2 = #{arrtCode2,jdbcType=INTEGER},
+            </if>
+            <if test="arrtDesc2 != null">
+	            arrt_desc2 = #{arrtDesc2,jdbcType=VARCHAR},
+            </if>
+            <if test="arrtCode3 != null">
+            	arrt_code3 = #{arrtCode3,jdbcType=INTEGER},
+            </if>
+            <if test="arrtDesc3 != null">
+	            arrt_desc3 = #{arrtDesc3,jdbcType=VARCHAR},
+            </if>
+            <if test="arrtCode4 != null">
+            	arrt_code4 = #{arrtCode4,jdbcType=INTEGER},
+            </if>
+            <if test="arrtDesc4 != null">
+	            arrt_desc4 = #{arrtDesc4,jdbcType=VARCHAR},
+            </if>
+            <if test="yn != null">
+                yn = #{yn,jdbcType=INTEGER},
+            </if>
+            <if test="spareTranCode != null">
+				spare_tran_code = #{spareTranCode,jdbcType=VARCHAR},
+			</if>
+            update_time = SYSDATE
+        </set>
+        <where>
+			<choose>
+				<when test="systemId != null and systemId != 0">
+					and system_id = #{systemId,jdbcType=INTEGER}
+				</when>
+				<otherwise>
+					<if test="spareCode != null and spareCode != ''">
+						and spare_code = #{spareCode,jdbcType=VARCHAR} 
+					</if>
+				</otherwise>
+			</choose>
+			and yn = 1
+		</where>
+	</update>
+	
+		<select id="queryBySpareTranCode" resultMap="reverseSpare" parameterType="reverseSpare" >
+		SELECT system_id, spare_code, send_code, waybill_code, product_id,
+		    product_code, product_name, arrt_code1, arrt_desc1,
+            arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
+            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price,spare_tran_code
+		FROM reverse_spare
+		WHERE yn = 1 AND spare_tran_code = #{spareTranCode,jdbcType=VARCHAR}
+	</select>
+	
+</mapper>

@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>工具管理</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">工具管理</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+            <tr>
+              <dd><a href="#springUrl('/sysconfig/list')">规则配置</a></dd>
+            </tr>
+             <tr>
+              <dd><a href="#springUrl('/admin/system-monitor')">redis监控信息</a></dd>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+  
+  <div class="m">
+    <div class="tbl-n">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+            <tr>
+              <dd><a href="#springUrl('/admin/redis-monitor')">redis缓存查询</a></dd>
+            </tr>
+             <tr>
+              <dd><a href="#springUrl('/admin/worker-monitor')">worker失败查询</a></dd>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

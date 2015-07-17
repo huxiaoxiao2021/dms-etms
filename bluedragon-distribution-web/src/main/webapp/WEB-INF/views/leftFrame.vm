@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')" media="all">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+</head>
+<body id="leftframe">
+<div id="lsidebar">
+  <dl>
+	<dt><a href="#" class="curr">平台订单</a></dt>
+	<!-- 
+	<dd><a href="#springUrl('/popReceive/goListPage')" target="mainFrame">已打印未收货处理</a></dd>
+	-->
+	<dd><a href="#springUrl('/popReceiveAbnormal/goListPage')" target="mainFrame">平台差异处理</a></dd>
+	<dd><a href="#springUrl('/popQueueManager/query')" target="mainFrame">平台排队号查询</a></dd>
+	<dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
+	<dt><a href="#" class="curr">分拣中心相关查询</a></dt>
+	<dd><a href="http://waybill.etms.360buy.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
+    <dd><a href="#springUrl('/crossSorting')" target="mainFrame">跨分拣校验规则配置</a></dd>
+    <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
+	<dd><a href="#springUrl('/operateLog/goListPage1')" target="mainFrame">分拣中心操作日志</a></dd>
+	<dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
+	<dt><a href="#" class="curr">工具</a></dt>
+	<dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
+	<dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>
+	<dd><a href="/tips/waybill" target="mainFrame">运单判断</a></dd>
+	<dd><a href="/turBoxManager/query" target="mainFrame">收发空箱查询</a></dd>
+	<dd><a href="/tips/repail_waybillSend" target="mainFrame">全国邮政数据重新下发</a></dd>
+	<dt><a href="#" class="curr">FAQ</a></dt>
+	<dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
+	<dt><a href="#" class="curr">离线管理</a></dt>
+	<dd><a href="#springUrl('/offlinePwd/list')" target="mainFrame">离线密码管理</a></dd>
+	<dt><a href="#" class="curr">订单</a></dt>
+	<dd><a href="#springUrl('/kuGuan/goListPage')" target="mainFrame">库管单号查询</a></dd>
+  </dl>
+</div>
+<div id="control" class="control" jQuery1328083232241="11"></div>
+
+<script type="text/javascript">
+    (function() {
+        $('dd').hide();
+        showMenu($("#lsidebar .curr"));
+        $("#lsidebar dt a").bind("click", function() {
+            hideMenu($("#lsidebar .curr"));
+            showMenu($(this));
+        });
+
+        $("#control").bind("click", function() {
+            parent.document.getElementsByTagName('frameset')[1].cols = (parent.document.getElementsByTagName('frameset')[1].cols == '10,*') ? '189,*' : '10,*';
+            document.getElementById('lsidebar').style.display = (document.getElementById('lsidebar').style.display == 'none') ? '' : 'none';
+            document.getElementById('control').className = (document.getElementById('control').className == 'control') ? 'control switch' : 'control';
+        });
+    })()
+
+    function showMenu(obj) {
+        obj.addClass('curr');
+        obj.parent().nextUntil('dt').slideDown('fast');
+    }
+    function hideMenu(obj) {
+        obj.removeClass('curr');
+        obj.parent().nextUntil('dt').slideUp('fast');
+    }
+
+</script>
+
+</body>
+</html>

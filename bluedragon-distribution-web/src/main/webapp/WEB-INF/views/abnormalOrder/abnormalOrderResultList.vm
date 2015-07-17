@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>数据监控配置</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#return").click(function() {
+		location.href = "#springUrl('/abnormalorder/list')";
+	});
+});	
+</script>
+
+<body onload=>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">数据监控配置</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">配置浏览</a></p>  
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content"> 
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <table id="waybillTab" border="0" cellpadding="0"  width="100%" cellspacing="0" class="tb-x1">
+          <tbody>
+          	<tr>
+				<th>运单号</th>
+				<th>操作状态</th>
+			</tr>
+			#foreach($response in $!responses)
+			<tr>
+				<td align="right">$!response.orderId</td>
+				<td align="right">$!response.memo</td>
+			</tr>
+			#end
+          </tbody>
+        </table>
+        <input id="return" type="button"  align="right" value="返回" class="btn_c"/>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.jd.bluedragon</groupId>
+		<artifactId>bluedragon-distribution</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<artifactId>bluedragon-distribution-core</artifactId>
+	<name>bluedragon-distribution-core</name>
+	<url>http://bluedragon.360buy.com</url>
+	<packaging>jar</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+		<slf4j.version>1.6.4</slf4j.version>
+		<aspectj.version>1.6.11</aspectj.version>
+	</properties>
+
+	<dependencies>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>14.0.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>3.1</version>
+		</dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>bluedragon-distribution-sdk</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>bluedragon-distribution-proxy</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>bluedragon-distribution-saf</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.etms.waybill</groupId>
+			<artifactId>etms-waybill-agent</artifactId>
+			<version>2.0-SNAPSHOT</version>
+		</dependency>
+		 
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.scannotation</groupId>
+			<artifactId>scannotation</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.6.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.perf4j</groupId>
+			<artifactId>perf4j</artifactId>
+			<version>0.9.16</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ojdbc6</groupId>
+			<artifactId>ojdbc6</artifactId>
+			<version>11.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>dbs</artifactId>
+		</dependency>
+
+		<!-- ws -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.5</version>
+		</dependency>
+		
+		<dependency> 
+    		<groupId>com.jd.etms.3pl</groupId> 
+    		<artifactId>epartner-jobnotrace</artifactId> 
+    		<version>1.2-SNAPSHOT</version> 
+		</dependency>
+
+		<dependency>
+    		<groupId>com.jd.etms.3pl</groupId>
+    		<artifactId>etms-epartner</artifactId>
+    		<version>1.1-SNAPSHOT</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>commons-jexl</groupId>
+			<artifactId>commons-jexl</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<!-- ws -->
+
+		<dependency>
+			<groupId>com.jd.jq</groupId>
+			<artifactId>poll-client</artifactId>
+			<version>1.3.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-aop</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-lang</groupId>
+					<artifactId>commons-lang</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-api</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-databinding-jaxb</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-bindings-soap</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>wss3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<version>2.2.2.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jackson-provider</artifactId>
+			<version>2.2.2.GA</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jd.common</groupId>
+			<artifactId>jd-common-cached</artifactId>
+			<version>1.1.2-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-lang</groupId>
+					<artifactId>commons-lang</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.common</groupId>
+			<artifactId>jd-common-util</artifactId>
+			<version>1.1.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-lang</groupId>
+					<artifactId>commons-lang</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-codec</groupId>
+					<artifactId>commons-codec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-dbcp</groupId>
+					<artifactId>commons-dbcp</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.oracle</groupId>
+					<artifactId>ojdbc14</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.common</groupId>
+			<artifactId>jd-common-ws</artifactId>
+			<version>1.1.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.common</groupId>
+					<artifactId>jd-common-util</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>spy</groupId>
+			<artifactId>memcached</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>saf</artifactId>
+			<version>1.0.9</version>
+		</dependency>
+		
+		<!--<dependency>	
+			<groupId>com.jd.etms</groupId>	
+			<artifactId>etms-dbs-base-cache</artifactId>	
+			<version>1.6-SNAPSHOT</version>	
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>saf</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>com.jd.etms</groupId>
+			<artifactId>etms-dbs-base-client</artifactId>
+			<version>1.9.3-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jd.etms.preseparate</groupId>
+			<artifactId>preseparate-saf-client</artifactId>
+		    <version>1.1.6-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.etms.message</groupId>
+			<artifactId>message-service</artifactId>
+			<version>1.0.3-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>saf</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jd.etms.message</groupId>
+			<artifactId>message-client</artifactId>
+			<version>2.1.3-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>saf</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!--jsf  -->
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>jsf</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		
+		<dependency>	
+		<groupId>com.jd.jq</groupId>
+	    <artifactId>JQJavaClient</artifactId>
+	    <version>0.0.9</version>
+	    </dependency>
+		
+		<dependency>
+            <groupId>com.jd.msg.sender.client</groupId>
+            <artifactId>msg-sender-client-service</artifactId>
+            <version>1.0.0</version>
+		</dependency>
+
+		<!-- Excel导出 -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.7</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.7</version>
+		</dependency>
+		<dependency>
+            <groupId>order-ws-client</groupId>
+            <artifactId>order-ws-client</artifactId>
+			<version>2.1.11</version>
+        </dependency>
+		
+		<dependency>
+            <groupId>com.jd.ump</groupId>
+            <artifactId>profiler</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        
+		<dependency>
+               <groupId>com.jd.ump</groupId>
+               <artifactId>jannotation</artifactId>
+               <version>2.0.0</version>
+    	</dependency>
+    	
+    	<dependency>
+			<groupId>com.jd.redis</groupId>
+			<artifactId>jd-redis</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+    	
+		<dependency>
+			<groupId>com.jd.etms</groupId>
+			<artifactId>tbschedule-redis</artifactId>
+			<version>1.4-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+    	<dependency>
+        	<groupId>com.jd.packExchange</groupId>
+			<artifactId>wms-packExchange-domain</artifactId>
+       		<version>0.0.1-SNAPSHOT</version>
+        </dependency>
+	
+		<dependency>
+			<groupId>com.jd.bk.common</groupId>
+			<artifactId>jd-bk-common-ws</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>jackson-all</groupId>
+					<artifactId>jackson-all</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+   		 	<groupId>com.jd.etms.framework</groupId>
+   		 	<artifactId>framework-utils</artifactId>
+    		<version>1.0.1-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.jd.etms.erp</groupId>
+            <artifactId>etms-erp-client</artifactId>
+            <version>1.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jd.etms.receive</groupId>
+            <artifactId>etms-receive-api</artifactId>
+            <version>1.1.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jd.etms.vehicle.manager.interface</groupId>
+            <artifactId>etms-vehicle-interface</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+		<dependency>
+		    <groupId>iwms-app-export</groupId>
+		    <artifactId>iwms-app-export</artifactId>
+		    <version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.etms.vos</groupId>
+			<artifactId>etms-vos-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+            <groupId>com.jd.etms.finance</groupId>
+            <artifactId>etms-finance-settlement-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+		<dependency>
+			<groupId>com.jd.warestock</groupId>
+			<artifactId>warestock-export</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.dos</groupId>
+			<artifactId>dos-area-contract</artifactId>
+			<version>0.0.9-SNAPSHOT</version>
+		</dependency>
+    </dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+
+
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-javac</artifactId>
+						<version>1.8</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+                    <!--
+                    <testClassesDirectory>${project.build.directory}/classes</testClassesDirectory>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>${project.basedir}/src/test/resources</additionalClasspathElement>
+                        <additionalClasspathElement>${project.basedir/src/main/resources</additionalClasspathElement>
+                    </additionalClasspathElements>
+                    -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

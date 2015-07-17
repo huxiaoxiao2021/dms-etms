@@ -1,0 +1,173 @@
+[
+    {
+        "table_name": "task_waybill",
+        "task_type_list": [
+            {
+                "task_type": 9999
+            },
+            {
+                "task_type": 6667
+            }
+        ]
+    },
+    {
+        "table_name": "task_reverse",
+        "task_type_list": [
+            {
+                "task_type": 3100
+            },
+            {
+                "task_type": 3300
+            },
+            {
+                "task_type": 3340
+            }
+        ]
+    },
+    {
+        "table_name": "task_sorting",
+        "task_type_list": [
+            {
+                "task_type": 1200
+            },
+            {
+                "task_type": 1210
+            },
+            {
+                "task_type": 1220
+            }
+        ]
+    },
+    {
+        "table_name": "task_sorting_ec",
+        "task_type_list": [
+            {
+                "task_type": 1240
+            }
+        ]
+    },
+    {
+        "table_name": "task_pop",
+        "task_type_list": [
+            {
+                "task_type": 1030
+            },
+            {
+                "task_type": 6666
+            }
+        ]
+    },
+    {
+        "table_name": "task_boundary",
+        "task_type_list": [
+            {
+                "task_type": 1050
+            }
+        ]
+    },
+    {
+        "table_name": "task_send",
+        "task_type_list": [
+            {
+                "task_type": 1400
+            },
+            {
+                "task_type": 1300
+            },
+            {
+                "task_type": 1410
+            },
+            {
+                "task_type": 1310
+            },
+            {
+                "task_type": 3200
+            }
+        ]
+    },
+    {
+        "table_name": "task_inspection",
+        "task_type_list": [
+            {
+                "task_type": 1110
+            },
+            {
+                "task_type": 1130
+            },
+            {
+                "task_type": 1150
+            },
+            {
+                "task_type": 1120
+            },
+            {
+                "task_type": 1140
+            },
+            {
+                "task_type": 1600
+            },
+            {
+                "task_type": 1601
+            }
+        ]
+    },
+    {
+        "table_name": "task_pda",
+        "task_type_list": [
+            {
+                "task_type": 1700
+            }
+        ]
+    },
+    {
+        "table_name": "task_receive_pickup",
+        "task_type_list": [
+            {
+                "task_type": 2110
+            }
+        ]
+    },
+    {
+        "table_name": "task_receive_receive",
+        "task_type_list": [
+            {
+                "task_type": 2120
+            }
+        ]
+    },
+    {
+        "table_name": "task_receive_exception",
+        "task_type_list": [
+            {
+                "task_type": 2130
+            }
+        ]
+    },
+    {
+        "table_name": "task_offline",
+        "task_type_list": [
+            {
+                "task_type": 1800
+            }
+        ]
+    },
+    {
+        "table_name": "task_handover",
+        "task_type_list": [
+            {
+                "task_type": 7778
+            },
+            {
+                "task_type": 7777
+            }
+        ]
+    },
+    {
+        "table_name": "task_weight",
+        "task_type_list": [
+            {
+                "task_type": 1160
+            }
+        ]
+    }
+]

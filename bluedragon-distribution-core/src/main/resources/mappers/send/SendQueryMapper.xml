@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.send.dao.SendQueryDao">
+	<resultMap id="send_query_result" type="com.jd.bluedragon.distribution.send.domain.SendQuery">
+		<id column="ID" property="id" />
+		<result column="SEND_CODE" property="sendCode" />
+		<result column="CREATE_USER" property="createUserRealName" />
+		<result column="CREATE_SITE_CODE" property="createSiteCode" />
+		<result column="CREATE_USER_CODE" property="createUserCode" />
+		<result column="UPDATE_USER" property="updateUserRealName" />
+		<result column="UPDATE_USER_CODE" property="updateUserCode" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_TIME" property="updateTime" />
+		<result column="YN" property="yn" />
+	</resultMap>
+
+	
+	<select id="queryBySendCode" parameterType="java.lang.String" resultMap="send_query_result">
+      SELECT ID, SEND_CODE, CREATE_SITE_CODE, CREATE_USER, CREATE_USER_CODE, UPDATE_USER, UPDATE_USER_CODE, CREATE_TIME, UPDATE_TIME, YN
+        FROM SEND_QUERY
+		where SEND_CODE= #{sendMId,jdbcType=VARCHAR}
+	</select>
+	
+
+
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.send.domain.SendQuery">
+		INSERT INTO SEND_QUERY
+            (ID
+            , SEND_CODE
+            , CREATE_SITE_CODE
+            , CREATE_USER
+            , CREATE_USER_CODE
+            , UPDATE_USER
+            , UPDATE_USER_CODE
+            , CREATE_TIME
+            , UPDATE_TIME
+            , YN)
+        VALUES(SEQ_SEND_D.NEXTVAL
+        , #{sendCode,jdbcType=VARCHAR}
+        , #{createSiteCode,jdbcType=INTEGER}
+        , #{createUserRealName,jdbcType=VARCHAR}
+        , #{createUserCode,jdbcType=INTEGER}
+        , #{updateUserRealName,jdbcType=VARCHAR}
+        , #{updateUserCode,jdbcType=INTEGER}
+        , to_date(to_char(#{createTime,jdbcType=TIMESTAMP},'yyyy-MM-dd hh24:mi:ss'),'yyyy-MM-dd hh24:mi:ss')
+        , to_date(to_char(#{updateTime,jdbcType=TIMESTAMP},'yyyy-MM-dd hh24:mi:ss'),'yyyy-MM-dd hh24:mi:ss')
+        , #{yn,jdbcType=INTEGER})
+	</insert>
+	
+
+</mapper>

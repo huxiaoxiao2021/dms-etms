@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.batch.dao.BatchInfoDao" >
+
+	<resultMap id="batchInfo" type="com.jd.bluedragon.distribution.batch.domain.BatchInfo" >
+		<result column="id" property="id" />
+		<result column="batch_code" property="batchCode" />
+		<result column="create_site_code" property="createSiteCode" />
+		<result column="create_user" property="createUser" />
+		<result column="create_user_code" property="createUserCode" />
+		<result column="update_user_code" property="updateUserCode" />
+		<result column="update_user" property="updateUser" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+		
+	</resultMap>
+	
+	<insert id="add" parameterType="batchInfo" >
+		INSERT INTO batchinfo (
+			id, batch_code, create_site_code, create_user, create_user_code,
+			update_user_code, update_user, create_time, update_time,
+			yn)
+		VALUES (
+			SEQ_BATCHINFO.NEXTVAL, #{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
+			#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
+			#{updateUserCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
+			SYSDATE
+			, to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			,1)
+	</insert>
+
+    <select id="findMaxCreateTimeBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
+		SELECT id, batch_code, create_site_code, create_user, create_user_code,
+			update_user_code, update_user, create_time, update_time,yn
+		FROM batchinfo WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND ROWNUM <![CDATA[<=]]> 1
+		AND yn = 1
+		AND create_time = (SELECT MAX (create_time)
+		                    FROM batchinfo
+	                    	WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		                    AND yn = 1)
+	</select>
+
+	<select id="findBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
+		SELECT batch_code, create_site_code, create_time, update_time
+		FROM batchinfo
+		WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND ROWNUM <![CDATA[<=]]> 1
+		and update_time is null
+		AND yn = 1
+	</select>
+
+    <select id="findCurrent" resultMap="batchInfo" parameterType="java.util.Map" >
+        SELECT batch_code, create_site_code, create_time, update_time,create_user, create_user_code,
+			update_user_code, update_user
+        FROM batchinfo
+        WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        AND ROWNUM <![CDATA[<=]]> 1
+        AND yn = 1
+        AND create_time<![CDATA[<=]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        AND (
+              update_time<![CDATA[>]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+              OR
+              update_time=to_date(to_char(#{minTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+             )
+    </select>
+	<select id="findAllBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
+		SELECT batch_code, create_site_code, create_time, update_time,create_user, create_user_code,
+		update_user_code, update_user
+		FROM batchinfo
+		WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="createTime!=null">
+			and create_time <![CDATA[>=]]> to_date(to_char(#{createTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		</if>
+		<if test="updateTime!=null">
+			and create_time <![CDATA[<=]]> to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		</if>
+	</select>
+
+
+    <select id="findBatchInfoByCode" resultMap="batchInfo" parameterType="String" >
+		SELECT id, batch_code, create_site_code, create_user, create_user_code,
+			update_user_code, update_user, create_time, update_time,yn
+		FROM batchinfo
+		WHERE yn = 1 AND batch_code = #{batchCode}
+			AND ROWNUM <![CDATA[<=]]> 1
+	</select>
+
+    <update id="update" parameterType="batchInfo" >
+        UPDATE batchinfo
+        SET update_time = to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        WHERE  batch_code =  #{batchCode,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

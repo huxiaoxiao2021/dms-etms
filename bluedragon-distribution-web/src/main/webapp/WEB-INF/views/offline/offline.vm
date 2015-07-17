@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>分拣离线操作日志查询</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	</head>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if ("$!offlineLogqueryDto" != "") {
+				$("#waybillCode").val("$!offlineLogqueryDto.waybillCode");
+				$("#boxCode").val("$!offlineLogqueryDto.boxCode");
+				$("#packageCode").val("$!offlineLogqueryDto.packageCode");
+				$("#status").val("$!offlineLogqueryDto.status");
+
+				if ("$!pager" != "") {
+					$("#pageNo").val($!pager.pageNo);
+					$("#pageSize").val($!pager.pageSize);
+				}
+			}
+	
+			// 提交查询
+			$("#search").click(function() {
+			    $("#pageNo").val("");
+				$("#selectLogList").attr("action", '#springUrl("/offline/list")');
+				$("#selectLogList").attr("method", "GET");
+				$("#selectLogList").submit();
+			});
+		});
+		
+		$("#orgCode").change(function(){
+		selectInt("#createSiteCode");
+		if (this.value == '') {
+			return;
+		}
+    	jQuery.ajax({
+           type: "POST",
+           url: "#springUrl('/common/getSiteByOrg')",
+           data: {orgCode: this.value},
+           success: function(msg){
+               var tempStr = "";
+               if(msg == 'exception'){
+                   Jd.alert("接口出现异常");
+                   return false;
+               }
+               jQuery.each(msg,function(infoIndex,info){
+               	   $("#createSiteCode").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+               });
+			   if ("$!offlineLogqueryDto.createSiteCode" != "") {
+        		   $("#createSiteCode").val("$!offlineLogqueryDto.createSiteCode");
+        	   }
+           }
+        });
+		return false;
+	});
+	</script>
+
+	<body>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣离线操作日志查询</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="selectLogList" name="selectLogList" action="#springUrl('/offline/list')" method="GET">
+						<input type="hidden" id="pageNo" name="pageNo" />
+						<input type="hidden" id="pageSize" name="pageSize" />
+						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+							<tbody>
+								
+								<tr>
+									<th align="right">运单号：</th>
+									<td >
+										<input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
+									</td>
+									<th align="right">箱号：</th>
+									<td >
+										<input id="boxCode" name="boxCode" type="text" class="textField28"/>
+									</td>
+									<th align="right">包裹号：</th>
+									<td >
+										<input id="packageCode" name="packageCode" type="text" class="textField28"/>
+									</td>
+								</tr>
+								<tr>
+								    <th align="right">状态：</th>
+								    <td>
+									<select id="status" name="status" class="select18">
+                                      <option value="">所有状态</option>
+                                      <option value="1">成功</option>
+                                      <option value="0">失败</option>
+                                     </select>
+									</td>
+									 <th align="right">分拣中心：</th>
+                                  <td width="25%">
+                    				<select class="select12" id="orgCode" name="orgCode">
+                                        #if($null.isNull($!orgList) || $!orgList.size() != 1)
+                    						<option value="">请选择</option>
+                    					#end
+                    					#if(!$null.isNull($!orgList))
+                            				#foreach($baseOrg in $orgList)
+                                                <option value="${baseOrg.orgId}"
+                    								#if( $!{userInfo.orgId} == ${baseOrg.orgId})
+                                                          selected="selected" 
+                    								#elseif( $!offlineLogqueryDto.orgCode == $baseOrg.orgId)
+                                                          selected="selected" 
+                                                    #end
+                    								>${baseOrg.orgName}</option>
+                        					#end
+                    					#end
+                                    </select>
+                                    <select class="select18" name="createSiteCode" id="createSiteCode">
+                                        #if($null.isNull($!siteList) || $!siteList.size() != 1)
+                    						<option value="">请选择</option>
+                    					#end
+                    					#if(!$null.isNull($!siteList))
+                        					#foreach($baseStaffSiteOrgDto in $siteList)
+                                                <option value="${baseStaffSiteOrgDto.siteCode}"
+                    								#if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
+                                                          selected="selected" 
+                    								#elseif( $!offlineLogqueryDto.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
+                                                          selected="selected" 
+                                                    #end
+                    								>${baseStaffSiteOrgDto.siteName}</option>
+                        					#end
+                    					#end
+                                    </select>
+                    			  </td>
+								   <td colspan="2">
+									<input id="search" type="button" value="查询" class="btn_c"/>
+									</td>	
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div id="opening">
+				<div class="tbl-list">
+					<div class="tbl-bg">
+						<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>箱号</th>
+									<th>运单号</th>
+									<th>包裹号</th>
+									<th>批次号</th>
+									<th>创建人</th>
+									<th>创建站点</th>
+									<th>操作时间</th>
+									<th>状态</th>
+									<th>任务类型</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								#foreach($offlinelog in $!offlinelogs)
+									<tr class="a2" style="">
+										<td>$velocityCount</td>
+										<td>$!offlinelog.boxCode</td>
+										<td>$!offlinelog.waybillCode</td>
+										<td>$!offlinelog.packageCode</td>
+										<td>$!offlinelog.sendCode</td>
+										<td>$!offlinelog.createUser</td>
+										<td>$!offlinelog.createSiteName</td>
+										<td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!offlinelog.operateTime)</td>
+										<td>
+										#if($!offlinelog.status == 1)
+                                			 <font color="green">成功</font>
+                                		#elseif($!offlinelog.status == 0)
+                                			<font color="red">失败</font>
+                                		#end
+									    </td>
+										<td>
+										#if($!offlinelog.taskType == 1110)
+                                			收货
+                                		#elseif($!offlinelog.taskType == 1130)
+                                			验货
+										#elseif($!offlinelog.taskType == 1200)
+											分拣
+										#elseif($!offlinelog.taskType == 1050)
+											pop上门接货
+										#elseif($!offlinelog.taskType == 1210)
+											分拣封箱
+										#elseif($!offlinelog.taskType == 1201)
+											取消分拣
+										#elseif($!offlinelog.taskType == 1131)
+											取消三方验货
+										#end	
+										</td>
+										<td>
+										<a href='#springUrl("")/offline/detail?offlineLogId=$!offlinelog.offlineLogId'>
+                    					#if($!offlinelog.status == 0)
+                    						处理
+                    					#else
+                    					#end
+                    					</a>
+										</td>
+									</tr>
+								#end
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="tbl-n">
+					#pageBar("#springUrl('')/offline/list?waybillCode=$!offlineLogqueryDto.waybillCode&boxCode=$!offlineLogqueryDto.boxCode&packageCode=$!offlineLogqueryDto.packageCode&status=$!offlineLogqueryDto.status&orgCode=$!offlineLogqueryDto.orgCode&createSiteCode=$!offlineLogqueryDto.createSiteCode" $pager.totalSize $pager.pageNo $pager.totalNo)
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

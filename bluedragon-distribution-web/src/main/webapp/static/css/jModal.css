@@ -1,0 +1,206 @@
+/**
+ * @subsection jModal
+ * 
+ * 模态框样式
+ * 
+ */
+*{
+	margin:0;
+	padding:0;}
+.move {
+    cursor: move;
+}
+.clearfix:after {
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+* html .clearfix {
+    height: 1%;
+}
+.zoom {
+	zoom:1;
+}
+.mr25{
+	margin-right:25px;
+}
+
+
+.whiteOverlay {
+    background-color:#000;
+}
+.jqDrag {
+    cursor: move;
+}
+.modal,
+.jqmLoading{
+	display:none;
+    _left: 50%;
+    position: fixed;
+	/*box-shadow: 2px 2px 4px #333;
+	border-radius: 5px 5px 5px 5px;*/
+    top: 17%;}
+.jqmLoading {
+    top: 30%;
+}  
+.loading_64,.loading_48,.loading_32, .loading_24, .loading_16 {
+    background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: middle;
+}
+.loading_64 {
+    height: 64px;
+    width: 64px;
+    background-image: url("../images/loading_64.gif");
+}
+.loading_48 {
+    height: 48px;
+    width: 48px;
+    background-image: url("../images/loading_48.gif");
+}
+.loading_32 {
+    height: 32px;
+    width: 32px;
+    background-image: url("../images/loading_32.gif");
+}
+.loading_24 {
+    height: 24px;
+    width: 24px;
+    background-image: url("../images/loading_24.gif");
+}
+.loading_16 {
+    height: 16px;
+    width: 16px;
+    background-image: url("../images/loading_16.gif");
+}
+    
+* html .modal,
+* html .jqmLoading{
+    position: absolute;
+}
+
+.modal .tl{
+	position: relative;
+	background: url(../images/jModal.png) no-repeat left top;
+	height:31px;
+	color:#424a57;
+	line-height: 31px;
+	font-size: 12px;
+	margin:0 10px 0 0;
+}
+.modal .tr{
+	position:absolute;
+	right: -10px;
+	top:0;
+	width:100%;
+	background: url(../images/jModal.png) no-repeat right top;
+	height:31px;
+	line-height: 31px;
+	display:block;
+}
+.modal .tit {
+	float:left;
+}
+.modal .modalClose {
+    background: url("../images/jModal.png") no-repeat scroll 3px -33px transparent;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    height: 18px;
+    line-height:18px;
+    margin-top: 5px;
+    text-indent: -9999px;
+    width: 22px;
+}
+.modal .moadalCon,
+.modal .modalFooter{
+	border-left: 1px solid #b9cbd9;
+	border-right: 1px solid #b9cbd9;
+	background-color:#fff;
+}
+.modal .moadalCon{
+	padding:10px;
+}
+.modal .modalFooter{
+	text-align:center;
+	padding:10px 0;
+}
+.modal .modalFooter input{
+	float:none;
+}
+.modal .bl{
+	border-bottom: 1px solid #b9cbd9 ;
+	/*非圆角时隐藏
+	background: url(../images/jModal.png) no-repeat left bottom;
+	height:4px;
+	margin-right:10px;
+	padding-left:10px;
+	*/
+}
+.modal .br{
+	/*background: url(../images/jModal.png) no-repeat right bottom;
+	height:4px;
+	margin-right:-10px;*/
+}
+
+
+.msg {
+    background-image: url("../images/ico.png");
+    background-repeat: no-repeat;
+    height: 18px;
+    line-height: 18px;
+    padding: 2px 0 2px 25px;
+}
+.msg.msg-attention {
+    background-color: #FFE9AF;
+    background-position: 3px -89px;
+    border: 1px solid #b9cbd9;
+}
+.msg.msg-ok {
+    background-color: #EFFEB9;
+    background-position: 3px -70px;
+    border: 1px solid #b9cbd9;
+}
+.msg.msg-error {
+    background-color: #FFEAEA;
+    background-position: 3px -51px;
+    border: 1px solid #b9cbd9;
+}
+.modal .fakeMsg {
+    padding: 8px 0;
+}
+.modal .fakeMsg .ico {
+    float: left;
+    height: 24px;
+    margin: 0 10px 0 6px;
+    width: 24px;
+}
+.modal .fakeMsg .conText {
+    color: #666666;
+    display: inline-block;
+    float: left;
+    line-height: 20px;
+    font-size: 12px;
+}
+.modal .alert .ico {
+    background: url("../images/msgIco24.png") no-repeat scroll 0 -49px transparent;
+}
+.modal .attention .ico {
+    background: url("../images/msgIco24.png") no-repeat scroll 0 -25px transparent;
+}
+.modal .success .ico {
+    background: url("../images/msgIco24.png") no-repeat scroll 0 0 transparent;
+}
+.modal .error .ico {
+    background: url("../images/msgIco24.png") no-repeat scroll 0 -74px transparent;
+}
+.modal .fakeMsg.error {
+    background-color: #FFEAEA;
+    border: 1px solid #CC6666;
+}
+.modal .fakeMsg.success {
+    background-color: #EFFEB9;
+    border: 1px solid #9CCA0F;
+}

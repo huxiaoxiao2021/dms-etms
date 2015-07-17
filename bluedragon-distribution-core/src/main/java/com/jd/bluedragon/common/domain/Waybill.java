@@ -1,0 +1,620 @@
+package com.jd.bluedragon.common.domain;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.product.domain.Product;
+
+/**
+ * @author zhaohc
+ * @E-mail zhaohengchong@360buy.com
+ * @createTime 2012-3-7 上午10:19:54 运单
+ */
+public class Waybill implements Serializable {
+
+	private static final long serialVersionUID = 5163001426091767255L;
+
+	public static Integer TYPE_LUXURY = 1;
+	public static Integer TYPE_SUBWAY = 2;
+	public static Integer TYPE_CONTRACT = 3;
+	public static Integer TYPE_ZITI = 4;
+
+	public static final Integer TYPE_GENERAL = 0;
+	public static final Integer TYPE_POP_FBP = 21;
+
+	public static final int IS_PRINT_PACK = 1; // 已打印包裹
+
+	public static final int IS_PRINT_INVOICE = 1;// 已打印发票
+
+	/** 运单编号 */
+	private String waybillCode;
+
+	/** POP商家ID */
+	private Integer popSupId;
+
+	/** POP商家名称 */
+	private String popSupName;
+
+	/** 站点编号 */
+	private Integer siteCode = 0;
+
+	/** 站点名称 */
+	private String siteName;
+
+	/** 支付类型 */
+	private Integer paymentType = 0;
+
+	private Integer shipmentType = 0;
+
+	/** 特殊属性 */
+	private String sendPay;
+
+	/** 重量 */
+	private Double weight;
+
+	/** 数量 */
+	private Integer quantity;
+
+	/** 地址 */
+	private String address;
+
+	/** 是否打印包裹 */
+	private int isPrintPack;
+
+	/** 是否打印发票 */
+	private int isPrintInvoice;
+
+	/** 机构ID */
+	private Integer orgId;
+
+	/** 库房ID */
+	private Integer storeId;
+
+	/** 运单类型(JYN) */
+	private Integer type;
+
+	/** 滑道号 */
+	private String crossCode;
+
+	/** 中转站编号 */
+	private Integer transferStationId;
+
+	/**
+	 * 中转站名称
+	 */
+	private String transferStationName;
+
+	/**
+	 * 库房ID
+	 */
+	private Integer distributeStoreId;
+
+	/**
+	 * 笼车号
+	 */
+	private String trolleyCode;
+
+	/**
+	 * 订单状态（分拣中心包装后的）
+	 */
+	private Integer statusCode;
+
+	/**
+	 * 订单状态描述
+	 */
+	private String statusMessage;
+
+	/**
+	 * 打印次数
+	 */
+	private Integer printCount = 0;
+
+	/**
+	 * 航空标示
+	 */
+	private Integer airSigns;
+
+	/**
+	 * 目标分拣中心ID
+	 */
+	private Integer targetDmsCode;
+
+	/**
+	 * 目标分拣中心名称
+	 */
+	private String targetDmsName;
+	
+	/**
+	 * 目的滑道口
+	 */
+	private String targetDmsDkh;
+	
+	/**
+	 * 目的地-笼车号
+	 */
+	private String targetDmsLch;
+	
+	/**
+	 * B商家ID
+	 */
+	private Integer busiId;
+	
+	/**
+	 * B商家名称
+	 */
+	private String busiName;
+	
+	/**特殊标识*/
+	private Integer specialLogo;
+	
+	/**标签样式的版本*/
+	private String lablelVersion;
+	
+	/**标签样式的版本*/
+	private String jsonData;
+	
+	/**cky2*/
+	private Integer cky2;
+	
+	/**oldCode*/
+	private Integer oldCode;
+
+
+	/**
+	 * 包裹集合
+	 */
+	private List<Pack> packList;
+
+	private List<Product> proList;
+
+
+	private String waybillSign;
+
+	/*路区号*/
+	private String road;
+
+	/*服务号*/
+	private String serviceCode;
+
+	public String getWaybillCode() {
+		return this.waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public Integer getPopSupId() {
+		return this.popSupId;
+	}
+
+	public void setPopSupId(Integer popSupId) {
+		this.popSupId = popSupId;
+	}
+
+	public String getPopSupName() {
+		return this.popSupName;
+	}
+
+	public void setPopSupName(String popSupName) {
+		this.popSupName = popSupName;
+	}
+
+	public Integer getSiteCode() {
+		return this.siteCode;
+	}
+
+	public void setSiteCode(Integer siteCode) {
+		this.siteCode = siteCode;
+	}
+
+	public String getSiteName() {
+		return this.siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+
+	public Integer getPaymentType() {
+		return this.paymentType;
+	}
+
+	public void setPaymentType(Integer paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public String getSendPay() {
+		return this.sendPay;
+	}
+
+	public void setSendPay(String sendPay) {
+		this.sendPay = sendPay;
+	}
+
+	public Double getWeight() {
+		return this.weight;
+	}
+
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+
+	public Integer getQuantity() {
+		return this.quantity;
+	}
+
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public int getIsPrintPack() {
+		return this.isPrintPack;
+	}
+
+	public void setIsPrintPack(int isPrintPack) {
+		this.isPrintPack = isPrintPack;
+	}
+
+	public String getJsonData() {
+		return jsonData;
+	}
+
+	public void setJsonData(String jsonData) {
+		this.jsonData = jsonData;
+	}
+
+	public int getIsPrintInvoice() {
+		return this.isPrintInvoice;
+	}
+
+	public void setIsPrintInvoice(int isPrintInvoice) {
+		this.isPrintInvoice = isPrintInvoice;
+	}
+
+	public Integer getOrgId() {
+		return this.orgId;
+	}
+
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
+	}
+
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public String getCrossCode() {
+		return this.crossCode;
+	}
+
+	public void setCrossCode(String crossCode) {
+		this.crossCode = crossCode;
+	}
+
+	public Integer getTransferStationId() {
+		return this.transferStationId;
+	}
+
+	public void setTransferStationId(Integer transferStationId) {
+		this.transferStationId = transferStationId;
+	}
+
+	public List<Product> getProList() {
+		return proList;
+	}
+
+	public void setProList(List<Product> proList) {
+		this.proList = proList;
+	}
+
+	public Integer getStoreId() {
+		return storeId;
+	}
+
+	public void setStoreId(Integer storeId) {
+		this.storeId = storeId;
+	}
+
+	public Integer getShipmentType() {
+		return shipmentType;
+	}
+
+	public void setShipmentType(Integer shipmentType) {
+		this.shipmentType = shipmentType;
+	}
+
+	public String getTransferStationName() {
+		return transferStationName;
+	}
+
+	public void setTransferStationName(String transferStationName) {
+		this.transferStationName = transferStationName;
+	}
+
+	public Integer getDistributeStoreId() {
+		return distributeStoreId;
+	}
+
+	public void setDistributeStoreId(Integer distributeStoreId) {
+		this.distributeStoreId = distributeStoreId;
+	}
+
+	public String getTrolleyCode() {
+		return trolleyCode;
+	}
+
+	public void setTrolleyCode(String trolleyCode) {
+		this.trolleyCode = trolleyCode;
+	}
+
+	public Integer getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(Integer statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public String getStatusMessage() {
+		return statusMessage;
+	}
+
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
+	}
+
+	public Integer getPrintCount() {
+		return printCount;
+	}
+
+	public void setPrintCount(Integer printCount) {
+		this.printCount = printCount;
+	}
+
+	public Integer getAirSigns() {
+		return airSigns;
+	}
+
+	public void setAirSigns(Integer airSigns) {
+		this.airSigns = airSigns;
+	}
+
+	public Integer getTargetDmsCode() {
+		return targetDmsCode;
+	}
+
+	public void setTargetDmsCode(Integer targetDmsCode) {
+		this.targetDmsCode = targetDmsCode;
+	}
+
+	public String getTargetDmsName() {
+		return targetDmsName;
+	}
+
+	public void setTargetDmsName(String targetDmsName) {
+		this.targetDmsName = targetDmsName;
+	}
+
+	public String getTargetDmsDkh() {
+		return targetDmsDkh;
+	}
+
+	public void setTargetDmsDkh(String targetDmsDkh) {
+		this.targetDmsDkh = targetDmsDkh;
+	}
+
+	public String getTargetDmsLch() {
+		return targetDmsLch;
+	}
+
+	public void setTargetDmsLch(String targetDmsLch) {
+		this.targetDmsLch = targetDmsLch;
+	}
+
+	public Integer getBusiId() {
+		return busiId;
+	}
+
+	public void setBusiId(Integer busiId) {
+		this.busiId = busiId;
+	}
+
+	public String getBusiName() {
+		return busiName;
+	}
+
+	public void setBusiName(String busiName) {
+		this.busiName = busiName;
+	}
+
+	public List<Pack> getPackList() {
+		return packList;
+	}
+
+	public void setPackList(List<Pack> packList) {
+		this.packList = packList;
+	}
+
+	public void setStatusAndMessage(Integer statusCode, String statusMessage) {
+		this.statusCode = statusCode;
+		this.statusMessage = statusMessage;
+	}
+
+	public Integer getSpecialLogo() {
+		return specialLogo;
+	}
+
+	public void setSpecialLogo(Integer specialLogo) {
+		this.specialLogo = specialLogo;
+	}
+
+	public String getLablelVersion() {
+		return lablelVersion;
+	}
+
+	public void setLablelVersion(String lablelVersion) {
+		this.lablelVersion = lablelVersion;
+	}
+
+	public Integer getCky2() {
+		return cky2;
+	}
+
+	public void setCky2(Integer cky2) {
+		this.cky2 = cky2;
+	}
+
+	public Integer getOldCode() {
+		return oldCode;
+	}
+
+	public void setOldCode(Integer oldCode) {
+		this.oldCode = oldCode;
+	}
+
+	public String getWaybillSign() {
+		return waybillSign;
+	}
+
+	public void setWaybillSign(String waybillSign) {
+		this.waybillSign = waybillSign;
+	}
+
+	public String getRoad() {
+		return road;
+	}
+
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+	public String getServiceCode() {
+		return serviceCode;
+	}
+
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
+
+	/**
+	 * 是否出库 出库：TRUE 未出库：FALSE
+	 * 
+	 * @return
+	 */
+	public Boolean isDelivery() {
+		if (this.quantity == null || this.quantity <= 0) {
+			return Boolean.FALSE;
+		}
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * 验证运单类型是否是双L（SOPL、LBP）类型订单，若是则返回true，不是返回false
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static Boolean isPopWaybillType(Integer type) {
+		if (type != null
+				&& (type.equals(Constants.POP_LBP) || type
+						.equals(Constants.POP_SOPL))) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+	
+	/**
+	 * 验证运单类型是否是双L（SOPL、LBP、SOP）类型订单，若是则返回true，不是返回false
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static Boolean isPopType(Integer type) {
+		if (type != null
+				&& (type.equals(Constants.POP_LBP) || type
+						.equals(Constants.POP_SOPL)
+						|| type.equals(Constants.POP_SOP))) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+	
+	/**
+	 * 验证运单类型是否是B商家类型订单，若是则返回true，不是返回false
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static Boolean isOrderTypeBWaybill(Integer type) {
+		if (type != null
+				&& type.equals(Constants.ORDER_TYPE_B)) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * 检查运单的数据是否完整。如果有关键字段为空则返回true,正常情况返回false.
+	 * 普通运单检查机构ID、站点编码、站点编号、支付类型、特殊属性、重量、地址;POP(23&&25)还检查数量、商家ID、商家名称.
+	 * 
+	 * @param waybill
+	 * @return boolean
+	 */
+	public static Boolean isInvalidWaybill(Waybill waybill) {
+		if (waybill == null) {
+			return Boolean.TRUE;
+		}
+
+		Integer orgId = waybill.getOrgId();
+//		Integer siteCode = waybill.getSiteCode();
+		Integer paymentType = waybill.getPaymentType();
+		String address = waybill.getAddress();
+		String sendPay = waybill.getSendPay();
+		// Double weight = waybill.getWeight();
+
+		if (orgId == null 
+				|| sendPay == null || sendPay.trim().length() == 0
+				|| paymentType == null || address == null
+				|| address.trim().length() == 0) {
+			return Boolean.TRUE;
+		}
+
+		/*
+		 * 与未出库冲突，不用判断
+		 * if (isPopWaybillType(waybill)) {
+			Integer quantity = waybill.getQuantity();
+			Integer popSupId = waybill.getPopSupId();
+			String popSupName = waybill.getPopSupName();
+			if (quantity == null || quantity.equals(0) || popSupId == null 
+					|| popSupName == null || popSupName.trim().length() == 0) {
+				return Boolean.TRUE;
+			}
+		}*/
+
+		return Boolean.FALSE;
+	}
+
+	@Override
+	public String toString() {
+		return "运单号【" + this.waybillCode + "】, 运单类型【" + this.type + "】, 机构号【"
+				+ this.orgId + "】, 目的站点【" + this.siteCode + "】, 支付类型【"
+				+ this.paymentType + "】, 地址【" + this.address + "】, 特殊属性【"
+				+ this.sendPay + "】, 包裹数量【" + this.quantity + "】, POP商家ID【"
+				+ this.popSupId + "】,POP商家名称【" + this.popSupName + "】";
+	}
+
+}

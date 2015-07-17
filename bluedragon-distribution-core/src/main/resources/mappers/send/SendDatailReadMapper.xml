@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.send.dao.SendDatailReadDao">
+	<resultMap id="SendDetail" type="SendDetail">
+		<id column="send_d_id"  property="sendDId" />
+		<result column="send_code"  property="sendCode" />
+		<result column="box_code"  property="boxCode" />
+		<result column="package_barcode"  property="packageBarcode" />
+		<result column="package_num"  property="packageNum" />
+		<result column="waybill_code"  property="waybillCode" />
+		<result column="pickup_code"  property="pickupCode" />
+		<result column="create_site_code"  property="createSiteCode" />
+		<result column="receive_site_code"  property="receiveSiteCode" />
+		<result column="send_type" property="sendType" />
+		<result column="create_time" property="createTime" />
+		<result column="operate_time"  property="operateTime" />
+		<result column="create_user"  property="createUser" />
+		<result column="create_user_code"  property="createUserCode" />
+		<result column="sendd_status"  property="status" />
+		<result column="weight"  property="weight" />
+		<result column="is_cancel"  property="isCancel" />
+		<result column="update_time"  property="updateTime" />
+		<result column="excute_count" property="excuteCount" />
+		<result column="excute_time" property="excuteTime" />
+		<result column="yn"  property="yn" />
+		<result column="spare_reason"  property="spareReason" />
+		<result column="is_loss" property="isLoss"/>
+		<result column="feature_type" property="featureType"/>
+	</resultMap>
+	
+     <select id="findUpdatewaybillCodeMessage" resultMap="SendDetail" parameterType="java.util.Map" >
+		<![CDATA[SELECT 
+		sed.send_d_id, sem.send_code, sed.box_code, sed.package_barcode,sed.pickup_code, sed.waybill_code, 
+		sem.send_type,sem.create_site_code, 
+        sem.receive_site_code, sem.operate_time,sem.update_time, sem.create_user, sed.is_cancel,sem.create_user_code,sem.yn
+		From DMS.send_d  sed  
+		Inner Join DMS.send_m sem  On sed.box_code = sem.box_code 
+        and sed.receive_site_code= sem.receive_site_code
+		and sed.create_site_code= sem.create_site_code
+		where sed.sendd_status=0  
+		and rownum <=500 
+		and sem.create_Time <= sysdate - interval '10' MINUTE
+		and sed.create_Time >= sysdate - interval '2' DAY
+		and mod(sed.send_d_id,8) in ${queueId}
+		]]>
+	</select>
+	
+	<select id="findWaybillByBoxCode" parameterType="String"
+		resultType="String">
+		select distinct waybill_code from dms.send_d where box_code=#{boxCode} and yn=1
+	</select>
+	
+	<select id="findSendBoxByWaybillCode" parameterType="java.util.Map" resultMap="SendDetail">
+		select send_code,box_code,package_barcode  
+		from (select send_code,box_code,package_barcode,row_number() over(partition by package_barcode order by create_time desc) rn 
+              from DMS.send_d
+              where yn = 1 and waybill_code = #{waybillCode}) t1 
+        where t1.rn = 1
+	</select>
+</mapper>

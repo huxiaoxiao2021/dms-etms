@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>分拣操作日志查询</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	</head>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if ("$!operationLogqueryDto" != "") {
+				$("#waybillCode").val("$!operationLogqueryDto.waybillCode");
+				$("#pickupCode").val("$!operationLogqueryDto.pickupCode");
+				$("#packageCode").val("$!operationLogqueryDto.packageCode");
+				$("#boxCode").val("$!operationLogqueryDto.boxCode");
+
+				if ("$!pager" != "") {
+					$("#pageNo").val($!pager.pageNo);
+					$("#pageSize").val($!pager.pageSize);
+				}
+			}
+	
+			// 提交查询
+			$("#search").click(function() {
+				var waybillCode = $('#waybillCode').val();
+				var pickupCode = $('#pickupCode').val();
+				var packageCode = $('#packageCode').val();
+				var boxCode = $('#boxCode').val();
+			
+				if ((waybillCode == null || waybillCode.length <= 0)
+					&& (pickupCode == null || pickupCode.length <= 0)
+					&& (boxCode == null || boxCode.length <= 0)
+					&& (packageCode == null || packageCode.length <= 0 )) {
+					alert('请输入运单号或取件单号或包裹号！');
+					return;
+				}
+		
+				$("#selectLogList").attr("action", '#springUrl("/operateLog/list1")');
+				$("#selectLogList").attr("method", "GET");
+				$("#selectLogList").submit();
+			});
+		});
+	</script>
+
+	<body>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣操作日志查询</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="selectLogList" name="selectLogList" action="#springUrl('/operateLog/list1')" method="GET">
+						<input type="hidden" id="pageNo" name="pageNo" />
+						<input type="hidden" id="pageSize" name="pageSize" />
+						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+							<tbody>
+								
+								<tr>
+									<th align="right">运单号：</th>
+									<td >
+										<input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
+									</td>
+									<th align="right">取件单号：</th>
+									<td >
+										<input id="pickupCode" name="pickupCode" type="text" class="textField28"/>
+									</td>
+									<th align="right">包裹号：</th>
+									<td >
+										<input id="packageCode" name="packageCode" type="text" class="textField28"/>
+									</td>
+									<th align="right">箱号：</th>
+									<td >
+										<input id="boxCode" name="boxCode" type="text" class="textField28"/>
+									</td>
+									<td >
+										<input id="search" type="button" value="查询" class="btn_c"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div id="opening">
+				<div class="tbl-list">
+					<div class="tbl-bg">
+						<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>箱号</th>
+									<th>运单号</th>
+									<th>取件单号</th>
+									<th>包裹号</th>
+									<th>日志类型</th>
+									<th>批次号</th>
+									<th>创建人</th>
+									<th>创建站点</th>
+									<th>接收站点</th>
+									<th>操作时间</th>
+								</tr>
+							</thead>
+							<tbody>
+								#foreach($operatelog in $!operatelogs)
+									<tr class="a2" style="">
+										<td>$velocityCount</td>
+										<td>$!operatelog.boxCode</td>
+										<td>$!operatelog.waybillCode</td>
+										<td>$!operatelog.pickupCode</td>
+										<td>$!operatelog.packageCode</td>
+										<td>$!operationLogqueryDto.getLogTypeMap().get($!operatelog.logType)</td>
+										<td>$!operatelog.sendCode</td>
+										<td>$!operatelog.createUserCode|$!operatelog.createUser</td>
+										<td>$!operatelog.createSiteCode|$!operatelog.createSiteName</td>
+										<td>$!operatelog.receiveSiteCode|$!operatelog.receiveSiteName</td>
+										<td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!operatelog.operateTime)</td>
+									</tr>
+								#end
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="tbl-n">
+					#pageBar("#springUrl('')/operateLog/list1?waybillCode=$!operationLogqueryDto.waybillCode&pickupCode=$!operationLogqueryDto.pickupCode&packageCode=$!operationLogqueryDto.packageCode&boxCode=$!operationLogqueryDto.boxCode" $pager.totalSize $pager.pageNo $pager.totalNo)
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

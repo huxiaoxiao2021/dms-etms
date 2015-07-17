@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>库管单号查询</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	</head>
+	
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if ("$!errorMesage" == "1") {
+				alert('清单为空或查询错误！');
+			}
+			
+			$("#search").click(function() {
+			
+			var waybillCode = $('#waybillCode').val();
+			var i = 0;
+            if(waybillCode == null || waybillCode.length < 1)
+            {
+                alert('请输入合法库单号！');
+                return;
+            }            
+            for (i = 0; i < waybillCode.length; i++) 
+            {
+                if (parseInt(waybillCode.charAt(i)) >= 0 && parseInt(waybillCode.charAt(i)) <= 9)
+                   continue;
+                alert('请输入合法库单号！');
+                return;
+            }
+			alert(waybillCode);
+				$("#selectKGList").attr("action", '#springUrl("/kuGuan/list")');
+				$("#selectKGList").attr("method", "GET");
+				$("#selectKGList").submit();
+			});
+		});
+	</script>
+
+	<body>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">订单</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">库管单查询界面</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="selectKGList" name="selectKGList" action="#springUrl('/kuGuan/list')" method="GET">
+						
+						<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x2">
+            				<tbody>
+            					<tr>
+                					<th align="left" width="80px">选择类型：</th>
+                					<td width="80px" align="left">
+                    					<select name="ddlType" id="ddlType" class="select12">
+											<option value="1"  #if( $!kuGuanDomain.ddlType==1)
+                                                    selected="selected" 
+                                            #end>订单号</option>
+                                            <option value="2"  #if( $!kuGuanDomain.ddlType==2)
+                                                    selected="selected" 
+                                            #end>库管单号</option>
+										</select>
+                					</td> 
+                					<th align="left" width="80px">请输入单号：</th>
+                					<td width="120px" align="left" class="style2">
+                						<input id="waybillCode"  name="waybillCode" value="$!kuGuanDomain.waybillCode"  type="text" class="textField28"/>
+                					</td>
+                					<td rowspan="2" style="text-align: left;" class="style2" width="100px">
+                    					<input id="search" type="button" value="查询" class="btn_c"/>
+ 									</td>
+               						<td align="left" style="word-break:break-all">
+                    				<span id="lblKdanhao" align="left" >$!{kuGuanDomain.lblKdanhao}</span>
+                					</td>
+								</tr>
+       						</tbody>
+       					</table>
+					</form>
+				</div>
+			</div>
+			
+			<div class="tbl-list">
+				<div class="tbl-bg">
+					<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x2">
+            			<tbody><tr>
+                			<td colspan="4" style="text-align: left; padding-left: 20px; font-weight: bold; font-size: medium;">
+                    			基本信息
+                			</td>
+            			</tr>
+            			<tr>
+                		<td align="left">库管单号：<span id="lKdanhao" align="left">$!{kuGuanDomain.lKdanhao}</span></td>
+               			<td class="style1" align="left">
+                    		方式：<span id="lblWay">$!{kuGuanDomain.lblWay}</span>
+                		</td>
+                		<td class="style1" align="left">
+                   			 分类：<span id="lblType">$!{kuGuanDomain.lblType}</span>
+                		</td>
+                		<td class="style1" align="left">
+                    		其他方式：<span id="lblOtherWay">$!{kuGuanDomain.lblOtherWay}</span>
+                		</td>
+            			</tr>
+            			<tr>
+                		<td align="left">
+                    		经办人：<span id="lblJingban">$!{kuGuanDomain.lblJingban}</span>
+                		</td>
+                		<td align="left">
+                    		日期：<span id="lblDate">$!{kuGuanDomain.lblDate}</span>
+                		</td>
+                		<td align="left">
+                  	  		来源：<span id="lblFrom">$!{kuGuanDomain.lblFrom}</span>
+                		</td>
+                		<td>
+                    		款项：<span id="lblKuanx">$!{kuGuanDomain.lblKuanx}</span>
+                		</td>
+            			</tr>
+            			<tr>
+                		<td>
+                    		运费：<span id="lblYun">$!{kuGuanDomain.lblYun}</span>
+                		</td>
+                		<td>
+                    		优惠：<span id="lblYouhui">$!{kuGuanDomain.lblYouhui}</span>
+                		</td>
+                		<td>
+                    		其他：<span id="lblOther">$!{kuGuanDomain.lblOther}</span>
+                		</td>
+                		<td>
+                    		总金额：<span id="lblZjine">$!{kuGuanDomain.lblZjine}</span>
+                		</td>
+            			</tr>
+            			<tr>
+                		<td class="style1">
+                    		财务单号：<span id="lblCdanhao1">$!{kuGuanDomain.lblCdanhao1}</span>
+                		</td>
+                		<td class="style1">
+                    		订单号：<span id="lblOrderid">$!{kuGuanDomain.lblOrderid}</span>
+                		</td>
+                		<td class="style1">
+                    		机构：<span id="lblOrg">$!{kuGuanDomain.lblOrg}</span>
+                		</td>
+                		<td class="style1">
+                   			 仓库：<span id="lblStock">$!{kuGuanDomain.lblStock}</span>
+                		</td>
+            			</tr>
+            			<tr>
+                		<td>
+                    		录入员：<span id="lblLuru">$!{kuGuanDomain.lblLuru}</span>
+                		</td>
+                		<td colspan="2">
+                    		自提点：<span id="lblStation">$!{kuGuanDomain.lblStation}</span>
+                		</td>
+                		<td>
+                    		是否签字：<span id="lblSure">$!{kuGuanDomain.lblSure}</span>
+                		</td>
+            			</tr>
+            			<tr>
+                		<td>
+                    		原单号：<span id="lblYdanhao">$!{kuGuanDomain.lblYdanhao}</span>
+                		</td>
+                		<td colspan="3">
+                    		备注：<span id="lblRemark">$!{kuGuanDomain.lblRemark}</span>
+                		</td>
+            			</tr>
+        				</tbody></table>
+        				<br>
+        				<span>
+            				<h4 style="text-align: left;">
+              					  商品清单</h4>
+       					</span>
+				</div>
+			</div>
+			
+			<div id="opening">
+				<div class="tbl-list">
+					<div class="tbl-bg">
+						<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+							<thead>
+								<tr>
+									<th>财务单号</th>
+									<th>商品编号</th>
+									<th>商品名称</th>
+									<th>数量</th>
+									<th>单价</th>
+									<th>金额</th>
+								</tr>
+							</thead>
+							<tbody>
+								#foreach($kuguanList in $!kuguanLists)
+									<tr class="a2" style="">
+										<td>$!kuguanList.lblCdanhao</td>
+										<td>$!kuguanList.lblWareId</td>
+										<td>$!kuguanList.lblWare</td>
+										<td>$!kuguanList.lblNum</td>
+										<td>$!kuguanList.lblPrice</td>
+										<td>$!kuguanList.lbljine</td>
+									</tr>
+								#end
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+			<div style="height: 20px; text-align: right; font-size: medium; font-weight: bold;padding-right: 50px;">
+            	<font color="red">
+                	<span id="lblstatistics">$!{kuGuanDomain.lblstatistics}</span></font>
+        	</div>
+        	
+		</div>
+	</body>
+</html>

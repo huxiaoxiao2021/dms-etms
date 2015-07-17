@@ -1,0 +1,7 @@
+Access denied.<br/>
+#if($exception)
+    You need following privileges:
+    #foreach($code in $!exception.codes)
+        <li>${code}</li>
+    #end
+#end

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   
+    <modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+      <groupId>com.jd.etms.base.conf</groupId>
+      <artifactId>etms-base-conf</artifactId>
+      <version>1.0-SNAPSHOT</version>
+   </parent>	
+
+    <name>bluedragon-distribution</name>
+    <groupId>com.jd.bluedragon</groupId>
+    <artifactId>bluedragon-distribution</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <url>http://bluedragon.360buy.org</url>
+
+    <modules>
+        <module>bluedragon-distribution-core</module>
+        <module>bluedragon-distribution-web</module>
+		<module>bluedragon-distribution-worker</module>
+   		<module>bluedragon-distribution-sdk</module>
+   		<module>bluedragon-distribution-proxy</module>
+   		<module>bluedragon-distribution-saf</module>
+    </modules>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+		
+	        <dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-expression</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context-support</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jdbc</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-tx</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.6</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+    
+    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>findbugs-maven-plugin</artifactId>
+							<version>2.3.1</version>
+						</plugin>
+						<plugin>
+							<artifactId>maven-pmd-plugin</artifactId>
+							<version>2.7.1</version>
+							<configuration>
+								<targetJdk>1.6</targetJdk>
+							</configuration>
+						</plugin>
+					</reportPlugins>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+    
+    <developers>
+    	<developer>
+    		<id>Wang Zhipeng</id>
+    		<name>Wang Zhipeng</name>
+    		<email>wangzhipeng@360buy.com</email>
+    	</developer>
+    	<developer>
+    		<id>Zhu Chao</id>
+    		<name>Zhu Chao</name>
+    		<email>zhuchao@360buy.com</email>
+    	</developer>
+    	<developer>
+    		<id>Cao Yunkun</id>
+    		<name>Cao Yunkun</name>
+    		<email>caoyunkun@360buy.com</email>
+    	</developer>
+    	<developer>
+    		<id>Wang Zichen</id>
+    		<name>Wang Zichen</name>
+    		<email>wangzichen@360buy.com</email>
+    	</developer>
+    	<developer>
+    		<id>Li Huihui</id>
+    		<name>Li Huihui</name>
+    		<email>lihuihui@360buy.com</email>
+    	</developer>
+    </developers>
+
+</project>

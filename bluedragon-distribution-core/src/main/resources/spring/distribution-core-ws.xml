@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://cxf.apache.org/jaxws     
+       http://cxf.apache.org/schemas/jaxws.xsd 
+       http://cxf.apache.org/transports/http/configuration 
+       http://cxf.apache.org/schemas/configuration/http-conf.xsd"
+       default-autowire="byName">
+
+	<http-conf:conduit name="*"> 
+		<http-conf:client ConnectionTimeout="1000" ReceiveTimeout="10000" />
+	</http-conf:conduit>
+	
+	<import resource="classpath:META-INF/cxf/cxf.xml" /> 
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" /> 
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" /> 
+
+    <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+    <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+    
+    <bean id="authHeaderStock" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="AuthenticationHeader" />
+        <property name="qName" value="http://360buy.com/" />
+        <property name="content" value="${stock.token.content}" />
+        <property name="seed" value="${stock.token.seed}" />
+    </bean>  
+    
+    <bean id="soapHeaderIntercepterStock" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="authHeaderStock" />
+    </bean> 
+    
+    <bean id="authHeaderFinance" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="${finance.fms.key}" />
+        <property name="qName" value="${finance.fms.qName}" />
+        <property name="content" value="${finance.fms.content}" />
+        <property name="seed" value="${finance.fms.seed}" />
+    </bean> 
+     
+    <bean id="authHeaderRefundGoods" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="${refund.goods.key}" />
+        <property name="qName" value="${refund.goods.qName}" />
+        <property name="content" value="${refund.goods.content}" />
+        <property name="seed" value="${refund.goods.seed}" />
+    </bean> 
+    
+    <bean id="authHeaderRefundMoney" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="${refund.money.key}" />
+        <property name="qName" value="${refund.money.qName}" />
+        <property name="content" value="${refund.money.content}" />
+        <property name="seed" value="${refund.money.seed}" />
+    </bean> 
+     
+    <bean id="soapHeaderIntercepterFinance" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="authHeaderFinance" />
+    </bean> 
+    
+    <bean id="soapHeaderIntercepterRefundGoods" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="authHeaderRefundGoods" />
+    </bean> 
+    
+        <bean id="soapHeaderIntercepterRefundMoney" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="authHeaderRefundMoney" />
+    </bean> 
+    
+    <jaxws:client id="stockWebService"
+        serviceClass="com.jd.iwmss.stock.client.StockWebServiceSoap" address="${stock.service.url}">
+        <jaxws:inInterceptors>
+            <ref bean ="loggingOutInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors> 
+            <ref bean="soapHeaderIntercepterStock"/>
+            <ref bean="loggingInInterceptor"/>
+        </jaxws:outInterceptors>
+    </jaxws:client>
+    
+    <jaxws:client id="financeWebService"
+        serviceClass="com.jd.fms.finance.client.FinancialSearchService" address="${finance.fms.url}">
+        <jaxws:inInterceptors>
+            <ref bean ="loggingOutInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors> 
+            <ref bean="soapHeaderIntercepterFinance"/>
+            <ref bean="loggingInInterceptor"/>
+        </jaxws:outInterceptors>
+    </jaxws:client>
+    
+    <jaxws:client id="refundWebServiceGoods"
+        serviceClass="com.jd.fa.orderrefund.RefundWebService" address="${refund.goods.url}">
+        <jaxws:inInterceptors>
+            <ref bean ="loggingOutInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors> 
+            <ref bean="soapHeaderIntercepterRefundGoods"/>
+            <ref bean="loggingInInterceptor"/>
+        </jaxws:outInterceptors>
+    </jaxws:client>
+    
+    <jaxws:client id="refundWebServiceMoney"
+        serviceClass="com.jd.fa.refundService.RefundServiceNewSoap" address="${refund.money.url}">
+        <jaxws:inInterceptors>
+            <ref bean ="loggingOutInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors> 
+            <ref bean="soapHeaderIntercepterRefundMoney"/>
+            <ref bean="loggingInInterceptor"/>
+        </jaxws:outInterceptors>
+    </jaxws:client>    
+    
+	<jaxws:client id="tuihuoService"
+		serviceClass="com.jd.bluedragon.distribution.send.ws.client.TuihuoServiceSoap"
+		address="${tuihuo.service.url}">
+	</jaxws:client>
+
+	<jaxws:client id="iService"
+		serviceClass="com.jd.distribution.service.receive.IService" address="${JQ_WEB_SERVICE_URL}">
+		<jaxws:outInterceptors>
+			<ref bean="addSoapHeader" />
+		</jaxws:outInterceptors>
+	</jaxws:client>
+
+	<jaxws:client id="dmsToTmsWebService"
+		serviceClass="com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService"
+		address="${dmstotms.service.url}">
+	</jaxws:client>
+
+	<!-- 测试地址 afc.soa.360buy.net 10.10.224.42 -->
+	<jaxws:client id="popAbnormalOrderPackageWebService"
+		serviceClass="com.jd.bluedragon.distribution.popAbnormal.ws.client.PopAbnormalOrderPackageWebService"
+		address="${authHeaderPopAbnormal.url}">
+		<jaxws:inInterceptors>
+			<ref bean="logInPopAbnormal" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<ref bean="logOutPopAbnormal" />
+			<ref bean="jdSOAPHeaderPopAbnormal" /> <!--Token-->
+		</jaxws:outInterceptors>
+	</jaxws:client>
+
+	<bean id="addSoapHeader" class="com.jd.client.service.impl.AddSoapHeader">
+		<property name="tokenStr" value="${JD_TOKEN}" />
+	</bean>
+
+	<bean id="logInPopAbnormal" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="logOutPopAbnormal" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+
+	<bean id="authHeaderPopAbnormal" class="com.jd.common.ws.AuthHeader">
+		<property name="key" value="${authHeaderPopAbnormal.key}" />
+		<property name="qName" value="${authHeaderPopAbnormal.qName}" />
+		<property name="content" value="${authHeaderPopAbnormal.content}" />
+		<property name="seed" value="${authHeaderPopAbnormal.seed}" />
+	</bean>
+
+	<bean id="jdSOAPHeaderPopAbnormal" class="com.jd.common.ws.SOAPHeaderIntercepter">
+		<property name="authHeader" ref="authHeaderPopAbnormal" />
+	</bean>
+
+
+	<jaxws:client id="inbound" serviceClass="com.jd.wms.ws.Inbound"
+		address="${reverse.send.wms}">
+	</jaxws:client>
+	
+	<jaxws:client id="lossWebService" serviceClass="com.jd.loss.client.BlueDragonWebService"
+        address="${loss.service.url}">
+    </jaxws:client>
+    
+    <jaxws:client id="packExchangeWebService" serviceClass="com.jd.wms.packExchange.BaseWebService"
+        address="${wms.packExchange.service.url}">
+    </jaxws:client>
+    
+	<!--青龙推送订单包裹数webservice -->
+	<jaxws:client id="waybillService" address="${popAbnormalWaybill.url}"
+		serviceClass="com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.WaybillService">
+		<jaxws:inInterceptors>
+			<ref bean="logInWaybill" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<ref bean="logOutWaybill" />
+			<ref bean="jdSOAPHeaderWaybill" />
+		</jaxws:outInterceptors>
+	</jaxws:client>
+
+	<bean id="logInWaybill" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="logOutWaybill" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+
+	<bean id="authHeaderWaybill" class="com.jd.common.ws.AuthHeader">
+		<property name="key" value="${popAbnormalWaybill.key}" />
+		<property name="qName" value="${popAbnormalWaybill.qName}" />
+		<property name="content" value="${popAbnormalWaybill.content}" />
+		<property name="seed" value="${popAbnormalWaybill.seed}" />
+	</bean>
+
+	<bean id="jdSOAPHeaderWaybill" class="com.jd.common.ws.SOAPHeaderIntercepter">
+		<property name="authHeader" ref="authHeaderWaybill" />
+	</bean>
+	
+	<!-- order.soa.pop.360buy.net 测试地址：10.10.224.42 -->
+	<jaxws:client id="popSortCenterService"
+		serviceClass="com.jd.pop.sortcenter.ws.SortCenterService"
+		address="${authHeaderPopSortCenter.url}">
+		<jaxws:inInterceptors>
+			<ref bean="logInPopSortCenter" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<ref bean="logOutPopSortCenter" />
+			<ref bean="jdSOAPHeaderPopSortCenter" /> <!--Token-->
+		</jaxws:outInterceptors>
+	</jaxws:client>
+	
+	<bean id="logInPopSortCenter" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="logOutPopSortCenter" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+	
+	<bean id="authHeaderPopSortCenter" class="com.jd.common.ws.AuthHeader">
+		<property name="key" value="${authHeaderPopSortCenter.key}" />
+		<property name="qName" value="${authHeaderPopSortCenter.qName}" />
+		<property name="content" value="${authHeaderPopSortCenter.content}" />
+		<property name="seed" value="${authHeaderPopSortCenter.seed}" />
+	</bean>
+	
+	<bean id="jdSOAPHeaderPopSortCenter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+		<property name="authHeader" ref="authHeaderPopSortCenter" />
+	</bean>
+	
+	<!-- 武汉邮政-WebService客户端 -->
+    <jaxws:client id="whemsClientService" serviceClass="com.jd.bluedragon.distribution.send.domain.whems.Ems4JingDongPortType"
+		address="${tms.whems.ws.wsdl.address}">
+		<jaxws:inInterceptors>
+			<ref bean="loggingInInterceptor" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<ref bean="loggingOutInterceptor" />
+		</jaxws:outInterceptors>
+	</jaxws:client>
+	
+	<!-- 全国邮政-WebService客户端 -->
+    <jaxws:client id="getPrintDatasPortType" serviceClass="com.jd.postal.GetPrintDatasPortType"
+		address="${ems.ws.wsdl.address}">
+		<jaxws:inInterceptors>
+			<ref bean="loggingInInterceptor" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<ref bean="loggingOutInterceptor" />
+		</jaxws:outInterceptors>
+	</jaxws:client>
+	
+	
+	<!-- 发送邮件 -->
+	<bean id="logIn" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="logOut" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+
+	<!--发送邮件Soap -->
+	<bean id="smsWebServiceSoap" class="com.jd.wms.wm.domain.sms.SMSWebServiceSoap"
+		factory-bean="smsWebServiceClientFactory" factory-method="create" />
+	<bean id="smsWebServiceClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+		<property name="serviceClass" value="com.jd.wms.wm.domain.sms.SMSWebServiceSoap" />
+		<property name="address" value="http://message.360buy.com/service.asmx" />
+		<property name="inInterceptors">
+			<list>
+				<ref bean="logIn" />
+			</list>
+		</property>
+		<property name="outInterceptors">
+			<list>
+				<ref bean="logOut" />
+				<ref bean="jdSOAPHeaderSmsWebService" />
+			</list>
+		</property>
+	</bean>
+	<bean id="authHeaderSmsWebService" class="com.jd.bk.common.ws.AuthHeader">
+		<property name="content"
+			value="E40D832CAFF2C90C95685C28630EFEAC3DC8EC05B4A83EE26F5B18252B6CEE09A0CAD88C91A774E1D3197F7C5D91BDBF343FAD801CF08E4B5C651264A01520DD" />
+		<property name="key" value="AuthenticationHeader" />
+		<property name="qName" value="http://360buy.com/" />
+		<property name="seed"
+			value="D45A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0D" />
+	</bean>
+	<bean id="jdSOAPHeaderSmsWebService" class="com.jd.bk.common.ws.SOAPHeaderIntercepter">
+		<property name="authHeader" ref="authHeaderSmsWebService" />
+	</bean>
+	
+</beans>

@@ -1,0 +1,153 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>数据库任务查询</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>		
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/admin/worker-monitor/worker-monitor-index.js')"></script>
+	<style type="text/css">
+		h2.pos_left{
+			position:relative;
+			left:-20px
+		}
+		h2.pos_right{
+			position:relative;
+			left:200px
+		}
+	</style>	
+	</head>
+	<script type="text/javascript">
+		
+	</script>
+	<body>
+	    <input type="hidden" id="contextPath" value="#springUrl('')"/>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">任务管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">任务查询</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="queryForm" name="queryForm" action="#springUrl('/admin/worker-monitor/list')" method="GET">
+						<input type="hidden" id="pageNo" name="pageNo" value=""/>
+						<input type="hidden" id="totalNo" name="totalNo" value=""/>
+						<input type="hidden" id="pageSize" name="pageSize" value=""/>
+						<input type="hidden" id="totalSize" name="totalSize" value=""/>
+						<input type="hidden" id="tableName" name="tableName" value=""/>
+						<table border="0" cellpadding="0" cellspacing="0" style="width:100%;min-width:1100px;">
+							<tbody>								
+								<tr>
+									<td style="width:170px;">
+										<select id="table_list" onchange=initTaskType(); style="width:160px;" cellpadding="0" cellspacing="0"> 
+											<option value="空值" selected="selected">Worker表名</option> 
+										</select> 
+									</td>
+									<td style="width:90px;">
+										<select id="type_list" style="width:80px;"> 
+											<option value="" selected="selected">任务类型</option> 
+										</select> 
+									</td>
+									<td style="width:90px;">
+										<select id="status_list" style="width:80px;"> 
+											<option value="" selected="selected">任务状态</option>
+											<option value="0">0</option>	
+											<option value="1">1</option>
+											<option value="3">3</option>
+											<option value="4">4</option>						 
+										</select> 
+									</td>
+									<td >
+										<select id="count_list" style="width:80px;"> 
+											<option value="" selected="selected">执行次数</option>
+											<option value="0">0</option>	
+											<option value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option> 
+											<option value="5">5</option> 
+										</select>
+									</td>									
+									<td >
+									    <a href="#" id="queryBtn" class="easyui-linkbutton">查询</a>
+									</td>
+									<td >
+									    <a href="#" id="batchResetBtn" class="easyui-linkbutton">批量重置</a>
+									</td>
+									<td>
+										<div style="margin:10px 0 10px 0;">
+											<a href="#" class="easyui-linkbutton" onclick="goFirstPage();">首页</a>
+											<a href="#" class="easyui-linkbutton" onclick="goPrevPage();">上一页</a>
+											<input class="easyui-textbox" type="text" style="width:70px;text-align:center;" id="currentPage"></input>
+											<a href="#" class="easyui-linkbutton" onclick="goNextPage();">下一页</a>
+											<a href="#" class="easyui-linkbutton" onclick="goTailPage();">尾页</a>
+										</div>
+									</td>
+								</tr>
+								<tr align="left">
+									<th align="right">KEYWORD1：</th>
+									<td >
+										<input id="keyword1" name="keyword1" type="text" class="textField28"/>
+									</td>
+									<th align="right">KEYWORD2：</th>
+									<td >
+										<input id="keyword2" name="keyword2" type="text" class="textField28"/>
+									</td>
+									<th align="right">开始时间：</th>
+									<td >
+										<input id="start_time" name="start_time" class="Wdate" type="text" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:140px">
+									</td>
+									<th align="right">结束时间：</th>
+									<td >
+									    <input id="end_time" name="end_time" class="Wdate" type="text" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:140px">
+									</td>
+									## 分页控制
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div id="opening">
+				<div class="tbl-list">
+					<div class="tbl-bg">
+						<table id="paperTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px;" class="tb-x1">
+							<thead>
+								<tr>
+								    <th style="width:40px;">序号</th>
+									<th style="width:50px;">TASK_TYPE</th>
+									<th style="width:50px;">TASK_STATUS</th>
+									<th style="width:50px;">KEYWORD1</th>
+									<th style="width:50px;">KEYWORD2</th>
+									<th style="width:300px;">BODY</th>
+									<th style="width:50px;">EXECUTE_TIME</th>
+									<th style="width:50px;">OWN_SIGN</th>
+									<th style="width:50px;">操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="tbl-n">
+					#pageBar("#springUrl('')/admin/worker-monitor/worker-monitor-index?keyword1=$!systemLogQueryDto.keyword1&keyword2=$!systemLogQueryDto.keyword2&keyword3=$!systemLogQueryDto.keyword3&keyword4=$!systemLogQueryDto.keyword4&type=$!systemLogQueryDto.type" $pager.totalSize $pager.pageNo $pager.totalNo)
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>FAQ-Bluedragon Distribution</title>
+<style>
+.page-title {
+    border-bottom: 1px solid #CCCCCC;
+    font-size: 2em;
+    padding-bottom: 4px;
+}
+dt {
+    font-family	:'Open Sans';
+	font-size:	14.3px;
+	font-weight:	700;
+	font-style	:normal;
+	font-size-adjust	:none;
+	color	:#333333;
+	text-transform	:none;
+	text-decoration	:none;
+	letter-spacing	:normal;
+	word-spacing	:0;
+	line-height	:23.8833px;
+	text-align	:start;
+	vertical-align	:baseline;
+	direction	:ltr;
+	text-overflow	:clip;
+}
+</style>
+</head>
+<body>
+	<div>
+		<h1 class="page-title" itemprop="name">FAQ</h1>
+		<div itemprop="articleBody">
+			<h2>分拣中心PDA问题</h2>
+			<ul>
+				<li><a href="#operateTimeout">1.1 操作提示“操作已超时”</a></li>
+				<li><a href="#localServerDown">1.2 本地缓存服务器暂时休克</a></li>
+				<li><a href="#inspectionFinish">1.3 三方发货时提示“该箱号还没有完验”</a></li>
+				<li><a href="#inspectionLess">1.4 为何操作了三方分拣，异常查询里仍然是少验</a></li>
+				<li><a href="#configureError">1.5 分拣的时候提示“配置错误”</a></li>
+				<li><a href="#packageImcomplete">1.6 一单多件不齐可以发货吗？</a></li>
+			</ul>
+			<h2>打印客户端问题</h2>
+			<ul>
+				<li><a href="#printConfigureError">2.1 打印程序出现“读取服务器配置失败，更新失败”报错怎么办？</a></li>
+				<li><a href="#printSlow">2.2 打印程序很卡是什么原因？</a></li>
+				<li><a href="#printBoxError">2.3 新开的站点无法打印箱号</a></li>
+				<li><a href="#popPrintException">2.4 POP打印时发票和包裹签打印混乱</a></li>
+			</ul>
+			
+			<dl>
+				<dt id="operateTimeout">1.1 操作提示“操作已超时”</dt>
+				<dd>
+					<p>请检查网络是否正常，现场可用PDA或者同一内网电脑，操作开始--->运行--->cmd， ping
+						dms.etms.360buy.com（华中分拣中心 请ping dms1.etms.360buy.com）</p>
+				</dd>
+				<dt id="localServerDown">1.2 本地缓存服务器暂时休克</dt>
+				<dd>
+					<p>请切换到总部网络继续分拣，切换总部网络方法：系统配置---网络切换。
+						<div>
+							<img src="../image/first.png" width="334" height="325" />
+							<img src="../image/systemConfigure.png" width="328" height="304" />
+							<img src="../image/networkSwitch.png" width="328" height="304" />
+						</div>
+					</p>
+				</dd>
+				<dt id="inspectionFinish">1.3 三方发货时提示“该箱号还没有完验”</dt>
+				<dd>
+					<p>请在异常查询菜单里查询多验或者少验的差异记录。多验代表已经验货、未分拣；少验代表已经分拣、未验货。</p>
+				</dd>
+				<dt id="inspectionLess">1.4 为何操作了三方分拣，异常查询里仍然是少验</dt>
+				<dd>
+					<p>请检查分拣的箱子和验货是否一致，检查是否使用三方分拣菜单进行分拣而非自营分拣。</p>
+				</dd>
+				<dt id="configureError">1.5 分拣的时候提示“配置错误”</dt>
+				<dd>
+					<p>这种情况会出现在新开分拣中心的时候，请联系运营人员处理。</p>
+				</dd>
+				<dt id="packageImcomplete">1.6 一单多件不齐可以发货吗？</dt>
+				<dd>
+					<p>可以分拣但发货时会有拦截提示</p>
+				</dd>
+
+			</dl>
+			
+			<dl>
+				<dt id="printConfigureError">2.1 打印程序出现“读取服务器配置失败，更新失败”报错怎么办？</dt>
+				<dd>
+					<p>马上联系当地运维找总部运维杨刚，告知VPN隧道出现问题</p>
+				</dd>
+				<dt id="printSlow">2.2 打印程序很卡是什么原因？</dt>
+				<dd>
+					<p>
+						1.POP如果打印发票卡在在CMD中ping下 fn.360buy.com
+						2.POP如果打印标签卡在CMD中ping下dms.etms.360buy.com
+						以上两种情况在打印界面右边可以看到调用时长，如果时长较长请联系运维和运营同事处理
+					<p/>
+				</dd>
+				<dt id="printBoxError">2.3 新开的站点无法打印箱号</dt>
+				<dd>
+					<p>联系集团配送部杜石光维护基础资料</p>
+				</dd>
+				<dt id="popPrintException">2.4 POP打印时发票和包裹签打印混乱</dt>
+				<dd>
+					<p>查看打印机是否设置正确后保存设置，有些时候是因为打印程序没有从压缩包解压出来导致设置无法保存。</p>
+				</dd>
+			</dl>
+		</div>
+	</div>
+</body>
+</html>

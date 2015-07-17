@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>sqlkit</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#dataSourceName").val("$!sqlkitDto.dataSourceName");
+        // 提交查询
+        $("#search").click(function() {
+            $("#sqlkit").attr("action", '#springUrl("/sqlkit/executeSql")');
+            $("#sqlkit").attr("method", "POST");
+            $("#sqlkit").submit();
+        });
+    });
+
+    // 提交查询
+    function pageSubmit(pageNoParam) {
+        $("#pageNo").val(pageNoParam);
+        $("#search").click();
+    }
+</script>
+<body>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">基础资料管理</a>
+        &nbsp;&gt;&nbsp;<a href="javascript:void(0)">sql查询分析器</a>
+    </p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="sqlkit" action="" method="POST">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <th align="right">选择数据源：</th>
+                        <td >
+                            <select id="dataSourceName" name="dataSourceName">
+                                #foreach($dataSourceName in $dataSourceNames)
+                                    <option value="$dataSourceName">$dataSourceName</option>
+                                #end
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">userName：</th>
+                        <td >
+                            <input name="userName" type="text" value="$!sqlkitDto.userName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">sql语句：</th>
+                        <td >
+                            <textarea id="sqlContent" name="sqlContent" style="width:580px;height:80px">$!sqlkitDto.sqlContent</textarea>
+                            <span><font color="red">$!message</font></span>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right" >&nbsp;</th>
+                        <td>
+                            <input id="search" type="button" value="执行" class="btn_c"/>
+                            <input type="hidden" id="pageNo" name="pageNo"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--[if !ie]>tbl-n<![endif]-->
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table cellspacing=0 cellpadding=0 width="100%" class="tb-x1">
+                    <thead>
+                    <tr>
+                        #foreach($columnName in $!columnList)
+                            <th>$!columnName</th>
+                        #end
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #if($null.isNull($!rowList) || $!rowList.size() == 0)
+                        <tr class="a2" style="">
+                            <td colspan="$columnsize" align="left">
+                                无数据！
+                            </td>
+                        </tr>
+                        #else
+                            #foreach($rowContent in $!rowList)
+                            <tr class="a2" style="">
+                                #foreach($columnName in $!columnList)
+                                    <td>$!rowContent.get($!columnName)</td>
+                                #end
+                            </tr>
+                            #end
+                        #end
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--[if !ie]>tbl-list<![endif]-->
+        <div class="tbl-n">
+            #if($displayPageBar)
+		         #pageBarPost($pager.totalSize $pager.pageNo $pager.totalNo)
+                 #end
+        </div>
+    </div>
+    <!--opening end-->
+</div>
+</body>
+</html>

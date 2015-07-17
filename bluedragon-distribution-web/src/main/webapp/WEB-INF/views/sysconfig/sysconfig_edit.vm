@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>规则管理UI</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+$(document).ready(function() {
+	if ("$!sysconfigDto" != "") {
+		// 初始化查询条件
+		$("#configId").val("$!sysconfigDto.configId");
+		$("#configType").val("$!sysconfigDto.configType");
+		$("#configName").val("$!sysconfigDto.configName");
+		$("#configContent").val("$!sysconfigDto.configContent");
+		$("#configOrder").val("$!sysconfigDto.configOrder");
+		$("#memo").val("$!sysconfigDto.memo");
+	}
+	// 提交查询
+	$("#update").click(function() {
+		$("#updateRule").attr("action", '#springUrl("/sysconfig/update")');
+		$("#updateRule").attr("method", "POST");
+		$("#updateRule").submit();
+	});
+});
+</script>
+
+<body>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+	  #if("$!sysconfigDto" == "")
+		没有匹配数据
+	  #else
+      <form id="updateRule" name="updateRule" action="#springUrl('/sysconfig/update')" method="POST">
+		<input type="hidden" id="configId" name="configId" />
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tbody>
+			<tr>
+				<th align="right">类型：</th>
+				<td>
+					<input id="configType" name="configType" type="text" class="textField28"/>
+    			</td>
+			</tr>
+			<tr>
+				<th align="right">参数名称：</th>
+				<td>
+					<input id="configName" name="configName" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<th align="right">参数内容：</th>
+				<td>
+					<input id="configContent" name="configContent" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<th align="right">排序：</th>
+				<td>
+					<input id="configOrder" name="configOrder" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<th align="right">备注内容：</th>
+				<td>
+					<input id="memo" name="memo" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input id="update" type="button" value="更新" class="btn_c"/>
+				</td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+	  #end
+    </div>
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

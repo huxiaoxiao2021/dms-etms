@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>离线密码管理</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+function selectInt(obj){
+return $(obj).html("<option value=''>请选择</option>");
+}
+
+
+$(document).ready(function() {
+
+	// 提交查询
+	$("#search").click(function() {
+	location.href="#springUrl('')/offlinePwd/addMail";
+	});
+	
+	
+});
+
+function del(configId){
+if(confirm("确定要清空数据吗？")){
+ location.href="#springUrl('')/offlinePwd/deleteMail?id="+configId;
+ }
+}
+
+
+function generatePwd(type){
+if(confirm("确定要重置密码吗？")){
+ location.href="#springUrl('')/offlinePwd/generatePassword?type="+type;
+ }
+}
+function sendMail(type){
+   	jQuery.ajax({
+           type: "POST",
+           url: "#springUrl('/offlinePwd/sendOfflinePwdMail')",
+           data: {type: type},
+           success: function(msg){
+		   alert('发送成功！');
+           }
+        });
+		
+		}
+
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">系统设置</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">离线密码管理</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+      <form id="form1" name="form1" action="" method="GET">
+		<input type="hidden" id="pageNo" name="pageNo" />
+		<input type="hidden" id="pageSize" name="pageSize" />
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+			<colgroup >
+				<col width="20%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="10%"/>
+				<col width="30%"/>
+            </colgroup>
+          <tbody>
+			<tr >
+			  <th align="right">离线当前密码：</th>
+              <td>
+				<span style="color:red">$!offlinePassword</span>
+			  </td>
+			  <td align="left"><input  type="button" value="重新生成" onclick="generatePwd(1);" class="btn_c"/></td>
+              <td align="left">
+				<input  type="button" value="发送" onclick="sendMail(1);" class="btn_c"/>
+			  </td>
+              <td colspan="3">
+			  </td>
+			  
+            </tr>
+			<tr >
+			  <th align="right">一单多件不齐发货当前密码：</th>
+              <td>
+                <span style="color:red">$!specialPassword</span>
+			  </td>
+			  <td align="left"><input  type="button" value="重新生成"  onclick="generatePwd(2);" class="btn_c"/></td>
+              <td align="left">
+				<input  type="button" value="发送"  onclick="sendMail(2);" class="btn_c"/>
+			  </td>
+              <td></td>
+			   <td align="left"><input id="search" type="button" value="添加收件人" class="btn_c"/>
+			   </td>
+               <td ></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;" class="tb-x1">
+          <thead>
+            <tr>
+			  <th>序号</th>
+			  <th>邮箱</th>
+			   <th>分拣中心</th>
+			  <th>创建时间</th>
+			  <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+			#if($null.isNull($!dataList) || $!dataList.size() == 0)
+				<tr class="a2" style="">
+					<td colspan="16" align="left">
+						无数据！
+                    </td>
+                </tr>
+			#else
+				#foreach($sysConfig in $!dataList)
+				<tr class="a2" style="">
+                  <td>$velocityCount</td>
+				  <td>$!sysConfig.configName</td>
+                  <td>$!sysConfig.configContent  </td>
+				
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!sysConfig.createTime)</td>
+				  <td>
+						<a href="#springUrl('/offlinePwd/updateMail?id=')$!sysConfig.configId" >修改</a>
+						<a href="#" onclick="del('$!sysConfig.configId');" >删除</a>
+                  </td>
+                </tr>
+				#end
+			#end
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

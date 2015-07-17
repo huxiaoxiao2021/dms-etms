@@ -1,0 +1,792 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>平台收货差异反馈</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+#if("$!popReceiveAbnormal" == "")
+	#set($showStatus = 1)
+#else
+	#if("$!popReceiveAbnormal.abnormalStatus" == "2")
+		#set($showStatus = 2)
+	#else
+		#set($showStatus = 3)
+	#end
+#end
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	if ($!showStatus == 2) {
+		initAbnormalType("$!popReceiveAbnormal.mainType", "$!popReceiveAbnormal.subType");
+	}
+
+	$("#mainType").change(function(){
+		selectInt("#subType");
+
+        // 初始化商家类型，删除手动输入商家信息文本框、可选订单号输入框
+        initOrderType($(this).val(),$("#subType").val());
+        hideOrderCodeOptionalInput();
+        removeManualInputBusinessInfo();
+
+        $("#subTypeName").val("");
+		$("#mainTypeName").val($(this).find("option:selected").text());
+		if (this.value == '') {
+			initDynamicTR();
+			return;
+		}
+
+    	jQuery.ajax({
+           type: "POST",
+		   contentType : 'application/json',
+           url: "#springUrl('/popReceiveAbnormal/getSubReasons')",
+		   dataType : 'json',
+           data: '{"mainType": "' + this.value + '", "_temp": "' + new Date().getTime() + '"}',
+           success: function(data){
+        	   if (data.success) {
+			   		var subReasons = data.result;
+					if (subReasons == null) {
+						$("#subType").attr("hidden", true);
+					} else {
+						$("#subType").attr("hidden", false);
+						jQuery.each(subReasons,function(infoIndex,info){
+                       	   $("#subType").append("<option value='"+info.code+"' >"+info.name+"</option>");
+                        });
+					}
+        	   } else {
+        	   		alert(data.result);
+        	   }
+        	   return;
+           },
+           error : function(data) {
+        		alert("error");
+           }
+        });
+
+		initAbnormalType(this.value, 0);
+		return false;
+	});
+
+	$("#subType").change(function(){
+		$("#subTypeName").val($(this).find("option:selected").text());
+		initAbnormalType(0, this.value);
+
+        // 初始化商家（订单）类型，删除手动输入商家信息文本框、可选订单号输入框
+        initOrderType($("#mainType").val(),$(this).val());
+        hideOrderCodeOptionalInput();
+        removeManualInputBusinessInfo();
+	});
+
+    // 商家类型改变时，删除手动输入商家信息文本框、可选订单号输入框
+    $("#orderType").change(function(){
+        hideOrderCodeOptionalInput();
+        removeManualInputBusinessInfo();
+    });
+
+	if ("$!subReasons" == "") {
+		$("#subType").attr("hidden", true);
+	}
+
+	// 监听回车事件
+	$("#waybillCode").keypress(function(e){
+		var curKey = e.which;
+		if(curKey == 13) {
+			this.blur();
+			if (checkNull(this.value)) {
+    			if ($("#mainType").val() == 2 || $("#mainType").val() == 3 || $("#mainType").val() == 4) {
+            		if ($('#subType').val() == "") {
+            			alert("子类型不能为空，请选择!");
+            			return false;
+            		}
+            	}
+
+                // 订单未发货、正常或者取消订单时，商家类型必选
+                // 如果订单未发货，双L订单按照原来的逻辑
+                // SOP和外单手工输入商家编号、名称和运营信息
+                if ($("#mainType").val() == 4 && $('#subType').val() != ""){
+                    if($("#orderType").val() == ""){
+                        alert("商家类型不能为空，请选择！");
+                        return false;
+                    }
+                    //else if($("#orderType").val() != 23 && $("#orderType").val() != 25){
+                        //不是双L，手工输入编号、名称和运营信息
+                    //    addManualInputBusinessInfo();
+                    //    return false;
+                    //}
+                }
+
+    			jQuery.ajax({
+    				type: 'POST',
+    				contentType : 'application/json',
+    				url : '#springUrl("/popReceiveAbnormal/getWaybill")',
+    				dataType : 'json',
+    				data : '{"waybillCode": "' + this.value + '", "mainType": "' + $("#mainType").val()
+                            + '", "subType": "' + $("#subType").val() + '", "orderType": "' + $("#orderType").val()
+                            + '", "_temp": "' + new Date().getTime() + '"}',
+    				success : function(data) {
+    					if (data.success) {
+							var popAbnormal = data.result;
+							$("#popSupNo").val(popAbnormal.popSupNo);
+							$("#popSupName").val(popAbnormal.popSupName);
+							$("#waybillType").val(popAbnormal.waybillType);
+							$("#orderCode").val(popAbnormal.orderCode);
+							if (popAbnormal.waybillType != '' && popAbnormal.waybillType == 22) {
+								$("#waybillCodeTip").html(popAbnormal.orderCode);
+							}
+							if ($("#mainType").val() == 5 || $("#mainType").val() == 6) {
+    							$("#attr1").val(popAbnormal.attr1);
+							}
+							if ($("#mainType").val() == 4) {
+								$("#attr1").val(popAbnormal.attr1);
+								$("#attr1Tip").text(popAbnormal.attr1);
+							}
+							$("#popSupNoTip").html(popAbnormal.popSupNo);
+							$("#popSupNameTip").html(popAbnormal.popSupName);
+							$("#waybillCode").attr("readonly", true);
+
+                            //不是双L，手工输入编号、名称和运营信息；如果是SOP订单，订单号可选
+                            if(isNotDeliverySopOrOuter()){
+                                if($("#orderType").val() == 22){
+                                    showOrderCodeOptionalInput();
+                                }
+                                addManualInputBusinessInfo();
+                            }
+
+    					} else {
+    						alert(data.result);
+							$("#waybillCode").attr("readonly", false);
+							$("#waybillCode").val("");
+    					}
+						return;
+    				},
+    				error : function(data) {
+    					alert("error");
+    				}
+    			});
+    			return false;
+    		}
+			return false;
+		}
+	});
+
+	// 验证是否为空
+	$("#waybillCode").blur(function() {
+		if (!checkNull(this.value)) {
+			return;
+		}
+		if ($("#mainType").val() == "") {
+			alert("请先选择差异类型！");
+			$(this).val("");
+			$("#mainType").focus();
+			return false;
+		}
+	});
+
+	// 重置表单
+	$("#resetButton").click(function() {
+		$("#savePopAbnormal").reset;
+		$("#waybillCode, #popSupNo, #popSupName, #mainType, #mainTypeName, #subType, #subTypeName").val("");
+		$("#subType").attr("hidden", true);
+		$("span").html("");
+		$("#waybillCode").attr("readonly", false);
+		initDynamicTR(-1);
+		$("#remark").val("");
+		$("#remark1").val("");
+        $("#orderTypeTR").hide();
+	});
+
+	// 提交申请页面
+	var options = {
+        success: function(data) {
+			if (data.success) {
+       			alert(data.result);
+				location.href = '#springUrl("/popReceiveAbnormal/goListPage")';
+			} else {
+				$("#submitPop").attr("disabled", false);
+				alert(data.result);
+			}
+    	}
+	};
+
+	$("#submitPop").click(function() {
+		// 验证参数
+		if (!checkNull($("#createSiteCode").val()) || !checkNull($("#orgCode").val())) {
+			alert("操作人所属站点不能为空，请确认操作人是否属于分拣中心（具体查询青龙基础资料系统）！");
+			return false;
+		}
+		if ($!showStatus == 1) {
+			if (!checkNull($("#mainType").val())) {
+				alert("差异类型不能为空，请选择！");
+				return false;
+			}
+			if (!$("#waybillCode").attr("disabled")) {
+    			if (!checkNull($("#waybillCode").val())) {
+    				alert("运单号不能为空！");
+    				return false;
+    			}
+				if ($("#waybillCode").val().length < 8) {
+					alert("运单号长度不能小于8位！");
+    				return false;
+				}
+			}
+			if ($("#mainType").val() == 2 || $("#mainType").val() == 3 || $("#mainType").val() == 4) {
+				if ($('#subType').val() == "") {
+					alert("子类型不能为空，请选择!");
+    				return false;
+				}
+			}
+		}
+
+        // 如果选择订单未发货，则商家类型不能为空
+        if ($("#mainType").val() == 4 && checkNull($('#subType').val())){
+            if (!checkNull($('#orderType').val())){
+                alert("商家类型不能为空，请选择！");
+                return false;
+            }
+        }
+
+        // 如果是SOP和外单，则输入商家信息不能为空
+        if (isNotDeliverySopOrOuter()){
+            if(!checkNull($("#attr1TipInput").val()) || !checkNull($("#popSupNoTipInput").val())
+                    || !checkNull($("#popSupNameTipInput").val())){
+                alert("商家编号、名称、运营信息不能为空，请确认！");
+                return false;
+            }
+
+            // 商家编号只能输入商家ID
+            if(!checkNumStr($("#popSupNoTipInput").val())){
+                alert("商家编号只支持商家ID，请确认！");
+                return false;
+            }
+        }
+
+		if ($("#attr1Desc").html() != null) {
+			var attr1Desc = $("#attr1Desc").text().replace("：", "");
+			var attr2Desc;
+			// 组拼 remark
+    		var remarkStr = $("#attr1Desc").text() + $("#attr1").val() + "<br/>";
+			if (!isNotDeliverySopOrOuter() && !checkNull($("#attr1").val())) {
+				alert(attr1Desc + "不能为空，请确认！");
+				return false;
+			}
+			if ($("#attr2Desc").html() != null) {
+    			attr2Desc = $("#attr2Desc").text().replace("：", "");
+    			if (!checkNull($("#attr2").val())) {
+    				alert(attr2Desc + "不能为空，请确认！");
+    				return false;
+    			}
+				remarkStr += $("#attr2Desc").text() + $("#attr2").val() + "<br/>";
+			}
+			if ($!showStatus == 1) {
+				if ($("#mainType").val() == 5 || $("#mainType").val() == 6) {
+    				if (!checkNum($("#attr1").val())) {
+        				alert(attr1Desc + "不能为空，也只能是大于0的数字！");
+        				return false;
+        			}
+    				if (!checkNum($("#attr2").val())) {
+        				alert(attr2Desc + "不能为空，也只能是大于0的数字！");
+        				return false;
+        			}
+        			if ($("#attr1").val() == $("#attr2").val()) {
+        				alert(attr1Desc + "不能等于" + attr2Desc + "，请重新输入!");
+        				return false;
+        			}
+    				if ($("#attr2").val() > 2000) {
+        				alert(attr2Desc + "不能大于2000，请重新输入!");
+        				return false;
+        			}
+
+				} else if ($("#mainType").val() == 4 && $("#subType").val() == 402) {
+					if (!checkNum($("#attr2").val())) {
+        				alert(attr2Desc + "不能为空，也只能是大于0的数字！");
+        				return false;
+        			}
+					if ($("#attr2").val() > 2000) {
+        				alert(attr2Desc + "不能大于2000，请重新输入!");
+        				return false;
+        			}
+
+				}
+			}
+    		$("#remark").val(remarkStr + $("#remark1").val());
+		} else {
+			$("#remark").val($("#remark1").val());
+		}
+
+		var noteTip = "是否确认提交？";
+
+		if (!isNotDeliverySopOrOuter() && ("$showStatus" == "1"
+                && ($("#popSupNo").val() == null || $("#popSupNo").val() == "" || $("#popSupNo").val() == "null"))) {
+			noteTip = "商家信息为空，此订单可能不是POP或纯外单订单，" + noteTip;
+		}
+
+        if (confirm(noteTip)) {
+            // 如果是订单未发货，运单类型赋值商家类型
+            if($("#mainType").val() == 4 && checkNull($('#subType').val())){
+                $("#waybillType").val($("#orderType").val());
+            }
+            // 如果是SOP和纯外单，用手工输入的商家信息替换真正提交的参数
+            if(isNotDeliverySopOrOuter()){
+                $("#popSupNo").val($("#popSupNoTipInput").val());
+                $("#popSupName").val($("#popSupNameTipInput").val());
+                $("#attr1").val($("#attr1TipInput").val());
+                $("#attr1Tip").val($("#attr1TipInput").val());
+                $("#remark").val($("#attr1Desc").text() + $("#attr1").val() + "<br/>" + $("#remark1").val());
+
+                // SOP订单，订单号可输入可不输入
+                if($("#orderType").val() == 22){
+                    $("#orderCode").val($("#orderCodeOptional").val());
+                }
+                // 用户手工输入的商品编号、名称和营业信息不作为参数提交
+                // $("#orderType").attr("disabled",true);
+                // $("#popSupNoTipInput").attr("disabled",true);
+                // $("#popSupNameTipInput").attr("disabled",true);
+                // $("#attr1TipInput").attr("disabled",true);
+            }
+    		$("#submitPop").attr("disabled", true);
+    		// 提交表单
+    		$("#savePopAbnormal").ajaxSubmit(options);
+		}
+		return false;
+	});
+
+    // 回车在商家编号、名称和运营信息之间切换
+    $("#popSupNoTipInput").live("keypress",function(event){
+        var key = event.which;
+        if(key == 13){
+            $("#popSupNameTipInput").focus();
+        }
+    });
+
+    $("#popSupNameTipInput").live("keypress",function(event){
+        var key = event.which;
+        if(key == 13){
+            $("#attr1TipInput").focus();
+        }
+    });
+
+//    $("#attr1TipInput").live("keypress",function(event){
+//        var key = event.which;
+//        if(key == 13){
+//            $("#submitPop").focus();
+//        }
+//    });
+
+    $("#orderCodeOptional").live("keypress",function(event){
+        var key = event.which;
+        if(key == 13){
+            $("#popSupNoTipInput").focus();
+        }
+    });
+
+
+    // 如果是外单和SOP订单，商家编号只能输入商家ID（纯数字）
+    $("#popSupNoTipInput").live("keyup",function(){
+        if($("#orderType").val() == 10000 || $("#orderType").val() == 22){
+            $(this).val($(this).val().replace(/\D/g,''));
+        }
+    });
+
+    $("#popSupNoTipInput").live("afterpaste",function(){
+        if($("#orderType").val() == 10000 || $("#orderType").val() == 22){
+            $(this).val($(this).val().replace(/\D/g,''));
+        }
+    });
+});
+
+// 初始化下拉选择框
+function selectInt(obj){
+	return $(obj).html("<option value=''>请选择</option>");
+}
+
+// 判断选择的是不是订单未发货下面的SOP和外单
+function isNotDeliverySopOrOuter(){
+    if ($("#mainType").val() == 4 && $("#subType").val() != ""
+        && $("#orderType").val() != "" && $("#orderType").val() != 23 && $("#orderType").val() != 25){
+        return true;
+    }
+
+    return false;
+}
+
+// 初始化商家类型
+// 如果异常子类型为空，隐藏
+// 如果异常子类型是正常订单或者取消订单，显示
+function initOrderType(mainType,subType){
+    if (4 != mainType || "" == subType){
+        $("#orderTypeTR").hide();
+        return;
+    }
+    $("#orderType").val("");
+    $("#orderTypeTR").show();
+}
+
+// SOP和外单手工输入商家编号、名称和运营信息
+function addManualInputBusinessInfo(){
+    var attr1TipHtm = "<input type='text' id='attr1TipInput' name='attr1TipInput'/>&nbsp;<font id='attr1TipFont' color='red'>*</font>";
+    var popSupNoTipHtm = "<input type='text' id='popSupNoTipInput' name='popSupNoTipInput'/>&nbsp;<font id='popSupNoTipFont' color='red'>*</font>";
+    var popSupNameTipHtm = "<input type='text' id='popSupNameTipInput' name='popSupNameTipInput'/>&nbsp;<font id='popSupNameTipFont' color='red'>*</font>";
+    $("#attr1Tip").html(attr1TipHtm);
+    $("#popSupNoTip").html(popSupNoTipHtm);
+    $("#popSupNameTip").html(popSupNameTipHtm);
+
+    //如果是SOP订单，则订单号获取焦点
+    if($("#orderType").val() == 22){
+        $("#orderCodeOptional").focus();
+    }
+    else{
+       $("#popSupNoTipInput").focus();
+    }
+}
+
+// 删除手动输入商家信息文本框
+function removeManualInputBusinessInfo(){
+    $("#attr1TipFont").remove();
+    $("#attr1TipInput").remove();
+    $("#popSupNoTipFont").remove();
+    $("#popSupNoTipInput").remove();
+    $("#popSupNameTipFont").remove();
+    $("#popSupNameTipInput").remove();
+}
+
+
+// 如果是SOP订单，则可选输入订单号
+function showOrderCodeOptionalInput(){
+    $("#orderCodeOptional").val("");
+    $("#orderCodeOptionalTR").show();
+}
+
+
+// 隐藏输入订单号
+function hideOrderCodeOptionalInput(){
+    $("#orderCodeOptionalTR").hide();
+}
+
+
+function initAbnormalType(mainType, subType) {
+	if (mainType == "" && subType == "") {
+		return;
+	}
+	$("#waybillCode").attr("disabled", false);
+	// 处理动态输入框
+	var doNum;
+	if ($!showStatus == 1) {
+		if (mainType == 5) {
+			doNum = 1;
+		} else if (mainType == 6) {
+			doNum = 2;
+		} else if (mainType == 7) {
+			doNum = 5;
+		} else {
+			if (subType == 304 || subType == 307) {
+				doNum = 3;
+				$("#waybillCode").attr("disabled", true);
+			} else if (subType == 401) {
+				doNum = 0;
+			} else if (subType == 402) {
+				doNum = 0.2;
+			}
+		}
+	} else if ($!showStatus == "2") {
+		if (mainType == "1") {
+			doNum = 4;
+		}
+		if (mainType == "2" && (subType == "204" || subType == "205" || subType == "206")) {
+			doNum = 4;
+		}
+	}
+	initDynamicTR(doNum);
+}
+
+function initDynamicTR(type) {
+
+	$("#savePopTable tr[name='dynamicTR']").remove();
+
+	var attrDescs;
+	if (type == 1) {
+		attrDescs = new Array("原始包裹数量：", "实际包裹数量：");
+	} else if (type == 2) {
+		attrDescs = new Array("原始商品数量：", "实际商品数量：");
+	} else if (type == 3) {
+		attrDescs = new Array("三方运单号：", "商品名称：");
+	} else if (type == 4) {
+		attrDescs = new Array("快递公司名称：", "快递单号：");
+	} else if (type == 5) {
+		attrDescs = new Array("应发分拣中心：");
+	} else if (type == 0) {
+		attrDescs = new Array("商家运营信息：");
+	} else if (type == 0.2) {
+		attrDescs = new Array("商家运营信息：", "实际包裹数量：");
+	} else {
+		return;
+	}
+
+	var trStr;
+
+	if (type == 0) {
+		trStr = "<tr name='dynamicTR'>"
+    		+ "<td align='right' class='tb_h1' id='attr1Desc'>" + attrDescs[0] + "</td>"
+    		+ "<td><input type='hidden' id='attr1' name='attr1'/><span id='attr1Tip'></span></td></tr>";
+
+	} else if (type == 0.2) {
+		trStr = "<tr name='dynamicTR'>"
+    		+ "<td align='right' class='tb_h1' id='attr1Desc'>" + attrDescs[0] + "</td>"
+    		+ "<td><input type='hidden' id='attr1' name='attr1'/><span id='attr1Tip'></span></td></tr>"
+			+ "<tr name='dynamicTR'>"
+    		+ "<td align='right' class='tb_h1' id='attr2Desc'>" + attrDescs[1] + "</td>"
+    		+ "<td><input type='text' id='attr2' name='attr2'/><span id='attr2Tip'></span></td></tr>";
+
+	} else if (type != 5) {
+    	trStr = "<tr name='dynamicTR'>"
+    		+ "<td align='right' class='tb_h1' id='attr1Desc'>" + attrDescs[0] + "</td>"
+    		+ "<td><input type='text' id='attr1' name='attr1'/><span id='attr1Tip'></span></td></tr>"
+    		+ "<tr name='dynamicTR'>"
+    		+ "<td align='right' class='tb_h1' id='attr2Desc'>" + attrDescs[1] + "</td>"
+    		+ "<td><input type='text' id='attr2' name='attr2'/><span id='attr2Tip'></span></td></tr>";
+	} else {
+    	trStr = "<tr name='dynamicTR'>"
+    		+ "<td align='right' class='tb_h1' id='attr1Desc'>" + attrDescs[0] + "</td>"
+    		+ "<td><select class='select12' id='attr1' name='attr1'></select><span id='attr1Tip'></span></td></tr>";
+	}
+
+	$("#savePopTable").append(trStr);
+	if (type < 3) {
+		$("#attr1").attr("readonly", true);
+	} else if (type == 5) {
+		selectInt($("#attr1"));
+		jQuery.ajax({
+           type: "POST",
+           url: "#springUrl('/common/getSiteByOrg')",
+           success: function(msg){
+               if(msg == 'exception'){
+                   Jd.alert("接口出现异常");
+                   return false;
+               }
+        	   var attr1Str = $("#attr1").html();
+			   jQuery.each(msg,function(infoIndex,info){
+			   	   attr1Str += '<option value="'+info.siteName+'" >'+info.siteName+'</option>';
+               });
+
+			   // 兼容IE，下面两行都要
+        	   document.getElementById("attr1").innerHTML = attr1Str;
+        	   $("#attr1").html(attr1Str);
+           }
+        });
+	}
+}
+
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">收货差异反馈</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening" class="noborder">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+		<table width="100%" border="0">
+			<tr>
+				<td width="55%" valign="top" style="vertical-align:top">
+					<form id="savePopAbnormal" name="savePopAbnormal" action="#springUrl('/popReceiveAbnormal/savePopAbnormal')" method="POST">
+					  #if($showStatus == 2)
+						<input type="hidden" id="abnormalId" name="abnormalId" value="$!popReceiveAbnormal.abnormalId"/>
+					  #end
+                      <table id="savePopTable" width="100%" border="0" class="tb-x2">
+                        <tr>
+                          <td align="right" class="tb_h1" width="25%">发起人：</td>
+                          <td width="75%">
+            				<input type="hidden" id="operatorCode" name="operatorCode" value="$!userInfo.staffNo"/>
+##            				<input type="hidden" id="operatorCode" name="operatorCode" value="33406"/>
+            				<input type="hidden" id="operatorName" name="operatorName" value="$!userInfo.staffName"/>
+##            				<input type="hidden" id="operatorName" name="operatorName" value="朱超"/>
+							#if($showStatus == 3)
+								$!popReceiveAbnormal.operatorName
+							#else
+                				$!userInfo.staffNo / $!userInfo.staffName
+							#end
+            			  </td>
+                        </tr>
+                        <tr>
+                          <td align="right" class="tb_h1">分拣中心：</td>
+                          <td>
+            				<input type="hidden" id="orgCode" name="orgCode" value="$!userInfo.orgId"/>
+            				<input type="hidden" id="orgName" name="orgName" value="$!userInfo.orgName"/>
+            				<input type="hidden" id="createSiteCode" name="createSiteCode" value="$!userInfo.siteCode"/>
+            				<input type="hidden" id="createSiteName" name="createSiteName" value="$!userInfo.siteName"/>
+##                         <input type="hidden" id="orgCode" name="orgCode" value="600">
+##                         <input type="hidden" id="orgName" name="orgName" value="武汉分公司">
+##                         <input type="hidden" id="createSiteCode" name="createSiteCode" value="1610">
+##                         <input type="hidden" id="createSiteName" name="createSiteName" value="武汉奓山分拣中心">
+							#if($showStatus == 3)
+								$!popReceiveAbnormal.createSiteName
+							#else
+                				$!userInfo.siteCode / $!userInfo.siteName
+							#end
+            			  </td>
+                        </tr>
+                        <tr>
+            			  <td align="right" class="tb_h1">差异类型：</td>
+                          <td>
+							#if($showStatus == 1)
+            				<select class="select12" id="mainType" name="mainType">
+                                #if($null.isNull($!mainReasons) || $!mainReasons.size() != 1)
+            						<option value="">请选择</option>
+            					#end
+            					#if(!$null.isNull($!mainReasons))
+                    				#foreach($mainReason in $mainReasons)
+                                        <option value="${mainReason.code}">${mainReason.name}</option>
+                					#end
+            					#end
+                            </select>
+                            <select class="select18" name="subType" id="subType">
+            					<option value="">请选择</option>
+            					#foreach($subReason in $!subReasons)
+                                    <option value="${subReason.code}">${subReason.name}</option>
+            					#end
+                            </select>
+							<input type="hidden" id="mainTypeName" name="mainTypeName"/>
+							<input type="hidden" id="subTypeName" name="subTypeName"/>
+							#else
+    							<input type="hidden" id="mainType" name="mainType" value="$!popReceiveAbnormal.mainType"/>
+    							<input type="hidden" id="subType" name="subType" value="$!popReceiveAbnormal.subType"/>
+								$!popReceiveAbnormal.mainTypeName
+        						#if("$!popReceiveAbnormal.subTypeName" != "")
+        							~ $!popReceiveAbnormal.subTypeName
+        						#end
+							#end
+            			  </td>
+                        </tr>
+                        <tr id="orderTypeTR" style="display: none;">
+                            <td align="right" class="tb_h1">商家类型：</td>
+                            <td>
+                                <select class="select12" id="orderType" name="orderType">
+                                    <option value="">请选择</option>
+                                    <option value="23">LBP订单</option>
+                                    <option value="22">SOP订单</option>
+                                    <option value="25">SOPL订单</option>
+                                    <option value="10000">纯外单</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                          <td align="right" class="tb_h1">运单号：</td>
+                          <td>
+							<input type="hidden" id="waybillType" name="waybillType" value="$!popReceiveAbnormal.waybillType"/>
+							<input type="hidden" id="orderCode" name="orderCode" value="$!popReceiveAbnormal.orderCode"/>
+							#if($showStatus == 1)
+            				<input type="text" id="waybillCode" name="waybillCode"/>
+            				<span id="waybillCodeTip"></span>
+							#else
+								<input type="hidden" id="waybillCode" name="waybillCode" value="$!popReceiveAbnormal.waybillCode"/>
+								$!popReceiveAbnormal.waybillCode
+							#end
+            			  </td>
+                        </tr>
+                        <tr style="display: none;" id="orderCodeOptionalTR">
+                              <td align="right" class="tb_h1">订单号：</td>
+                              <td>
+                               <input type="text" id="orderCodeOptional" name="orderCodeOptional"/>
+                              </td>
+                        </tr>
+						<tr>
+						  <td align="right" class="tb_h1">商家编号：</td>
+						  <td>
+							<input type="hidden" id="popSupNo" name="popSupNo" value=""$!popReceiveAbnormal.popSupNo""/>
+							#if($showStatus == 1)
+							<span id="popSupNoTip"></span>
+							#else
+								#if("$!popReceiveAbnormal.popSupNo" != "null")
+									$!popReceiveAbnormal.popSupNo
+								#end
+							#end
+						  </td>
+						</tr>
+						<tr>
+						  <td align="right" class="tb_h1">商家名称：</td>
+                          <td>
+            				<input type="hidden" id="popSupName" name="popSupName" value=""$!popReceiveAbnormal.popSupName""/>
+							#if($showStatus == 1)
+            				<span id="popSupNameTip"></span>
+							#else
+								#if("$!popReceiveAbnormal.popSupName" != "null")
+									$!popReceiveAbnormal.popSupName
+								#end
+							#end
+            			  </td>
+						</tr>
+						#if($showStatus != 3)
+						<tr>
+                          <td align="right" class="tb_h1"> 备注：</td>
+						  <input type="hidden" id="remark" name="remark"/>
+                          <td><textarea cols ="50" rows = "3" id="remark1" name="remark1"></textarea><font color="red">内容不要超过256个字</font></td>
+                        </tr>
+						#end
+					  </table>
+                    </form>
+                </td>
+				<td align="right" class="tb_h1 noborder bgFF" width="2%">&nbsp;</td>
+				<td width="43%" valign="top" style="vertical-align:top" >
+					#if($showStatus != 3)
+					<table width="100%" border="0" class="tb-x2" >
+						<tr>
+						  <td>
+            				1、此功能目前支持提交POP（SOPL、LBP、SOP）与纯外单运单差异相关问题，请谨慎操作！<br />
+							2、操作时，必须选择差异类型。<br />
+							3、根据不同差异类型判断运单号是否需要输入，输入订单号后<font color="red"><b>请回车</b></font>，再提交申请！<br />
+							4、对于商家编号、商家名称，POP类型订单获取到的是POP商家信息，纯外单获取到得是B商家信息。<br />
+                            5、差异类型选择"订单未发货"，且商家类型为"SOP订单"或者"纯外单"时，商家编码只能输入商家ID。<br/>
+            				6、操作时，根据运单号获取到商家信息后，若需更改运单号，请点击重置按钮，重新操作！
+            			  </td>
+                        </tr>
+                    </table>
+					<br />
+					#end
+					<table id="showPopTable" width="100%" border="0" class="tb-x2" >
+                        #foreach($popAbnormalDetail in $!popAbnormalDetails)
+                        <tr>
+                        	<td align="left" class="tb_h1">
+                        		<b>操作时间：</b>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormalDetail.createTime) &nbsp;&nbsp; <b>操作人：</b>$!popAbnormalDetail.operatorName
+                        	</td>
+                        </tr>
+                        <tr>
+                        	<td align="left">
+                        		<font
+									#if("$!popAbnormalDetail.operatorName" == "POP商家")
+										color="red"
+									#end
+									>$!popAbnormalDetail.remark<font>
+                        	</td>
+                        </tr>
+                        #end
+                    </table>
+                </td>
+            </tr>
+        </table>
+		<br/>
+		<table width="100%" border="0">
+			<tr>
+              <th colspan="2" align="center">
+				#if($showStatus != 3)
+    			<input type="button" id="submitPop" value="提交申请" class="btn_c">
+                <input type="button" id="resetButton" value="重置" class="btn_c">
+				#end
+                <input type="button" id="goBack" onclick="javascript:history.go(-1);" value="返回" class="btn_c">
+    		  </th>
+            </tr>
+    	</table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  </div>
+  <!--opening end-->
+</div>
+</body></html>

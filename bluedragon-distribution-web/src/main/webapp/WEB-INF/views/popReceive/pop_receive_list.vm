@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>已打印未收货处理</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	// 验证数字
+	$("#waybillCode").blur(function() {
+		if (!checkNull(this.value)) {
+			return;
+		}
+		if (!checkNum(this.value)) {
+			alert("只能输入数字，请重新输入！");
+			$(this).val("");
+		}
+	});
+	
+	// 提交查询
+	$("#search").click(function() {
+		$("#waybillCode").blur();
+		$("#selectPopReceiveList").attr("action", '#springUrl("/popReceive/list")');
+		$("#selectPopReceiveList").attr("method", "GET");
+		$("#selectPopReceiveList").submit();
+	});
+	
+	//提交补全信息
+	$("input[name='doReceive']").each(function(){
+    	$(this).click(function() {
+			saveRecevie(this.id);
+		});
+    });
+	
+	//提交当页所有补全信息
+	$("#doReceiveAll").click(function() {
+		var datas = new Array();
+		$("input[name='doReceive']").each(function(i) {
+			datas[i] = this.id;
+		});
+		if (datas != null && datas.length > 0) {
+    		if(window.confirm("是否补全当前页所有数据？")) {
+        		saveRecevie(datas);
+    		}
+		}
+	});
+	
+	$("#orgCode").change(function(){
+		selectInt("#createSiteCode");
+    	jQuery.ajax({
+           type: "POST",
+           url: "#springUrl('/common/getSiteByOrg')",
+           data: {orgCode: this.value},
+           success: function(msg){
+               var tempStr = "";
+               if(msg == 'exception'){
+                   Jd.alert("接口出现异常");
+                   return false;
+               }
+               jQuery.each(msg,function(infoIndex,info){
+               	   $("#createSiteCode").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+               });
+           }
+        });
+	});
+	
+	if ("$!popReceiveDTO" != "") {
+		// 初始化查询条件
+		$("#waybillCode").val("$!popReceiveDTO.waybillCode");
+		$("#orgCode").val("$!popReceiveDTO.orgCode");
+		if ("$!popReceiveDTO.createSiteCode" == "" && "$!siteList" == "") {
+			$("#orgCode").change();
+		} else {
+			$("#createSiteCode").val("$!popReceiveDTO.createSiteCode");
+		}
+		$("#isPackOrInvoice").val("$!popReceiveDTO.isPackOrInvoice");
+		$("#startTime").val('$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popReceiveDTO.startTime)');
+		$("#endTime").val('$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popReceiveDTO.endTime)');
+		if ("$!pager" != "") {
+			$("#pageNo").val($!pager.pageNo);
+			$("#pageSize").val($!pager.pageSize);
+		}
+	}
+});
+
+function selectInt(obj){
+	return $(obj).html("<option value=''>请选择</option>");
+}
+
+function saveRecevie(datas) {
+	jQuery.ajax({
+		type: 'POST',
+		contentType : 'application/json',
+		url : '#springUrl("/popReceive/saveRecevie")',
+		dataType : 'json',
+		data : '{"datas": "' + datas + '", "_temp": "' + new Date().getTime() + '"}',
+		success : function(data) {
+			if (data.success) {
+				alert(data.result);
+				location.href = '#springUrl("/popReceive/goListPage")';
+			} else {
+				alert(data.result);
+			}
+			return;
+		},
+		error : function(data) {
+			alert("error");
+		}
+	});
+}
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">POP已打印未收货处理</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+      <form id="selectPopReceiveList" name="selectPopReceiveList" action="#springUrl('/popReceive/list')" method="GET">
+		<input type="hidden" id="pageNo" name="pageNo" />
+		<input type="hidden" id="pageSize" name="pageSize" />
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+          <tbody>
+            <tr>
+			  <th align="right">分拣中心：</th>
+              <td>
+				<select class="select12" id="orgCode" name="orgCode">
+                    #if($null.isNull($!orgList) || $!orgList.size() != 1)
+						<option value="">请选择</option>
+					#end
+					#if(!$null.isNull($!orgList))
+        				#foreach($baseOrg in $orgList)
+                            <option value="${baseOrg.orgId}">${baseOrg.orgName}</option>
+    					#end
+					#end
+                </select>
+                <select class="select18" name="createSiteCode" id="createSiteCode">
+                    #if($null.isNull($!siteList) || $!siteList.size() != 1)
+						<option value="">请选择</option>
+					#end
+					#if(!$null.isNull($!siteList))
+    					#foreach($baseStaffSiteOrgDto in $siteList)
+                            <option value="${baseStaffSiteOrgDto.siteCode}">${baseStaffSiteOrgDto.siteName}</option>
+    					#end
+					#end
+                </select>
+			  </td>
+              <th align="right">运单编号：</th>
+              <td ><input id="waybillCode" name="waybillCode" type="text" class="textField28"/></td>
+              <th align="right">时间类型：</th>
+              <td >
+				<select id="isPackOrInvoice" name="isPackOrInvoice" class="select18">
+                  <option value="1">打印包裹时间</option>
+                  <option value="2">打印发票时间</option>
+                </select>
+			  </td>
+              <td>
+				<input type="text" class="Wdate" id="startTime" name="startTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+				~
+				<input type="text" class="Wdate" id="endTime" name="endTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			  </td>
+			  <td align="left"><input id="search" type="button" value="查询" class="btn_c"/></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+		<input id="doReceiveAll" name="doReceiveAll" type="button" value="补全当前页所有" class="btn_c"/>
+		&nbsp;&nbsp;
+        <span ><font color="blue">只能查询<font color="red">7天内</font>的数据</font></span>
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;" class="tb-x1">
+          <thead>
+            <tr>
+			  <th>序号</th>
+              <th>运单号</th>
+              <th>创建站点</th>
+              <th>打印包裹人</th>
+              <th>打印包裹时间</th>
+              <th>打印发票人</th>
+              <th>打印发票时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+			#if($null.isNull($!popReceives) || $!popReceives.size() == 0)
+				<tr class="a2" style="">
+					<td colspan="16" align="left">
+						无数据！
+                    </td>
+                </tr>
+			#else
+				#foreach($popReceives in $!popReceives)
+				<tr class="a2" style="">
+                  <td>$velocityCount</td>
+                  <td>$!popReceives.waybillCode</td>
+                  <td>$!popReceives.createSiteCode</td>
+                  <td>$!popReceives.printPackCode</td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popReceives.printPackTime)</td>
+                  <td>$!popReceives.printInvoiceCode</td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popReceives.printInvoiceTime)</td>
+                  <td>
+					<input id="$!popReceives.waybillCode#$!popReceives.createSiteCode" name="doReceive" type="button" value="补全收货" class="btn_c"/>
+				  </td>
+                </tr>
+				#end
+			#end
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+    <div class="tbl-n">
+		#pageBar("#springUrl('')/popReceive/list?waybillCode=$!popReceiveDTO.waybillCode&startTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popReceiveDTO.startTime)&endTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popReceiveDTO.endTime)&isPackOrInvoice=$!popReceiveDTO.isPackOrInvoice&orgCode=$!popReceiveDTO.orgCode&createSiteCode=$!popReceiveDTO.createSiteCode" $pager.totalSize $pager.pageNo $pager.totalNo)
+    </div>
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

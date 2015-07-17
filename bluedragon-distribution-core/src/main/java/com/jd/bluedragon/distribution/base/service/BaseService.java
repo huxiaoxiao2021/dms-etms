@@ -1,0 +1,248 @@
+package com.jd.bluedragon.distribution.base.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.jd.bluedragon.core.redis.TaskMode;
+import com.jd.bluedragon.distribution.base.domain.PdaStaff;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.etms.basic.domain.BaseDataDict;
+import com.jd.etms.basic.domain.BaseOrg;
+import com.jd.etms.basic.domain.BaseSite;
+import com.jd.etms.basic.domain.BaseVehicle;
+import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+
+public interface BaseService {
+
+	/**
+	 * 账号密码是否存在
+	 *
+	 * @param String
+	 *            erpcode erp账号
+	 * @param String
+	 *            password erp密码
+	 * @return StaffDto 是否登录成功
+	 */
+	PdaStaff login(String erpcode, String password);
+
+	/**
+	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务 根据日期进行增量查询
+	 *
+	 * @return BaseDataDict[]
+	 */
+	List<BaseDataDict> getBaseDataDictListByDate(String date);
+
+	/**
+	 * 根据司机编号查询司机
+	 *
+	 * @param drivercode
+	 *            司机编号
+	 * @return BaseStaffSiteOrgDto 司机信息列表
+	 */
+	BaseStaffSiteOrgDto queryDriverByDriverCode(Integer drivercode);
+
+	/**
+	 * 根据车辆编号查询车辆信息
+	 *
+	 * @param vehiclecode
+	 *            车辆编号
+	 * @return BaseVehicle 车辆信息列表
+	 */
+	BaseVehicle queryVehicleByVehicleCode(String vehiclecode);
+
+	/**
+	 * 根据车辆条码查询车辆信息
+	 *
+	 * @param vehiclecode
+	 *            车辆编号
+	 * @return BaseVehicle 车辆信息列表
+	 */
+	BaseVehicle queryVehicleByBarCode(String barcode);
+
+	/**
+	 * 获得所有的机构数据
+	 *
+	 * @return List<BaseOrg> @
+	 */
+	List<BaseOrg> getAllOrg();
+
+	/**
+	 * 根据站点编号或DMSCODE获得站点信息
+	 *
+	 * @return BaseStaffSiteOrgDto @
+	 */
+	BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String code);
+
+	/**
+	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务
+	 *
+	 * @return BaseDataDict[]
+	 */
+	BaseDataDict[] getBaseDataDictListByDate(Integer typeGroup);
+
+    /**
+     * 非递归获取字典树
+     * @param typeGroup 树类别标识
+     * @return
+     */
+    List<BaseDataDict> getBaseDictionaryTree(int typeGroup);
+
+	/**
+	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务
+	 *
+	 * @return BaseDataDict[]
+	 */
+	BaseDataDict[] getBaseDataDictListByDate(List<Integer> typeGroups);
+
+	/**
+	 * 根据站点ID查询站点名称，如果没有匹配数据则返回空值(null)
+	 *
+	 * @param Integer
+	 *            siteid
+	 * @return BaseStaffSiteOrgDto
+	 */
+	BaseStaffSiteOrgDto getSiteBySiteID(Integer siteid);
+
+	/**
+	 * 根据机构ID查询机构下站点
+	 *
+	 * @param orgid
+	 *            机构ID
+	 * @return List 站点信息列表
+	 */
+	BaseStaffSiteOrgDto[] querySiteByOrgID(Integer orgid);
+
+	/**
+	 * 根据机构ID查询机构下的车辆信息
+	 *
+	 * @param orgid
+	 *            机构ID
+	 * @return List 车辆信息列表
+	 */
+	BaseVehicle[] queryVehicleByOrgId(Integer orgid);
+
+	/**
+	 * 根据机构ID查询机构下的司机
+	 *
+	 * @param orgid
+	 *            机构ID
+	 * @return List 司机信息列表
+	 */
+	BaseStaffSiteOrgDto[] queryDriverByOrgId(Integer orgid);
+
+	/**
+	 * 查询所有站点信息
+	 *
+	 * @return List<BaseStaffSiteOrgDto>
+	 */
+	List<BaseStaffSiteOrgDto> getDmsSiteAll();
+
+	/**
+	 * 通过员工id查询分拣中心信息
+	 *
+	 * @param baseStaffId
+	 * @return
+	 */
+	Map<Integer, String> getSiteInfoByBaseStaffId(Integer baseStaffId);
+
+	/**
+	 * 根据订单号查询订单信息
+	 *
+	 * @param orderCode
+	 * @return ReverseSendWms 返回可能为空
+	 */
+	ReverseSendWms getWaybillByOrderCode(String orderCode);
+
+	
+	/**
+	 * 根据pop商家编号获取名称
+	 *
+	 * @param popCode
+	 */
+	String getPopBusinessNameByCode(String popCode);
+
+	/**
+	 * 根据基础设置的KEY查询基础设置
+	 *
+	 * @param key
+	 * @return
+	 */
+	List<SysConfig> queryConfigByKey(Map<String, Object> params);
+	
+	List<SysConfig> queryConfigByKey(String key);
+
+    /**
+     * 根据基础设置的KEY查询基础设置 带CACHE
+     * @param key
+     * @return
+     */
+    List<SysConfig> queryConfigByKeyWithCache(String key);
+
+	/**
+	 * 根据SysConfig的configName进行更新
+	 *
+	 * @param key
+	 * @return
+	 */
+	void updateSysConfig(SysConfig sysconfig);
+
+	/**
+	 * 新增Sysconfig
+	 */
+	void insertSysConfig(SysConfig sysconfig);
+
+	/**
+	 * 根据基础设置的id查询基础设置
+	 *
+	 * @param key
+	 * @return
+	 */
+	SysConfig getSysConfig(Long sysconfigId);
+
+	/**
+	 * 根据站点类型，查询站点集合
+	 *
+	 * @param orderCode
+	 * @return ReverseSendWms
+	 */
+
+	public List<BaseSite> getDmsSitBySiteType(Integer siteType);
+
+	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer staffId);
+
+	public List<BaseStaffSiteOrgDto> getPopBaseSiteByOrgId(Integer paramInteger);
+
+	public List<BaseDataDict> getBaseDataDictList(Integer parentId, Integer nodeLevel,
+	        Integer typeGroup);
+
+	
+	/**
+	 * 根据参数查询 基础参数设置的总数据量
+	 * @param map
+	 * @return INTEGET
+	 */
+	public Integer totalSysconfigSizeByParams(String key);
+	
+	/**
+	 * 获得整体worker运行模式 DB or Redis
+	 * @return
+	 */
+	public TaskMode getTaskMode();
+	String  getSiteNameBySiteID(Integer siteid);
+
+	/**
+	 * 根据自提柜code查询自提柜所属站点code
+	 * @param 自提柜code
+	 * @return
+	 */
+	public Integer getSiteSelfDBySiteCode(Integer sitecode);
+	
+	/**
+	 * 根据分拣中心id与目的地id获取任务区和电子标签信息
+	 * @param 
+	 * @return
+	 */
+	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(Integer createCode,Integer receiveCode);
+}

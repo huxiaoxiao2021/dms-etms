@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>POP包裹数量差异反馈列表</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	if ("$!popAbnormalDTO" != "") {
+		// 初始化查询条件
+		$("#popSupNo").val("$!popAbnormalDTO.popSupNo");
+		$("#waybillCode").val("$!popAbnormalDTO.waybillCode");
+		$("#startCreateTime").val('$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormalDTO.startCreateTime)');
+		$("#endCreateTime").val('$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormalDTO.endCreateTime)');
+		$("#abnormalState").val("$!popAbnormalDTO.abnormalState");
+		$("#operatorCode").val("$!popAbnormalDTO.operatorCode");
+		$("#orderCode").val("$!popAbnormalDTO.orderCode");
+		$("#orderByString").val("$!popAbnormalDTO.orderByString");
+		if ("$!pager" != "") {
+			$("#pageNo").val($!pager.pageNo);
+			$("#pageSize").val($!pager.pageSize);
+		}
+	}
+	// 验证数字
+	$("#popSupNo, #waybillCode, #orderCode").blur(function() {
+		if (!checkNull(this.value)) {
+			return;
+		}
+		if (!checkNum(this.value)) {
+			alert("只能输入数字，请重新输入！");
+			$(this).val("");
+		}
+	});
+	
+	// 导出数据
+	$("#exportData").click(function() {
+		// 提交表单
+		$("#selectPopList").attr("action", '#springUrl("/popAbnormal/exportPopAbnormal")');
+		$("#selectPopList").attr("method", "POST");
+		$("#selectPopList").submit();
+		return false;
+	});
+	// 提交查询
+	$("#search").click(function() {
+		$("#popSupNo, #waybillCode, #orderCode").blur();
+		$("#selectPopList").attr("action", '#springUrl("/popAbnormal/list")');
+		$("#selectPopList").attr("method", "GET");
+		$("#selectPopList").submit();
+	});
+	// 进入反馈页面
+	$("#insertPop").click(function() {
+		location.href = "#springUrl('/popAbnormal/detail')";
+	});
+});
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">POP包裹数量差异反馈列表</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+      <form id="selectPopList" name="selectPopList" action="#springUrl('/popAbnormal/list')" method="GET">
+		<input type="hidden" id="pageNo" name="pageNo" />
+		<input type="hidden" id="pageSize" name="pageSize" />
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+            <tr>
+              <th align="right">商家编码：</th>
+              <td ><input id="popSupNo" name="popSupNo" type="text" class="textField28"/></td>
+              <th align="right">运单编号：</th>
+              <td ><input id="waybillCode" name="waybillCode" type="text" class="textField28"/></td>
+              <th align="right">申请时间：</th>
+              <td>
+				<input type="text" class="Wdate" id="startCreateTime" name="startCreateTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+				~
+				<input type="text" class="Wdate" id="endCreateTime" name="endCreateTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			  </td>
+			  <th align="left">&nbsp;</th>
+            </tr>
+            <tr>
+              <th align="right">申请状态：</th>
+              <td >
+				<select id="abnormalState" name="abnormalState" class="select18">
+                  <option value="">所有状态</option>
+                  <option value="1">已发申请</option>
+                  <option value="2">审核完毕</option>
+                </select>
+			  </td>
+              <th align="right" >申请人：</th>
+              <td><input id="operatorCode" name="operatorCode" type="text" class="textField28"/></td>
+              <th align="right" >订单号：</th>
+              <td><input id="orderCode" name="orderCode" type="text" class="textField28"/></td>
+              <th align="left" >&nbsp;</th>
+            </tr>
+            <tr>
+              <th align="right">排序原则：</th>
+              <td>
+				<select id="orderByString" name="orderByString" class="select18">
+                  <option value="id">默认排序</option>
+                  <option value="pop_sup_no">商家编码</option>
+                  <option value="abnormal_state">申请状态</option>
+                  <option value="create_time">申请时间</option>
+                  <option value="waybill_code">运单编号</option>
+                  <option value="operator_code">申请人</option>
+                </select>
+			  </td>
+              <th align="right" >&nbsp;</th>
+              <td>&nbsp;</td>
+              <th colspan="3">
+				<input id="search" type="button" value="查询" class="btn_c"/>
+                <input id="exportData" type="button" value="导出" class="btn_c"/>
+			  </th>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <table cellspacing=0 cellpadding=0 width="100%" class="tb-x1">
+          <thead>
+            <tr>
+			  <th>序号</th>
+              <th>订单号</th>
+              <th>运单号</th>
+              <th>异常类型</th>
+              <th>申请状态</th>
+              <th>流水单号</th>
+              <th>商家编号</th>
+              <th>原包裹数</th>
+              <th>实际包裹数</th>
+              <th>确认包裹数</th>
+              <th>申请时间</th>
+              <th>申请人ID</th>
+              <th>申请人姓名</th>
+              <th>确认时间</th>
+              <th>更新时间</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+			#if($null.isNull($!popAbnormals) || $!popAbnormals.size() == 0)
+				<tr class="a2" style="">
+					<td colspan="16" align="left">
+						无数据！
+                    </td>
+                </tr>
+			#else
+				#foreach($popAbnormal in $!popAbnormals)
+				<tr class="a2" style="">
+                  <td>$velocityCount</td>
+                  <td>$!popAbnormal.orderCode</td>
+                  <td>$!popAbnormal.waybillCode</td>
+                  <td>
+					#if($!popAbnormal.abnormalType == 1)
+						POP包裹数不一致
+					#end
+				  </td>
+                  <td>
+					#if($!popAbnormal.abnormalState == 1)
+						已发申请
+					#elseif($!popAbnormal.abnormalState == 2)
+						审核完毕
+					#end
+				  </td>
+                  <td>$!popAbnormal.serialNumber</td>
+                  <td>$!popAbnormal.popSupNo</td>
+                  <td>$!popAbnormal.currentNum</td>
+                  <td>$!popAbnormal.actualNum</td>
+                  <td>$!popAbnormal.confirmNum</td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.createTime)</td>
+                  <td>$!popAbnormal.operatorCode</td>
+                  <td>$!popAbnormal.operatorName</td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.confirmTime)</td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popAbnormal.updateTime)</td>
+                  <td>$!popAbnormal.memo</td>
+                </tr>
+				#end
+			#end
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+    <div class="tbl-n">
+		#pageBar("#springUrl('')/popAbnormal/list?popSupNo=$!popAbnormalDTO.popSupNo&waybillCode=$!popAbnormalDTO.waybillCode&startCreateTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalDTO.startCreateTime)&endCreateTime=$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!popAbnormalDTO.endCreateTime)&abnormalState=$!popAbnormalDTO.abnormalState&operatorCode=$!popAbnormalDTO.operatorCode&orderCode=$!popAbnormalDTO.orderCode&orderByString=$!popAbnormalDTO.orderByString" $pager.totalSize $pager.pageNo $pager.totalNo)
+    </div>
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

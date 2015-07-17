@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>跨分区分拣校验</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/cross-sorting/cross-sorting-index.js')"></script>
+    <style type="text/css">
+        h2.pos_left {
+            position: relative;
+            left: -20px
+        }
+
+        h2.pos_right {
+            position: relative;
+            left: 200px
+        }
+
+        .div_btn {
+            float: left;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">跨分区分拣校验</a>
+    </p>
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <div id="queryForm" name="queryForm">
+                <input type="hidden" id="pageNo" name="pageNo" value=""/>
+                <input type="hidden" id="totalNo" name="totalNo" value=""/>
+                <input type="hidden" id="pageSize" name="pageSize" value=""/>
+                <input type="hidden" id="totalSize" name="totalSize" value=""/>
+                <input type="hidden" id="tableName" name="tableName" value=""/>
+                <table border="0" cellpadding="0" cellspacing="0" style="width:70%;margin:0 auto;">
+                    <tbody>
+                    <tr>
+                        <th align="right">建包/发货区域：</th>
+                        <td>
+                            <select id="orgList" onchange=initCreateDmsList(); style="width:180px;" cellpadding="0"
+                                    cellspacing="0">
+                            </select>
+                        </td>
+                        <th align="right">建包/发货分拣中心：</th>
+                        <td>
+                            <select id="createDmsList" style="width:180px;">
+                            </select>
+                        </td>
+                        <th align="right">目的分拣中心：</th>
+                        <td style="width:150px;">
+                            <select id="destinationDmsList" style="width:180px;">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">规则类型：</th>
+                        <td style="width:90px;">
+                            <select id="typeList" style="width:80px;">
+                                <option value=""></option>
+                                <option value="10">建包</option>
+                                <option value="20">发货</option>
+                            </select>
+                        </td>
+                        <th align="right">维护人：</th>
+                        <td style="width:90px;">
+                            <input id="createUserName" value="" style="width: 100px;"/>
+                        </td>
+                        <th align="right"></th>
+                        <td colspan="9" align="center">
+                            <input id="queryBtn" value="查询" type="button" class="btn_c"></input>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div style="width: 70%; margin:0 auto;margin-top:12px;">
+                    <div class="div_btn" style="float:left;">
+                        <div style="width: 250px;float: right;">
+                            <input id="loadInBtn" value="导入" type="button" class="btn_c"></input>
+                            <input id="downloadModelBtn" value="下载模版" type="button" class="btn_c"></input>
+                        </div>
+                        <form action="" method="post" id="importFileForm" name="importFileForm"
+                              style="float:left;width:240px;">
+                            <input type="file" id="importFileIpt" name="importExcelFile"
+                                   style="height: 28px;display: block;margin-top:5px;"/>
+                        </form>
+                    </div>
+                    <div class="div_btn" style="float:right;">
+                        <input id="loadOutBtn" value="导出" type="button" class="btn_c"></input>
+                        <input id="addBtn" value="添加" type="button" class="btn_c"></input>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table id="paperTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th style="width:40px;">序号</th>
+                        <th style="width:50px;">建包分拣中心ID</th>
+                        <th style="width:50px;">建包分拣中心</th>
+                        <th style="width:50px;">目的分拣中心ID</th>
+                        <th style="width:50px;">目的分拣中心</th>
+                        <th style="width:50px;">规则类型</th>
+                        <th style="width:50px;">可混装分拣中心ID</th>
+                        <th style="width:50px;">可混装分拣中心</th>
+                        <th style="width:50px;">维护人</th>
+                        <th style="width:50px;">维护时间</th>
+                        <th style="width:50px;">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="pager" class="tbl-n">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

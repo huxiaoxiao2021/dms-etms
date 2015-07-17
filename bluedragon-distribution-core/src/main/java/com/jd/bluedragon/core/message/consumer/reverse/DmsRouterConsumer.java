@@ -1,0 +1,66 @@
+package com.jd.bluedragon.core.message.consumer.reverse;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.message.Message;
+import com.jd.wms.ws.Inbound;
+import com.jd.wms.ws.Result;
+
+@Service("dmsRouterConsumer")
+public class DmsRouterConsumer extends MessageBaseConsumer {
+
+	private final Log logger = LogFactory.getLog(this.getClass());
+
+	private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,53", "10,10,51");
+
+	@Autowired
+	private Inbound inbound;
+
+	@SuppressWarnings("rawtypes")
+	public void consume(Message message) throws Exception {
+		if (message == null || message.getContent() == null) {
+			return;
+		}
+
+		DmsRouter dmsRouter = JsonHelper.fromJson(message.getContent(), DmsRouter.class);
+		if (dmsRouter.getType() == 80) {
+			this.logger.info("[分拣中心OEM推送WMS]messageContent:" + dmsRouter.getBody());
+
+			Map map = JsonHelper.json2Map(dmsRouter.getBody());
+			if (map != null && map.get("orgId") != null && map.get("cky2") != null && map.get("storeId") != null
+					&& map.get("orderId") != null) {
+
+				String target = map.get("orgId").toString() + "," + map.get("cky2").toString() + ","
+						+ map.get("storeId").toString();
+
+				if (stores.contains(target)) {
+					String methodName = "XTQ";
+					String messageValue = dmsRouter.getBody();
+					String outboundNo = map.get("orderId").toString();
+					String outboundType = "XTQDl";
+					String source = "DMS";
+
+					Result result = this.inbound.forwardHandleMessage(target, methodName, messageValue, outboundNo,
+							outboundType, source);
+
+					this.logger.info("[分拣中心OEM推送WMS]:接口访问成功，result.getResultCode()=" + result.getResultCode());
+					this.logger.info("[分拣中心OEM推送WMS]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());
+					this.logger.info("[分拣中心OEM推送WMS]:接口访问成功，result.getResultValue()=" + result.getResultValue());
+					if (result.getResultCode()== 1) {
+						this.logger.error("[分拣中心OEM推送WMS]消息失败，运单号为" + outboundNo);
+					}
+				}
+			}
+		}
+	}
+}

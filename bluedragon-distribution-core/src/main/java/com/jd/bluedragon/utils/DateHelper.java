@@ -1,0 +1,150 @@
+package com.jd.bluedragon.utils;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import com.jd.bluedragon.Constants;
+
+public class DateHelper {
+    
+    public static final long TEN_MINUTES = 10 * 60 * 1000;
+    public static final long ONE_DAY = 24 * 60 * 60 * 1000;
+    public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS="yyyyMMddHHmmssSSS";
+    public static Date add(final Date date, Integer field, Integer amount) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        
+        calendar.add(field, amount);
+        
+        return calendar.getTime();
+    }
+    
+    public static Date addDate(final Date date, Integer days) {
+        return DateHelper.add(date, Calendar.DATE, days);
+    }
+    
+    public static String formatDate(Date date) {
+        if (date == null) {
+            return "";
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+        
+        return sdf.format(date);
+    }
+    
+    /**
+     * 将日期转换成为字符（yyyy-MM-dd）
+     */
+    public static String formatDate(Date date, String formatString) {
+        if (date == null) {
+            return "";
+        }
+        
+        String format = formatString;
+        if (StringHelper.isEmpty(formatString)) {
+            format = Constants.DATE_FORMAT;
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        
+        return sdf.format(date);
+    }
+    
+    /**
+     * 将日期转换成为字符（yyyy-MM-dd HH:mm:ss）
+     * 
+     * @param date
+     * @return
+     */
+    public static String formatDateTime(Date date) {
+        if (date == null) {
+            return "";
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_TIME_FORMAT);
+        
+        return sdf.format(date);
+    }
+    
+    /**
+     * 将日期转换成为字符（yyyy-MM-dd HH:mm:ss.SSS）
+     * 
+     * @param date
+     * @return
+     */
+    public static String formatDateTimeMs(Date date) {
+        if (date == null) {
+            return "";
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_TIME_MS_FORMAT);
+        
+        return sdf.format(date);
+    }
+    
+    public static Date getDateValue(Object object) {
+        return ObjectHelper.isNotEmpty(object) ? (Date) object : null;
+    }
+    
+    /**
+     * 字符转换为日期（yyyy-MM-dd）
+     * 
+     * @param dateString
+     * @return
+     */
+    public static Date parseDate(String dateString) {
+        return DateHelper.parseDate(dateString, Constants.DATE_FORMAT);
+    }
+    
+    public static Date parseDate(String dateString, String format) {
+        if (format == null) {
+            return null;
+        }
+        
+        try {
+            return new SimpleDateFormat(format).parse(dateString);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**
+     * 字符转换为日期（yyyy-MM-dd HH:mm:ss）
+     * 
+     * @param dateString
+     * @return
+     */
+    public static Date parseDateTime(String dateString) {
+        return DateHelper.parseDate(dateString, Constants.DATE_TIME_FORMAT);
+    }
+    
+    public static Date toDate(Long date) {
+        if (date == null) {
+            return null;
+        }
+        return new Date(date);
+    }
+    
+    public static Date getSeverTime(String sPdaTime) {
+        Date serverTime = new Date();
+        if (StringHelper.isEmpty(sPdaTime)) {
+            return serverTime;
+        }
+        
+        Date pdaTime = DateHelper.parseDate(sPdaTime, Constants.DATE_TIME_MS_FORMAT);
+        
+        if (pdaTime == null) {
+            pdaTime = DateHelper.parseDate(sPdaTime, Constants.DATE_TIME_FORMAT);
+        }
+        
+        Long interval = pdaTime.getTime() - serverTime.getTime();
+        if (pdaTime.after(serverTime) && DateHelper.TEN_MINUTES < interval) {
+            return serverTime;
+        } else {
+            return pdaTime;
+        }
+    }
+    
+}

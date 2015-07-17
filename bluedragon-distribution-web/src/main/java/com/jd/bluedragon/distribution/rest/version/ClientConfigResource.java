@@ -1,0 +1,218 @@
+package com.jd.bluedragon.distribution.rest.version;
+
+import static com.jd.bluedragon.distribution.api.JdResponse.CODE_OK;
+import static com.jd.bluedragon.distribution.api.JdResponse.CODE_SERVICE_ERROR;
+import static com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK;
+import static com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_SERVICE_ERROR;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ClientConfigRequest;
+import com.jd.bluedragon.distribution.api.response.VersionResponse;
+import com.jd.bluedragon.distribution.rest.version.resp.ClientConfigResponse;
+import com.jd.bluedragon.distribution.version.domain.ClientConfig;
+import com.jd.bluedragon.distribution.version.domain.VersionEntity;
+import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+
+@Component
+@Path(Constants.REST_URL)
+@Consumes( { MediaType.APPLICATION_JSON })
+@Produces( { MediaType.APPLICATION_JSON })
+public class ClientConfigResource {
+
+    private final Log logger = LogFactory.getLog(this.getClass());
+
+    @Autowired
+    private ClientConfigService clientConfigService;
+    /**
+     * 查询所有的配置信息
+     * @return
+     */
+    @GET
+    @Path("/versions/config/getAll")
+    public ClientConfigResponse getAll(){
+        this.logger.info("get all config " );
+        
+        List<ClientConfig> list =clientConfigService.getAll();
+        if (null != list) {
+            ClientConfigResponse response=new ClientConfigResponse(CODE_OK,MESSAGE_OK);
+            response.setDatas(list);
+            return response;
+        }
+        return new ClientConfigResponse(CODE_SERVICE_ERROR,MESSAGE_SERVICE_ERROR);
+    }
+    
+    /**
+     * 依据ID查询配置信息
+     * @param id
+     * @return
+     */
+    @GET
+    @Path("/versions/config/getById/{id}")
+    public ClientConfigResponse getById(@PathParam("id") Long id){
+        Assert.notNull(id, "id must not be null");
+
+        this.logger.info("id " + id);
+
+        ClientConfig clientVersion =clientConfigService.getById(id);        
+        if (null != clientVersion) {
+            ClientConfigResponse response=new ClientConfigResponse(CODE_OK,MESSAGE_OK);
+            List<ClientConfig> list =new ArrayList<ClientConfig>();
+            list.add(clientVersion);
+            response.setDatas(list);
+            return response;
+        }
+        return new ClientConfigResponse(CODE_SERVICE_ERROR,MESSAGE_SERVICE_ERROR);
+    }
+    
+    /**
+     * 依据分拣中心编号查询配置信息
+     * @param siteCode
+     * @return
+     */
+    @GET
+    @Path("/versions/config/getBySiteCode/{siteCode}")
+    public ClientConfigResponse getBySiteCode(@PathParam("siteCode") String siteCode){
+        Assert.notNull(siteCode, "siteCode must not be null");
+
+        this.logger.info("siteCode " + siteCode);
+
+        List<ClientConfig> list =clientConfigService.getBySiteCode(siteCode);
+        if (null != list) {
+            ClientConfigResponse response=new ClientConfigResponse(CODE_OK,MESSAGE_OK);
+            response.setDatas(list);
+            return response;
+        }
+        return new ClientConfigResponse(CODE_SERVICE_ERROR,MESSAGE_SERVICE_ERROR);
+    }
+    
+    /**
+     * 依据应用程序类型查询所有的配置信息
+     * @param programType
+     * @return
+     */
+    @GET
+    @Path("/versions/config/getByProgramType/{programType}")
+    public ClientConfigResponse getByProgramType(@PathParam("programType") Integer programType){
+        Assert.notNull(programType, "programType must not be null");
+
+        this.logger.info("programType " + programType);
+        
+        List<ClientConfig> list =clientConfigService.getByProgramType(programType);
+        if (null != list) {
+            ClientConfigResponse response=new ClientConfigResponse(CODE_OK,MESSAGE_OK);
+            response.setDatas(list);
+            return response;
+        }
+        return new ClientConfigResponse(CODE_SERVICE_ERROR,MESSAGE_SERVICE_ERROR);
+    }
+    
+    
+    /**
+     * 添加配置信息
+     * @param clientConfig
+     * @return
+     */
+    @POST
+    @Path("/versions/config/add")
+    public ClientConfigResponse add(ClientConfigRequest request){
+        Assert.notNull(request, "request must not be null");
+
+        this.logger.info("request " + request);
+        
+        ClientConfig clientConfig=toClientConfig(request);
+        if (clientConfigService.exists(clientConfig)) {
+            return new ClientConfigResponse(30000, "添加失败，版本配置已存在。");
+        }
+        if(clientConfigService.add(clientConfig)){
+            return new ClientConfigResponse(CODE_OK, MESSAGE_OK);
+        }
+        return new ClientConfigResponse(CODE_SERVICE_ERROR, MESSAGE_SERVICE_ERROR);
+    }
+    
+    /**
+     * 修改配置信息
+     * @param clientConfig
+     * @return
+     */
+    @PUT
+    @Path("/versions/config/update")
+    public ClientConfigResponse update(ClientConfigRequest request){
+        Assert.notNull(request, "request must not be null");
+
+        this.logger.info("request " + request);
+        
+        ClientConfig clientConfig=toClientConfig(request);
+        if(clientConfigService.update(clientConfig)){
+            return new ClientConfigResponse(CODE_OK, MESSAGE_OK);
+        }
+        return new ClientConfigResponse(CODE_SERVICE_ERROR, MESSAGE_SERVICE_ERROR);
+    }
+    
+    private ClientConfig toClientConfig(ClientConfigRequest request) {
+        ClientConfig clientConfig=new ClientConfig();
+        clientConfig.setConfigId(request.getConfigId());
+        clientConfig.setVersionCode(request.getVersionCode());
+        clientConfig.setProgramType(request.getProgramType());
+        clientConfig.setSiteCode(request.getSiteCode());
+        clientConfig.setYn(request.getYn());
+        return clientConfig;
+    }
+
+    /**
+     * 依据分拣中心编号和应用程序类型查询该分拣中心的可用版本和下载地址
+     * 
+     * @param siteCode
+     * @param programType
+     * @return
+     */
+    @GET
+    @Path("/versions/config/getCurrentVersion/{siteCode}/{programType}")
+    public VersionResponse getCurrentVersion(
+            @PathParam("siteCode") String siteCode,
+            @PathParam("programType") Integer programType) {
+        Assert.notNull(siteCode, "siteCode must not be null");
+        Assert.notNull(programType, "programType must not be null");
+
+        this.logger.info("siteCode " + siteCode);
+        this.logger.info("programType " + programType);
+
+        VersionEntity versionEntity = new VersionEntity(siteCode, programType);
+        VersionEntity entity = this.clientConfigService
+                .getVersionEntity(versionEntity);
+        if (null == entity) {
+            return new VersionResponse(VersionResponse.CODE_Version_ERROR,
+                    VersionResponse.MESSAGE_Version_ERROR);
+        }
+
+        return this.toVersionResponse(entity);
+    }
+
+    private VersionResponse toVersionResponse(VersionEntity entity) {
+        VersionResponse response = new VersionResponse(JdResponse.CODE_OK,
+                JdResponse.MESSAGE_OK);
+        response.setSiteCode(entity.getSiteCode());
+        response.setProgramType(entity.getProgramType());
+        response.setVersionCode(entity.getVersionCode());
+        response.setDownloadUrl(entity.getDownloadUrl());
+        return response;
+    } 
+}

@@ -1,0 +1,39 @@
+package com.jd.bluedragon.core.base;
+
+import java.util.List;
+
+import com.jd.etms.basic.domain.*;
+import com.jd.etms.basic.dto.BaseCrossDto;
+import com.jd.etms.basic.dto.BaseGoodsPositionDto;
+import com.jd.etms.basic.dto.BaseTradeInfoDto;
+
+public interface BaseMinorManager {
+	
+	public abstract BaseTradeInfoDto getBaseTraderById(Integer paramInteger);
+	
+	public abstract MainBranchSchedule getMainBranchScheduleByTranCode(String paramString);
+
+	public abstract BaseResult<List<MainBranchSchedule>> getMainBranchScheduleList(
+			MainBranchSchedule mbs);
+	
+	public abstract BaseCrossDto getComplexCrossDetail (String dmsCode, String siteCode);
+	
+	public abstract AirTransport getAirConfig(Integer originalProvinceId, Integer originalCityId,Integer destinationProvinceId, Integer destinationCityId);
+	
+	public List<BaseGoodsPositionDto> getBaseGoodsPositionDmsCodeSiteCode(Integer dmsID,String flage, Integer siteCode) ;
+	
+	public List<BaseGoodsPositionDto> getBaseGoodsPositionTaskAreaNoDmsId(Integer dmsID,String flage, Integer taskAreaNo) ;
+	public BaseResult<CrossPackageTagNew> getCrossPackageTagByPara(BaseDmsStore bds, Integer siteCode, Integer startDmsCode);
+	
+	public List<BaseTradeInfoDto> getBaseAllTrader();
+	
+	public List<BaseTradeInfoDto> getBaseTraderByName(String name);
+    /**
+     * 获取签约商家ID列表
+     * @return 签约商家ID列表
+     */
+    public List<String> getSignCustomer();
+
+	public abstract List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup);
+
+}

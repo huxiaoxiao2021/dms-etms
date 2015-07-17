@@ -1,0 +1,90 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>已打印未收货处理</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+
+
+
+
+function add(){
+document.form1.action="#springUrl('')/sysconfig/addSwitch";
+document.form1.method="post";
+alert(1);
+document.form1.submit();
+$("input[type='button']").attr("disabled","disabled")
+}
+
+
+$(function(){
+$("#form1").validateInit();
+
+});
+
+
+function back(){
+location.href="#springUrl('')/sysconfig/getSwitchList";
+}
+
+</script>
+<body>
+<div id="breadcrumb">
+  <p><a href="#">系统设置</a>&nbsp;&gt;&nbsp;<a href="#">系统开关设置</a>&nbsp;&gt;&nbsp;<a href="#">新增系统开关</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening" class="noborder">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <form id="form1" name="form1" action="" method="post"  >
+          <table width="100%" border="0" class="tb-x2" >
+            <tr>
+              <td align="right" class="tb_h1">中文名称：</td>
+              <td><input type="text" name="memo" id="memo" value="" v="require;length:50" 
+
+><font class="star">*</font></td>
+<td></td><td></td>
+</tr>
+<tr>
+              <td align="right" class="tb_h1"> 英文名称：</td>
+              <td><input type="text" name="configName" v="require;" /><font class="star">*</font></td>
+			  <td></td><td></td>
+            </tr>
+            <tr>
+              <td align="right" class="tb_h1">状态：</td>
+              <td >
+                <select class="select22" id="configContent" name="configContent" >
+                    <option value="1">--开--</option>
+					<option value="0">--关--</option>
+                    </optgroup>
+                </select>
+              </td>
+			  <td></td><td></td>
+            </tr>
+            <tr>
+              <th></th>
+              <th colspan="3" align="left"><input name="search" id="search" value="添加" class="btn_c" type="button" onclick="add();">&nbsp;&nbsp;
+                <input name="search" id="search" value="返回" class="btn_c" type="button" onclick="back();"></th>
+            </tr>
+          </table>
+		  
+		  <INPUT TYPE="hidden" name="configType" value="-1">
+        </form>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+  </div>
+  <!--opening end-->
+</div>
+
+</body>
+</html>

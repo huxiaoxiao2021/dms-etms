@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>逆向物流重新推送数据</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	</head>
+
+	<script type="text/javascript">
+		function check() {
+			var sendCode = $('#sendCode').val();
+
+			if (sendCode == null || sendCode.length <=0) {
+				$('#hint').html('请输入批次号!');
+			} else {
+				var dataType = 'json';
+				var url = '/services/reverse/repair/sendcode?sendCode=' + sendCode + '&random=' + Math.random();
+				var type = 'GET';
+				$.ajax({
+					url : url,
+					type : type,
+					dataType : dataType,
+					success : function(data) {
+						$('#hint').html(data.message);
+					}
+				});
+			}
+		}
+		
+		function check1() {
+			var sendCode = $('#sendCode1').val();
+			var waybillCode = $('#waybillCode').val();
+
+			if (sendCode == null || sendCode.length <=0) {
+				$('#hint1').html('请输入批次号!');
+			} else if (waybillCode == null || waybillCode.length <=0) {
+				$('#hint1').html('请输入运单号!');
+			} else {
+				var dataType = 'json';
+				var url = '/services/reverse/repair/waybill?sendCode=' + sendCode + '&waybillCode=' + waybillCode + '&random=' + Math.random();
+				var type = 'GET';
+				$.ajax({
+					url : url,
+					type : type,
+					dataType : dataType,
+					success : function(data) {
+						$('#hint1').html(data.message);
+					}
+				});
+			}
+		}
+	</script>
+
+	<body>
+		<div id="breadcrumb">
+			<p>
+				<a href="#">分拣管理</a>&nbsp;&gt;&nbsp;<a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">逆向物流重新推送数据</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+						<tbody>
+							<tr>
+								<td> <b>1、批次重新下发：</b>批次号
+								<input id="sendCode" name="sendCode" type="text" class="textField28" size="30"/>
+								&nbsp;&nbsp;
+								<input id="search" type="button" value="重新下发" onclick="check()" class="btn_c"/>
+								&nbsp;&nbsp;
+								<span id="hint">&nbsp;</span>
+								</td>
+							</tr>
+							<tr>
+								<td> &nbsp;</td>
+							</tr>
+							<tr>
+								<td> <b>2、剔除异常运单：</b>批次号
+								<input id="sendCode1" name="sendCode1" type="text" class="textField28" size="30"/>
+								&nbsp;&nbsp;运单号
+								<input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
+								&nbsp;&nbsp;
+								<input id="search" type="button" value="剔除异常运单" onclick="check1()" class="btn_c"/>
+								&nbsp;&nbsp;
+								<span id="hint1">&nbsp;</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

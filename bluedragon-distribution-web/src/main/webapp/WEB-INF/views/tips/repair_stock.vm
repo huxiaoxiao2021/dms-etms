@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>备件库收货回传库管</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+</head>
+
+<script type="text/javascript">
+	function push() {
+
+		var waybillCodes = $('#waybillCodes').val();
+		
+		if (waybillCodes == null || waybillCodes.length <= 0) {
+			alert('请输入运单号!');
+		} else {
+		    var waybillCode = waybillCodes.split(",");
+		    for(var i=0;i<waybillCode.length;i++){
+		    	if (waybillCode[i] == null || waybillCode[i].length <= 0) continue;
+		    	
+				var url = "#springUrl('/services/reverseReceiveNotifyStock/notify/')" + waybillCode[i];
+				$.ajax({
+					url : url,
+					type : 'GET',
+					 cache : false, 
+					async : false,
+					dataType : 'json/xml/html',
+					success : function(data) {	
+					decodeURIComponent
+						$('#hint').html($('#hint').html()+'<p>'+waybillCode[i]+':push'+decodeURIComponent(data));
+					}
+				});
+		    }
+		}
+	}
+	function check() {
+
+		var waybillCodes = $('#waybillCodes').val();
+		
+		if (waybillCodes == null || waybillCodes.length <= 0) {
+			alert('请输入运单号!');
+		} else {
+		    var waybillCode = waybillCodes.split(",");
+		    for(var i=0;i<waybillCode.length;i++){
+		    	if (waybillCode[i] == null || waybillCode[i].length <= 0) continue;
+		    	
+				var url = "#springUrl('/services/reverseReceiveNotifyStock/check/')" + waybillCode[i];
+				$.ajax({
+					url : url,
+					type : 'GET',
+					 cache : false, 
+					async : false,
+					dataType : 'json/xml/html',
+					success : function(data) {
+						$('#hint').html($('#hint').html()+'<p>'+waybillCode[i]+':check'+decodeURIComponent(data));
+					}
+				});
+		    }
+		}
+	}
+	
+	function clears() {
+		$('#waybillCodes').val('');
+		$('#hint').text('');
+	}
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="#">分拣管理</a>&nbsp;&gt;&nbsp;<a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">备件库收货回传库管</a></p>
+</div>
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+          <tbody>
+          
+			<tr>
+            	<th align="left">多运单号用英文,号分开（如12345,23456,45678）：</th>
+			</tr>
+			<tr>
+            	<th align="left">可推送库管 条件：推送库管需要满足两个条件之一：<p>
+												1.符合订单类型"普通订单类型值 0， FBP订单类型值 21"、确定先款后款(只有库管信息中符合 { (分类=="放货"&&其它==0 )||分类=="销售" } && 方式=="出库"  的订单才能确定先款后款)<p>
+												2.符合订单类型"11, 13, 15, 16, 18, 19, 42, 56, 61"</th>
+			</tr>
+			<tr>
+				<td><textarea id="waybillCodes" name="waybillCodes" cols="20" rows="5" class="textField28"></textarea></td>
+			</tr>
+			</tr>
+			<tr>
+				<td><input id="push" type="button" value="推送" onclick="push()" class="btn_c"/>&nbsp;&nbsp;<input id="check" type="button" value="检查" onclick="check()" class="btn_c"/>&nbsp;&nbsp;<input id="clear" type="button" value="重置" onclick="clears()" class="btn_c"/></td>
+			</tr>
+          </tbody>
+        </table>
+        <span id="hint">&nbsp;</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

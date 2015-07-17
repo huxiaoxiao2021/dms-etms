@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>POP实收查询</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+
+<script type="text/javascript">
+function selectInt(obj){
+return $(obj).html("<option value=''>请选择</option>");
+}
+
+
+$(document).ready(function() {
+
+
+$("#orgId").change(function(){
+selectInt("#site");
+var  parentId= this.value;
+jQuery.ajax({
+   type: "POST",
+   url: "#springUrl('')/common/getSiteByOrg",
+   data: {orgCode:parentId},
+   success: function(msg){
+   var tempStr="";
+   if(msg=='exception'){
+   Jd.alert("接口出现异常");
+   return false;
+   }
+    jQuery.each(msg,function(infoIndex,info){
+    $("#site").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+   });
+   }
+	});
+
+   });
+   
+
+	// 提交查询
+	$("#search").click(function() {
+	var operateStartTime =$("#operateStartTime").val();
+	var operateEndTime =$("#operateEndTime").val();
+	var thirdWaybillCode =$("#thirdWaybillCode").val();
+	var waybillCode =$("#waybillCode").val();
+	var siteCode =$("#site").val();
+	if(thirdWaybillCode==''&&waybillCode==''){
+	if(operateStartTime==''){
+        alert("请选择开始日期");
+        return false;
+        }
+        if(operateEndTime==''){
+        alert("请选择结束日期");
+        return false;
+        }
+		var tt =checkDate(operateStartTime,operateEndTime);
+        if(tt==1){
+        alert("查询日期间隔不能超过48小时");
+        return false;
+        }else if(tt==2){
+        alert("开始日期不能大于结束日期");
+        return false;
+        }
+		if(siteCode==''){
+            alert("请选择分拣中心");
+            return false;
+        }
+		
+		}
+		$("#form1").submit();
+	});
+	
+	
+});
+
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">POP实收查询</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div class="m">
+    <div class="tbl-n">
+      <form id="form1" name="form1" action="#springUrl('/popReceive/getPopRecieveList')" method="GET">
+		<input type="hidden" id="pageNo" name="pageNo" />
+		<input type="hidden" id="pageSize" name="pageSize" />
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+          <tbody>
+            <tr>
+			   <th align="right">操作时间：</th>
+              <td>
+				<input type="text" class="Wdate" id="operateStartTime" name="operateStartTime" value="$!query.operateStartTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+				~
+				<input type="text" class="Wdate" id="operateEndTime" name="operateEndTime" value="$!query.operateEndTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			  </td>
+			  <th align="right">分拣中心：</th>
+              <td >
+				<select class="select22" id="orgId" name="orgCode" >
+                  #if( !$!{defaultOrgId})
+                  <option value="">请选择</option>
+				  #end
+                   #foreach($baseOrg in $orgList )
+                   <option value="${baseOrg.orgId}"
+					  #if( $!{defaultOrgId}==$baseOrg.orgId)
+                              selected="selected" 
+                       #elseif( $!query.orgCode==$baseOrg.orgId)
+                              selected="selected" 
+                        #end >${baseOrg.orgName}</option>
+                  #end
+                </select>
+                <select   class="select22" name="createSiteCode" id="site">
+                  #if( !$!{defaultSiteCode})
+                  <option value="">请选择</option>
+				  #end
+				    #foreach($baseStaffSiteOrgDto in $siteList )
+				        <option value="${baseStaffSiteOrgDto.siteCode}"
+							  #if( $!{defaultSiteCode}==$baseStaffSiteOrgDto.siteCode)
+								 selected="selected" 
+                            #elseif( $!query.createSiteCode==$baseStaffSiteOrgDto.siteCode)
+                              selected="selected" 
+                            #end >
+                            ${baseStaffSiteOrgDto.siteName}
+                         </option>
+                  #end
+                </select>
+			  </td>
+              <td >
+              </td>
+            </tr>
+			<tr >
+			  <th align="right">三方运单号：</th>
+              <td >
+				<input id="thirdWaybillCode" name="thirdWaybillCode" value="$!query.thirdWaybillCode" type="text" class="textField28"/>
+			  </td>
+			   <th align="right">运单号：</th>
+              <td>
+				<input id="waybillCode" name="waybillCode" value="$!query.waybillCode" type="text" class="textField28"/>
+			  </td>
+			   <td align="left"><input id="search" type="button" value="查询" class="btn_c"/>
+			   </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;" class="tb-x1">
+          <thead>
+            <tr>
+			  <th>序号</th>
+			  <th>运单号</th>
+              <th>收货类型</th>
+              <th>三方运单号</th>
+              <th>应收包裹数</th>
+			  <th>实收包裹数</th>
+			  <th>分拣中心</th>
+			  <th>收货人</th>
+              <th>操作时间</th>
+            </tr>
+          </thead>
+          <tbody>
+			#if($null.isNull($!dataList) || $!dataList.size() == 0)
+				<tr class="a2" style="">
+					<td colspan="16" align="left">
+						无数据！
+                    </td>
+                </tr>
+			#else
+				#foreach($popReceive in $!dataList)
+				<tr class="a2" style=""  >
+                  <td>$velocityCount</td>
+				  <td>$!popReceive.waybillCode</td>
+                  <td>
+					#if($!popReceive.receiveType==1)
+							直送
+					#elseif($!popReceive.receiveType==2)
+                         <font color="blue">托寄</font>
+					#end
+				  </td>
+                  <td>$!popReceive.thirdWaybillCode</td>
+                  <td >$!popReceive.originalNum</td>
+                  <td>
+					#if($!popReceive.originalNum==$!popReceive.actualNum)
+					$!popReceive.actualNum
+					#else
+					<font color="red" style="font-weight:bold" >$!popReceive.actualNum</font>
+					#end
+				  </td>
+				  <td>$!popReceive.createSiteName</td>
+				  <td>$!popReceive.operatorName</td>
+                  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!popReceive.operateTime)</td>
+                </tr>
+				#end
+			#end
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+    <div class="tbl-n">
+		#pageBar("#springUrl('')/popReceive/getPopRecieveList?operateStartTime=$!query.operateStartTime&operateEndTime=$!query.operateEndTime&queueStatus=$!query.queueStatus&waybillCode=$!query.waybillCode&thirdWaybillCode=$!query.thirdWaybillCode&createSiteCode=$!query.createSiteCode&orgCode=$!query.orgCode" $pager.totalSize $pager.pageNo $pager.totalNo)
+    </div>
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

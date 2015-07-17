@@ -1,0 +1,120 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>跨分区分拣校验</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>		
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/cross-sorting/cross-sorting-add.js')"></script>
+	<style type="text/css">
+		h2.pos_left{
+			position:relative;
+			left:-20px
+		}
+		h2.pos_right{
+			position:relative;
+			left:200px
+		}
+	</style>	
+	</head>
+	<script type="text/javascript">
+		
+	</script>
+	<body>
+	    <input type="hidden" id="contextPath" value="#springUrl('')"/>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">跨分区分拣校验</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">添加</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="queryForm" name="queryForm" action="#springUrl('')" method="GET">
+						<table border="0" cellpadding="0" cellspacing="0" align="center" style="width: 35%;min-width:600px;margin: 0 auto;">
+							<tbody align="center">								
+								<tr align="center">
+								    <th align="right" style="width:100px;">建包/发货区域：</th>
+									<td align="left" style="width:170px;">
+										<select id="orgList" onchange="initCreateDmsList();" style="width:220px;"> 
+										</select> 
+									</td>
+								</tr>
+								<tr align="center">
+									<th align="right" style="width:100px;">建包/发货分拣中心：</th>
+									<td align="left" style="width:170px;">
+										<select id="createDmsList" onchange="initMixDmsList();" style="width:220px;"> 
+										</select> 
+									</td>	
+								</tr>
+								<tr align="center">
+									<th align="right" style="width:100px;">目的分拣中心：</th>
+									<td align="left" style="width:170px;">
+										<select id="destinationDmsList" onchange="initMixDmsList();" style="width:220px;"> 
+										</select> 
+									</td>
+								</tr>
+								<tr align="center">
+									<th align="right" style="width:100px;">规则类型：</th>
+									<td align="left" style="width:170px;">
+										<select id="typeList" onchange="initMixDmsList();" style="width:220px;"> 
+											<option value="" ></option>	
+											<option value="10">建包</option>
+											<option value="20">发货</option>
+										</select> 
+									</td>
+								</tr>
+								<tr align="center">
+									<th align="right" style="width:100px;">可混装分拣中心：</th>
+									<td align="left" style="width:170px;">
+										<select id="mixDmsList" onchange="addMixDms();" style="width:220px;"> 
+										</select>  最多可添加10个 
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="tbl-list">
+							<div class="tbl-bg">
+								<table id="mixDmsTable" border="1" cellpadding="0" cellspacing="0" align="center" style="width: 35%;min-width:600px;margin: 0 auto;" class="tb-x1">
+									<thead align="center">
+										<tr align="right" >
+											<td align="center">可混装分拣中心ID</td>
+											<td align="center">可混装分拣中心</td>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+					    </div>
+						<table border="0" cellpadding="0" cellspacing="0" align="center" style="width:100%;min-width:1100px;">
+							<tbody align="center">								
+								<tr align="center">
+									<td align="center" style="width:100%;">
+										<div style="width: 100%; text-align: center;">
+										<input id="saveBtn" value="保存" type="button" class="btn_c"></input>
+										<input id="cancelBtn" value="取消" type="button" class="btn_c"></input>
+                                        </div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.reverse.dao.ReverseRejectDao" >
+
+	<resultMap id="reverseReject" type="com.jd.bluedragon.distribution.reverse.domain.ReverseReject" >
+		<result column="system_id" property="id" />
+		<result column="create_site_code" property="createSiteCode" />
+        <result column="create_site_name" property="createSiteName" />
+        <result column="org_id" property="orgId" />
+		<result column="cky2" property="cky2" />
+		<result column="store_id" property="storeId" />
+		<result column="order_id" property="orderId" />
+		<result column="pickware_code" property="pickwareCode" />
+		<result column="package_code" property="packageCode" />
+		<result column="operator_code " property="operatorCode " />
+		<result column="operator " property="operator" />
+		<result column="operate_time" property="operateTime" />
+		<result column="business_type" property="businessType" />
+		<result column="inspector" property="inspector" />
+		<result column="inspector_code" property="inspectorCode" />
+		<result column="inspect_time" property="inspectTime" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+	</resultMap>
+	
+	<insert id="add" parameterType="reverseReject" >
+		INSERT INTO Reverse_Reject (
+			system_id, create_site_code, create_site_name,
+		    org_id, cky2, store_id, business_type,
+            order_id, pickware_code, package_code, 
+            operator_code, operator, operate_time, 
+            inspector_code, inspector, inspect_time, 
+            create_time, update_time, yn)
+		VALUES (
+			SEQ_REVERSE_REJECT.NEXTVAL, 
+			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
+			#{orgId,jdbcType=INTEGER}, #{cky2,jdbcType=INTEGER}, #{storeId,jdbcType=INTEGER},
+			#{businessType,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR},
+			#{pickwareCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
+			#{operatorCode,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR},
+			#{operateTime,jdbcType=TIMESTAMP}, #{inspector,jdbcType=VARCHAR},
+			#{inspectorCode,jdbcType=INTEGER}, #{inspectTime,jdbcType=TIMESTAMP},
+			SYSDATE, SYSDATE, 1)
+	</insert>
+	
+	<select id="get" resultMap="reverseReject" parameterType="reverseReject" >
+		SELECT system_id
+		FROM Reverse_Reject
+		WHERE yn = 1 
+		<if test="businessType != null">
+            AND business_type = #{businessType} 
+        </if>
+        <if test="orderId != null">
+		    AND order_id = #{orderId}
+		</if>
+		<if test="packageCode != null">
+            AND package_code = #{packageCode}
+        </if>
+		AND ROWNUM <![CDATA[<=]]> 1
+	</select>
+	
+	<update id="update"  parameterType="reverseReject" >
+		UPDATE Reverse_Reject
+		<set>
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode,jdbcType=INTEGER},
+            </if>
+    		<if test="createSiteName != null">
+                create_site_name = #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="cky2 != null">
+                cky2 = #{cky2,jdbcType=INTEGER},
+            </if>
+            <if test="storeId != null">
+                store_id = #{storeId,jdbcType=INTEGER},
+            </if>
+            <if test="businessType != null">
+                business_type = #{businessType,jdbcType=INTEGER},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId,jdbcType=VARCHAR},
+            </if>
+            <if test="pickwareCode != null">
+                pickware_code = #{pickwareCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packageCode != null">
+                package_code = #{packageCode,jdbcType=VARCHAR}, 
+            </if>
+            <if test="operatorCode != null">
+                operator_code = #{operatorCode,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                operator = #{operator,jdbcType=VARCHAR},
+            </if>
+            <if test="operateTime != null">
+                operate_time = #{operateTime,jdbcType=TIMESTAMP}, 
+            </if>
+            <if test="inspectorCode != null">
+                 inspector_code = #{inspectorCode,jdbcType=VARCHAR},
+            </if>
+            <if test="inspector != null">
+                inspector = #{inspector,jdbcType=VARCHAR},
+            </if>
+            <if test="inspectTime != null">
+                inspect_time = #{inspectTime,jdbcType=TIMESTAMP}, 
+            </if>
+            update_time = SYSDATE
+        </set>
+		WHERE system_id = #{id}
+	</update>
+	
+</mapper>
