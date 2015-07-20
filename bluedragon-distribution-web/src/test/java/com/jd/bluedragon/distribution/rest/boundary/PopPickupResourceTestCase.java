@@ -17,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.jd.bluedragon.distribution.api.request.PopPickupRequest;
 import com.jd.bluedragon.utils.SendMailUtil;
-import com.jd.wms.wm.domain.sms.SendMail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:spring/distribution-core-context.xml" })
