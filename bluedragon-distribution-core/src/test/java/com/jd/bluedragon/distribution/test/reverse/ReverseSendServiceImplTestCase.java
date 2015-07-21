@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
@@ -17,9 +17,21 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.XmlHelper;
 
+import junit.framework.Assert;
+
 public class ReverseSendServiceImplTestCase {
 	
     private final Log logger = LogFactory.getLog(this.getClass());
+    private com.jd.staig.receiver.rpc.DataReceiver dataReceiver;
+
+    @Before
+    public void   getDtcDataReceiverService() {
+        ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
+                "/spring/distribution-core-jsf.xml");
+        com.jd.staig.receiver.rpc.DataReceiver service = (com.jd.staig.receiver.rpc.DataReceiver) appContext
+                .getBean("dtcDataReceiverServiceJsf");
+        dataReceiver = service;
+    }
 
 	public static void addMapWms(Map<String, String> m, String a, String b) {
 		if (m.containsKey(a)) {
@@ -135,7 +147,117 @@ public class ReverseSendServiceImplTestCase {
 		Assert.assertEquals(null, send.getReverseReason());
 	}
 	
+	@Test
+	public void testDtcReceiverInterWms() {
+		ReverseSendWms send = new ReverseSendWms();
+		send.setCky2(6);
+		send.setIsInStore(1);
+		send.setLossQuantity(0);
+		send.setOperateTime("2014-08-26 16:46:11");
+		send.setOrderId("1786592078");
+		send.setOrgId(6);
+		send.setPackageCodes("1786592078-1-1-110");
+		List<Product> proList = new ArrayList<Product>();
+		Product p = new Product();
+		p.setProductId("1092126");
+		p.setProductLoss("0");
+		p.setProductName("金典（GOLDEN） GD-50M 财务装订机");
+		p.setProductNum(1);
+		p.setProductPrice("12");
+		proList.add(p);
+		send.setProList(proList);
+		send.setSendCode("3011-47064-201408261640530");
+		send.setStoreId(5);
+		send.setUserName("郭玉海");
+		send.setType(12346);
+		send.setWaybillSign("waybillsi");
+		send.setSourceCode("1245");
+		
+		String target = send.getOrgId() + "," + send.getCky2() + "," + send.getStoreId();
+
+		String messageValue = XmlHelper.toXml(send, ReverseSendWms.class);
+		String outboundNo = send.getOrderId();
+		String outboundType = "OrderBackDl"; // OrderBackDl
+		String source = "DMS";
+		logger.error("target:"+target);
+		logger.error("outboundType:"+outboundType);
+		logger.error("priority:"+2);
+		logger.error("messageValue:"+messageValue);
+		logger.error("messageMd5Value:"+null);		
+		logger.error("source:"+source);
+		logger.error("outboundNo:"+outboundNo);
+		/**
+		 * 
+		 * 乔洪佥  15:17:13 
+			这算3.0的库房么?
+			黄亮  15:17:29 
+			我这里区分不了库房
+			乔洪佥  15:17:39 
+			区分不了是吧
+			那就是所有的库房你都是这样传值了是吧
+			①②均使用原接口中outboundType字段
+		 */
+		com.jd.staig.receiver.rpc.Result result =  dataReceiver.downStreamHandle(target, outboundType, outboundType, 2, messageValue, null,
+				source, outboundNo);
+		Assert.assertEquals(1, result.getResultCode());
+		
+	}
 	
+	@Test
+	public void testDtcReceiverInterAsiaWms() {
+		ReverseSendAsiaWms send = new ReverseSendAsiaWms();
+		send.setCky2(6);
+		send.setIsInStore(5);
+		send.setLossQuantity(0);
+		send.setOperateTime("2014-08-26 16:46:11");
+		send.setOrderId("1786592077");
+		send.setOrgId(6);
+		send.setPackageCodes("1786592077N1S1H110");
+		List<Product> proList = new ArrayList<Product>();
+		Product p = new Product();
+		p.setProductId("1092126");
+		p.setProductLoss("0");
+		p.setProductName("金典（GOLDEN） GD-50M 财务装订机");
+		p.setProductNum(1);
+		p.setProductPrice("12");
+		proList.add(p);
+		send.setProList(proList);
+		send.setSendCode("Y3011-47064-201408261640530");
+		send.setStoreId(5);
+		send.setUserName("郭玉海");
+		send.setType(12346);
+		send.setOrderSum(12);
+		send.setPackSum(133);
+		
+		String target = send.getOrgId() + "," + send.getCky2() + "," + send.getStoreId();
+
+		String messageValue = XmlHelper.toXml(send, ReverseSendAsiaWms.class);
+		String outboundNo = send.getOrderId();
+		String outboundType = "OrderBackDl"; // OrderBackDl
+		String source = "DMS";
+		logger.error("target:"+target);
+		logger.error("outboundType:"+outboundType);
+		logger.error("priority:"+2);
+		logger.error("messageValue:"+messageValue);
+		logger.error("messageMd5Value:"+null);		
+		logger.error("source:"+source);
+		logger.error("outboundNo:"+outboundNo);
+		/**
+		 * 
+		 * 乔洪佥  15:17:13 
+			这算3.0的库房么?
+			黄亮  15:17:29 
+			我这里区分不了库房
+			乔洪佥  15:17:39 
+			区分不了是吧
+			那就是所有的库房你都是这样传值了是吧
+			①②均使用原接口中outboundType字段
+		 */
+		com.jd.staig.receiver.rpc.Result result =  dataReceiver.downStreamHandle(target, outboundType, outboundType, 2, messageValue, null,
+				source, outboundNo);
+		Assert.assertEquals(1, result.getResultCode());
+		
+	}
 	/**
 	 * @param args
 	 */
