@@ -7,12 +7,12 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.XmlHelper;
@@ -64,6 +64,16 @@ public class ReverseSendServiceImplTestCase {
 		String messageValue = XmlHelper.toXml(send, ReverseSendAsiaWms.class);
 		
 		System.out.println(messageValue);
+	}
+	
+	@Test
+	public void testSendXml2WMS() {
+		ReceiveRequest request = null;
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReceiveRequest><sendCode>JPI00000000000000464398046533152</sendCode><orderId>ESL4398047079402</orderId><receiveType>1</receiveType><operateTime>2015-07-22 11:44:42</operateTime><userName>bjcwh</userName><canReceive>0</canReceive><rejectCode>100</rejectCode><rejectMessage>原因不明</rejectMessage></ReceiveRequest>";
+		
+		request = XmlHelper.xmlToObject(xml, ReceiveRequest.class, null);
+
+		Assert.assertEquals("ESL4398047079402", request.getOrderId());
 	}
 	
 	@Test
