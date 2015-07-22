@@ -161,11 +161,6 @@
 		<property name="authHeader" ref="authHeaderPopAbnormal" />
 	</bean>
 
-
-	<jaxws:client id="inbound" serviceClass="com.jd.wms.ws.Inbound"
-		address="${reverse.send.wms}">
-	</jaxws:client>
-	
 	<jaxws:client id="lossWebService" serviceClass="com.jd.loss.client.BlueDragonWebService"
         address="${loss.service.url}">
     </jaxws:client>
