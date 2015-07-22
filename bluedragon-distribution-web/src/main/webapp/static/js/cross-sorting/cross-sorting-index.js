@@ -39,7 +39,7 @@ function main() {
 }
 
 function goDownModel(){
-	location.href = "http://sq.jd.com/UfP6yH";
+	location.href = "http://sq.jd.com/nOSB8K";
 }
 
 function importExcel(){
