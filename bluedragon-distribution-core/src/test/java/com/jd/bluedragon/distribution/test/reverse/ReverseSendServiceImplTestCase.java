@@ -22,15 +22,13 @@ import junit.framework.Assert;
 public class ReverseSendServiceImplTestCase {
 	
     private final Log logger = LogFactory.getLog(this.getClass());
-    private com.jd.staig.receiver.rpc.DataReceiver dataReceiver;
 
-    @Before
-    public void   getDtcDataReceiverService() {
+    public com.jd.staig.receiver.rpc.DataReceiver getDtcDataReceiverService() {
         ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
                 "/spring/distribution-core-jsf.xml");
         com.jd.staig.receiver.rpc.DataReceiver service = (com.jd.staig.receiver.rpc.DataReceiver) appContext
                 .getBean("dtcDataReceiverServiceJsf");
-        dataReceiver = service;
+        return service;
     }
 
 	public static void addMapWms(Map<String, String> m, String a, String b) {
@@ -197,7 +195,7 @@ public class ReverseSendServiceImplTestCase {
 			那就是所有的库房你都是这样传值了是吧
 			①②均使用原接口中outboundType字段
 		 */
-		com.jd.staig.receiver.rpc.Result result =  dataReceiver.downStreamHandle(target, outboundType, outboundType, 2, messageValue, null,
+		com.jd.staig.receiver.rpc.Result result =  getDtcDataReceiverService().downStreamHandle(target, outboundType, outboundType, 2, messageValue, null,
 				source, outboundNo);
 		Assert.assertEquals(1, result.getResultCode());
 		
@@ -253,7 +251,7 @@ public class ReverseSendServiceImplTestCase {
 			那就是所有的库房你都是这样传值了是吧
 			①②均使用原接口中outboundType字段
 		 */
-		com.jd.staig.receiver.rpc.Result result =  dataReceiver.downStreamHandle(target, outboundType, outboundType, 2, messageValue, null,
+		com.jd.staig.receiver.rpc.Result result =  getDtcDataReceiverService().downStreamHandle(target, outboundType, outboundType, 2, messageValue, null,
 				source, outboundNo);
 		Assert.assertEquals(1, result.getResultCode());
 		
@@ -315,6 +313,7 @@ public class ReverseSendServiceImplTestCase {
 		System.out.println(jsonx);
 		
 	}
+	
 
 
 }
