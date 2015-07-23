@@ -28,7 +28,12 @@
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="0">
     </jsf:consumer>
 
-
+	<!-- 仓储dtc接口 乔洪佥 -->
+	<jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"
+		protocol="jsf" alias="${dtc.jsf.alias}" timeout="10000" retries="0">
+	</jsf:consumer>
+	<!-- -->
+	
     <jsf:consumer id="sortDeliverySyncService" interface="com.jd.fce.upc.area.service.contract.SortDeliveryCenterInfoSyncService"
                   protocol="jsf" alias="${dos.ofc.alias}" timeout="${dos.ofc.timeout}">
         <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>

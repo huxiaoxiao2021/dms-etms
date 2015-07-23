@@ -137,6 +137,11 @@ function loadMixDmsList(params) {
 				temp += "<tr>";
 				temp += "<td align='center'>" + (mixDmsList[i].mixDmsCode) + "</td>";
 				temp += "<td align='center'>" + (mixDmsList[i].mixDmsName) + "</td>";
+				var str = mixDmsList[i].mixDmsCode + "az" + mixDmsList[i].id;
+				temp += "<td align='center'>" + "<input type='button' name='" 
+				        + mixDmsList[i].id + "' id='DMS"
+				        + mixDmsList[i].mixDmsCode +"' value='删除' onclick='crossSortingDelete(" 
+				        + mixDmsList[i].mixDmsCode + ")'>" + "</td>";
 				temp += "</tr>";
 			}
 			temp += "</tbody>";
@@ -150,7 +155,7 @@ function loadMixDmsList(params) {
 function initMixDmsTable() {
 	$('#mixDmsTable thead').html("");
 	$('#mixDmsTable tbody').html("");
-	var originalTable = "<thead align='center'><tr align='right' ><td align='center'>可混装分拣中心ID</td><td align='center'>可混装分拣中心</td></tr>";
+	var originalTable = "<thead align='center'><tr align='right' ><td align='center'>可混装分拣中心ID</td><td align='center'>可混装分拣中心</td><td align='center'>操作</td></tr>";
 	$('#mixDmsTable').append(originalTable);
 }
 
@@ -212,7 +217,11 @@ function addMixDms() {
 	if (null == newMixName || newMixName == "") {
 		return;
 	}
-	var newRow = "<tr><td align='center'>" + newMixCode + "</td><td align='center'>" + getName(newMixName) + "</td></tr>";
+	var newRow = "<tr><td align='center'>" + newMixCode 
+				 + "</td><td align='center'>" + getName(newMixName) 
+				 + "</td><td align='center'><input type='button' value='删除' name='-1' id=DMS"
+				 + newMixCode + " onclick='crossSortingDelete(" 
+				 + newMixCode + ")'></td></tr>";
 	$("#mixDmsTable tr:last").after(newRow); 
 }
 
@@ -221,6 +230,10 @@ function doAddBtnClick() {
 	// 获取orgId,createDmsCode,createDmsName,destinationDmsCode,destinationDmsName,type
 	var params = getAddParams();
 	if (checkParams(params)) {
+		return false;
+	}
+	if(params.data == "[]"){
+		jQuery.messager.alert('提示:', '可混装分拣中心不能为空！', 'info');
 		return false;
 	}
 	var url = $("#contextPath").val() + "/crossSorting/addBatch";
@@ -304,3 +317,42 @@ function checkParams(params) {
 function goList() {
 	location.href = $("#contextPath").val() + "/crossSorting";
 }
+
+//将任务的状态和执行次数重置
+function crossSortingDelete(mixDmsId) {
+	var params = {};
+	var csid = $("#DMS" + mixDmsId).attr("name");
+	if(csid != null && csid != -1){
+		params.id = csid;
+		doCrossSortingDelete(params);
+	}
+	doRowDelete(mixDmsId); //放在下面,csid才有值
+}
+
+function doCrossSortingDelete(params) {
+	var url = $("#contextPath").val() + "/crossSorting/delete";
+	CommonClient.post(url, params, function(data) {
+		if (data == undefined || data == null) {
+			jQuery.messager.alert('提示:','HTTP请求无数据返回！','info');
+			return;
+		}
+		if (data.code == 1) {// 1:normal
+			//jQuery.messager.alert('提示:','删除成功','info');
+		} else {// 0:exception,2:warn
+			jQuery.messager.alert('提示:', data.message, 'info');
+		}
+	});
+}
+
+function doRowDelete(id){
+	var index = -1;
+	$("#mixDmsTable tr td:nth-child(1)").each(function(i, n) {
+		var child = $(this).text();
+		if (null != child && child != "" && child == id) {
+			index = i;
+		}
+	});
+	$("#mixDmsTable tr:eq(" + index + ")").remove();
+}
+
+
