@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jsf="http://jsf.jd.com/schema/jsf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd"
+       default-lazy-init="false">
+
+    <!-- 注册中心 address="192.168.150.119:40660,192.168.150.121:40660" -->
+    <jsf:registry id="jsfRegistry" index="i.jsf.jd.com" />
+
+    
+	<!-- 仓储dtc接口 乔洪佥 -->
+	<jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"
+		protocol="jsf" alias="STAIG_RVR" timeout="10000" retries="1">
+	</jsf:consumer>
+	<!-- -->
+	
+</beans>

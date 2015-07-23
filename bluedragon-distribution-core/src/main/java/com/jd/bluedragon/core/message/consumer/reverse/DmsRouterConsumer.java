@@ -10,11 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.Message;
-import com.jd.wms.ws.Inbound;
-import com.jd.wms.ws.Result;
 
 @Service("dmsRouterConsumer")
 public class DmsRouterConsumer extends MessageBaseConsumer {
@@ -24,7 +23,8 @@ public class DmsRouterConsumer extends MessageBaseConsumer {
 	private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,53", "10,10,51");
 
 	@Autowired
-	private Inbound inbound;
+	private DtcDataReceiverManager dtcDataReceiverManager;
+//	private Inbound inbound;
 
 	@SuppressWarnings("rawtypes")
 	public void consume(Message message) throws Exception {
@@ -44,15 +44,16 @@ public class DmsRouterConsumer extends MessageBaseConsumer {
 						+ map.get("storeId").toString();
 
 				if (stores.contains(target)) {
-					String methodName = "XTQ";
+//					String methodName = "XTQ";
 					String messageValue = dmsRouter.getBody();
 					String outboundNo = map.get("orderId").toString();
 					String outboundType = "XTQDl";
 					String source = "DMS";
 
-					Result result = this.inbound.forwardHandleMessage(target, methodName, messageValue, outboundNo,
-							outboundType, source);
-
+//					Result result = this.inbound.forwardHandleMessage(target, methodName, messageValue, outboundNo,
+//							outboundType, source);
+					com.jd.staig.receiver.rpc.Result result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
+					
 					this.logger.info("[分拣中心OEM推送WMS]:接口访问成功，result.getResultCode()=" + result.getResultCode());
 					this.logger.info("[分拣中心OEM推送WMS]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());
 					this.logger.info("[分拣中心OEM推送WMS]:接口访问成功，result.getResultValue()=" + result.getResultValue());

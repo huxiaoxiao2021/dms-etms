@@ -4,10 +4,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendQuery;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -22,7 +25,7 @@ public class SendQueryResource {
 
     @Autowired
     private SendQueryService sendQueryService;
-
+    private final Logger logger = Logger.getLogger(SendQueryResource.class);
     /**
      * 添加发货批次查询日志
      * @param domain 数据对象
@@ -30,9 +33,15 @@ public class SendQueryResource {
      */
     @POST
     @Path("/sendquery/put")
-    public InvokeResult<Boolean> put(SendQuery domain){
+    public InvokeResult<Boolean> put(SendQuery domain,@Context HttpServletRequest servletRequest){
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
+
         result.success();
+        String realIP = servletRequest.getHeader("X-Forwarded-For");
+        this.logger.info("SendQueryResource.put()" + realIP);
+
+        domain.setIpAddress(realIP);
+
         try{
             result.setData(sendQueryService.insert(domain));
         }catch (Exception ex){

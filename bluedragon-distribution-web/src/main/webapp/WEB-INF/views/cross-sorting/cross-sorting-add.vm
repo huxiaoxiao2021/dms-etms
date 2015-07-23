@@ -37,7 +37,7 @@
 	    <input type="hidden" id="contextPath" value="#springUrl('')"/>
 		<div id="breadcrumb">
 			<p>
-				<a href="javascript:void(0)">跨分区分拣校验</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">添加</a>
+				<a href="javascript:void(0)" onclick="goList()">跨分区分拣校验</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">添加</a>
 			</p>
 		</div>
 		<div id="content">
@@ -93,6 +93,7 @@
 										<tr align="right" >
 											<td align="center">可混装分拣中心ID</td>
 											<td align="center">可混装分拣中心</td>
+											<td align="center">操作</td>
 										</tr>
 									</thead>
 									<tbody>
