@@ -28,11 +28,6 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.jd</groupId>
-            <artifactId>jsf</artifactId>
-            <version>1.0.2</version>
-        </dependency>
 
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
