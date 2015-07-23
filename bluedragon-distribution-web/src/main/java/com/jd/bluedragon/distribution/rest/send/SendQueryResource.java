@@ -37,9 +37,9 @@ public class SendQueryResource {
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
 
         result.success();
-
-        this.logger.error("servletRequest.getHeader()" + servletRequest.getHeader("X-Forwarded-For"));
         String realIP = servletRequest.getHeader("X-Forwarded-For");
+        this.logger.info("SendQueryResource.put()" + realIP);
+
         domain.setIpAddress(realIP);
 
         try{
