@@ -34,7 +34,7 @@ public class ReverseSpare {
 	/**
 	 * 商品编号
 	 */
-	private Integer productId;
+	private String productId;
 	
 	/**
 	 * 商品编码
@@ -150,11 +150,11 @@ public class ReverseSpare {
 		this.waybillCode = waybillCode;
 	}
 
-	public Integer getProductId() {
+	public String getProductId() {
 		return productId;
 	}
 
-	public void setProductId(Integer productId) {
+	public void setProductId(String productId) {
 		this.productId = productId;
 	}
 

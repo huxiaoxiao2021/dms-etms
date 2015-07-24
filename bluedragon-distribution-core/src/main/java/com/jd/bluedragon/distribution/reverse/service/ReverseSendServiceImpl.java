@@ -1022,7 +1022,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			aReverseSpare.setSpareCode(reverseSendSpwmsOrder.getSpareCode());
 			aReverseSpare.setSendCode(reverseSendSpwmsOrder.getSendCode());
 			aReverseSpare.setWaybillCode(reverseSendSpwmsOrder.getWaybillCode());
-			aReverseSpare.setProductId(Integer.parseInt(reverseSendSpwmsOrder.getProductId()));
+			aReverseSpare.setProductId(reverseSendSpwmsOrder.getProductId());
 			aReverseSpare.setProductCode(null);
 			aReverseSpare.setProductPrice(reverseSendSpwmsOrder.getProductPrice());
 			aReverseSpare.setProductName(reverseSendSpwmsOrder.getProductName());
