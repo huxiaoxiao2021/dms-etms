@@ -12,9 +12,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.utils.*;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -530,8 +528,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 		tTask.setKeyword1("3");// 3回传dmc
 		tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
 		tTaskService.add(tTask, true);
-    	if(businessTypeTWO.equals(sendM.getSendType())
-    			&& sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)){
+    	if(businessTypeTWO.equals(sendM.getSendType())){
+    			//&& sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)  取消逆向发车的时候推送仓储任务，修改到发货环节推送 20150724
+    			
 	    	tTask.setKeyword1("4");//4逆向任务
 	    	tTask.setFingerprint(sendM.getSendCode()+ "_"+tTask.getKeyword1());
 	    	tTaskService.add(tTask);
