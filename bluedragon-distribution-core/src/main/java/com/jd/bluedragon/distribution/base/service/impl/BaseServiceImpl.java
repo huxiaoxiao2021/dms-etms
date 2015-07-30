@@ -301,7 +301,7 @@ public class BaseServiceImpl implements BaseService {
                 }
             }
             ++layer;
-        }while(null!=items&&items.size()>0);
+        }while(items.size()>0);
         return list;
     }
 
