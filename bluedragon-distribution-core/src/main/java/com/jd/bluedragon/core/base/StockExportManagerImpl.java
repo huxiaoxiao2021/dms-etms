@@ -31,7 +31,7 @@ public class StockExportManagerImpl implements StockExportManager {
 					return result.getKdanHao();
 				}
 			}else{
-				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result:"+result.getMessage());
+				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
 				return 0;
 			}
 			
