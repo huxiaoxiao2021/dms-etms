@@ -293,10 +293,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
             return new SendResult(2,"该发货批次已经发车，不能继续发货");
         }
+        /*  谫明：暂取消跨分拣校验，待邹剑确定
         SendResult checkResult=packageCrosssSendCheck(domain);
         if(!checkResult.getKey().equals(1)&&!isForceSend){
             return checkResult;
-        }
+        }*/
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());
