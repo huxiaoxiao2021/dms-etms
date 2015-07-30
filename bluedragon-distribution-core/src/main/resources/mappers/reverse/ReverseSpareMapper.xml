@@ -34,7 +34,7 @@
 		VALUES (
 			SEQ_REVERSE_SPARE.NEXTVAL, 
 			#{spareCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
-			#{waybillCode,jdbcType=VARCHAR},#{productId,jdbcType=INTEGER},
+			#{waybillCode,jdbcType=VARCHAR},#{productId,jdbcType=VARCHAR},
 			#{productCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR},
 			#{arrtCode1,jdbcType=INTEGER}, #{arrtDesc1,jdbcType=VARCHAR},
 			#{arrtCode2,jdbcType=INTEGER}, #{arrtDesc2,jdbcType=VARCHAR},
@@ -78,7 +78,7 @@
                 send_code = #{sendCode,jdbcType=VARCHAR},
             </if>
             <if test="productId != null">
-                product_id = #{productId,jdbcType=INTEGER},
+                product_id = #{productId,jdbcType=VARCHAR},
             </if>
     		<if test="productCode != null and productCode != ''">
                 product_code = #{productCode,jdbcType=VARCHAR},

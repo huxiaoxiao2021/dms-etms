@@ -16,13 +16,9 @@ import com.jd.bluedragon.distribution.api.request.DepartureSendRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
 import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.basic.util.DateUtil;
 import com.jd.etms.message.produce.client.MessageClient;
 import org.apache.log4j.Logger;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
 import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
 import org.perf4j.aop.Profiled;
@@ -51,7 +47,6 @@ import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
 import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.receive.domain.SendCode;
-import com.jd.bluedragon.distribution.reverse.service.ReverseSendServiceImpl;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -71,7 +66,6 @@ import com.jd.etms.waybill.wss.WaybillAddWS;
 import com.jd.etms.waybill.wss.WaybillQueryWS;
 import org.springframework.web.client.RestTemplate;
 
-import javax.ws.rs.core.MediaType;
 
 @Service
 public class DepartureServiceImpl implements DepartureService {
@@ -160,8 +154,8 @@ public class DepartureServiceImpl implements DepartureService {
 				&& Integer.valueOf(Constants.BUSSINESS_TYPE_REVERSE).equals(
 						departure.getBusinessType())) {
 			commonLogic(departure, sendMs, shieldsCarId, departure.getType());
-			// 推逆向系统
-			toReverse(sendMs);
+			// 推逆向系统  取消逆向发车的时候推送仓储任务，修改到发货环节推送 20150724
+			//toReverse(sendMs);
 
 		} else if (Departure.DEPARTRUE_TYPE_TURNTABLE != departure.getType()
 				&& Integer.valueOf(Constants.BUSSINESS_TYPE_POSITIVE).equals(
@@ -414,7 +408,7 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param sendMs
 	 * @param receiveSiteCode
 	 */
-	private void toReverse(List<SendM> sendMs) {
+	/*private void toReverse(List<SendM> sendMs) {
 		for (SendM sendM : sendMs) {
 			Task tTask = new Task();
 			tTask.setBoxCode(sendM.getSendCode());
@@ -451,7 +445,7 @@ public class DepartureServiceImpl implements DepartureService {
 				taskService.add(tTask, true);
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * 推送3方运单到tmd系统,只推送第三方运单的数据

@@ -12,9 +12,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.utils.*;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -295,10 +293,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
             return new SendResult(2,"该发货批次已经发车，不能继续发货");
         }
+        /*  谫明：暂取消跨分拣校验，待邹剑确定
         SendResult checkResult=packageCrosssSendCheck(domain);
         if(!checkResult.getKey().equals(1)&&!isForceSend){
             return checkResult;
-        }
+        }*/
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());
@@ -530,8 +529,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 		tTask.setKeyword1("3");// 3回传dmc
 		tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
 		tTaskService.add(tTask, true);
-    	if(businessTypeTWO.equals(sendM.getSendType())
-    			&& sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)){
+    	if(businessTypeTWO.equals(sendM.getSendType())){
+    			//&& sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)  取消逆向发车的时候推送仓储任务，修改到发货环节推送 20150724
+    			
 	    	tTask.setKeyword1("4");//4逆向任务
 	    	tTask.setFingerprint(sendM.getSendCode()+ "_"+tTask.getKeyword1());
 	    	tTaskService.add(tTask);

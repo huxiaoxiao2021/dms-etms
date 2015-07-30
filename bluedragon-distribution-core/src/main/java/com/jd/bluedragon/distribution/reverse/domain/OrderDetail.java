@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public class OrderDetail implements Serializable {
 
-    private Integer wareId;
+    private String wareId;
 
     private String wareName;
 
@@ -32,11 +32,11 @@ public class OrderDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-	public void setWareId(Integer wareId) {
+	public void setWareId(String wareId) {
 		this.wareId = wareId;
 	}
 
-	public Integer getWareId() {
+	public String getWareId() {
 		return wareId;
 	}
 

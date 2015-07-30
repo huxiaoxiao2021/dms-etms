@@ -18,7 +18,7 @@ public class ReverseSpareDto {
 	/**
 	 * 商品编号
 	 */
-	private Integer productId;
+	private String productId;
 	
 	/**
 	 * 商品编码
@@ -91,11 +91,11 @@ public class ReverseSpareDto {
 		this.spareCode = spareCode;
 	}
 
-	public Integer getProductId() {
+	public String getProductId() {
 		return productId;
 	}
 
-	public void setProductId(Integer productId) {
+	public void setProductId(String productId) {
 		this.productId = productId;
 	}
 

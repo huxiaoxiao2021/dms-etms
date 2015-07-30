@@ -20,7 +20,7 @@ public class SpwmsTestCase {
 	@Test
 	public void test1() throws Exception{
 		OrderDetail d=new OrderDetail();
-		d.setWareId(206484);
+		d.setWareId("206484");
 		d.setWareName("爱普生（Epson）ERC-38B色带 黑色（适用TM-U220A\\B\\D U200\\210\\230\\325\\370\\375\\210\\300）");
 		d.setSupplierId("rb619");
 		d.setIsLuxury(false);
@@ -82,12 +82,12 @@ public class SpwmsTestCase {
 	@Test
 	public void test() throws Exception{
 		OrderDetail d=new OrderDetail();
-		d.setWareId(333);
+		d.setWareId("333");
 		d.setWareName("kdk");
 		d.setSupplierId("kdj");
 		d.setIsLuxury(false);
 		OrderDetail d1=new OrderDetail();
-		d1.setWareId(333);
+		d1.setWareId("333");
 		d1.setWareName("kdk");
 		d1.setSupplierId("kdj");
 		d1.setIsLuxury(false);
