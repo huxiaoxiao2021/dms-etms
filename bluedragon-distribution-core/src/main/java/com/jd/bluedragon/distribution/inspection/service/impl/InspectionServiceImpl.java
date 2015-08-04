@@ -539,7 +539,7 @@ public class InspectionServiceImpl implements InspectionService {
     private BigWaybillDto getWaybill(String waybillCode)
     {
         BigWaybillDto bigWaybillDto=waybillService.getWaybill(waybillCode);
-        if(bigWaybillDto==null && bigWaybillDto.getWaybill()==null){
+        if(bigWaybillDto==null || bigWaybillDto.getWaybill()==null){
             this.logger.error(" 获取运单：【 " + waybillCode + " 】数据为空");
             return null;
         }
