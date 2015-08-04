@@ -268,7 +268,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
-            BoxResponse response = this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
+            BoxResponse response =null;
+            CallerInfo info1 = Profiler.registerInfo("dmsweb.call.sortingcheck", false, true);
+            response=this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
+            Profiler.registerInfoEnd(info1);
             Integer preSortingSiteCode=null;
             try{
             com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
