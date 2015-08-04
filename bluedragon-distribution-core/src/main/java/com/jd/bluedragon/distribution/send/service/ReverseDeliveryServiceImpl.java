@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.service;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -455,7 +456,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	public static String encrypt(String mingwen) {
 		Base64 base64=new Base64();
-		return new String(base64.encode(md5(mingwen).getBytes()));
+		return new String(base64.encode(md5(mingwen).getBytes()),Charset.forName("UTF-8"));
 	}
 
 	public static String md5(String input) {
@@ -642,12 +643,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	public String toEmsServer(List<String> waybillList) {
 		StringBuffer errorWaybill = new StringBuffer();
 		for(String waybillCode : waybillList){
-			if(waybillCode == null || waybillCode.equals(null)){
+			if(waybillCode == null){
 				continue;
 			}
 			String sysAccount = "";
-			List<WaybillInfo> list = new ArrayList<WaybillInfo>();
-			list = getWaybillInfo(waybillCode);
+			List<WaybillInfo> list = getWaybillInfo(waybillCode);
 			if(list!=null && !list.isEmpty()){
 				StringBuffer buffer = new StringBuffer();
 				for(WaybillInfo info : list){
@@ -687,7 +687,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					.append("</bigAccountDataId><customerDn>")
 					.append(info.getWaybillCode())
 					.append("</customerDn><subBillCount>")
-					.append(info.getPackageNum().equals(1)?"":info.getPackageNum())
+					.append(info.getPackageNum().equals(0)?"":info.getPackageNum())
 					.append("</subBillCount><mainBillNo></mainBillNo><mainBillFlag></mainBillFlag><mainSubPayMode>4</mainSubPayMode><payMode>")
 					.append(info.getPayMode())
 					.append("</payMode><insureType></insureType><blank1></blank1><blank2></blank2><blank3></blank3><blank4></blank4><blank5></blank5></printData>");
@@ -699,7 +699,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						+ body + "</printDatas></XMLInfo>";
 				this.logger.error("ems数据报文：" + body);
 				
-				body =new String(base64.encode(body.getBytes()));
+				body =new String(base64.encode(body.getBytes()),Charset.forName("UTF-8"));
 				String emsstring=null;
 				try {
 					emsstring = getPrintDatasPortType
@@ -714,7 +714,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							.error("toEmsServer CXF return null :");
 					//return;
 				}else{
-					emsstring = new String(base64.decode(emsstring));
+					emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
 					
 					this.logger.error("全国邮政返回" + emsstring);
 				}
@@ -725,7 +725,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	
 	public static String decrypt(String mingwen) {
 		Base64 base64=new Base64();
-		return new String(base64.decode(md5(mingwen).getBytes()));
+		return new String(base64.decode(md5(mingwen).getBytes()),Charset.forName("UTF-8"));
 	}
 	
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
@@ -776,7 +776,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					WaybillInfo info = new WaybillInfo();
 					info.setPackageBarcode(delivery.getPackageBarcode());
 					info.setWaybillCode(waybill.getWaybillCode());
-					info.setPackageNum(waybill.getGoodNumber());
+					if(waybill.getGoodNumber()!=null)
+						info.setPackageNum(waybill.getGoodNumber()-1);
+					else
+						info.setPackageNum(0);
 
 					if (bDto != null) {
 						if(bDto.getDmsName()!=null)
@@ -830,6 +833,8 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						}
 					}
 
+					if (declaredValue == null) 
+						declaredValue="0.0";
 					info.setFeeUppercase(new CnUpperCaser(declaredValue).getCnString());
 					info.setFee(needFund);
 					info.setPayMode("1");//1现金
@@ -850,7 +855,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
 		
 		logger.error("JOS获取订单信息,订单号为" + waybillCode);
-		List<WaybillInfo> list = new ArrayList<WaybillInfo>();
+		List<WaybillInfo> list = null;
 		try {
 			list = getWaybillInfo(waybillCode);
 			if (list==null || list.isEmpty()) {

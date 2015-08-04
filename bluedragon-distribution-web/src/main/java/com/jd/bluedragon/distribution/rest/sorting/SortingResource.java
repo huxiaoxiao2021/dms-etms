@@ -41,6 +41,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 
 @Component
@@ -166,6 +167,7 @@ public class SortingResource {
 
 		Boolean canCancel = false;
 		for (Sorting eachSorting : sortingRecords) {
+			eachSorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
 			canCancel |= this.sortingService.canCancel(eachSorting);
 		}
 
