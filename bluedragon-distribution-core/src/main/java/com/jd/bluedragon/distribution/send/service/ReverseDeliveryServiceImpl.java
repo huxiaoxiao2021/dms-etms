@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.send.service;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -456,7 +455,14 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	public static String encrypt(String mingwen) {
 		Base64 base64=new Base64();
-		return new String(base64.encode(md5(mingwen).getBytes()),Charset.forName("UTF-8"));
+		String result="";
+		try {
+			result = new String(base64.encode(md5(mingwen).getBytes("utf-8")));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	public static String md5(String input) {
@@ -698,10 +704,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						+ "<XMLInfo><sysAccount>"+sysAccount+"</sysAccount><passWord>e10adc3949ba59abbe56e057f20f883e</passWord><printKind>2</printKind><printDatas>"
 						+ body + "</printDatas></XMLInfo>";
 				this.logger.error("ems数据报文：" + body);
-				
-				body =new String(base64.encode(body.getBytes()),Charset.forName("UTF-8"));
 				String emsstring=null;
 				try {
+				body =new String(base64.encode(body.getBytes("utf-8")));
+				
 					emsstring = getPrintDatasPortType
 							.printEMSDatas(body);
 				} catch (Exception e) {
@@ -714,7 +720,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							.error("toEmsServer CXF return null :");
 					//return;
 				}else{
-					emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
+					emsstring = new String(base64.decode(emsstring));
 					
 					this.logger.error("全国邮政返回" + emsstring);
 				}
@@ -725,7 +731,14 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	
 	public static String decrypt(String mingwen) {
 		Base64 base64=new Base64();
-		return new String(base64.decode(md5(mingwen).getBytes()),Charset.forName("UTF-8"));
+		String result = "";
+		try {
+			result = new String(base64.decode(md5(mingwen).getBytes("utf-8")));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
