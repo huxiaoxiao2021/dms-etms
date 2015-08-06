@@ -269,7 +269,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
             BoxResponse response =null;
-            CallerInfo info1 = Profiler.registerInfo("dmsweb.call.sortingcheck", false, true);
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
             response=this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
             Profiler.registerInfoEnd(info1);
             Integer preSortingSiteCode=null;
@@ -2249,7 +2249,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public boolean isTransferSend(SendM domain){
         if(!BusinessHelper.isBoxcode(domain.getBoxCode()))
             return false;
-        if(!domain.getSendType().equals(businessTypeONE)&&domain.getSendType().equals(businessTypeTWO)){
+        if(!domain.getSendType().equals(businessTypeONE)&&!domain.getSendType().equals(businessTypeTWO)){
             return false;
         }
         if(domain.getReceiveSiteCode()==null||domain.getCreateSiteCode()==null){
