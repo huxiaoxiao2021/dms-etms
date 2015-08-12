@@ -317,7 +317,7 @@ public class DeliveryResource {
             tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, flage);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
-                if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())){
+                if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())&&flage){
                     /*只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com*/
                     deliveryService.pushTransferSendTask(tSendM);
                 }
