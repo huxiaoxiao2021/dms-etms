@@ -24,6 +24,7 @@
 		<typeAlias type="com.jd.bluedragon.distribution.offline.domain.OfflineLog" alias="OfflineLog" />
 		<typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM" />
 		<typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting" />
+		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.GlobalTrade" alias="GlobalTrade" />
 	</typeAliases>
 	
 	<mappers>
@@ -36,6 +37,7 @@
 		<mapper resource="mappers/offLine/OfflineLogReadMapper.xml"/>
 		<mapper resource="mappers/send/SendMReadMapper.xml"/>
 		<mapper resource="mappers/crossSorting/CrossSortingReadMapper.xml"/>
+		<mapper resource="mappers/globaltrade/GlobalTradeReadMapper.xml"/>
 	</mappers>
 	
 </configuration>
