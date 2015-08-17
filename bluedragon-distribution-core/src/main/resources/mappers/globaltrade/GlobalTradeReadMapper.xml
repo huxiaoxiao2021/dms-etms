@@ -5,18 +5,28 @@
 	<resultMap id="globalTrade"
 		type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill">
 		<result column="id" property="id" />
+		<result column="load_id" property="loadId" />
+		<result column="warehouse_id" property="warehouseId" />
 		<result column="waybill_code" property="waybillCode" />
 		<result column="package_barcode" property="packageBarcode" />
-		<result column="order_code" property="orderCode" />
+		<result column="order_id" property="orderId" />
 		<result column="dms_code" property="dmsCode" />
 		<result column="dms_name" property="dmsName" />
 		<result column="send_time" property="sendTime" />
 		<result column="send_code" property="sendCode" />
-		<result column="car_code" property="carCode" />
+		<result column="truck_no" property="truckNo" />
 		<result column="approval_code" property="approvalCode" />
 		<result column="approval_time" property="approvalTime" />
+		<result column="ctno" property="ctno" />
+		<result column="gjno" property="gjno" />
+		<result column="tpl" property="tpl" />
+		<result column="weight" property="weight" />
 		<result column="create_time" property="createTime" />
 		<result column="update_time" property="updateTime" />
+		<result column="gen_time" property="genTime" />
+		<result column="package_user_code" property="packageUserCode" />
+		<result column="package_user" property="packageUser" />
+		<result column="package_time" property="packageTime" />
 		<result column="remark" property="remark" />
 		<result column="yn" property="yn" />
 	</resultMap>
