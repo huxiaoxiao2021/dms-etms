@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.globaltrade.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public class GlobalTrade implements Serializable {
+public class LoadBill implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

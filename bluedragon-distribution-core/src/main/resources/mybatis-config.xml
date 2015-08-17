@@ -81,7 +81,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.systemLog.domain.SystemLog"  alias="SystemLog"/>
         
         <typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting"/>
-        <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.GlobalTrade" alias="GlobalTrade" />
+        <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
 	</typeAliases>  
 	
 	<mappers>

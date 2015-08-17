@@ -24,7 +24,7 @@
 		<typeAlias type="com.jd.bluedragon.distribution.offline.domain.OfflineLog" alias="OfflineLog" />
 		<typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM" />
 		<typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting" />
-		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.GlobalTrade" alias="GlobalTrade" />
+		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
 	</typeAliases>
 	
 	<mappers>
