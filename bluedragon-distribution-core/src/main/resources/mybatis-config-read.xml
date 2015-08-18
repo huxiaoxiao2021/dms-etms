@@ -25,6 +25,7 @@
 		<typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM" />
 		<typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting" />
 		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
+		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
 	</typeAliases>
 	
 	<mappers>
@@ -37,7 +38,8 @@
 		<mapper resource="mappers/offLine/OfflineLogReadMapper.xml"/>
 		<mapper resource="mappers/send/SendMReadMapper.xml"/>
 		<mapper resource="mappers/crossSorting/CrossSortingReadMapper.xml"/>
-		<mapper resource="mappers/globaltrade/GlobalTradeReadMapper.xml"/>
+		<mapper resource="mappers/globaltrade/LoadBillReadMapper.xml"/>
+		<mapper resource="mappers/globaltrade/LoadBillReportReadMapper.xml"/>
 	</mappers>
 	
 </configuration>

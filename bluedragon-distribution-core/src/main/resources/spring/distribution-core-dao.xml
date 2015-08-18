@@ -256,11 +256,16 @@
     <bean id="crossSortingReadDao" class="com.jd.bluedragon.distribution.cross.dao.CrossSortingReadDao">
     	<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
     </bean>  
-    <bean id="globalTradeDao" class="com.jd.bluedragon.distribution.globaltrade.dao.GlobalTradeDao">
+    <bean id="loadBillDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
     	<property name="sqlSession" ref="sessionTemplate"/>
     </bean>    
-    <bean id="globalTradeReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.GlobalTradeReadDao">
+    <bean id="loadBillReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao">
     	<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
     </bean>  
-
+    <bean id="loadBillReportDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReportDao">
+    	<property name="sqlSession" ref="sessionTemplate"/>
+    </bean>    
+    <bean id="loadBillReportReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReportReadDao">
+    	<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
+    </bean>  
 </beans>

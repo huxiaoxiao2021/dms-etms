@@ -6,6 +6,11 @@ import java.util.Date;
 public class LoadBill implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	public static final int BEGINNING = 10;
+	public static final int APPLIED = 20;
+	public static final int GREENLIGHT = 30;
+	public static final int REDLIGHT = 40;
 
 	/** 全局ID */
 	private Long id;
