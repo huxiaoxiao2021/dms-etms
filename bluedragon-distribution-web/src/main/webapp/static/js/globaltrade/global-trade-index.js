@@ -1,9 +1,6 @@
 //初始化
 $(document).ready(main);
 
-// 全局变量
-var taskTableList = null;
-
 function main() {
 
 	// 查询按钮提交处理
@@ -11,52 +8,40 @@ function main() {
 		onQueryBtnClick(1);
 	});
 
-	// 导入按钮
-	$("#loadInBtn").click(function(){
-		importExcel();
+	// 全选框绑定点击事件
+	$("#allBtn").click(function() {
+		selectAll();
 	});
 
-    // 导出按钮
-    $("#loadOutBtn").click(function(){
-       exportExcel();
-    })
+	$("#initialBtn").click(function() {
+		initialLoadBill();
+	})
 
-    // 下载模版
-    $("#downloadModelBtn").click(function(){
-       goDownModel();
-    })
+	$("#preLoadBtn").click(function() {
+		preLoad();
+	})
+
+	$("#preLoadCancelBtn").click(function() {
+		preLoadCancel();
+	})
 
 	// 加载所有的分拣中心
 	initDms();
 }
 
-// 实现与机构联动
-function initCreateDmsList() {
-	// select DISTINCT task_type from task_weight;
-	var orgId = $.trim($("#orgList").val());
-	var url = $("#contextPath").val() + "/services/bases/dms/" + orgId;
-	if (orgId == "") {
-		return;
-	}
-	$.getJSON(url, function(data) {
-		var dmsList = data;
-		if (data == undefined || data == null) {
-			jQuery.messager.alert('提示:', "HTTP请求无数据返回！", 'info');
-			return;
-		}
-		if (dmsList.length > 0 && dmsList[0].code == 200) {// 200:normal
-			loadDmsList(dmsList, "dmsList");
-		} else if (dmsList.length > 0 && dmsList[0].code == 404) {// 404:
-			$('#createDmsList').html("");
-			jQuery.messager.alert('提示:', "获取分拣中心列表为空！", 'info');
-		} else if (dmsList.length > 0 && dmsList[0].code == 20000) {// 20000:error
-			$('#createDmsList').html("");
-			jQuery.messager.alert('提示:', "获取分拣中心列表失败！", 'info');
-		} else {
-			$('#createDmsList').html("");
-			jQuery.messager.alert('提示:', "数据异常！", 'info');
-		}
-	});
+// 根据批次号,初始化装载单
+function initialLoadBill() {
+
+}
+
+// 预装载后,重新查询一遍
+function preLoad() {
+
+}
+
+// 取消预装载后,重新查询一遍
+function preLoadCancel() {
+
 }
 
 function initDms() {
@@ -81,7 +66,7 @@ function initDms() {
 
 function loadDmsList(dmsList, selectId) {
 	dmsList.sort(function(a, b) {
-		if(a.siteCode != null && a.siteCode != "" && b.siteCode != null && b.siteCode != ""){
+		if (a.siteCode != null && a.siteCode != "" && b.siteCode != null && b.siteCode != "") {
 			return a.siteCode.toString().substring(0, 1) > b.siteCode.toString().substring(0, 1) ? 1 : -1;
 		}
 	});
@@ -100,7 +85,7 @@ function onQueryBtnClick(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
 	if (!checkParams(params)) {
-		jQuery.messager.alert('提示:','发货时间，批次号，分拣中心及审批状态，至少选择一个!','info'); 
+		jQuery.messager.alert('提示:', '发货时间，批次号，分拣中心及审批状态，至少选择一个!', 'info');
 		return false;
 	}
 	doQuery(params);
@@ -110,7 +95,7 @@ function checkParams(params) {
 	if (null == params) {
 		return false;
 	}
-	if (params.orgId == "" && params.createDmsCode == "" && params.destinationDmsCode == "" && params.createUserName == "") {
+	if (params.sendTimeFrom == "" || params.sendTimeTo == "" || params.sendCode == "" || params.dmsCode == "" || params.approvalCode == "") {
 		return false;
 	}
 	return true;
@@ -118,11 +103,11 @@ function checkParams(params) {
 
 function getParams() {
 	var params = {};
-	params.orgId = $.trim($("#orgList").val());
-	params.createDmsCode = $.trim($("#createDmsList").val());
-	params.destinationDmsCode = $.trim($("#destinationDmsList").val());
-	params.createUserName = $.trim($("#createUserName").val());
-	params.type = $.trim($("#typeList").val());
+	params.sendTimeFrom = $.trim($("#sendTimeFrom").val());
+	params.sendTimeTo = $.trim($("#sendTimeTo").val());
+	params.sendCode = $.trim($("#sendCode").val());
+	params.dmsCode = $.trim($("#dmsList").val());
+	params.approvalCode = $.trim($("#approvalCode").val());
 	return params;
 }
 
@@ -131,34 +116,35 @@ function doQuery(params) {
 	var url = $("#contextPath").val() + "/loadBill/list";
 	CommonClient.post(url, params, function(data) {
 		if (data == undefined || data == null) {
-			jQuery.messager.alert('提示:','HTTP请求无数据返回！','info');
+			jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
 			return;
 		}
 		if (data.code == 1) {
-			// alert(JSON.stringify(data));
 			var pager = data.data;
 			var dataList = pager.data;
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td>" + (i + 1) + "</td>";
-				temp += "<td>" + (dataList[i].createDmsCode) + "</td>";
-				temp += "<td>" + (dataList[i].createDmsName) + "</td>";
-				temp += "<td>" + (dataList[i].destinationDmsCode) + "</td>";
-				temp += "<td>" + (dataList[i].destinationDmsName) + "</td>";
-				var type = dataList[i].type;
+				temp += "<td><input id='' name='singleBtn' onclick='singleClick();' type='radio'/></td>";
+				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
+				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
+				temp += "<td>" + (dataList[i].orderId) + "</td>";
+				temp += "<td>" + (dataList[i].dmsName) + "</td>";
+				temp += "<td>" + (getDateString(getData(dataList[i].sendTime))) + "</td>";
+				temp += "<td>" + (dataList[i].sendCode) + "</td>";
+				temp += "<td>" + (dataList[i].truckNo) + "</td>";
+				var type = dataList[i].approvalCode;
 				if (type == 10) {
-					temp += "<td>建包</td>";
+					temp += "<td>初始</td>";
 				} else if (type == 20) {
-					temp += "<td>发货</td>";
+					temp += "<td>已申请</td>";
+				} else if (type == 30) {
+					temp += "<td>放行</td>";
 				} else {
-					temp += "<td>非法</td>";
+					temp += "<td>未放行</td>";
 				}
-				temp += "<td>" + (dataList[i].mixDmsCode) + "</td>";
-				temp += "<td>" + (dataList[i].mixDmsName) + "</td>";
-				temp += "<td>" + (dataList[i].createUserName) + "</td>";
-				temp += "<td>" + (getDateString(getData(dataList[i].createTime))) + "</td>";
-				temp += "<td>" + "<input type='button' value='删除' onclick='crossSortingDelete(" + dataList[i].id + ")'>" + "</td>";
+				temp += "<td>" + (getDateString(getData(dataList[i].approvalTime))) + "</td>";
+				temp += "<td>" + (dataList[i].remark) + "</td>";
 				temp += "</tr>";
 			}
 			$("#paperTable tbody").html(temp);
@@ -171,35 +157,6 @@ function doQuery(params) {
 	});
 }
 
-// 将任务的状态和执行次数重置
-function crossSortingDelete(id) {
-	// alert(id);
-	var params = {};
-	params.id = $.trim(id);
-	doCrossSortingDelete(params);
-}
-
-function doCrossSortingDelete(params) {
-	var url = $("#contextPath").val() + "/crossSorting/delete";
-	CommonClient.post(url, params, function(data) {
-		if (data == undefined || data == null) {
-			jQuery.messager.alert('提示:','HTTP请求无数据返回！','info');
-			return;
-		}
-		if (data.code == 1) {// 1:normal
-			//对当前页面做重新查询
-			onQueryBtnClick($.trim($("#pageNo").val()));
-			//jQuery.messager.alert('提示:','删除成功','info');
-		} else {// 0:exception,2:warn
-			jQuery.messager.alert('提示:', data.message, 'info');
-		}
-	});
-}
-
-function goAddBtnClick() {
-	location.href = $("#contextPath").val() + "/crossSorting/goAddBatch";
-}
-
 function getData(value) {
 	if (value == null || value == "") {
 		return "";
@@ -208,8 +165,17 @@ function getData(value) {
 	}
 }
 
+// --------- 全选框和单选框的互动 -------------
 
-//----------------------
+function selectAll() {
+
+}
+
+function singleClick() {
+
+}
+
+// ----------------------
 
 function getNum(str) {
 	var num = $.trim($("#" + str).val());
