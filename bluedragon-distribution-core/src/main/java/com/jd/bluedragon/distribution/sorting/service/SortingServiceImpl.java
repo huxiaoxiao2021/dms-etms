@@ -7,14 +7,10 @@ import java.util.List;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.batch.domain.BatchSend;
-import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
 import org.perf4j.aop.Profiled;
-import org.perf4j.log4j.Log4JStopWatch;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -109,6 +105,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private RedisManager redisManager;
+	
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
 	@Profiled(tag = "SortingService.addSortring")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -459,6 +458,12 @@ public class SortingServiceImpl implements SortingService {
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());
 		}
+		if (createSite == null)
+			createSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(createSiteCode));
+		
+		if (receiveSite == null)
+			receiveSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(receiveSiteCode));
+			
 		if (createSite == null || receiveSite == null) {
 			this.logger.warn("创建站点或接收站点信息为空.");
 			this.logger.info("创建站点：" + createSiteCode);

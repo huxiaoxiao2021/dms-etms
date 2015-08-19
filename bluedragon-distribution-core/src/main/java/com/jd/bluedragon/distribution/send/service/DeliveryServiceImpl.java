@@ -1242,8 +1242,23 @@ public class DeliveryServiceImpl implements DeliveryService {
 			for (SendDetail tSendDatail : sendDetails) {
 				tSendDatail.setStatus(1);
 				if(!tSendDatail.getIsCancel().equals(1)){
-					BaseStaffSiteOrgDto rbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getReceiveSiteCode()));
-					BaseStaffSiteOrgDto cbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getCreateSiteCode()));
+					
+					BaseStaffSiteOrgDto cbDto = null;
+					BaseStaffSiteOrgDto rbDto = null;
+					
+					try {
+						rbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getReceiveSiteCode()));
+						cbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getCreateSiteCode()));
+					} catch (Exception e) {
+						this.logger.error("发货全程跟踪调用站点信息异常",e);
+					}
+					
+					if (cbDto == null)
+						cbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(tSendDatail.getCreateSiteCode()));
+					
+					if (rbDto == null)
+						rbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(tSendDatail.getReceiveSiteCode()));
+					
 					if (rbDto != null && rbDto.getSiteType() != null && cbDto != null && cbDto.getSiteType() != null) {
 						WaybillStatus tWaybillStatus = new WaybillStatus();
 						tWaybillStatus.setReceiveSiteCode(tSendDatail.getReceiveSiteCode());
@@ -1309,21 +1324,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     private boolean chekeParameter(WaybillStatus tWaybillStatus){
         if(tWaybillStatus.getOperatorId()==null){
             return Boolean.FALSE;
-        }else if(tWaybillStatus.getReceiveSiteCode()==null){
-            return Boolean.FALSE;
-        }else if(tWaybillStatus.getReceiveSiteName()==null
-                ||StringHelper.isEmpty(tWaybillStatus.getReceiveSiteName())){
-            return Boolean.FALSE;
         }else if(tWaybillStatus.getReceiveSiteType()==null){
-            return Boolean.FALSE;
-        }else if(tWaybillStatus.getOperatorId()==null){
             return Boolean.FALSE;
         }else if(tWaybillStatus.getOperator()==null
                 ||StringHelper.isEmpty(tWaybillStatus.getOperator())){
             return Boolean.FALSE;
         }else if(tWaybillStatus.getOperateTime()==null){
-            return Boolean.FALSE;
-        }else if(tWaybillStatus.getOrgId()==null){
             return Boolean.FALSE;
         }else{
             return Boolean.TRUE;

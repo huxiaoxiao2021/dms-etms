@@ -3,16 +3,21 @@ package com.jd.bluedragon.core.base;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ctc.wstx.sw.EncodingXmlWriter;
+import javax.ws.rs.core.MediaType;
+
 import com.jd.etms.basic.domain.BaseResult;
 import com.jd.etms.basic.domain.PsStoreInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
+import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
 import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
@@ -191,5 +196,34 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId){
 		return basicMajorWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
 	}
+	
+	private static final String PROTOCOL = "http://dmsver.etms.360buy.com/services/bases/site/";
 
+	@Override
+	@Profiled
+	@Cache(key = "basicMajorServiceProxy.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000, 
+		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
+	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {
+		try {
+            String uri = PROTOCOL + siteCode;
+            ClientRequest request = new ClientRequest(uri);
+            request.accept(MediaType.APPLICATION_JSON);
+            
+            BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
+
+            ClientResponse<BaseResponse> response = request.get(BaseResponse.class);
+            if (200 == response.getStatus()) {
+            	BaseResponse base = response.getEntity();
+            	if(base!=null){
+            		dto.setSiteCode(base.getSiteCode());
+            		dto.setSiteName(base.getSiteName());
+            		dto.setSiteType(base.getSiteType());
+            		return dto;
+            	}
+            }
+        } catch (Exception e) {
+            logger.error("dmsver获取站点[" + siteCode + "]信息失败，异常为：", e);
+        }
+        return null;
+	}
 }
