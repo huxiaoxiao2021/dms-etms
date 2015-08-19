@@ -60,7 +60,7 @@ public class GlobalTradeController {
 		report.setWarehouseId(request.getWarehouseId());
 		report.setNotes(request.getNotes());
 		report.setOrderId(getOrderId(orderIdArray));
-		return null;
+		return report;
 	}
 
 	private String getOrderId(String[] orderIdArray) {

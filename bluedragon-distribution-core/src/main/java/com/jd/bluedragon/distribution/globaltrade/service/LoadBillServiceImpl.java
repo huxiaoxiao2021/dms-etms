@@ -45,8 +45,11 @@ public class LoadBillServiceImpl implements LoadBillService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void updateLoadBillStatusByReport(LoadBillReport report) {
 		logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
-		// 插入report数据
 		loadBillReportDao.add(report);
+		loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report)); // 更新loadbill的approval_code
+	}
+
+	private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
 		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
 		loadBillStatusMap.put("orderId", report.getOrderId());
 		if (report.getStatus() == SUCCESS) {
@@ -54,7 +57,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 		} else {
 			loadBillStatusMap.put("approvalCode", LoadBill.REDLIGHT);
 		}
-		loadBillDao.updateLoadBillStatus(loadBillStatusMap); // 更新loadbill的approval_code
+		return loadBillStatusMap;
 	}
 
 }
