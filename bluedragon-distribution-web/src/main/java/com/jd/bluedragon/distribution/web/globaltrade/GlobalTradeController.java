@@ -29,14 +29,37 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.jsf.gd.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Pattern;
+
 @Controller
 @RequestMapping("/globalTrade")
 public class GlobalTradeController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
+    private static final String CARCODE_REG = "[A-Za-z0-9\u4e00-\u9fa5]+";
     
     @Autowired
     private LoadBillService loadBillService;
+
+    @RequestMapping(value = "/index", method = RequestMethod.GET)
+    public String index(){
+        return "globaltrade/global-trade-index";
+    }
+
+    @RequestMapping(value = "/preload", method = RequestMethod.POST)
+    public LoadBillReportResponse prepareLoadBill(HttpServletRequest request){
+        String carCode = request.getParameter("carCode");
+        String waybillCodes = request.getParameter("waybillCodes");
+        if(StringHelper.isEmpty(carCode) || !Pattern.matches(CARCODE_REG,carCode)){
+            return new LoadBillReportResponse(1000,"车次号不符合要求");
+        }
+        if(StringHelper.isEmpty(waybillCodes)){
+            return new LoadBillReportResponse(2000,"订单号不能为空");
+        }
+
+        return new LoadBillReportResponse(200,"预装载成功");
+    }
     
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {

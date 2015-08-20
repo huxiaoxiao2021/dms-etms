@@ -3,15 +3,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>跨分区分拣校验</title>
+    <title>全球购</title>
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
-    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
@@ -29,10 +31,10 @@
 
 <div id="breadcrumb">
     <p>
-        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">跨分区分拣校验</a>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">全球购</a>
     </p>
 </div>
-<div id="content">
+<div id="content" style="width: 70%;margin: 0 auto;">
     <div class="m">
         <div class="tbl-n">
             <div id="queryForm" name="queryForm">
@@ -41,55 +43,38 @@
                 <input type="hidden" id="pageSize" name="pageSize" value=""/>
                 <input type="hidden" id="totalSize" name="totalSize" value=""/>
                 <input type="hidden" id="tableName" name="tableName" value=""/>
-                <table border="0" cellpadding="0" cellspacing="0" style="width:70%;margin:0 auto;">
-                    <tbody>
-                    <tr>
-                    	<th align="left">发货时间：</th>
-						<td >
-							<input id="sendTimeFrom" name="sendTimeFrom" class="Wdate" type="text" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:140px">
-						</td>
-						<th align="left">至</th>
-						<td >
-						    <input id="sendTimeTo" name="sendTimeTo" class="Wdate" type="text" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:140px">
-						</td>
-						<th align="left">批次号：</th>
-						<td >
-						    <input id="sendCode" name="sendCode" type="text" style="width:140px">
-						</td>
-                    </tr>
-                    <tr>
-                    	<th align="right">分拣中心：</th>
-                        <td style="width:150px;">
-                            <select id="dmsList" style="width:180px;">
-                            </select>
-                        </td>
-                        <th align="right">审批状态：</th>
-                        <td style="width:90px;">
-							<select id="approvalCode" style="width:80px;"> 
-								<option value="" selected="selected">全部</option>
-								<option value="10">初始</option>	
-								<option value="20">已申请</option>
-								<option value="30">放行</option>
-								<option value="40">未放行</option>						 
-							</select> 
-						</td>
-						<td>
-							<input id="initialBtn" value="初始化" type="button" class="btn_c"></input>
-							<input id="queryBtn" value="查询" type="button" class="btn_c"></input>
-						</td>
-                    </tr>
-                    <tr>
-                    	<th align="right">车牌号：</th>
-						<td>
-							<input id="truckNo" name="truckNo" type="text" style="width:140px">
-						</td>
-						<td>
-							<input id="preLoadBtn" value="预装载" type="button" class="btn_c"></input>
-							<input id="preLoadCancelBtn" value="取消预装载" type="button" class="btn_c"></input>
-						</td>
-                    </tr>
-                    </tbody>
-                </table>
+
+                <div id="condition_top" style="height: 30px;">
+                    <span>发货时间：</span>
+                    <input id="sendTimeFrom" name="sendTimeFrom" class="Wdate" type="text" readonly="readonly"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:180px">
+                    <span style="text-align: center;width: 20px;display: inline-block">至</span>
+                    <input id="sendTimeTo" name="sendTimeTo" class="Wdate" type="text" readonly="readonly"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:180px">
+                    <span style="display: inline-block;margin-left: 20px;">批次号：</span>
+                    <input id="sendCode" name="sendCode" type="text" style="width:180px">
+                </div>
+                <div id="condition_mid" style="height: 34px;padding-bottom: 5px;border-bottom: 2px solid #999;">
+                    <span>分拣中心：</span>
+                    <select id="dmsList" style="width:180px;height: 23px;">
+                    </select>
+                    <span style="display: inline-block;margin-left: 20px;">审批状态：</span>
+                    <select id="approvalCode" style="width:100px;height: 23px;">
+                        <option value="" selected="selected">全部</option>
+                        <option value="10">初始</option>
+                        <option value="20">已申请</option>
+                        <option value="30">放行</option>
+                        <option value="40">未放行</option>
+                    </select>
+                    <input id="initialBtn" value="初始化" type="button" class="btn_c" style="margin-left: 52px;"></input>
+                    <input id="queryBtn" value="查询" type="button" class="btn_c"></input>
+                </div>
+                <div id="condition_bottom">
+					<span>车牌号：</span>
+                    <input id="truckNo" name="truckNo" type="text" style="width:180px">
+                    <input id="preLoadBtn" value="预装载" type="button" class="btn_c" style="margin-left: 20px;margin-top: 8px;"></input>
+                    <input id="preLoadCancelBtn" value="取消预装载" type="button" class="btn_c"></input>
+                </div>
             </div>
         </div>
     </div>
@@ -99,7 +84,9 @@
                 <table id="paperTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px;" class="tb-x1">
                     <thead>
                     <tr>
-                        <th style="width:40px;"><input id="allBtn" type="radio"/>全选</th>
+                        <th style="width:40px;"><input id="allBtn" type="checkbox"
+                                                       style="display: block;width: 15px;float: left;margin-right: 3px;"/><span>全选</span>
+                        </th>
                         <th style="width:50px;">运单号</th>
                         <th style="width:50px;">包裹号</th>
                         <th style="width:50px;">订单号</th>
