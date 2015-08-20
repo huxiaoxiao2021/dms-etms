@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>跨分区分拣校验</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/globaltrade/global-trade-index.js')"></script>
+    <style type="text/css">
+    </style>
+</head>
+<script type="text/javascript">
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">跨分区分拣校验</a>
+    </p>
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <div id="queryForm" name="queryForm">
+                <input type="hidden" id="pageNo" name="pageNo" value=""/>
+                <input type="hidden" id="totalNo" name="totalNo" value=""/>
+                <input type="hidden" id="pageSize" name="pageSize" value=""/>
+                <input type="hidden" id="totalSize" name="totalSize" value=""/>
+                <input type="hidden" id="tableName" name="tableName" value=""/>
+                <table border="0" cellpadding="0" cellspacing="0" style="width:70%;margin:0 auto;">
+                    <tbody>
+                    <tr>
+                    	<th align="left">发货时间：</th>
+						<td >
+							<input id="sendTimeFrom" name="sendTimeFrom" class="Wdate" type="text" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:140px">
+						</td>
+						<th align="left">至</th>
+						<td >
+						    <input id="sendTimeTo" name="sendTimeTo" class="Wdate" type="text" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:140px">
+						</td>
+						<th align="left">批次号：</th>
+						<td >
+						    <input id="sendCode" name="sendCode" type="text" style="width:140px">
+						</td>
+                    </tr>
+                    <tr>
+                    	<th align="right">分拣中心：</th>
+                        <td style="width:150px;">
+                            <select id="dmsList" style="width:180px;">
+                            </select>
+                        </td>
+                        <th align="right">审批状态：</th>
+                        <td style="width:90px;">
+							<select id="approvalCode" style="width:80px;"> 
+								<option value="" selected="selected">全部</option>
+								<option value="10">初始</option>	
+								<option value="20">已申请</option>
+								<option value="30">放行</option>
+								<option value="40">未放行</option>						 
+							</select> 
+						</td>
+						<td>
+							<input id="initialBtn" value="初始化" type="button" class="btn_c"></input>
+							<input id="queryBtn" value="查询" type="button" class="btn_c"></input>
+						</td>
+                    </tr>
+                    <tr>
+                    	<th align="right">车牌号：</th>
+						<td>
+							<input id="truckNo" name="truckNo" type="text" style="width:140px">
+						</td>
+						<td>
+							<input id="preLoadBtn" value="预装载" type="button" class="btn_c"></input>
+							<input id="preLoadCancelBtn" value="取消预装载" type="button" class="btn_c"></input>
+						</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table id="paperTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th style="width:40px;"><input id="allBtn" type="radio"/>全选</th>
+                        <th style="width:50px;">运单号</th>
+                        <th style="width:50px;">包裹号</th>
+                        <th style="width:50px;">订单号</th>
+                        <th style="width:50px;">分拣中心</th>
+                        <th style="width:50px;">发货时间</th>
+                        <th style="width:50px;">批次号</th>
+                        <th style="width:50px;">车牌号</th>
+                        <th style="width:50px;">审批状态</th>
+                        <th style="width:50px;">审批时间</th>
+                        <th style="width:50px;">备注</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="pager" class="tbl-n">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
