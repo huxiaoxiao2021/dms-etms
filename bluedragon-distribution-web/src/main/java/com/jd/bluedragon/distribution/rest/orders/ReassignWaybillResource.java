@@ -6,6 +6,8 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +56,7 @@ public class ReassignWaybillResource {
      * */
     @GET
     @Path("/packLastScheduleSite/{packageCode}")
+    @JProfiler(jKey = "DMSWEB.ReassignWaybillResource.queryLastScheduleSite", mState = {JProEnum.TP})
     public BaseResponse queryLastScheduleSite(@PathParam("packageCode") String packageCode){
         this.logger.info("the packagecode is : " + packageCode);
         BaseResponse baseResponse = new BaseResponse();
