@@ -31,7 +31,19 @@ function main() {
 
 // 根据批次号,初始化装载单
 function initialLoadBill() {
-
+	var url = $("#contextPath").val() + "/loadBill/initial?" + $.trim($("#sendCode").val());
+	$.getJSON(url, function(data) {
+		var dmsList = data;
+		if (data == undefined || data == null) {
+			jQuery.messager.alert('提示:', "HTTP请求无数据返回！", 'info');
+			return;
+		}
+		if (data.code == 1) { 
+			jQuery.messager.alert('提示:', "该批次的装载单初始化成功！", 'info');
+		} else {
+			jQuery.messager.alert('提示:', data.message, 'error');
+		}
+	});
 }
 
 // 预装载后,重新查询一遍
@@ -125,7 +137,7 @@ function doQuery(params) {
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td><input id='' name='singleBtn' onclick='singleClick();' type='radio'/></td>";
+				temp += "<td><input id='" + dataList[i].id + "' name='singleBtn' onclick='singleClick();' type='radio'/></td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";

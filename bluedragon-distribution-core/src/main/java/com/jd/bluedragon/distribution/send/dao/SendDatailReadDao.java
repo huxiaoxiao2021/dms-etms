@@ -62,4 +62,9 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 		return sendResponseList;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<SendDetail> findBySendCode(String sendCode){
+		return (List<SendDetail>) this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findBySendCode", sendCode);
+	} 
+	
 }

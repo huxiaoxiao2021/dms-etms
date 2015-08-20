@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.globaltrade.dao;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -17,6 +18,11 @@ public class LoadBillDao extends BaseDao<LoadBill>{
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
 		logger.info("LoadBillDao.updateLoadBillStatus orderId is " + loadBillStatusMap.get("orderId"));
 		return this.getSqlSession().update(LoadBillDao.namespace + "updateLoadBillStatus", loadBillStatusMap);
+	}
+
+	public int addBatch(List<LoadBill> loadBillList) {
+		logger.info("LoadBillDao.addBatch with number of loadBillList is " + loadBillList.size());
+		return this.getSqlSession().insert(LoadBillDao.namespace + "addBatch", loadBillList);
 	}
 
 }
