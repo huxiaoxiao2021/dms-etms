@@ -479,7 +479,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		sb.append("<OrderTaskInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
 		sb.append("<OrderId>" + orderId + "</OrderId>");
 		sb.append("<OrderType>" + orderType + "</OrderType>");
-		sb.append("<MessageType>BLOCKER_QUEUE_DMS</MessageType>");
+		sb.append("<MessageType>BLOCKER_QUEUE_BD_DMS_ST</MessageType>");
 		sb.append("<OperatTime>" + operateTime + "</OperatTime>");
 		sb.append("</OrderTaskInfo>");
 
