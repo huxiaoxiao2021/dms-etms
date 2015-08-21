@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.globaltrade.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +52,16 @@ public class LoadBillServiceImpl implements LoadBillService {
 		loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report)); // 更新loadbill的approval_code
 	}
 
-	private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
+    @Override
+    public TaskResult dealPreLoadBillTask(Task task) {
+        LoadBill loadBill = JsonHelper.fromJson(task.getBody(),LoadBill.class);
+        if(null == loadBill){
+            return TaskResult.FAILED;
+        }
+        return TaskResult.SUCCESS;
+    }
+
+    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
 		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
 		loadBillStatusMap.put("orderId", report.getOrderId());
 		if (report.getStatus() == SUCCESS) {

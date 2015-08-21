@@ -54,6 +54,15 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private SysConfigService sysConfigService;
 
+
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void addBatch(List<Task> tasks) {
+        for(Task task : tasks){
+            add(task,false);
+        }
+    }
+
     /**
      * @param task
      * @param ifCheckTaskMode 
