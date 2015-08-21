@@ -11,6 +11,7 @@
 		<result column="package_barcode" property="packageBarcode" />
 		<result column="package_amount" property="packageAmount" />
 		<result column="order_id" property="orderId" />
+		<result column="box_code" property="boxCode" />
 		<result column="dms_code" property="dmsCode" />
 		<result column="dms_name" property="dmsName" />
 		<result column="send_time" property="sendTime" />
@@ -36,7 +37,7 @@
 		<where>
 			yn = 1
 			<if test="sendCode != null">
-				AND send_code like #{sendCode,jdbcType=VARCHAR}
+				AND send_code = #{sendCode,jdbcType=VARCHAR}
 			</if>
 			<if test="dmsCode != null">
 				AND dms_code = #{dmsCode,jdbcType=INTEGER}

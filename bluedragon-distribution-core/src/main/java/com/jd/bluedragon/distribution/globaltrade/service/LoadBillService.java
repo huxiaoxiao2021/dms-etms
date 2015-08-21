@@ -42,6 +42,6 @@ public interface LoadBillService {
 	 * @param string
 	 * @param integer
 	 */
-	void initialLoadBill(String sendCode, Integer userId, String userName);
+	int initialLoadBill(String sendCode, Integer userId, String userName);
 
 }

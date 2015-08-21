@@ -65,10 +65,15 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public void initialLoadBill(String sendCode, Integer userId, String userName) {
+	public int initialLoadBill(String sendCode, Integer userId, String userName) {
 		List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCode(sendCode);
+		if(sendDetailList == null || sendDetailList.size() < 1){
+			logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
+			return 0;
+		}
 		List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, userId, userName);
 		loadBillDao.addBatch(loadBillList);
+		return loadBillList.size();
 	}
 
 	private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, Integer userId, String userName) {
@@ -84,6 +89,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 			lb.setPackageBarcode(sd.getPackageBarcode());
 			lb.setPackageAmount(sd.getPackageNum());
 			lb.setOrderId(sd.getWaybillCode());
+			lb.setBoxCode(sd.getBoxCode());
 			lb.setDmsCode(sd.getCreateSiteCode());
 			lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
 			lb.setSendCode(sd.getSendCode());

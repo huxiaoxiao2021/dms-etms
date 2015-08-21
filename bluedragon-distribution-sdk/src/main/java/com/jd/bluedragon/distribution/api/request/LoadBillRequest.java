@@ -15,9 +15,9 @@ public class LoadBillRequest implements Serializable {
 
 	private Integer approvalCode;
 
-	private Date sendTimeFrom;
+	private String sendTimeFrom;
 
-	private Date sendTimeTo;
+	private String sendTimeTo;
 
 	public String getIds() {
 		return ids;
@@ -51,19 +51,19 @@ public class LoadBillRequest implements Serializable {
 		this.approvalCode = approvalCode;
 	}
 
-	public Date getSendTimeFrom() {
+	public String getSendTimeFrom() {
 		return sendTimeFrom;
 	}
 
-	public void setSendTimeFrom(Date sendTimeFrom) {
+	public void setSendTimeFrom(String sendTimeFrom) {
 		this.sendTimeFrom = sendTimeFrom;
 	}
 
-	public Date getSendTimeTo() {
+	public String getSendTimeTo() {
 		return sendTimeTo;
 	}
 
-	public void setSendTimeTo(Date sendTimeTo) {
+	public void setSendTimeTo(String sendTimeTo) {
 		this.sendTimeTo = sendTimeTo;
 	}
 

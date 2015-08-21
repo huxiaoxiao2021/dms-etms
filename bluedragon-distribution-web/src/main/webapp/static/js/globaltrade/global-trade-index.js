@@ -31,7 +31,7 @@ function main() {
 
 // 根据批次号,初始化装载单
 function initialLoadBill() {
-	var url = $("#contextPath").val() + "/loadBill/initial?" + $.trim($("#sendCode").val());
+	var url = $("#contextPath").val() + "/globalTrade/loadBill/initial?sendCode=" + $.trim($("#sendCode").val());
 	$.getJSON(url, function(data) {
 		var dmsList = data;
 		if (data == undefined || data == null) {
@@ -65,7 +65,7 @@ function initDms() {
 			return;
 		}
 		if (dmsList.length > 0 && dmsList[0].code == 200) {// 200:normal
-			loadDmsList(dmsList, "destinationDmsList");
+			loadDmsList(dmsList, "dmsList");
 		} else if (dmsList.length > 0 && dmsList[0].code == 404) {// 404:
 			jQuery.messager.alert('提示:', "获取分拣中心列表为空！", 'info');
 		} else if (dmsList.length > 0 && dmsList[0].code == 20000) {// 20000:error
@@ -83,14 +83,13 @@ function loadDmsList(dmsList, selectId) {
 		}
 	});
 	var dmsObj = $('#' + selectId);
-	$('#createDmsList').html("");
+	$('#dmsList').html("");
 	var optionList = "";
 	optionList += "<option value='' selected='selected'></option>";
 	for (var i = 0; i < dmsList.length; i++) {
 		optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
 	}
 	dmsObj.append(optionList);
-	$("#paperTable tbody").html("");
 }
 
 function onQueryBtnClick(pageNo) {
@@ -107,7 +106,7 @@ function checkParams(params) {
 	if (null == params) {
 		return false;
 	}
-	if (params.sendTimeFrom == "" || params.sendTimeTo == "" || params.sendCode == "" || params.dmsCode == "" || params.approvalCode == "") {
+	if (params.sendTimeFrom == "" && params.sendTimeTo == "" && params.sendCode == "" && params.dmsCode == "" && params.approvalCode == "") {
 		return false;
 	}
 	return true;
@@ -125,7 +124,7 @@ function getParams() {
 
 // 查询请求
 function doQuery(params) {
-	var url = $("#contextPath").val() + "/loadBill/list";
+	var url = $("#contextPath").val() + "/globalTrade/loadBill/list";
 	CommonClient.post(url, params, function(data) {
 		if (data == undefined || data == null) {
 			jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
@@ -137,14 +136,14 @@ function doQuery(params) {
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td><input id='" + dataList[i].id + "' name='singleBtn' onclick='singleClick();' type='radio'/></td>";
+				temp += "<td><input id='" + dataList[i].id + "' name='singleBtn' onclick='singleClick();' type='checkbox'/></td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";
 				temp += "<td>" + (dataList[i].dmsName) + "</td>";
 				temp += "<td>" + (getDateString(getData(dataList[i].sendTime))) + "</td>";
 				temp += "<td>" + (dataList[i].sendCode) + "</td>";
-				temp += "<td>" + (dataList[i].truckNo) + "</td>";
+				temp += "<td>" + (dataList[i].truckNo == null ? '' : dataList[i].truckNo) + "</td>";
 				var type = dataList[i].approvalCode;
 				if (type == 10) {
 					temp += "<td>初始</td>";
@@ -156,7 +155,7 @@ function doQuery(params) {
 					temp += "<td>未放行</td>";
 				}
 				temp += "<td>" + (getDateString(getData(dataList[i].approvalTime))) + "</td>";
-				temp += "<td>" + (dataList[i].remark) + "</td>";
+				temp += "<td>" + (dataList[i].remark == null ? '' : dataList[i].remark) + "</td>";
 				temp += "</tr>";
 			}
 			$("#paperTable tbody").html(temp);

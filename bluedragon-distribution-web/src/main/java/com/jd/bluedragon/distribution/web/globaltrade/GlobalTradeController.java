@@ -1,8 +1,13 @@
 package com.jd.bluedragon.distribution.web.globaltrade;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,22 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.CrossSortingRequest;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
-import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.jsf.gd.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/globalTrade")
@@ -78,11 +79,7 @@ public class GlobalTradeController {
         CommonDto<Pager<List<LoadBill>>> cdto = new CommonDto<Pager<List<LoadBill>>>();
         try {
             logger.info("GlobalTradeController doQueryLoadBill begin...");
-            if (null == request || StringUtils.isNotBlank(request.getSendCode())
-            		            || request.getDmsCode() == null
-            		            || request.getDmsCode() < 1
-            		            || request.getSendTimeFrom() == null
-            		            || request.getSendTimeTo() == null) {
+            if (null == request) {
                 cdto.setCode(CommonDto.CODE_WARN);
                 cdto.setMessage("参数不能为空！");
                 return cdto;
@@ -113,13 +110,24 @@ public class GlobalTradeController {
         return cdto;
     }
     
-    private Map<String, Object> getParamsFromRequest(LoadBillRequest request) {
+    private Map<String, Object> getParamsFromRequest(LoadBillRequest request) throws ParseException {
     	Map<String, Object> params = new HashMap<String, Object>();
-    	params.put("sendCode", request.getSendCode());
-    	params.put("dmsCode", request.getDmsCode());
-    	params.put("approvalCode", request.getApprovalCode());
-    	params.put("sendTimeFrom", request.getSendTimeFrom());
-    	params.put("sendTimeTo", request.getSendTimeTo());
+    	if(StringUtils.isNotBlank(request.getSendCode())){
+    		params.put("sendCode", request.getSendCode());
+    	}
+    	if(request.getDmsCode() != null && request.getDmsCode() > 0){
+    		params.put("dmsCode", request.getDmsCode());
+    	}
+    	if(request.getApprovalCode() != null && request.getApprovalCode() > 0){
+    		params.put("approvalCode", request.getApprovalCode());
+    	}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if (StringUtils.isNotBlank(request.getSendTimeFrom())) {
+			params.put("sendTimeFrom", sdf.parse(request.getSendTimeFrom()));
+		}
+		if (StringUtils.isNotBlank(request.getSendTimeTo())) {
+			params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
+		}
         return params;
 	}
 
@@ -129,16 +137,22 @@ public class GlobalTradeController {
 		CommonDto<String> cdto = new CommonDto<String>();
 		try {
             logger.info("GlobalTradeController initialLoadBill begin with sendCode is " + request.getSendCode());
-            if (null == request || StringUtils.isNotBlank(request.getSendCode())) {
+            if (null == request || StringUtils.isBlank(request.getSendCode())) {
                 cdto.setCode(CommonDto.CODE_WARN);
                 cdto.setMessage("参数不能为空！");
                 return cdto;
             }
+            int initialNum = -1;
             ErpUser erpUser = ErpUserClient.getCurrUser();
             if(erpUser != null){
-            	loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserName());
+            	initialNum = loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserName());
             } else {
-            	loadBillService.initialLoadBill(request.getSendCode(), null, null);
+            	initialNum = loadBillService.initialLoadBill(request.getSendCode(), null, null);
+            }
+            if(initialNum == 0){
+                cdto.setCode(CommonDto.CODE_WARN);
+                cdto.setMessage("批次号 " + request.getSendCode() + " 的数据为空！");
+                return cdto;
             }
             cdto.setCode(CommonDto.CODE_NORMAL);
         } catch (Exception e) {

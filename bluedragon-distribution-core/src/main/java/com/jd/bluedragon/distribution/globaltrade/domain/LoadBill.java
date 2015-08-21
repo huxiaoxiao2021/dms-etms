@@ -33,6 +33,8 @@ public class LoadBill implements Serializable {
 	/** 订单号 */
 	private String orderId;
 
+	private String boxCode;
+
 	/** 分拣中心编号 */
 	private Integer dmsCode;
 
@@ -198,6 +200,14 @@ public class LoadBill implements Serializable {
 
 	public void setSendCode(String sendCode) {
 		this.sendCode = sendCode;
+	}
+
+	public String getBoxCode() {
+		return boxCode;
+	}
+
+	public void setBoxCode(String boxCode) {
+		this.boxCode = boxCode;
 	}
 
 	public String getTruckNo() {

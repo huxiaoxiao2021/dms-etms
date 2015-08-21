@@ -11,6 +11,7 @@
 		<result column="package_barcode" property="packageBarcode" />
 		<result column="package_amount" property="packageAmount" />
 		<result column="order_id" property="orderId" />
+		<result column="box_code" property="boxCode" />
 		<result column="dms_code" property="dmsCode" />
 		<result column="dms_name" property="dmsName" />
 		<result column="send_time" property="sendTime" />
@@ -36,8 +37,8 @@
 
 	<insert id="addBatch" parameterType="list"> 
 		INSERT INTO load_bill ( 
-			id, load_id, warehouse_id, waybill_code,
-			package_barcode, package_amount, order_id, dms_code, dms_name,
+			id, load_id, warehouse_id, waybill_code, package_barcode,
+		    package_amount, order_id, box_code, dms_code, dms_name,
 			send_time, send_code, truck_no, approval_code, approval_time,
 			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
 			create_user_code, create_user, package_user_code, package_user,
@@ -52,6 +53,7 @@
 					#{item.packageBarcode,jdbcType=VARCHAR} AS package_barcode,
 					#{item.packageAmount,jdbcType=INTEGER} AS package_amount,
 					#{item.orderId,jdbcType=VARCHAR} AS order_id,
+					#{item.boxCode,jdbcType=VARCHAR} AS box_code,
 					#{item.dmsCode,jdbcType=INTEGER} AS dms_code,
 					#{item.dmsName,jdbcType=VARCHAR} AS dms_name,
 					#{item.sendTime,jdbcType=TIMESTAMP} AS send_time,
@@ -63,9 +65,9 @@
 					#{item.gjno,jdbcType=VARCHAR} AS gjno, 
 					#{item.tpl,jdbcType=VARCHAR} AS tpl, 
 					#{item.weight,jdbcType=DOUBLE} AS weight,
-					NOW() AS create_time,
-					NOW() AS update_time,
-					NOW() AS gen_time,
+					sysdate AS create_time,
+					sysdate AS update_time,
+					sysdate AS gen_time,
 					#{item.createUserCode,jdbcType=INTEGER} AS create_user_code,
 					#{item.createUser,jdbcType=VARCHAR} AS create_user,
 					#{item.packageUserCode,jdbcType=INTEGER} AS package_user_code,
