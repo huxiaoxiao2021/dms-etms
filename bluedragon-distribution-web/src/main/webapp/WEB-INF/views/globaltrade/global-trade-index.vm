@@ -34,7 +34,7 @@
         <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">全球购</a>
     </p>
 </div>
-<div id="content" style="width: 70%;margin: 0 auto;">
+<div id="content">
     <div class="m">
         <div class="tbl-n">
             <div id="queryForm" name="queryForm">

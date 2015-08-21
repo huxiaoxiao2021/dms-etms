@@ -58,7 +58,7 @@
         where t1.rn = 1
 	</select>
 	
-	<select id="findBySendCode" parameterType="String" resultMap="SendDetail">
+	<select id="findBySendCode" parameterType="map" resultMap="SendDetail">
 		SELECT 
 			send_code, box_code, package_barcode, package_num, waybill_code,
 			create_site_code, create_time, create_user, create_user_code, weight
@@ -66,6 +66,7 @@
 		    dms.send_d
 		WHERE 
 		  	yn = 1 AND send_code = #{sendCode,jdbcType=VARCHAR}
+		  	AND create_site_code = #{dmsCode,jdbcType=INTEGER}
 	</select>
 	
 </mapper>

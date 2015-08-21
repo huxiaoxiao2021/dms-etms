@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.jsf.gd.util.StringUtils;
 
 @Service("loadBillService")
 public class LoadBillServiceImpl implements LoadBillService {
@@ -30,13 +31,15 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	private static final int SUCCESS = 1; // report的status,1为成功,2为失败
 
-	private static final String WAREHOUSE_ID = "globalTrade.loadBill.warehouseId";
+	private static final String WAREHOUSE_ID = "globalTrade.loadBill.warehouseId"; // 仓库ID
 
-	private static final String CTNO = "globalTrade.loadBill.ctno";
+	private static final String DMS_CODE = "globalTrade.loadBill.dmsCode"; // 全球购的专用分拣中心
 
-	private static final String GJNO = "globalTrade.loadBill.gjno";
+	private static final String CTNO = "globalTrade.loadBill.ctno"; // 申报海关编码。默认：5165南沙旅检
 
-	private static final String TPL = "globalTrade.loadBill.tpl";
+	private static final String GJNO = "globalTrade.loadBill.gjno"; // 申报国检编码。默认：000069申报地国检
+
+	private static final String TPL = "globalTrade.loadBill.tpl"; // 物流企业编码。默认：京配编号
 
 	@Autowired
 	private LoadBillDao loadBillDao;
@@ -54,25 +57,28 @@ public class LoadBillServiceImpl implements LoadBillService {
 	private SiteService siteService;
 
 	@Override
-	public int add(LoadBill loadBill) {
-		return 0;
-	}
-
-	@Override
-	public int update(LoadBill loadBill) {
-		return 0;
-	}
-
-	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int initialLoadBill(String sendCode, Integer userId, String userName) {
-		List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCode(sendCode);
-		if(sendDetailList == null || sendDetailList.size() < 1){
+		String dmsCode = PropertiesHelper.newInstance().getValue(DMS_CODE);
+		if (StringUtils.isBlank(dmsCode)) {
+			logger.error("LoadBillServiceImpl initialLoadBill with dmsCode is null");
+			return 0;
+		}
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("sendCode", sendCode);
+		params.put("dmsCode", Integer.parseInt(dmsCode));
+		List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
+		if (sendDetailList == null || sendDetailList.size() < 1) {
 			logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
 			return 0;
 		}
 		List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, userId, userName);
-		loadBillDao.addBatch(loadBillList);
+		for (LoadBill lb : loadBillList) {
+			// 不存在,则添加;存在,则忽略,更新会影响其他功能的更新操作
+			if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
+				loadBillDao.add(lb);
+			}
+		}
 		return loadBillList.size();
 	}
 
