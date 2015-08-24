@@ -81,9 +81,15 @@
 
 
     <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
-        SELECT waybill_code,approval_code
+        SELECT waybill_code,box_code,approval_code
         WHERE
-          waybill_code = #{waybillCode, jdbcType=INTEGER}
+          yn=1
+        <if test="sendCode != null">
+            AND waybill_code = #{sendCode,jdbcType=VARCHAR}
+        </if>
+        <if test="dmsCode != null">
+            AND box_code = #{dmsCode,jdbcType=VARCHAR}
+        </if>
     </select>
 
 </mapper>
