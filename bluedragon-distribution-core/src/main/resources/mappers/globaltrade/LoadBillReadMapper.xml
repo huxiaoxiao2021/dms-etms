@@ -84,11 +84,11 @@
         SELECT waybill_code,box_code,approval_code
         WHERE
           yn=1
-        <if test="sendCode != null">
-            AND waybill_code = #{sendCode,jdbcType=VARCHAR}
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
         </if>
-        <if test="dmsCode != null">
-            AND box_code = #{dmsCode,jdbcType=VARCHAR}
+        <if test="boxCode != null">
+            AND box_code = #{boxCode,jdbcType=VARCHAR}
         </if>
     </select>
 
