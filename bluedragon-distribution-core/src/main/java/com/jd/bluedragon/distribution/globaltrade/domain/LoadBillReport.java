@@ -31,7 +31,20 @@ public class LoadBillReport implements Serializable {
 	/** 成功的订单号,多个以逗号分割 */
 	private String orderId;
 
-	/** 有效标识 */
+    /**
+     * 箱号
+     */
+    private String boxCode;
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
+    /** 有效标识 */
 	private Integer yn;
 
 	public String getId() {
