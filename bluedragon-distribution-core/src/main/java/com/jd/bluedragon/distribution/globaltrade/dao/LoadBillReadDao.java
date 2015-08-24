@@ -26,5 +26,11 @@ public class LoadBillReadDao extends BaseDao<LoadBill> {
 	public Integer findCountLoadBill(Map<String, Object> params) {
 		return (Integer) super.getSqlSessionRead().selectOne(LoadBillReadDao.namespace + ".findCount", params);
 	}
+    @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public List<LoadBill> findWaybillInLoadBill(Map<String, Object> params) {
+        return (List<LoadBill>) super.getSqlSessionRead().selectList(LoadBillReadDao.namespace + ".findWaybillinLoadBill", params);
+    }
+
 
 }
