@@ -79,4 +79,11 @@
 	</select>
 
 
+
+    <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
+        SELECT waybill_code,approval_code
+        WHERE
+          waybill_code = #{waybillCode, jdbcType=INTEGER}
+    </select>
+
 </mapper>
