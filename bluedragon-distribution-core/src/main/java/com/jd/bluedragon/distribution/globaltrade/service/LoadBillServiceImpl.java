@@ -60,10 +60,12 @@ public class LoadBillServiceImpl implements LoadBillService {
 		}
 		return loadBillStatusMap;
 	}
-
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(LoadBillReport report){
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-        loadBillStatusMap.put("orderId", report.getOrderId());
+        loadBillStatusMap.put("waybillCode", report.getOrderId());
+        loadBillStatusMap.put("boxCode", report.getBoxCode());
         List<LoadBill> loadBillList=  loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
         return loadBillList;
     }
