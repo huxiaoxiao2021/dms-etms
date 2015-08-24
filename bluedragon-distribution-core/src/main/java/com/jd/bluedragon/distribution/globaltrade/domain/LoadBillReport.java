@@ -36,6 +36,16 @@ public class LoadBillReport implements Serializable {
      */
     private String boxCode;
 
+    private String siteCode;
+
+    public String getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(String siteCode) {
+        this.siteCode = siteCode;
+    }
+
     public String getBoxCode() {
         return boxCode;
     }
