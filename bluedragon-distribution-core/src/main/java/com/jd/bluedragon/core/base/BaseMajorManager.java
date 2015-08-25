@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.jd.etms.basic.domain.BaseDataDict;
 import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.domain.BaseResult;
 import com.jd.etms.basic.domain.PsStoreInfo;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.basic.dto.BaseStoreInfoDto;
@@ -60,5 +59,12 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId);
+	
+	/**
+	 * 根据站点编号或DMSCODE获得站点信息调用dmsver
+	 *
+	 * @return BaseStaffSiteOrgDto @
+	 */
+	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode);
 
 }

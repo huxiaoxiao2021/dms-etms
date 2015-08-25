@@ -7,7 +7,7 @@ public class SystemLogUtil {
 	
     /**
      * 使用日志对象进行记录
-     * @param systemLog
+     * @param systemLog 为空不记录日志
      */
     public static int log(SystemLog systemLog) {
        SystemLogService logService = (SystemLogService) SpringHelper.getBean("SystemLogService");

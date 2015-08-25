@@ -148,13 +148,28 @@ public class OrderStockInfo {
 		StringBuffer resultStr = new StringBuffer();
 		if (type == null)
 			resultStr.append("订单信息为空!");
+		if(!this.ordinaryTypes.contains(type)&&!this.otherTypes.contains(type))
+			resultStr.append("订单类型不支持!");
 		if (!judgeStockInfo())
 			resultStr.append("不确定先后款!");
 		
 		//如果没有报错信息则返回OK
 		if (resultStr.length() > 0)
-			return resultStr.toString();
+			return resultStr.toString()+this.toString();
 		else
 			return JdResponse.MESSAGE_OK;
+	}
+	
+	public static void main(String args[]){
+		String waybillcode = "12345";
+		String type = "21";
+		String fangshi = "出库";
+		String fenlei = "放货1";
+		String qita = "0";
+		String qitafangshi = null;
+		
+		OrderStockInfo stInfo = new OrderStockInfo(waybillcode, type, fangshi, fenlei,
+				qita, qitafangshi);
+		System.out.println(stInfo.judge());
 	}
 }

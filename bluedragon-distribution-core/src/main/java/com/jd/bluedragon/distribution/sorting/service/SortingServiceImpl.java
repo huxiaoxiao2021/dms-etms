@@ -7,14 +7,10 @@ import java.util.List;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.batch.domain.BatchSend;
-import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
 import org.perf4j.aop.Profiled;
-import org.perf4j.log4j.Log4JStopWatch;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -109,6 +105,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private RedisManager redisManager;
+	
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
 	@Profiled(tag = "SortingService.addSortring")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -459,6 +458,12 @@ public class SortingServiceImpl implements SortingService {
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());
 		}
+		if (createSite == null)
+			createSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(createSiteCode));
+		
+		if (receiveSite == null)
+			receiveSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(receiveSiteCode));
+			
 		if (createSite == null || receiveSite == null) {
 			this.logger.warn("创建站点或接收站点信息为空.");
 			this.logger.info("创建站点：" + createSiteCode);
@@ -626,20 +631,28 @@ public class SortingServiceImpl implements SortingService {
 		// "sure".equals(retrieveFlag)){
 		sendDetail = this.deliveryService.measureRetrieve(sendDetail);
 		// }
-		SendM sendM = getSendMSelective(sorting);
+        List<SendM> sendList=this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
+		//SendM sendM = getSendMSelective(sorting);
 		// 如果是正向、已经发货，则需要直接更新发货明细表（send_d)发货批次号(sendCode)
         /*updated by wangtingwei@jd.com  正向逆向三方发货全部补全数据，下线com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask该WORKER*/
-		if(null != sendM){
-			sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
-			this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-			sendDetail.setYn(1);
-            /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-            sendDetail.setOperateTime(sendM.getOperateTime());
-            sendDetail.setCreateUser(sendM.getCreateUser());
-            sendDetail.setCreateUserCode(sendM.getCreateUserCode());
-			List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-			sendDetails.add(sendDetail);
-			deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
+		if(null != sendList&&sendList.size()>0){
+            for (SendM sendM:sendList) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("分拣补全发货批次号为：" + sendM.getSendCode());
+                }
+                sendDetail.setCreateSiteCode(sendM.getCreateSiteCode());
+                sendDetail.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
+                this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
+                sendDetail.setYn(1);
+                /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
+                sendDetail.setOperateTime(sendM.getOperateTime());
+                sendDetail.setCreateUser(sendM.getCreateUser());
+                sendDetail.setCreateUserCode(sendM.getCreateUserCode());
+                List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+                sendDetails.add(sendDetail);
+                deliveryService.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
+            }
 		}else{
 			this.deliveryService.saveOrUpdate(sendDetail);
 		}
