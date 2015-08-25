@@ -26,7 +26,12 @@ public interface DeliveryService {
      */
     int pushStatusTask(SendM domain);
 
-
+    /**
+     * 查询箱号发货记录
+     * @param boxCode 箱号
+     * @return 发货记录列表
+     */
+    List<SendM> getSendMListByBoxCode(String boxCode);
 
 
     Integer add(SendDetail sendDetail);

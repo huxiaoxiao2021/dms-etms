@@ -317,10 +317,11 @@ public class DeliveryResource {
             tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, flage);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
+                /*  中转发货任务改到分货时建立任务
                 if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())&&flage){
-                    /*只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com*/
+                    //只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com
                     deliveryService.pushTransferSendTask(tSendM);
-                }
+                }*/
                 /* 注释掉跨区分拣发货功能
                 Integer targetSortingCenterId = null;
                 Integer targetSiteCode = null;

@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
 import com.jd.bluedragon.utils.*;
@@ -94,6 +95,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Autowired
+    private SendMReadDao sendMReadDao;
 
     @Autowired
     private SendDatailDao sendDatailDao;
@@ -382,8 +386,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         return 0;
     }
 
-
-
+    /**
+     * 查询箱号发货记录
+     * @param boxCode 箱号
+     * @return 发货记录列表
+     */
+    @Profiled(tag = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode")
+    @JProfiler(jKey = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode", mState = { JProEnum.TP,
+            JProEnum.FunctionError })
+    public   List<SendM> getSendMListByBoxCode(String boxCode){
+        SendM domain=new SendM();
+        domain.setBoxCode(boxCode);
+        return this.sendMReadDao.findSendMByBoxCode(domain);
+    }
 
     @Profiled(tag = "DeliveryService.addSendDatail")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -616,6 +631,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 		CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2", false, true);
 		// 写入发货表数据
 		this.insertSendM(sendMList , list);
+        for(SendM domain:sendMList) {
+            this.transitSend(domain);//插入中转任务
+        }
         // 写入任务
         addTaskSend(sendMList.get(0));
 		Profiler.registerInfoEnd(info2); 
