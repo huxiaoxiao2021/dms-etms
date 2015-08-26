@@ -55,6 +55,10 @@ public class OperationLog implements java.io.Serializable {
 	/** 逆向相关-先货先款退款类型　 */
 	public static final Integer LOG_TYPE_FASTREFUND = 400; // 先货先款退款类型
 	
+	/** 发货发车相关　 */
+	public static final Integer LOG_TYPE_CAN_GLOBAL = 135; // 取消预装载
+	
+	
 	public Map<Integer, String> getLogTypeMap() {
 		Map<Integer, String> logTypes = new HashMap<Integer, String>();
 		logTypes.put(OperationLog.LOG_TYPE_TRANSFER, "交接");

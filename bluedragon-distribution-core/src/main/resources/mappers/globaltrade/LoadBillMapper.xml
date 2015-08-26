@@ -154,5 +154,18 @@
 		WHERE yn = 1 AND order_id IN #{orderId,jdbcType=VARCHAR}
 	</update>
 
-
+	<update id="updateCancelLoadBillStatus" parameterType="loadBill">
+		UPDATE load_bill
+		SET approval_code = #{approvalCode,jdbcType=INTEGER},
+		update_time = SYSDATE,
+		WHERE yn = 1 AND waybill_code = #{waybill_code,jdbcType=VARCHAR}
+		AND id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<select id="findLoadbillByID" resultMap="loadBill" parameterType="Long" >
+		SELECT waybill_code, package_barcode, dms_code, dms_name, approval_code
+		FROM load_bill
+		WHERE yn = 1 AND approval_code = 40
+		AND id = #{id,jdbcType=Long}
+	</select>
 </mapper>
