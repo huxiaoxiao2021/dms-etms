@@ -38,4 +38,11 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 		return this.getSqlSession().update(LoadBillDao.namespace + ".update", lb);
 	}
 
+	public LoadBill findLoadbillByID(Long id) {
+        return (LoadBill) super.getSqlSession().selectOne(LoadBillDao.namespace + ".findLoadbillByID", id);
+    }
+	
+	public int updateCancelLoadBillStatus(LoadBill loadBill) {
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateCancelLoadBillStatus", loadBill);
+	}
 }
