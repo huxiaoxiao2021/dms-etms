@@ -649,36 +649,38 @@ public class SortingServiceImpl implements SortingService {
             this.deliveryService.saveOrUpdate(sendDetail);
         }
         try {
-            List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
-            if (null != sendList && sendList.size() > 0) {
-                for (SendM sendM1 : sendList) {
-                    if (sendM1.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM1.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
-                        if(logger.isDebugEnabled()){
-                            logger.debug("过滤站点一致补全"+sorting.getWaybillCode());
+            if(BusinessHelper.isBoxcode(sorting.getBoxCode())) {
+                List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
+                if (null != sendList && sendList.size() > 0) {
+                    for (SendM sendM1 : sendList) {
+                        if (sendM1.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM1.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("过滤站点一致补全" + sorting.getWaybillCode());
+                            }
+                            continue;
                         }
-                        continue;
-                    }
-                    if (sendM1.getOperateTime().before(sorting.getOperateTime())) {
-                        if(logger.isDebugEnabled()){
-                            logger.debug("过滤发货在前分拣在后数据"+sorting.getWaybillCode());
+                        if (sendM1.getOperateTime().before(sorting.getOperateTime())) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("过滤发货在前分拣在后数据" + sorting.getWaybillCode());
+                            }
+                            continue;
                         }
-                        continue;
-                    }
-                    if (logger.isInfoEnabled()) {
-                        logger.info("分拣中转全程跟踪补全发货批次号为：" + sendM1.getSendCode()+"运单号为"+sorting.getPackageCode());
-                    }
-                    sendDetail.setCreateSiteCode(sendM1.getCreateSiteCode());
-                    sendDetail.setReceiveSiteCode(sendM1.getReceiveSiteCode());
-                    sendDetail.setSendCode(sendM1.getSendCode()); // 补全sendcode
-                    this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-                    sendDetail.setYn(1);
+                        if (logger.isInfoEnabled()) {
+                            logger.info("分拣中转全程跟踪补全发货批次号为：" + sendM1.getSendCode() + "运单号为" + sorting.getPackageCode());
+                        }
+                        sendDetail.setCreateSiteCode(sendM1.getCreateSiteCode());
+                        sendDetail.setReceiveSiteCode(sendM1.getReceiveSiteCode());
+                        sendDetail.setSendCode(sendM1.getSendCode()); // 补全sendcode
+                        this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
+                        sendDetail.setYn(1);
                 /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-                    sendDetail.setOperateTime(sendM1.getOperateTime());
-                    sendDetail.setCreateUser(sendM1.getCreateUser());
-                    sendDetail.setCreateUserCode(sendM1.getCreateUserCode());
-                    List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-                    sendDetails.add(sendDetail);
-                    deliveryService.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
+                        sendDetail.setOperateTime(sendM1.getOperateTime());
+                        sendDetail.setCreateUser(sendM1.getCreateUser());
+                        sendDetail.setCreateUserCode(sendM1.getCreateUserCode());
+                        List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+                        sendDetails.add(sendDetail);
+                        deliveryService.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
+                    }
                 }
             }
         }catch (Exception ex){
