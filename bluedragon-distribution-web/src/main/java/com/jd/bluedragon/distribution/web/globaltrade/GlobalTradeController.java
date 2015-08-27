@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.globaltrade;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
+import com.jd.bluedragon.distribution.globaltrade.service.GlobalTradeException;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.bcel.verifier.statics.LONG_Upper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,7 @@ public class GlobalTradeController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private static final String CARCODE_REG = "[A-Za-z0-9\u4e00-\u9fa5]+";
+    private static final String ZHUOZHI_PRELOAD_URL = "http://121.33.205.117:18080/customs/rest/custjson/postwmspredata.do";
 
     @Autowired
     private LoadBillService loadBillService;
@@ -69,6 +72,7 @@ public class GlobalTradeController {
     }
 
     @RequestMapping(value = "/preload", method = RequestMethod.POST)
+    @ResponseBody
     public LoadBillReportResponse prepareLoadBill(HttpServletRequest request) {
         String carCode = request.getParameter("carCode");
         String loadBillIdStr = request.getParameter("loadBillId");
@@ -78,34 +82,45 @@ public class GlobalTradeController {
         if (StringHelper.isEmpty(loadBillIdStr)) {
             return new LoadBillReportResponse(2000, "订单号不能为空");
         }
+
+        Integer effectSize = null;
+
         try {
-            List<Integer> loadBillId = new ArrayList<Integer>();
+            List<Long> loadBillId = new ArrayList<Long>();
             for (String id : loadBillIdStr.split(",")) {
-                loadBillId.add(Integer.valueOf(id));
+                loadBillId.add(Long.valueOf(id));
             }
-            List<LoadBill> loadBIlls = loadBillDao.getLoadBills(loadBillId);
-            taskService.addBatch(toGlobalTradeTask(loadBIlls));
+//            taskService.addBtch(toGlobalTradeTask(loadBIlls,carCode));
+            effectSize = loadBillService.preLoadBill(loadBillId, carCode);
         }catch (Exception ex){
+            logger.error("预装载操作失败，原因",ex);
             if(ex instanceof NumberFormatException){
-                logger.warn("装载单ID装换Int失败",ex);
+                return new LoadBillReportResponse(3000,"预装载操作失败,数据不合法");
+            }else if(ex instanceof GlobalTradeException){
+                return new LoadBillReportResponse(4000,ex.getMessage());
             }else{
-                logger.warn("批量插入全球购任务表失败",ex);
+                return new LoadBillReportResponse(5000,"预装载操作失败,操作异常");
             }
-            return new LoadBillReportResponse(3000,"预装载失败");
         }
-        return new LoadBillReportResponse(200, "预装载成功");
+        return new LoadBillReportResponse(200, "预装载成功[" + effectSize +  "]条订单");
     }
 
-    private List<Task> toGlobalTradeTask(List<LoadBill> loadBills){
+    private List<Task> toGlobalTradeTask(List<LoadBill> loadBills, String trunkNo){
         List<Task> tasks = new ArrayList<Task>();
         for(LoadBill bill : loadBills){
+            bill.setTruckNo(trunkNo);
+            bill.setPackageAmount(1);
+            bill.setWaybillCode(null);
+            bill.setPackageUserCode(null);
+            bill.setWeight(null);
             Task task = new Task();
             task.setBody(JsonHelper.toJson(bill));
-            task.setFingerprint(Md5Helper.encode(bill.getTruckNo()));
+            task.setFingerprint(Md5Helper.encode(bill.getLoadId()));
             task.setKeyword1(bill.getWaybillCode());
             task.setOwnSign(BusinessHelper.getOwnSign());
             task.setType(Task.TASK_TYPE_GLOBAL_TRADE);
             task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
             tasks.add(task);
         }
         return tasks;
@@ -213,7 +228,6 @@ public class GlobalTradeController {
 		return cdto;
 	}
 	
-	@RequestMapping(value = "/status", method = RequestMethod.POST)
 
     @RequestMapping(value = "/status", method = RequestMethod.POST)
     @ResponseBody
@@ -267,5 +281,4 @@ public class GlobalTradeController {
         }
         return orderId;
     }
-
 }

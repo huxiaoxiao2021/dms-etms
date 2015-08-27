@@ -35,7 +35,16 @@
 		<result column="yn" property="yn" />
 	</resultMap>
 
-    <select id="selectById" parameterType="java.util.List">
+    <update id="updateLoadBillById" parameterType="java.util.Map">
+        UPDATE load_bill
+          SET load_id = #{loadId}, truck_no = #{trunkNo}
+        WHERE yn = 1 AND id IN
+        <foreach collection="data" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="selectLoadBillById" parameterType="java.util.List" resultMap="loadBill">
         SELECT load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,
         tpl,weight,gen_time,package_time,package_user,package_user_code
         FROM load_bill WHERE yn = 1 AND id IN
@@ -44,8 +53,11 @@
         </foreach>
     </select>
 
-    <update id="updateLoadBillStatus" parameterType="map">
-	<insert id="addBatch" parameterType="list"> 
+    <select id="selectPreLoadBillId" resultType="java.lang.Long">
+        SELECT SEQ_PRE_LOAD_BILL.NEXTVAL FROM dual
+    </select>
+
+	<insert id="addBatch" parameterType="list">
 		INSERT INTO load_bill ( 
 			id, load_id, warehouse_id, waybill_code, package_barcode,
 		    package_amount, order_id, box_code, dms_code, dms_name,
