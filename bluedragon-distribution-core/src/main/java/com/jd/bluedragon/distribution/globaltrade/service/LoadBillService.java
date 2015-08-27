@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.globaltrade.service;
 
+import java.util.List;
+import java.util.Map;
+
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -45,6 +49,18 @@ public interface LoadBillService {
 	 * @param integer
 	 */
 	int initialLoadBill(String sendCode, Integer userId, String userName);
+	
+	/**
+	 * 通过订单号取消预装载
+	 * 
+	 * */
+	JdResponse cancelPreloaded(List<LoadBill> request);
+	
+	/**
+	 * 通过id查询订单装载信息
+	 * 
+	 * */
+	LoadBill findLoadbillByID(Long id);
 
     /**
      * 处理预装载任务，上传数据至卓志接口、

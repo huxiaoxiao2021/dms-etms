@@ -11,6 +11,8 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,6 +138,36 @@ public class GlobalTradeController {
         }
         return "globaltrade/global-trade-index";
     }
+    
+    @RequestMapping(value = "/cancel", method = RequestMethod.POST)
+    @ResponseBody
+	public LoadBillReportResponse cancelLoadBillStatus(LoadBillReportRequest request) {
+		LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
+		try {
+			if (request == null || StringUtils.isBlank(request.getOrderId())
+					|| !request.getStatus().equals(LoadBill.REDLIGHT)) {
+				return new LoadBillReportResponse(2, "参数错误");
+			}
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			String[] orderIdArray = request.getOrderId().split(",");
+			if (orderIdArray.length == 0) {
+				return new LoadBillReportResponse(2, "orderId数量为0");
+			}
+			List<LoadBill> loadBillList = new ArrayList<LoadBill>();
+			for (String orderid : orderIdArray) {
+				LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
+				loadBill.setPackageUser(erpUser.getUserName());
+				loadBill.setPackageUserCode(Integer.parseInt(erpUser.getUserCode()));
+				loadBill.setApprovalTime(new Date());
+				loadBill.setApprovalCode(LoadBill.BEGINNING);
+			}
+			loadBillService.cancelPreloaded(loadBillList);
+		} catch (Exception e) {
+			response = new LoadBillReportResponse(2, "操作异常");
+			logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+		}
+		return response;
+	}
     
     @RequestMapping(value = "/loadBill/list", method = RequestMethod.POST)
     @ResponseBody

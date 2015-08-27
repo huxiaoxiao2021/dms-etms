@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.globaltrade.dao;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,12 +11,12 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import org.omg.CORBA.OBJ_ADAPTER;
 
-public class LoadBillDao extends BaseDao<LoadBill>{
+public class LoadBillDao extends BaseDao<LoadBill> {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final String namespace = LoadBillDao.class.getName();
-	
+
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
 		logger.info("LoadBillDao.updateLoadBillStatus orderId is " + loadBillStatusMap.get("orderId"));
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillStatus", loadBillStatusMap);
@@ -43,4 +42,24 @@ public class LoadBillDao extends BaseDao<LoadBill>{
         map.put("trunkNo", trunkNo);
         return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillById");
     }
+	public LoadBill findByPackageBarcode(String packageBarcode) {
+		logger.info("LoadBillDao.getLoadBill with packageBarcode is " + packageBarcode);
+		return (LoadBill) this.getSqlSession().selectOne(LoadBillDao.namespace + ".findByPackageBarcode", packageBarcode);
+	}
+
+	public int add(LoadBill lb) {
+		return this.getSqlSession().insert(LoadBillDao.namespace + ".add", lb);
+	}
+
+	public int update(LoadBill lb) {
+		return this.getSqlSession().update(LoadBillDao.namespace + ".update", lb);
+	}
+
+	public LoadBill findLoadbillByID(Long id) {
+        return (LoadBill) super.getSqlSession().selectOne(LoadBillDao.namespace + ".findLoadbillByID", id);
+    }
+	
+	public int updateCancelLoadBillStatus(LoadBill loadBill) {
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateCancelLoadBillStatus", loadBill);
+	}
 }
