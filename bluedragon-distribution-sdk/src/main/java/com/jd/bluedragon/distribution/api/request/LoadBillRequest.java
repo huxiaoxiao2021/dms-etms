@@ -9,6 +9,7 @@ public class LoadBillRequest implements Serializable {
 
 	private String ids;
 
+	/** 批次号 , 可以传多个 , 逗号隔开   */
 	private String sendCode;
 
 	private Integer dmsCode;

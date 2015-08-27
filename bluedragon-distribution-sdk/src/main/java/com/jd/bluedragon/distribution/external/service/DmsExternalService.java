@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
+import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
@@ -40,5 +42,8 @@ public interface DmsExternalService {
 	 */
 	public BaseEntity<Map<String, Integer>> batchAddSealBox(
 			List<SealBoxDto> sealBoxList);
+
+
+	public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request);
 
 }

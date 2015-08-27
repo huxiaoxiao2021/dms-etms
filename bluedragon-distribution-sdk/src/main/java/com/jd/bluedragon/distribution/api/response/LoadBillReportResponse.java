@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.api.request;
+package com.jd.bluedragon.distribution.api.response;
 
 import java.io.Serializable;
 

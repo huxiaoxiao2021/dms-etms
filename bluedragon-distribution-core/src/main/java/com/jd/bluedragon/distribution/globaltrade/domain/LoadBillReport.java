@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.globaltrade.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class LoadBillReport implements Serializable {
-
 	private static final long serialVersionUID = 1L;
 
 	/** 全局ID */

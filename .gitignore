@@ -4,3 +4,8 @@
 /.settings/
 /.iml
 rebel.xml
+.gitignore
+.project
+bluedragon-distribution.iml
+.idea
+.settings

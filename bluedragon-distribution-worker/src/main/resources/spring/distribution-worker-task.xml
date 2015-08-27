@@ -38,6 +38,7 @@
     </bean>
 
 
+<!--
     <bean id="receiveTask" class="com.jd.bluedragon.distribution.worker.ReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -147,7 +148,7 @@
         <property name="type" value="1601"/>
     </bean>
 
-    <!-- Notes: the following 9 workers ownSign attribute must be DMS, do not modify it -->
+    &lt;!&ndash; Notes: the following 9 workers ownSign attribute must be DMS, do not modify it &ndash;&gt;
     <bean id="taskFailQueueTask" class="com.jd.bluedragon.distribution.worker.TaskFailQueueTask"
           init-method="init" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -155,14 +156,14 @@
         <property name="ownSign" value="DMS"/>
     </bean>
 
-    <!--  下线该WORKER
+    &lt;!&ndash;  下线该WORKER
     <bean id="toSendwaybillTask" class="com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask"
           init-method="init" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ToSendwaybillTaskN"/>
         <property name="ownSign" value="DMS"/>
     </bean>
-    -->
+    &ndash;&gt;
     <bean id="reverseDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.ReverseDeliveryToTmsTask"
           init-method="init" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -219,7 +220,7 @@
         <property name="desc" value="逆向驳回任务"/>
     </bean>
 
-    <!-- be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间  -->
+    &lt;!&ndash; be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间  &ndash;&gt;
     <bean id="popSupplementReceiveTask" class="com.jd.bluedragon.distribution.worker.pop.PopSupplementReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -243,7 +244,7 @@
         <property name="desc" value="逆向发货回传任务"/>
     </bean>
 
-    <!-- 备件库相关work -->
+    &lt;!&ndash; 备件库相关work &ndash;&gt;
     <bean id="reverseSpareTask" class="com.jd.bluedragon.distribution.worker.reverse.ReverseSpareTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -274,7 +275,7 @@
         <property name="desc" value="Pop上门收货任务"/>
     </bean>
 
-    <!-- POP收货回传消息 -->
+    &lt;!&ndash; POP收货回传消息 &ndash;&gt;
     <bean id="popRecieveCountTask" class="com.jd.bluedragon.distribution.worker.PopRecieveTaskCount"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -284,7 +285,7 @@
         <property name="type" value="1040"/>
     </bean>
 
-    <!-- 离线 -->
+    &lt;!&ndash; 离线 &ndash;&gt;
     <bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.worker.offline.OfflineCoreTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -296,7 +297,7 @@
 
     </bean>
 
-    <!-- 干线发车 -->
+    &lt;!&ndash; 干线发车 &ndash;&gt;
     <bean id="thirdDepartureTask" class="com.jd.bluedragon.distribution.worker.departure.ThirdDepartureTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -308,7 +309,7 @@
         <property name="desc" value="支线发车推送运单任务"/>
     </bean>
 
-    <!-- 发干线计费系统MQ -->
+    &lt;!&ndash; 发干线计费系统MQ &ndash;&gt;
     <bean id="pushMQ2ArteryBillingSysTask" class="com.jd.bluedragon.distribution.worker.receive.ReceivePushArteryMQTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -368,7 +369,7 @@
         <property name="type" value="3340"/>
         <property name="desc" value="发送质控系统，配送外呼任务"/>
     </bean>
-    
+
     <bean id="weightTask" class="com.jd.bluedragon.distribution.worker.weight.WeightTask"
 		init-method="init" lazy-init="false" depends-on="managerFactory">
 		<property name="dataSource" ref="taskDataSource" />
@@ -378,7 +379,17 @@
 		<property name="type" value="1160" />
 		<property name="desc" value="将称重信息回传到运单中心" />
 	</bean>
-	
+-->
+
+    <bean id="preLoadTask" class="com.jd.bluedragon.distribution.worker.globaltrade.PreLoadBillTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="PreLoadTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="1340" />
+        <property name="desc" value="全球购预装载数据上传卓志" />
+    </bean>
 </beans> 
 	
 	
