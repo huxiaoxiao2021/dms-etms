@@ -6,7 +6,7 @@ import java.util.Date;
 public class LoadBill implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final int BEGINNING = 10;
 	public static final int APPLIED = 20;
 	public static final int GREENLIGHT = 30;
@@ -27,8 +27,13 @@ public class LoadBill implements Serializable {
 	/** 包裹号 */
 	private String packageBarcode;
 
+	/** 包裹数量 */
+	private Integer packageAmount;
+
 	/** 订单号 */
 	private String orderId;
+
+	private String boxCode;
 
 	/** 分拣中心编号 */
 	private Integer dmsCode;
@@ -71,6 +76,12 @@ public class LoadBill implements Serializable {
 
 	/** 装载单生成时间 */
 	private Date genTime;
+
+	/** 创建人编号 */
+	private Integer createUserCode;
+
+	/** 创建人 */
+	private String createUser;
 
 	/** 打包人编号 */
 	private Integer packageUserCode;
@@ -119,12 +130,36 @@ public class LoadBill implements Serializable {
 		this.waybillCode = waybillCode;
 	}
 
+	public Integer getCreateUserCode() {
+		return createUserCode;
+	}
+
+	public void setCreateUserCode(Integer createUserCode) {
+		this.createUserCode = createUserCode;
+	}
+
+	public String getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
+	}
+
 	public String getPackageBarcode() {
 		return packageBarcode;
 	}
 
 	public void setPackageBarcode(String packageBarcode) {
 		this.packageBarcode = packageBarcode;
+	}
+
+	public Integer getPackageAmount() {
+		return packageAmount;
+	}
+
+	public void setPackageAmount(Integer packageAmount) {
+		this.packageAmount = packageAmount;
 	}
 
 	public String getOrderId() {
@@ -165,6 +200,14 @@ public class LoadBill implements Serializable {
 
 	public void setSendCode(String sendCode) {
 		this.sendCode = sendCode;
+	}
+
+	public String getBoxCode() {
+		return boxCode;
+	}
+
+	public void setBoxCode(String boxCode) {
+		this.boxCode = boxCode;
 	}
 
 	public String getTruckNo() {

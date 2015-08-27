@@ -8,19 +8,37 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportResponse;
+import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
+import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
+import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.jsf.gd.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,6 +110,110 @@ public class GlobalTradeController {
         }
         return tasks;
     }
+    
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public String index(Model model) {
+        try {
+            ErpUser erpUser = ErpUserClient.getCurrUser();
+            model.addAttribute("erpUser", erpUser);
+        } catch (Exception e) {
+            logger.error("index error!", e);
+        }
+        return "globaltrade/global-trade-index";
+    }
+    
+    @RequestMapping(value = "/loadBill/list", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest request, Pager<List<LoadBill>> pager) {
+        CommonDto<Pager<List<LoadBill>>> cdto = new CommonDto<Pager<List<LoadBill>>>();
+        try {
+            logger.info("GlobalTradeController doQueryLoadBill begin...");
+            if (null == request) {
+                cdto.setCode(CommonDto.CODE_WARN);
+                cdto.setMessage("参数不能为空！");
+                return cdto;
+            }
+            Map<String, Object> params = this.getParamsFromRequest(request);
+            // 设置分页对象
+            if (pager == null) {
+                pager = new Pager<List<LoadBill>>(Pager.DEFAULT_PAGE_NO);
+            } else {
+                pager = new Pager<List<LoadBill>>(pager.getPageNo(), pager.getPageSize());
+            }
+            params.putAll(ObjectMapHelper.makeObject2Map(pager));
+
+            List<LoadBill> loadBillList = loadBillService.findPageLoadBill(params);
+            Integer totalSize = loadBillService.findCountLoadBill(params);
+            pager.setTotalSize(totalSize);
+            pager.setData(loadBillList);
+            logger.info("查询符合条件的规则数量：" + totalSize);
+
+            cdto.setData(pager);
+            cdto.setCode(CommonDto.CODE_NORMAL);
+        } catch (Exception e) {
+            logger.error("doQueryLoadBill-error!", e);
+            cdto.setCode(CommonDto.CODE_EXCEPTION);
+            cdto.setData(null);
+            cdto.setMessage(e.getMessage());
+        }
+        return cdto;
+    }
+    
+    private Map<String, Object> getParamsFromRequest(LoadBillRequest request) throws ParseException {
+    	Map<String, Object> params = new HashMap<String, Object>();
+    	if(StringUtils.isNotBlank(request.getSendCode())){
+    		params.put("sendCode", request.getSendCode());
+    	}
+    	if(request.getDmsCode() != null && request.getDmsCode() > 0){
+    		params.put("dmsCode", request.getDmsCode());
+    	}
+    	if(request.getApprovalCode() != null && request.getApprovalCode() > 0){
+    		params.put("approvalCode", request.getApprovalCode());
+    	}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if (StringUtils.isNotBlank(request.getSendTimeFrom())) {
+			params.put("sendTimeFrom", sdf.parse(request.getSendTimeFrom()));
+		}
+		if (StringUtils.isNotBlank(request.getSendTimeTo())) {
+			params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
+		}
+        return params;
+	}
+
+	@RequestMapping(value = "/loadBill/initial", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonDto<String> initialLoadBill(LoadBillRequest request){
+		CommonDto<String> cdto = new CommonDto<String>();
+		try {
+            logger.info("GlobalTradeController initialLoadBill begin with sendCode is " + request.getSendCode());
+            if (null == request || StringUtils.isBlank(request.getSendCode())) {
+                cdto.setCode(CommonDto.CODE_WARN);
+                cdto.setMessage("参数不能为空！");
+                return cdto;
+            }
+            int initialNum = -1;
+            ErpUser erpUser = ErpUserClient.getCurrUser();
+            if(erpUser != null){
+            	initialNum = loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserName());
+            } else {
+            	initialNum = loadBillService.initialLoadBill(request.getSendCode(), null, null);
+            }
+            if(initialNum == 0){
+                cdto.setCode(CommonDto.CODE_WARN);
+                cdto.setMessage("批次号 " + request.getSendCode() + " 的数据为空！");
+                return cdto;
+            }
+            cdto.setCode(CommonDto.CODE_NORMAL);
+        } catch (Exception e) {
+            logger.error("initialLoadBill-error!", e);
+            cdto.setCode(CommonDto.CODE_EXCEPTION);
+            cdto.setData(null);
+            cdto.setMessage(e.getMessage());
+        }
+		return cdto;
+	}
+	
+	@RequestMapping(value = "/status", method = RequestMethod.POST)
 
     @RequestMapping(value = "/status", method = RequestMethod.POST)
     @ResponseBody

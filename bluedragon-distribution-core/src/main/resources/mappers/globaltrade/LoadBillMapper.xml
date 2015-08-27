@@ -2,34 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
 
-    <resultMap id="loadBill"
-               type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill">
-        <result column="id" property="id"/>
-        <result column="load_id" property="loadId"/>
-        <result column="warehouse_id" property="warehouseId"/>
-        <result column="waybill_code" property="waybillCode"/>
-        <result column="package_barcode" property="packageBarcode"/>
-        <result column="order_id" property="orderId"/>
-        <result column="dms_code" property="dmsCode"/>
-        <result column="dms_name" property="dmsName"/>
-        <result column="send_time" property="sendTime"/>
-        <result column="send_code" property="sendCode"/>
-        <result column="truck_no" property="truckNo"/>
-        <result column="approval_code" property="approvalCode"/>
-        <result column="approval_time" property="approvalTime"/>
-        <result column="ctno" property="ctno"/>
-        <result column="gjno" property="gjno"/>
-        <result column="tpl" property="tpl"/>
-        <result column="weight" property="weight"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
-        <result column="gen_time" property="genTime"/>
-        <result column="package_user_code" property="packageUserCode"/>
-        <result column="package_user" property="packageUser"/>
-        <result column="package_time" property="packageTime"/>
-        <result column="remark" property="remark"/>
-        <result column="yn" property="yn"/>
-    </resultMap>
+	<resultMap id="loadBill"
+		type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill">
+		<result column="id" property="id" />
+		<result column="load_id" property="loadId" />
+		<result column="warehouse_id" property="warehouseId" />
+		<result column="waybill_code" property="waybillCode" />
+		<result column="package_barcode" property="packageBarcode" />
+		<result column="package_amount" property="packageAmount" />
+		<result column="order_id" property="orderId" />
+		<result column="box_code" property="boxCode" />
+		<result column="dms_code" property="dmsCode" />
+		<result column="dms_name" property="dmsName" />
+		<result column="send_time" property="sendTime" />
+		<result column="send_code" property="sendCode" />
+		<result column="truck_no" property="truckNo" />
+		<result column="approval_code" property="approvalCode" />
+		<result column="approval_time" property="approvalTime" />
+		<result column="ctno" property="ctno" />
+		<result column="gjno" property="gjno" />
+		<result column="tpl" property="tpl" />
+		<result column="weight" property="weight" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="gen_time" property="genTime" />
+		<result column="create_user_code" property="createUserCode" />
+		<result column="create_user" property="createUser" />
+		<result column="package_user_code" property="packageUserCode" />
+		<result column="package_user" property="packageUser" />
+		<result column="package_time" property="packageTime" />
+		<result column="remark" property="remark" />
+		<result column="yn" property="yn" />
+	</resultMap>
 
     <select id="selectById" parameterType="java.util.List">
         SELECT load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,
@@ -41,6 +45,53 @@
     </select>
 
     <update id="updateLoadBillStatus" parameterType="map">
+	<insert id="addBatch" parameterType="list"> 
+		INSERT INTO load_bill ( 
+			id, load_id, warehouse_id, waybill_code, package_barcode,
+		    package_amount, order_id, box_code, dms_code, dms_name,
+			send_time, send_code, truck_no, approval_code, approval_time,
+			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
+			create_user_code, create_user, package_user_code, package_user,
+			package_time, remark, yn
+		) SELECT SEQ_LOAD_BILL.NEXTVAL, A.* FROM( 
+		<foreach collection="list" item="item" index="index" separator="UNION ALL"> 
+			<![CDATA[ 
+				SELECT 
+					#{item.loadId,jdbcType=VARCHAR} AS load_id, 
+					#{item.warehouseId,jdbcType=VARCHAR} AS warehouse_id, 
+					#{item.waybillCode,jdbcType=VARCHAR} AS waybill_code,
+					#{item.packageBarcode,jdbcType=VARCHAR} AS package_barcode,
+					#{item.packageAmount,jdbcType=INTEGER} AS package_amount,
+					#{item.orderId,jdbcType=VARCHAR} AS order_id,
+					#{item.boxCode,jdbcType=VARCHAR} AS box_code,
+					#{item.dmsCode,jdbcType=INTEGER} AS dms_code,
+					#{item.dmsName,jdbcType=VARCHAR} AS dms_name,
+					#{item.sendTime,jdbcType=TIMESTAMP} AS send_time,
+					#{item.sendCode,jdbcType=VARCHAR} AS send_code,
+					#{item.truckNo,jdbcType=VARCHAR} AS truck_no,
+					#{item.approvalCode,jdbcType=VARCHAR} AS approval_code,
+					#{item.approvalTime,jdbcType=TIMESTAMP} AS approval_time,
+					#{item.ctno,jdbcType=VARCHAR} AS ctno,
+					#{item.gjno,jdbcType=VARCHAR} AS gjno, 
+					#{item.tpl,jdbcType=VARCHAR} AS tpl, 
+					#{item.weight,jdbcType=DOUBLE} AS weight,
+					sysdate AS create_time,
+					sysdate AS update_time,
+					sysdate AS gen_time,
+					#{item.createUserCode,jdbcType=INTEGER} AS create_user_code,
+					#{item.createUser,jdbcType=VARCHAR} AS create_user,
+					#{item.packageUserCode,jdbcType=INTEGER} AS package_user_code,
+					#{item.packageUser,jdbcType=VARCHAR} AS package_user,
+					#{item.packageTime,jdbcType=TIMESTAMP} AS package_time,
+					#{item.remark,jdbcType=VARCHAR} AS remark,
+					1 AS yn
+				FROM dual 
+			]]> 
+		</foreach> 
+		) A 
+	</insert>
+	
+	<update id="updateLoadBillStatus" parameterType="map">
 		UPDATE load_bill
 		SET approval_code = #{approvalCode,jdbcType=INTEGER}
 		WHERE yn = 1 AND order_id IN #{orderId,jdbcType=VARCHAR}

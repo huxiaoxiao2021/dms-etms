@@ -17,7 +17,12 @@ public class LoadBillDao extends BaseDao<LoadBill>{
 	
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
 		logger.info("LoadBillDao.updateLoadBillStatus orderId is " + loadBillStatusMap.get("orderId"));
-		return this.getSqlSession().update(LoadBillDao.namespace + "updateLoadBillStatus", loadBillStatusMap);
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillStatus", loadBillStatusMap);
+	}
+
+	public int addBatch(List<LoadBill> loadBillList) {
+		logger.info("LoadBillDao.addBatch with number of loadBillList is " + loadBillList.size());
+		return this.getSqlSession().insert(LoadBillDao.namespace + ".addBatch", loadBillList);
 	}
 
     public List<LoadBill> getLoadBills(List<Integer> billId){

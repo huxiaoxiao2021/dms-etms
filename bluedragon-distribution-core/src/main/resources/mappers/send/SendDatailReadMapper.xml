@@ -57,4 +57,15 @@
               where yn = 1 and waybill_code = #{waybillCode}) t1 
         where t1.rn = 1
 	</select>
+	
+	<select id="findBySendCode" parameterType="String" resultMap="SendDetail">
+		SELECT 
+			send_code, box_code, package_barcode, package_num, waybill_code,
+			create_site_code, create_time, create_user, create_user_code, weight
+		FROM 
+		    dms.send_d
+		WHERE 
+		  	yn = 1 AND send_code = #{sendCode,jdbcType=VARCHAR}
+	</select>
+	
 </mapper>
