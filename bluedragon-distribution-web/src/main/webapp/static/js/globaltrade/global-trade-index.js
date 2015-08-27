@@ -60,7 +60,34 @@ function preLoad() {
 
 // 取消预装载后,重新查询一遍
 function preLoadCancel() {
-
+	var singleBtns = $("input[name='singleBtn']:checked");
+	if(singleBtns == null || singleBtns.length < 1){
+		jQuery.messager.alert('提示:', "至少选择一条数据!", 'info');
+	}
+	var ids = "";
+	var first = true;
+	for(var i = 0; i < singleBtns.length; i++){
+		if(first){
+			ids += singleBtns[i].id;
+			first = false;
+		}else{
+			ids += "," +  singleBtns[i].id;
+		}
+	}
+	var url = $("#contextPath").val() + "/globalTrade/cancel";
+	var params = {};
+	params.id = ids;
+	CommonClient.post(url, params, function(data) {
+		if (data == undefined || data == null) {
+			jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+			return;
+		}
+		if (data.code == 1) {
+			jQuery.messager.alert('提示:', "取消预分拣成功", 'info');
+		} else {
+			jQuery.messager.alert('提示:', data.message, 'error');
+		}
+	});
 }
 
 function initDms() {

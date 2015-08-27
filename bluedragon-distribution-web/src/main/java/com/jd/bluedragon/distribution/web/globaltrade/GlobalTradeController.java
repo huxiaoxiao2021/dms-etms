@@ -41,29 +41,29 @@ public class GlobalTradeController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private static final String CARCODE_REG = "[A-Za-z0-9\u4e00-\u9fa5]+";
-    
+
     @Autowired
     private LoadBillService loadBillService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String index(){
+    public String index() {
         return "globaltrade/global-trade-index";
     }
 
     @RequestMapping(value = "/preload", method = RequestMethod.POST)
-    public LoadBillReportResponse prepareLoadBill(HttpServletRequest request){
+    public LoadBillReportResponse prepareLoadBill(HttpServletRequest request) {
         String carCode = request.getParameter("carCode");
         String waybillCodes = request.getParameter("waybillCodes");
-        if(StringHelper.isEmpty(carCode) || !Pattern.matches(CARCODE_REG,carCode)){
-            return new LoadBillReportResponse(1000,"车次号不符合要求");
+        if (StringHelper.isEmpty(carCode) || !Pattern.matches(CARCODE_REG, carCode)) {
+            return new LoadBillReportResponse(1000, "车次号不符合要求");
         }
-        if(StringHelper.isEmpty(waybillCodes)){
-            return new LoadBillReportResponse(2000,"订单号不能为空");
+        if (StringHelper.isEmpty(waybillCodes)) {
+            return new LoadBillReportResponse(2000, "订单号不能为空");
         }
 
-        return new LoadBillReportResponse(200,"预装载成功");
+        return new LoadBillReportResponse(200, "预装载成功");
     }
-    
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {
         try {
@@ -74,37 +74,37 @@ public class GlobalTradeController {
         }
         return "globaltrade/global-trade-index";
     }
-    
+
     @RequestMapping(value = "/cancel", method = RequestMethod.POST)
     @ResponseBody
-	public LoadBillReportResponse cancelLoadBillStatus(LoadBillReportRequest request) {
-		LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
-		try {
-			if (request == null || StringUtils.isBlank(request.getOrderId())
-					|| !request.getStatus().equals(LoadBill.REDLIGHT)) {
-				return new LoadBillReportResponse(2, "参数错误");
-			}
-			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-			String[] orderIdArray = request.getOrderId().split(",");
-			if (orderIdArray.length == 0) {
-				return new LoadBillReportResponse(2, "orderId数量为0");
-			}
-			List<LoadBill> loadBillList = new ArrayList<LoadBill>();
-			for (String orderid : orderIdArray) {
-				LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
-				loadBill.setPackageUser(erpUser.getUserName());
-				loadBill.setPackageUserCode(Integer.parseInt(erpUser.getUserCode()));
-				loadBill.setApprovalTime(new Date());
-				loadBill.setApprovalCode(LoadBill.BEGINNING);
-			}
-			loadBillService.cancelPreloaded(loadBillList);
-		} catch (Exception e) {
-			response = new LoadBillReportResponse(2, "操作异常");
-			logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
-		}
-		return response;
-	}
-    
+    public LoadBillReportResponse cancelLoadBillStatus(LoadBillReportRequest request) {
+        LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
+        try {
+            if (request == null || StringUtils.isBlank(request.getOrderId())
+                    || !request.getStatus().equals(LoadBill.REDLIGHT)) {
+                return new LoadBillReportResponse(2, "参数错误");
+            }
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            String[] orderIdArray = request.getOrderId().split(",");
+            if (orderIdArray.length == 0) {
+                return new LoadBillReportResponse(2, "orderId数量为0");
+            }
+            List<LoadBill> loadBillList = new ArrayList<LoadBill>();
+            for (String orderid : orderIdArray) {
+                LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
+                loadBill.setPackageUser(erpUser.getUserName());
+                loadBill.setPackageUserCode(Integer.parseInt(erpUser.getUserCode()));
+                loadBill.setApprovalTime(new Date());
+                loadBill.setApprovalCode(LoadBill.BEGINNING);
+            }
+            loadBillService.cancelPreloaded(loadBillList);
+        } catch (Exception e) {
+            response = new LoadBillReportResponse(2, "操作异常");
+            logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+        }
+        return response;
+    }
+
     @RequestMapping(value = "/loadBill/list", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest request, Pager<List<LoadBill>> pager) {
@@ -133,7 +133,6 @@ public class GlobalTradeController {
 
             cdto.setData(pager);
             cdto.setCode(CommonDto.CODE_NORMAL);
-            System.out.println("34523534534");
         } catch (Exception e) {
             logger.error("doQueryLoadBill-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
@@ -142,33 +141,33 @@ public class GlobalTradeController {
         }
         return cdto;
     }
-    
-    private Map<String, Object> getParamsFromRequest(LoadBillRequest request) throws ParseException {
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	if(StringUtils.isNotBlank(request.getSendCode())){
-    		params.put("sendCodeList", StringHelper.parseList(request.getSendCode(), ","));
-    	}
-    	if(request.getDmsCode() != null && request.getDmsCode() > 0){
-    		params.put("dmsCode", request.getDmsCode());
-    	}
-    	if(request.getApprovalCode() != null && request.getApprovalCode() > 0){
-    		params.put("approvalCode", request.getApprovalCode());
-    	}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		if (StringUtils.isNotBlank(request.getSendTimeFrom())) {
-			params.put("sendTimeFrom", sdf.parse(request.getSendTimeFrom()));
-		}
-		if (StringUtils.isNotBlank(request.getSendTimeTo())) {
-			params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
-		}
-        return params;
-	}
 
-	@RequestMapping(value = "/loadBill/initial", method = RequestMethod.GET)
+    private Map<String, Object> getParamsFromRequest(LoadBillRequest request) throws ParseException {
+        Map<String, Object> params = new HashMap<String, Object>();
+        if (StringUtils.isNotBlank(request.getSendCode())) {
+            params.put("sendCodeList", StringHelper.parseList(request.getSendCode(), ","));
+        }
+        if (request.getDmsCode() != null && request.getDmsCode() > 0) {
+            params.put("dmsCode", request.getDmsCode());
+        }
+        if (request.getApprovalCode() != null && request.getApprovalCode() > 0) {
+            params.put("approvalCode", request.getApprovalCode());
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (StringUtils.isNotBlank(request.getSendTimeFrom())) {
+            params.put("sendTimeFrom", sdf.parse(request.getSendTimeFrom()));
+        }
+        if (StringUtils.isNotBlank(request.getSendTimeTo())) {
+            params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
+        }
+        return params;
+    }
+
+    @RequestMapping(value = "/loadBill/initial", method = RequestMethod.GET)
     @ResponseBody
-    public CommonDto<String> initialLoadBill(LoadBillRequest request){
-		CommonDto<String> cdto = new CommonDto<String>();
-		try {
+    public CommonDto<String> initialLoadBill(LoadBillRequest request) {
+        CommonDto<String> cdto = new CommonDto<String>();
+        try {
             logger.info("GlobalTradeController initialLoadBill begin with sendCode is " + request.getSendCode());
             if (null == request || StringUtils.isBlank(request.getSendCode())) {
                 cdto.setCode(CommonDto.CODE_WARN);
@@ -177,12 +176,12 @@ public class GlobalTradeController {
             }
             int initialNum = -1;
             ErpUser erpUser = ErpUserClient.getCurrUser();
-            if(erpUser != null){
-            	initialNum = loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserName());
+            if (erpUser != null) {
+                initialNum = loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserName());
             } else {
-            	initialNum = loadBillService.initialLoadBill(request.getSendCode(), null, null);
+                initialNum = loadBillService.initialLoadBill(request.getSendCode(), null, null);
             }
-            if(initialNum == 0){
+            if (initialNum == 0) {
                 cdto.setCode(CommonDto.CODE_WARN);
                 cdto.setMessage("批次号 " + request.getSendCode() + " 的数据为空！");
                 return cdto;
@@ -194,25 +193,25 @@ public class GlobalTradeController {
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
         }
-		return cdto;
-	}
-	
-	@RequestMapping(value = "/loadBill/status", method = RequestMethod.POST)
+        return cdto;
+    }
+
+    @RequestMapping(value = "/loadBill/status", method = RequestMethod.POST)
     @ResponseBody
-    public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request){
+    public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request) {
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
-        try{
-            if(request == null || StringUtils.isBlank(request.getReportId())
+        try {
+            if (request == null || StringUtils.isBlank(request.getReportId())
                     || StringUtils.isBlank(request.getLoadId())
                     || StringUtils.isBlank(request.getOrderId())
                     || StringUtils.isBlank(request.getLoadId())
                     || StringUtils.isBlank(request.getWarehouseId())
                     || request.getStatus() == null
-                    || request.getStatus() < 1){  
+                    || request.getStatus() < 1) {
                 return new LoadBillReportResponse(2, "参数错误");
             }
             loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request));
-        }catch(Exception e){
+        } catch (Exception e) {
             response = new LoadBillReportResponse(2, "操作异常");
             logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
         }
@@ -230,5 +229,5 @@ public class GlobalTradeController {
         report.setOrderId(request.getOrderId());
         return report;
     }
-    
+
 }
