@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +66,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 			return 0;
 		}
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("sendCode", sendCode);
-		params.put("dmsCode", Integer.parseInt(dmsCode));
+		params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
+		params.put("dmsList", StringHelper.parseList(dmsCode, ","));
 		List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
 		if (sendDetailList == null || sendDetailList.size() < 1) {
 			logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
@@ -116,7 +117,6 @@ public class LoadBillServiceImpl implements LoadBillService {
 			// 注入装载单其他信息
 			lb.setCreateUserCode(userId);
 			lb.setCreateUser(userName);
-			lb.setLoadId(sd.getWaybillCode());// loadId暂时用WaybillCode
 			lb.setWarehouseId(PropertiesHelper.newInstance().getValue(WAREHOUSE_ID));
 			lb.setCtno(PropertiesHelper.newInstance().getValue(CTNO));
 			lb.setGjno(PropertiesHelper.newInstance().getValue(GJNO));
@@ -136,7 +136,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
 		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-		loadBillStatusMap.put("orderId", report.getOrderId());
+		loadBillStatusMap.put("loadId", report.getLoadId());
+		loadBillStatusMap.put("orderIdList", StringHelper.parseList(report.getOrderId(), ","));
 		if (report.getStatus() == SUCCESS) {
 			loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);
 		} else {

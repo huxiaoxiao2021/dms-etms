@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
-import com.jd.bluedragon.distribution.api.request.LoadBillReportResponse;
+import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
@@ -101,6 +101,7 @@ public class GlobalTradeController {
 
             cdto.setData(pager);
             cdto.setCode(CommonDto.CODE_NORMAL);
+            System.out.println("king of word");
         } catch (Exception e) {
             logger.error("doQueryLoadBill-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
@@ -113,7 +114,7 @@ public class GlobalTradeController {
     private Map<String, Object> getParamsFromRequest(LoadBillRequest request) throws ParseException {
     	Map<String, Object> params = new HashMap<String, Object>();
     	if(StringUtils.isNotBlank(request.getSendCode())){
-    		params.put("sendCode", request.getSendCode());
+    		params.put("sendCodeList", StringHelper.parseList(request.getSendCode(), ","));
     	}
     	if(request.getDmsCode() != null && request.getDmsCode() > 0){
     		params.put("dmsCode", request.getDmsCode());
@@ -164,57 +165,38 @@ public class GlobalTradeController {
 		return cdto;
 	}
 	
-	@RequestMapping(value = "/status", method = RequestMethod.POST)
+	@RequestMapping(value = "/loadBill/status", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request){
-    	LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
-    	try{
-        	if(request == null || StringUtils.isBlank(request.getReportId()) 
-        			|| StringUtils.isBlank(request.getLoadId()) 
-        			|| StringUtils.isBlank(request.getOrderId()) 
-        			|| StringUtils.isBlank(request.getLoadId())
-        			|| StringUtils.isBlank(request.getWarehouseId())
-        			|| request.getStatus() == null
-        			|| request.getStatus() < 0){
-        		return new LoadBillReportResponse(2, "参数错误");
-        	}
-        	//对orderId进行进一步校验和组装
-        	String[] orderIdArray = request.getOrderId().split(",");
-        	if(orderIdArray.length == 0){
-        		return new LoadBillReportResponse(2, "orderId数量为0");
-        	}        	
-        	loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request, orderIdArray));
-    	}catch(Exception e){
-    		response = new LoadBillReportResponse(2, "操作异常");
-    		logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
-    	}
-    	return response;
+        LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
+        try{
+            if(request == null || StringUtils.isBlank(request.getReportId())
+                    || StringUtils.isBlank(request.getLoadId())
+                    || StringUtils.isBlank(request.getOrderId())
+                    || StringUtils.isBlank(request.getLoadId())
+                    || StringUtils.isBlank(request.getWarehouseId())
+                    || request.getStatus() == null
+                    || request.getStatus() < 1){  
+                return new LoadBillReportResponse(2, "参数错误");
+            }
+            loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request));
+        }catch(Exception e){
+            response = new LoadBillReportResponse(2, "操作异常");
+            logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+        }
+        return response;
     }
 
-	private LoadBillReport resolveLoadBillReport(LoadBillReportRequest request, String[] orderIdArray) {
-		LoadBillReport report = new LoadBillReport();
-		report.setReportId(request.getReportId());
-		report.setLoadId(request.getLoadId());
-		report.setProcessTime(request.getProcessTime());
-		report.setStatus(request.getStatus());
-		report.setWarehouseId(request.getWarehouseId());
-		report.setNotes(request.getNotes());
-		report.setOrderId(getOrderId(orderIdArray));
-		return report;
-	}
-
-	private String getOrderId(String[] orderIdArray) {
-		boolean first = true;
-		String orderId = "";
-		for(int i = 0, len = orderIdArray.length; i < len; i++){
-			if(first){
-				first = false;
-				orderId += orderIdArray[i];
-			}else{
-				orderId += "," + orderIdArray[i];
-			}
-		}
-		return orderId;
-	}
+    private LoadBillReport resolveLoadBillReport(LoadBillReportRequest request) {
+        LoadBillReport report = new LoadBillReport();
+        report.setReportId(request.getReportId());
+        report.setLoadId(request.getLoadId());
+        report.setProcessTime(request.getProcessTime());
+        report.setStatus(request.getStatus());
+        report.setWarehouseId(request.getWarehouseId());
+        report.setNotes(request.getNotes());
+        report.setOrderId(request.getOrderId());
+        return report;
+    }
     
 }
