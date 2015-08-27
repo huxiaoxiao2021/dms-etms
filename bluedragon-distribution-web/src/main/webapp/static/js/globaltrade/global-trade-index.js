@@ -15,15 +15,15 @@ function main() {
 
 	$("#initialBtn").click(function() {
 		initialLoadBill();
-	})
+	});
 
 	$("#preLoadBtn").click(function() {
 		preLoad();
-	})
+	});
 
 	$("#preLoadCancelBtn").click(function() {
 		preLoadCancel();
-	})
+	});
 
 	// 加载所有的分拣中心
 	initDms();
@@ -33,6 +33,10 @@ function main() {
 function initialLoadBill() {
 	var params = {};
 	params.sendCode = $.trim($("#sendCode").val());
+	if(params.sendCode == null || params.sendCode == ""){
+		jQuery.messager.alert('提示:', "批次号不能为空！", 'info');
+		return;
+	}
 	var url = $("#contextPath").val() + "/globalTrade/loadBill/initial";
 	CommonClient.get(url, params, function(data) {
 		if (data == undefined || data == null) {
@@ -40,6 +44,8 @@ function initialLoadBill() {
 			return;
 		}
 		if (data.code == 1) {
+			$("#paperTable tbody").html("");
+			$("#pager").html("");
 			jQuery.messager.alert('提示:', "该批次的装载单初始化成功！", 'info');
 		} else {
 			jQuery.messager.alert('提示:', data.message, 'error');
@@ -154,6 +160,7 @@ function getParams() {
 	params.sendCode = $.trim($("#sendCode").val());
 	params.dmsCode = $.trim($("#dmsList").val());
 	params.approvalCode = $.trim($("#approvalCode").val());
+	params.pageSize = $.trim($("#pageSize").val());
 	return params;
 }
 
@@ -196,6 +203,7 @@ function doQuery(params) {
 			}
 			$("#paperTable tbody").html(temp);
 			$("#pageNo").val(pager.pageNo); // 当前页码
+			$("#pageSize").val(pager.pageSize);
 			// 添加分页显示
 			$("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
 		} else {

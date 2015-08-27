@@ -36,8 +36,11 @@
 	<sql id="Base_Where_List">
 		<where>
 			yn = 1
-			<if test="sendCode != null">
-				AND send_code = #{sendCode,jdbcType=VARCHAR}
+			<if test="sendCodeList != null">
+				AND send_code IN
+				<foreach collection="sendCodeList" item="item" index="index" open="(" close=")" separator=",">
+					#{item}  
+				</foreach>
 			</if>
 			<if test="dmsCode != null">
 				AND dms_code = #{dmsCode,jdbcType=INTEGER}

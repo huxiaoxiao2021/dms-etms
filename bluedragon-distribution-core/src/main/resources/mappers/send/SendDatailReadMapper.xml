@@ -65,8 +65,14 @@
 		FROM 
 		    dms.send_d
 		WHERE 
-		  	yn = 1 AND send_code = #{sendCode,jdbcType=VARCHAR}
-		  	AND create_site_code = #{dmsCode,jdbcType=INTEGER}
+		  	yn = 1 AND send_code IN
+		  	<foreach collection="sendCodeList" item="item" index="index" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		  	AND create_site_code IN
+		  	<foreach collection="dmsList" item="item" index="index" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
 	</select>
 	
 </mapper>

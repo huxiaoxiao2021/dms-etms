@@ -40,7 +40,6 @@
             <div id="queryForm" name="queryForm">
                 <input type="hidden" id="pageNo" name="pageNo" value=""/>
                 <input type="hidden" id="totalNo" name="totalNo" value=""/>
-                <input type="hidden" id="pageSize" name="pageSize" value=""/>
                 <input type="hidden" id="totalSize" name="totalSize" value=""/>
                 <input type="hidden" id="tableName" name="tableName" value=""/>
 
@@ -66,6 +65,8 @@
                         <option value="30">放行</option>
                         <option value="40">未放行</option>
                     </select>
+                    <span>每页显示条数：</span>
+                    <input id="pageSize" name="pageSize" type="text" style="width:50px">
                     <input id="initialBtn" value="初始化" type="button" class="btn_c" style="margin-left: 52px;"></input>
                     <input id="queryBtn" value="查询" type="button" class="btn_c"></input>
                 </div>
@@ -84,7 +85,7 @@
                 <table id="paperTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px;" class="tb-x1">
                     <thead>
                     <tr>
-                        <th style="width:40px;"><input id="allBtn" type="checkbox"
+                        <th style="width:20px;"><input id="allBtn" type="checkbox"
                                                        style="display: block;width: 15px;float: left;margin-right: 3px;"/><span>全选</span>
                         </th>
                         <th style="width:50px;">运单号</th>
