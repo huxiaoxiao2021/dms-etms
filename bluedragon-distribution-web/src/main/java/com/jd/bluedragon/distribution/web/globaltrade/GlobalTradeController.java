@@ -133,7 +133,7 @@ public class GlobalTradeController {
 
             cdto.setData(pager);
             cdto.setCode(CommonDto.CODE_NORMAL);
-            System.out.println("king of word");
+            System.out.println("34523534534");
         } catch (Exception e) {
             logger.error("doQueryLoadBill-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
