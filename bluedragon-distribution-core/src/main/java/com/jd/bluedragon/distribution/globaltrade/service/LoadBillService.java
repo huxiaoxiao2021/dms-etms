@@ -14,10 +14,6 @@ import java.util.Map;
 
 public interface LoadBillService {
 
-	int add(LoadBill loadBill);
-
-	int update(LoadBill loadBill);
-
 	/**
 	 * 将装载单的审批状态更新为 放行 或 未放行
 	 * 

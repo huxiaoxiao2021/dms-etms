@@ -1,36 +1,14 @@
 package com.jd.bluedragon.distribution.globaltrade.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.*;
-
-import com.jd.bluedragon.distribution.api.request.LoadBillReportResponse;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.globaltrade.domain.PreLoadBill;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.domain.TaskResult;
-import com.jd.bluedragon.utils.DateHelper;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReportDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
+import com.jd.bluedragon.distribution.globaltrade.domain.PreLoadBill;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
@@ -38,17 +16,26 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.common.util.StringUtils;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import com.jd.jsf.gd.util.StringUtils;
 
-import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 @Service("loadBillService")
 public class LoadBillServiceImpl implements LoadBillService {
@@ -56,6 +43,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final int SUCCESS = 1; // report的status,1为成功,2为失败
+
+    private static final String DMS_CODE = "globalTrade.loadBill.dmsCode"; // 全球购的专用分拣中心
 
 	private static final String WAREHOUSE_ID = "globalTrade.loadBill.warehouseId";
 
@@ -89,46 +78,35 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Autowired
     private LoadBillReportDao loadBillReportDao;
 
-	@Override
-	public int add(LoadBill loadBill) {
-		return 0;
-	}
-
-	@Override
-	public int update(LoadBill loadBill) {
-		return 0;
-	}
-
-	@Override
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public int initialLoadBill(String sendCode, Integer userId, String userName) {
-		List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCode(sendCode);
-		if(sendDetailList == null || sendDetailList.size() < 1){
-			logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
-			return 0;
-		}
-		List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, userId, userName);
-		loadBillDao.addBatch(loadBillList);
-		return loadBillList.size();
-	}
-
-    @Override
-    public int update(LoadBill loadBill) {
-        return 0;
-    }
+    @Autowired
+    private LoadBillReadDao loadBillReadDao;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int initialLoadBill(String sendCode, Integer userId, String userName) {
-        List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCode(sendCode);
+        String dmsCode = PropertiesHelper.newInstance().getValue(DMS_CODE);
+        if (StringUtils.isBlank(dmsCode)) {
+            logger.error("LoadBillServiceImpl initialLoadBill with dmsCode is null");
+            return 0;
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
+        params.put("dmsList", StringHelper.parseList(dmsCode, ","));
+        List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
         if (sendDetailList == null || sendDetailList.size() < 1) {
             logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
             return 0;
         }
         List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, userId, userName);
-        loadBillDao.addBatch(loadBillList);
+        for (LoadBill lb : loadBillList) {
+            // 不存在,则添加;存在,则忽略,更新会影响其他功能的更新操作
+            if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
+                loadBillDao.add(lb);
+            }
+        }
         return loadBillList.size();
     }
+
 
     private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, Integer userId, String userName) {
         if (sendDetailList == null || sendDetailList.size() < 1) {
@@ -205,7 +183,15 @@ public class LoadBillServiceImpl implements LoadBillService {
 
         logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
         RestTemplate template = new RestTemplate();
+        MappingJacksonHttpMessageConverter httpMessageConverter = new MappingJacksonHttpMessageConverter();
+        List<MediaType> supportedMediaTypes = new ArrayList<MediaType>();
+        supportedMediaTypes.add(MediaType.TEXT_PLAIN);
+        httpMessageConverter.setSupportedMediaTypes(supportedMediaTypes);
 
+        List<HttpMessageConverter<?>> httpMessageConverters = template
+                .getMessageConverters();
+        httpMessageConverters.add(httpMessageConverter);
+        template.setMessageConverters(httpMessageConverters);
         ResponseEntity<LoadBillReportResponse> response = template.postForEntity(ZHUOZHI_PRELOAD_URL, preLoadBill, LoadBillReportResponse.class);
 
         if (response.getStatusCode().value() == HttpStatus.SC_OK) {
@@ -403,4 +389,5 @@ public class LoadBillServiceImpl implements LoadBillService {
 		// TODO Auto-generated method stub
 		return loadBillDao.findLoadbillByID(id);
 	}
+
 }
