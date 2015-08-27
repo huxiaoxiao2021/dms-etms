@@ -55,7 +55,41 @@ function initialLoadBill() {
 
 // 预装载后,重新查询一遍
 function preLoad() {
+    var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+$/;
+    var truckNo = $("#truckNo").val();
+    if(reg.test(truckNo) == false){
+        jQuery.messager.alert('提示:', "请输入正确的车牌号！", 'error');
+        return;
+    }
+    var loadBillId = new Array();
+    var loadBillLen = 0;
+    $(".a2 :input[type='checkbox']").each(function(){
+        if($(this).attr("checked") != null){
+            loadBillId[loadBillLen] = $(this).attr("id");
+            loadBillLen = loadBillLen + 1;
+        }
+    });
 
+    if(loadBillLen > 0) {
+        var loadBillIdStr = loadBillId.join(",");
+        $.ajax({
+            type: 'POST',
+            url:  $("#contextPath").val() + "/globalTrade/preload",
+            data: {"carCode":truckNo,"loadBillId":loadBillIdStr},
+            success: function(data){
+                var json = eval(data);
+                if(json.status == 200){
+                    jQuery.messager.alert('提示:', json.notes, 'info');
+                }else{
+                    jQuery.messager.alert('提示:', json.notes, 'error');
+                }
+            },
+            dataType: "json"
+        });
+    }else{
+        jQuery.messager.alert('提示:', "请至少选择一个装载单！", 'error');
+        return;
+    }
 }
 
 // 取消预装载后,重新查询一遍
@@ -166,12 +200,13 @@ function doQuery(params) {
 			return;
 		}
 		if (data.code == 1) {
+            resetSelectAll();
 			var pager = data.data;
 			var dataList = pager.data;
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td><input id='" + dataList[i].id + "' name='singleBtn' onclick='singleClick();' type='checkbox'/></td>";
+				temp += "<td><input id='" + dataList[i].id + "' name='singleBtn' onclick='singleClick()' type='checkbox'/></td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";
@@ -215,11 +250,22 @@ function getData(value) {
 // --------- 全选框和单选框的互动 -------------
 
 function selectAll() {
-
+    var allchecked = null == $("#allBtn").attr("checked") ? false : true;
+    $("#allBtn").attr("checked",allchecked);
+    $(".a2 :input[type='checkbox']").each(function(){
+       $(this).attr("checked",allchecked);
+    });
 }
 
-function singleClick() {
 
+function singleClick() {
+    if($(this).attr("checked") == null){
+        $("#allBtn").attr("checked",false);
+    }
+}
+
+function resetSelectAll(){
+    $("#allBtn").attr("checked",false);
 }
 
 // ----------------------
