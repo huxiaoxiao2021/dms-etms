@@ -84,4 +84,5 @@ public interface LoadBillService {
      * @return 装载数量
      */
     Integer preLoadBill(List<Long> id, String trunkNo) throws Exception;
+
 }
