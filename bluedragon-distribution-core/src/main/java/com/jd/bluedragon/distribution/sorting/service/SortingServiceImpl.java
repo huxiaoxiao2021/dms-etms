@@ -631,31 +631,63 @@ public class SortingServiceImpl implements SortingService {
 		// "sure".equals(retrieveFlag)){
 		sendDetail = this.deliveryService.measureRetrieve(sendDetail);
 		// }
-        List<SendM> sendList=this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
-		//SendM sendM = getSendMSelective(sorting);
-		// 如果是正向、已经发货，则需要直接更新发货明细表（send_d)发货批次号(sendCode)
+        SendM sendM = getSendMSelective(sorting);
+        // 如果是正向、已经发货，则需要直接更新发货明细表（send_d)发货批次号(sendCode)
         /*updated by wangtingwei@jd.com  正向逆向三方发货全部补全数据，下线com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask该WORKER*/
-		if(null != sendList&&sendList.size()>0){
-            for (SendM sendM:sendList) {
-                if(logger.isInfoEnabled()) {
-                    logger.info("分拣补全发货批次号为：" + sendM.getSendCode());
-                }
-                sendDetail.setCreateSiteCode(sendM.getCreateSiteCode());
-                sendDetail.setReceiveSiteCode(sendM.getReceiveSiteCode());
-                sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
-                this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-                sendDetail.setYn(1);
+        if(null != sendM){
+            sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
+            this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
+            sendDetail.setYn(1);
+            /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
+            sendDetail.setOperateTime(sendM.getOperateTime());
+            sendDetail.setCreateUser(sendM.getCreateUser());
+            sendDetail.setCreateUserCode(sendM.getCreateUserCode());
+            List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+            sendDetails.add(sendDetail);
+            deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
+        }else{
+            this.deliveryService.saveOrUpdate(sendDetail);
+        }
+        try {
+            if(BusinessHelper.isBoxcode(sorting.getBoxCode())) {
+                List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
+                if (null != sendList && sendList.size() > 0) {
+                    for (SendM sendM1 : sendList) {
+                        if (sendM1.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM1.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("过滤站点一致补全" + sorting.getWaybillCode());
+                            }
+                            continue;
+                        }
+                        if (sendM1.getOperateTime().before(sorting.getOperateTime())) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("过滤发货在前分拣在后数据" + sorting.getWaybillCode());
+                            }
+                            continue;
+                        }
+                        if (logger.isInfoEnabled()) {
+                            logger.info("分拣中转全程跟踪补全发货批次号为：" + sendM1.getSendCode() + "运单号为" + sorting.getPackageCode());
+                        }
+                        sendDetail.setCreateSiteCode(sendM1.getCreateSiteCode());
+                        sendDetail.setReceiveSiteCode(sendM1.getReceiveSiteCode());
+                        sendDetail.setSendCode(sendM1.getSendCode()); // 补全sendcode
+                        this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
+                        sendDetail.setYn(1);
                 /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-                sendDetail.setOperateTime(sendM.getOperateTime());
-                sendDetail.setCreateUser(sendM.getCreateUser());
-                sendDetail.setCreateUserCode(sendM.getCreateUserCode());
-                List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-                sendDetails.add(sendDetail);
-                deliveryService.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
+                        sendDetail.setOperateTime(sendM1.getOperateTime());
+                        sendDetail.setCreateUser(sendM1.getCreateUser());
+                        sendDetail.setCreateUserCode(sendM1.getCreateUserCode());
+                        List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+                        sendDetails.add(sendDetail);
+                        deliveryService.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
+                    }
+                }
             }
-		}else{
-			this.deliveryService.saveOrUpdate(sendDetail);
-		}
+        }catch (Exception ex){
+            if(logger.isErrorEnabled()) {
+                logger.error("分拣补中转发货异常" + sorting.getPackageCode());
+            }
+        }
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {
