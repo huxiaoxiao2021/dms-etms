@@ -1,26 +1,26 @@
 package com.jd.bluedragon.distribution.web.globaltrade;
 
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
+import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
+import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
+import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.GlobalTradeException;
+import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.bcel.verifier.statics.LONG_Upper;
+import com.jd.etms.erp.service.dto.CommonDto;
+import com.jd.jsf.gd.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,25 +30,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
-import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
-import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
-import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
-import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
-import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
-import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.erp.service.dto.CommonDto;
-import com.jd.jsf.gd.util.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Controller
@@ -57,11 +42,11 @@ public class GlobalTradeController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private static final String CARCODE_REG = "[A-Za-z0-9\u4e00-\u9fa5]+";
- 
+
     private static final String ZHUOZHI_PRELOAD_URL = "http://121.33.205.117:18080/customs/rest/custjson/postwmspredata.do";
 
-    @Autowired    
-	private LoadBillService loadBillService;
+    @Autowired
+    private LoadBillService loadBillService;
     @Autowired
     private LoadBillDao loadBillDao;
 
@@ -73,25 +58,18 @@ public class GlobalTradeController {
         return "globaltrade/global-trade-index";
     }
 
- 	@RequestMapping(value = "/preload", method = RequestMethod.POST)
-    public LoadBillReportResponse prepareLoadBill(HttpServletRequest request){
+    @RequestMapping(value = "/preload", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse prepareLoadBill(HttpServletRequest request) {
         String carCode = request.getParameter("carCode");
-        String waybillCodes = request.getParameter("waybillCodes");
-        if(StringHelper.isEmpty(carCode) || !Pattern.matches(CARCODE_REG,carCode)){
-            return new LoadBillReportResponse(1000,"车次号不符合要求");
         String loadBillIdStr = request.getParameter("loadBillId");
         if (StringHelper.isEmpty(carCode) || !Pattern.matches(CARCODE_REG, carCode)) {
             return new LoadBillReportResponse(1000, "车次号不符合要求");
         }
-        if(StringHelper.isEmpty(waybillCodes)){
-            return new LoadBillReportResponse(2000,"订单号不能为空");
         if (StringHelper.isEmpty(loadBillIdStr)) {
             return new LoadBillReportResponse(2000, "订单号不能为空");
         }
 
-        return new LoadBillReportResponse(200,"预装载成功");
         Integer effectSize = null;
 
         try {
@@ -101,23 +79,22 @@ public class GlobalTradeController {
             }
 //            taskService.addBtch(toGlobalTradeTask(loadBIlls,carCode));
             effectSize = loadBillService.preLoadBill(loadBillId, carCode);
-        }catch (Exception ex){
-            logger.error("预装载操作失败，原因",ex);
-            if(ex instanceof NumberFormatException){
-                return new LoadBillReportResponse(3000,"预装载操作失败,数据不合法");
-            }else if(ex instanceof GlobalTradeException){
-                return new LoadBillReportResponse(4000,ex.getMessage());
-            }else{
-                return new LoadBillReportResponse(5000,"预装载操作失败,操作异常");
+        } catch (Exception ex) {
+            logger.error("预装载操作失败，原因", ex);
+            if (ex instanceof NumberFormatException) {
+                return new LoadBillReportResponse(3000, "预装载操作失败,数据不合法");
+            } else if (ex instanceof GlobalTradeException) {
+                return new LoadBillReportResponse(4000, ex.getMessage());
+            } else {
+                return new LoadBillReportResponse(5000, "预装载操作失败,操作异常");
             }
         }
-        return new LoadBillReportResponse(200, "预装载成功[" + effectSize +  "]条订单");
+        return new LoadBillReportResponse(200, "预装载成功[" + effectSize + "]条订单");
     }
-    
 
-    private List<Task> toGlobalTradeTask(List<LoadBill> loadBills, String trunkNo){
+    private List<Task> toGlobalTradeTask(List<LoadBill> loadBills, String trunkNo) {
         List<Task> tasks = new ArrayList<Task>();
-        for(LoadBill bill : loadBills){
+        for (LoadBill bill : loadBills) {
             bill.setTruckNo(trunkNo);
             bill.setPackageAmount(1);
             bill.setWaybillCode(null);
@@ -135,8 +112,8 @@ public class GlobalTradeController {
         }
         return tasks;
     }
-    
-	@RequestMapping(value = "", method = RequestMethod.GET)
+
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {
         try {
             ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -179,7 +156,8 @@ public class GlobalTradeController {
 
     @RequestMapping(value = "/loadBill/list", method = RequestMethod.POST)
     @ResponseBody
-    public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest request, Pager<List<LoadBill>> pager) {
+    public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest
+                                                                    request, Pager<List<LoadBill>> pager) {
         CommonDto<Pager<List<LoadBill>>> cdto = new CommonDto<Pager<List<LoadBill>>>();
         try {
             logger.info("GlobalTradeController doQueryLoadBill begin...");
