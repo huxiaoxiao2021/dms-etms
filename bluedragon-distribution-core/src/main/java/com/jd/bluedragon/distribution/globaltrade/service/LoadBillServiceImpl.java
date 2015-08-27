@@ -1,21 +1,7 @@
 package com.jd.bluedragon.distribution.globaltrade.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.LoadBillReportResponse;
+import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao;
@@ -169,30 +155,6 @@ public class LoadBillServiceImpl implements LoadBillService {
 		logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
 		loadBillReportDao.add(report);
 		loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report)); // 更新loadbill的approval_code
-	}
-
-	private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
-		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-		loadBillStatusMap.put("loadId", report.getLoadId());
-		loadBillStatusMap.put("orderIdList", StringHelper.parseList(report.getOrderId(), ","));
-		if (report.getStatus() == SUCCESS) {
-			loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);
-		} else {
-			loadBillStatusMap.put("approvalCode", LoadBill.REDLIGHT);
-		}
-		return loadBillStatusMap;
-	}
-
-	@Override
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<LoadBill> findPageLoadBill(Map<String, Object> params) {
-		return loadBillReadDao.findPageLoadBill(params);
-	}
-
-	@Override
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Integer findCountLoadBill(Map<String, Object> params) {
-		return loadBillReadDao.findCountLoadBill(params);
 	}
 
     @Override
