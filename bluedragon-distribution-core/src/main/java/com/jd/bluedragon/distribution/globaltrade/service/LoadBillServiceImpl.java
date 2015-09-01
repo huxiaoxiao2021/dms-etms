@@ -140,6 +140,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 			// 注入装载单其他信息
 			lb.setCreateUserCode(userId);
 			lb.setCreateUser(userName);
+			lb.setLoadId(sd.getWaybillCode());// loadId暂时用WaybillCode
 			lb.setWarehouseId(PropertiesHelper.newInstance().getValue(WAREHOUSE_ID));
 			lb.setCtno(PropertiesHelper.newInstance().getValue(CTNO));
 			lb.setGjno(PropertiesHelper.newInstance().getValue(GJNO));
@@ -387,4 +388,15 @@ public class LoadBillServiceImpl implements LoadBillService {
 		// TODO Auto-generated method stub
 		return loadBillDao.findLoadbillByID(id);
 	}
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public List<LoadBill> findWaybillInLoadBill(LoadBillReport report){
+        Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
+        loadBillStatusMap.put("waybillCode", report.getOrderId());
+        loadBillStatusMap.put("boxCode", report.getBoxCode());
+        List<LoadBill> loadBillList=  loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
+        return loadBillList;
+    }
+
 }

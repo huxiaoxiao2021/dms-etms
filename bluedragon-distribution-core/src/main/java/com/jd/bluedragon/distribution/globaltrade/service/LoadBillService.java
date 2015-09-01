@@ -59,6 +59,13 @@ public interface LoadBillService {
 	LoadBill findLoadbillByID(Long id);
 
     /**
+     * 获取装载单表 根据箱号或者订单号获取
+     * @param report
+     * @return
+     */
+    List<LoadBill> findWaybillInLoadBill(LoadBillReport report);
+
+    /**
      * 处理预装载任务，上传数据至卓志接口、
      * 如果卓志返回成功，则更新装载单状态
      * @param task
@@ -77,4 +84,5 @@ public interface LoadBillService {
      * @return 装载数量
      */
     Integer preLoadBill(List<Long> id, String trunkNo) throws Exception;
+
 }

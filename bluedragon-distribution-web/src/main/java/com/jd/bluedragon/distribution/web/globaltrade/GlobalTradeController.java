@@ -126,15 +126,14 @@ public class GlobalTradeController {
 
     @RequestMapping(value = "/cancel", method = RequestMethod.POST)
     @ResponseBody
-    public LoadBillReportResponse cancelLoadBillStatus(LoadBillReportRequest request) {
+    public LoadBillReportResponse cancelLoadBillStatus(LoadBillRequest request) {
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
         try {
-            if (request == null || StringUtils.isBlank(request.getOrderId())
-                    || !request.getStatus().equals(LoadBill.REDLIGHT)) {
+            if (request == null || StringUtils.isBlank(request.getIds())) {
                 return new LoadBillReportResponse(2, "参数错误");
             }
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            String[] orderIdArray = request.getOrderId().split(",");
+            String[] orderIdArray = request.getIds().split(",");
             if (orderIdArray.length == 0) {
                 return new LoadBillReportResponse(2, "orderId数量为0");
             }
