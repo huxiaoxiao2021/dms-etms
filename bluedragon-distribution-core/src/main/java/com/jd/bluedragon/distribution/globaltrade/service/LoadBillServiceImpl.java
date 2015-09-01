@@ -273,7 +273,9 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-        loadBillStatusMap.put("orderId", report.getOrderId());
+		loadBillStatusMap.put("loadId", report.getLoadId());
+		loadBillStatusMap.put("warehouseId", report.getWarehouseId());
+		loadBillStatusMap.put("orderIdList", StringHelper.parseList(report.getOrderId(), ","));
         if (report.getStatus() == SUCCESS) {
             loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);
         } else {
@@ -354,7 +356,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 	
 	/**
      * 插入pda操作日志表
-     * @param sendDetail
+     * @param loadBill
      */
 	private void addOperationLog(LoadBill loadBill) {
 		OperationLog operationLog = new OperationLog();

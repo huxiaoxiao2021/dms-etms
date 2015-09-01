@@ -96,11 +96,21 @@ function preLoad() {
 function preLoadCancel() {
 	var singleBtns = $("input[name='singleBtn']:checked");
 	if(singleBtns == null || singleBtns.length < 1){
-		jQuery.messager.alert('提示:', "至少选择一条数据!", 'info');
+		jQuery.messager.alert('提示:', "至少选择 1 条数据!", 'info');
+		return;
 	}
+	if(singleBtns.length > 2000){
+		jQuery.messager.alert('提示:', "最多选择 2000 条数据!", 'info');
+		return;
+	}
+	//校验:保证选择的装载单的审批状态均为40
 	var ids = "";
 	var first = true;
 	for(var i = 0; i < singleBtns.length; i++){
+		if(singleBtns[i].value != 40){
+			jQuery.messager.alert('提示:', "所选装载单的审批状态必须是未放行!", 'info');
+			return;
+		}
 		if(first){
 			ids += singleBtns[i].id;
 			first = false;
@@ -110,7 +120,7 @@ function preLoadCancel() {
 	}
 	var url = $("#contextPath").val() + "/globalTrade/cancel";
 	var params = {};
-	params.id = ids;
+	params.ids = ids;
 	CommonClient.post(url, params, function(data) {
 		if (data == undefined || data == null) {
 			jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
@@ -206,7 +216,7 @@ function doQuery(params) {
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td><input id='" + dataList[i].id + "' name='singleBtn' onclick='singleClick()' type='checkbox'/></td>";
+				temp += "<td><input id='" + dataList[i].id + "' value='"+ dataList[i].approvalCode +"' name='singleBtn' onclick='singleClick()' type='checkbox'/></td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";
