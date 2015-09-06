@@ -25,11 +25,10 @@ import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -169,7 +168,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         List<Long> preLoadIds = new ArrayList<Long>();
         for(LoadBill loadBill : loadBIlls){
             if(loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING){
-                throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经装载");
+                throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在 [" + loadBill.getLoadId() + "] 装载");
             }
             preLoadIds.add(loadBill.getId());
         }
@@ -178,20 +177,13 @@ public class LoadBillServiceImpl implements LoadBillService {
         PreLoadBill preLoadBill = toPreLoadBill(loadBIlls,trunkNo,preLoadBillId);
 
         logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
-        RestTemplate template = new RestTemplate();
-        MappingJacksonHttpMessageConverter httpMessageConverter = new MappingJacksonHttpMessageConverter();
-        List<MediaType> supportedMediaTypes = new ArrayList<MediaType>();
-        supportedMediaTypes.add(MediaType.TEXT_PLAIN);
-        httpMessageConverter.setSupportedMediaTypes(supportedMediaTypes);
 
-        List<HttpMessageConverter<?>> httpMessageConverters = template
-                .getMessageConverters();
-        httpMessageConverters.add(httpMessageConverter);
-        template.setMessageConverters(httpMessageConverters);
-        ResponseEntity<LoadBillReportResponse> response = template.postForEntity(ZHUOZHI_PRELOAD_URL, preLoadBill, LoadBillReportResponse.class);
-
-        if (response.getStatusCode().value() == HttpStatus.SC_OK) {
-            LoadBillReportResponse response1 = response.getBody();
+        ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
+        request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
+        request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE,JsonHelper.toJson(preLoadBill));
+        ClientResponse<String> response = request.post(String.class);
+        if (response.getStatus() == HttpStatus.SC_OK) {
+            LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(),LoadBillReportResponse.class);
             if(SUCCESS == response1.getStatus().intValue()){
                 logger.error("调用卓志接口预装载成功");
                 try {
@@ -205,8 +197,8 @@ public class LoadBillServiceImpl implements LoadBillService {
                 throw new GlobalTradeException("调用卓志接口预装载失败" + response1.getNotes());
             }
         } else {
-            logger.error("调用卓志预装载接口失败" + response.getStatusCode());
-            throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatusCode());
+            logger.error("调用卓志预装载接口失败" + response.getStatus());
+            throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
         }
 
         return loadBIlls.size();
@@ -354,7 +346,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 	
 	/**
      * 插入pda操作日志表
-     * @param sendDetail
+     * @param loadBill
      */
 	private void addOperationLog(LoadBill loadBill) {
 		OperationLog operationLog = new OperationLog();
