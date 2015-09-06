@@ -38,7 +38,7 @@ function initialLoadBill() {
 		return;
 	}
 	var url = $("#contextPath").val() + "/globalTrade/loadBill/initial";
-	CommonClient.get(url, params, function(data) {
+	CommonClient.post(url, params, function(data) {
 		if (data == undefined || data == null) {
 			jQuery.messager.alert('提示:', "HTTP请求无数据返回！", 'info');
 			return;

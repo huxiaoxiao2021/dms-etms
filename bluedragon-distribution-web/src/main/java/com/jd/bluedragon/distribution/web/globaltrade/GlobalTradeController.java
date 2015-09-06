@@ -212,7 +212,7 @@ public class GlobalTradeController {
         return params;
     }
 
-    @RequestMapping(value = "/loadBill/initial", method = RequestMethod.GET)
+    @RequestMapping(value = "/loadBill/initial", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<String> initialLoadBill(LoadBillRequest request) {
         CommonDto<String> cdto = new CommonDto<String>();
