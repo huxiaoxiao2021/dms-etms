@@ -65,7 +65,7 @@
                         <option value="30">放行</option>
                         <option value="40">未放行</option>
                     </select>
-                    <span>每页显示条数：</span>
+                    <span style="display: inline-block;margin-left: 20px;">每页显示条数：</span>
                     <input id="pageSize" name="pageSize" type="text" style="width:50px">
                     <input id="initialBtn" value="初始化" type="button" class="btn_c" style="margin-left: 52px;"></input>
                     <input id="queryBtn" value="查询" type="button" class="btn_c"></input>

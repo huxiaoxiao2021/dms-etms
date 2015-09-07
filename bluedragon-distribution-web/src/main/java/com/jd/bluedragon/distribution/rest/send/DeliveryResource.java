@@ -1,56 +1,45 @@
 package com.jd.bluedragon.distribution.rest.send;
 
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
+import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
-import com.jd.bluedragon.distribution.api.response.PackageSendResponse;
+import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.client.JsonUtil;
-import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
+import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
+import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
-import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
-import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
-import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -83,6 +72,9 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private LoadBillService loadBillService;
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -166,6 +158,14 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR, null);
         }
+        /**现在装在单逻辑***/
+        DeliveryResponse deliveryResponse = sendLoadBillCheck(request);
+        if (!deliveryResponse.getCode().equals(JdResponse.CODE_OK)) {
+            return new ThreeDeliveryResponse(JdResponse.CODE_UNLOADBILL,
+                    JdResponse.MESSAGE_UNLOADBILL, null);
+        }
+        /*****/
+
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
             tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request));
@@ -179,6 +179,42 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
+    }
+
+    /**
+     * 取消发货 要判断是否已经装载， 未装载和拒绝的可以 取消 发货\分拣
+     */
+    private DeliveryResponse sendLoadBillCheck(DeliveryRequest request) {
+        if (request.getBoxCode() == null || request.getSiteCode() == null) {
+            this.logger.error("sendLoadBillCheck 参数错误");
+            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+        }
+        LoadBillReport loadBillReport = new LoadBillReport();
+        if (BusinessHelper.isBoxcode(request.getBoxCode())) {
+            loadBillReport.setBoxCode(request.getBoxCode());
+        } else {
+            loadBillReport.setOrderId(request.getBoxCode());
+        }
+
+        List<LoadBill> loadBillList = loadBillService.findWaybillInLoadBill(loadBillReport);
+
+        /**  loadBillList 空时表示未装载 可以取消，
+         *  10初始,20已申请,30已放行, 【40未放行】
+         */
+        if (loadBillList != null && !loadBillList.isEmpty()) {
+            for (LoadBill bill : loadBillList) {
+                if (bill.getApprovalCode().equals(Constants.REDLIGHT)) {
+                    return new DeliveryResponse(JdResponse.CODE_OK,
+                            JdResponse.MESSAGE_OK);
+                }
+            }
+        } else {
+            return new DeliveryResponse(JdResponse.CODE_OK,
+                    JdResponse.MESSAGE_OK);
+        }
+        return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
+                JdResponse.MESSAGE_UNLOADBILL);
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -317,7 +353,7 @@ public class DeliveryResource {
             tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, flage);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
-                if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())){
+                if (!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())) {
                     /*只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com*/
                     deliveryService.pushTransferSendTask(tSendM);
                 }

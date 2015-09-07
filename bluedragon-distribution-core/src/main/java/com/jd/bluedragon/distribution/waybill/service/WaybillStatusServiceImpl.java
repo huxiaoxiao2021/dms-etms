@@ -402,7 +402,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
              * */
             if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_CANCLE_LOADBILL))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
-				bdTraceDto.setOperatorDesp("全球购订单海关未放行");
+				bdTraceDto.setOperatorDesp("由保税仓出库，预装载申请审核未通过或被海关抽查扣留");
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.taskService.doDone(task);
 				task.setYn(0);
