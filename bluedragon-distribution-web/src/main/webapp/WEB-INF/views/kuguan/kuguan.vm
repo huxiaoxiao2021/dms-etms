@@ -34,7 +34,7 @@
                 alert('请输入合法库单号！');
                 return;
             }
-			alert(waybillCode);
+
 				$("#selectKGList").attr("action", '#springUrl("/kuGuan/list")');
 				$("#selectKGList").attr("method", "GET");
 				$("#selectKGList").submit();
