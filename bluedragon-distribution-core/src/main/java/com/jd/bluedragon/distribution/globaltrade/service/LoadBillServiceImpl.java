@@ -387,6 +387,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("waybillCode", report.getOrderId());
         loadBillStatusMap.put("boxCode", report.getBoxCode());
+        this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList=  loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
         return loadBillList;
     }
