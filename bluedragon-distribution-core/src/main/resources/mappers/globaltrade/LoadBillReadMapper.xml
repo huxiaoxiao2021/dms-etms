@@ -85,6 +85,7 @@
 
     <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
         SELECT waybill_code,box_code,approval_code
+        FROM load_bill
         WHERE
           yn=1
         <if test="waybillCode != null">
