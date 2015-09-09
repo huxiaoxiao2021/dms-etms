@@ -215,7 +215,7 @@ public class DeliveryResource {
                     JdResponse.MESSAGE_OK);
         }
         } catch (Exception e) {
-            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill");
+            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill"+e);
         }
 
         return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
