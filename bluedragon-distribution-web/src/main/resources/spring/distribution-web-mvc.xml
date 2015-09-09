@@ -95,9 +95,9 @@
 	
 	<!-- Access resource bundles with the specified basename -->
 	<bean id="messageSource"
-		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		  class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basenames"
-			value="/WEB-INF/i18n/content,/WEB-INF/i18n/validation,/WEB-INF/i18n/asset,/WEB-INF/i18n/enum" />
+				  value="/WEB-INF/i18n/content,/WEB-INF/i18n/validation,/WEB-INF/i18n/asset,/WEB-INF/i18n/enum" />
 		<!--<property name="cacheSeconds" value="5" /> -->
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
