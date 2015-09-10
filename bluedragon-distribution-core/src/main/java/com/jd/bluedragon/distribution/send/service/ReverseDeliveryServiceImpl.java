@@ -5,12 +5,15 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
@@ -26,6 +29,10 @@ import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.domain.Pack;
+import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
+import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
+import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -100,6 +107,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	public static final String EMS_SITE = "EMS_SITE";
 
 	private final Integer BATCH_NUM = 49;
+	
+	@Autowired
+    private QuickProduceService quickProduceService;
 
 	@SuppressWarnings("rawtypes")
 	@Profiled(tag = "ReverseDeliveryService.findsendMToReverse")
@@ -776,6 +786,12 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		List<WaybillInfo> list = new ArrayList<WaybillInfo>();
 
 		BigWaybillDto WaybillDto = waybillService.getWaybill(waybillCode);
+		
+		//如果订单信息为空咋调用快生运单数据源获取信息
+		if (WaybillDto == null || WaybillDto.getWaybill() == null){
+			WaybillDto = getWaybillQuickProduce(waybillCode);
+		}
+		
 		if (WaybillDto != null && WaybillDto.getWaybill() != null) {
 			Waybill waybill = WaybillDto.getWaybill();
 			List<DeliveryPackageD> deliveryPackage = WaybillDto.getPackageList();
@@ -883,4 +899,82 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		return new WaybillInfoResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK,JsonHelper.toJson(list));
 	}
 
+	@Override
+	public BigWaybillDto getWaybillQuickProduce(String waybillCode) {
+		QuickProduceWabill tQuickProduceWabill = quickProduceService.getQuickProduceWabill(waybillCode);
+		if (tQuickProduceWabill == null) {
+			return null;
+		}
+		
+		JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
+		com.jd.bluedragon.common.domain.Waybill waybillQP = tQuickProduceWabill.getWaybill();
+		if (tJoinDetail == null || waybillQP==null) {
+			return null;
+		}
+		
+		BigWaybillDto tBigWaybillDto = toWaybill(waybillQP,tJoinDetail);
+		return tBigWaybillDto;
+	}
+	
+	private BigWaybillDto toWaybill(com.jd.bluedragon.common.domain.Waybill waybillQP ,JoinDetail tJoinDetail) {
+		Waybill waybill = new Waybill();
+		BigWaybillDto tBigWaybillDto = new BigWaybillDto();
+		waybill.setCodMoney(String.valueOf(tJoinDetail.getDeclaredValue()));
+		waybill.setPayment(tJoinDetail.getPayment());
+		waybill.setWaybillCode(waybillQP.getWaybillCode());
+		waybill.setReceiverName(tJoinDetail.getReceiverName());
+		waybill.setReceiverMobile(tJoinDetail.getReceiverMobile());
+		waybill.setReceiverTel(tJoinDetail.getReceiverTel());
+		//waybill.setReceiverZipCode(tJoinDetail);
+		waybill.setReceiverAddress(tJoinDetail.getReceiverAddress());
+		//waybill.setProvinceName();
+		//waybill.setCityName();
+		//waybill.setCountryName();
+		tBigWaybillDto.setWaybill(waybill);
+		
+		SendDetail tSendDatail = new SendDetail();
+		tSendDatail.setWaybillCode(waybillQP.getWaybillCode());
+		List<SendDetail> oneList = sendDatailDao.querySendDatailsBySelective(tSendDatail);
+		if (oneList != null && !oneList.isEmpty()) {
+			List<DeliveryPackageD> list = generateAllPackageCodes(oneList.get(0).getPackageBarcode(), tJoinDetail);
+			waybill.setGoodNumber(list.size());
+			tBigWaybillDto.setPackageList(list);
+		}
+		return tBigWaybillDto;
+	}
+	
+	/**
+	* 生产包裹号码
+	*/
+	
+	/**
+     * 生成包裹列表专用正则
+     * 【分组一：运单号】
+     * 【分组二：-或N】
+     * 【分组三：第几件】
+     * 【分组四：-或S】
+     * 【分组五：共几件】
+     * 【分组六：（-或H）与道口号组合】
+     */
+    private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
+
+    
+	public static List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail)
+	{
+		List<DeliveryPackageD> packList = new ArrayList<DeliveryPackageD>();
+		Matcher match = RULE_GENERATE_PACKAGE_ALL_REGEX.matcher(input.toUpperCase().trim());
+		if (match.matches()) {
+			String template = match.group(1) + match.group(2) + "{0}"+ match.group(4) + match.group(5) + match.group(6);
+			int count = Integer.valueOf(match.group(5));
+			for (int i = 1; i <= count; i++) {
+				DeliveryPackageD pack = new DeliveryPackageD();
+				pack.setPackageBarcode(MessageFormat.format(template, i));
+				pack.setWaybillCode(match.group(1));
+				pack.setAgainWeight(tJoinDetail.getGoodWeight());
+				packList.add(pack);
+			}
+			return packList;
+		}
+		return packList;
+	}
 }

@@ -56,6 +56,20 @@ public class SendPrintResource {
 		}
 		return sendPrintService.basicPrintQuery(criteria);
 	}
+	
+	@POST
+	@GZIP
+	@Path("/sendprint/basicPrintQueryOffline")
+	public BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria) {
+		if(check(criteria)){
+			BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
+			tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
+			tBasicQueryEntityResponse.setMessage("查询参数不全");
+			tBasicQueryEntityResponse.setData(null);
+            return tBasicQueryEntityResponse;
+		}
+		return sendPrintService.basicPrintQuery(criteria);
+	}
 
 
 	@POST

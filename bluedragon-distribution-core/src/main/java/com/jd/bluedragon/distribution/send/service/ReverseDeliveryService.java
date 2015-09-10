@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 
 public interface ReverseDeliveryService {
 
@@ -59,4 +60,10 @@ public interface ReverseDeliveryService {
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode);
 	
 	public String toEmsServer(List<String> waybillList);
+	
+	/**
+	 * 快生获取订单信息
+	 * @return
+	 */
+	public BigWaybillDto getWaybillQuickProduce(String waybillCode);
 }
