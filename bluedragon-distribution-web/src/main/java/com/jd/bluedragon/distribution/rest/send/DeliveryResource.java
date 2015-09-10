@@ -196,8 +196,9 @@ public class DeliveryResource {
         } else {
             loadBillReport.setOrderId(request.getBoxCode());
         }
-
-        List<LoadBill> loadBillList = loadBillService.findWaybillInLoadBill(loadBillReport);
+        this.logger.info("开始获取 装载数据");
+        try {
+            List<LoadBill> loadBillList = loadBillService.findWaybillInLoadBill(loadBillReport);
 
         /**  loadBillList 空时表示未装载 可以取消，
          *  10初始,20已申请,30已放行, 【40未放行】
@@ -213,6 +214,10 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_OK,
                     JdResponse.MESSAGE_OK);
         }
+        } catch (Exception e) {
+            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill"+e);
+        }
+
         return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
                 JdResponse.MESSAGE_UNLOADBILL);
     }

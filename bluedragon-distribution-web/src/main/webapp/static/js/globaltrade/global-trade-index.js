@@ -63,13 +63,20 @@ function preLoad() {
     }
     var loadBillId = new Array();
     var loadBillLen = 0;
+    try{
     $(".a2 :input[type='checkbox']").each(function(){
+        if($(this).val() != 10){
+            throw new Error("error");
+        }
         if($(this).attr("checked") != null){
             loadBillId[loadBillLen] = $(this).attr("id");
             loadBillLen = loadBillLen + 1;
         }
     });
-
+    }catch(e){
+        jQuery.messager.alert('提示:', "所选装载单的审批状态必须是初始化！", 'error');
+        return;
+    }
     if(loadBillLen > 0) {
         var loadBillIdStr = loadBillId.join(",");
         $.ajax({
@@ -216,7 +223,7 @@ function doQuery(params) {
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td><input id='" + dataList[i].id + "' value='"+ dataList[i].approvalCode +"' name='singleBtn' onclick='singleClick()' type='checkbox'/></td>";
+				temp += "<td><input id='" + dataList[i].id + "' value='"+ dataList[i].approvalCode +"' name='singleBtn' alt=" + dataList[i].approvalCode + " onclick='singleClick()' type='checkbox'/></td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";
@@ -269,9 +276,7 @@ function selectAll() {
 
 
 function singleClick() {
-    if($(this).attr("checked") == null){
-        $("#allBtn").attr("checked",false);
-    }
+  $("#allBtn").attr("checked",false);
 }
 
 function resetSelectAll(){
