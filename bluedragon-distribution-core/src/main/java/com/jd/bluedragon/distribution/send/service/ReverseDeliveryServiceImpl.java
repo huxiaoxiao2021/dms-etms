@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.domain.Pack;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
@@ -330,8 +329,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				queryWChoice.setQueryPackList(true);
 				queryWChoice.setQueryWaybillC(true);
 				
-				List<BigWaybillDto> tWaybillList = deliveryService
-						.getWaillCodeListMessge(queryWChoice, wlist);
+				/*List<BigWaybillDto> tWaybillList = deliveryService
+						.getWaillCodeListMessge(queryWChoice, wlist);*/
+				List<BigWaybillDto> tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
 				StringBuffer buffer = new StringBuffer();
 				if (tWaybillList != null && !tWaybillList.isEmpty()) {
 					/*this.logger
@@ -532,8 +532,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		queryWChoice.setQueryWaybillC(true);
 
 		try {
-			List<BigWaybillDto> tWaybillList = deliveryService
-					.getWaillCodeListMessge(queryWChoice, wlist);
+			/*List<BigWaybillDto> tWaybillList = deliveryService
+					.getWaillCodeListMessge(queryWChoice, wlist);*/
+			List<BigWaybillDto> tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
 			if (tWaybillList != null && !tWaybillList.isEmpty()) {
 				this.logger.info("batchProcessOrderInfo2DSF武汉邮政推送接口-调用运单接口不为空");
 				for (BigWaybillDto tWaybill : tWaybillList) {
@@ -959,7 +960,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
     private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
 
     
-	public static List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail)
+    private List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail)
 	{
 		List<DeliveryPackageD> packList = new ArrayList<DeliveryPackageD>();
 		Matcher match = RULE_GENERATE_PACKAGE_ALL_REGEX.matcher(input.toUpperCase().trim());
@@ -977,4 +978,18 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return packList;
 	}
+	
+    private List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice ,List<String> wlist){
+    	BigWaybillDto WaybillDto = new BigWaybillDto();
+    	List<BigWaybillDto> list = new ArrayList<BigWaybillDto>();
+    	for(String wycode : wlist){
+    		WaybillDto = waybillService.getWaybill(wycode);
+    		//如果订单信息为空咋调用快生运单数据源获取信息
+    		if (WaybillDto == null || WaybillDto.getWaybill() == null){
+    			WaybillDto = getWaybillQuickProduce(wycode);
+    			list.add(WaybillDto);
+    		}
+    	}
+    	return list;
+    }
 }
