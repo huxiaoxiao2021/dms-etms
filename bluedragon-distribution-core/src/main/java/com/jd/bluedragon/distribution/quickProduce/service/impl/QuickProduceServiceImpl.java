@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
+import com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
+    @Autowired
+    GetOrderMsgServiceJsf getOrderMsgServiceJsf;
 
     /**
      * 订单中间键ws封装类
@@ -55,7 +59,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
             waybill = getQuickProduceWabillFromDrec(waybillCode);
         }
         else {//正则漏掉单号
-            waybill =  waybill = getWabillFromOom(waybillCode);
+            waybill = getWabillFromOom(waybillCode);
             if(waybill==null)
                 waybill=getQuickProduceWabillFromDrec(waybillCode);
         }
@@ -80,15 +84,25 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         joinDetail.setGoodWeight(waybill.getWeight());
         joinDetail.setPayment(waybill.getPaymentType());
         joinDetail.setReceiverAddress(waybill.getAddress());
-        //joinDetail.setReceiverMobile(waybill);
-        //joinDetail.setReceiverName(waybill.get);
-        //joinDetail.setReceiverTel();
+        joinDetail.setReceiverMobile(waybill.getReceiverMobile());
+        joinDetail.setReceiverName(waybill.getReceiverName());
+        joinDetail.setReceiverTel(waybill.getReceiverTel());
         joinDetail.setWaybillType(waybill.getType());
         joinDetail.setSendPay(waybill.getSendPay());
         joinDetail.setOldSiteId(waybill.getSiteCode());
     }
 
     private Waybill getQuickProduceWabillFromDrec(String waybillCode) {
+
+        Waybill waybill= new Waybill();
+        OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
+        waybill.setReceiverName(orderMsgDTO.getReceiveName());
+        waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
+        waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
+        waybill.setRecMoney(orderMsgDTO.getGoodsMoney());
+        //waybill.setSendPay(orderMsgDTO.sendp);
+        waybill.setAddress(orderMsgDTO.getAdress());
+        //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
         return null;
     }
 

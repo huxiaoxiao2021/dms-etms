@@ -114,6 +114,9 @@ public class OrderWebService {
 			waybill.setStoreId(order.getStoreId());
 			waybill.setType(order.getOrderType());
 			waybill.setShipmentType(order.getIdShipmentType());
+			waybill.setReceiverTel(order.getPhone());
+			waybill.setReceiverMobile(order.getMobile());
+			waybill.setReceiverName(order.getCustomerName());
 			return waybill;
 		}
 
