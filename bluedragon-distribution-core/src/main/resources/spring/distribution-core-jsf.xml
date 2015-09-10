@@ -16,6 +16,12 @@
     <!-- 财务接口 邓志容  -->
     <jsf:consumer id="waybillServiceJSF" interface="com.jd.etms.finance.wss.WaybillDataServiceWS"
                   protocol="jsf" alias="${finance.jsf.alias}" timeout="10000" retries="0">
+    </jsf:consumer>.
+
+    <!-- 外单快速生产运单信息接口 路超 -->
+    <jsf:consumer id="getOrderMsgServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf"
+                  protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="10000" retries="0">
+        <jsf:parameter key="token" value="${getOrderMsgServiceJsf.jsf.token}" hide="true"/>
     </jsf:consumer>
 
     <!-- erp接口 苗延超  -->
