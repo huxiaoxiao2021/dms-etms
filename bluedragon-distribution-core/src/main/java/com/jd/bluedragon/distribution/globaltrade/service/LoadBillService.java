@@ -16,10 +16,10 @@ public interface LoadBillService {
 
 	/**
 	 * 将装载单的审批状态更新为 放行 或 未放行
-	 * 
+	 *
 	 * @param report
 	 */
-	void updateLoadBillStatusByReport(LoadBillReport report);
+	int updateLoadBillStatusByReport(LoadBillReport report);
 
 	/**
 	 * 分页查询装载单
@@ -43,8 +43,9 @@ public interface LoadBillService {
 	 * @param sendCode
 	 * @param string
 	 * @param integer
+	 * @throws Exception 
 	 */
-	int initialLoadBill(String sendCode, Integer userId, String userName);
+	int initialLoadBill(String sendCode, Integer userId, String userName) throws Exception;
 	
 	/**
 	 * 通过订单号取消预装载

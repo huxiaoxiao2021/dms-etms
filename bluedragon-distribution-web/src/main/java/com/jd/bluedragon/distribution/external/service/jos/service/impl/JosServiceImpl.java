@@ -38,7 +38,10 @@ public class JosServiceImpl implements JosService {
                     || request.getStatus() < 1) {
                 return new LoadBillReportResponse(2, "参数错误");
             }
-            loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request));
+            int updateNum = loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request));
+            if(updateNum < 1){
+                return new LoadBillReportResponse(2, "装载单审批状态更新成功数为0,请检查!");
+            }
         } catch (Exception e) {
             response = new LoadBillReportResponse(2, "操作异常");
             logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
