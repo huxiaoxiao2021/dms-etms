@@ -47,7 +47,7 @@ public class QuickProduceResource {
 
     /**
      * 根据运单号或包裹号获取运单包裹信息接口
-     * 新接口调用预分拣接口获取基础资料信息
+     * 从订单中间键，台帐，外单获取数据
      *
      * @param waybillCode Or package
      * @return
