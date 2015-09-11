@@ -115,7 +115,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         waybill.setAddress(orderMsgDTO.getAdress());
         //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
         waybill.setWaybillCode(orderMsgDTO.getOrderId());
-        return null;
+        return waybill;
     }
 
 
