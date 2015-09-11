@@ -86,6 +86,8 @@ public class Waybill implements Serializable {
 	/**	 * 库房ID	 */
 	private Integer distributeStoreId;
 
+	private String distributeStoreName;
+
 	/**	 * 笼车号	 */
 	private String trolleyCode;
 
@@ -169,6 +171,34 @@ public class Waybill implements Serializable {
 	 * 收件人姓名
 	 */
 	private String receiverName;
+
+	/**
+	 * 邮政编码
+	 */
+	private String ReceiverZipCode;
+
+	private  Integer ProvinceNameId;
+
+	/**
+	 * 省
+	 */
+	private  String ProvinceName;
+
+
+	private  Integer CityNameId;
+
+	/**
+	 * 市
+	 */
+	private  String CityName;
+
+
+	private  Integer CountryNameId;
+
+	/**
+	 * 县
+	 */
+	private  String CountryName;
 
 	public String getWaybillCode() {
 		return this.waybillCode;
@@ -320,6 +350,14 @@ public class Waybill implements Serializable {
 
 	public void setStoreId(Integer storeId) {
 		this.storeId = storeId;
+	}
+
+	public String getDistributeStoreName() {
+		return distributeStoreName;
+	}
+
+	public void setDistributeStoreName(String distributeStoreName) {
+		this.distributeStoreName = distributeStoreName;
 	}
 
 	public Integer getShipmentType() {
@@ -533,6 +571,62 @@ public class Waybill implements Serializable {
 
 	public void setReceiverName(String receiverName) {
 		this.receiverName = receiverName;
+	}
+
+	public String getReceiverZipCode() {
+		return ReceiverZipCode;
+	}
+
+	public Integer getProvinceNameId() {
+		return ProvinceNameId;
+	}
+
+	public void setProvinceNameId(Integer provinceNameId) {
+		ProvinceNameId = provinceNameId;
+	}
+
+	public Integer getCityNameId() {
+		return CityNameId;
+	}
+
+	public void setCityNameId(Integer cityNameId) {
+		CityNameId = cityNameId;
+	}
+
+	public Integer getCountryNameId() {
+		return CountryNameId;
+	}
+
+	public void setCountryNameId(Integer countryNameId) {
+		CountryNameId = countryNameId;
+	}
+
+	public void setReceiverZipCode(String receiverZipCode) {
+		ReceiverZipCode = receiverZipCode;
+	}
+
+	public String getProvinceName() {
+		return ProvinceName;
+	}
+
+	public void setProvinceName(String provinceName) {
+		ProvinceName = provinceName;
+	}
+
+	public String getCityName() {
+		return CityName;
+	}
+
+	public void setCityName(String cityName) {
+		CityName = cityName;
+	}
+
+	public String getCountryName() {
+		return CountryName;
+	}
+
+	public void setCountryName(String countryName) {
+		CountryName = countryName;
 	}
 
 	/**

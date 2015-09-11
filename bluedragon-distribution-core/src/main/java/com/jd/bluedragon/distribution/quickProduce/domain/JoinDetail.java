@@ -69,6 +69,26 @@ public class JoinDetail {
      */
     private Integer WaybillType;
 
+    /**
+     * 邮政编码
+     */
+    private String ReceiverZipCode;
+
+    /**
+     * 省
+     */
+    private  String ProvinceName;
+
+    /**
+     * 市
+     */
+    private  String CityName;
+
+    /**
+     * 县
+     */
+    private  String CountryName;
+
     public Integer getDistributeStoreId() {
         return distributeStoreId;
     }
@@ -171,5 +191,37 @@ public class JoinDetail {
 
     public void setWaybillType(Integer waybillType) {
         WaybillType = waybillType;
+    }
+
+    public String getReceiverZipCode() {
+        return ReceiverZipCode;
+    }
+
+    public void setReceiverZipCode(String receiverZipCode) {
+        ReceiverZipCode = receiverZipCode;
+    }
+
+    public String getProvinceName() {
+        return ProvinceName;
+    }
+
+    public void setProvinceName(String provinceName) {
+        ProvinceName = provinceName;
+    }
+
+    public String getCityName() {
+        return CityName;
+    }
+
+    public void setCityName(String cityName) {
+        CityName = cityName;
+    }
+
+    public String getCountryName() {
+        return CountryName;
+    }
+
+    public void setCountryName(String countryName) {
+        CountryName = countryName;
     }
 }
