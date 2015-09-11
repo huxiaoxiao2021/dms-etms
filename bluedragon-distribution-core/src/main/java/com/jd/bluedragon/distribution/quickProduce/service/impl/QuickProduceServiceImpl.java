@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.quickProduce.service.impl;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
@@ -120,10 +121,21 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
 
     private  Waybill getWabillFromOom(String waybillCode){
-        Waybill waybill= orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
-        if (waybill != null) {
-//            BigDecimal pay = orderBankService.getOrderBankResponse(waybillCode).getShouldPay();
-//            waybill.setRecMoney(pay == null ? null : pay.toString());
+        Waybill waybill=null;
+        try {//本机调试无host配置，台账接口错误，暂时加try，catch
+            if (!NumberHelper.isNumber(waybillCode)) {
+                waybill = orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
+                if (waybill != null) {
+                    OrderBankResponse orderBankResponse = orderBankService.getOrderBankResponse(waybillCode);
+                    if (orderBankResponse != null) {
+                        BigDecimal pay = orderBankResponse.getShouldPay();
+                        waybill.setRecMoney(pay == null ? null : pay.toString());
+                    }
+                }
+            }
+        }
+        catch (Exception ex){
+            logger.debug(ex);
         }
         return waybill;
     }
