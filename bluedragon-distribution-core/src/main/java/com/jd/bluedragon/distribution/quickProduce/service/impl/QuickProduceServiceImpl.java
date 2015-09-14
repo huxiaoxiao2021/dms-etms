@@ -104,20 +104,23 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
     private Waybill getQuickProduceWabillFromDrec(String waybillCode) {
 
-        Waybill waybill= new Waybill();
+        Waybill waybill= null;
         OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
-        if(orderMsgDTO!=null) {
-            waybill.setReceiverName(orderMsgDTO.getReceiveName());
-            waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
-            waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-            if (NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
-                waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
-            }
-            //waybill.setSendPay(orderMsgDTO.sendp);
-            waybill.setAddress(orderMsgDTO.getAdress());
-            //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
-            waybill.setWaybillCode(orderMsgDTO.getOrderId());
+        if(orderMsgDTO==null) {
+            logger.error("闪购从外单获取运单数据为空，单号为："+waybillCode);
+            return waybill;
         }
+        waybill=new Waybill();
+        waybill.setReceiverName(orderMsgDTO.getReceiveName());
+        waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
+        waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
+        if (NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
+            waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
+        }
+        //waybill.setSendPay(orderMsgDTO.sendp);
+        waybill.setAddress(orderMsgDTO.getAdress());
+        //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
+        waybill.setWaybillCode(orderMsgDTO.getOrderId());
         return waybill;
     }
 
