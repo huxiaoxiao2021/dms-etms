@@ -926,11 +926,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		waybill.setReceiverName(tJoinDetail.getReceiverName());
 		waybill.setReceiverMobile(tJoinDetail.getReceiverMobile());
 		waybill.setReceiverTel(tJoinDetail.getReceiverTel());
-		//waybill.setReceiverZipCode(tJoinDetail);
+		waybill.setReceiverZipCode(tJoinDetail.getReceiverZipCode());
 		waybill.setReceiverAddress(tJoinDetail.getReceiverAddress());
-		//waybill.setProvinceName();
-		//waybill.setCityName();
-		//waybill.setCountryName();
+		waybill.setProvinceName(tJoinDetail.getProvinceName());
+		waybill.setCityName(tJoinDetail.getCityName());
+		waybill.setCountryName(tJoinDetail.getCountryName());
 		tBigWaybillDto.setWaybill(waybill);
 		
 		SendDetail tSendDatail = new SendDetail();
