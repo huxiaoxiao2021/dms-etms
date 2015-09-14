@@ -372,7 +372,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 				//取消预装载 重置状态
 				loadBillDao.updateCancelLoadBillStatus(loadBill);
 				//取消预装载 全程跟踪
-				sendTask(loadBill);
+				//sendTask(loadBill);
 				//取消预装载 取消分拣
 				
 				//取消预装载 取消发货
