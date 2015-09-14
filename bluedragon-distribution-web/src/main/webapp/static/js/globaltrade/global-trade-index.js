@@ -136,7 +136,7 @@ function preLoadCancel() {
 		if (data.code == 1) {
 			jQuery.messager.alert('提示:', "取消预分拣成功！", 'info');
 		} else {
-			jQuery.messager.alert('提示:', data.message, 'error');
+			jQuery.messager.alert('提示:', data.notes, 'error');
 		}
 	});
 }
