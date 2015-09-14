@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.base.domain;
 
+import com.jd.bluedragon.Constants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.Serializable;
 
 /**
@@ -7,6 +11,8 @@ import java.io.Serializable;
  */
 public class InvokeResult<T> implements Serializable {
 
+    private static final Log        logger= LogFactory.getLog(InvokeResult.class);
+    private static final String     SERVER_ERROR_MESSAGE="服务器执行异常";
     public InvokeResult(){
         this.code=200;
     }
@@ -59,9 +65,10 @@ public class InvokeResult<T> implements Serializable {
      * 发生异常
      * @param ex
      */
-    public void error(Exception ex){
+    public void error(Throwable ex){
         this.code=500;
-        this.message=ex.getMessage();
+        this.message= SERVER_ERROR_MESSAGE;
+        //logger.error(ex);
     }
 
     /**
@@ -70,6 +77,16 @@ public class InvokeResult<T> implements Serializable {
      */
     public void parameterError(String message){
         this.code=400;
+        this.message=message;
+    }
+
+    /**
+     * 设置用户自定义消息
+     * @param code      消息代号
+     * @param message   消息内容
+     */
+    public void customMessage(int code,String message){
+        this.code=code;
         this.message=message;
     }
 }
