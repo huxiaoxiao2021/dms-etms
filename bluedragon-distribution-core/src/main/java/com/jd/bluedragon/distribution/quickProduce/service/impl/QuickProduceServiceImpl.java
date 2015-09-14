@@ -106,16 +106,18 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
         Waybill waybill= new Waybill();
         OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
-        waybill.setReceiverName(orderMsgDTO.getReceiveName());
-        waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
-        waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        if(NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
-            waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
+        if(orderMsgDTO!=null) {
+            waybill.setReceiverName(orderMsgDTO.getReceiveName());
+            waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
+            waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
+            if (NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
+                waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
+            }
+            //waybill.setSendPay(orderMsgDTO.sendp);
+            waybill.setAddress(orderMsgDTO.getAdress());
+            //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
+            waybill.setWaybillCode(orderMsgDTO.getOrderId());
         }
-        //waybill.setSendPay(orderMsgDTO.sendp);
-        waybill.setAddress(orderMsgDTO.getAdress());
-        //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
-        waybill.setWaybillCode(orderMsgDTO.getOrderId());
         return waybill;
     }
 
