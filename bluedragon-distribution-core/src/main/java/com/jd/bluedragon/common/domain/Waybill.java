@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.domain;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.jd.bluedragon.Constants;
@@ -156,7 +157,7 @@ public class Waybill implements Serializable {
 	/**
 	 * 应收款（总金额+运费-优惠）
 	 */
-	private String recMoney;
+	private Double recMoney;
 
 	/**
 	 * 收件人手机
@@ -541,11 +542,11 @@ public class Waybill implements Serializable {
 		this.serviceCode = serviceCode;
 	}
 
-	public String getRecMoney() {
+	public Double getRecMoney() {
 		return recMoney;
 	}
 
-	public void setRecMoney(String recMoney) {
+	public void setRecMoney(Double recMoney) {
 		this.recMoney = recMoney;
 	}
 

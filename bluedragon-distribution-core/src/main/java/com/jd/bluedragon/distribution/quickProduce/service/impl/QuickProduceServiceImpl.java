@@ -83,11 +83,9 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     private void converseWaybill(QuickProduceWabill quickProduceWabill, Waybill waybill) {
         JoinDetail joinDetail =new JoinDetail();
         quickProduceWabill.setJoinDetail(joinDetail);
-        if(waybill.getRecMoney()!=null&& NumberHelper.isNumber(waybill.getRecMoney()))
-            joinDetail.setDeclaredValue(Double.parseDouble(waybill.getRecMoney()));
+        joinDetail.setDeclaredValue(waybill.getRecMoney());
         joinDetail.setDistributeStoreId(waybill.getDistributeStoreId());
-        if(waybill.getRecMoney()!=null&& NumberHelper.isNumber(waybill.getRecMoney()))
-            joinDetail.setPrice(Double.parseDouble(waybill.getRecMoney()));
+        joinDetail.setPrice(waybill.getRecMoney());
         joinDetail.setGoodNumber(waybill.getQuantity());
         joinDetail.setGoodWeight(waybill.getWeight());
         joinDetail.setPayment(waybill.getPaymentType());
@@ -111,7 +109,9 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         waybill.setReceiverName(orderMsgDTO.getReceiveName());
         waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
         waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        waybill.setRecMoney(orderMsgDTO.getGoodsMoney());
+        if(NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
+            waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
+        }
         //waybill.setSendPay(orderMsgDTO.sendp);
         waybill.setAddress(orderMsgDTO.getAdress());
         //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
@@ -127,9 +127,8 @@ public class QuickProduceServiceImpl implements QuickProduceService {
                 waybill = orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
                 if (waybill != null) {
                     OrderBankResponse orderBankResponse = orderBankService.getOrderBankResponse(waybillCode);
-                    if (orderBankResponse != null) {
-                        BigDecimal pay = orderBankResponse.getShouldPay();
-                        waybill.setRecMoney(pay == null ? null : pay.toString());
+                    if (orderBankResponse != null&&orderBankResponse.getShouldPay()!=null) {
+                        waybill.setRecMoney(Double.parseDouble(orderBankResponse.getShouldPay().toString()));
                     }
                 }
             }
