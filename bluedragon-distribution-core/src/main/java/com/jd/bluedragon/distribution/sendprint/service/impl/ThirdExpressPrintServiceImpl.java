@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
@@ -82,12 +83,18 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
         ExpressInfo data=new ExpressInfo();
         data.setSiteName(baseService.getSiteNameBySiteID(targetSend.getReceiveSiteCode()));
         data.setSiteId(targetSend.getReceiveSiteCode());
-
+        if(logger.isInfoEnabled()){
+            logger.info("获取站点为ID["+data.getSiteId()+"]名称["+data.getSiteName()+"]");
+        }
         QuickProduceWabill waybill=quickProduceService.getQuickProduceWabill(SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
         if(null==waybill||null==waybill.getWaybill()){
             result.customMessage(0,WAYBILL_NOT_FOUND);
             return result;
         }
+        if(logger.isInfoEnabled()){
+            logger.info("调用中间件及台账信息为："+ JsonHelper.toJson(waybill));
+        }
+        data.setRecMoney(waybill.getWaybill().getRecMoney());
         data.setDistributeStoreId(waybill.getWaybill().getDistributeStoreId());
         data.setDistributeStoreName(waybill.getWaybill().getDistributeStoreName());
         data.setOrgId(waybill.getWaybill().getOrgId());
@@ -99,6 +106,9 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
         data.setWaybillCode(SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
         data.setReceiverPostcode(waybill.getWaybill().getReceiverZipCode());
         data.setReceiverCityname(waybill.getWaybill().getCityName());
+        data.setDistributeType(waybill.getWaybill().getShipmentType());
+        data.setPackCode(packageCode);
+        data.setPackWeight(waybill.getWaybill().getWeight());
         result.setData(data);
         return result;
     }
