@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -82,6 +83,7 @@ public class SendQueryResource {
      * @return
      */
     @GET
+    @Profiled(tag = "SendQueryResource.getThirdWaybillPaper")
     @Path("/sendquery/getthirdwaybillpaper/{packagecode}")
     public InvokeResult<ExpressInfo> getThirdWaybillPaper(@PathParam("packagecode") String packageCode){
         InvokeResult<ExpressInfo> result=null;
