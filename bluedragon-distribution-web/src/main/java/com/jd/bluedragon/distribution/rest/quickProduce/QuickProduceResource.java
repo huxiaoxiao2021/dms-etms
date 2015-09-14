@@ -53,19 +53,12 @@ public class QuickProduceResource {
      * @return
      */
     @GET
-    @Path("/quickProduce/getwaybillPrePack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}")
-    public WaybillResponse<Waybill> getwaybillPrePack(@PathParam("startDmsCode") Integer startDmsCode,
+    @Path("/quickProduce/getwaybillPrePack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{waybillOrLabel}")
+    public Waybill getwaybillPrePack(@PathParam("startDmsCode") Integer startDmsCode,
                                                       @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage, @PathParam("localSchedule") Integer localSchedule
-            , @PathParam("paperless") Integer paperless) {
+            , @PathParam("paperless") Integer paperless,@PathParam("waybillOrLabel") Integer waybillOrLabel) {
 
-        // 判断传入参数
-        if (startDmsCode == null || startDmsCode.equals(0)
-                || StringUtils.isEmpty(waybillCodeOrPackage)) {
-            this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
-                    + waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
-            return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
-                    JdResponse.MESSAGE_PARAM_ERROR);
-        }
+
         // 转换运单号
         String waybillCode = BusinessHelper
                 .getWaybillCode(waybillCodeOrPackage);
@@ -76,29 +69,35 @@ public class QuickProduceResource {
             if(quickProduceWabill==null){
                 this.logger.info("运单号【" + waybillCode
                         + "】调用订单中间键获取运单包裹信息接口成功, 无数据");
-                return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
-                        JdResponse.MESSAGE_OK_NULL);
+                return new Waybill();
             }
             Waybill waybill = quickProduceWabill.getWaybill();
             if (waybill == null) {
                 this.logger.info("运单号【" + waybillCode
                         + "】调用根据运单号获取运单包裹信息接口成功, 无数据");
-                return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
-                        JdResponse.MESSAGE_OK_NULL);
+                return new Waybill();
             }
-            //调用预分拣接口获得基础资料信息
-            this.setBasicMessage(waybill, startDmsCode ,localSchedule, paperless);
+
+            if (waybillOrLabel == 1) {
+                // 判断传入参数
+                if (startDmsCode == null || startDmsCode.equals(0)
+                        || StringUtils.isEmpty(waybillCodeOrPackage)) {
+                    this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
+                            + waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
+                    return new Waybill();
+                }
+                //调用预分拣接口获得基础资料信息
+                this.setBasicMessage(waybill, startDmsCode, localSchedule, paperless);
+            }
 
             this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
-            return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
-                    JdResponse.MESSAGE_OK, waybill);
+            return waybill;
 
         } catch (Exception e) {
             // 调用服务异常
             this.logger
                     .error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
-            return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
-                    JdResponse.MESSAGE_SERVICE_ERROR);
+            return new Waybill();
         }
     }
 
