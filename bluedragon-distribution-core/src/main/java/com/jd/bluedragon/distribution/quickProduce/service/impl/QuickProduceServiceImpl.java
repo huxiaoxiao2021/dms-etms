@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.quickProduce.service.impl;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
@@ -82,11 +83,9 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     private void converseWaybill(QuickProduceWabill quickProduceWabill, Waybill waybill) {
         JoinDetail joinDetail =new JoinDetail();
         quickProduceWabill.setJoinDetail(joinDetail);
-        if(waybill.getRecMoney()!=null&& NumberHelper.isNumber(waybill.getRecMoney()))
-            joinDetail.setDeclaredValue(Double.parseDouble(waybill.getRecMoney()));
+        joinDetail.setDeclaredValue(waybill.getRecMoney());
         joinDetail.setDistributeStoreId(waybill.getDistributeStoreId());
-        if(waybill.getRecMoney()!=null&& NumberHelper.isNumber(waybill.getRecMoney()))
-            joinDetail.setPrice(Double.parseDouble(waybill.getRecMoney()));
+        joinDetail.setPrice(waybill.getRecMoney());
         joinDetail.setGoodNumber(waybill.getQuantity());
         joinDetail.setGoodWeight(waybill.getWeight());
         joinDetail.setPayment(waybill.getPaymentType());
@@ -110,7 +109,9 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         waybill.setReceiverName(orderMsgDTO.getReceiveName());
         waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
         waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        waybill.setRecMoney(orderMsgDTO.getGoodsMoney());
+        if(NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
+            waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
+        }
         //waybill.setSendPay(orderMsgDTO.sendp);
         waybill.setAddress(orderMsgDTO.getAdress());
         //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
@@ -120,10 +121,20 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
 
     private  Waybill getWabillFromOom(String waybillCode){
-        Waybill waybill= orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
-        if (waybill != null) {
-//            BigDecimal pay = orderBankService.getOrderBankResponse(waybillCode).getShouldPay();
-//            waybill.setRecMoney(pay == null ? null : pay.toString());
+        Waybill waybill=null;
+        try {//本机调试无host配置，台账接口错误，暂时加try，catch
+            if (!NumberHelper.isNumber(waybillCode)) {
+                waybill = orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
+                if (waybill != null) {
+                    OrderBankResponse orderBankResponse = orderBankService.getOrderBankResponse(waybillCode);
+                    if (orderBankResponse != null&&orderBankResponse.getShouldPay()!=null) {
+                        waybill.setRecMoney(Double.parseDouble(orderBankResponse.getShouldPay().toString()));
+                    }
+                }
+            }
+        }
+        catch (Exception ex){
+            logger.debug(ex);
         }
         return waybill;
     }
