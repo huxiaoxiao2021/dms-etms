@@ -141,8 +141,8 @@ public class GlobalTradeController {
             for (String orderid : orderIdArray) {
                 LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
                 if(erpUser!=null){
-	                loadBill.setPackageUser(erpUser.getUserName());
-	                loadBill.setPackageUserCode(Integer.parseInt(erpUser.getUserCode()));
+	                loadBill.setPackageUser(erpUser.getUserCode());
+	                loadBill.setPackageUserCode(erpUser.getUserId());
                 }
                 loadBill.setApprovalTime(new Date());
                 loadBill.setApprovalCode(LoadBill.BEGINNING);
