@@ -10,11 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.iwmss.stock.client.ArrayOfStockDetail;
-import com.jd.iwmss.stock.client.StockDetail;
-import com.jd.iwmss.stock.client.StockParamter;
 import com.jd.stock.iwms.export.StockExportService;
 import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.result.QueryResult;

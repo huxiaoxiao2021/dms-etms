@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.web.kuGuan;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.distribution.kuguan.service.KuGuanService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.common.hrm.HrmPrivilege;
 
@@ -46,7 +43,7 @@ public class KuGuanController {
 		}
 
 		try {
-			logger.error("根据订单号获取库管单信息-queryByParams");
+			logger.info("根据订单号获取库管单信息"+params.toString());
 			kuGuanDomain = stockExportManager.queryByParams(params);
 			
 		} catch (Exception e) {
