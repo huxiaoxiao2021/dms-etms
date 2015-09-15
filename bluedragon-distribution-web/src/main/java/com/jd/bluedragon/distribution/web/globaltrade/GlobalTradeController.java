@@ -140,10 +140,13 @@ public class GlobalTradeController {
             List<LoadBill> loadBillList = new ArrayList<LoadBill>();
             for (String orderid : orderIdArray) {
                 LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
-                loadBill.setPackageUser(erpUser.getUserName());
-                loadBill.setPackageUserCode(Integer.parseInt(erpUser.getUserCode()));
+                if(erpUser!=null){
+	                loadBill.setPackageUser(erpUser.getUserName());
+	                loadBill.setPackageUserCode(Integer.parseInt(erpUser.getUserCode()));
+                }
                 loadBill.setApprovalTime(new Date());
                 loadBill.setApprovalCode(LoadBill.BEGINNING);
+                loadBillList.add(loadBill);
             }
             loadBillService.cancelPreloaded(loadBillList);
         } catch (Exception e) {

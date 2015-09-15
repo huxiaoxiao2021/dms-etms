@@ -83,6 +83,7 @@ public class OperationLog implements java.io.Serializable {
 		logTypes.put(OperationLog.TYPE_REVERSE_RECEIVE, "逆向收货");
 		logTypes.put(OperationLog.LOG_TYPE_FASTREFUND, "先货先款退款类型");
 		logTypes.put(OperationLog.LOG_TYPE_SORTING_INTERCEPT_LOG, "分拣拦截日志");
+		logTypes.put(OperationLog.LOG_TYPE_CAN_GLOBAL, "取消预装载");
 		return logTypes;
 	}
 
