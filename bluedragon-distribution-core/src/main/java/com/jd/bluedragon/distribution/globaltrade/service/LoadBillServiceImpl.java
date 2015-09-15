@@ -22,20 +22,13 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,13 +65,13 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	@Autowired
 	private SiteService siteService;
-	
+
 	@Autowired
     private TaskService taskService;
-	
+
 	@Autowired
     private OperationLogService operationLogService;
-	
+
 	@Autowired
     DeliveryService deliveryService;
     @Autowired
@@ -86,15 +79,9 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     @Autowired
     private LoadBillReadDao loadBillReadDao;
-
-	/* 运单查询 */
-	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
-
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public int initialLoadBill(String sendCode, Integer userId, String userName) throws Exception{
+	public int initialLoadBill(String sendCode, Integer userId, String userName) {
 		String dmsCode = PropertiesHelper.newInstance().getValue(DMS_CODE);
 		if (StringUtils.isBlank(dmsCode)) {
 			logger.error("LoadBillServiceImpl initialLoadBill with dmsCode is null");
@@ -108,9 +95,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 			logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
 			return 0;
 		}
-		Map<String, DeliveryPackageD> packageMap = getPacakgeByWaybillCode(sendDetailList);
-		logger.info("批次号: " + sendCode + " 的包裹数量为: " + packageMap.size() + " 个.");
-		List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, packageMap, userId, userName);
+		List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, userId, userName);
 		for (LoadBill lb : loadBillList) {
 			// 不存在,则添加;存在,则忽略,更新会影响其他功能的更新操作
 			if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
@@ -120,53 +105,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 		return loadBillList.size();
 	}
 
-	private Map<String, DeliveryPackageD> getPacakgeByWaybillCode(List<SendDetail> sendDetailList) throws Exception {
-		//waybillQueryWSProxy.batchGetPackListByCodeList();
-		Map<String, DeliveryPackageD> packageMap = new HashMap<String, DeliveryPackageD>();
-		int times = 0;
-		List<String> waybillCodeList = new ArrayList<String>();
-		for(int i = 0 ; i < sendDetailList.size(); i++){
-			waybillCodeList.add(sendDetailList.get(i).getWaybillCode());
-			times++;
-			if(times == 50){
-				getPackageFromRemote(packageMap, waybillCodeList);
-				times = 0;
-				waybillCodeList = new ArrayList<String>();//初始化
-			}
-			if (sendDetailList.size() % 50 != 0 && i == sendDetailList.size() - 1) {
-				getPackageFromRemote(packageMap, waybillCodeList);
-			}
-		}
-		return packageMap;
-	}
-
-	private void getPackageFromRemote(Map<String, DeliveryPackageD> packageMap, List<String> waybillCodeList) throws Exception {
-		String errorMessage = "调用运单接口,通过运单号获取包裹信息失败";
-		try{
-			BaseEntity<Map<String, List<DeliveryPackageD>>> result =  waybillQueryWSProxy.batchGetPackListByCodeList(waybillCodeList);
-			if (result.getResultCode() == 1) {
-				Map<String, List<DeliveryPackageD>> remotePackages = result.getData();
-				if(remotePackages != null){
-					for(List<DeliveryPackageD> packList : remotePackages.values()){
-						for(DeliveryPackageD pack : packList){
-							 packageMap.put(pack.getPackageBarcode(), pack);
-						}
-					}
-				}
-			} else if(result.getResultCode() == -2) {
-				logger.error("调用运单接口, 参数错误");
-				throw new Exception("调用运单接口, 参数错误");
-			} else {
-				logger.error(errorMessage);
-				throw new Exception(errorMessage);
-			}
-		} catch(Exception e) {
-			logger.error(errorMessage);
-			throw new Exception(errorMessage);
-		}
-	}
-
-	private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, Map<String, DeliveryPackageD> packageMap, Integer userId, String userName) {
+	private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, Integer userId, String userName) {
 		if (sendDetailList == null || sendDetailList.size() < 1) {
 			return new ArrayList<LoadBill>();
 		}
@@ -197,29 +136,14 @@ public class LoadBillServiceImpl implements LoadBillService {
 					lb.setDmsName(site.getSiteName());
 				}
 			}
-			
 			// 注入装载单其他信息
 			lb.setCreateUserCode(userId);
 			lb.setCreateUser(userName);
+			lb.setLoadId(sd.getWaybillCode());// loadId暂时用WaybillCode
 			lb.setWarehouseId(PropertiesHelper.newInstance().getValue(WAREHOUSE_ID));
 			lb.setCtno(PropertiesHelper.newInstance().getValue(CTNO));
 			lb.setGjno(PropertiesHelper.newInstance().getValue(GJNO));
 			lb.setTpl(PropertiesHelper.newInstance().getValue(TPL));
-			
-			//注入打包人信息
-			DeliveryPackageD pack = packageMap.get(sd.getPackageBarcode());
-			if(pack != null){
-				String packWkNo = pack.getPackWkNo();
-				if(StringUtils.isNotBlank(packWkNo) && packWkNo.indexOf(":") != -1){
-					String[] packUser = packWkNo.split(":");
-					if(packUser.length == 2){
-						lb.setPackageUserCode(Integer.parseInt(packUser[0]));
-						lb.setPackageUser(packUser[1]);
-					}
-				}
-				lb.setPackageTime(DateHelper.parseDateTime(pack.getPackDate()));
-			}
-
 			loadBillList.add(lb);
 		}
 		return loadBillList;
@@ -372,7 +296,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 				//取消预装载 重置状态
 				loadBillDao.updateCancelLoadBillStatus(loadBill);
 				//取消预装载 全程跟踪
-				//sendTask(loadBill);
+				sendTask(loadBill);
 				//取消预装载 取消分拣
 				
 				//取消预装载 取消发货
@@ -461,7 +385,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(LoadBillReport report){
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-        loadBillStatusMap.put("waybillCode", report.getOrderId());
+        loadBillStatusMap.put("waybillCode",BusinessHelper.getWaybillCode(report.getOrderId()));
         loadBillStatusMap.put("boxCode", report.getBoxCode());
         this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList=  loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
