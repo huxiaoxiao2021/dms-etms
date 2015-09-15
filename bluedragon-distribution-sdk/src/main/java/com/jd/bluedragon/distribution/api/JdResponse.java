@@ -30,6 +30,9 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_SENDED = 20002;
     public static final String MESSAGE_SENDED = "包裹或者运单已经发货，不能执行当前操作";
+
+    public static final Integer CODE_UNLOADBILL = 2424;
+    public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
     
     public static final Integer CODE_NOT_FOUND = 404;
     public static final Integer CODE_MISMATCH = 405;

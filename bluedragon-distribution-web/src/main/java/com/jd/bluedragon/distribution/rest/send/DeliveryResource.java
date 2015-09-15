@@ -84,6 +84,9 @@ public class DeliveryResource {
     @Autowired
     private WaybillCommonService waybillCommonService;
 
+    @Autowired
+    private LoadBillService loadBillService;
+
     private final Log logger = LogFactory.getLog(this.getClass());
 
     /**
@@ -166,6 +169,14 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR, null);
         }
+        /**现在装在单逻辑***/
+        DeliveryResponse deliveryResponse = sendLoadBillCheck(request);
+        if (!deliveryResponse.getCode().equals(JdResponse.CODE_OK)) {
+            return new ThreeDeliveryResponse(JdResponse.CODE_UNLOADBILL,
+                    JdResponse.MESSAGE_UNLOADBILL, null);
+        }
+        /*****/
+
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
             tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request));
@@ -179,6 +190,47 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
+    }
+
+    /**
+     * 取消发货 要判断是否已经装载， 未装载和拒绝的可以 取消 发货\分拣
+     */
+    private DeliveryResponse sendLoadBillCheck(DeliveryRequest request) {
+        if (request.getBoxCode() == null || request.getSiteCode() == null) {
+            this.logger.error("sendLoadBillCheck 参数错误");
+            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+        }
+        LoadBillReport loadBillReport = new LoadBillReport();
+        if (BusinessHelper.isBoxcode(request.getBoxCode())) {
+            loadBillReport.setBoxCode(request.getBoxCode());
+        } else {
+            loadBillReport.setOrderId(request.getBoxCode());
+        }
+        this.logger.info("开始获取 装载数据");
+        try {
+            List<LoadBill> loadBillList = loadBillService.findWaybillInLoadBill(loadBillReport);
+
+        /**  loadBillList 空时表示未装载 可以取消，
+         *  10初始,20已申请,30已放行, 【40未放行】
+         */
+        if (loadBillList != null && !loadBillList.isEmpty()) {
+            for (LoadBill bill : loadBillList) {
+                if (bill.getApprovalCode().equals(LoadBill.REDLIGHT)) {
+                    return new DeliveryResponse(JdResponse.CODE_OK,
+                            JdResponse.MESSAGE_OK);
+                }
+            }
+        } else {
+            return new DeliveryResponse(JdResponse.CODE_OK,
+                    JdResponse.MESSAGE_OK);
+        }
+        } catch (Exception e) {
+            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill"+e);
+        }
+
+        return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
+                JdResponse.MESSAGE_UNLOADBILL);
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -321,7 +373,7 @@ public class DeliveryResource {
                 if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())&&flage){
                     //只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com
                     deliveryService.pushTransferSendTask(tSendM);
-                }*/
+                }
                 /* 注释掉跨区分拣发货功能
                 Integer targetSortingCenterId = null;
                 Integer targetSiteCode = null;

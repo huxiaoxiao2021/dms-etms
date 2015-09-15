@@ -56,6 +56,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_DEPARTURE = 1400; // 发车
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
+
+    public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
     
     /** PDA log */
     public static final Integer TASK_TYPE_PDA = 1700;// PDA日志
@@ -121,7 +123,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_OFFLINE = "task_offline";
     public static final String TABLE_NAME_AUTOSORTING_HANDOVER = "task_handover";
     public static final String TABLE_NAME_WEIGHT = "task_weight";
-    
+    public static final String TABLE_NAME_GLOBAL_TRADE = "task_global_trade";
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
     public static final String TABLE_NAME_REVERSE_SEQ = "SEQ_TASK_REVERSE";
@@ -139,7 +141,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_OFFLINE_SEQ = "SEQ_TASK_OFFLINE";
     public static final String TABLE_NAME_HANDOVER_SEQ = "SEQ_TASK_HANDOVER";
     public static final String TABLE_NAME_WEIGHT_SEQ = "SEQ_TASK_WEIGHT";
-    
+    public static final String TABLE_NAME_GLOBAL_TRADE_SEQ = "SEQ_TASK_GLOBAL_TRADE";
+
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
     public static final int TASK_DATA_SOURCE_DB = 2;
@@ -440,6 +443,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_SORTING_EXCEPTION;
         }else if(Task.TASK_TYPE_WEIGHT.equals(type)){
             return Task.TABLE_NAME_WEIGHT;
+        }else if(Task.TASK_TYPE_GLOBAL_TRADE.equals(type)){
+            return Task.TABLE_NAME_GLOBAL_TRADE;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -478,6 +483,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_SORTING_EXCEPTION_SEQ;
         }else if(Task.TABLE_NAME_WEIGHT.equals(tableName)){
             return Task.TABLE_NAME_WEIGHT_SEQ;
+        }else if(Task.TABLE_NAME_GLOBAL_TRADE.equals(tableName)){
+            return Task.TABLE_NAME_GLOBAL_TRADE_SEQ;
         }
         
         return Task.TABLE_NAME_SORTING_SEQ;

@@ -24,7 +24,7 @@
         <property name="ownSign" value="${ownSign}"/>
     </bean>
 
-    <bean id="receiveRedisTask"
+ <!--   <bean id="receiveRedisTask"
           class="com.jd.bluedragon.distribution.worker.redis.ReceiveRedisTask"
           parent="parentRedisTask">
         <property name="taskType" value="ReceiveRedisTask"/>
@@ -204,6 +204,6 @@
           parent="parentRedisTask">
         <property name="taskType" value="WeightRedisTask"/>
         <property name="desc" value="将称重信息回传到运单中心Resis任务"/>
-    </bean>
+    </bean>-->
 </beans>
 
