@@ -134,13 +134,13 @@
     <!-- 对接jos平台接口 -->
     <jsf:provider id="jsfJosService"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosService"
-                  alias="${dms.jsf.jos.alias}"
+                  alias="${dms.jsf.alias}"
                   ref="josService" server="dmsjsf">
     </jsf:provider>
     <!-- 对接jos平台读接口 -->
     <jsf:provider id="jsfJosReadService"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosReadService"
-                  alias="${dms.jsf.jos.alias}"
+                  alias="${dms.jsf.alias}"
                   ref="josReadService" server="dmsjsf">
     </jsf:provider>
 
