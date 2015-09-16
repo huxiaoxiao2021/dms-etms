@@ -95,7 +95,6 @@ public class ReverseReceiveNotifyStockResource {
 		String fenlei = null;
 		String qita = null;
 		String qitafangshi = null;
-		StringBuffer resultStr = new StringBuffer();
 
 		// 1.查运单类型
 		Order order = this.orderWebService.getOrder(waybillCode);
