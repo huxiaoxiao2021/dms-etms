@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.kuguan.domain;
 
+import java.util.List;
+
 /**
  * 库管查询
  *
@@ -10,6 +12,7 @@ public class KuGuanDomain implements java.io.Serializable {
 	private static final long serialVersionUID = -2128599558209868233L;
 
 	/** 选择类型*/
+	@Deprecated 
 	private String ddlType;
 
 	/** 输入单号 */
@@ -102,6 +105,8 @@ public class KuGuanDomain implements java.io.Serializable {
 	/**总计*/
 	private String lblstatistics;
 	
+	private List<KuGuanDomain> stockDetails;
+	
 	public String getLblStock() {
 		return lblStock;
 	}
@@ -158,10 +163,12 @@ public class KuGuanDomain implements java.io.Serializable {
 		this.lblOrg = lblOrg;
 	}
 
+	@Deprecated
 	public String getDdlType() {
 		return ddlType;
 	}
 
+	@Deprecated
 	public void setDdlType(String ddlType) {
 		this.ddlType = ddlType;
 	}
@@ -348,6 +355,14 @@ public class KuGuanDomain implements java.io.Serializable {
 
 	public void setLblstatistics(String lblstatistics) {
 		this.lblstatistics = lblstatistics;
+	}
+
+	public List<KuGuanDomain> getStockDetails() {
+		return stockDetails;
+	}
+
+	public void setStockDetails(List<KuGuanDomain> stockDetails) {
+		this.stockDetails = stockDetails;
 	}
 	
 }
