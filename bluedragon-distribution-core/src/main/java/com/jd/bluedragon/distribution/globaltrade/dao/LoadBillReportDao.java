@@ -14,7 +14,7 @@ public class LoadBillReportDao extends BaseDao<LoadBillReport> {
 
 	public int add(LoadBillReport report) {
 		logger.info("LoadBillReportDao.add orderId is " + report.getOrderId());
-		return this.getSqlSession().insert(LoadBillReportDao.namespace + "add", report);
+		return this.getSqlSession().insert(LoadBillReportDao.namespace + ".add", report);
 	}
 
 }

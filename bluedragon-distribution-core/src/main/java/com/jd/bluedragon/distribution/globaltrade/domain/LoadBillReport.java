@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.globaltrade.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class LoadBillReport implements Serializable {
-
 	private static final long serialVersionUID = 1L;
 
 	/** 全局ID */
@@ -31,7 +31,30 @@ public class LoadBillReport implements Serializable {
 	/** 成功的订单号,多个以逗号分割 */
 	private String orderId;
 
-	/** 有效标识 */
+    /**
+     * 箱号
+     */
+    private String boxCode;
+
+    private String siteCode;
+
+    public String getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(String siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
+    /** 有效标识 */
 	private Integer yn;
 
 	public String getId() {

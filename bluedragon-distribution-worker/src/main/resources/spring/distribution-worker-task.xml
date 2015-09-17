@@ -368,7 +368,7 @@
         <property name="type" value="3340"/>
         <property name="desc" value="发送质控系统，配送外呼任务"/>
     </bean>
-    
+
     <bean id="weightTask" class="com.jd.bluedragon.distribution.worker.weight.WeightTask"
 		init-method="init" lazy-init="false" depends-on="managerFactory">
 		<property name="dataSource" ref="taskDataSource" />
@@ -378,7 +378,7 @@
 		<property name="type" value="1160" />
 		<property name="desc" value="将称重信息回传到运单中心" />
 	</bean>
-	
-</beans> 
+
+</beans>
 	
 	

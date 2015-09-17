@@ -395,6 +395,18 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 this.taskService.doDone(task);
                 task.setYn(0);
             }
+            
+            
+            /**
+             * 全球购取消预装载的订单回传全称跟踪
+             * */
+            if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_CANCLE_LOADBILL))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("由保税仓出库，预装载申请审核未通过或被海关抽查扣留");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.taskService.doDone(task);
+				task.setYn(0);
+			}
 
 		}
 

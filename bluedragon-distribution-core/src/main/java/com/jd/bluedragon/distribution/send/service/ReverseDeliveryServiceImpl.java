@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.service;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -457,7 +458,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		Base64 base64=new Base64();
 		String result="";
 		try {
-			result = new String(base64.encode(md5(mingwen).getBytes("utf-8")));
+			result = new String(base64.encode(md5(mingwen).getBytes("utf-8")),Charset.forName("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -706,7 +707,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				this.logger.error("ems数据报文：" + body);
 				String emsstring=null;
 				try {
-				body =new String(base64.encode(body.getBytes("utf-8")));
+				body =new String(base64.encode(body.getBytes("utf-8")),Charset.forName("UTF-8"));
 				
 					emsstring = getPrintDatasPortType
 							.printEMSDatas(body);
@@ -720,7 +721,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							.error("toEmsServer CXF return null :");
 					//return;
 				}else{
-					emsstring = new String(base64.decode(emsstring));
+					emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
 					
 					this.logger.error("全国邮政返回" + emsstring);
 				}
@@ -733,7 +734,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		Base64 base64=new Base64();
 		String result = "";
 		try {
-			result = new String(base64.decode(md5(mingwen).getBytes("utf-8")));
+			result = new String(base64.decode(md5(mingwen).getBytes("utf-8")),Charset.forName("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

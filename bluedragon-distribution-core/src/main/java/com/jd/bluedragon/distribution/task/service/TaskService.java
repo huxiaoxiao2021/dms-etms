@@ -9,6 +9,8 @@ public interface TaskService {
 
     void initFingerPrint(Task task);
 
+    void addBatch(List<Task> tasks);
+
     Integer add(Task task);
     
     Integer add(Task task, boolean isTaskModeCheck);

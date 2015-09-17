@@ -31,7 +31,6 @@
 	<saf:service id="emsOrderJosSaf" protocol="mydubbo"
 		registry="jdZooKeeper" version="1.0.0" group="${dms.saf.group}" timeout="5000"  retries="0" 
 		ref="emsOrderJosSafService" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService">
-	
 	</saf:service>
 	
 	
@@ -46,7 +45,6 @@
 	<saf:service id="getWaybillSafServer" protocol="mydubbo"
 		registry="jdZooKeeper" version="1.0.2" group="${dms.saf.group}" timeout="5000"  retries="0" 
 		ref="getWaybillSafService" interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService">
-	
 	</saf:service>
 	
 	<!-- 直连测试 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
@@ -19,11 +19,11 @@
 
 	<!-- static resources -->
 	<mvc:resources location="/static/" mapping="/static/**"
-		cache-period="864000" /><!-- 24 * 3600 * 10 -->
+				   cache-period="864000" /><!-- 24 * 3600 * 10 -->
 
 	<!-- template view -->
 	<bean id="velocityConfig"
-		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		  class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
 		<property name="resourceLoaderPath" value="/WEB-INF/views/" />
 		<property name="velocityProperties">
 			<props>
@@ -36,7 +36,7 @@
 	</bean>
 
 	<bean id="velocityViewResolver"
-		class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+		  class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
 		<property name="layoutUrl" value="layout/default.vm" />
 		<property name="cache" value="false" />
 		<property name="suffix" value=".vm" />
@@ -47,11 +47,11 @@
 	</bean>
 
 	<bean
-		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+			class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="messageConverters">
 			<list>
 				<bean
-					class="org.springframework.http.converter.StringHttpMessageConverter">
+						class="org.springframework.http.converter.StringHttpMessageConverter">
 					<property name="supportedMediaTypes">
 						<list>
 							<value>text/html;charset=UTF-8</value>
@@ -63,7 +63,7 @@
 	</bean>
 
 	<bean
-		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+			class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
 		<property name="defaultContentType" value="text/html" />
 		<!-- not by accept header -->
 		<property name="ignoreAcceptHeader" value="true" />
@@ -85,19 +85,19 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<!-- file upload related -->
 	<bean id="multipartResolver"
-		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="defaultEncoding" value="UTF-8" />
 		<property name="maxUploadSize" value="5000000" />
 	</bean>
-	
+
 	<!-- Access resource bundles with the specified basename -->
 	<bean id="messageSource"
-		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		  class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basenames"
-			value="/WEB-INF/i18n/content,/WEB-INF/i18n/validation,/WEB-INF/i18n/asset,/WEB-INF/i18n/enum" />
+				  value="/WEB-INF/i18n/content,/WEB-INF/i18n/validation,/WEB-INF/i18n/asset,/WEB-INF/i18n/enum" />
 		<!--<property name="cacheSeconds" value="5" /> -->
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
@@ -119,7 +119,7 @@
 	-->
 
 	<bean id="conversionService"
-		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		  class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
 		<property name="formatterRegistrars">
 			<bean class="com.jd.common.springmvc.converter.DefaultFormatterRegistrar" />
 		</property>
