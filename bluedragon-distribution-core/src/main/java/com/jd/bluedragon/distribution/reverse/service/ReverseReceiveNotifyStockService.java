@@ -375,7 +375,7 @@ public class ReverseReceiveNotifyStockService {
 		for (Product product : products) {
 			StockDetailVO sdVO = new StockDetailVO();
 			sdVO.setBilv(1);
-			sdVO.setWareId(new Integer(product.getProductId()));
+			sdVO.setWareId(new Long(product.getProductId()));
 			sdVO.setWare(product.getName());
 			sdVO.setJiage(product.getPrice());
 			sdVO.setNum(this.isPrePay(paidType) ? product.getQuantity() : this.negate(product
@@ -434,7 +434,7 @@ public class ReverseReceiveNotifyStockService {
 		for (Product product : products) {
 			StockDetailVO sdVO = new StockDetailVO();
 			sdVO.setBilv(1);
-			sdVO.setWareId(new Integer(product.getProductId()));
+			sdVO.setWareId(new Long(product.getProductId()));
 			sdVO.setWare(product.getName());
 			sdVO.setJiage(product.getPrice());
 			sdVO.setNum(product.getQuantity());
