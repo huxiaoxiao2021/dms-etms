@@ -81,6 +81,8 @@
         <typeAlias type="com.jd.bluedragon.distribution.systemLog.domain.SystemLog"  alias="SystemLog"/>
         
         <typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting"/>
+        <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
+        <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
 	</typeAliases>  
 	
 	<mappers>
@@ -158,6 +160,8 @@
         <mapper resource="mappers/systemLog/SystemLogMapper.xml"/>
         
         <mapper resource="mappers/crossSorting/CrossSortingMapper.xml"/>
+        <mapper resource="mappers/globaltrade/LoadBillMapper.xml"/>
+        <mapper resource="mappers/globaltrade/LoadBillReportMapper.xml"/>
 	</mappers>
 	
 </configuration>

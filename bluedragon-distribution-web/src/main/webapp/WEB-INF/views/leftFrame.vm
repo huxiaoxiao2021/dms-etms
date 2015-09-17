@@ -18,6 +18,7 @@
 	<dt><a href="#" class="curr">分拣中心相关查询</a></dt>
 	<dd><a href="http://waybill.etms.360buy.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
     <dd><a href="#springUrl('/crossSorting')" target="mainFrame">跨分拣校验规则配置</a></dd>
+    <dd><a href="#springUrl('/globalTrade')" target="mainFrame">全球购</a></dd>
     <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
 	<dd><a href="#springUrl('/operateLog/goListPage1')" target="mainFrame">分拣中心操作日志</a></dd>
 	<dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>

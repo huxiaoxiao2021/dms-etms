@@ -14,6 +14,8 @@ public class CustomerServiceResponse extends JdResponse {
      */
     private String surfaceCode;
 
+    private String serviceCode;
+
 
     public CustomerServiceResponse() {
         super();
@@ -31,4 +33,11 @@ public class CustomerServiceResponse extends JdResponse {
         this.surfaceCode = surfaceCode;
     }
 
+    public String getServiceCode() {
+        return serviceCode;
+    }
+
+    public void setServiceCode(String serviceCode) {
+        this.serviceCode = serviceCode;
+    }
 }
