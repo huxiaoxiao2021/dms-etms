@@ -36,12 +36,13 @@ public class LoadBillDao extends BaseDao<LoadBill> {
         return (Long) this.getSqlSession().selectOne(LoadBillDao.namespace + ".selectPreLoadBillId");
     }
 
-    public int updatePreLoadBillById(List<Long> billId,String trunkNo,String loadId){
+    public int updatePreLoadBillById(List<Long> billId,String trunkNo,String loadId,Integer approvalCode){
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("data",billId);
         map.put("loadId",loadId);
         map.put("trunkNo", trunkNo);
-        return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillById");
+        map.put("approvalCode", approvalCode);
+        return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillById", map);
     }
 	public LoadBill findByPackageBarcode(String packageBarcode) {
 		logger.info("LoadBillDao.getLoadBill with packageBarcode is " + packageBarcode);

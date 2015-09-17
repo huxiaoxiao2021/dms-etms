@@ -188,7 +188,7 @@ public class LoadBillServiceImpl implements LoadBillService {
             if(SUCCESS == response1.getStatus().intValue()){
                 logger.error("调用卓志接口预装载成功");
                 try {
-                    loadBillDao.updatePreLoadBillById(preLoadIds, trunkNo, preLoadBillId);
+                    loadBillDao.updatePreLoadBillById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
                 }catch (Exception ex){
                     logger.error("预装载更新车牌号和装载单ID失败，原因",ex);
                     throw new GlobalTradeException("预装载操作失败，系统异常");
