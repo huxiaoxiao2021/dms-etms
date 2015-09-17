@@ -12,13 +12,12 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.utils.*;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
 import com.jd.bluedragon.utils.*;
@@ -96,6 +95,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Autowired
+    private SendMReadDao sendMReadDao;
 
     @Autowired
     private SendDatailDao sendDatailDao;
@@ -270,7 +272,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
-            BoxResponse response = this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
+            BoxResponse response =null;
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
+            response=this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
+            Profiler.registerInfoEnd(info1);
             Integer preSortingSiteCode=null;
             try{
             com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
@@ -295,10 +300,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
             return new SendResult(2,"该发货批次已经发车，不能继续发货");
         }
+        /*  谫明：暂取消跨分拣校验，待邹剑确定
         SendResult checkResult=packageCrosssSendCheck(domain);
         if(!checkResult.getKey().equals(1)&&!isForceSend){
             return checkResult;
-        }
+        }*/
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());
@@ -380,8 +386,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         return 0;
     }
 
-
-
+    /**
+     * 查询箱号发货记录
+     * @param boxCode 箱号
+     * @return 发货记录列表
+     */
+    @Profiled(tag = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode")
+    @JProfiler(jKey = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode", mState = { JProEnum.TP,
+            JProEnum.FunctionError })
+    public   List<SendM> getSendMListByBoxCode(String boxCode){
+        SendM domain=new SendM();
+        domain.setBoxCode(boxCode);
+        return this.sendMReadDao.findSendMByBoxCode(domain);
+    }
 
     @Profiled(tag = "DeliveryService.addSendDatail")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -530,8 +547,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 		tTask.setKeyword1("3");// 3回传dmc
 		tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
 		tTaskService.add(tTask, true);
-    	if(businessTypeTWO.equals(sendM.getSendType())
-    			&& sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)){
+    	if(businessTypeTWO.equals(sendM.getSendType())){
+    			//&& sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)  取消逆向发车的时候推送仓储任务，修改到发货环节推送 20150724
+    			
 	    	tTask.setKeyword1("4");//4逆向任务
 	    	tTask.setFingerprint(sendM.getSendCode()+ "_"+tTask.getKeyword1());
 	    	tTaskService.add(tTask);
@@ -613,6 +631,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 		CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2", false, true);
 		// 写入发货表数据
 		this.insertSendM(sendMList , list);
+        for(SendM domain:sendMList) {
+            this.transitSend(domain);//插入中转任务
+        }
         // 写入任务
         addTaskSend(sendMList.get(0));
 		Profiler.registerInfoEnd(info2); 
@@ -1239,8 +1260,23 @@ public class DeliveryServiceImpl implements DeliveryService {
 			for (SendDetail tSendDatail : sendDetails) {
 				tSendDatail.setStatus(1);
 				if(!tSendDatail.getIsCancel().equals(1)){
-					BaseStaffSiteOrgDto rbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getReceiveSiteCode()));
-					BaseStaffSiteOrgDto cbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getCreateSiteCode()));
+					
+					BaseStaffSiteOrgDto cbDto = null;
+					BaseStaffSiteOrgDto rbDto = null;
+					
+					try {
+						rbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getReceiveSiteCode()));
+						cbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getCreateSiteCode()));
+					} catch (Exception e) {
+						this.logger.error("发货全程跟踪调用站点信息异常",e);
+					}
+					
+					if (cbDto == null)
+						cbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(tSendDatail.getCreateSiteCode()));
+					
+					if (rbDto == null)
+						rbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(tSendDatail.getReceiveSiteCode()));
+					
 					if (rbDto != null && rbDto.getSiteType() != null && cbDto != null && cbDto.getSiteType() != null) {
 						WaybillStatus tWaybillStatus = new WaybillStatus();
 						tWaybillStatus.setReceiveSiteCode(tSendDatail.getReceiveSiteCode());
@@ -1306,21 +1342,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     private boolean chekeParameter(WaybillStatus tWaybillStatus){
         if(tWaybillStatus.getOperatorId()==null){
             return Boolean.FALSE;
-        }else if(tWaybillStatus.getReceiveSiteCode()==null){
-            return Boolean.FALSE;
-        }else if(tWaybillStatus.getReceiveSiteName()==null
-                ||StringHelper.isEmpty(tWaybillStatus.getReceiveSiteName())){
-            return Boolean.FALSE;
         }else if(tWaybillStatus.getReceiveSiteType()==null){
-            return Boolean.FALSE;
-        }else if(tWaybillStatus.getOperatorId()==null){
             return Boolean.FALSE;
         }else if(tWaybillStatus.getOperator()==null
                 ||StringHelper.isEmpty(tWaybillStatus.getOperator())){
             return Boolean.FALSE;
         }else if(tWaybillStatus.getOperateTime()==null){
-            return Boolean.FALSE;
-        }else if(tWaybillStatus.getOrgId()==null){
             return Boolean.FALSE;
         }else{
             return Boolean.TRUE;
@@ -2246,7 +2273,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public boolean isTransferSend(SendM domain){
         if(!BusinessHelper.isBoxcode(domain.getBoxCode()))
             return false;
-        if(!domain.getSendType().equals(businessTypeONE)&&domain.getSendType().equals(businessTypeTWO)){
+        if(!domain.getSendType().equals(businessTypeONE)&&!domain.getSendType().equals(businessTypeTWO)){
             return false;
         }
         if(domain.getReceiveSiteCode()==null||domain.getCreateSiteCode()==null){

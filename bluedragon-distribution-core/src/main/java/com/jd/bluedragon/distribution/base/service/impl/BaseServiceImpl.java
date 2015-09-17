@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -84,6 +86,9 @@ public class BaseServiceImpl implements BaseService {
 
 	@Autowired
 	BaseMinorManager baseMinorManager;
+	
+	@Autowired
+	private ProductService productService;
 	
 	@Override
 	public PdaStaff login(String erpcode, String password) {
@@ -301,7 +306,7 @@ public class BaseServiceImpl implements BaseService {
                 }
             }
             ++layer;
-        }while(null!=items&&items.size()>0);
+        }while(items.size()>0);
         return list;
     }
 
@@ -483,6 +488,9 @@ public class BaseServiceImpl implements BaseService {
 		return map;
 	}
 
+	/**
+	 * 普通仓使用
+	 */
 	@Override
 	public ReverseSendWms getWaybillByOrderCode(String orderCode) {
 		ReverseSendWms reverseSendWms = null;
@@ -543,32 +551,50 @@ public class BaseServiceImpl implements BaseService {
 		}
 		/*************************************************************************************/
 		List<Product> proList = new ArrayList<Product>();
-		for (Goods good : bigWaybillDto.getGoodsList()) {
-			Product product = new Product();
-			product.setProductId(good.getSku());
-			product.setProductName(good.getGoodName());
-			product.setProductNum(good.getGoodCount());
-			product.setProductPrice(good.getGoodPrice());
-			product.setProductLoss("0");
-			proList.add(product);
+		//首先检查运单中的商品信息是否为空,如为空则从订单中间件取得商品信息
+		if(bigWaybillDto.getGoodsList()!=null&&bigWaybillDto.getGoodsList().size()>0){
+			for (Goods good : bigWaybillDto.getGoodsList()) {
+				Product product = new Product();
+				product.setProductId(good.getSku());
+				product.setProductName(good.getGoodName());
+				product.setProductNum(good.getGoodCount());
+				product.setProductPrice(good.getGoodPrice());
+				product.setProductLoss("0");
+				proList.add(product);
+			}
+		}else{
+			//快生项目：从订单中间件获得商品明细
+			try{
+				log.info("运单商品明细为空, 改调用订单接口");
+				List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getWaybillCode()));
+				for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
+					Product product = new Product();
+					product.setProductId(prod.getProductId());
+					product.setProductName(prod.getName());
+					product.setProductNum(prod.getQuantity());
+					product.setProductPrice(String.valueOf(prod.getPrice()));
+					product.setProductLoss("0");
+					proList.add(product);
+				}
+			} catch (Exception e) {
+				log.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：", e);
+			}
+			
 		}
+		
 
 		/*************************************************************************************/
-		// reverseSendWms.setBoxCode();
 		reverseSendWms.setCky2(bigWaybillDto.getWaybillState().getCky2());
 		reverseSendWms.setLossQuantity(0);
-		// reverseSendWms.setOperateTime();
-		// reverseSendWms.setOrderId(orderId);
 		reverseSendWms.setOrgId(bigWaybillDto.getWaybill().getArriveAreaId());
 		reverseSendWms.setPackageCodes(packageCode);
 		reverseSendWms.setProList(proList);
-		// reverseSendWms.setSendCode(bigWaybillDto.getWaybillState());
 		reverseSendWms.setStoreId(bigWaybillDto.getWaybillState().getStoreId());
 		reverseSendWms.setType(bigWaybillDto.getWaybillState().getWaybillType());
         reverseSendWms.setWaybillSign(bigWaybillDto.getWaybill().getWaybillSign());
         reverseSendWms.setSourceCode(bigWaybillDto.getWaybill().getSourceCode());
-		// reverseSendWms.setUserName(userName);
-		/*
+
+        /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {
 		 * this.logger.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
@@ -756,5 +782,62 @@ public class BaseServiceImpl implements BaseService {
 		}
 		return electronSite;
 	}
-
+	
+	public static void main(String[] args){
+		
+		BigWaybillDto bigWaybillDto = new BigWaybillDto();
+		List<Goods> goodsList = new ArrayList<Goods>();
+		Goods goodx = new Goods();
+		goodx.setGoodPrice("12");
+		goodsList.add(goodx);
+		bigWaybillDto.setGoodsList(goodsList);
+		
+		
+		List<Product> proList = new ArrayList<Product>();
+		//首先检查运单中的商品信息是否为空,如为空则从订单中间件取得商品信息
+		if(bigWaybillDto.getGoodsList()!=null&&bigWaybillDto.getGoodsList().size()>0){
+			for (Goods good : bigWaybillDto.getGoodsList()) {
+				Product product = new Product();
+				product.setProductId(good.getSku());
+				product.setProductName(good.getGoodName());
+				product.setProductNum(good.getGoodCount());
+				product.setProductPrice(good.getGoodPrice());
+				product.setProductLoss("0");
+				proList.add(product);
+			}
+		}else{
+			//从订单中间件获得商品明细
+			List<com.jd.bluedragon.distribution.product.domain.Product> productList = new ArrayList<com.jd.bluedragon.distribution.product.domain.Product>();
+			com.jd.bluedragon.distribution.product.domain.Product temp1 = new com.jd.bluedragon.distribution.product.domain.Product();
+			com.jd.bluedragon.distribution.product.domain.Product temp2 = new com.jd.bluedragon.distribution.product.domain.Product();
+			com.jd.bluedragon.distribution.product.domain.Product temp3 = new com.jd.bluedragon.distribution.product.domain.Product();
+			temp1.setName("手机1");
+			temp1.setPrice(BigDecimal.valueOf(1100.00));
+			temp1.setProductId("5");
+			temp1.setQuantity(1);
+			
+			temp2.setName("手机2");
+			temp2.setPrice(BigDecimal.valueOf(1200.00));
+			temp2.setProductId("2");
+			temp2.setQuantity(2);
+			
+			temp3.setName("手机3");
+			temp3.setPrice(BigDecimal.valueOf(1300.01));
+			temp3.setProductId("3");
+			temp3.setQuantity(3);
+			productList.add(temp1);
+			productList.add(temp2);
+			productList.add(temp3);
+			
+			for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
+				Product product = new Product();
+				product.setProductId(prod.getProductId());
+				product.setProductName(prod.getName());
+				product.setProductNum(prod.getQuantity());
+				product.setProductPrice(String.valueOf(prod.getPrice()));
+				product.setProductLoss("0");
+				proList.add(product);
+			}
+		}		
+	}
 }

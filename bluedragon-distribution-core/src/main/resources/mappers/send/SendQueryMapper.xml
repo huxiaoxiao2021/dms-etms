@@ -12,11 +12,12 @@
 		<result column="CREATE_TIME" property="createTime" />
 		<result column="UPDATE_TIME" property="updateTime" />
 		<result column="YN" property="yn" />
+        <result column="IP_ADDRESS" property="ipAddress" />
 	</resultMap>
 
 	
 	<select id="queryBySendCode" parameterType="java.lang.String" resultMap="send_query_result">
-      SELECT ID, SEND_CODE, CREATE_SITE_CODE, CREATE_USER, CREATE_USER_CODE, UPDATE_USER, UPDATE_USER_CODE, CREATE_TIME, UPDATE_TIME, YN
+      SELECT ID, SEND_CODE, CREATE_SITE_CODE, CREATE_USER, CREATE_USER_CODE, UPDATE_USER, UPDATE_USER_CODE, CREATE_TIME, UPDATE_TIME, YN,IP_ADDRESS
         FROM SEND_QUERY
 		where SEND_CODE= #{sendMId,jdbcType=VARCHAR}
 	</select>
@@ -34,7 +35,7 @@
             , UPDATE_USER_CODE
             , CREATE_TIME
             , UPDATE_TIME
-            , YN)
+            , YN,IP_ADDRESS)
         VALUES(SEQ_SEND_D.NEXTVAL
         , #{sendCode,jdbcType=VARCHAR}
         , #{createSiteCode,jdbcType=INTEGER}
@@ -44,7 +45,8 @@
         , #{updateUserCode,jdbcType=INTEGER}
         , to_date(to_char(#{createTime,jdbcType=TIMESTAMP},'yyyy-MM-dd hh24:mi:ss'),'yyyy-MM-dd hh24:mi:ss')
         , to_date(to_char(#{updateTime,jdbcType=TIMESTAMP},'yyyy-MM-dd hh24:mi:ss'),'yyyy-MM-dd hh24:mi:ss')
-        , #{yn,jdbcType=INTEGER})
+        , #{yn,jdbcType=INTEGER}
+        , #{ipAddress,jdbcType=VARCHAR})
 	</insert>
 	
 

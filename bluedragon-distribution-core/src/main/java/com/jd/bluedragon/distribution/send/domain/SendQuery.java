@@ -54,6 +54,19 @@ public class SendQuery implements Serializable {
     private Date updateTime;
 
     /**
+     * 用的IP地址，用于记录查询者电脑ip
+     */
+    private String ipAddress;
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    /**
      * 标识列
      */
     private int yn;

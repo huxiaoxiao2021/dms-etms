@@ -317,10 +317,12 @@ public class DeliveryResource {
             tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, flage);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
-                if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())){
-                    /*只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com*/
+                /*  中转发货任务改到分货时建立任务
+                if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())&&flage){
+                    //只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com
                     deliveryService.pushTransferSendTask(tSendM);
-                }
+                }*/
+                /* 注释掉跨区分拣发货功能
                 Integer targetSortingCenterId = null;
                 Integer targetSiteCode = null;
                 if (SerialRuleUtil.isMatchAllPackageNo(boxCode)) {
@@ -360,11 +362,11 @@ public class DeliveryResource {
                         return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT, JdResponse.SEND_SITE_NO_MATCH);
                     }
                 }
-                /*
+                */
                 if (flage && tDeliveryResponse.getCode().equals(JdResponse.CODE_OK))
                     return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT,
                             DeliveryResponse.MESSAGE_Delivery_TRANSIT);
-                            */
+
                 return tDeliveryResponse;
             } else {
                 return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,

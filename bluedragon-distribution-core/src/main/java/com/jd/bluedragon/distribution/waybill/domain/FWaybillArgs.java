@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.waybill.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -91,7 +93,7 @@ public class FWaybillArgs implements Serializable{
     @Override
     public String toString() {
         return "FWaybillArgs{" +
-                "fWaybills=" + fWaybills +
+                "fWaybills=" + Arrays.toString(fWaybills) +
                 ", businessId=" + businessId +
                 ", userId=" + userId +
                 ", siteId=" + siteId +

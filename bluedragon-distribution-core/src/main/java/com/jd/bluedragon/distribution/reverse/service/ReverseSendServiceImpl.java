@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -67,8 +68,6 @@ import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.jd.wms.ws.Inbound;
-import com.jd.wms.ws.Result;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -86,7 +85,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	private WaybillCommonService waybillCommonService;
 
 	@Autowired
-	private Inbound inbound;
+	private DtcDataReceiverManager dtcDataReceiverManager;
+//	private Inbound inbound;
 
 	@Autowired
 	ReverseSpareService reverseSpareService;
@@ -596,16 +596,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 		String target = orgId + "," + cky2 + "," + storeId;
 
-		String methodName = "Signed_BT_ASN";
-		if (send.getType().equals(18)) {
-			methodName = "downloadFromDms_stiff";
-		} else {
-			methodName = "Signed_BT_ASN";
-		}
 		String messageValue = "";
 		String outboundNo = wallBillCode;
 		String outboundType = "OrderBackDl"; // OrderBackDl
-		String source = "OrderReturn_DT_DMS";
+		String source = "DMS";
 
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.logger.info("仓储逆向发货信息为：" + send.getCky2()+ send.getOrgId()+ send.getStoreId());
@@ -628,15 +622,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		messageValue = XmlHelper.toXml(send, ReverseSendWms.class);
 		this.logger.info("仓储逆向发货XML为：" + messageValue);
 		this.logger.info("仓储逆向发货target为：" + target);
-		Result result = null;
+		com.jd.staig.receiver.rpc.Result result = null;
 		try {
-			result = this.inbound.forwardHandleMessage(target, methodName, messageValue, outboundNo, outboundType,
-					source);
+			result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
 			try{
 				//业务流程监控, 仓储埋点
 				Map<String, String> data = new HashMap<String, String>();
 				data.put("outboundNo", outboundNo);
-				Profiler.bizNode(methodName, data);
+				Profiler.bizNode(outboundType, data);
 			} catch (Exception e) {
 				this.logger.error("推送UMP发生异常.", e);
 			}
@@ -687,16 +680,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 		String target = orgId + "," + cky2 + "," + storeId;
 
-		String methodName = "Signed_BT_ASN";
-		if (send.getType().equals(18)) {
-			methodName = "downloadFromDms_stiff";
-		} else {
-			methodName = "Signed_BT_ASN";
-		}
 		String messageValue = "";
 		String outboundNo = wallBillCode;
 		String outboundType = "OrderBackDl"; // OrderBackDl
-		String source = "OrderReturn_DT_DMS";
+		String source = "DMS";
 
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.logger.info("仓储逆向发货信息为：" + send.getCky2()+ send.getOrgId()+ send.getStoreId());
@@ -722,15 +709,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		
 		this.logger.info("仓储逆向发货XML为：" + messageValue);
 		this.logger.info("仓储逆向发货target为：" + target);
-		Result result = null;
+		com.jd.staig.receiver.rpc.Result result = null;
 		try {
-			result = this.inbound.forwardHandleMessage(target, methodName, messageValue, outboundNo, outboundType,
-					source);
+			result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
 			try{
 				//业务流程监控, 仓储埋点
 				Map<String, String> data = new HashMap<String, String>();
 				data.put("outboundNo", outboundNo);
-				Profiler.bizNode(methodName, data);
+				Profiler.bizNode(outboundType, data);
 			} catch (Exception e) {
 				this.logger.error("推送UMP发生异常.", e);
 			}
@@ -1036,7 +1022,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			aReverseSpare.setSpareCode(reverseSendSpwmsOrder.getSpareCode());
 			aReverseSpare.setSendCode(reverseSendSpwmsOrder.getSendCode());
 			aReverseSpare.setWaybillCode(reverseSendSpwmsOrder.getWaybillCode());
-			aReverseSpare.setProductId(Integer.parseInt(reverseSendSpwmsOrder.getProductId()));
+			aReverseSpare.setProductId(reverseSendSpwmsOrder.getProductId());
 			aReverseSpare.setProductCode(null);
 			aReverseSpare.setProductPrice(reverseSendSpwmsOrder.getProductPrice());
 			aReverseSpare.setProductName(reverseSendSpwmsOrder.getProductName());
