@@ -53,7 +53,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	private static final String TPL = "globalTrade.loadBill.tpl"; // 物流企业编码。默认：京配编号
 
-    private static final String ZHUOZHI_PRELOAD_URL = "http://121.33.205.117:18080/customs/rest/custjson/postwmspredata.do";
+    private static final String ZHUOZHI_PRELOAD_URL = PropertiesHelper.newInstance().getValue("globalTrade.preLoadBill.url"); // 卓志预装载接口
 
     private static final Integer GLOBAL_TRADE_PRELOAD_COUNT_LIMIT = 2000;
 
