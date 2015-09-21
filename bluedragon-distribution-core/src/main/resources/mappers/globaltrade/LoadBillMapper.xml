@@ -104,7 +104,7 @@
 
     <update id="updateLoadBillById" parameterType="java.util.Map">
         UPDATE load_bill
-          SET load_id = #{loadId}, truck_no = #{trunkNo}
+          SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode},approval_time = sysdate
         WHERE yn = 1 AND id IN
         <foreach collection="data" item="item" index="index" open="(" close=")" separator=",">
             #{item}
@@ -112,7 +112,7 @@
     </update>
 
     <select id="selectLoadBillById" parameterType="java.util.List" resultMap="loadBill">
-        SELECT load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,
+        SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,
         tpl,weight,gen_time,package_time,package_user,package_user_code
         FROM load_bill WHERE yn = 1 AND id IN
         <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
