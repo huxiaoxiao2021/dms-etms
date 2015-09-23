@@ -790,11 +790,13 @@ public class SendPrintServiceImpl implements SendPrintService{
 										.getQuickProduceWabill(dSendDatail.getWaybillCode());
 								if (tQuickProduceWabill == null) {
 									logger.info("打印交接清单-tQuickProduceWabill为空");
+									tList.add(tBasicQueryEntity);
 									continue;
 								}
 								JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
 								if (tJoinDetail == null) {
 									logger.info("打印交接清单-tJoinDetail为空");
+									tList.add(tBasicQueryEntity);
 									continue;
 								}
 								tBasicQueryEntity.setFcNo(tJoinDetail.getDistributeStoreId());
