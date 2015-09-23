@@ -721,7 +721,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	    BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
 	    try {
 		    SendM qSendM = tosendM(criteria);
-	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);// this.sendMDao.selectBySendSiteCode(qSendM);
+	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);
 	        if(sendMs!=null && !sendMs.isEmpty()){
 	        	tBasicQueryEntityResponse = detailPrintQueryOffline(sendMs,criteria);	            
 	        }
@@ -790,11 +790,13 @@ public class SendPrintServiceImpl implements SendPrintService{
 										.getQuickProduceWabill(dSendDatail.getWaybillCode());
 								if (tQuickProduceWabill == null) {
 									logger.info("打印交接清单-tQuickProduceWabill为空");
+									tList.add(tBasicQueryEntity);
 									continue;
 								}
 								JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
 								if (tJoinDetail == null) {
 									logger.info("打印交接清单-tJoinDetail为空");
+									tList.add(tBasicQueryEntity);
 									continue;
 								}
 								tBasicQueryEntity.setFcNo(tJoinDetail.getDistributeStoreId());
