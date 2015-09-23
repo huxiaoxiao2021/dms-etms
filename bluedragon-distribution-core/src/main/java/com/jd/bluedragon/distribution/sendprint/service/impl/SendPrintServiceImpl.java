@@ -721,7 +721,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	    BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
 	    try {
 		    SendM qSendM = tosendM(criteria);
-	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);// this.sendMDao.selectBySendSiteCode(qSendM);
+	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);
 	        if(sendMs!=null && !sendMs.isEmpty()){
 	        	tBasicQueryEntityResponse = detailPrintQueryOffline(sendMs,criteria);	            
 	        }

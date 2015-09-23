@@ -68,7 +68,7 @@ public class SendPrintResource {
 			tBasicQueryEntityResponse.setData(null);
             return tBasicQueryEntityResponse;
 		}
-		return sendPrintService.basicPrintQuery(criteria);
+		return sendPrintService.basicPrintQueryOffline(criteria);
 	}
 
 
