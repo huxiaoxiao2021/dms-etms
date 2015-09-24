@@ -395,7 +395,7 @@ public class SendPrintServiceImpl implements SendPrintService{
                         if(waybill == null || waybill.getPayment()==null){
                         	dBasicQueryEntity.setSendPay("");
                         }else{
-                        	dBasicQueryEntity.setSendPay(getSendPay(waybill.getPayment())); 
+                        	dBasicQueryEntity.setSendPay(waybill.getSendPay());
                         	if(waybill.getPayment()!=1 && waybill.getPayment()!=3){
                         		dBasicQueryEntity.setDeclaredValue("0");
                         	}
@@ -408,10 +408,8 @@ public class SendPrintServiceImpl implements SendPrintService{
                         }
                         dBasicQueryEntity.setSiteCode(siteId);
                         dBasicQueryEntity.setSiteName(siteName);
-                        if(waybill==null || waybill.getWaybillType()==null){
-                        	dBasicQueryEntity.setWaybillType("一般订单");
-                        }else{
-                        	dBasicQueryEntity.setWaybillType(getWaybillType(waybill.getWaybillType())); 
+                        if(waybill!=null&&waybill.getWaybillType()!=null){
+                        	dBasicQueryEntity.setWaybillType(waybill.getWaybillType().toString());
                         }
                     	
                     	if (criteria.getFc()!= null && !criteria.getFc().equals(0) && storeId != null && 

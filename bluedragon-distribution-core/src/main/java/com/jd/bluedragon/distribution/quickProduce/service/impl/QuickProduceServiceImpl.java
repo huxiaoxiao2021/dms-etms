@@ -114,7 +114,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         waybill.setReceiverName(orderMsgDTO.getReceiveName());
         waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
         waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        if (NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
+        if (orderMsgDTO.getGoodsMoney()!=null&&NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
             waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
         }
         //waybill.setSendPay(orderMsgDTO.sendp);
@@ -128,7 +128,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     private  Waybill getWabillFromOom(String waybillCode){
         Waybill waybill=null;
         try {//本机调试无host配置，台账接口错误，暂时加try，catch
-            if (!NumberHelper.isNumber(waybillCode)) {
+            if (NumberHelper.isNumber(waybillCode)) {
                 waybill = orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
                 if (waybill != null) {
                     OrderBankResponse orderBankResponse = orderBankService.getOrderBankResponse(waybillCode);

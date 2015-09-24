@@ -125,12 +125,14 @@ public class OrderWebService {
 			waybill.setReceiverName(order.getCustomerName());
 			waybill.setDistributeStoreId(order.getStoreId());
 			waybill.setDistributeStoreName(order.getStoreName());
+			// region  从rdeis中获取省市县，若无则从基础资料获取，并插入redis中
 			waybill.setProvinceNameId(order.getProvince());
 			waybill.setProvinceName(GetCityName(waybill.getProvinceNameId()));
 			waybill.setCityNameId(order.getCity());
 			waybill.setCityName(GetCityName(waybill.getCityNameId()));
 			waybill.setCountryNameId(order.getCounty());
 			waybill.setCountryName(GetCityName(waybill.getCountryNameId()));
+			// endregion
 			return waybill;
 		}
 
