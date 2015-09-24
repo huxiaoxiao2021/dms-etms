@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.order.ws;
 import java.util.Collections;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.etms.basic.domain.Assort;
 import jd.oom.client.clientbean.Order;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.domain.Waybill;
@@ -15,6 +18,9 @@ import com.jd.bluedragon.utils.SpringHelper;
 
 @Service("orderWebService")
 public class OrderWebService {
+
+	@Autowired
+	private  BaseService baseService;
 
 	public List<jd.oom.client.clientbean.OrderDetail> getOrderDetailById(long orderId) {
 		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
@@ -114,10 +120,34 @@ public class OrderWebService {
 			waybill.setStoreId(order.getStoreId());
 			waybill.setType(order.getOrderType());
 			waybill.setShipmentType(order.getIdShipmentType());
+			waybill.setReceiverTel(order.getPhone());
+			waybill.setReceiverMobile(order.getMobile());
+			waybill.setReceiverName(order.getCustomerName());
+			waybill.setDistributeStoreId(order.getStoreId());
+			waybill.setDistributeStoreName(order.getStoreName());
+			// region  从rdeis中获取省市县，若无则从基础资料获取，并插入redis中
+			waybill.setProvinceNameId(order.getProvince());
+			waybill.setProvinceName(GetCityName(waybill.getProvinceNameId()));
+			waybill.setCityNameId(order.getCity());
+			waybill.setCityName(GetCityName(waybill.getCityNameId()));
+			waybill.setCountryNameId(order.getCounty());
+			waybill.setCountryName(GetCityName(waybill.getCountryNameId()));
+			// endregion
 			return waybill;
 		}
 
 		return null;
 	}
+
+	private String GetCityName(Integer id) {
+		String temp = null;
+		if (id != null) {
+			Assort ass = baseService.getAssortById(id);
+			if (ass != null)
+				temp = ass.getAssName();
+		}
+		return temp;
+	}
+
 
 }

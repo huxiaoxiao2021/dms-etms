@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillInfo;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -36,6 +37,9 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 
 	@Autowired
 	private BaseService baseService;
+	
+	@Autowired
+	private ReverseDeliveryService tReverseDeliveryService;
 
 	// EMS快递站点信息读取
 	public static final String EMS_SITE = "EMS_SITE";
@@ -106,6 +110,11 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 		List<WaybillInfo> list = new ArrayList<WaybillInfo>();
 		try {
 			BigWaybillDto WaybillDto = waybillService.getWaybill(waybillCode);
+			//如果订单信息为空咋调用快生运单数据源获取信息
+			if (WaybillDto == null || WaybillDto.getWaybill() == null){
+				WaybillDto = tReverseDeliveryService.getWaybillQuickProduce(waybillCode);
+			}
+			
 			if (WaybillDto != null && WaybillDto.getWaybill() != null) {
 				Waybill waybill = WaybillDto.getWaybill();
 				List<DeliveryPackageD> deliveryPackage = WaybillDto

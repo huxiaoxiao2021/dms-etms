@@ -8,10 +8,7 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.domain.BaseSite;
-import com.jd.etms.basic.domain.BaseVehicle;
+import com.jd.etms.basic.domain.*;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 
 public interface BaseService {
@@ -245,4 +242,6 @@ public interface BaseService {
 	 * @return
 	 */
 	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(Integer createCode,Integer receiveCode);
+
+    public Assort getAssortById(Integer assortId);
 }

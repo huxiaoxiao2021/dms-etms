@@ -17,4 +17,6 @@ public interface SendPrintService {
 	BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria);
 
 	BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends);
+	
+	BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria);
 }
