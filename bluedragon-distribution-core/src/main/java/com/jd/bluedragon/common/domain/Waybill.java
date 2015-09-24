@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.domain;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.jd.bluedragon.Constants;
@@ -80,69 +81,45 @@ public class Waybill implements Serializable {
 	/** 中转站编号 */
 	private Integer transferStationId;
 
-	/**
-	 * 中转站名称
-	 */
+	/**	 * 中转站名称	 */
 	private String transferStationName;
 
-	/**
-	 * 库房ID
-	 */
+	/**	 * 库房ID	 */
 	private Integer distributeStoreId;
 
-	/**
-	 * 笼车号
-	 */
+	private String distributeStoreName;
+
+	/**	 * 笼车号	 */
 	private String trolleyCode;
 
-	/**
-	 * 订单状态（分拣中心包装后的）
-	 */
+	/**	 * 订单状态（分拣中心包装后的）	 */
 	private Integer statusCode;
 
-	/**
-	 * 订单状态描述
-	 */
+	/**	 * 订单状态描述	 */
 	private String statusMessage;
 
-	/**
-	 * 打印次数
-	 */
+	/**	 * 打印次数	 */
 	private Integer printCount = 0;
 
-	/**
-	 * 航空标示
-	 */
+	/**	 * 航空标示	 */
 	private Integer airSigns;
 
-	/**
-	 * 目标分拣中心ID
-	 */
+	/**	 * 目标分拣中心ID	 */
 	private Integer targetDmsCode;
 
-	/**
-	 * 目标分拣中心名称
-	 */
+	/**	 * 目标分拣中心名称	 */
 	private String targetDmsName;
 	
-	/**
-	 * 目的滑道口
-	 */
+	/**	 * 目的滑道口	 */
 	private String targetDmsDkh;
 	
-	/**
-	 * 目的地-笼车号
-	 */
+	/**	 * 目的地-笼车号	 */
 	private String targetDmsLch;
 	
-	/**
-	 * B商家ID
-	 */
+	/**	 * B商家ID	 */
 	private Integer busiId;
 	
-	/**
-	 * B商家名称
-	 */
+	/**	 * B商家名称	 */
 	private String busiName;
 	
 	/**特殊标识*/
@@ -176,6 +153,53 @@ public class Waybill implements Serializable {
 
 	/*服务号*/
 	private String serviceCode;
+
+	/**
+	 * 应收款（总金额+运费-优惠）
+	 */
+	private Double recMoney;
+
+	/**
+	 * 收件人手机
+	 */
+	private String receiverMobile;
+
+
+	/*收件人座机*/
+	private String receiverTel;
+
+	/**
+	 * 收件人姓名
+	 */
+	private String receiverName;
+
+	/**
+	 * 邮政编码
+	 */
+	private String ReceiverZipCode;
+
+	private  Integer ProvinceNameId;
+
+	/**
+	 * 省
+	 */
+	private  String ProvinceName;
+
+
+	private  Integer CityNameId;
+
+	/**
+	 * 市
+	 */
+	private  String CityName;
+
+
+	private  Integer CountryNameId;
+
+	/**
+	 * 县
+	 */
+	private  String CountryName;
 
 	public String getWaybillCode() {
 		return this.waybillCode;
@@ -327,6 +351,14 @@ public class Waybill implements Serializable {
 
 	public void setStoreId(Integer storeId) {
 		this.storeId = storeId;
+	}
+
+	public String getDistributeStoreName() {
+		return distributeStoreName;
+	}
+
+	public void setDistributeStoreName(String distributeStoreName) {
+		this.distributeStoreName = distributeStoreName;
 	}
 
 	public Integer getShipmentType() {
@@ -508,6 +540,94 @@ public class Waybill implements Serializable {
 
 	public void setServiceCode(String serviceCode) {
 		this.serviceCode = serviceCode;
+	}
+
+	public Double getRecMoney() {
+		return recMoney;
+	}
+
+	public void setRecMoney(Double recMoney) {
+		this.recMoney = recMoney;
+	}
+
+	public String getReceiverMobile() {
+		return receiverMobile;
+	}
+
+	public void setReceiverMobile(String receiverMobile) {
+		this.receiverMobile = receiverMobile;
+	}
+
+	public String getReceiverTel() {
+		return receiverTel;
+	}
+
+	public void setReceiverTel(String receiverTel) {
+		this.receiverTel = receiverTel;
+	}
+
+	public String getReceiverName() {
+		return receiverName;
+	}
+
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
+	}
+
+	public String getReceiverZipCode() {
+		return ReceiverZipCode;
+	}
+
+	public Integer getProvinceNameId() {
+		return ProvinceNameId;
+	}
+
+	public void setProvinceNameId(Integer provinceNameId) {
+		ProvinceNameId = provinceNameId;
+	}
+
+	public Integer getCityNameId() {
+		return CityNameId;
+	}
+
+	public void setCityNameId(Integer cityNameId) {
+		CityNameId = cityNameId;
+	}
+
+	public Integer getCountryNameId() {
+		return CountryNameId;
+	}
+
+	public void setCountryNameId(Integer countryNameId) {
+		CountryNameId = countryNameId;
+	}
+
+	public void setReceiverZipCode(String receiverZipCode) {
+		ReceiverZipCode = receiverZipCode;
+	}
+
+	public String getProvinceName() {
+		return ProvinceName;
+	}
+
+	public void setProvinceName(String provinceName) {
+		ProvinceName = provinceName;
+	}
+
+	public String getCityName() {
+		return CityName;
+	}
+
+	public void setCityName(String cityName) {
+		CityName = cityName;
+	}
+
+	public String getCountryName() {
+		return CountryName;
+	}
+
+	public void setCountryName(String countryName) {
+		CountryName = countryName;
 	}
 
 	/**

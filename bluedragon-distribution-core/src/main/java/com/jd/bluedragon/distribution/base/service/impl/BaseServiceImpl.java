@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
+import com.jd.etms.basic.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
@@ -26,11 +28,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.BaseSite;
-import com.jd.etms.basic.domain.BaseVehicle;
 import com.jd.etms.basic.dto.BaseGoodsPositionDto;
 import com.jd.etms.basic.dto.BasePdaUserDto;
 import com.jd.etms.basic.dto.BaseSelfDDto;
@@ -86,6 +83,9 @@ public class BaseServiceImpl implements BaseService {
 
 	@Autowired
 	BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private BasicMinorWSProxy basicMinorWSProxy;
 	
 	@Autowired
 	private ProductService productService;
@@ -758,8 +758,21 @@ public class BaseServiceImpl implements BaseService {
 		return null;
 	}
 
-	
-	@SuppressWarnings("static-access")
+    @Override
+    @Cache(memoryEnable = false,key = "getAssortById@args0")
+    public Assort getAssortById(Integer assortId) {
+        List<Assort> list= basicMinorWSProxy.getBaseAssortList();
+        if(null!=list&&list.size()>0){
+            for (Assort a:list){
+                if(a.getAssId().equals(assortId))
+                    return a;
+            }
+        }
+        return null;
+    }
+
+
+    @SuppressWarnings("static-access")
 	private ElectronSite toElectronSite(BaseGoodsPositionDto baseGoodsPositionDto){
 		ElectronSite electronSite = new ElectronSite();
 		if(baseGoodsPositionDto!=null){

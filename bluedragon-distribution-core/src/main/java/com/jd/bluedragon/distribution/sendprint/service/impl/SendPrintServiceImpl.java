@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import java.util.*;
 
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
+import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
+import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
@@ -58,6 +61,9 @@ public class SendPrintServiceImpl implements SendPrintService{
     private BaseService tBaseService;
 	
 	private final Logger logger = Logger.getLogger(SendPrintServiceImpl.class);
+	
+	@Autowired
+    private QuickProduceService quickProduceService;
 	
 	/**
 	 * 
@@ -389,7 +395,7 @@ public class SendPrintServiceImpl implements SendPrintService{
                         if(waybill == null || waybill.getPayment()==null){
                         	dBasicQueryEntity.setSendPay("");
                         }else{
-                        	dBasicQueryEntity.setSendPay(getSendPay(waybill.getPayment())); 
+                        	dBasicQueryEntity.setSendPay(waybill.getSendPay());
                         	if(waybill.getPayment()!=1 && waybill.getPayment()!=3){
                         		dBasicQueryEntity.setDeclaredValue("0");
                         	}
@@ -402,10 +408,8 @@ public class SendPrintServiceImpl implements SendPrintService{
                         }
                         dBasicQueryEntity.setSiteCode(siteId);
                         dBasicQueryEntity.setSiteName(siteName);
-                        if(waybill==null || waybill.getWaybillType()==null){
-                        	dBasicQueryEntity.setWaybillType("一般订单");
-                        }else{
-                        	dBasicQueryEntity.setWaybillType(getWaybillType(waybill.getWaybillType())); 
+                        if(waybill!=null&&waybill.getWaybillType()!=null){
+                        	dBasicQueryEntity.setWaybillType(waybill.getWaybillType().toString());
                         }
                     	
                     	if (criteria.getFc()!= null && !criteria.getFc().equals(0) && storeId != null && 
@@ -704,5 +708,172 @@ public class SendPrintServiceImpl implements SendPrintService{
         return batchSendInfoResponse;
     }
 
+    /**
+	 * 快生打印
+	 */
+	@Profiled(tag="SendPrintService.basicPrintQueryOffline")
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	public BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria) {
+		Date startDate = new Date();
+	    logger.info("打印交接清单-基本信息查询开始"+DateHelper.formatDate(startDate));
+	    BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
+	    try {
+		    SendM qSendM = tosendM(criteria);
+	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);
+	        if(sendMs!=null && !sendMs.isEmpty()){
+	        	tBasicQueryEntityResponse = detailPrintQueryOffline(sendMs,criteria);	            
+	        }
+	    } catch (Exception e) {
+            logger.error("打印明细基本查询异常");
+            tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
+            return tBasicQueryEntityResponse;
+        }
+		Date endDate = new Date();
+		logger.info("打印交接清单-基本信息查询结束-"+(startDate.getTime() - endDate.getTime()));
+		return tBasicQueryEntityResponse;
+	}
+	
+	/**
+	 * 快生明细打印
+	 */
+	public BasicQueryEntityResponse detailPrintQueryOffline(List<SendM> sendMs, PrintQueryCriteria criteria) {
+		Date startDate = new Date();
+		logger.info("打印交接清单-detailPrintQuery开始" + DateHelper.formatDate(startDate));
+
+		BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
+		List<BasicQueryEntity> tList = new ArrayList<BasicQueryEntity>();
+		String rsiteName = toSiteName(criteria.getReceiveSiteCode());
+		String fsiteName = toSiteName(criteria.getSiteCode());
+		Integer rSiteType = toSiteType(criteria.getReceiveSiteCode());
+
+		String message = JdResponse.MESSAGE_OK;
+		for (SendM dendM : sendMs) {
+			SendDetail tSendDatail = new SendDetail();
+			tSendDatail.setCreateSiteCode(dendM.getCreateSiteCode());
+			tSendDatail.setBoxCode(dendM.getBoxCode());
+			tSendDatail.setReceiveSiteCode(dendM.getReceiveSiteCode());
+			tSendDatail.setIsCancel(1);
+
+			List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+
+			if (sendDetails != null && !sendDetails.isEmpty()) {
+				try {
+					for (SendDetail dSendDatail : sendDetails) {
+						if (criteria.getPackageBarcode() == null || "".equals(criteria.getPackageBarcode())
+								|| criteria.getPackageBarcode().equals(dSendDatail.getPackageBarcode())) {
+							BasicQueryEntity tBasicQueryEntity = new BasicQueryEntity();
+							tBasicQueryEntity.setBoxCode(dendM.getBoxCode());
+							if (dSendDatail.getIsCancel() != null && dSendDatail.getIsCancel() == 0) {
+								tBasicQueryEntity.setIscancel("否");
+							} else {
+								tBasicQueryEntity.setIscancel("是");
+							}
+							tBasicQueryEntity.setIsnew("否");
+							tBasicQueryEntity.setPackageBarWeight(0.0);
+							tBasicQueryEntity.setPackageBarWeight2(0.0);
+							tBasicQueryEntity.setPackageBar(dSendDatail.getPackageBarcode());
+							tBasicQueryEntity.setReceiveSiteCode(dendM.getReceiveSiteCode());
+							tBasicQueryEntity.setReceiveSiteName(rsiteName);
+							tBasicQueryEntity.setSendCode(dendM.getSendCode());
+							tBasicQueryEntity.setReceiveSiteType(rSiteType);
+							tBasicQueryEntity.setSendSiteName(fsiteName);
+							tBasicQueryEntity.setSendUser(dendM.getCreateUser());
+							tBasicQueryEntity.setSendUserCode(dendM.getCreateUserCode());
+							tBasicQueryEntity.setWaybill(dSendDatail.getWaybillCode());
+							tBasicQueryEntity.setInvoice(dSendDatail.getPickupCode());
+
+							if (dSendDatail.getWaybillCode() != null) {
+								QuickProduceWabill tQuickProduceWabill = quickProduceService
+										.getQuickProduceWabill(dSendDatail.getWaybillCode());
+								if (tQuickProduceWabill == null) {
+									logger.info("打印交接清单-tQuickProduceWabill为空");
+									tList.add(tBasicQueryEntity);
+									continue;
+								}
+								JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
+								if (tJoinDetail == null) {
+									logger.info("打印交接清单-tJoinDetail为空");
+									tList.add(tBasicQueryEntity);
+									continue;
+								}
+								tBasicQueryEntity.setFcNo(tJoinDetail.getDistributeStoreId());
+								tBasicQueryEntity.setDeclaredValue(String.valueOf(tJoinDetail.getDeclaredValue()));
+								tBasicQueryEntity.setGoodValue(String.valueOf(tJoinDetail.getPrice()));
+								tBasicQueryEntity.setGoodWeight(tJoinDetail.getGoodWeight());
+								tBasicQueryEntity.setGoodWeight2(0.0);
+								tBasicQueryEntity.setPackageBarNum(BusinessHelper.getPackageNum(dSendDatail.getPackageBarcode()));
+								String sendPay = tJoinDetail.getSendPay();
+								// 是否是奢侈品
+								if (sendPay != null && sendPay.charAt(19) == '1') {
+									tBasicQueryEntity.setLuxury("是");
+								} else {
+									tBasicQueryEntity.setLuxury("否");
+								}
+
+								Integer siteId = tJoinDetail.getOldSiteId();
+								String siteName = null;
+								BaseStaffSiteOrgDto bDto = this.tBaseService
+										.queryDmsBaseSiteByCode(String.valueOf(siteId));
+								if (bDto != null) {
+									siteName = bDto.getSiteName();
+									Integer siteType = bDto.getSiteType();
+									if (siteType != null && !siteType.equals(16)) {
+										tBasicQueryEntity.setSiteType("自营");
+									}
+								}
+
+								tBasicQueryEntity.setPayment(tJoinDetail.getPayment());
+								if (rSiteType.equals(16)) {
+									tBasicQueryEntity.setReceiverAddress(tJoinDetail.getReceiverAddress() == null ? ""
+											: tJoinDetail.getReceiverAddress());
+									String receiverMobile = tJoinDetail.getReceiverMobile() == null ? ""
+											: tJoinDetail.getReceiverMobile();
+									String receiverTel = tJoinDetail.getReceiverTel() == null ? ""
+											: tJoinDetail.getReceiverTel();
+									if (tJoinDetail.getReceiverMobile() == null
+											&& tJoinDetail.getReceiverTel() == null) {
+										tBasicQueryEntity.setReceiverMobile("--");
+									} else {
+										tBasicQueryEntity.setReceiverMobile(receiverMobile + "/" + receiverTel);
+									}
+								} else {
+									tBasicQueryEntity.setReceiverMobile("--");
+								}
+
+								tBasicQueryEntity.setReceiverName(tJoinDetail.getReceiverName());
+								if (tJoinDetail.getPayment() == null) {
+									tBasicQueryEntity.setSendPay("");
+								} else {
+									tBasicQueryEntity.setSendPay(getSendPay(tJoinDetail.getPayment()));
+									if (tJoinDetail.getPayment() != 1 && tJoinDetail.getPayment() != 3) {
+										tBasicQueryEntity.setDeclaredValue("0");
+									}
+								}
+								tBasicQueryEntity.setSiteCode(siteId);
+								tBasicQueryEntity.setSiteName(siteName);
+								if (tJoinDetail.getWaybillType() == null) {
+									tBasicQueryEntity.setWaybillType("一般订单");
+								} else {
+									tBasicQueryEntity.setWaybillType(getWaybillType(tJoinDetail.getWaybillType()));
+								}
+							}
+
+							tList.add(tBasicQueryEntity);
+						}
+					}
+				} catch (Exception e) {
+					message = "同步运单基本信息异常错误原因为" + e.getMessage();
+					logger.error("同步运单基本信息异常错误原因为" + e.getMessage());
+				}
+			}
+		}
+		tBasicQueryEntityResponse.setCode(JdResponse.CODE_OK);
+		tBasicQueryEntityResponse.setMessage(message);
+		tBasicQueryEntityResponse.setData(tList);
+		Date endDate = new Date();
+		logger.info("打印交接清单-detailPrintQuery结束-" + (startDate.getTime() - endDate.getTime()));
+		return tBasicQueryEntityResponse;
+	}
 
 }
