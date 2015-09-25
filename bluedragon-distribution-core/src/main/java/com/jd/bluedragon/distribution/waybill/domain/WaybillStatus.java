@@ -76,6 +76,12 @@ public class WaybillStatus {
      * 解封车
      */
     public static final Integer WAYBILL_TRACK_UNSEAL_VEHICLE = 2300;
+    
+    /**
+	 * 全程跟踪消息类型mstType-仓储收货确认
+	 **/
+	public static final Integer WAYBILL_TRACK_CANCLE_LOADBILL = 2222;
+	public static final String WAYBILL_TRACK_CANCLE_LOADBILLMSG = "取消预装载全程跟踪";
 
     private Long id;
 

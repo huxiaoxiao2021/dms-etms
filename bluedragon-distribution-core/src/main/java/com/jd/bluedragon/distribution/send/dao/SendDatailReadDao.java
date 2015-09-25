@@ -62,4 +62,10 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 		return sendResponseList;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<SendDetail> findBySendCodeAndDmsCode(Map<String, Object> params) {
+		return (List<SendDetail>) this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findBySendCode", params);
+	}
+
+
 }

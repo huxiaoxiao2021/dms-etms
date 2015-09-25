@@ -3,3 +3,13 @@
 /*.classpath
 /.settings/
 /.iml
+rebel.xml
+.gitignore
+.project
+bluedragon-distribution.iml
+.idea
+.settings
+*.iml
+/bluedragon-distribution-web/*.iml
+/bluedragon-distribution-worker/*.iml
+/bluedragon-distribution-sdk/*.iml

@@ -103,7 +103,7 @@
 			excute_count = 0,
 			excute_time = sysdate
 		where
-		    yn = 1 AND box_code = #{boxCode,jdbcType=VARCHAR}
+		    yn = 1 AND is_cancel=2 AND box_code = #{boxCode,jdbcType=VARCHAR}
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
     </update>

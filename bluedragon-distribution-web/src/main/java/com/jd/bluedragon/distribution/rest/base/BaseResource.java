@@ -1234,7 +1234,7 @@ public class BaseResource {
 												,@PathParam("nodeLevel") Integer nodeLevel
 												,@PathParam("typeGroup") Integer typeGroup){
 		logger.info(MessageFormat.format("获取原退商家ID,parentGroup={0} nodeLevel={1} typeGroup={2}"
-				, parentGroup, nodeLevel, typeGroup));
+                , parentGroup, nodeLevel, typeGroup));
 		DatadictResponse datadictResponse = null;
 		try{
 			List<BaseDataDict> baseDataDicts = baseMinorManager.getValidBaseDataDictList(
@@ -1399,4 +1399,28 @@ public class BaseResource {
 		}
 		return dmsList;
 	}
+
+    @GET
+    @GZIP
+    @Path("/bases/getStaffByStaffId/{staffId}")
+    public BaseStaffResponse getStaffByStaffId(@PathParam("staffId") Integer staffId){
+        BaseStaffSiteOrgDto dto = baseService.getCachedStaffByStaffId(staffId);
+        if(null == dto)
+        {
+            return null;
+        }else{
+            return toStaffResponse(dto);
+        }
+    }
+
+
+    private BaseStaffResponse toStaffResponse(BaseStaffSiteOrgDto dto){
+        BaseStaffResponse response = new BaseStaffResponse();
+        response.setsId(dto.getsId());
+        response.setSiteCode(dto.getSiteCode());
+        response.setSiteName(dto.getSiteName());
+        response.setStaffName(dto.getStaffName());
+        response.setStaffNo(dto.getStaffNo());
+        return response;
+    }
 }

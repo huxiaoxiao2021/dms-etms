@@ -17,13 +17,13 @@ public class RecordOperationInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
-            Object obj, Exception e) throws Exception {
+                                Object obj, Exception e) throws Exception {
 
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object obj,
-            ModelAndView model) throws Exception {
+                           ModelAndView model) throws Exception {
 
     }
 
