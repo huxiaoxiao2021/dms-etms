@@ -305,7 +305,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.taskService.doDone(task);
 				task.setYn(0);
 			}
-			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_SHREVERSE))) {
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_AMS_SHREVERSE))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				//操作单位更改为收货单位
 				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
