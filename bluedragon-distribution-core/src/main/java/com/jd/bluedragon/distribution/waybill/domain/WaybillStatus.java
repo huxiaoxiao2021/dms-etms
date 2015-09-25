@@ -34,6 +34,11 @@ public class WaybillStatus {
     /**仓储收货确认**/ 
     public static final Integer WAYBILL_TRACK_SHREVERSE = 800;
     
+    /**备件库售后取件交接拆包--驳回**/ 
+    public static final Integer WAYBILL_TRACK_AMS_BH = 901;
+    /**备件库售后取件交接拆包--确认**/ 
+    public static final Integer WAYBILL_TRACK_AMS_SHREVERSE = 1901;
+    
     
     /**新发车全称跟踪类型-运输车辆出发**/ 
     public static final Integer WAYBILL_TRACK_XFC = 1800;
