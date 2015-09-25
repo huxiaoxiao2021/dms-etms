@@ -36,3 +36,4 @@ bluedragon-distribution.iml
 /bluedragon-distribution.iml
 /*.gitignore
 /.gitignore
+overlays/
