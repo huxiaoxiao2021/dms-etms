@@ -209,6 +209,8 @@ public interface BaseService {
 
 	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer staffId);
 
+    public BaseStaffSiteOrgDto getCachedStaffByStaffId(Integer staffId);
+
 	public List<BaseStaffSiteOrgDto> getPopBaseSiteByOrgId(Integer paramInteger);
 
 	public List<BaseDataDict> getBaseDataDictList(Integer parentId, Integer nodeLevel,

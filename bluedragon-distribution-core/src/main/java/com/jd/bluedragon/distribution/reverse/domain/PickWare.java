@@ -17,6 +17,8 @@ public class PickWare implements java.io.Serializable {
 	private Integer operateType;
 	private String boxCode;
 	private Date pickwareTime;
+	private Integer cky2;
+	private Integer storeId;
 	/** 信息指纹 */
 	private String fingerprint;
 
@@ -116,6 +118,22 @@ public class PickWare implements java.io.Serializable {
 		this.operateType = operateType;
 	}
 
+	public Integer getCky2() {
+		return cky2;
+	}
+
+	public void setCky2(Integer cky2) {
+		this.cky2 = cky2;
+	}
+
+	public Integer getStoreId() {
+		return storeId;
+	}
+
+	public void setStoreId(Integer storeId) {
+		this.storeId = storeId;
+	}
+	
 	public String toString() {
 		return "PickWare [orgId=" + this.orgId + ", packageCode="
 				+ this.packageCode + ", pickwareCode=" + this.pickwareCode
@@ -125,4 +143,6 @@ public class PickWare implements java.io.Serializable {
 				+ this.operateType + ",boxCode=" + this.boxCode
 				+ ",fingerprint=" + this.fingerprint + "]";
 	}
+
+
 }

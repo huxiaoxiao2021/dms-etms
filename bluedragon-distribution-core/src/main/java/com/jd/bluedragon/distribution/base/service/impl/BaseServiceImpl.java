@@ -649,7 +649,15 @@ public class BaseServiceImpl implements BaseService {
 		}
 	}
 
-	@Cache(key = "basicMajorServiceProxy.getPopBaseSiteByOrgId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+
+    @Override
+    @Cache(key = "baseServiceImpl.getCachedStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaffSiteOrgDto getCachedStaffByStaffId(Integer staffId) {
+        return getBaseStaffByStaffId(staffId);
+    }
+
+    @Cache(key = "basicMajorServiceProxy.getPopBaseSiteByOrgId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseStaffSiteOrgDto> getPopBaseSiteByOrgId(Integer paramInteger) {
 		List<BaseStaffSiteOrgDto> dataList = this.basicMajorWSProxy

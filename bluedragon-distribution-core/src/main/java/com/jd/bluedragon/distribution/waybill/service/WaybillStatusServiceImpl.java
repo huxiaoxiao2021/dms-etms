@@ -290,6 +290,35 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.taskService.doDone(task);
 				task.setYn(0);
 			}
+			//备件库售后 交接拆包
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_AMS_BH))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				//操作单位更改为收货单位
+				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
+				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
+				
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
+						+ "已驳回【备件库售后交接拆包】");
+				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
+				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_SHREVERSE))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				//操作单位更改为收货单位
+				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
+				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
+				
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
+						+ "已收货【备件库售后交接拆包】");
+				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
+				this.taskService.doDone(task);
+				task.setYn(0);
+			}
             /**
              * 作者：wangtingwei@jd.com;
              * 回传逆向换单打印全程跟踪至运单中心
