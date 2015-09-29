@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -250,7 +251,7 @@ public class GlobalTradeController {
 
     @RequestMapping(value = "/loadBill/status", method = RequestMethod.POST)
     @ResponseBody
-    public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request) {
+    public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request, Model model) {
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
         try {
             if (request == null || StringUtils.isBlank(request.getReportId())

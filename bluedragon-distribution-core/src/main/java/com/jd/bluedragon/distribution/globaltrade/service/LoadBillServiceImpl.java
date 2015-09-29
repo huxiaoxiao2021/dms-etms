@@ -35,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service("loadBillService")
 public class LoadBillServiceImpl implements LoadBillService {
@@ -153,7 +155,21 @@ public class LoadBillServiceImpl implements LoadBillService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int updateLoadBillStatusByReport(LoadBillReport report) {
 		logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
-		loadBillReportDao.add(report);
+		//将orderId分割,长度不超过500
+		List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
+		Matcher matcher = Pattern.compile("[^,][\\w,]{8,498}[^,](?=,)").matcher(report.getOrderId() + ",");
+		while(matcher.find()){
+			LoadBillReport subReport = new LoadBillReport();
+			subReport.setReportId(report.getReportId());
+			subReport.setLoadId(report.getLoadId());
+			subReport.setWarehouseId(report.getWarehouseId());
+			subReport.setProcessTime(report.getProcessTime());
+			subReport.setStatus(report.getStatus());
+			subReport.setNotes(report.getNotes());
+			subReport.setOrderId(matcher.group());
+			reportList.add(subReport);
+		}
+		loadBillReportDao.addBatch(reportList);
 		return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report)); // 更新loadbill的approval_code
 	}
 

@@ -6,6 +6,8 @@ import org.apache.commons.logging.LogFactory;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 
+import java.util.List;
+
 public class LoadBillReportDao extends BaseDao<LoadBillReport> {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
@@ -17,4 +19,7 @@ public class LoadBillReportDao extends BaseDao<LoadBillReport> {
 		return this.getSqlSession().insert(LoadBillReportDao.namespace + ".add", report);
 	}
 
+	public int addBatch(List<LoadBillReport> reportList) {
+		return this.getSqlSession().insert(LoadBillReportDao.namespace + ".addBatch", reportList);
+	}
 }
