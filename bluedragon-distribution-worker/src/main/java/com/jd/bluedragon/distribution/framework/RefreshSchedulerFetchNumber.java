@@ -90,6 +90,9 @@ public class RefreshSchedulerFetchNumber {
         },new Date(System.currentTimeMillis()+firstInterval*60000),interval*60000);
     }
 
+    /**
+     * 刷新任务配置
+     */
     private final void refresh(){
         if(LOGGER.isInfoEnabled()){
             LOGGER.info("刷新获取任务数量");
@@ -103,6 +106,10 @@ public class RefreshSchedulerFetchNumber {
         }
     }
 
+    /**
+     * 刷新单个任务
+     * @param taskType
+     */
     private final void refreshTaskType(ScheduleTaskType taskType){
         if(LOGGER.isInfoEnabled()){
             LOGGER.info(taskType.getBaseTaskType()+"获取任务数量为"+taskType.getFetchDataNumber());
