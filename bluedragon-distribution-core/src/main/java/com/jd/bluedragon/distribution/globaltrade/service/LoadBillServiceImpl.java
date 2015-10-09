@@ -157,7 +157,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 		logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
 		//将orderId分割,长度不超过500
 		List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
-		Matcher matcher = Pattern.compile("[^,][\\w,]{8,498}[^,](?=,)").matcher(report.getOrderId() + ",");
+		Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,](?=,)").matcher(report.getOrderId() + ",");
 		while(matcher.find()){
 			LoadBillReport subReport = new LoadBillReport();
 			subReport.setReportId(report.getReportId());
