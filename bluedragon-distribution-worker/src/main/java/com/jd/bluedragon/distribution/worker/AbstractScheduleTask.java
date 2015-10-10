@@ -24,6 +24,9 @@ public abstract class AbstractScheduleTask extends AbstractScheduler<Task>{
      */
 	public List<Task> selectTasks(String arg0, int queueNum,
 			List<String> queryCondition, int fetchNum) throws Exception {
+        if(logger.isInfoEnabled()){
+            logger.info("任务执行fetchNum is"+fetchNum);
+        }
         if (queryCondition.size() == 0) {
             return Collections.emptyList();
         }
