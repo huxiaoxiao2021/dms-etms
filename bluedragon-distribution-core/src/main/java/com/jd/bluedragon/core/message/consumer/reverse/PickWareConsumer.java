@@ -45,35 +45,35 @@ public class PickWareConsumer extends MessageBaseConsumer {
        
         pickWareService.add(pickWare);
         
-//        //增加全程跟踪 FIXME:暂时屏蔽,等待运单准备好节点及售后传送仓库信息
-//        WaybillStatus tWaybillStatus = new WaybillStatus();
-//		tWaybillStatus.setOperator(pickWare.getOperator());
-//		tWaybillStatus.setOperateTime(pickWare.getPickwareTime());
-//		tWaybillStatus.setWaybillCode(pickWare.getPackageCode());
-//		
-//		//备件库售后取件单-交接/拆包 不经过分拣中心操作, 所以起始站点未知
-//		tWaybillStatus.setCreateSiteCode(0);
-//		tWaybillStatus.setCreateSiteName("0");
-//		 
-//		//获得备件库操作单位
-//		Integer cky2 = pickWare.getCky2();
-//		Integer orgId = pickWare.getOrgId();
-//		Integer storeId = pickWare.getStoreId();
-//		
-//		BaseResult<BaseDmsStoreDto> dtoResult = basicSafInterfaceManager.getDmsInfoByStoreInfo(cky2, orgId, storeId);
-//		 if(dtoResult.getData()!=null){
-//			 tWaybillStatus.setReceiveSiteCode(dtoResult.getData().getDmsId());
-//			 tWaybillStatus.setReceiveSiteName(dtoResult.getData().getDmsName());
-//		 }else{
-//			 tWaybillStatus.setReceiveSiteCode(0);
-//			 tWaybillStatus.setReceiveSiteName("0");
-//		 }
-//
-//		if (pickWare.getCanReceive() == 0)
-//			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AMS_BH);
-//		else
-//			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AMS_SHREVERSE);
-//		taskService.add(this.toTask(tWaybillStatus));
+        //增加全程跟踪
+        WaybillStatus tWaybillStatus = new WaybillStatus();
+		tWaybillStatus.setOperator(pickWare.getOperator());
+		tWaybillStatus.setOperateTime(pickWare.getPickwareTime());
+		tWaybillStatus.setWaybillCode(pickWare.getPackageCode());
+		
+		//备件库售后取件单-交接/拆包 不经过分拣中心操作, 所以起始站点未知
+		tWaybillStatus.setCreateSiteCode(-1);
+		tWaybillStatus.setCreateSiteName("0");
+		 
+		//获得备件库操作单位
+		Integer cky2 = pickWare.getCky2();
+		Integer orgId = pickWare.getOrgId();
+		Integer storeId = pickWare.getStoreId();
+		
+		BaseResult<BaseDmsStoreDto> dtoResult = basicSafInterfaceManager.getDmsInfoByStoreInfo(cky2, orgId, storeId);
+		 if(dtoResult.getData()!=null){
+			 tWaybillStatus.setReceiveSiteCode(dtoResult.getData().getDmsId());
+			 tWaybillStatus.setReceiveSiteName(dtoResult.getData().getDmsName());
+		 }else{
+			 tWaybillStatus.setReceiveSiteCode(-1);
+			 tWaybillStatus.setReceiveSiteName("0");
+		 }
+
+		if (pickWare.getCanReceive() == 0)
+			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AMS_BH);
+		else
+			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AMS_SHREVERSE);
+		taskService.add(this.toTask(tWaybillStatus));
 	}
 
 	private Task toTask(WaybillStatus tWaybillStatus) {
