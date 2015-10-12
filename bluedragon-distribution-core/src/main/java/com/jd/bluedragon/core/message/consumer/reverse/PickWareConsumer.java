@@ -53,7 +53,7 @@ public class PickWareConsumer extends MessageBaseConsumer {
 		
 		//备件库售后取件单-交接/拆包 不经过分拣中心操作, 所以起始站点未知
 		tWaybillStatus.setCreateSiteCode(-1);
-		tWaybillStatus.setCreateSiteName("0");
+		tWaybillStatus.setCreateSiteName("-1");
 		 
 		//获得备件库操作单位
 		Integer cky2 = pickWare.getCky2();
@@ -66,7 +66,7 @@ public class PickWareConsumer extends MessageBaseConsumer {
 			 tWaybillStatus.setReceiveSiteName(dtoResult.getData().getDmsName());
 		 }else{
 			 tWaybillStatus.setReceiveSiteCode(-1);
-			 tWaybillStatus.setReceiveSiteName("0");
+			 tWaybillStatus.setReceiveSiteName("-1");
 		 }
 
 		if (pickWare.getCanReceive() == 0)
