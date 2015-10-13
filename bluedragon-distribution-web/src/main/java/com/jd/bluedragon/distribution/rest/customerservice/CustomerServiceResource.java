@@ -50,7 +50,6 @@ public class CustomerServiceResource {
             surFaceCode = pickupTask.getSurfaceCode();
             Assert.notNull(surFaceCode, "未检索到新运单号");
             response.setSurfaceCode(surFaceCode);
-            response.setServiceCode(pickupTask.getServiceCode());
         } catch (Exception ex) {
             response.setCode(CustomerServiceResponse.CODE_NEW_BILL_CODE_NOT_FOUND);
             response.setMessage(ex.getMessage());

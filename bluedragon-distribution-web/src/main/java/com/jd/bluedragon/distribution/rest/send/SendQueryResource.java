@@ -4,7 +4,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendQuery;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import com.jd.bluedragon.distribution.sendprint.domain.ExpressInfo;
+import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -23,9 +28,14 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class SendQueryResource {
 
+    private final Log logger = LogFactory.getLog(SendQueryResource.class);
+
     @Autowired
     private SendQueryService sendQueryService;
-    private final Logger logger = Logger.getLogger(SendQueryResource.class);
+
+    @Autowired
+    private ThirdExpressPrintService thirdExpressPrintService;
+
     /**
      * 添加发货批次查询日志
      * @param domain 数据对象
@@ -35,11 +45,10 @@ public class SendQueryResource {
     @Path("/sendquery/put")
     public InvokeResult<Boolean> put(SendQuery domain,@Context HttpServletRequest servletRequest){
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
-
-        result.success();
         String realIP = servletRequest.getHeader("X-Forwarded-For");
-        this.logger.info("SendQueryResource.put()" + realIP);
-
+        if(logger.isInfoEnabled()) {
+            this.logger.info("SendQueryResource.put()" + realIP);
+        }
         domain.setIpAddress(realIP);
 
         try{
@@ -63,6 +72,26 @@ public class SendQueryResource {
         try{
             result.setData(sendQueryService.queryBySendCode(sendCode));
         }catch (Exception ex){
+            result.error(ex);
+        }
+        return result;
+    }
+
+    /**
+     * 获取三方面单
+     * @param packageCode
+     * @return
+     */
+    @GET
+    @Profiled(tag = "SendQueryResource.getThirdWaybillPaper")
+    @Path("/sendquery/getthirdwaybillpaper/{packagecode}")
+    public InvokeResult<ExpressInfo> getThirdWaybillPaper(@PathParam("packagecode") String packageCode){
+        InvokeResult<ExpressInfo> result=null;
+        try {
+            result=thirdExpressPrintService.getThirdExpress(packageCode);
+        }catch (Throwable ex){
+            logger.error(ex);
+            result=new InvokeResult<ExpressInfo>();
             result.error(ex);
         }
         return result;
