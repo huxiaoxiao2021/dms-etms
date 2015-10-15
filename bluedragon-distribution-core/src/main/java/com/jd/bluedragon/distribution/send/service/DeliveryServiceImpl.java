@@ -1190,7 +1190,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 					this.logger.error("取消发货cancelSendDatailByBox,参数"
 							+ JsonHelper.toJson(tSendDatail),e);
 				}
-				return true;
+				
 			}
 		}
 		return true;
@@ -2395,7 +2395,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		tsendDatail.setBoxCode(boxCode);
 		tsendDatail.setCreateSiteCode(yCreateSiteCode);
 		tsendDatail.setReceiveSiteCode(yReceiveSiteCode);
-		tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+		tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
 		List<SendDetail> sendDatailist = this.sendDatailDao
 				.querySendDatailsBySelective(tsendDatail);
 		if (sendDatailist == null || sendDatailist.isEmpty()) {
