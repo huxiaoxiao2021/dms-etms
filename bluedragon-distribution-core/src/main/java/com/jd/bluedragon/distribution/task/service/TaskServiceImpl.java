@@ -1,13 +1,15 @@
 package com.jd.bluedragon.distribution.task.service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
+import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -54,6 +56,17 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private SysConfigService sysConfigService;
 
+    @Autowired
+    private BaseService baseService;
+
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void addBatch(List<Task> tasks) {
+        for(Task task : tasks){
+            add(task,false);
+        }
+    }
+
     /**
      * @param task
      * @param ifCheckTaskMode 
@@ -92,7 +105,8 @@ public class TaskServiceImpl implements TaskService {
         		|| Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
         		|| Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
-				|| Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())) {     // 增加干线计费信息MQ去重
+				|| Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
+                || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
         	if(!this.has(task)){
         		return this.taskDao.add(TaskDao.namespace, task);
         	}else{
@@ -480,13 +494,105 @@ public class TaskServiceImpl implements TaskService {
 		add(task);
 	}
 
-	/**
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception{
+        if (add(toInspectionTask(packageDtos)) <= 0 || add(toSortingTask(packageDtos)) <= 0) {
+            throw new Exception("智能分拣线生成交接、分拣任务出错，两个之中有一个可能失败");
+        }
+    }
+
+    private Task toSortingTask(AutoSortingPackageDto dto){
+        BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(dto.getSiteCode());
+        Assert.notNull(site,"智能分拣线生成分拣任务出错，获取站点信息失败"); //这里主动抛出异常是为了让事务回滚
+        Task taskSorting=new Task();
+        taskSorting.setKeyword1(String.valueOf(dto.getDistributeID()));
+        taskSorting.setKeyword2(dto.getWaybillCode());
+        taskSorting.setCreateSiteCode(dto.getDistributeID());
+        taskSorting.setReceiveSiteCode(Integer.valueOf(dto.getSiteCode()));
+        taskSorting.setCreateTime(new Date());
+        taskSorting.setType(Task.TASK_TYPE_SORTING);
+        taskSorting.setBoxCode(dto.getBoxCode());
+        taskSorting.setTableName(Task.getTableName(taskSorting.getType()));
+        taskSorting.setSequenceName(Task.getSequenceName(taskSorting.getTableName()));
+        StringBuilder fingerprint = new StringBuilder("");
+        fingerprint.append(taskSorting.getCreateSiteCode()).append("_")
+                .append(taskSorting.getReceiveSiteCode()).append("_").append(taskSorting.getBusinessType())
+                .append("_").append(taskSorting.getBoxCode()).append("_").append(taskSorting.getKeyword2())
+                .append("_").append(DateHelper.formatDateTimeMs(taskSorting.getOperateTime()));
+        taskSorting.setFingerprint(Md5Helper.encode(fingerprint.toString()));
+        List<SortingRequest> list=new ArrayList<SortingRequest>(1);
+
+        SortingRequest request=new SortingRequest();
+        request.setBoxCode(dto.getBoxCode());
+        request.setFeatureType(0);
+        request.setIsCancel(0);
+        request.setIsLoss(0);
+        request.setPackageCode(dto.getWaybillCode());
+        request.setReceiveSiteCode(site.getSiteCode());
+        request.setReceiveSiteName(site.getSiteName());
+        request.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(dto.getWaybillCode()));
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setOperateTime(addOneSecond(dto.getCreateTime()));
+        request.setSiteCode(dto.getDistributeID());
+        request.setSiteName(dto.getDistributeName());
+        request.setUserCode(dto.getOperatorID());
+        request.setUserName(dto.getOperatorName());
+        list.add(request);
+        taskSorting.setBody(JsonHelper.toJson(list));
+        return taskSorting;
+    }
+
+    private Task toInspectionTask(AutoSortingPackageDto dto){
+        Task taskInsp = new Task();
+        taskInsp.setCreateSiteCode(dto.getDistributeID());
+        taskInsp.setKeyword1(String.valueOf(dto.getDistributeID()));
+        taskInsp.setKeyword2(dto.getWaybillCode());
+        taskInsp.setType(Task.TASK_TYPE_INSPECTION);
+        taskInsp.setTableName(Task.getTableName(taskInsp.getType()));
+        taskInsp.setSequenceName(Task.getSequenceName(taskInsp.getTableName()));
+        taskInsp.setBody(JsonHelper.toJson(toInspectionAS(dto)));
+        taskInsp.setCreateTime(new Date());
+        taskInsp.setExecuteCount(0);
+        taskInsp.setOwnSign(BusinessHelper.getOwnSign());
+        taskInsp.setStatus(Task.TASK_STATUS_UNHANDLED);
+        StringBuilder fingerprint = new StringBuilder("");
+        fingerprint.append(taskInsp.getCreateSiteCode()).append("_")
+                .append(taskInsp.getReceiveSiteCode()).append("_")
+                .append(taskInsp.getBoxCode()).append("_").append(dto.getWaybillCode())
+                .append("_").append(dto.getCreateTime());
+        taskInsp.setFingerprint(Md5Helper.encode(fingerprint.toString()));
+        return taskInsp;
+    }
+
+
+    public List<InspectionAS> toInspectionAS(AutoSortingPackageDto uPackage){
+        List<InspectionAS> inspectionASes = new ArrayList<InspectionAS>();
+        InspectionAS inspectionAS = new InspectionAS();
+        inspectionAS.setBoxCode("");
+        inspectionAS.setExceptionType("");
+        inspectionAS.setId(0);
+        inspectionAS.setOperateTime(uPackage.getCreateTime());
+        inspectionAS.setOperateType(0);
+        inspectionAS.setPackageBarOrWaybillCode(uPackage.getWaybillCode());
+        inspectionAS.setReceiveSiteCode(0);
+        inspectionAS.setSiteCode(uPackage.getDistributeID());
+        inspectionAS.setSiteName(uPackage.getDistributeName());
+        inspectionAS.setUserCode(uPackage.getOperatorID());
+        inspectionAS.setUserName(uPackage.getOperatorName());
+        inspectionASes.add(inspectionAS);
+        return inspectionASes;
+    }
+
+
+    /**
 	 *  时间加一秒
 	 *  @Param oldDateString 原来的日期字符串，格式"yyyy-MM-dd HH:mm:ss"
 	 *  @Return 返回新日期字符串
 	 * */
 
-	private static String addOneSecond(String oldDateString) throws Exception{
+	private static String addOneSecond(String oldDateString){
 		Date sortTime = DateHelper.parseDate(oldDateString, Constants.DATE_TIME_FORMAT);
 		return DateHelper.formatDate(DateHelper.add(sortTime, Calendar.SECOND, 1),Constants.DATE_TIME_FORMAT);
 	}

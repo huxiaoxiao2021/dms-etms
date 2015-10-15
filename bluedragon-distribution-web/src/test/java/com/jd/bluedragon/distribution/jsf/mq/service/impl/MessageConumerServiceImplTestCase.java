@@ -3,14 +3,14 @@ package com.jd.bluedragon.distribution.jsf.mq.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.jd.bluedragon.core.message.consumer.reverse.PickWareConsumer;
 import com.jd.bluedragon.core.message.consumer.sendCar.SendCarContext;
+import com.jd.bluedragon.distribution.reverse.domain.PickWare;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.domain.BaseEntity;
 import com.jd.etms.erp.service.dto.SendInfoDto;
@@ -19,6 +19,8 @@ import com.jd.etms.finance.wss.pojo.SortingCar;
 import com.jd.etms.message.Consumer;
 import com.jd.etms.message.DestinationType;
 import com.jd.etms.message.Message;
+
+import junit.framework.Assert;
 
 public class MessageConumerServiceImplTestCase {
 
@@ -161,5 +163,29 @@ public class MessageConumerServiceImplTestCase {
 			e.printStackTrace();
 		}
 		Assert.assertEquals(true,response.getData().size()>0);
+	}
+	
+	@Test
+	public void testConsume_sph_reverse_1(){
+		ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
+				"/distribution-web-jsf-client-test.xml");
+
+		PickWareConsumer service = new PickWareConsumer();
+		LOGGER.info("得到调用端代理：{jsfMessageConumerService}", service);
+
+		Message message = new Message();
+		message.setDestinationCode("sph_reverse_1");
+		message.setConnectionSystemId("bd");
+		message.setContent("{\"orgId\":6,\"packageCode\":\"W0324318282\",\"pickwareCode\":\"Q184995514\",\"orderId\":10143546269,\"operateTime\":\"2015-09-25 13:24:38\",\"operator\":\"于新明|yuxinming\",\"canReceive\":1,\"operateType\":2}");
+		PickWare pickWare = JsonHelper.fromJson(message.getContent(), PickWare.class);
+        System.out.printf("111111111111111111111"+pickWare.getOperateTime());
+        message.setDestinationType(DestinationType.TOPIC);
+
+		try {
+			service.consume(message);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		
 	}
 }
