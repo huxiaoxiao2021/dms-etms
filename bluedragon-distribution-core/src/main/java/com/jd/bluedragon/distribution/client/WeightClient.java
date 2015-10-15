@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.client;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -15,7 +18,12 @@ public class WeightClient {
 		RestTemplate template = new RestTemplate();
 		String url = PropertiesHelper.newInstance().getValue(WAYBILL_WEIGHT_TRACK_ADDRESS);
 		((SimpleClientHttpRequestFactory) template.getRequestFactory()).setConnectTimeout(1000 * 60);
-		ResponseEntity<WeightResponse> response = template.postForEntity(url, json, WeightResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+		headers.setContentType(type);
+		headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+		HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
+		ResponseEntity<WeightResponse> response = template.postForEntity(url, formEntity, WeightResponse.class);
 		if (null != response && null != response.getBody()) {
 			return (WeightResponse) response.getBody();
 		} else {
