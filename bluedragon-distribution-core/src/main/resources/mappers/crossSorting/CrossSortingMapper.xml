@@ -12,7 +12,6 @@
 		<result column="destination_dms_name" property="destinationDmsName" />
 		<result column="mix_dms_code" property="mixDmsCode" />
 		<result column="mix_dms_name" property="mixDmsName" />
-		<result column="type" property="type" />
 		<result column="create_user_code" property="createUserCode" />
 		<result column="create_user_name" property="createUserName" />
 		<result column="delete_user_code" property="deleteUserCode" />								
@@ -26,14 +25,14 @@
 		INSERT INTO
 		cross_sorting (
 		id, org_id, create_dms_code, create_dms_name,
-		destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name, type,
+		destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name,
 		create_user_code, create_user_name, delete_user_code, delete_user_name,
 		create_time, delete_time, yn)
 		VALUES (
 		SEQ_CROSS_SORTING.NEXTVAL, #{orgId,jdbcType=INTEGER},
 		#{createDmsCode,jdbcType=INTEGER},#{createDmsName,jdbcType=VARCHAR},
 		#{destinationDmsCode,jdbcType=INTEGER}, #{destinationDmsName,jdbcType=VARCHAR},
-		#{mixDmsCode,jdbcType=INTEGER}, #{mixDmsName,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
+		#{mixDmsCode,jdbcType=INTEGER}, #{mixDmsName,jdbcType=VARCHAR},
 		#{createUserCode,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR},
 		#{deleteUserCode,jdbcType=INTEGER}, #{deleteUserName,jdbcType=VARCHAR},
 		#{createTime,jdbcType=TIMESTAMP}, #{deleteTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=INTEGER})

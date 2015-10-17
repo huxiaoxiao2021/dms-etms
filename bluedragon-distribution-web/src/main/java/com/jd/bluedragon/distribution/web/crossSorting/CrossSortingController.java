@@ -180,7 +180,6 @@ public class CrossSortingController {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("createDmsCode", request.getCreateDmsCode());
             params.put("destinationDmsCode", request.getDestinationDmsCode());
-            params.put("type", request.getType());
             List<CrossSorting> dmsDBList = crossSortingService.findMixDms(params);
             csList = filterCrossSorting(csList, dmsDBList);
             if (csList.size() < 1) {
@@ -245,7 +244,6 @@ public class CrossSortingController {
             cs.setCreateDmsName(request.getCreateDmsName());
             cs.setDestinationDmsCode(request.getDestinationDmsCode());
             cs.setDestinationDmsName(request.getDestinationDmsName());
-            cs.setType(request.getType());
             if (user != null) {
                 cs.setCreateUserCode(user.getUserId()); // 维护的是用户ID,不是ERP帐号
                 cs.setCreateUserName(user.getUserName());
@@ -270,8 +268,6 @@ public class CrossSortingController {
                 || request.getDestinationDmsCode() < 1
                 || request.getDestinationDmsName() == null
                 || StringUtils.isBlank(request.getDestinationDmsName())
-                || request.getType() == null
-                || request.getType() < 1
                 || request.getData() == null
                 || StringUtils.isBlank(request.getData())) {
             return true;
@@ -288,9 +284,7 @@ public class CrossSortingController {
             if (null == request || null == request.getCreateDmsCode()
                     || request.getCreateDmsCode() < 1
                     || null == request.getDestinationDmsCode()
-                    || request.getDestinationDmsCode() < 1
-                    || null == request.getType()
-                    || request.getType() < 1) {
+                    || request.getDestinationDmsCode() < 1) {
                 cdto.setCode(CommonDto.CODE_WARN);
                 cdto.setMessage("参数不能为空！");
                 return cdto;
@@ -298,7 +292,6 @@ public class CrossSortingController {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("createDmsCode", request.getCreateDmsCode());
             params.put("destinationDmsCode", request.getDestinationDmsCode());
-            params.put("type", request.getType());
             List<CrossSorting> mixDmsList = crossSortingService.findMixDms(params);
             if (null != mixDmsList && mixDmsList.size() > 0) {
                 cdto.setCode(CommonDto.CODE_SUCCESS);

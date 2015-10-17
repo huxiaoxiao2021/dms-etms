@@ -12,7 +12,6 @@
 		<result column="destination_dms_name" property="destinationDmsName" />
 		<result column="mix_dms_code" property="mixDmsCode" />
 		<result column="mix_dms_name" property="mixDmsName" />
-		<result column="type" property="type" />
 		<result column="create_user_code" property="createUserCode" />
 		<result column="create_user_name" property="createUserName" />
 		<result column="delete_user_code" property="deleteUserCode" />
@@ -36,9 +35,6 @@
 			</if>
 			<if test="destinationDmsCode != null">
 				AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
-			</if>
-			<if test="type != null">
-				AND type = #{type,jdbcType=INTEGER}
 			</if>
 		</where>
 	</sql>
@@ -70,9 +66,9 @@
 	<select id="findMixDms" resultMap="crossSorting" parameterType="map">
 		SELECT
 		id, org_id, create_dms_code, destination_dms_code, 
-		mix_dms_code, mix_dms_name, type
+		mix_dms_code, mix_dms_name
 		FROM cross_sorting
-		WHERE yn = 1 AND type = #{type,jdbcType=INTEGER} 
+		WHERE yn = 1
 		      AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
 		      AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
 	</select>

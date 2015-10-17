@@ -164,7 +164,7 @@ function onQueryBtnClick(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
 	if (!checkParams(params)) {
-		jQuery.messager.alert('提示:','建包/发货区域, 建包/发货分拣中心, 目的分拣中心, 维护人, 至少选择一个!','info'); 
+		jQuery.messager.alert('提示:','建包区域, 建包分拣中心, 目的分拣中心, 维护人, 至少选择一个!','info');
 		return false;
 	}
 	doQueryCrossSorting(params);
@@ -186,7 +186,6 @@ function getParams() {
 	params.createDmsCode = $.trim($("#createDmsList").val());
 	params.destinationDmsCode = $.trim($("#destinationDmsList").val());
 	params.createUserName = $.trim($("#createUserName").val());
-	params.type = $.trim($("#typeList").val());
 	return params;
 }
 
@@ -210,14 +209,6 @@ function doQueryCrossSorting(params) {
 				temp += "<td>" + (dataList[i].createDmsName) + "</td>";
 				temp += "<td>" + (dataList[i].destinationDmsCode) + "</td>";
 				temp += "<td>" + (dataList[i].destinationDmsName) + "</td>";
-				var type = dataList[i].type;
-				if (type == 10) {
-					temp += "<td>建包</td>";
-				} else if (type == 20) {
-					temp += "<td>发货</td>";
-				} else {
-					temp += "<td>非法</td>";
-				}
 				temp += "<td>" + (dataList[i].mixDmsCode) + "</td>";
 				temp += "<td>" + (dataList[i].mixDmsName) + "</td>";
 				temp += "<td>" + (dataList[i].createUserName) + "</td>";
