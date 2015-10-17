@@ -50,7 +50,7 @@
 		SELECT
 		id, org_id, create_dms_code, create_dms_name,
 		destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name, 
-		type, create_user_code, create_user_name, create_time
+		create_user_code, create_user_name, create_time
 		FROM cross_sorting
 		<include refid="Base_Where_List" />
 		ORDER BY CREATE_TIME
@@ -80,10 +80,9 @@
     <select id="findOne" resultMap="crossSorting" parameterType="map">
         SELECT
         id, org_id, create_dms_code, destination_dms_code,
-        mix_dms_code, mix_dms_name, type
+        mix_dms_code, mix_dms_name
         FROM cross_sorting
         WHERE yn = 1
-        AND type = #{type,jdbcType=INTEGER}
         AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
         AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
         AND MIX_DMS_CODE= #{mixDmsCode,jdbcType=INTEGER}

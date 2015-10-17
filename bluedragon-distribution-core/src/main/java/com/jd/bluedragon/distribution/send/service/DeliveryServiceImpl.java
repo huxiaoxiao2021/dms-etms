@@ -234,11 +234,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(null!=targetSortingCenterId
                 &&!targetSortingCenterId.equals(domain.getReceiveSiteCode()))
         {
-            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
-            if(list.size()==0&&!domain.getReceiveSiteCode().equals(targetSiteCode)) {
-                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
-            }
+            //发货规则调用基础资料跨分拣规则表校验
+//            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
+//            if(list.size()==0&&!domain.getReceiveSiteCode().equals(targetSiteCode)) {
+//                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
+//                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
+//            }
+
         }
         return new SendResult(1,"发货成功",null,null);
     }
@@ -278,13 +280,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             Profiler.registerInfoEnd(info1);
             Integer preSortingSiteCode=null;
             try{
-            com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
-            if(null!=waybill){
-                preSortingSiteCode=waybill.getSiteCode();
-            }}catch (Throwable e){
+                com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
+                if(null!=waybill){
+                    preSortingSiteCode=waybill.getSiteCode();
+                }}catch (Throwable e){
                 logger.error("一车一单获取预分拣站点异常",e);
             }
-
             if (response.getCode().equals(200)) {
 
             } else if (response.getCode() >= 39000) {
@@ -300,11 +301,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
             return new SendResult(2,"该发货批次已经发车，不能继续发货");
         }
-        /*  谫明：暂取消跨分拣校验，待邹剑确定
         SendResult checkResult=packageCrosssSendCheck(domain);
         if(!checkResult.getKey().equals(1)&&!isForceSend){
             return checkResult;
-        }*/
+        }
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());

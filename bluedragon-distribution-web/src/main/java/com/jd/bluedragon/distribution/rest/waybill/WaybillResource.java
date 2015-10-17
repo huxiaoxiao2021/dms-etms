@@ -679,7 +679,7 @@ public class WaybillResource {
     		//获取站点所在的分拣中心
     		BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
     		if(br!=null){
-    			List<CrossSortingDto> list =crossSortingService.getQueryByids(startDmsCode, receiveCode, br.getDmsId(), DMSTYPE);
+    			List<CrossSortingDto> list =crossSortingService.getQueryByids(startDmsCode, receiveCode, br.getDmsId());
     			if(list!=null && !list.isEmpty()){
     				response.setCode(null);
     				response.setMessage("符合建包规则"+JsonHelper.toJson(list));

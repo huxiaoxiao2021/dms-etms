@@ -42,7 +42,7 @@
 	<insert id="addBatch" parameterType="list"> 
 		INSERT INTO cross_sorting ( 
 			id, org_id, create_dms_code, create_dms_name,
-			destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name, type,
+			destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name,
 			create_user_code, create_user_name, delete_user_code, delete_user_name,
 			create_time, delete_time, yn
 		) SELECT SEQ_CROSS_SORTING.NEXTVAL, A.* FROM( 
@@ -56,7 +56,6 @@
 					#{item.destinationDmsName,jdbcType=VARCHAR} AS destination_dms_name,
 					#{item.mixDmsCode,jdbcType=INTEGER} AS mix_dms_code,
 					#{item.mixDmsName,jdbcType=VARCHAR} AS mix_dms_name,
-					#{item.type,jdbcType=INTEGER} AS type,
 					#{item.createUserCode,jdbcType=INTEGER} AS create_user_code,
 					#{item.createUserName,jdbcType=VARCHAR} AS create_user_name,
 					#{item.deleteUserCode,jdbcType=INTEGER} AS delete_user_code,
@@ -85,9 +84,9 @@
 	<select id="findCrossSorting" resultMap="crossSorting" parameterType="crossSorting">
 		SELECT
 		id, org_id, create_dms_code, destination_dms_code,
-		mix_dms_code, mix_dms_name, type
+		mix_dms_code, mix_dms_name
 		FROM cross_sorting
-		WHERE yn = 1 AND type = #{type,jdbcType=INTEGER}
+		WHERE yn = 1
 		AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
 		AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
 		AND mix_dms_code = #{mixDmsCode,jdbcType=INTEGER}
@@ -128,7 +127,7 @@
 				delete_time =  #{deleteTime,jdbcType=TIMESTAMP}
 			</if>
 		</set>
-		WHERE yn = 1 AND type = #{type,jdbcType=INTEGER}
+		WHERE yn = 1
 		AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
 		AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
         AND mix_dms_code = #{mixDmsCode,jdbcType=INTEGER}
