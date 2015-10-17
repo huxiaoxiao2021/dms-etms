@@ -59,13 +59,13 @@
                 <table border="0" cellpadding="0" cellspacing="0" style="width:70%;margin:0 auto;">
                     <tbody>
                     <tr>
-                        <th align="right">建包/发货区域：</th>
+                        <th align="right">建包区域：</th>
                         <td>
                             <select id="orgList" onchange=initCreateDmsList(); style="width:180px;" cellpadding="0"
                                     cellspacing="0">
                             </select>
                         </td>
-                        <th align="right">建包/发货分拣中心：</th>
+                        <th align="right">建包分拣中心：</th>
                         <td>
                             <select id="createDmsList" style="width:180px;">
                             </select>
@@ -77,14 +77,6 @@
                         </td>
                     </tr>
                     <tr>
-                        <th align="right">规则类型：</th>
-                        <td style="width:90px;">
-                            <select id="typeList" style="width:80px;">
-                                <option value=""></option>
-                                <option value="10">建包</option>
-                                <option value="20">发货</option>
-                            </select>
-                        </td>
                         <th align="right">维护人：</th>
                         <td style="width:90px;">
                             <input id="createUserName" value="" style="width: 100px;"/>
@@ -128,9 +120,8 @@
                         <th style="width:50px;">建包分拣中心</th>
                         <th style="width:50px;">目的分拣中心ID</th>
                         <th style="width:50px;">目的分拣中心</th>
-                        <th style="width:50px;">规则类型</th>
-                        <th style="width:50px;">可混装分拣中心ID</th>
-                        <th style="width:50px;">可混装分拣中心</th>
+                        <th style="width:50px;">混装分拣中心ID</th>
+                        <th style="width:50px;">混装分拣中心</th>
                         <th style="width:50px;">维护人</th>
                         <th style="width:50px;">维护时间</th>
                         <th style="width:50px;">操作</th>

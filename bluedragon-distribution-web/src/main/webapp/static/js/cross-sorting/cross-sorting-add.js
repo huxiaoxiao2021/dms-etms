@@ -56,7 +56,7 @@ function initCreateDmsList() {
 			loadDmsList(dmsList, "createDmsList");
 			$('#mixDmsTable tbody').html("");
 		} else if (dmsList.length > 0 && dmsList[0].code == 404) {// 404:
-			$('#createDmsList').html(""); // 清空建包/发货分拣中心
+			$('#createDmsList').html(""); // 清空建包分拣中心
 			$('#mixDmsTable tbody').html(""); // 清空可混装分拣中心
 			jQuery.messager.alert('提示:', "获取分拣中心列表为空！", 'info');
 		} else if (dmsList.length > 0 && dmsList[0].code == 20000) {// 20000:error
@@ -109,12 +109,12 @@ function initDms() {
 	});
 }
 
-// 发货分拣中心,目的分拣中心,规则类型变动,重载加载列表(如果有一个为空,就清空列表)
+// 发货分拣中心,目的分拣中心,重载加载列表(如果有一个为空,就清空列表)
 function initMixDmsList() {
 	// 获取参数
 	var params = getParams();
 	$('#mixDmsTable tbody').html(""); // 清空可混装分拣中心
-	if (params.createDmsCode == null || params.createDmsCode == "" || params.destinationDmsCode == null || params.destinationDmsCode == "" || params.type == null || params.type == "") {
+	if (params.createDmsCode == null || params.createDmsCode == "" || params.destinationDmsCode == null || params.destinationDmsCode == "") {
 		return;
 	}
 	loadMixDmsList(params);
@@ -163,7 +163,6 @@ function getParams() {
 	var params = {};
 	params.createDmsCode = $.trim($("#createDmsList").val());
 	params.destinationDmsCode = $.trim($("#destinationDmsList").val());
-	params.type = $.trim($("#typeList").val());
 	return params;
 }
 
@@ -208,7 +207,7 @@ function addMixDms() {
 	
 	// createDmsCode 和  destinationDmsCode不能重复
 	if(createDmsCode != null && destinationDmsCode != null && createDmsCode == destinationDmsCode){
-		jQuery.messager.alert('提示:', "建包/发货分拣中心与目的分拣中心不能重复！", 'info');
+		jQuery.messager.alert('提示:', "建包分拣中心与目的分拣中心不能重复！", 'info');
 		return;
 	}
 
@@ -257,7 +256,6 @@ function getAddParams() {
 	params.createDmsName = getName($("#createDmsList").find("option:selected").text());
 	params.destinationDmsCode = $.trim($("#destinationDmsList").val());
 	params.destinationDmsName = getName($("#destinationDmsList").find("option:selected").text());
-	params.type = $.trim($("#typeList").val());
 
 	// 获取可混装分拣中心
 	var data = new Array();
@@ -306,7 +304,7 @@ function getName(name) {
 
 function checkParams(params) {
 	if (params.orgId == null || params.orgId == "" || params.createDmsCode == null || params.createDmsCode == "" || params.createDmsName == null || params.createDmsName == ""
-			|| params.destinationDmsCode == null || params.destinationDmsCode == "" || params.destinationDmsName == null || params.destinationDmsName == "" || params.type == null || params.type == "") {
+			|| params.destinationDmsCode == null || params.destinationDmsCode == "" || params.destinationDmsName == null || params.destinationDmsName == "") {
 		jQuery.messager.alert('提示:', "参数不能为空", 'info');
 		return true;
 	}
