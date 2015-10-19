@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.task.service;
 
 import java.util.List;
 
-import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -76,11 +75,5 @@ public interface TaskService {
      * @return void
      * */
     void addInspectSortingTask(TaskRequest request);
-
-    /**
-     * 上海邮通等直接插入分拣和验货task表
-     * @param packageDtos
-     * @return
-     */
-    void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception;
+    
 }

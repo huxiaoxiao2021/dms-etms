@@ -107,9 +107,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	private final Integer BATCH_NUM = 49;
 	
-	//EMS快生开关
-	public static final String EMS_ONOFF = "EMS_ONOFF";
-	
 	@Autowired
     private QuickProduceService quickProduceService;
 
@@ -322,25 +319,19 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	 */
 	private void toWhsmsServer(List<String> waybillList) {
 		if (waybillList != null && !waybillList.isEmpty()) {
-			boolean flage = true;
-			List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
-			for(SysConfig sys : configs){
-				if(StringHelper.matchSiteRule(sys.getConfigContent(), "EMS_OFF")){
-					flage =false;
-				}
-			}
 			
+			/*this.logger
+			.info("batchProcessOrderInfo2DSF武汉邮政推送接口-调用运单接口waybill"
+					+ waybillList.size());*/
 			List<String>[] splitListResultAl = splitList(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				WChoice queryWChoice = new WChoice();
 				queryWChoice.setQueryPackList(true);
 				queryWChoice.setQueryWaybillC(true);
-				List<BigWaybillDto> tWaybillList = null;
-				if(flage)
-					tWaybillList = deliveryService.getWaillCodeListMessge(queryWChoice, wlist);
-				else
-					tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
 				
+				/*List<BigWaybillDto> tWaybillList = deliveryService
+						.getWaillCodeListMessge(queryWChoice, wlist);*/
+				List<BigWaybillDto> tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
 				StringBuffer buffer = new StringBuffer();
 				if (tWaybillList != null && !tWaybillList.isEmpty()) {
 					/*this.logger
@@ -539,23 +530,13 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		WChoice queryWChoice = new WChoice();
 		queryWChoice.setQueryPackList(true);
 		queryWChoice.setQueryWaybillC(true);
-		
-		boolean flage = true;
-		List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
-		for(SysConfig sys : configs){
-			if(StringHelper.matchSiteRule(sys.getConfigContent(), "EMS_OFF")){
-				flage = false;
-			}
-		}
 
 		try {
-			List<BigWaybillDto> tWaybillList = null;
-			if(flage)
-				tWaybillList = deliveryService.getWaillCodeListMessge(queryWChoice, wlist);
-			else
-				tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
-
+			/*List<BigWaybillDto> tWaybillList = deliveryService
+					.getWaillCodeListMessge(queryWChoice, wlist);*/
+			List<BigWaybillDto> tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
 			if (tWaybillList != null && !tWaybillList.isEmpty()) {
+				this.logger.info("batchProcessOrderInfo2DSF武汉邮政推送接口-调用运单接口不为空");
 				for (BigWaybillDto tWaybill : tWaybillList) {
 					if (tWaybill != null && tWaybill.getWaybill() != null) {
 						Waybill waybill = tWaybill.getWaybill();
@@ -1006,9 +987,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
     		//如果订单信息为空咋调用快生运单数据源获取信息
     		if (WaybillDto == null || WaybillDto.getWaybill() == null){
     			WaybillDto = getWaybillQuickProduce(wycode);
-    			if(WaybillDto != null)
-    				list.add(WaybillDto);
-    		}else{
     			list.add(WaybillDto);
     		}
     	}

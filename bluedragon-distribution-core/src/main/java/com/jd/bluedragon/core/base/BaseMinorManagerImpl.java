@@ -3,6 +3,8 @@ package com.jd.bluedragon.core.base;
 import java.util.List;
 
 import com.jd.etms.basic.domain.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -51,16 +53,19 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	
 	@Cache(key = "basicMinorWSProxy.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderById", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseTradeInfoDto getBaseTraderById(Integer paramInteger) {
 		return basicMinorWSSaf.getBaseTraderById(paramInteger);
 	}
 
 	@Cache(key = "basicMinorWSProxy.getMainBranchScheduleByTranCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getMainBranchScheduleByTranCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public MainBranchSchedule getMainBranchScheduleByTranCode(String paramString) {
 		return basicMinorWSSaf.getMainBranchScheduleByTranCode(paramString);
 	}
 
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getMainBranchScheduleList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResult<List<MainBranchSchedule>> getMainBranchScheduleList(
 			MainBranchSchedule mbs) {
 		return basicMinorWSSaf.getMainBranchScheduleList(mbs);
@@ -68,12 +73,14 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	@Cache(key = "basicForeignWebServiceProxy.getComplexCrossDetail@args0&@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getComplexCrossDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseCrossDto getComplexCrossDetail(String dmsCode, String siteCode) {
 		return basicForeignWebService.getComplexCrossDetail(dmsCode, siteCode);
 	}
 
 	@Cache(key = "baseAirConfigSafService.getAirConfig@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getAirConfig", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public AirTransport getAirConfig(Integer originalProvinceId,
 			Integer originalCityId, Integer destinationProvinceId,
 			Integer destinationCityId) {
@@ -85,6 +92,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	
 	@Cache(key = "basicMinorWSProxy.getBaseGoodsPositionDmsCodeSiteCode@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseGoodsPositionDto> getBaseGoodsPositionDmsCodeSiteCode(Integer dmsID,String flage, Integer siteCode) {
 		return ((List<BaseGoodsPositionDto>) basicMinorWSSaf.getBaseGoodsPositionDmsCodeSiteCode(dmsID, siteCode));
 		 
@@ -92,12 +100,13 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	@Cache(key = "basicMinorWSProxy.getBaseGoodsPositionTaskAreaNoDmsId@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseGoodsPositionTaskAreaNoDmsId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseGoodsPositionDto> getBaseGoodsPositionTaskAreaNoDmsId(
 			Integer dmsID,String flage, Integer taskAreaNo) {
 		return (List<BaseGoodsPositionDto>) basicMinorWSSaf.getBaseGoodsPositionTaskAreaNoDmsId(String.valueOf(taskAreaNo), dmsID);
 	}
 
-
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getCrossPackageTagByPara", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResult<CrossPackageTagNew> getCrossPackageTagByPara(
 			BaseDmsStore bds, Integer siteCode, Integer startDmsCode) {
 		// TODO Auto-generated method stub
@@ -106,6 +115,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	@Cache(key = "basicMinorWSProxy.getBaseAllTrader", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseAllTrader", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseTradeInfoDto> getBaseAllTrader() {
 		// TODO Auto-generated method stub
 		return basicMinorWSProxy.getBaseAllTrader();
@@ -113,6 +123,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	@Cache(key = "basicMinorWSProxy.getBaseTraderByName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderByName", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseTradeInfoDto> getBaseTraderByName(String name) {
 		// TODO Auto-generated method stub
 		return basicMinorWSSaf.getBaseTraderByName(name);
@@ -124,6 +135,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
      */
     @Cache(key = "basicMinorWSProxy.getTraderInfoPopCodeAll", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getSignCustomer", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<String> getSignCustomer(){
         return basicForeignWebServiceProxy.getTraderInfoPopCodeAll();
     }
@@ -131,6 +143,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@Override
 	@Cache(key = "baseMajorManagerImpl.getValidBaseDataDictList@args0@args1@args2" , memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000 )
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getValidBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup) {
 		return basicMinorWSSaf.getValidDataDict(parentGroup, nodeLevel, typeGroup);
 	}

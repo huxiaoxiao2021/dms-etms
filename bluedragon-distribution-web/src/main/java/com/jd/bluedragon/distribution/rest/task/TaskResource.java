@@ -11,7 +11,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -194,27 +193,5 @@ public class TaskResource {
 		return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
 				DateHelper.formatDateTime(new Date()));
 	}
-
-
-    /**
-     * 上海邮通等自动交接，分拣任务。没有波次概念（上海亚一和大福线的区别）
-     * @param packageDtos
-     * @return
-     */
-    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.addInspectSortingTask", mState = {
-            JProEnum.TP, JProEnum.FunctionError })
-    @POST
-    @Path("/InspectSortingTask")
-    public TaskResponse addInspectSortingTask(AutoSortingPackageDto packageDtos){
-        try{
-            taskService.addInspectSortingTaskDirectly(packageDtos);
-        }  catch (Exception e){
-            logger.error("智能分拣线插入交接、分拣任务失败，原因",e);
-            return new TaskResponse(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
-        }
-        return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
-                DateHelper.formatDateTime(new Date()));
-    }
-
 
 }

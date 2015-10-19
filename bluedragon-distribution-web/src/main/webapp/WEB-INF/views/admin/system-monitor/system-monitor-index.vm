@@ -59,7 +59,7 @@
                     </div>
 				</div>
 				<div class="easyui-panel" title="选择查询" data-options="iconCls:'icon-search',collapsible:true">
-					<table id="redisQueueTable" style="width:auto;height:440px"></table>
+					<table id="redisQueueTable" style="width:auto;height:220px"></table>
 					<div style="text-align:center;padding:5px;">
 						<a id="selectQueryBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search">Query</a>  
 						<a id="move2DBBtn" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search">Move2DB</a>  
