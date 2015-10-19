@@ -323,9 +323,9 @@ public class CrossSortingController {
             Sheet sheet0 = getSheet0FromFile(file);
             if (null == sheet0) throw new DataFormatException("文件只能是Excel");
             ErpUser erpUser = ErpUserClient.getCurrUser();
-//            erpUser = new ErpUser();
-//            erpUser.setUserName("admin");
-//            erpUser.setUserId(123123);
+            erpUser = new ErpUser();
+            erpUser.setUserName("admin");
+            erpUser.setUserId(123123);
             if (null == erpUser) throw new DataFormatException("未登录用户，没有权限");
             crossSortingService.importCrossSortingRules(sheet0, erpUser.getUserName(), String.valueOf(erpUser.getUserId()));
         } catch (Exception e) {

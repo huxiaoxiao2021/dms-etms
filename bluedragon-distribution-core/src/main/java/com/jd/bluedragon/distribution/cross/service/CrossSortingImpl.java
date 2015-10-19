@@ -249,11 +249,11 @@ public class CrossSortingImpl implements CrossSortingService {
 		if (null == sourceCode || sourceCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
 			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
 		}
-		Cell targetCode = row.getCell(3);
+		Cell targetCode = row.getCell(2);
 		if (null == targetCode || targetCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
 			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (3) + "列) 数据不正确");
 		}
-		Cell mixCode = row.getCell(5);
+		Cell mixCode = row.getCell(4);
 		if (null == mixCode || mixCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
 			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (5) + "列) 数据不正确");
 		}

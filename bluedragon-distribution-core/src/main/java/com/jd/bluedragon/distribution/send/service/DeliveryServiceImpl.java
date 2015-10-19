@@ -180,6 +180,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
     //自营
     public static final Integer businessTypeONE = 10;
     //退货
