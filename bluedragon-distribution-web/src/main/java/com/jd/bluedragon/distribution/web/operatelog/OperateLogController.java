@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.operatelog;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -28,6 +29,7 @@ public class OperateLogController {
 	@HrmPrivilege("DMS-WEB-QUERY-OPERATE-LOG0")
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
+		
 		return "operateLog/operatelog";
 	}
 
@@ -111,5 +113,48 @@ public class OperateLogController {
 		}
 
 		return "operateLog/operatelog1";
+	}
+	
+	@RequestMapping(value = "/goListPage2", method = RequestMethod.GET)
+	public String goListpage2(Model model) {
+		return "operateLog/operatelog2";
+	}
+	
+	@RequestMapping(value = "/list2", method = RequestMethod.GET)
+	public String queryOperateLog2(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
+		try {
+
+			if (operationLog.getWaybillCode() == null && operationLog.getPickupCode() == null
+					&& operationLog.getPackageCode() == null && operationLog.getBoxCode() == null) {
+				return "operateLog/operatelog2";
+			}
+			
+			if (operationLog.getWaybillCode().equals("") && operationLog.getPickupCode().equals("")
+					&& operationLog.getPackageCode().equals("") && operationLog.getBoxCode().equals("")) {
+				return "operateLog/operatelog2";
+			}
+			String code = operationLog.getWaybillCode();
+			String type = "waybill";
+			
+			if(operationLog.getPickupCode()!= null && !operationLog.getPickupCode().equals("")){
+				code = operationLog.getPickupCode();
+				type = "pick";
+			}
+			
+			if(operationLog.getPackageCode()!= null && !operationLog.getPackageCode().equals("")){
+				code = operationLog.getPackageCode();
+				type = "package";
+			}
+			if(operationLog.getBoxCode()!= null && !operationLog.getBoxCode().equals("")){
+				code = operationLog.getBoxCode();
+				type = "box";
+			}
+			model.addAttribute("operatelogs", operationLosService.queryByCassandra(code ,type));
+			model.addAttribute("operationLogqueryDto", operationLog);
+		} catch (Exception e) {
+			logger.error("日志查询异常2-读库",e);
+		}
+
+		return "operateLog/operatelog2";
 	}
 }
