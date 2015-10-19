@@ -198,7 +198,7 @@
         <property name="taskType" value="QualityControlRedisTask"/>
         <property name="desc" value="发送质控系统，配送外呼Resis任务"/>
     </bean>
-    
+
     <bean id="weightRedisTask"
           class="com.jd.bluedragon.distribution.worker.weight.WeightRedisTask"
           parent="parentRedisTask">

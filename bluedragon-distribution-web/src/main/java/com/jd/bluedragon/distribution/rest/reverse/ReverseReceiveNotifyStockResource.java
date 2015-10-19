@@ -87,7 +87,7 @@ public class ReverseReceiveNotifyStockResource {
 		return java.net.URLEncoder.encode(resultStr, "UTF-8");
 	}
 
-	public OrderStockInfo getKeyKuguanInfo(Long waybillCode) {
+	private OrderStockInfo getKeyKuguanInfo(Long waybillCode) {
 
 		// 1.定义订单类型、库管信息对应的字段
 		String orderType = null;
@@ -95,7 +95,6 @@ public class ReverseReceiveNotifyStockResource {
 		String fenlei = null;
 		String qita = null;
 		String qitafangshi = null;
-		StringBuffer resultStr = new StringBuffer();
 
 		// 1.查运单类型
 		Order order = this.orderWebService.getOrder(waybillCode);

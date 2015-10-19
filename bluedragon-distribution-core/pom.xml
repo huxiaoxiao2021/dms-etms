@@ -504,9 +504,9 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 		<dependency>
-		    <groupId>iwms-app-export</groupId>
+		    <groupId>com.jd.stock.iwms</groupId>
 		    <artifactId>iwms-app-export</artifactId>
-		    <version>0.0.1-SNAPSHOT</version>
+		    <version>0.0.6-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.etms.vos</groupId>
