@@ -120,7 +120,7 @@ public class RefreshSchedulerFetchNumber {
         }catch (Exception ex){
             LOGGER.error("读取TASKTYPE异常",ex);
         }
-        if(null!=newTaskType){
+        if(null!=newTaskType&&taskType.getFetchDataNumber()!=newTaskType.getFetchDataNumber()){
             taskType.setFetchDataNumber(newTaskType.getFetchDataNumber());
             if(LOGGER.isInfoEnabled()){
                 LOGGER.info("重新设置"+taskType.getBaseTaskType()+"任务获取数量值为"+newTaskType.getFetchDataNumber());
