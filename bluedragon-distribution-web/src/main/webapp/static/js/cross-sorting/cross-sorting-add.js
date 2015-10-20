@@ -244,7 +244,7 @@ function doAddBtnClick() {
 		if (data.code == 1) {
 			location.href = $("#contextPath").val() + "/crossSorting";
 		} else {
-			jQuery.messager.alert('提示:', data.message, 'info');
+			jQuery.messager.alert('提示:', data.message + " 点击取消！", 'info');
 		}
 	});
 }

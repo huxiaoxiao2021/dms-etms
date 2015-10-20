@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache">
+
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>WORKER配置管理中心</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <style type="text/css">
+        h2.pos_left{
+            position:relative;
+            left:-20px
+        }
+        h2.pos_right{
+            position:relative;
+            left:200px
+        }
+    </style>
+</head>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">任务管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">新建任务</a>
+    </p>
+</div>
+<div id="content">
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg" >
+                <form action="#springUrl('/worker-setting/create')" method="post" name="createForm">
+                    <table>
+                        <tr>
+                            <td>ID<input type="hidden" value="$!lastUrl" name="lastLastUrl"/></td>
+                            <td><input type="text" name="id" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>baseTaskType</td>
+                            <td><input type="text" name="baseTaskType" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>dealBeanName</td>
+                            <td><input type="text" name="dealBeanName" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>heartBeatRate</td>
+                            <td><input type="text" name="heartBeatRate" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>judgeDeadInterval</td>
+                            <td><input type="text" name="judgeDeadInterval" value=""/></td>
+                        </tr>
+
+                        <tr>
+                            <td>sleepTimeNoData</td>
+                            <td><input type="text" name="sleepTimeNoData" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>sleepTimeInterval</td>
+                            <td><input type="text" name="sleepTimeInterval" value=""/></td>
+                        </tr>
+
+                        <tr>
+                            <td>taskQueueNumber</td>
+                            <td><input type="text" name="taskQueueNumber" value=""/></td>
+                        </tr>
+
+                        <tr>
+                            <td>fetchDataNumber</td>
+                            <td><input type="text" name="fetchDataNumber" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>executeNumber</td>
+                            <td><input type="text" name="executeNumber" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>threadNumber</td>
+                            <td><input type="text" name="threadNumber" value=""/></td>
+                        </tr>
+                        <tr>
+                            <td>processorType</td>
+                            <td><input type="text" name="processorType" value=""/></td>
+                        </tr>
+
+                    </table>
+                    <table class="pagin">
+                        <tr><td><a href="$!lastUrl">返回列表</a></td><td><a href="javascript:" onclick="document.createForm.submit()">创建</a> </td></tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -114,7 +114,7 @@
 	</logger>
 	
 	<logger name="com.jd.bluedragon">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.error"/>
 		<appender-ref ref="console"/>
 	</logger>

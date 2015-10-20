@@ -37,6 +37,11 @@
         </property>
     </bean>
 
+    <bean id="refreshFetchNumber" class="com.jd.bluedragon.distribution.framework.RefreshSchedulerFetchNumber"
+          init-method="start" destroy-method="close" depends-on="managerFactory">
+        <property name="interval" value="1"/>
+        <property name="firstInterval" value="1"/>
+    </bean>
 
     <bean id="receiveTask" class="com.jd.bluedragon.distribution.worker.ReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
