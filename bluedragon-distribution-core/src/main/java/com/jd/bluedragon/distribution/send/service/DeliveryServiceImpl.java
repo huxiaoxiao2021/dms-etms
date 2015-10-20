@@ -22,6 +22,9 @@ import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.basic.domain.BaseResult;
+import com.jd.etms.basic.domain.CrossDmsBox;
+import com.jd.etms.basic.saf.BasicSafInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -181,6 +184,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private WaybillCommonService waybillCommonService;
 
+    @Autowired
+    private BasicSafInterface basicSafInterface;
+
     //自营
     public static final Integer businessTypeONE = 10;
     //退货
@@ -235,6 +241,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(null!=targetSortingCenterId
                 &&!targetSortingCenterId.equals(domain.getReceiveSiteCode()))
         {
+            CrossDmsBox crossDmsBox = null;
+            try{
+                BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(
+                        domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+                crossDmsBox = resData.getData();
+            }catch (Exception e){
+                logger.error("一车一单发货，获取基础资料跨分拣箱号中转规则信息失败，原因", e);
+            }
+            if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !targetSortingCenterId.equals(crossDmsBox.getTransferOneId())){
+                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode()
+                        +"跨中转分拣中心为："+crossDmsBox.getTransferOneId()+"-"+crossDmsBox.getTransferTwoId()+"-"+crossDmsBox.getTransferThreeId());
+                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
+            }
             //发货规则调用基础资料跨分拣规则表校验
 //            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
 //            if(list.size()==0&&!domain.getReceiveSiteCode().equals(targetSiteCode)) {
@@ -293,7 +312,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 if (!isForceSend)
                     return new SendResult(4, response.getMessage(),response.getCode(),preSortingSiteCode);
             } else {
-                return new SendResult(2, response.getMessage(),response.getCode(),preSortingSiteCode);
+                return new SendResult(2, response.getMessage(),response.getCode(), preSortingSiteCode);
             }
 
         }

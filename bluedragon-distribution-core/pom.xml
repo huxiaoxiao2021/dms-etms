@@ -347,11 +347,11 @@
 			</exclusions>
 		</dependency>
 		-->
-		<dependency>
-			<groupId>com.jd.etms</groupId>
-			<artifactId>etms-dbs-base-client</artifactId>
-			<version>1.9.3-SNAPSHOT</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>com.jd.etms</groupId>-->
+			<!--<artifactId>etms-dbs-base-client</artifactId>-->
+			<!--<version>1.9.3-SNAPSHOT</version>-->
+		<!--</dependency>-->
 		
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
