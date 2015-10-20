@@ -60,11 +60,18 @@ public class Pager<T> {
 	public Pager() {
 
 	}
+    public void init(){
+        this.startIndex = (this.pageNo - 1) * this.pageSize;
+        this.endIndex = this.pageNo * this.pageSize;
+    }
 
 	public Pager(Integer pageNo) {
 		this(pageNo, DEFAULT_PAGE_SIZE);
 	}
 
+    public Pager(Pager copyFrom) {
+       this(copyFrom.getPageNo(),copyFrom.getPageSize());
+    }
 	public Pager(Integer pageNo, Integer pageSize) {
 		this.pageNo = (pageNo != null && pageNo > 1) ? pageNo : DEFAULT_PAGE_NO;
 		this.pageSize = (pageSize != null && pageSize > 0) ? pageSize : DEFAULT_PAGE_SIZE;
