@@ -267,5 +267,12 @@
     </bean>    
     <bean id="loadBillReportReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReportReadDao">
     	<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
-    </bean>  
+    </bean>
+
+    <bean id="tbTaskTypeDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao">
+        <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>
+    </bean>
+    <bean id="tbTaskQueueDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskQueueDao">
+        <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>
+    </bean>
 </beans>

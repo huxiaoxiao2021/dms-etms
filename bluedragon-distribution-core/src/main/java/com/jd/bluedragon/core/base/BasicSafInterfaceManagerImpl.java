@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class BasicSafInterfaceManagerImpl implements BasicSafInterfaceManager {
     @Override
 	@Cache(key = "basicSafInterfaceManager.getTraderInfoPopCodeAll", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BasicSafInterfaceManagerImpl.getDmsInfoByStoreInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseResult<BaseDmsStoreDto> getDmsInfoByStoreInfo(Integer cky2, Integer orgId, Integer storeId){
     	BaseDmsStore bdStore = new BaseDmsStore();
     	bdStore.setCky2(cky2);

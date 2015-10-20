@@ -124,7 +124,19 @@
 	</bean>
 	
 	<!-- dms读库 数据源  -end-->
-	
+
+    <!-- worker配置 数据源    -start-->
+    <bean id="workerSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="configLocation" value="classpath:mybatis-config-worker.xml" />
+    </bean>
+
+
+    <bean id="workerSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="workerSessionFactory" />
+    </bean>
+    <!-- worker配置 数据源    -end-->
+
 	<bean class="com.jd.dbs.objectId.DbsGenerateObjectId" id="genObjectId">
 		<property name="dataSource" ref="dms_main"/>
     </bean>

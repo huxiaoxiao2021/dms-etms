@@ -46,6 +46,9 @@
              <tr>
               <dd><a href="#springUrl('/admin/worker-monitor')">worker失败查询</a></dd>
             </tr>
+            <tr>
+                <dd><a href="#springUrl('/worker-setting/index')">worker配置管理</a></dd>
+            </tr>
           </tbody>
         </table>
     </div>

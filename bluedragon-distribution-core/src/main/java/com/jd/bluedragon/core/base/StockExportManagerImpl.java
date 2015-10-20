@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,14 @@ public class StockExportManagerImpl implements StockExportManager {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public long insertStockVirtualIntOut(StockVOParam stockVOParam0, StockVOParam stockVOParam1) {
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.StockExportManagerImpl.insertStockVirtualIntOut", false, true);
 		try{
 			com.jd.stock.iwms.export.result.BaseResult result = stockExportService.insertStockVirtualIntOut(stockVOParam0, stockVOParam1);
 			
 			if(result!=null){
 				if(!result.isResultFlag()){
 					this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result:"+result.getMessage());
+					Profiler.functionError(info);
 					return 0;
 				}else{
 					this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功：resultCode:"+result.getResultCode()+" resultMessage:"+result.getMessage());
@@ -41,18 +45,23 @@ public class StockExportManagerImpl implements StockExportManager {
 				}
 			}else{
 				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
+				Profiler.functionError(info);
 				return 0;
 			}
 			
 		}catch(Exception e){
 			logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常", e);
+			Profiler.functionError(info);
 			return 0;
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public QueryResult<StockVO> getFullStockByBusiNo(String businessNo, Integer businessType, Boolean isQueryHis) {
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.StockExportManagerImpl.getFullStockByBusiNo", false, true);
 		QueryResult<StockVO> result = null;
 		try{
 			result = stockExportService.getFullStockByBusiNo(businessNo, businessType, isQueryHis, "ql.dms");
@@ -60,16 +69,21 @@ public class StockExportManagerImpl implements StockExportManager {
 			if(result!=null){
 				if(!result.isResultFlag()){
 					this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result:"+result.getMessage());
+					Profiler.functionError(info);
 					result = null;
 				}else{
 					this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功: resultMessage:"+result.getMessage());
 				}
 			}else{
 				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
+				Profiler.functionError(info);
 			}
 			
 		}catch(Exception e){
 			logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常", e);
+			Profiler.functionError(info);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 		return result;
 	}
