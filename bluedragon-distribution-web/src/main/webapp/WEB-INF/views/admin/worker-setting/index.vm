@@ -38,14 +38,14 @@
 <div id="content">
     <div class="m">
         <div class="tbl-n">
-            <form id="queryForm" name="queryForm" action="#springUrl('/admin/worker-setting/index')" method="GET">
+            <form id="queryForm" name="queryForm" action="#springUrl('/worker-setting/index')" method="GET">
                 <table class="pagin">
                     <tr>
                         <td style="font-size: 14px;">任务名称</td>
                         <td><input type="text" name="data" value="$!request.getParameter('data')" style="font-size: 14px; height: 25px;"/> </td>
                         <td><a href="javascript:" onclick="document.queryForm.submit()" >查询</a> </td>
 
-                        <td><a href="#springUrl('/admin/worker-setting/create')">创建任务</a> </td>
+                        <td><a href="#springUrl('/worker-setting/create')">创建任务</a> </td>
                     </tr>
                 </table>
             </form>
@@ -81,7 +81,7 @@
                         #foreach($item in $!model.data)
                         <tr>
                             <td>$item.id</td>
-                            <td><a href="#springUrl('/admin/worker-setting/edit')?id=$!item.id"><span>$item.getBaseTaskType()</span></a></td>
+                            <td><a href="#springUrl('/worker-setting/edit')?id=$!item.id"><span>$item.getBaseTaskType()</span></a></td>
                             <td>$!item.getHeartBeatRate()</td>
                             <td>$!item.getJudgeDeadInterval()</td>
                             <td>$!item.getSleepTimeNoData()</td>

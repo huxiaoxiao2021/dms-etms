@@ -39,7 +39,7 @@
     <div id="opening">
         <div class="tbl-list">
             <div class="tbl-bg" >
-                <form action="#springUrl('/admin/worker-setting/edit')" method="post" name="editForm">
+                <form action="#springUrl('/worker-setting/edit')" method="post" name="editForm">
                 <table>
                 <tr>
                     <td>ID<input type="hidden" value="$!lastUrl" name="lastLastUrl"/></td>
