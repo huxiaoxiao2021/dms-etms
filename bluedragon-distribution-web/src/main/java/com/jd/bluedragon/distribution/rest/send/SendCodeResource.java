@@ -171,7 +171,9 @@ public class SendCodeResource {
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		String[] waybills = waybillCode.split("&");
-
+if(waybills==null){
+			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
+					JdResponse.MESSAGE_PARAM_ERROR);}
 		if(waybills.length>20)
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
