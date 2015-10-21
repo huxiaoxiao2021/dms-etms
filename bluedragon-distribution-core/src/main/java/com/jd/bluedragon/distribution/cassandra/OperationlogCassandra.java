@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.cassandra;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.common.base.Function;
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.utils.JsonHelper;
 import java.util.ArrayList;
@@ -144,7 +145,7 @@ public class OperationlogCassandra {
 		return baseCassandraDao.getSession().prepare(toPrepare);
 	}
 
-	public List<OperationLog> getPage(String code, String type) {
+	public List<OperationLog> getPage(String code, String type ,Pager<OperationLog> pager) {
 		List<OperationLog> list = new ArrayList<OperationLog>();
 		long startTime = System.currentTimeMillis();
 		try {
@@ -157,8 +158,20 @@ public class OperationlogCassandra {
 				bs = preparedSelectBypackagecode(code).bind(code);
 			if (type.equals("box"))
 				bs = preparedSelectByboxcode(code).bind(code);
-			bs.setFetchSize(SIZE);
-			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
+			bs.setFetchSize(pager.getPageSize());
+			PagingState pagingState = null;
+			ResultSet rs = null;
+			if(pager.getPageNo()==1)
+				rs = baseCassandraDao.preparedSelectBycode(bs);
+			else{
+				rs = baseCassandraDao.preparedSelectBycode(bs);
+				pagingState =rs.getExecutionInfo().getPagingState();
+				for(int i=2 ;i<=pager.getPageNo();i++){
+					bs.setPagingState(pagingState);
+					rs = baseCassandraDao.preparedSelectBycode(bs);
+					pagingState =rs.getExecutionInfo().getPagingState();
+				}
+			}
 			list = rsToList(rs, new RowToOrder());
 			logger.info("OperationlogCassandra getPage execute success cost:" + (System.currentTimeMillis() - startTime)
 					+ "ms");
@@ -168,6 +181,31 @@ public class OperationlogCassandra {
 		}
 
 		return list;
+	}
+	
+	public int totalSize(String code, String type) {
+		long startTime = System.currentTimeMillis();
+		int size =0;
+		try {
+			BoundStatement bs = null;
+			if (type.equals("waybill"))
+				bs = preparedSelectBywaybill(code).bind(code);
+			if (type.equals("pick"))
+				bs = preparedSelectBypickcode(code).bind(code);
+			if (type.equals("package"))
+				bs = preparedSelectBypackagecode(code).bind(code);
+			if (type.equals("box"))
+				bs = preparedSelectByboxcode(code).bind(code);
+			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
+			size = rs.getAvailableWithoutFetching();
+			logger.info("OperationlogCassandra totalSize execute success cost:" + (System.currentTimeMillis() - startTime)
+					+ "ms");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error("查询操作日志异常 异常原因：", e);
+		}
+
+		return size;
 	}
 	
 	public static ArrayList<OperationLog> rsToList(ResultSet rs, Function<Row, OperationLog> rowToObject) {

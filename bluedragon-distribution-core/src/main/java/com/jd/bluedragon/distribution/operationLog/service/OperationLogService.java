@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.operationLog.service;
 
 import java.util.List;
 import java.util.Map;
+
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 
 public interface OperationLogService {
@@ -12,5 +14,7 @@ public interface OperationLogService {
 
 	Integer totalSizeByParams(Map<String, Object> params);
 	
-	List<OperationLog> queryByCassandra(String code,String type);
+	List<OperationLog> queryByCassandra(String code,String type ,Pager<OperationLog> pager);
+	
+	int totalSize(String code,String type);
 }

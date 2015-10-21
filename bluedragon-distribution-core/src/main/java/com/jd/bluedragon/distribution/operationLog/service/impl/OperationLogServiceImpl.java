@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.cassandra.OperationlogCassandra;
@@ -72,8 +73,13 @@ public class OperationLogServiceImpl implements OperationLogService {
 		return operationLogReadDao.totalSizeByParams(params);
 	}
 	
-	public List<OperationLog> queryByCassandra(String code ,String type) {
-		return logCassandra.getPage(code ,type);
+	public List<OperationLog> queryByCassandra(String code ,String type ,Pager<OperationLog> pager) {
+		return logCassandra.getPage(code ,type , pager);
+	}
+
+	@Override
+	public int totalSize(String code, String type) {
+		return logCassandra.totalSize(code ,type);
 	}
 
 }
