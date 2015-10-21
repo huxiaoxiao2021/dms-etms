@@ -4,13 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.bcel.verifier.statics.LONG_Upper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
-import org.omg.CORBA.OBJ_ADAPTER;
 
 public class LoadBillDao extends BaseDao<LoadBill> {
 
