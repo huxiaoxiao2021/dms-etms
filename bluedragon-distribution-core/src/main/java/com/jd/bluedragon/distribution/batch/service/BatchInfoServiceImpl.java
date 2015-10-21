@@ -114,7 +114,7 @@ class BatchInfoServiceImpl implements BatchInfoService {
                 if (batchCache != null) {
                     this.logger.info("findMaxCreateTimeBatchInfo缓存命中波次为" + maxbatchinfocode);
                     //如果箱号 目的地 始发地不为空的时候
-                    if (batchCache.getBatchCode() != null && batchCache.getCreateSiteCode() != null) {
+                    if (batchCache.getBatchCode() != null && batchCache.getCreateSiteCode() != null&& batchCache != null) {
                         lst.add(batchCache);
                         return lst;
                     }
