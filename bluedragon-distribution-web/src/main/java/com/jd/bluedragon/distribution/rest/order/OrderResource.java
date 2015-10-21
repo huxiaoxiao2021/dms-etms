@@ -119,6 +119,13 @@ public class OrderResource {
 	}
 
 	@GET
+	@Path("/order/getHistoryOrder/{orderId}")
+	@Profiled(tag = "OrderResource.getOrder")
+	public jd.oom.client.orderfile.Order getHistoryOrder(@PathParam("orderId") long orderId) {
+		return this.orderWebService.getHistoryOrder(orderId);
+	}
+	
+	@GET
 	@Path("/waybill/product/{waybillCode}")
 	@Profiled(tag = "OrderResource.getWaybillProducts")
 	public JdResponse getWaybillProducts(@PathParam("waybillCode") String waybillCode) {
