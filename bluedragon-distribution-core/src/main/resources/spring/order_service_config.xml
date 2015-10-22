@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jaxws="http://cxf.apache.org/jaxws"
-       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
-       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
        http://www.springframework.org/schema/beans/spring-beans.xsd 
        http://www.springframework.org/schema/context 
        http://www.springframework.org/schema/context/spring-context.xsd
@@ -12,98 +10,91 @@
        http://cxf.apache.org/schemas/jaxws.xsd 
        http://cxf.apache.org/transports/http/configuration 
        http://cxf.apache.org/schemas/configuration/http-conf.xsd"
-       default-autowire="byName">
+	default-autowire="byName">
 
-	<http-conf:conduit name="*"> 
-		<http-conf:client ConnectionTimeout="1000" ReceiveTimeout="10000" />
+    <!-- 注意：cxf2.2.4及以下版本，不能通过properties注入${oom.connectTimeout}和${oom.receiveTimeout} -->
+	<http-conf:conduit name="http://ioms.360buy.com/.*">
+		<http-conf:client ConnectionTimeout="${oom.connectTimeout}" ReceiveTimeout="${oom.receiveTimeout}" />
 	</http-conf:conduit>
 	
-	<import resource="classpath:META-INF/cxf/cxf.xml" /> 
-	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" /> 
-	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" /> 
+	<http-conf:conduit name="http://orderfile.360buy.com/.*">
+		<http-conf:client ConnectionTimeout="${oom.connectTimeout}" ReceiveTimeout="${oom.receiveTimeout}" />
+	</http-conf:conduit>
 
-    <bean id="oomOrderFileServerSoap" class="jd.oom.client.orderfile.ServiceSoap"  factory-bean="oomOrderFileClientFactory" factory-method="create"/>
-	<bean id="oomOrderFileClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
-  		<property name="serviceClass" value="jd.oom.client.orderfile.ServiceSoap"/>
-  		<property name="address" value="http://orderfile.360buy.com/oom/Service.asmx"/>
-  		<property name="inInterceptors">
-  			<list>
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	<!-- 注意：cxf3.0及以上版本，没有cxf-extension-soap.xml -->
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
 
-  			</list>
-  		</property>
-  		<property name="outInterceptors">
-  			<list>                                                                                                                                                                       
-  				<ref bean="oomJdSOAPHeader" />
-  			</list>
-  		</property>
- 	</bean>
- 	
- 	
-	<bean id="oomServiceSoap" class="jd.oom.client.clientbean.ServiceSoap" factory-bean="oomClientFactory" factory-method="create" />
+	<!-- ioms -->
+	<bean id="oomServiceSoap" class="jd.oom.client.clientbean.ServiceSoap"
+		factory-bean="oomClientFactory" factory-method="create" />
 
 	<bean id="oomClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
 		<property name="serviceClass" value="jd.oom.client.clientbean.ServiceSoap" />
-		<property name="address" value="http://ioms.360buy.com/oom/Service.asmx" />
+		<property name="address" value="${ioms.service.url}" />
 		<property name="inInterceptors">
 			<list>
-
 			</list>
 		</property>
 		<property name="outInterceptors">
-			<list>		
+			<list>
 				<ref bean="oomJdSOAPHeader" />
 			</list>
 		</property>
 	</bean>
-	
-	<bean id="oomPriceProtectWebServiceSoap" class="jd.oom.client.priceprotect.PriceProtectWebServiceSoap" factory-bean="oomPriceProtectServiceFactory"  factory-method="create" />
-	<bean id="oomPriceProtectServiceFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
-		<property name="serviceClass" value="jd.oom.client.priceprotect.PriceProtectWebServiceSoap" />
-		<property name="address" value="http://ioms.360buy.com/PriceProtect/PriceProtectWebService.asmx" />
+	<!-- ioms -->
+
+	<!-- order archive -->
+	<bean id="oomArchiveOrderServerSoap" class="jd.oom.client.archiveorder.ServiceSoap"
+		factory-bean="oomArchiveOrderServerFactory" factory-method="create" />
+
+	<bean id="oomArchiveOrderServerFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+		<property name="serviceClass" value="jd.oom.client.archiveorder.ServiceSoap" />
+		<property name="address" value="${archiveorder.service.url}" />
 		<property name="inInterceptors">
-			<list/>
+			<list>
+			</list>
 		</property>
 		<property name="outInterceptors">
-			<list>		
-				<!--  <ref bean="oomJdSOAPHeader" /> -->
+			<list>
+				<ref bean="oomJdSOAPHeader" />
 			</list>
 		</property>
 	</bean>
-	
-	<bean id="oomPriceProtectDoService" class="jd.oom.client.priceprotect.PriceProtectDoServiceImpl">
-	  <property name="priceProtectWebServiceSoap" ref="oomPriceProtectWebServiceSoap"/>
+	<!-- order archive -->
+
+	<!-- Deprecated -->
+	<bean id="oomOrderFileServerSoap" class="jd.oom.client.orderfile.ServiceSoap"
+		factory-bean="oomOrderFileClientFactory" factory-method="create" />
+
+	<bean id="oomOrderFileClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+		<property name="serviceClass" value="jd.oom.client.orderfile.ServiceSoap" />
+		<property name="address" value="${orderfile.service.url}" />
+		<property name="inInterceptors">
+			<list>
+			</list>
+		</property>
+		<property name="outInterceptors">
+			<list>
+				<ref bean="oomJdSOAPHeader" />
+			</list>
+		</property>
 	</bean>
-	
-	
-	<!--
-		正式生产环境的配置 有些地方需要配置 Host s 10.66.66.156 ioms.360buy.com
-	-->
-	<bean id="logIn" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
-	<bean id="logOut" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
-	<bean id="oomAuthHeader" class="jd.oom.client.interceptor.AuthHeader">
-		
-		<property name="content" value="${ioms.soa.content}" />
-		<property name="qName" value="http://ioms.360buy.com/" />
-		<property name="key" value="AuthenticationHeader" />
-		<property name="seed" value="${ioms.soa.seed}" />
-	</bean>
+	<!-- Deprecated -->
+
 	<bean id="oomJdSOAPHeader" class="jd.oom.client.interceptor.OrderSOAPHeaderIntercepter">
 		<property name="authHeader" ref="oomAuthHeader" />
 	</bean>
-	
-	<!-- 订单中间件下线 -->
-	<!-- bean id="oomArchiveOrderServerSoap" class="jd.oom.client.archiveorder.ServiceSoap"  factory-bean="oomArchiveOrderServerFactory" factory-method="create"/>
-	<bean id="oomArchiveOrderServerFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
-  		<property name="serviceClass" value="jd.oom.client.archiveorder.ServiceSoap"/>
-  		<property name="address" value="http://orderfile.360buy.com/orderfilehistory/service.asmx"/>
-  		<property name="inInterceptors">
-  			<list>
-  			</list>
-  		</property>
-  		<property name="outInterceptors">
-  			<list>                                                                                                                                                                       
-  				<ref bean="oomJdSOAPHeader" />
-  			</list>
-  		</property>
- 	</bean> -->
+
+	<bean id="oomAuthHeader" class="jd.oom.client.interceptor.AuthHeader">
+		<property name="content" value="${oom.content}" />
+		<property name="qName" value="http://ioms.360buy.com/" />
+		<property name="key" value="AuthenticationHeader" />
+		<property name="seed" value="${oom.send}" />
+	</bean>
+
+	<bean id="logIn" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+
+	<bean id="logOut" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
 </beans>

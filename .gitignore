@@ -38,3 +38,4 @@ bluedragon-distribution.iml
 /.gitignore
 overlays/
 /bluedragon-distribution-sdk/.checkstyle
+*.diff
