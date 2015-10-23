@@ -24,13 +24,7 @@
 	</properties>
 
 	<dependencies>
-        <dependency>
-			<groupId>org.apache.santuario</groupId>
-			<artifactId>xmlsec</artifactId>
-			<version>1.4.3</version>
-        </dependency>
-  
-  
+
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -540,13 +534,6 @@
             <groupId>com.jd.staig</groupId>
             <artifactId>receiver-rpc</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        
-        <!-- cassandra -->
-		<dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-            <version>2.1.7.1</version>
         </dependency>
     </dependencies>
 
