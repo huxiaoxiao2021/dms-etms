@@ -8,6 +8,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +33,10 @@ public class SiteResource {
 
 	@Autowired
 	private SiteService siteService;
-	
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	@GET
@@ -94,4 +98,15 @@ public class SiteResource {
 		
 		return response;
 	}
+
+    /**
+     * 获取VER站点测试
+     * @param siteCode
+     * @return
+     */
+    @GET
+    @Path("/bases/siteString/{siteCode}")
+    public BaseStaffSiteOrgDto getSiteString(@PathParam("siteCode") String siteCode) {
+        return this.baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCode);
+    }
 }
