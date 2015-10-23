@@ -13,7 +13,6 @@
     <bean id="baseCassandra" class="com.jd.bluedragon.distribution.cassandra.BaseCassandra" init-method="init">
         <property name="connectTimeoutMillis" value="${cassandra.timeoutDefault}"  />
         <property name="node" value="${cassandra.nodes}"  />
-
         <property name="userName" value="${cassandra.userName}"  />
         <property name="password" value="${cassandra.password}"  />
         <property name="readTimeoutMillis" value="${cassandra.timeoutDefault}"  />
@@ -22,6 +21,8 @@
         <property name="newNodeDelaySeconds" value="${cassandra.newNodeDelaySeconds}"  />
         <property name="nonBlockingExecutorSize" value="${cassandra.nonBlockingExecutorSize}"  />
         <property name="notIfLockTimeoutSeconds" value="${cassandra.notIfLockTimeoutSeconds}"  />
+        <property name="dataCenter" value="${cassandra.dataCenter}"/>
+        <property name="coreConnectPerHost"  value="${cassandra.coreConnectPerHost}"/>
     </bean>
    <bean id="cassandraSession" class="com.jd.bluedragon.distribution.cassandra.CassandraSessionFactory" >
        <constructor-arg name="baseCassandra" ref="baseCassandra"/>
