@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.rest.box;
 
-import java.util.List;
+import java.util.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,6 +11,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.etms.basic.domain.CrossDmsBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
@@ -151,6 +154,62 @@ public class BoxResource {
 		
 		return response;
 	}
+
+    /**
+     * 为自动分拣机生成箱号
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/boxes/create")
+    public InvokeResult<AutoSortingBoxResult> create(BoxRequest request) {
+        Assert.notNull(request, "request must not be null");
+        Assert.notNull(request.getType(), "request type must not be null");
+        Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
+        Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
+        Assert.notNull(request.getQuantity(), "request quantity must not be null");
+        this.logger.info("BoxRequest's " + request.toString());
+
+        List<Box> availableBoxes = this.boxService.batchAdd(this.toBox(request));
+
+        InvokeResult<AutoSortingBoxResult> result=new InvokeResult<AutoSortingBoxResult>();
+        AutoSortingBoxResult boxResult=new AutoSortingBoxResult();
+        List<String> boxs=new ArrayList<String>(availableBoxes.size());
+        for (Box item:availableBoxes){
+            boxs.add(item.getCode());
+        }
+        boxResult.setBoxCode(boxs);
+        result.setData(boxResult);
+
+        if(request.getTransportType()!=null&&request.getTransportType()==2){//只有公路运输的支持路由信息查询2014.3.10
+            //获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
+            try{
+                BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
+                List<Map.Entry<Integer,String>> router=new ArrayList<Map.Entry<Integer,String>>();
+                if(null!=resData.getData()){
+                    router.add(new AbstractMap.SimpleEntry<Integer,String>(resData.getData().getOriginalDmsId(), resData.getData().getOriginalDmsName()));
+                    if(null!=resData.getData().getTransferOneId()){
+                        router.add(new AbstractMap.SimpleEntry<Integer, String>(resData.getData().getTransferOneId(), resData.getData().getTransferOneName()));
+                    }
+                    if(null!=resData.getData().getTransferTwoId()){
+                        router.add(new AbstractMap.SimpleEntry<Integer, String>(resData.getData().getTransferTwoId(), resData.getData().getTransferTwoName()));
+                    }
+                    if(null!=resData.getData().getTransferThreeId()){
+                        router.add(new AbstractMap.SimpleEntry<Integer, String>(resData.getData().getTransferThreeId(), resData.getData().getTransferThreeName()));
+                    }
+                    router.add(new AbstractMap.SimpleEntry<Integer, String>(resData.getData().getDestinationDmsId(), resData.getData().getDestinationDmsName()));
+                }else{
+                    router.add(new AbstractMap.SimpleEntry<Integer,String>(request.getCreateSiteCode(), request.getCreateSiteName()));
+                    router.add(new AbstractMap.SimpleEntry<Integer, String>(request.getReceiveSiteCode(),request.getReceiveSiteName()));
+                }
+                boxResult.setRouterInfo(router);
+            }catch(Exception e){
+                this.logger.error("获得站点路由信息失败： " , e);
+            }
+        }
+
+        return result;
+    }
 
 	@POST
 	@Path("/boxes/getRouterInfo")
