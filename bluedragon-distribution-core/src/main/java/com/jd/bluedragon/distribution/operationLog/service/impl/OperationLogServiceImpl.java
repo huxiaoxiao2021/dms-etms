@@ -49,15 +49,20 @@ public class OperationLogServiceImpl implements OperationLogService {
 			for(SysConfig sys : configs){
 				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_ON")){
 					logCassandra.batchInsert(operationLog);
+					operationLogDao.add(OperationLogDao.namespace, operationLog);
+				}
+				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OFF")){
+					operationLogDao.add(OperationLogDao.namespace, operationLog);
+				}
+				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OL")){
+					logCassandra.batchInsert(operationLog);
 				}
 			}
 			
-			return operationLogDao.add(OperationLogDao.namespace, operationLog);
-			
 		} catch (Exception e) {
 			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
-			return 0;
 		}
+		return 1;
 	}
 
 	@Profiled(tag = "OperationLogService.queryByParams")
