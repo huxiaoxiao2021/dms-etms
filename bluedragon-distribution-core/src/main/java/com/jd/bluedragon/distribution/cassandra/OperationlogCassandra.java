@@ -33,6 +33,11 @@ public class OperationlogCassandra {
     private PreparedStatement preparedpickCode;
     private PreparedStatement preparedpackage ;
     private PreparedStatement preparedbox ;
+    
+    private PreparedStatement preparedswaybill ;
+    private PreparedStatement preparedspickCode;
+    private PreparedStatement preparedspackage ;
+    private PreparedStatement preparedsbox ;
 
     public OperationlogCassandra() {
     	
@@ -114,14 +119,14 @@ public class OperationlogCassandra {
 		}
 	}
     
-	private PreparedStatement preparedSelectBywaybill(String code) {
+	private PreparedStatement preparedSelectBywaybill() {
 		RegularStatement toPrepare = new SimpleStatement(
 				"select * from operationlogwaybill  where code = ? order by time  ");
 		toPrepare.setConsistencyLevel(consistencyLevel);
 		return baseCassandraDao.getSession().prepare(toPrepare);
 	}
 
-	private PreparedStatement preparedSelectBypickcode(String code) {
+	private PreparedStatement preparedSelectBypickcode() {
 		RegularStatement toPrepare = new SimpleStatement(
 				"select * from operationlogpick  where code = ? order by time  ");
 		toPrepare.setConsistencyLevel(consistencyLevel);
@@ -129,7 +134,7 @@ public class OperationlogCassandra {
 		return baseCassandraDao.getSession().prepare(toPrepare);
 	}
 
-	private PreparedStatement preparedSelectBypackagecode(String code) {
+	private PreparedStatement preparedSelectBypackagecode() {
 		RegularStatement toPrepare = new SimpleStatement(
 				"select * from operationlogpackage  where code = ? order by time  ");
 		toPrepare.setConsistencyLevel(consistencyLevel);
@@ -137,7 +142,7 @@ public class OperationlogCassandra {
 		return baseCassandraDao.getSession().prepare(toPrepare);
 	}
 
-	private PreparedStatement preparedSelectByboxcode(String code) {
+	private PreparedStatement preparedSelectByboxcode() {
 		RegularStatement toPrepare = new SimpleStatement(
 				"select * from operationlogbox  where code = ? order by time  ");
 		toPrepare.setConsistencyLevel(consistencyLevel);
@@ -150,14 +155,30 @@ public class OperationlogCassandra {
 		long startTime = System.currentTimeMillis();
 		try {
 			BoundStatement bs = null;
-			if (type.equals("waybill"))
-				bs = preparedSelectBywaybill(code).bind(code);
-			if (type.equals("pick"))
-				bs = preparedSelectBypickcode(code).bind(code);
-			if (type.equals("package"))
-				bs = preparedSelectBypackagecode(code).bind(code);
-			if (type.equals("box"))
-				bs = preparedSelectByboxcode(code).bind(code);
+			if (type.equals("waybill")) {
+				if (preparedswaybill == null)
+					preparedswaybill = preparedSelectBywaybill();
+				else
+					bs = preparedswaybill.bind(code);
+			}
+			if (type.equals("pick")) {
+				if (preparedspickCode == null)
+					preparedspickCode = preparedSelectBypickcode();
+				else
+					bs = preparedspickCode.bind(code);
+			}
+			if (type.equals("package")){
+				if (preparedspackage == null)
+					preparedspackage = preparedSelectBypackagecode();
+				else
+					bs = preparedspackage.bind(code);
+			}
+			if (type.equals("box")){
+				if (preparedsbox == null)
+					preparedsbox = preparedSelectByboxcode();
+				else
+					bs = preparedsbox.bind(code);
+			}
 			bs.setFetchSize(pager.getPageSize());
 			PagingState pagingState = null;
 			ResultSet rs = null;
@@ -188,14 +209,30 @@ public class OperationlogCassandra {
 		int size =0;
 		try {
 			BoundStatement bs = null;
-			if (type.equals("waybill"))
-				bs = preparedSelectBywaybill(code).bind(code);
-			if (type.equals("pick"))
-				bs = preparedSelectBypickcode(code).bind(code);
-			if (type.equals("package"))
-				bs = preparedSelectBypackagecode(code).bind(code);
-			if (type.equals("box"))
-				bs = preparedSelectByboxcode(code).bind(code);
+			if (type.equals("waybill")) {
+				if (preparedswaybill == null)
+					preparedswaybill = preparedSelectBywaybill();
+				else
+					bs = preparedswaybill.bind(code);
+			}
+			if (type.equals("pick")) {
+				if (preparedspickCode == null)
+					preparedspickCode = preparedSelectBypickcode();
+				else
+					bs = preparedspickCode.bind(code);
+			}
+			if (type.equals("package")){
+				if (preparedspackage == null)
+					preparedspackage = preparedSelectBypackagecode();
+				else
+					bs = preparedspackage.bind(code);
+			}
+			if (type.equals("box")){
+				if (preparedsbox == null)
+					preparedsbox = preparedSelectByboxcode();
+				else
+					bs = preparedsbox.bind(code);
+			}
 			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
 			size = rs.getAvailableWithoutFetching();
 			logger.info("OperationlogCassandra totalSize execute success cost:" + (System.currentTimeMillis() - startTime)
