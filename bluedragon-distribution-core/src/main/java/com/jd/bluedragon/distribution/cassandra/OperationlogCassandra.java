@@ -7,6 +7,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.utils.JsonHelper;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,33 +82,36 @@ public class OperationlogCassandra {
 			long startTime = System.currentTimeMillis();
 			List<BoundStatement> bstatementList = new ArrayList<BoundStatement>();
 			Map<String, Object> values = new HashMap<String, Object>();
+			long operateTime = new Date().getTime();
+			if(log.getOperateTime()!=null)
+				operateTime = log.getOperateTime().getTime();
 
 			if (log.getWaybillCode() != null && !log.getWaybillCode().isEmpty()) {
 				if (preparedwaybill == null)
 					preparedwaybill = preparedwaybill();
 				BoundStatement bStatement = preparedwaybill.bind(log.getWaybillCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), log.getOperateTime().getTime());
+						JsonHelper.toJson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getBoxCode() != null && !log.getBoxCode().isEmpty()) {
 				if (preparedbox == null)
 					preparedbox = preparedbox();
 				BoundStatement bStatement = preparedbox.bind(log.getBoxCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), log.getOperateTime().getTime());
+						JsonHelper.toJson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getPackageCode() != null && !log.getPackageCode().isEmpty()) {
 				if (preparedpackage == null)
 					preparedpackage = preparedpackage();
 				BoundStatement bStatement = preparedpackage.bind(log.getPackageCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), log.getOperateTime().getTime());
+						JsonHelper.toJson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getPickupCode() != null && !log.getPickupCode().isEmpty()) {
 				if (preparedpickCode == null)
 					preparedpickCode = preparedpickCode();
 				BoundStatement bStatement = preparedpickCode().bind(log.getPickupCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), log.getOperateTime().getTime());
+						JsonHelper.toJson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 
