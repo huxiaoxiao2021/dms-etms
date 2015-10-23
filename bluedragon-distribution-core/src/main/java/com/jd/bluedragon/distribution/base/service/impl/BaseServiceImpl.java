@@ -161,7 +161,7 @@ public class BaseServiceImpl implements BaseService {
 		return sysConfigDao.queryByKey(params);
 	}
 
-    @Cache(key = "sysconfig.cache.@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    @Cache(key = "sysconfig.cache.@args0", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public List<SysConfig> queryConfigByKeyWithCache(String key){
         List<SysConfig> lst=  queryConfigByKey(key);
