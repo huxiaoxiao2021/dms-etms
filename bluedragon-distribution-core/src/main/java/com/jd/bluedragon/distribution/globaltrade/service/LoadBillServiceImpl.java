@@ -141,7 +141,6 @@ public class LoadBillServiceImpl implements LoadBillService {
 			// 注入装载单其他信息
 			lb.setCreateUserCode(userId);
 			lb.setCreateUser(userName);
-			lb.setLoadId(sd.getWaybillCode());// loadId暂时用WaybillCode
 			lb.setWarehouseId(PropertiesHelper.newInstance().getValue(WAREHOUSE_ID));
 			lb.setCtno(PropertiesHelper.newInstance().getValue(CTNO));
 			lb.setGjno(PropertiesHelper.newInstance().getValue(GJNO));
