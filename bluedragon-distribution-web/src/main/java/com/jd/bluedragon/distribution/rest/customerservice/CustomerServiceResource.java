@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.customerservice;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.CustomerServiceResponse;
 //import com.jd.etms.erp.ws.ErpQuerySafWS;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.wss.PickupTaskWS;
@@ -44,16 +45,15 @@ public class CustomerServiceResource {
 
             BaseEntity<PickupTask> task = this.pickupWebService.getPickTaskByPickCode(oldBillCode);
             String surFaceCode="";
-            Assert.notNull(task, "未检索到新运单号！");
             PickupTask pickupTask = task.getData();
-            Assert.notNull(pickupTask, "未检索到新运单号！");
             surFaceCode = pickupTask.getSurfaceCode();
-            Assert.notNull(surFaceCode, "未检索到新运单号");
             response.setSurfaceCode(surFaceCode);
+            response.setServiceCode(pickupTask.getServiceCode());
+            logger.info("外单逆向换单旧单号"+oldBillCode+JsonHelper.toJson(response));
         } catch (Exception ex) {
             response.setCode(CustomerServiceResponse.CODE_NEW_BILL_CODE_NOT_FOUND);
             response.setMessage(ex.getMessage());
-            logger.error("外单逆向换单获取新运单号失败！"+ex);
+            logger.error("外单逆向换单获取新运单号失败,旧单号："+oldBillCode+ex);
         }
 
         return response;
