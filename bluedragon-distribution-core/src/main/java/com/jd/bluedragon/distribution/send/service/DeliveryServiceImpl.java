@@ -22,6 +22,9 @@ import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.basic.domain.BaseResult;
+import com.jd.etms.basic.domain.CrossDmsBox;
+import com.jd.etms.basic.saf.BasicSafInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -180,6 +183,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private BasicSafInterface basicSafInterface;
+
     //自营
     public static final Integer businessTypeONE = 10;
     //退货
@@ -234,11 +241,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(null!=targetSortingCenterId
                 &&!targetSortingCenterId.equals(domain.getReceiveSiteCode()))
         {
-            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
-            if(list.size()==0&&!domain.getReceiveSiteCode().equals(targetSiteCode)) {
+            CrossDmsBox crossDmsBox = null;
+            try{
+                BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(
+                        domain.getCreateSiteCode(), targetSortingCenterId);
+                crossDmsBox = resData.getData();
+                logger.info("调用基础资料获取跨分拣箱号规则 " + JsonHelper.toJson(crossDmsBox));
+            }catch (Exception e){
+                logger.error("一车一单发货，获取基础资料跨分拣箱号中转规则信息失败，原因", e);
+            }
+            if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !domain.getReceiveSiteCode().equals(crossDmsBox.getTransferOneId())){
                 logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
                 return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
             }
+            //发货规则调用基础资料跨分拣规则表校验
+//            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
+//            if(list.size()==0&&!domain.getReceiveSiteCode().equals(targetSiteCode)) {
+//                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
+//                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
+//            }
+
         }
         return new SendResult(1,"发货成功",null,null);
     }
@@ -278,20 +300,19 @@ public class DeliveryServiceImpl implements DeliveryService {
             Profiler.registerInfoEnd(info1);
             Integer preSortingSiteCode=null;
             try{
-            com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
-            if(null!=waybill){
-                preSortingSiteCode=waybill.getSiteCode();
-            }}catch (Throwable e){
+                com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
+                if(null!=waybill){
+                    preSortingSiteCode=waybill.getSiteCode();
+                }}catch (Throwable e){
                 logger.error("一车一单获取预分拣站点异常",e);
             }
-
             if (response.getCode().equals(200)) {
 
             } else if (response.getCode() >= 39000) {
                 if (!isForceSend)
                     return new SendResult(4, response.getMessage(),response.getCode(),preSortingSiteCode);
             } else {
-                return new SendResult(2, response.getMessage(),response.getCode(),preSortingSiteCode);
+                return new SendResult(2, response.getMessage(),response.getCode(), preSortingSiteCode);
             }
 
         }
@@ -300,11 +321,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
             return new SendResult(2,"该发货批次已经发车，不能继续发货");
         }
-        /*  谫明：暂取消跨分拣校验，待邹剑确定
         SendResult checkResult=packageCrosssSendCheck(domain);
         if(!checkResult.getKey().equals(1)&&!isForceSend){
             return checkResult;
-        }*/
+        }
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());

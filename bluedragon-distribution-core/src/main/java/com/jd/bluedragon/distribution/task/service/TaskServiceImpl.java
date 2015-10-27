@@ -509,6 +509,7 @@ public class TaskServiceImpl implements TaskService {
         BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(dto.getSiteCode());
         Assert.notNull(site,"智能分拣线生成分拣任务出错，获取站点信息失败"); //这里主动抛出异常是为了让事务回滚
         Task taskSorting=new Task();
+        taskSorting.setOwnSign(BusinessHelper.getOwnSign());
         taskSorting.setKeyword1(String.valueOf(dto.getDistributeID()));
         taskSorting.setKeyword2(dto.getWaybillCode());
         taskSorting.setCreateSiteCode(dto.getDistributeID());
@@ -583,6 +584,7 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setSiteName(uPackage.getDistributeName());
         inspectionAS.setUserCode(uPackage.getOperatorID());
         inspectionAS.setUserName(uPackage.getOperatorName());
+        inspectionAS.setBusinessType(50);
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }

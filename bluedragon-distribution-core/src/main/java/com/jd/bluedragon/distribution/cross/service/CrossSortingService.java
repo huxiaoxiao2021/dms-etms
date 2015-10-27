@@ -19,7 +19,7 @@ public interface CrossSortingService {
 
 	List<CrossSorting> findMixDms(Map<String, Object> params);
 
-    List<CrossSortingDto>  getQueryByids(Integer createDmsCode ,Integer destinationDmsCode,Integer mixDmsCode ,Integer dmsType);
+    List<CrossSortingDto>  getQueryByids(Integer createDmsCode ,Integer destinationDmsCode,Integer mixDmsCode);
 
 	void importCrossSortingRules(Sheet sheet, String userName, String userCode)  throws Exception;
 

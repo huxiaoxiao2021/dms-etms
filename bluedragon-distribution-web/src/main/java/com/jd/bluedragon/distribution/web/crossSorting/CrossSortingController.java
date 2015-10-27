@@ -323,9 +323,6 @@ public class CrossSortingController {
             Sheet sheet0 = getSheet0FromFile(file);
             if (null == sheet0) throw new DataFormatException("文件只能是Excel");
             ErpUser erpUser = ErpUserClient.getCurrUser();
-//            erpUser = new ErpUser();
-//            erpUser.setUserName("admin");
-//            erpUser.setUserId(123123);
             if (null == erpUser) throw new DataFormatException("未登录用户，没有权限");
             crossSortingService.importCrossSortingRules(sheet0, erpUser.getUserName(), String.valueOf(erpUser.getUserId()));
         } catch (Exception e) {
@@ -433,13 +430,13 @@ public class CrossSortingController {
         style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
         style.setBorderRight(HSSFCellStyle.BORDER_THIN);
         style.setRightBorderColor((short) 10);
-        createCellOfRow(row, 0, "规则类型", style);
-        createCellOfRow(row, 1, "始发分拣中心编码", style);
-        createCellOfRow(row, 2, "始发分拣中心名称", style);
-        createCellOfRow(row, 3, "目的分拣中心编码", style);
-        createCellOfRow(row, 4, "目的分拣中心名称", style);
-        createCellOfRow(row, 5, "可混装分拣中心编码", style);
-        createCellOfRow(row, 6, "可混装分拣中心名称", style);
+//        createCellOfRow(row, 0, "规则类型", style);
+        createCellOfRow(row, 0, "始发分拣中心编码", style);
+        createCellOfRow(row, 1, "始发分拣中心名称", style);
+        createCellOfRow(row, 2, "目的分拣中心编码", style);
+        createCellOfRow(row, 3, "目的分拣中心名称", style);
+        createCellOfRow(row, 4, "可混装分拣中心编码", style);
+        createCellOfRow(row, 5, "可混装分拣中心名称", style);
 
         // create cell style(border with border color)
         HSSFCellStyle styleContent = wb.createCellStyle();
@@ -449,15 +446,15 @@ public class CrossSortingController {
         for (int i = 0; i < crossSortings.size(); i++) {
             CrossSorting crossSorting = crossSortings.get(i);
             HSSFRow row1 = sheet.createRow(i + 1);
-            createCellOfRow(row1, 0, CrossSortingImpl.CREATE_PACKAGE_CODE.equals(crossSorting.getType())
-                    ? CrossSortingImpl.CREATE_PACKAGE
-                    : CrossSortingImpl.CREATE_SEND, styleContent);
-            createCellOfRow(row1, 1, String.valueOf(crossSorting.getCreateDmsCode()), styleContent);
-            createCellOfRow(row1, 2, crossSorting.getCreateDmsName(),styleContent);
-            createCellOfRow(row1, 3, String.valueOf(crossSorting.getDestinationDmsCode()), styleContent);
-            createCellOfRow(row1, 4, crossSorting.getDestinationDmsName(), styleContent);
-            createCellOfRow(row1, 5, String.valueOf(crossSorting.getMixDmsCode()), styleContent);
-            createCellOfRow(row1, 6, crossSorting.getMixDmsName(), styleContent);
+//            createCellOfRow(row1, 0, CrossSortingImpl.CREATE_PACKAGE_CODE.equals(crossSorting.getType())
+//                    ? CrossSortingImpl.CREATE_PACKAGE
+//                    : CrossSortingImpl.CREATE_SEND, styleContent);
+            createCellOfRow(row1, 0, String.valueOf(crossSorting.getCreateDmsCode()), styleContent);
+            createCellOfRow(row1, 1, crossSorting.getCreateDmsName(),styleContent);
+            createCellOfRow(row1, 2, String.valueOf(crossSorting.getDestinationDmsCode()), styleContent);
+            createCellOfRow(row1, 3, crossSorting.getDestinationDmsName(), styleContent);
+            createCellOfRow(row1, 4, String.valueOf(crossSorting.getMixDmsCode()), styleContent);
+            createCellOfRow(row1, 5, crossSorting.getMixDmsName(), styleContent);
         }
 
         // set auto size column
@@ -467,7 +464,6 @@ public class CrossSortingController {
         sheet.autoSizeColumn((short) 3);
         sheet.autoSizeColumn((short) 4);
         sheet.autoSizeColumn((short) 5);
-        sheet.autoSizeColumn((short) 6);
         return wb;
     }
 
