@@ -244,14 +244,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             CrossDmsBox crossDmsBox = null;
             try{
                 BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(
-                        domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+                        domain.getCreateSiteCode(), targetSortingCenterId);
                 crossDmsBox = resData.getData();
+                logger.info("调用基础资料获取跨分拣箱号规则 " + JsonHelper.toJson(crossDmsBox));
             }catch (Exception e){
                 logger.error("一车一单发货，获取基础资料跨分拣箱号中转规则信息失败，原因", e);
             }
-            if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !targetSortingCenterId.equals(crossDmsBox.getTransferOneId())){
-                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode()
-                        +"跨中转分拣中心为："+crossDmsBox.getTransferOneId()+"-"+crossDmsBox.getTransferTwoId()+"-"+crossDmsBox.getTransferThreeId());
+            if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !domain.getReceiveSiteCode().equals(crossDmsBox.getTransferOneId())){
+                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
                 return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
             }
             //发货规则调用基础资料跨分拣规则表校验
