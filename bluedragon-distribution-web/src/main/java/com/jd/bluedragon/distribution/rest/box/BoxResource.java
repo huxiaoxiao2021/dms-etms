@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.basic.domain.CrossDmsBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -142,7 +143,9 @@ public class BoxResource {
 			try{
 				BaseResult<String> routInfoRes = this.basicSafInterface.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
 				this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
-				
+				if(logger.isInfoEnabled()){
+                    this.logger.info("调用基础资料获取箱号路由"+ JsonHelper.toJson(routInfoRes));
+                }
 				if(StringHelper.isNotEmpty(routInfoRes.getData())){
 					response.setRouterInfo(routInfoRes.getData().split("\\-\\-"));
 				}
@@ -185,6 +188,9 @@ public class BoxResource {
             //获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
             try{
                 BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
+                if(logger.isInfoEnabled()){
+                    this.logger.info("调用基础资料获取箱号路由"+ JsonHelper.toJson(resData));
+                }
                 List<Map.Entry<Integer,String>> router=new ArrayList<Map.Entry<Integer,String>>();
                 if(null!=resData.getData()){
                     router.add(new AbstractMap.SimpleEntry<Integer,String>(resData.getData().getOriginalDmsId(), resData.getData().getOriginalDmsName()));
