@@ -62,7 +62,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
 	@Profiled(tag = "cenConfirmService.saveOrUpdateCenConfirm")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public synchronized void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {
+	public synchronized void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {//FIXME:PRIVATE 取消事务
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
 				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
 			if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {

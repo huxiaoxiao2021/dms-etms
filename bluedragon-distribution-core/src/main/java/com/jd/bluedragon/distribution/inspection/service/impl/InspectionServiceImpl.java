@@ -113,7 +113,7 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 
 		InspectionRequest[] arrays = JsonHelper.jsonToArray(task.getBody(),
-				InspectionRequest[].class);
+				InspectionRequest[].class);//FIXME:问下配送序列化高性能方法
 		List<InspectionRequest> requestList = Arrays.asList(arrays);
 
 		List<Inspection> inspections = new ArrayList<Inspection>();
@@ -216,7 +216,7 @@ public class InspectionServiceImpl implements InspectionService {
 			if(Constants.BUSSINESS_TYPE_OEM==inspection.getInspectionType()){
 				// OEM同步wms
 				try {
-					pushOEMToWMS(inspection);
+					pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.error(" 验货 inspectionCore调用OEM服务异常",e);
@@ -227,7 +227,7 @@ public class InspectionServiceImpl implements InspectionService {
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void saveData(Inspection inspection) {
+	public void saveData(Inspection inspection) {//FIXME:private
 		this.insertOrUpdate(inspection);
 		addOperationLog(inspection);
 

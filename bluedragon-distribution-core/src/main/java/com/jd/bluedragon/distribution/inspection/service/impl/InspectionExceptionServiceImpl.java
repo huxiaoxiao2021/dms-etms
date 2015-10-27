@@ -565,7 +565,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 		// TODO Auto-generated method stub
 		inspectionService.saveData(inspection);
 
-		try {
+		try {//FIXME:看看龙门架是否能拆出
 			if ((inspection.getLength() != null && inspection.getLength() > 0)
 					|| (inspection.getWidth() != null && inspection.getWidth() > 0)
 					|| (inspection.getHigh() != null && inspection.getHigh() > 0)) {
