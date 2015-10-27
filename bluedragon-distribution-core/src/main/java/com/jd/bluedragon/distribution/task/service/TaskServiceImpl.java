@@ -36,7 +36,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
-@Service("taskService")
 public class TaskServiceImpl implements TaskService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
@@ -44,22 +43,19 @@ public class TaskServiceImpl implements TaskService {
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
 
-    @Autowired
     private TaskDao taskDao;
     
-    @Autowired
+    private TaskDao mysqlTaskDao;
+    
+    private Set mysqlTableSet;
+    
     private RedisTaskService redisTaskService;
     
-    @Autowired
     private TaskModeAgent taskModeAgent;
 
-	@Autowired
 	private SysConfigService sysConfigService;
 
-
-    @Autowired
     private BaseService baseService;
-
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -79,6 +75,12 @@ public class TaskServiceImpl implements TaskService {
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
 
+		TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(task.getTableName())){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+    	
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
         	logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
         	return 0;
@@ -110,12 +112,12 @@ public class TaskServiceImpl implements TaskService {
 				|| Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
                 || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
         	if(!this.has(task)){
-        		return this.taskDao.add(TaskDao.namespace, task);
+        		return routerDao.add(TaskDao.namespace, task);
         	}else{
 	        	logger.error(" Duplicate task: "+task.getBody());
 	        }
         }else{
-            return this.taskDao.add(TaskDao.namespace, task);
+            return routerDao.add(TaskDao.namespace, task);
         }
         return 0;
     }
@@ -163,21 +165,36 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type) {
         Assert.notNull(type, "type must not be null");
-        return this.taskDao.findTasks(type);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+        return routerDao.findTasks(type);
     }
 
     @Profiled(tag = "TaskService.findTasks.ownSign")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type, String ownSign) {
         Assert.notNull(type, "type must not be null");
-        return this.taskDao.findTasks(type, ownSign);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+        return routerDao.findTasks(type, ownSign);
     }
 
     @Profiled(tag = "TaskService.findLimitedTasks.waybill")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer fetchNum) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
-        return this.taskDao.findLimitedTasks(fetchNum);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTaskWaybillTableName())){
+    		routerDao = mysqlTaskDao;
+    	}
+       
+        return routerDao.findLimitedTasks(fetchNum);
     }
 
     @Profiled(tag = "TaskService.findLimitedTasks")
@@ -185,7 +202,12 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
-        return this.taskDao.findLimitedTasks(type, fetchNum);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+       
+        return routerDao.findLimitedTasks(type, fetchNum);
     }
 
     @Profiled(tag = "TaskService.findLimitedTasks.ownSign")
@@ -193,7 +215,12 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
-        return this.taskDao.findLimitedTasks(type, fetchNum, ownSign);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+       
+        return routerDao.findLimitedTasks(type, fetchNum, ownSign);
     }
 
 	@Profiled(tag = "TaskService.findSpecifiedTasks.ownSign")
@@ -201,21 +228,36 @@ public class TaskServiceImpl implements TaskService {
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
-		return this.taskDao.findSpecifiedTasks(type, fetchNum, ownSign);
+		TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
 	}
 
     @Profiled(tag = "TaskService.findTasksByFingerprint")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasksByFingerprint(Task task) {
         Assert.notNull(task.getFingerprint(), "fingerprint must not be null");
-        return this.taskDao.findTasksByFingerprint(task);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(task.getTableName())){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+        return routerDao.findTasksByFingerprint(task);
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.update",mState = {JProEnum.TP,JProEnum.FunctionError})
     @Profiled(tag = "TaskService.updateBySelective")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean updateBySelective(Task task) {
-        this.taskDao.updateBySelective(task);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(task.getTableName())){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+        routerDao.updateBySelective(task);
         return Boolean.TRUE;
     }
 
@@ -248,7 +290,12 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
-        return this.taskDao.addWithStatus(task);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(task.getTableName())){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+        return routerDao.addWithStatus(task);
     }
     
     @Profiled(tag = "TaskService.doError")
@@ -284,7 +331,12 @@ public class TaskServiceImpl implements TaskService {
 	@Profiled(tag = "TaskService.findTasks")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findTasks(Task task) {
-		return this.taskDao.findTasks(task);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(task.getTableName())){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+		return routerDao.findTasks(task);
 	}
 	
 	@Profiled(tag = "TaskService.findSendTasks")
@@ -292,18 +344,33 @@ public class TaskServiceImpl implements TaskService {
 	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
-		return this.taskDao.findSendTasks(type, fetchNum, key);
+		TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+		return routerDao.findSendTasks(type, fetchNum, key);
 	}
 
 	@Profiled(tag = "TaskService.findReverseSendTask")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findReverseSendTask(String sendCode) {
-		return this.taskDao.findReverseSendTask(sendCode);
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains("task_send")){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+		return routerDao.findReverseSendTask(sendCode);
 	}
 	
 	@Profiled(tag = "TaskService.findWaybillSendTask")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
+        TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains("task_send")){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
 		return this.taskDao.findWaybillSendTask(sendCode);
 	}
 	
@@ -444,13 +511,23 @@ public class TaskServiceImpl implements TaskService {
 	@Profiled(tag = "TaskService.findTasksNumsByType")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
-		return this.taskDao.findTasksNumsByType(type, ownSign);
+		TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+		return routerDao.findTasksNumsByType(type, ownSign);
 	}
 	
 	@Profiled(tag = "TaskService.findFailTasksNumsByType")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
-		return this.taskDao.findFailTasksNumsByType(type, ownSign);
+		TaskDao routerDao = taskDao;    	
+    	if(mysqlTableSet.contains(Task.getTableName(type))){
+    		routerDao = mysqlTaskDao;
+    	}
+    	
+		return routerDao.findFailTasksNumsByType(type, ownSign);
 	}
 
 	@Profiled(tag = "TaskService.addInspectSortingTask")
@@ -600,6 +677,62 @@ public class TaskServiceImpl implements TaskService {
             Date sortTime = DateHelper.parseDate(oldDateString, Constants.DATE_TIME_FORMAT);
             return DateHelper.formatDate(DateHelper.add(sortTime, Calendar.SECOND, 1),Constants.DATE_TIME_FORMAT);
         }
+
+	public TaskDao getTaskDao() {
+		return taskDao;
+	}
+
+	public void setTaskDao(TaskDao taskDao) {
+		this.taskDao = taskDao;
+	}
+
+	public TaskDao getMysqlTaskDao() {
+		return mysqlTaskDao;
+	}
+
+	public void setMysqlTaskDao(TaskDao mysqlTaskDao) {
+		this.mysqlTaskDao = mysqlTaskDao;
+	}
+
+	public Set getMysqlTableSet() {
+		return mysqlTableSet;
+	}
+
+	public void setMysqlTableSet(Set mysqlTableSet) {
+		this.mysqlTableSet = mysqlTableSet;
+	}
+
+	public RedisTaskService getRedisTaskService() {
+		return redisTaskService;
+	}
+
+	public void setRedisTaskService(RedisTaskService redisTaskService) {
+		this.redisTaskService = redisTaskService;
+	}
+
+	public TaskModeAgent getTaskModeAgent() {
+		return taskModeAgent;
+	}
+
+	public void setTaskModeAgent(TaskModeAgent taskModeAgent) {
+		this.taskModeAgent = taskModeAgent;
+	}
+
+	public SysConfigService getSysConfigService() {
+		return sysConfigService;
+	}
+
+	public void setSysConfigService(SysConfigService sysConfigService) {
+		this.sysConfigService = sysConfigService;
+	}
+
+	public BaseService getBaseService() {
+		return baseService;
+	}
+
+	public void setBaseService(BaseService baseService) {
+		this.baseService = baseService;
+	}
 
 
 
