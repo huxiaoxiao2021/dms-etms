@@ -62,7 +62,7 @@
 			select * from ( select t.*, rownum l from (
 		</if>
 		SELECT
-		id, waybill_code, package_barcode, order_id, dms_name,
+		id, load_id, waybill_code, package_barcode, order_id, dms_name,
 		send_time, send_code, truck_no, approval_code, 
 		approval_time, remark
 		FROM DMS.load_bill

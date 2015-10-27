@@ -224,6 +224,7 @@ function doQuery(params) {
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
 				temp += "<td><input id='" + dataList[i].id + "' value='"+ dataList[i].approvalCode +"' name='singleBtn' alt=" + dataList[i].approvalCode + " onclick='singleClick()' type='checkbox'/></td>";
+				temp += "<td>" + (dataList[i].loadId == null ? '' : dataList[i].loadId) + "</td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";

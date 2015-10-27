@@ -39,3 +39,5 @@ bluedragon-distribution.iml
 overlays/
 /bluedragon-distribution-sdk/.checkstyle
 *.diff
+*.ipr
+bluedragon-distribution.iws
