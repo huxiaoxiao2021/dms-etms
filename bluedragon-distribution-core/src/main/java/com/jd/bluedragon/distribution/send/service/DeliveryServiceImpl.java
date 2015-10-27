@@ -252,7 +252,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !domain.getReceiveSiteCode().equals(crossDmsBox.getTransferOneId())){
                 logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
+                if (!domain.getReceiveSiteCode().equals(targetSiteCode)) {
+                    return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
+                }
             }
             //发货规则调用基础资料跨分拣规则表校验
 //            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
