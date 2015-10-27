@@ -57,7 +57,7 @@
 		<!-- <property name="mysqlTaskDao" ref="mysqlTaskDao" /> -->
 		<property name="mysqlTableSet">  
             <set>  
-                <value>task_temp</value> 
+                <value>temp_temp</value> 
             </set>  
         </property>  
         <property name="redisTaskService" ref="redisTaskService" />
@@ -71,7 +71,7 @@
 		<!-- <property name="mysqlTaskDao" ref="mysqlTaskDao" /> -->
 		<property name="mysqlTableSet">  
             <set>  
-                <value>task_temp</value> 
+                <value>temp_temp</value> 
             </set>  
         </property>  
 	</bean>

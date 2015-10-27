@@ -26,7 +26,7 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findPageTask(Map<String, Object> params) {
 		logger.info("WorkerMonitorServiceImpl.findPageTask begin...");
-		String tableName = params.get("table_name").toString();
+		String tableName = params.get("tableName").toString();
 		TaskDao routerDao = taskDao;    	
     	if(mysqlTableSet.contains(tableName)){
     		routerDao = mysqlTaskDao;
@@ -38,7 +38,7 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findCountTask(Map<String, Object> params) {
 		logger.info("WorkerMonitorServiceImpl.findCountTask begin...");
-		String tableName = params.get("table_name").toString();
+		String tableName = params.get("tableName").toString();
 		TaskDao routerDao = taskDao;    	
     	if(mysqlTableSet.contains(tableName)){
     		routerDao = mysqlTaskDao;
@@ -61,7 +61,7 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer updateTaskById(Map<String, Object> params) {
 		logger.info("WorkerMonitorServiceImpl.updateTaskById begin...");
-		String tableName = params.get("table_name").toString();
+		String tableName = params.get("tableName").toString();
 		TaskDao routerDao = taskDao;    	
     	if(mysqlTableSet.contains(tableName)){
     		routerDao = mysqlTaskDao;
@@ -73,7 +73,7 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer updateBatchTask(Map<String, Object> params) {
 		logger.info("WorkerMonitorServiceImpl.updateBatchTask begin...");
-		String tableName = params.get("table_name").toString();
+		String tableName = params.get("tableName").toString();
 		TaskDao routerDao = taskDao;    	
     	if(mysqlTableSet.contains(tableName)){
     		routerDao = mysqlTaskDao;
