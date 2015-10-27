@@ -23,6 +23,7 @@
 	<import resource="classpath:spring/distribution-core-redis.xml" />
 	<import resource="classpath:spring/distribution-core-saf-client.xml" />
 	<import resource="classpath:spring/distribution-core-jsf.xml" />
+	<import resource="classpath:spring/distribution-core-cassandra.xml" />
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />

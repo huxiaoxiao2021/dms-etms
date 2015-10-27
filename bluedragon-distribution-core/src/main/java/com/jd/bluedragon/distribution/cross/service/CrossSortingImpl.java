@@ -100,10 +100,10 @@ public class CrossSortingImpl implements CrossSortingService {
     @Override
     @Cache(key = "CrossSortingImpl.getQueryByids@args0@args1@args2@args3", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-    public List<CrossSortingDto> getQueryByids(Integer createDmsCode ,Integer destinationDmsCode,Integer mixDmsCode ,Integer dmsType){
+    public List<CrossSortingDto> getQueryByids(Integer createDmsCode ,Integer destinationDmsCode,Integer mixDmsCode){
         List<CrossSortingDto> resultlist = new ArrayList<CrossSortingDto>();
         CrossSortingDto crossSortingDto=new CrossSortingDto();
-        if(null==createDmsCode || null==destinationDmsCode || null==dmsType){
+        if(null==createDmsCode || null==destinationDmsCode){
             crossSortingDto.setCode(ERROR_CODE201);
             crossSortingDto.setMessage(ERROR_MESSAGE201);
             resultlist.add(crossSortingDto);
@@ -114,7 +114,6 @@ public class CrossSortingImpl implements CrossSortingService {
         params.put("createDmsCode",createDmsCode);
         params.put("destinationDmsCode",destinationDmsCode);
         params.put("mixDmsCode",mixDmsCode);
-        params.put("type",dmsType);
 
         List<CrossSorting> mixDmsList = crossSortingReadDao.findOne(params);
 
@@ -182,7 +181,7 @@ public class CrossSortingImpl implements CrossSortingService {
             CrossSorting cs = crossSortings.get(i);
             for(int j = i + 1; j < crossSortings.size(); j++){
                 CrossSorting cs1 = crossSortings.get(j);
-                if(cs.getType().equals(cs1.getType()) && cs.getCreateDmsCode().equals(cs1.getCreateDmsCode())
+                if(cs.getCreateDmsCode().equals(cs1.getCreateDmsCode())
                         && cs.getDestinationDmsCode().equals(cs1.getDestinationDmsCode()) && cs.getMixDmsCode().equals(cs1.getMixDmsCode())){
                     throw new DataFormatException("第" + (i + 2) + "行和第" + (j + 2) + "行数据重复"); //为毛+2，excel从第二行开始读的需+1，遍历从0开始的需+1
                 }
@@ -199,31 +198,31 @@ public class CrossSortingImpl implements CrossSortingService {
      */
 	private void checkSiteCodeValid(Row row, List<BaseStaffSiteOrgDto> siteCodes,CrossSorting crossSorting) throws DataFormatException {
 		int rowIndex = row.getRowNum();
-		Cell ruleType = row.getCell(0);
-		if(CREATE_PACKAGE.equals(ruleType.getStringCellValue())){
-			crossSorting.setType(CREATE_PACKAGE_CODE);
-		}else{
-			crossSorting.setType(CREATE_SEND_CODE);
-		}
-		Cell sourceCode = row.getCell(1);
+//		Cell ruleType = row.getCell(0);
+//		if(CREATE_PACKAGE.equals(ruleType.getStringCellValue())){
+//			crossSorting.setType(CREATE_PACKAGE_CODE);
+//		}else{
+//			crossSorting.setType(CREATE_SEND_CODE);
+//		}
+		Cell sourceCode = row.getCell(0);
 		BaseStaffSiteOrgDto siteOrgDto = getSiteByCode(siteCodes, sourceCode.getNumericCellValue());
 		if (null == siteOrgDto) {
-			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (2) + "列) 没有找到对应分拣中心");
+			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
 		}
 		crossSorting.setCreateDmsCode(siteOrgDto.getSiteCode());
 		crossSorting.setCreateDmsName(siteOrgDto.getSiteName());
 		crossSorting.setOrgId(siteOrgDto.getOrgId());
-		Cell targetCode = row.getCell(3);
+		Cell targetCode = row.getCell(2);
 		siteOrgDto = getSiteByCode(siteCodes, targetCode.getNumericCellValue());
 		if (null == siteOrgDto) {
-			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (4) + "列) 没有找到对应分拣中心");
+			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
 		}
 		crossSorting.setDestinationDmsCode(siteOrgDto.getSiteCode());
 		crossSorting.setDestinationDmsName(siteOrgDto.getSiteName());
-		Cell mixCode = row.getCell(5);
+		Cell mixCode = row.getCell(4);
 		siteOrgDto = getSiteByCode(siteCodes,mixCode.getNumericCellValue());
 		if (null == siteOrgDto) {
-			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (6) + "列) 没有找到对应分拣中心");
+			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (5) + "列) 没有找到对应分拣中心");
 		}
 		crossSorting.setMixDmsCode(siteOrgDto.getSiteCode());
 		crossSorting.setMixDmsName(siteOrgDto.getSiteName());
@@ -239,26 +238,26 @@ public class CrossSortingImpl implements CrossSortingService {
      * @throws Exception
      */
 	private void checkCellFormatValid(Row row) throws Exception{
-		Cell ruleType = row.getCell(0);
+//		Cell ruleType = row.getCell(0);
 		int rowIndex = row.getRowNum();
-		if (null == ruleType || ruleType.getCellType() != Cell.CELL_TYPE_STRING
-				|| StringHelper.isEmpty(ruleType.getStringCellValue())
-				|| !isRuleTypeValid(ruleType.getStringCellValue())) {
+//		if (null == ruleType || ruleType.getCellType() != Cell.CELL_TYPE_STRING
+//				|| StringHelper.isEmpty(ruleType.getStringCellValue())
+//				|| !isRuleTypeValid(ruleType.getStringCellValue())) {
+//			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+//		}
+		Cell sourceCode = row.getCell(0);
+		if (null == sourceCode || sourceCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
 			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
 		}
-		Cell sourceCode = row.getCell(1);
-		if (null == sourceCode || sourceCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (2) + "列) 数据不正确");
-		}
-		Cell targetCode = row.getCell(3);
+		Cell targetCode = row.getCell(2);
 		if (null == targetCode || targetCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (4) + "列) 数据不正确");
+			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (3) + "列) 数据不正确");
 		}
-		Cell mixCode = row.getCell(5);
+		Cell mixCode = row.getCell(4);
 		if (null == mixCode || mixCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (6) + "列) 数据不正确");
+			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (5) + "列) 数据不正确");
 		}
-		logger.info("规则类型:" + ruleType + ",原分拣:" + sourceCode + ",目标分拣:" + targetCode + ",混装分拣:" + mixCode);
+		logger.info("原分拣:" + sourceCode + ",目标分拣:" + targetCode + ",混装分拣:" + mixCode);
 	}
 
     /**

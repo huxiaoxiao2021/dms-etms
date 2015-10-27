@@ -9,6 +9,8 @@ import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.StringHelper;
@@ -28,6 +30,12 @@ public abstract class RedisSingleScheduler extends
 	private TaskHanlder redisTaskHanlder;
 	
 	private boolean initFinished = false;
+	
+	@Autowired
+	private BaseService baseService;
+	
+	//redis开关
+	public static final String HANDLE_SWITCH = "HANDLE_SWITCH";
 	
 	@Override
 	public void init() throws Exception {
@@ -120,7 +128,12 @@ public abstract class RedisSingleScheduler extends
 
 				//3. 根据任务处理结果进行数据落地，标明任务的执行状态(成功、失败)
 				if (result) {
-					redisTaskHanlder.handleSuccess(task);
+					List<SysConfig> configs = baseService.queryConfigByKeyWithCache(HANDLE_SWITCH);
+					for (SysConfig sys : configs) {
+						if (StringHelper.matchSiteRule(sys.getConfigContent(), "ON")) {
+							redisTaskHanlder.handleSuccess(task);
+						}
+					}
 				} else {
 					redisTaskHanlder.handleError(task);
 				}
