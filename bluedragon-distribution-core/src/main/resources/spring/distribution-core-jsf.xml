@@ -44,4 +44,9 @@
                   protocol="jsf" alias="${dos.ofc.alias}" timeout="${dos.ofc.timeout}">
         <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
     </jsf:consumer>
+
+    <jsf:consumer id="preseparateOrderService"
+                  interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
+                  alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
+    </jsf:consumer>
 </beans>
