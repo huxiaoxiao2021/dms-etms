@@ -307,7 +307,7 @@ public class SortingServiceImpl implements SortingService {
 					for (DeliveryPackageD aPackage : packages) {
 						this.logger.info("运单包裹号为：" + aPackage.getPackageBarcode());
 						Sorting assemblyDomain = new Sorting();
-						BeanUtils.copyProperties(sorting, assemblyDomain);
+						BeanUtils.copyProperties(sorting, assemblyDomain);//FIXME:性能
 						assemblyDomain.setPackageCode(aPackage.getPackageBarcode());
 						if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
 							assemblyDomain.setBoxCode(aPackage.getPackageBarcode());
@@ -319,7 +319,7 @@ public class SortingServiceImpl implements SortingService {
 							+ sorting.getWaybillCode());
 				}
 			}
-		}
+		}//FIXME:ELSE
 
 		if (StringHelper.isNotEmpty(sorting.getPackageCode())) { // 按包裹分拣
 			sortings.add(sorting);
@@ -520,8 +520,8 @@ public class SortingServiceImpl implements SortingService {
 		this.fillSortingIfPickup(sorting);
 		this.saveOrUpdate(sorting);
 		this.saveOrUpdateInspectionEC(sorting);
-		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
-		this.notifyBlocker(sorting);
+		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
+		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 	}
 
 	/**
@@ -529,7 +529,7 @@ public class SortingServiceImpl implements SortingService {
 	 * 
 	 * @param sorting
 	 */
-	private void saveOrUpdateInspectionEC(Sorting sorting) {
+	private void saveOrUpdateInspectionEC(Sorting sorting) {//FIXME:包装构建方法
 
 		if (Constants.BUSSINESS_TYPE_THIRD_PARTY != sorting.getType()) {
 			return;

@@ -27,7 +27,7 @@ public class InspectionRedisTask extends RedisSingleScheduler {
 
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign)
-			throws Exception {
+			throws Exception {//FIXME：没必要的异常，如需要抛出需要自定义
 			try {
 				logger.info("验货work开始，task_id: " + task.getId());
 				List<Inspection> inspections = inspectionService.parseInspections(task);

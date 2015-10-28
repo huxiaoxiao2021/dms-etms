@@ -25,8 +25,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/distribution-core-context.xml" })
 public class SortingResourceTestCase {
 
     private final RestTemplate template = new RestTemplate();
@@ -73,9 +71,9 @@ public class SortingResourceTestCase {
             System.out.println(response.getBoxCode());
         }
     }
-
+    @Test
     public void test_add_sorting_task() {
-        String url = "http://localhost/services/tasks";
+        String url = "http://localhost:8080/services/tasks";
 
         TaskRequest request = new TaskRequest();
 
