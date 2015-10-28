@@ -41,7 +41,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 		return this.sysConfigDao.getListByConName(conName);
 	}
 
-    @Cache(key = "SysConfigServiceImpl.getMaxRedisQueueSize", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,redisEnable = false)
+    @Cache(key = "SysConfigServiceImpl.getMaxRedisQueueSize", memoryEnable = true, memoryExpiredTime = 60 * 1000,redisEnable = false)
     @Override
     public long getMaxRedisQueueSize() {
         long size=3000L;
@@ -53,9 +53,7 @@ public class SysConfigServiceImpl implements SysConfigService {
                 size=Long.valueOf(config.getConfigContent());
             }
         }catch (Exception ex){
-            if(logger.isErrorEnabled()){
-                logger.error("重新加载redisTaskQueueSize",ex);
-            }
+            logger.error("重新加载redisTaskQueueSize",ex);
         }
         return size;
     }
