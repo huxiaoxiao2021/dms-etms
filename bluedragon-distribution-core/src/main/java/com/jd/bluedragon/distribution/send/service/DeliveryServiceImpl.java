@@ -14,7 +14,6 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
@@ -201,6 +200,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
+    private static final Integer FAST_STATION_PARENT_SITE_CODE = -1;
 
 
     private static final String SORTING_CHECK_URL=PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/sorting/post/check";
@@ -212,7 +212,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             com.jd.bluedragon.common.domain.Waybill waybill = this.waybillCommonService.findWaybillAndPack(SerialRuleUtil.getAllWaybillCode(domain.getBoxCode()).getResult());
             if(null!=waybill&&null!=waybill.getSiteCode()){
                 targetSiteCode=waybill.getSiteCode();
-                BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+                if(isZiTiGui(waybill)){
+                    targetSiteCode = tBaseService.getSiteSelfDBySiteCode(waybill.getSiteCode());
+                }
+                BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
                 if(null!=br&&null!=br.getDmsId()){
                     targetSortingCenterId=br.getDmsId();
                     logger.info("站点为:"+waybill.getSiteCode()+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
@@ -238,8 +241,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return new SendResult(4,JdResponse.SEND_BOX_NOT_FOUND ,3900,null);
             }
         }
-        if(null!=targetSortingCenterId
-                &&!targetSortingCenterId.equals(domain.getReceiveSiteCode()))
+        if(null != targetSortingCenterId
+                && !targetSortingCenterId.equals(domain.getReceiveSiteCode())
+                && !domain.getReceiveSiteCode().equals(targetSiteCode))
         {
             CrossDmsBox crossDmsBox = null;
             try{
@@ -252,9 +256,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !domain.getReceiveSiteCode().equals(crossDmsBox.getTransferOneId())){
                 logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-                if (!domain.getReceiveSiteCode().equals(targetSiteCode)) {
-                    return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
-                }
+                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
             }
             //发货规则调用基础资料跨分拣规则表校验
 //            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
@@ -2816,5 +2818,31 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             return hasDiff;
         }
+    }
+
+    /**
+     * 判断自提柜类型
+     *
+     * @param waybill
+     * @return
+     */
+    public  Boolean isZiTiGui(com.jd.bluedragon.common.domain.Waybill waybill) {
+        if (waybill == null || waybill.getSendPay() == null) {
+            return Boolean.FALSE;
+        }
+
+        if ('5' == waybill.getSendPay().charAt(21)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 获取站点的ParentSite判断是否是速递中心
+     * @param siteCode
+     * @return
+     * */
+    public  BaseStaffSiteOrgDto getParentSiteBySiteCode(Integer siteCode){
+        return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
     }
 }
