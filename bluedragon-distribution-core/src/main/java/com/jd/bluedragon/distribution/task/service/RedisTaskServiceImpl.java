@@ -48,7 +48,7 @@ public class RedisTaskServiceImpl implements RedisTaskService {
 			//验证队列key是否可用
 			if(redisTaskHelper.validateQueueKey(qkInfo)){
 				//如果插入成功，则返回true
-                if(redisTaskQueueService.getQueueLength(queueKey.replace('$','-'))<sysConfigService.getMaxRedisQueueSize()) {
+                if(redisTaskQueueService.getQueueLength(queueKey.replace('$','-'),queueKey)<sysConfigService.getMaxRedisQueueSize()) {
                     Long result = redisManager.rpush(queueKey, JsonUtil.getInstance()
                             .object2Json(task));
                     if (result > 0) {

@@ -20,7 +20,7 @@ public class RedisTaskQueueServiceImpl implements RedisTaskQueueService {
 
     @Cache(key = "RedisTaskQueueServiceImpl.getQueueLength@args0", memoryEnable = true, memoryExpiredTime = 30 * 1000,redisEnable = false)
     @Override
-    public long getQueueLength(String queueName) {
+    public long getQueueLength(String cacheName,String queueName) {
         try {
             return redisManager.llen(queueName);
         }catch (Exception ex){

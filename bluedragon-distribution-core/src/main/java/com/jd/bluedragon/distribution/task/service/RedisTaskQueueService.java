@@ -10,6 +10,6 @@ public interface RedisTaskQueueService {
      * @param queueName 队列名
      * @return
      */
-    long getQueueLength(String queueName);
+    long getQueueLength(String cacheName,String queueName);
 
 }
