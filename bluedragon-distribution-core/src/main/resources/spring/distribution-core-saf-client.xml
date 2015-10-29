@@ -30,10 +30,10 @@
 	<!-- 引用远程服务：基础资料提供的根据创建站点、目的站点获得箱子路由信息的接口 -->
 	<saf:reference id="basicSafInterface"
 		interface="com.jd.etms.basic.saf.BasicSafInterface" version="1.0"
-		group="${bdbasic.saf.group}" timeout="30000" check="false" />
+		group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}" check="false" />
 	<saf:reference id="baseAirConfigSafService"
 		interface="com.jd.etms.basic.saf.BaseAirConfigSafService" version="1.0"
-		group="${bdbasic.saf.group}" timeout="30000" check="false" />
+		group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}" check="false" />
 
 	<saf:reference id="basicMajorWSSaf" interface="com.jd.etms.basic.wss.BasicMajorWS"
 		version="1.0" group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}"
