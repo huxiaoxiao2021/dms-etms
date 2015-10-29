@@ -186,4 +186,13 @@
 	   <property name="systemKey" value="Bluedragon_dms_center.system.common"></property>
 	</bean-->
 	<!-- ump monitor end common-->
+
+    <bean id="requestFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+        <property name="readTimeout" value="${rest.readtimeout}"/>
+        <property name="connectTimeout" value="${rest.connecttimeout}"/>
+    </bean>
+
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <constructor-arg ref="requestFactory"/>
+    </bean>
 </beans>
