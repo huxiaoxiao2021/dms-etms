@@ -282,6 +282,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return 1：发货成功  2：发货失败  4：需要用户确认
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
+            JProEnum.TP, JProEnum.FunctionError })
     public SendResult packageSend(SendM domain,boolean isForceSend){
         SendM queryPara=new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
@@ -308,12 +310,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
             BoxResponse response =null;
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
+
             try {
                 response = this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
             }catch (Exception ex){
                 logger.error("调用VER",ex);
                 return new SendResult(4,"调用分拣验证异常",100,0);
             }
+            Profiler.registerInfoEnd(info1);
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("调用分拣拦截时长{0}", System.currentTimeMillis() - startTime));
                 startTime=System.currentTimeMillis();
