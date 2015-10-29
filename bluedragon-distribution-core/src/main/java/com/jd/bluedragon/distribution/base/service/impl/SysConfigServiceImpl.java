@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import java.util.List;
 
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.utils.cache.annotation.Cache;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +14,8 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 @Service("sysConfigService")
 public class SysConfigServiceImpl implements SysConfigService {
+    private static final Log logger= LogFactory.getLog(SysConfigServiceImpl.class);
+    private static final String REDIS_LIMIT_SIZE_KEY="redisTaskQueueSize";
 	@Autowired
 	private SysConfigDao sysConfigDao;
 
@@ -35,4 +40,21 @@ public class SysConfigServiceImpl implements SysConfigService {
 	public List<SysConfig> getCachedList(String conName) {
 		return this.sysConfigDao.getListByConName(conName);
 	}
+
+    @Cache(key = "SysConfigServiceImpl.getMaxRedisQueueSize", memoryEnable = true, memoryExpiredTime = 60 * 1000,redisEnable = false)
+    @Override
+    public long getMaxRedisQueueSize() {
+        long size=3000L;
+        try {
+            List<SysConfig> list=this.sysConfigDao.getListByConName(REDIS_LIMIT_SIZE_KEY);
+            if(null!=list&&list.size()>0){
+                SysConfig config=list.get(0);
+                //NumberHelper.isNumber()
+                size=Long.valueOf(config.getConfigContent());
+            }
+        }catch (Exception ex){
+            logger.error("重新加载redisTaskQueueSize",ex);
+        }
+        return size;
+    }
 }
