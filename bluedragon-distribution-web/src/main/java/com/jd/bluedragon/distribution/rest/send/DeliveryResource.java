@@ -122,7 +122,7 @@ public class DeliveryResource {
             result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
         } catch (Exception ex) {
             result.error(ex);
-            logger.error(ex);
+            logger.error("一车一单发货",ex);
         }
         logger.info(JsonHelper.toJson(result));
         return result;

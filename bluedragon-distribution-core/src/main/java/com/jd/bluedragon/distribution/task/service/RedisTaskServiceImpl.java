@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.task.service;
 
 import java.util.Date;
 
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
@@ -26,6 +27,11 @@ public class RedisTaskServiceImpl implements RedisTaskService {
 	@Autowired
 	RedisManager redisManager;
 
+    @Autowired
+    private RedisTaskQueueService redisTaskQueueService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     private static final String REDIS_ERROR_UMP_ALERT_KEY = "Bluedragon_dms_center.redis.write.QueueNotExist";
     
@@ -42,11 +48,13 @@ public class RedisTaskServiceImpl implements RedisTaskService {
 			//验证队列key是否可用
 			if(redisTaskHelper.validateQueueKey(qkInfo)){
 				//如果插入成功，则返回true
-				Long result = redisManager.rpush(queueKey, JsonUtil.getInstance()
-						.object2Json(task));
-				if (result > 0) {
-					return true;
-				}
+                if(redisTaskQueueService.getQueueLength(queueKey.replace('$','-'),queueKey)<sysConfigService.getMaxRedisQueueSize()) {
+                    Long result = redisManager.rpush(queueKey, JsonUtil.getInstance()
+                            .object2Json(task));
+                    if (result > 0) {
+                        return true;
+                    }
+                }
 			} else {
 				// redis list name找不到的时候报警
 				String warnStr = "Redis List名" + queueKey + "不存在";
