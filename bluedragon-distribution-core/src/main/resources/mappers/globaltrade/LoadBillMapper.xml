@@ -112,7 +112,7 @@
     </update>
 
     <select id="selectLoadBillById" parameterType="java.util.List" resultMap="loadBill">
-        SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,
+        SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,approval_code,
         tpl,weight,gen_time,package_time,package_user,package_user_code
         FROM load_bill WHERE yn = 1 AND id IN
         <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">

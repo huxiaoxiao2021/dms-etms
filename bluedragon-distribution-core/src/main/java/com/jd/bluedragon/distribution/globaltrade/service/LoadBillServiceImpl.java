@@ -22,6 +22,9 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.warestock.export.vo.Sid;
+import com.sun.xml.xsom.impl.scd.Iterators;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +61,8 @@ public class LoadBillServiceImpl implements LoadBillService {
     private static final String ZHUOZHI_PRELOAD_URL = PropertiesHelper.newInstance().getValue("globalTrade.preLoadBill.url"); // 卓志预装载接口
 
     private static final Integer GLOBAL_TRADE_PRELOAD_COUNT_LIMIT = 2000;
+
+    private static final Integer SQL_IN_EXPRESS_LIMIT = 999;
 
     @Autowired
     private LoadBillDao loadBillDao;
@@ -179,7 +184,14 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Integer preLoadBill(List<Long> id, String trunkNo) throws Exception {
-        List<LoadBill> loadBIlls = loadBillDao.getLoadBills(id);
+        List<LoadBill> loadBIlls = null;
+
+        try{
+           loadBIlls = selectLoadbillById(id); //每次取#{SQL_IN_EXPRESS_LIMIT}
+        }catch (Exception ex){
+            logger.error("获取预装载数据失败",ex);
+            throw new GlobalTradeException("获取预装载数据失败，系统异常");
+        }
 
         if(loadBIlls.size() > GLOBAL_TRADE_PRELOAD_COUNT_LIMIT){
             throw new GlobalTradeException("需要装载的订单数量超过数量限制（" + GLOBAL_TRADE_PRELOAD_COUNT_LIMIT +  ")");
@@ -188,7 +200,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         List<Long> preLoadIds = new ArrayList<Long>();
         for(LoadBill loadBill : loadBIlls){
             if(loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING){
-                throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在 [" + loadBill.getLoadId() + "] 装载");
+                throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
             }
             preLoadIds.add(loadBill.getId());
         }
@@ -200,14 +212,14 @@ public class LoadBillServiceImpl implements LoadBillService {
 
         ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
         request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
-        request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE,JsonHelper.toJson(preLoadBill));
+        request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, JsonHelper.toJson(preLoadBill));
         ClientResponse<String> response = request.post(String.class);
         if (response.getStatus() == HttpStatus.SC_OK) {
             LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(),LoadBillReportResponse.class);
             if(SUCCESS == response1.getStatus().intValue()){
                 logger.error("调用卓志接口预装载成功");
                 try {
-                    loadBillDao.updatePreLoadBillById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
+                    updateLoadbillStatusById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
                 }catch (Exception ex){
                     logger.error("预装载更新车牌号和装载单ID失败，原因",ex);
                     throw new GlobalTradeException("预装载操作失败，系统异常");
@@ -409,6 +421,76 @@ public class LoadBillServiceImpl implements LoadBillService {
         this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList=  loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
         return loadBillList;
+    }
+
+
+    /**
+     * 分批次查询预装载数据 SQL_IN_EXPRESS_LIMIT
+     * @see #SQL_IN_EXPRESS_LIMIT
+     * @param id
+     * @return
+     */
+    public List<LoadBill> selectLoadbillById(List<Long> id){
+        List<LoadBill> loadBills = new ArrayList<LoadBill>();
+        Map<Integer,List<Long>> splitLoadbill = splitLoadbillId(id);
+        for(Iterator<Integer> iterator = splitLoadbill.keySet().iterator(); iterator.hasNext();){
+            Integer key = iterator.next();
+            List<Long> loadId = splitLoadbill.get(key);
+            loadBills.addAll(loadBillDao.getLoadBills(loadId));
+        }
+        return loadBills;
+    }
+
+
+    /**
+     * 分批次更新预装载数据 SQL_IN_EXPRESS_LIMIT
+     * @see #SQL_IN_EXPRESS_LIMIT
+     * @param id
+     * @param trunkNo
+     * @param preLoadId
+     * @param status
+     * @return
+     */
+    public Integer updateLoadbillStatusById(List<Long> id, String trunkNo, String preLoadId, Integer status){
+        Integer effectCount = 0;
+        Map<Integer,List<Long>> splitLoadbill = splitLoadbillId(id);
+        for(Iterator<Integer> iterator = splitLoadbill.keySet().iterator(); iterator.hasNext();){
+            Integer key = iterator.next();
+            List<Long> loadId = splitLoadbill.get(key);
+            effectCount += loadBillDao.updatePreLoadBillById(loadId,trunkNo,preLoadId,status);
+        }
+        return effectCount;
+    }
+
+    /**
+     * 把指定的ID列表分割成 SQL_IN_EXPRESS_LIMIT 大小，避免SQL IN语句数量限制
+     * @see #SQL_IN_EXPRESS_LIMIT
+     * @param id
+     * @return
+     */
+    public Map<Integer,List<Long>> splitLoadbillId(List<Long> id){
+        Integer limit = SQL_IN_EXPRESS_LIMIT;
+        Integer index = 0;
+        Integer arrayIndex = 0;
+        List<Long> subList;
+        Map<Integer,List<Long>> splitedLoadBillid = new HashMap<Integer, List<Long>>();
+        for (; ; ) {
+            try {
+                subList = id.subList(index, index + limit);
+                if (!subList.isEmpty()) {
+                    splitedLoadBillid.put(arrayIndex,subList);
+                }
+            } catch (IndexOutOfBoundsException ex) {
+                subList = id.subList(index, id.size());
+                if (!subList.isEmpty()) {
+                    splitedLoadBillid.put(arrayIndex, subList);
+                }
+                break;
+            }
+            index = index + limit;
+            arrayIndex ++;
+        }
+        return splitedLoadBillid;
     }
 
 }
