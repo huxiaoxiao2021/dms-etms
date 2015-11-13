@@ -156,20 +156,24 @@ public class LoadBillServiceImpl implements LoadBillService {
 		logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
 		//将orderId分割,长度不超过500
 		List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
-		Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,](?=,)").matcher(report.getOrderId() + ",");
+		List<String> orderIdList = new ArrayList<String>();
+		report.setOrderId(report.getOrderId().replaceAll(",+", ","));
+		Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,]((?=,)|$(?=,*))").matcher(report.getOrderId());
 		while(matcher.find()){
 			LoadBillReport subReport = new LoadBillReport();
+			String subOrderIds = matcher.group();
 			subReport.setReportId(report.getReportId());
 			subReport.setLoadId(report.getLoadId());
 			subReport.setWarehouseId(report.getWarehouseId());
 			subReport.setProcessTime(report.getProcessTime());
 			subReport.setStatus(report.getStatus());
 			subReport.setNotes(report.getNotes());
-			subReport.setOrderId(matcher.group());
+			subReport.setOrderId(subOrderIds);
 			reportList.add(subReport);
+			orderIdList.add(subOrderIds);
 		}
 		loadBillReportDao.addBatch(reportList);
-		return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report)); // 更新loadbill的approval_code
+		return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, orderIdList)); // 更新loadbill的approval_code
 	}
 
     @Override
@@ -279,11 +283,11 @@ public class LoadBillServiceImpl implements LoadBillService {
         return TaskResult.SUCCESS;
     }
 
-    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report) {
+    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report, List<String> orderIdList) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-		loadBillStatusMap.put("loadId", report.getLoadId());
+		loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
 		loadBillStatusMap.put("warehouseId", report.getWarehouseId());
-		loadBillStatusMap.put("orderIdList", StringHelper.parseList(report.getOrderId(), ","));
+		loadBillStatusMap.put("orderIdList", orderIdList);
         if (report.getStatus() == SUCCESS) {
             loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);
         } else {

@@ -255,7 +255,6 @@ public class GlobalTradeController {
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
         try {
             if (request == null || StringUtils.isBlank(request.getReportId())
-                    || StringUtils.isBlank(request.getLoadId())
                     || StringUtils.isBlank(request.getOrderId())
                     || StringUtils.isBlank(request.getLoadId())
                     || StringUtils.isBlank(request.getWarehouseId())

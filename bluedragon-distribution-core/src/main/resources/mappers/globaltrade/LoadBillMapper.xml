@@ -173,12 +173,17 @@
 	<update id="updateLoadBillStatus" parameterType="map">
 		UPDATE load_bill
 		SET approval_code = #{approvalCode,jdbcType=INTEGER}
-		WHERE yn = 1 AND load_id = #{loadId,jdbcType=VARCHAR}
+		WHERE yn = 1 AND load_id IN
+		      <foreach collection="loadIdList" item="item" index="index" open="(" close=")" separator=",">
+				  #{item}
+			  </foreach>
+		      <foreach collection="orderIdList" item="item" index="index" open="" close="" separator="">
+				  <if test="index = 0">
+					  AND order_id IN (#{item})
+				  </if>
+			      OR order_id IN (#{item})
+		      </foreach>
 			  AND warehouse_id = #{warehouseId,jdbcType=VARCHAR}
-			  AND order_id IN
-		<foreach collection="orderIdList" item="item" index="index" open="(" close=")" separator=",">
-			#{item}
-		</foreach>
 	</update>
 
 	<update id="updateCancelLoadBillStatus" parameterType="loadBill">
