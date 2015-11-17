@@ -54,6 +54,9 @@
 			<if test="sendTimeTo != null">
 				AND send_time <![CDATA[<=]]> #{sendTimeTo,jdbcType=TIMESTAMP}
 			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
 		</where>
 	</sql>
 	

@@ -181,7 +181,7 @@ function onQueryBtnClick(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
 	if (!checkParams(params)) {
-		jQuery.messager.alert('提示:', '发货时间，批次号，分拣中心及审批状态，至少选择一个!', 'info');
+		jQuery.messager.alert('提示:', '发货时间，批次号，分拣中心，运单/包裹号，审批状态，至少选择一个!', 'info');
 		return false;
 	}
 	doQuery(params);
@@ -191,7 +191,11 @@ function checkParams(params) {
 	if (null == params) {
 		return false;
 	}
-	if (params.sendTimeFrom == "" && params.sendTimeTo == "" && params.sendCode == "" && params.dmsCode == "" && params.approvalCode == "") {
+	if (params.sendTimeFrom == "" && params.sendTimeTo == ""
+		&& params.sendCode == ""
+		&& params.dmsCode == ""
+		&& params.approvalCode == ""
+	    && params.waybillOrPackageCode == "") {
 		return false;
 	}
 	return true;
@@ -205,6 +209,7 @@ function getParams() {
 	params.dmsCode = $.trim($("#dmsList").val());
 	params.approvalCode = $.trim($("#approvalCode").val());
 	params.pageSize = $.trim($("#pageSize").val());
+	params.waybillOrPackageCode = $.trim($("#waybillOrPackageCode").val());
 	return params;
 }
 
@@ -239,8 +244,10 @@ function doQuery(params) {
 					temp += "<td>已申请</td>";
 				} else if (type == 30) {
 					temp += "<td>放行</td>";
-				} else {
+				} else if (type == 40){
 					temp += "<td>未放行</td>";
+				} else if (type == 50){
+					temp += "<td>失败</td>";
 				}
 				temp += "<td>" + (getDateString(getData(dataList[i].approvalTime))) + "</td>";
 				temp += "<td>" + (dataList[i].remark == null ? '' : dataList[i].remark) + "</td>";

@@ -20,6 +20,8 @@ public class LoadBillRequest implements Serializable {
 
 	private String sendTimeTo;
 
+	private String waybillOrPackageCode;
+
 	public String getIds() {
 		return ids;
 	}
@@ -68,4 +70,11 @@ public class LoadBillRequest implements Serializable {
 		this.sendTimeTo = sendTimeTo;
 	}
 
+	public String getWaybillOrPackageCode() {
+		return waybillOrPackageCode;
+	}
+
+	public void setWaybillOrPackageCode(String waybillOrPackageCode) {
+		this.waybillOrPackageCode = waybillOrPackageCode;
+	}
 }

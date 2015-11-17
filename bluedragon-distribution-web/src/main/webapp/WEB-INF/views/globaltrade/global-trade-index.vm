@@ -52,6 +52,8 @@
                            onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:180px">
                     <span style="display: inline-block;margin-left: 20px;">批次号：</span>
                     <input id="sendCode" name="sendCode" type="text" style="width:180px">
+                    <span style="display: inline-block;margin-left: 20px;">运单/包裹号：</span>
+                    <input id="waybillOrPackageCode" name="waybillOrPackageCode" type="text" style="width:180px">
                 </div>
                 <div id="condition_mid" style="height: 34px;padding-bottom: 5px;border-bottom: 2px solid #999;">
                     <span>分拣中心：</span>
