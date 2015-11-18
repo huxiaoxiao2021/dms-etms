@@ -65,7 +65,7 @@ function preLoad() {
     var loadBillLen = 0;
     try{
     $(".a2 :input[type='checkbox']").each(function(){
-        if($(this).val() != 10){
+        if($(this).val() != 10 && $(this).val() != 50){
             throw new Error("error");
         }
         if($(this).attr("checked") != null){
@@ -74,7 +74,7 @@ function preLoad() {
         }
     });
     }catch(e){
-        jQuery.messager.alert('提示:', "所选装载单的审批状态必须是初始化！", 'error');
+        jQuery.messager.alert('提示:', "所选装载单的审批状态必须是初始化, 或者失败！", 'error');
         return;
     }
     if(loadBillLen > 0) {

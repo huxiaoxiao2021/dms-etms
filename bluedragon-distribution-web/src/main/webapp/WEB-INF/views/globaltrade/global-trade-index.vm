@@ -66,6 +66,7 @@
                         <option value="20">已申请</option>
                         <option value="30">放行</option>
                         <option value="40">未放行</option>
+                        <option value="50">失败</option>
                     </select>
                     <span style="display: inline-block;margin-left: 20px;">每页显示条数：</span>
                     <input id="pageSize" name="pageSize" type="text" style="width:50px">

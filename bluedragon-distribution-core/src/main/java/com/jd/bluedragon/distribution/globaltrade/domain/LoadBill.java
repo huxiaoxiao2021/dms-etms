@@ -11,6 +11,7 @@ public class LoadBill implements Serializable {
 	public static final int APPLIED = 20;
 	public static final int GREENLIGHT = 30;
 	public static final int REDLIGHT = 40;
+	public static final int FAILED = 50;
 
 	/** 全局ID */
 	private Long id;
@@ -50,7 +51,7 @@ public class LoadBill implements Serializable {
 	/** 车牌号 */
 	private String truckNo;
 
-	/** 审批编号,10初始,20已申请,30已放行,40未放行 */
+	/** 审批编号,10初始,20已申请,30已放行,40未放行, 50失败(应对卓志丢数据的场景,便于重复预装载订单) */
 	private Integer approvalCode;
 
 	/** 审批时间 */

@@ -173,6 +173,12 @@ public class LoadBillServiceImpl implements LoadBillService {
 			orderIdList.add(subOrderIds);
 		}
 		loadBillReportDao.addBatch(reportList);
+        /**
+         * 装载单状态逻辑:只有装载单下的全部订单放行,装载单状态才能放行
+         * 问题:卓志可能会丢失装载单下的部分订单数据,导致装载单放行,但部分订单的状态没有更新为放行(当前逻辑:根据装载单和订单更新状态)
+         * 补救措施:增加新的状态(失败),表示丢失的状态. 先将装载单下的所有订单更新为失败,然后将接收到的订单更新为放行.
+         */
+        loadBillDao.updateLoadBillStatus(getLoadBillFailStatusMap(report, orderIdList));
 		return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, orderIdList)); // 更新loadbill的approval_code
 	}
 
@@ -187,7 +193,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 
         List<Long> preLoadIds = new ArrayList<Long>();
         for(LoadBill loadBill : loadBIlls){
-            if(loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING){
+            if(loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING
+                    && loadBill.getApprovalCode() != LoadBill.FAILED){
                 throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在 [" + loadBill.getLoadId() + "] 装载");
             }
             preLoadIds.add(loadBill.getId());
@@ -200,7 +207,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
         ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
         request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
-        request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE,JsonHelper.toJson(preLoadBill));
+        request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, JsonHelper.toJson(preLoadBill));
         ClientResponse<String> response = request.post(String.class);
         if (response.getStatus() == HttpStatus.SC_OK) {
             LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(),LoadBillReportResponse.class);
@@ -283,6 +290,14 @@ public class LoadBillServiceImpl implements LoadBillService {
         return TaskResult.SUCCESS;
     }
 
+    private Map<String, Object> getLoadBillFailStatusMap(LoadBillReport report, List<String> orderIdList) {
+        Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
+        loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
+        loadBillStatusMap.put("warehouseId", report.getWarehouseId());
+        loadBillStatusMap.put("approvalCode", LoadBill.FAILED);
+        return loadBillStatusMap;
+    }
+
     private Map<String, Object> getLoadBillStatusMap(LoadBillReport report, List<String> orderIdList) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
 		loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
@@ -348,10 +363,10 @@ public class LoadBillServiceImpl implements LoadBillService {
 		task.setTableName(Task.TABLE_NAME_POP);
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
 		task.setKeyword2(String.valueOf(tWaybillStatus.getOperateType()));
-		task.setKeyword1(tWaybillStatus.getWaybillCode());
+        task.setKeyword1(tWaybillStatus.getWaybillCode());
 		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
 		task.setBody(JsonHelper.toJson(tWaybillStatus));
-		task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		StringBuffer fingerprint = new StringBuffer();
 		fingerprint
@@ -361,7 +376,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 						: tWaybillStatus.getReceiveSiteCode())).append("_")
 				.append(tWaybillStatus.getOperateType()).append("_")
 				.append(tWaybillStatus.getWaybillCode()).append("_")
-				.append(tWaybillStatus.getOperateTime());
+                .append(tWaybillStatus.getOperateTime());
         task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
 		return task;
 	}
