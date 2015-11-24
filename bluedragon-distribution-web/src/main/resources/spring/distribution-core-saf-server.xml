@@ -18,13 +18,6 @@
 	<!-- 指定发布的协议 -->
 	<saf:protocol id="mydubbo" name="dubbo"/>
 
-	<!-- 暴露及注册服务 -->
-	<saf:service id="waybillSafServer"
-		interface="com.jd.bluedragon.distribution.saf.WaybillSafService" ref="waybillSafService"
-		group="${dms.saf.group}" protocol="mydubbo" version="1.0.0" registry="jdZooKeeper">
-	</saf:service>
-	
-	
 	<bean id="emsOrderJosSafService"
 		class="com.jd.bluedragon.distribution.saf.EmsOrderJosSafServiceImpl" />
 	
@@ -33,12 +26,6 @@
 		ref="emsOrderJosSafService" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService">
 	</saf:service>
 	
-	
-	<saf:service id="ordersResourceSafServer"
-		interface="com.jd.bluedragon.distribution.saf.OrdersResourceSafService" ref="ordersResourceSafService"
-		group="${dms.saf.group}" protocol="mydubbo" version="1.0.0" registry="jdZooKeeper">
-	</saf:service>
-		
 	<bean id="getWaybillSafService"
 		class="com.jd.bluedragon.distribution.saf.GetWaybillSafServiceImpl" />
 	
@@ -47,9 +34,4 @@
 		ref="getWaybillSafService" interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService">
 	</saf:service>
 	
-	<!-- 直连测试 
-	<saf:reference id="waybillSafRefer"
-		interface="com.jd.bluedragon.distribution.saf.WaybillSafService"
-		version="1.0.0" group="DMS" protocol="dubbo" timeout="5000"  retries="0" 
-		check="false" url="dubbo://10.12.122.41:20880/com.jd.bluedragon.distribution.saf.WaybillSafService"/>-->
 </beans>

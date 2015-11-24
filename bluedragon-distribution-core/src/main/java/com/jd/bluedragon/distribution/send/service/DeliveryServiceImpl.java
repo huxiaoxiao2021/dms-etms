@@ -93,9 +93,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private RestTemplate restTemplate;
 
     @Autowired
-    private CrossSortingService crossSortingService;
-
-    @Autowired
     DepartureService departureService;
 
     @Autowired
@@ -203,8 +200,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
-    private static final Integer FAST_STATION_PARENT_SITE_CODE = -1;
-
 
     private static final String SORTING_CHECK_URL=PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/sorting/post/check";
 
@@ -462,9 +457,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setKeyword1("1");// 1 回传运单状态
         tTask.setFingerprint(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode());
         tTaskService.add(tTask, true);
-        tTask.setKeyword1("2");// 2回传周转箱号
-        tTask.setFingerprint(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode());
-        tTaskService.add(tTask, true);
+        //只有箱号添加回传周转箱任务
+        if(BusinessHelper.isBoxcode(domain.getBoxCode())){
+        	tTask.setKeyword1("2");// 2回传周转箱号
+            tTask.setFingerprint(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode());
+            tTaskService.add(tTask, true);
+        }
         return 0;
     }
 
