@@ -256,6 +256,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 		List<LoadBill> loadBillList = new ArrayList<LoadBill>();
         for(LoadBill loadBill : loadBills){
+            if(contains(loadBillList,loadBill)) continue;
             LoadBill lb = new LoadBill();
             lb.setOrderId(loadBill.getOrderId());
             lb.setPackageTime(loadBill.getPackageTime());
@@ -264,8 +265,18 @@ public class LoadBillServiceImpl implements LoadBillService {
             loadBillList.add(lb);
 		}
 
+        preLoadBill.setOrderCount(loadBillList.size());
         preLoadBill.setOrderList(loadBillList);
         return preLoadBill;
+    }
+
+    private Boolean contains(List<LoadBill> loadBillList, LoadBill loadBill){
+        for(LoadBill lb : loadBillList){
+            if(lb.getOrderId().equals(loadBill.getOrderId())){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
