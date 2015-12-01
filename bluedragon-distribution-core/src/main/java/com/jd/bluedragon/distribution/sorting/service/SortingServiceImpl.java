@@ -781,12 +781,17 @@ public class SortingServiceImpl implements SortingService {
 		try {
 			if (Sorting.TYPE_REVERSE.equals(sorting.getType())
 					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
-				String refundMessage = this.refundMessage(sorting.getWaybillCode(),
+                String refundMessage = this.refundMessage(sorting.getWaybillCode(),
 						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
 				this.messageProducer.send(MQ_KEY_REFUND, refundMessage, sorting.getWaybillCode());
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
+            try{
+                SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
+            }catch (Exception ex){
+                logger.error("退款100分MQ消息推送记录日志失败", ex);
+            }
 		}
 	}
 
