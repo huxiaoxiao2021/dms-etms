@@ -26,7 +26,7 @@ public class PreseparateWaybillResource {
     private PreseparateWaybillManager preseparateWaybillManager;
 
     @GET
-    @Path("/preseparatewaybill/getpreseparatesiteid/{waybillCode}")
+    @Path("/preseparateWaybill/getPreseparateSiteId/{waybillCode}")
     public InvokeResult<Integer> getPreseparateSiteId(@PathParam("waybillCode") String waybillCode){
         InvokeResult<Integer> result=new InvokeResult<Integer>();
         if(!SerialRuleUtil.isMatchAllWaybillNo(waybillCode)){
