@@ -45,6 +45,7 @@
         <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
     </jsf:consumer>
 
+    <!--调用预分拣获取预分拣站点信息-->
     <jsf:consumer id="preseparateOrderService"
                   interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
                   alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
