@@ -24,7 +24,7 @@
         <jsf:parameter key="token" value="${getOrderMsgServiceJsf.jsf.token}" hide="true"/>
     </jsf:consumer>
 
-    <!-- erp接口 苗延超  -->
+    <!-- erp接口 苗延超 杨庭柱 -->
 
     <jsf:consumer id="bizServiceInterfaceJsf" interface="com.jd.etms.erp.ws.BizServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="0">
@@ -32,6 +32,10 @@
 
     <jsf:consumer id="supportServiceJsf"  interface="com.jd.etms.erp.ws.SupportServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="0">
+    </jsf:consumer>
+    
+    <jsf:consumer id="erpBizSafWS"  interface="com.jd.etms.erp.ws.ErpQuerySafWS"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="10000"  check="false" retries="0">
     </jsf:consumer>
 
 	<!-- 仓储dtc接口 乔洪佥 -->

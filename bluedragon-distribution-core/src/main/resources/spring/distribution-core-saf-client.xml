@@ -62,13 +62,6 @@
 		version="1.0" group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}"
 		check="false" retries="0" />
 
-	<!-- 引用远程服务: 运单提供的ErpQuerySafWSInfoSafService  -->
-	<saf:reference id="baseErpQuerySafWSInfoSafService"
-		 interface="com.jd.etms.erp.ws.ErpQuerySafWS" version="${bdbasic.saf.erpQuerySafWS.version}"
-		 group="${bdbasic.saf.erpQuerySafWS.group}"  check="false" timeout="${bdbasic.saf.erpQuerySafWS.timeout}"/>
-
-
-
 	<!-- 批量接口bean -->
 	<!--
 		<bean id="basicMinorWSPageProxy"
