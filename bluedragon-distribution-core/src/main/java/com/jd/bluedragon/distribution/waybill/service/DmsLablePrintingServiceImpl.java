@@ -54,11 +54,11 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             labelPrinting.setPrepareSiteCode(request.getPreSeparateCode());
             labelPrinting.setPrepareSiteName(request.getPreSeparateName());
             //如果调度的新地址为空，则应当显示老地址
-            labelPrinting.setPrintAddress(StringHelper.isNotEmpty(waybill.getNewRecAddr())?waybill.getReceiverAddress():waybill.getNewRecAddr());
+            labelPrinting.setPrintAddress(StringHelper.isEmpty(waybill.getNewRecAddr())?waybill.getReceiverAddress():waybill.getNewRecAddr());
         }
 
         //自提订单---打提字，并且地址不显示
-        StringBuilder specialMark = new StringBuilder(StringHelper.isNotEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
+        StringBuilder specialMark = new StringBuilder(StringHelper.isEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
         log.debug(new StringBuilder(LOG_PREFIX).append("waybill---distanceType").append(waybill.getDistanceType()).append("sendpay ").append(waybill.getSendPay()));
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
             if(waybill.getSendPay().charAt(21)!='5'){
