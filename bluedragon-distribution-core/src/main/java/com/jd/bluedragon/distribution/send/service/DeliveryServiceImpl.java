@@ -13,13 +13,10 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.*;
-import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.basic.domain.BaseResult;
@@ -49,6 +46,9 @@ import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -185,6 +185,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private BasicSafInterface basicSafInterface;
+    
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -200,8 +203,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
-
-    private static final String SORTING_CHECK_URL=PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/sorting/post/check";
 
     private SendResult packageCrosssSendCheck(SendM domain){
         Integer targetSortingCenterId=null;
@@ -304,11 +305,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
-            BoxResponse response =null;
+            SortingJsfResponse response =null;
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
-
             try {
-                response = this.restTemplate.postForObject(SORTING_CHECK_URL, sortingCheck, BoxResponse.class);
+            	response = jsfSortingResourceService.check(sortingCheck);
             }catch (Exception ex){
                 logger.error("调用VER",ex);
                 return new SendResult(4,"调用分拣验证异常",100,0);

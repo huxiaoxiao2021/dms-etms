@@ -50,4 +50,10 @@
                   interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
                   alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
     </jsf:consumer>
+    
+    <!--调用dmsver分拣拦截验证服务-->
+    <jsf:consumer id="jsfSortingResourceService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
+                  alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="0">
+    </jsf:consumer>
 </beans>
