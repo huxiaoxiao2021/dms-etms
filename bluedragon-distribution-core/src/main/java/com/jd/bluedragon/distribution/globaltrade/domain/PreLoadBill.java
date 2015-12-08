@@ -20,6 +20,7 @@ public class PreLoadBill implements Serializable{
     private String tpl;
     private String truckNo;
     private String genTime;
+    private Integer orderCount;
     private List<LoadBill> orderList;
 
     public String getLoadId() {
@@ -84,6 +85,14 @@ public class PreLoadBill implements Serializable{
 
     public void setGenTime(String genTime) {
         this.genTime = genTime;
+    }
+
+    public Integer getOrderCount() {
+        return orderCount;
+    }
+
+    public void setOrderCount(Integer orderCount) {
+        this.orderCount = orderCount;
     }
 
     public List<LoadBill> getOrderList() {

@@ -112,7 +112,7 @@
     </update>
 
     <select id="selectLoadBillById" parameterType="java.util.List" resultMap="loadBill">
-        SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,
+        SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,approval_code,
         tpl,weight,gen_time,package_time,package_user,package_user_code
         FROM load_bill WHERE yn = 1 AND id IN
         <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
@@ -173,12 +173,23 @@
 	<update id="updateLoadBillStatus" parameterType="map">
 		UPDATE load_bill
 		SET approval_code = #{approvalCode,jdbcType=INTEGER}
-		WHERE yn = 1 AND load_id = #{loadId,jdbcType=VARCHAR}
-			  AND warehouse_id = #{warehouseId,jdbcType=VARCHAR}
-			  AND order_id IN
-		<foreach collection="orderIdList" item="item" index="index" open="(" close=")" separator=",">
-			#{item}
-		</foreach>
+		WHERE yn = 1 AND warehouse_id = #{warehouseId,jdbcType=VARCHAR}
+		      <if test="orderIdList != null">
+				  AND (
+					  <foreach collection="orderIdList" item="item" index="index" open="" close="" separator="">
+						  <if test="index == 0">
+							  order_id IN (${item})
+						  </if>
+						  <if test="index != 0">
+							  OR order_id IN (${item})
+						  </if>
+					  </foreach>
+				  )
+			  </if>
+			  AND load_id IN
+		      <foreach collection="loadIdList" item="item" index="index" open="(" close=")" separator=",">
+				  #{item}
+			  </foreach>
 	</update>
 
 	<update id="updateCancelLoadBillStatus" parameterType="loadBill">

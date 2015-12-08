@@ -65,7 +65,7 @@ function preLoad() {
     var loadBillLen = 0;
     try{
     $(".a2 :input[type='checkbox']").each(function(){
-        if($(this).val() != 10){
+        if($(this).val() != 10 && $(this).val() != 50){
             throw new Error("error");
         }
         if($(this).attr("checked") != null){
@@ -74,7 +74,7 @@ function preLoad() {
         }
     });
     }catch(e){
-        jQuery.messager.alert('提示:', "所选装载单的审批状态必须是初始化！", 'error');
+        jQuery.messager.alert('提示:', "所选装载单的审批状态必须是初始化, 或者失败！", 'error');
         return;
     }
     if(loadBillLen > 0) {
@@ -181,7 +181,7 @@ function onQueryBtnClick(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
 	if (!checkParams(params)) {
-		jQuery.messager.alert('提示:', '发货时间，批次号，分拣中心及审批状态，至少选择一个!', 'info');
+		jQuery.messager.alert('提示:', '发货时间，批次号，分拣中心，运单/包裹号，审批状态，至少选择一个!', 'info');
 		return false;
 	}
 	doQuery(params);
@@ -191,7 +191,11 @@ function checkParams(params) {
 	if (null == params) {
 		return false;
 	}
-	if (params.sendTimeFrom == "" && params.sendTimeTo == "" && params.sendCode == "" && params.dmsCode == "" && params.approvalCode == "") {
+	if (params.sendTimeFrom == "" && params.sendTimeTo == ""
+		&& params.sendCode == ""
+		&& params.dmsCode == ""
+		&& params.approvalCode == ""
+	    && params.waybillOrPackageCode == "") {
 		return false;
 	}
 	return true;
@@ -205,6 +209,7 @@ function getParams() {
 	params.dmsCode = $.trim($("#dmsList").val());
 	params.approvalCode = $.trim($("#approvalCode").val());
 	params.pageSize = $.trim($("#pageSize").val());
+	params.waybillOrPackageCode = $.trim($("#waybillOrPackageCode").val());
 	return params;
 }
 
@@ -224,6 +229,7 @@ function doQuery(params) {
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
 				temp += "<td><input id='" + dataList[i].id + "' value='"+ dataList[i].approvalCode +"' name='singleBtn' alt=" + dataList[i].approvalCode + " onclick='singleClick()' type='checkbox'/></td>";
+				temp += "<td>" + (dataList[i].loadId == null ? '' : dataList[i].loadId) + "</td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";
@@ -238,8 +244,10 @@ function doQuery(params) {
 					temp += "<td>已申请</td>";
 				} else if (type == 30) {
 					temp += "<td>放行</td>";
-				} else {
+				} else if (type == 40){
 					temp += "<td>未放行</td>";
+				} else if (type == 50){
+					temp += "<td>失败</td>";
 				}
 				temp += "<td>" + (getDateString(getData(dataList[i].approvalTime))) + "</td>";
 				temp += "<td>" + (dataList[i].remark == null ? '' : dataList[i].remark) + "</td>";

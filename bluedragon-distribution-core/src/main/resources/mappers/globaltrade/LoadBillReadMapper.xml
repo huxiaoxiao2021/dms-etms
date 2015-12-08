@@ -54,6 +54,9 @@
 			<if test="sendTimeTo != null">
 				AND send_time <![CDATA[<=]]> #{sendTimeTo,jdbcType=TIMESTAMP}
 			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
 		</where>
 	</sql>
 	
@@ -62,7 +65,7 @@
 			select * from ( select t.*, rownum l from (
 		</if>
 		SELECT
-		id, waybill_code, package_barcode, order_id, dms_name,
+		id, load_id, waybill_code, package_barcode, order_id, dms_name,
 		send_time, send_code, truck_no, approval_code, 
 		approval_time, remark
 		FROM DMS.load_bill

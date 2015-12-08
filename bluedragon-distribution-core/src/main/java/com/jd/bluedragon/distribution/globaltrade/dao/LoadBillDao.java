@@ -4,13 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.bcel.verifier.statics.LONG_Upper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
-import org.omg.CORBA.OBJ_ADAPTER;
 
 public class LoadBillDao extends BaseDao<LoadBill> {
 
@@ -19,7 +17,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	private static final String namespace = LoadBillDao.class.getName();
 
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
-		logger.info("LoadBillDao.updateLoadBillStatus loadId is " + loadBillStatusMap.get("loadId") + ", orderId is " + loadBillStatusMap.get("orderIdList").toString());
+		logger.info("LoadBillDao.updateLoadBillStatus loadId is " + loadBillStatusMap.get("loadIdList").toString());
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillStatus", loadBillStatusMap);
 	}
 

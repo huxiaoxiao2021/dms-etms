@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.common.domain.SiteEntity;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.basic.domain.BaseResult;
 import com.jd.etms.basic.domain.PsStoreInfo;
 
@@ -21,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
 import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
@@ -216,11 +218,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return basicMajorWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
 	}
 	
-	private static final String PROTOCOL = "http://dmsver.etms.360buy.com/services/bases/site/";
-
+	private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
 	@Override
 	@Profiled
-	@Cache(key = "basicMajorServiceProxy.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000, 
+	@Cache(key = "basicMajorServiceProxy.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
 		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver", false, true);
@@ -231,13 +232,17 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             
             BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
 
-            ClientResponse<BaseResponse> response = request.get(BaseResponse.class);
+            ClientResponse<JdResponse> response = request.get(JdResponse.class);
             if (200 == response.getStatus()) {
-            	BaseResponse base = response.getEntity();
-            	if(base!=null){
-            		dto.setSiteCode(base.getSiteCode());
-            		dto.setSiteName(base.getSiteName());
-            		dto.setSiteType(base.getSiteType());
+            	JdResponse base = response.getEntity();
+                if(logger.isInfoEnabled()) {
+                    logger.debug(com.jd.bluedragon.utils.JsonHelper.toJson(base));
+                }
+            	if(base!=null&&JdResponse.CODE_OK.equals(base.getCode())){
+                    SiteEntity site= com.jd.bluedragon.utils.JsonHelper.fromJsonUseGson(base.getRequest(),SiteEntity.class);
+            		dto.setSiteCode(site.getCode());
+            		dto.setSiteName(site.getName());
+            		dto.setSiteType(site.getType());
             		return dto;
             	}
             }
@@ -247,6 +252,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         } finally {
 			Profiler.registerInfoEnd(info);
 		}
+        logger.error("dmsver获取站点[" + siteCode + "]信息失败");
         return null;
 	}
 }

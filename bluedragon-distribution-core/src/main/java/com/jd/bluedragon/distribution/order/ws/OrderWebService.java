@@ -3,12 +3,15 @@ package com.jd.bluedragon.distribution.order.ws;
 import java.util.Collections;
 import java.util.List;
 
+import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.etms.basic.domain.Assort;
 import jd.oom.client.clientbean.Order;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,11 @@ public class OrderWebService {
 
 	@Autowired
 	private  BaseService baseService;
+
+	private final Log logger = LogFactory.getLog(this.getClass());
+
+	@Autowired
+	private PreseparateWaybillManager preseparateWaybillManager;
 
 	public List<jd.oom.client.clientbean.OrderDetail> getOrderDetailById(long orderId) {
 		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
@@ -108,7 +116,14 @@ public class OrderWebService {
 		if (order != null) {
 			Waybill waybill = new Waybill();
 			waybill.setWaybillCode(String.valueOf(orderId));
-			waybill.setSiteCode(order.getPartnerId());
+
+			try {
+				waybill.setSiteCode(preseparateWaybillManager.getPreseparateSiteId(String.valueOf(orderId)));
+				logger.info("快生从预分拣获取预分拣站点"+orderId +"-"+waybill.getSiteCode());
+			}catch (Exception ex){
+				waybill.setSiteCode(order.getPartnerId());
+				logger.error("快生预分拣接口异常"+orderId,ex);
+			}
 			waybill.setSiteName(order.getIdPickSiteName());
 			waybill.setPaymentType(order.getIdPaymentType());
 			waybill.setSendPay(order.getSendPay());

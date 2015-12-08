@@ -159,8 +159,7 @@ public class GlobalTradeController {
 
     @RequestMapping(value = "/loadBill/list", method = RequestMethod.POST)
     @ResponseBody
-    public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest
-                                                                    request, Pager<List<LoadBill>> pager) {
+    public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest request, Pager<List<LoadBill>> pager) {
         CommonDto<Pager<List<LoadBill>>> cdto = new CommonDto<Pager<List<LoadBill>>>();
         try {
             logger.info("GlobalTradeController doQueryLoadBill begin...");
@@ -213,6 +212,10 @@ public class GlobalTradeController {
         if (StringUtils.isNotBlank(request.getSendTimeTo())) {
             params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
         }
+        String waybillCode = BusinessHelper.getWaybillCode(request.getWaybillOrPackageCode());
+        if (StringUtils.isNotBlank(waybillCode)) {
+            params.put("waybillCode", waybillCode);
+        }
         return params;
     }
 
@@ -255,7 +258,6 @@ public class GlobalTradeController {
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
         try {
             if (request == null || StringUtils.isBlank(request.getReportId())
-                    || StringUtils.isBlank(request.getLoadId())
                     || StringUtils.isBlank(request.getOrderId())
                     || StringUtils.isBlank(request.getLoadId())
                     || StringUtils.isBlank(request.getWarehouseId())

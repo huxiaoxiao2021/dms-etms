@@ -114,13 +114,16 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         waybill.setReceiverName(orderMsgDTO.getReceiveName());
         waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
         waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        if (orderMsgDTO.getGoodsMoney()!=null&&NumberHelper.isNumber(orderMsgDTO.getGoodsMoney())) {
-            waybill.setRecMoney(Double.parseDouble(orderMsgDTO.getGoodsMoney()));
+        if (orderMsgDTO.getCollectionMoney()!=null) {
+            waybill.setRecMoney(orderMsgDTO.getCollectionMoney());
         }
         //waybill.setSendPay(orderMsgDTO.sendp);
-        waybill.setAddress(orderMsgDTO.getAdress());
+        waybill.setAddress(orderMsgDTO.getReceiveAdress());
         //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
-        waybill.setWaybillCode(orderMsgDTO.getOrderId());
+        waybill.setWaybillCode(waybillCode);
+        waybill.setPaymentType(orderMsgDTO.getCollectionValue());
+        if (orderMsgDTO.getPreallocation() != null)
+            waybill.setSiteCode(orderMsgDTO.getPreallocation().getSiteId());
         return waybill;
     }
 

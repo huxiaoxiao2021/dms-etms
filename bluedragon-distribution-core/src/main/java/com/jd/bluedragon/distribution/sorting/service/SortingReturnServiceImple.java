@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.jd.bluedragon.utils.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
@@ -28,15 +29,6 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BaseInfoHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.erp.ws.BizServiceInterface;
 
@@ -411,67 +403,60 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	
 	/**
 	 * 前面Task_sorting 已经去掉重复数据... 所以包裹数据至推送包裹运单第一个包裹号生成的MQ消息...
-	 *
+	 * 注意：分拣拦截生成的分拣退货不会推送运单快退消息,详见{@link #addReturnLog(Set)}
+     * @see #addReturnLog(Set)
 	 * @param _datas
 	 */
 	private void pushBlockerMqQueue(List<SortingReturn> _datas) {
-		long timeId = System.currentTimeMillis();
-		try {
-
-			logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 预处理");
-			HashMap<String, String> mqbodymap = new HashMap<String, String>();
-			for (SortingReturn ret : _datas) {
-				logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 开始处理包裹号:"
-				        + ret.getPackageCode());
-				String shieldsError = ret.getShieldsError();
-				String[] datas = shieldsError.split(SortingReturnServiceImple.ERROR_CODE_MSG_SPLIT);
-				String[] packageMsg = ret.getPackageCode().split("-");
-				String shieldsType = datas.length >= 2 && checkIntegerValue(datas[0]) ? datas[0]
-				        .trim() : null;
-				/*
+        long timeId = System.currentTimeMillis();
+        logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 预处理");
+        for (SortingReturn ret : _datas) {
+            try {
+                logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 开始处理包裹号:"
+                        + ret.getPackageCode());
+                String shieldsError = ret.getShieldsError();
+                String[] datas = shieldsError.split(SortingReturnServiceImple.ERROR_CODE_MSG_SPLIT);
+                String[] packageMsg = ret.getPackageCode().split("-");
+                String shieldsType = datas.length >= 2 && checkIntegerValue(datas[0]) ? datas[0]
+                        .trim() : null;
+                /*
 				 * 包裹号 xxxxx-数量序号-总数量-滑道号 只有数量序号为1的才发送MQ
 				 * （一单多件中的第一件：PDA只有在包裹齐全的时候才会推送数据）
 				 */
-				boolean isNotFirstPackage = packageMsg.length >= 3 && packageMsg[1].equals("1")
-				        || packageMsg.length == 1 ? false : true;
-				if (isNotFirstPackage || isNotToPushBlockerMqQueue(shieldsType)) {
-					logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
-					        + "] 包裹号排除:" + ret.getPackageCode());
+                boolean isNotFirstPackage = packageMsg.length >= 3 && packageMsg[1].equals("1")
+                        || packageMsg.length == 1 ? false : true;
+                if (isNotFirstPackage || isNotToPushBlockerMqQueue(shieldsType)) {
+                    logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
+                            + "] 包裹号排除:" + ret.getPackageCode());
 					/* 只有退款100分的数据才处理，类型为空不处理 */
-					continue;
-				} else {
+                    continue;
+                } else {
 					/* 去重处理 */
-					logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
-					        + "] 包裹号去重优化:" + ret.getPackageCode());
-					String orderId = ret.getWaybillCode();
-					String operateTime = DateHelper.formatDateTime(ret.getCreateTime());
-					//Integer orderType = ret.getBusinessType() == null ? 0 : ret.getBusinessType();
-					String mqbody = ret.getBusinessType() == null?
-							createMqBody(orderId, operateTime, 0):
-							createMqBody(orderId, operateTime, ret.getBusinessType());
-					mqbodymap.put(orderId, mqbody);
-				}
-			}
-			/* 推送MQ */
-			String[] orderIds = mqbodymap.keySet().toArray(new String[0]);
+                    logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
+                            + "] 包裹号去重优化:" + ret.getPackageCode());
+                    String orderId = ret.getWaybillCode();
+                    String operateTime = DateHelper.formatDateTime(ret.getCreateTime());
+                    //Integer orderType = ret.getBusinessType() == null ? 0 : ret.getBusinessType();
+                    String mqbody = ret.getBusinessType() == null ?
+                            createMqBody(orderId, operateTime, 0) :
+                            createMqBody(orderId, operateTime, ret.getBusinessType());
+                    pushMqService.pubshMq(SortingReturnServiceImple.SORTINGRET_MQ_KEY, mqbody, orderId);
+                    logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
+                            + "] 推送MQ操作完成 orderId:" + orderId);
+                }
+            } catch (Exception e) {
+			        /* 记录异常，但不处理，避免影响运单操作 */
+                logger.error("退款100分MQ消息推送失败[" + timeId + "]", e);
+                try{
+                    SystemLogUtil.log(ret.getWaybillCode(),"BLOCKER_QUEUE_BD_DMS_ST",ret.getShieldsError(),ret.getShieldsType(),e.getMessage(),Long.valueOf(12201));
+                }catch (Exception ex){
+                    logger.error("退款100分MQ消息推送记录日志失败", ex);
+                }
+            }
+        }
 
-			logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 推送MQ处理："
-			        + StringHelper.join(mqbodymap.keySet()));
 
-			for (String orderId : orderIds) {
-				String mqbody = mqbodymap.get(orderId);
-				pushMqService.pubshMq(SortingReturnServiceImple.SORTINGRET_MQ_KEY, mqbody, orderId);
-				logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
-				        + "] 推送MQ操作完成 orderId:" + orderId);
-			}
-
-			logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 推送完成");
-		} catch (Exception e) {
-			/* 记录异常，但不处理，避免影响运单操作 */
-			logger.error("退款100分MQ消息推送失败[" + timeId + "]", e);
-		}
-
-	}
+    }
 
 	private String createMqBody(String orderId, String operateTime, Integer orderType) {
 		StringBuffer sb = new StringBuffer();

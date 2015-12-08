@@ -307,7 +307,7 @@ public class SortingServiceImpl implements SortingService {
 					for (DeliveryPackageD aPackage : packages) {
 						this.logger.info("运单包裹号为：" + aPackage.getPackageBarcode());
 						Sorting assemblyDomain = new Sorting();
-						BeanUtils.copyProperties(sorting, assemblyDomain);
+						BeanUtils.copyProperties(sorting, assemblyDomain);//FIXME:性能
 						assemblyDomain.setPackageCode(aPackage.getPackageBarcode());
 						if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
 							assemblyDomain.setBoxCode(aPackage.getPackageBarcode());
@@ -319,7 +319,7 @@ public class SortingServiceImpl implements SortingService {
 							+ sorting.getWaybillCode());
 				}
 			}
-		}
+		}//FIXME:ELSE
 
 		if (StringHelper.isNotEmpty(sorting.getPackageCode())) { // 按包裹分拣
 			sortings.add(sorting);
@@ -520,8 +520,8 @@ public class SortingServiceImpl implements SortingService {
 		this.fillSortingIfPickup(sorting);
 		this.saveOrUpdate(sorting);
 		this.saveOrUpdateInspectionEC(sorting);
-		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
-		this.notifyBlocker(sorting);
+		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
+		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 	}
 
 	/**
@@ -529,7 +529,7 @@ public class SortingServiceImpl implements SortingService {
 	 * 
 	 * @param sorting
 	 */
-	private void saveOrUpdateInspectionEC(Sorting sorting) {
+	private void saveOrUpdateInspectionEC(Sorting sorting) {//FIXME:包装构建方法
 
 		if (Constants.BUSSINESS_TYPE_THIRD_PARTY != sorting.getType()) {
 			return;
@@ -781,12 +781,17 @@ public class SortingServiceImpl implements SortingService {
 		try {
 			if (Sorting.TYPE_REVERSE.equals(sorting.getType())
 					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
-				String refundMessage = this.refundMessage(sorting.getWaybillCode(),
+                String refundMessage = this.refundMessage(sorting.getWaybillCode(),
 						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
 				this.messageProducer.send(MQ_KEY_REFUND, refundMessage, sorting.getWaybillCode());
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
+            try{
+                SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
+            }catch (Exception ex){
+                logger.error("退款100分MQ消息推送记录日志失败", ex);
+            }
 		}
 	}
 

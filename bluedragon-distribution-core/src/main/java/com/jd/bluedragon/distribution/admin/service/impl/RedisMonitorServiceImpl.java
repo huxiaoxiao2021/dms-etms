@@ -24,7 +24,7 @@ public class RedisMonitorServiceImpl implements RedisMonitorService {
 	@Override
 	public String getValueByKey(String key) {
 		logger.info("根据key:" + key + ", 获取redis中的value");
-		return redisManager.get(key);
+		return redisManager.getCache(key);
 	}
 
 	@Override

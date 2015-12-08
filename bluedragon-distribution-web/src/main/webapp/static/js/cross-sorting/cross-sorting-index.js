@@ -39,7 +39,7 @@ function main() {
 }
 
 function goDownModel(){
-	location.href = "http://sq.jd.com/nOSB8K";
+	location.href = "http://sq.jd.com/ScRG3M";
 }
 
 function importExcel(){
@@ -72,7 +72,7 @@ function exportExcel(){
             + $.trim($("#orgList").val()) + "&createDmsCode="
             + $.trim($("#createDmsList").val()) + "&destinationDmsCode="
             + $.trim($("#destinationDmsList").val()) + "&createUserName="
-            + $.trim($("#createUserName").val()) + "&type=" + $.trim($("#typeList").val())
+            + $.trim($("#createUserName").val())
     window.open (url,"_parent");
 }
 

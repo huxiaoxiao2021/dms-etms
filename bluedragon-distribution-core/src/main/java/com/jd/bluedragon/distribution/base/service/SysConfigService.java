@@ -12,4 +12,10 @@ public interface SysConfigService {
 
 	public List<SysConfig> getCachedList(String conName);
 
+    /**
+     * 获取REDIS队列最大容量
+     * @return
+     */
+    long getMaxRedisQueueSize();
+
 }

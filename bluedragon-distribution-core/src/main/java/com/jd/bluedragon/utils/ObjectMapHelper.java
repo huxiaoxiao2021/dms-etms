@@ -1,9 +1,14 @@
 package com.jd.bluedragon.utils;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -61,4 +66,54 @@ public class ObjectMapHelper {
 		}
 		return paramMap;
 	}
+	
+	// Map --> Bean 1: 利用Introspector,PropertyDescriptor实现 Map --> Bean
+    public static Object transMap2Bean(Map<String, Object> map, Class className) throws Exception {
+
+        Object obj=null;
+        try {
+            obj=className.newInstance();//传入当前构造函数要的参数列表
+            BeanInfo beanInfo = Introspector.getBeanInfo(className);
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+
+            for (PropertyDescriptor property : propertyDescriptors) {
+                String key = property.getName();
+                 if(StringUtils.isNotBlank(key)){
+                     String realKey=propertyToField(key).toLowerCase();
+                     if (map.containsKey(realKey)) {
+                         Object value = map.get(realKey);
+                         // 得到property对应的setter方法
+                         Method setter = property.getWriteMethod();
+                         setter.invoke(obj, value);
+                     }
+                 }
+            }
+
+        } catch (Exception e) {
+            System.out.println("transMap2Bean Error " + e);
+        }
+        return obj;
+
+    }
+    
+    /**
+     * 对象属性转换为字段  例如：userName to user_name
+     * @param property 字段名
+     * @return
+     */
+    public static String propertyToField(String property) {
+        if (null == property) {
+            return "";
+        }
+        char[] chars = property.toCharArray();
+        StringBuffer sb = new StringBuffer();
+        for (char c : chars) {
+            if (CharUtils.isAsciiAlphaUpper(c)) {
+                sb.append("_" + StringUtils.lowerCase(CharUtils.toString(c)));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 }
