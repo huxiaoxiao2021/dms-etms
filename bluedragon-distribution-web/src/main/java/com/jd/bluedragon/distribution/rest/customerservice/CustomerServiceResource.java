@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.rest.customerservice;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.CustomerServiceResponse;
-//import com.jd.etms.erp.ws.ErpQuerySafWS;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -13,7 +12,6 @@ import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-//import com.jd.etms.waybill.wss.ErpQuerySafWS
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

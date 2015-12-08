@@ -45,9 +45,15 @@
         <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
     </jsf:consumer>
 
-    <!--调用预分拣获取预分拣站点信息-->
+    <!-- 预分拣接口,获得  订单-预分拣站点给自动分拣机用,为数据库复制备份 吴昊 -->
     <jsf:consumer id="preseparateOrderService"
                   interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
                   alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
+    </jsf:consumer>
+    
+    <!--调用dmsver分拣拦截验证服务-->
+    <jsf:consumer id="jsfSortingResourceService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
+                  alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="0">
     </jsf:consumer>
 </beans>
