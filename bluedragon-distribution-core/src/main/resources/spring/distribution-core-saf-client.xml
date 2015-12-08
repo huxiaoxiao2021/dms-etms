@@ -23,9 +23,10 @@
 	
 	-->
 
-	<saf:reference id="orderShipsService"
+<!-- 青龙三方路由JSF接口 陈全峰 -->
+<!-- 	<saf:reference id="orderShipsService"
 		interface="com.jd.etms.third.saf.OrderShipsServiceSaf" group="${bdbasic.saf.group2}"
-		timeout="5000" version="1.0" check="false" />
+		timeout="5000" version="1.0" check="false" /> -->
 
 	<!-- 引用远程服务：基础资料提供的根据创建站点、目的站点获得箱子路由信息的接口 -->
 	<saf:reference id="basicSafInterface"

@@ -54,4 +54,9 @@
                   interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
                   alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
     </jsf:consumer>
+    
+    <!-- 青龙三方路由JSF接口 陈全峰 -->
+    <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
+                 protocol="jsf" alias="${3pl.jsf.alias}" timeout="10000" retries="0">
+	</jsf:consumer>
 </beans>

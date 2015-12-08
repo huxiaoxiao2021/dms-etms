@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jd.bluedragon.core.base.ThirdPartyLogisticManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -49,7 +50,6 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.third.saf.OrderShipsServiceSaf;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
 import com.jd.etms.third.service.dto.ShipCarrierReturnDto;
@@ -77,7 +77,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	private Ems4JingDongPortType whemsClientService;
 	
 	@Autowired
-	private OrderShipsServiceSaf orderShipsServiceSaf;
+	private ThirdPartyLogisticManager thirdPartyLogisticManager;
 	
 	@Autowired
 	@Qualifier("waybillQueryWSProxy")
@@ -263,7 +263,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 			List<String> waybillList = new CollectionHelper<String>()
 					.toList(waybillset);
-			dateTo3PlServer(waybillList,siteCode,siteName);
+			dataTo3PlServer(waybillList,siteCode,siteName);
 		}
 	}
 
@@ -271,9 +271,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	 * 调用3pl接口回传数据
 	 * @param waybillList
 	 */
-	private void dateTo3PlServer(List<String> waybillList ,Integer siteCode,String siteName) {
+	private void dataTo3PlServer(List<String> waybillList ,Integer siteCode,String siteName) {
 		if (waybillList != null && !waybillList.isEmpty()) {
-			this.logger.info("dateTo3PlServer处理任务数据"+ waybillList.size());
+			this.logger.info("dataTo3PlServer处理任务数据"+ waybillList.size());
 			List<String>[] splitListResultAl = splitList(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				List<OrderShipsReturnDto> returnDtoList = new ArrayList<OrderShipsReturnDto>();
@@ -308,7 +308,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					returnDto.setShipCarrierList(shipCarrierList);
 					returnDtoList.add(returnDto);
 				}
-				BaseResult<List<OrderShipsReturnDto>>  baseResult = orderShipsServiceSaf.insertOrderShips(returnDtoList, encryptData);
+				BaseResult<List<OrderShipsReturnDto>>  baseResult = thirdPartyLogisticManager.insertOrderShips(returnDtoList, encryptData);
 				if(baseResult!=null && baseResult.getCallState()==0){
 					this.logger.info("调用接口返回状态失败, 信息： " + baseResult.getMessage());
 				}

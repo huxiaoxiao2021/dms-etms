@@ -148,7 +148,7 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-		
+<!-- 		
 		<dependency> 
     		<groupId>com.jd.etms.3pl</groupId> 
     		<artifactId>epartner-jobnotrace</artifactId> 
@@ -158,9 +158,15 @@
 		<dependency>
     		<groupId>com.jd.etms.3pl</groupId>
     		<artifactId>etms-epartner</artifactId>
-    		<version>1.1-SNAPSHOT</version>
+    		<version>2.0-SNAPSHOT</version>
+		</dependency> -->
+
+		<dependency>
+			<groupId>com.jd.etms.third</groupId>
+			<artifactId>ql-thirdtrack-interface</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-	
+              
 		<dependency>
 			<groupId>commons-jexl</groupId>
 			<artifactId>commons-jexl</artifactId>
@@ -358,7 +364,12 @@
 			<artifactId>etms-dbs-base-client</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
-		
+		<dependency>
+            <groupId>com.jd.ql.basic</groupId>
+            <artifactId>ql-basic-client</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
@@ -526,11 +537,11 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>com.jd.warestock</groupId>
 			<artifactId>warestock-export</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>com.jd.dos</groupId>
 			<artifactId>dos-area-contract</artifactId>
