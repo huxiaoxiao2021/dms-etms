@@ -61,7 +61,7 @@
 	</jsf:consumer>
 	
 	<!-- 车辆电子围栏 VOS系统 李胜涛  -->
-	<jsf:consumer id="vosCarryDeparturePrintJsf" interface="com.jd.etms.vos.ws.VosQueryWS"
+	<jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
                  protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
 	</jsf:consumer>
 	
