@@ -87,7 +87,7 @@
 
 
     <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
-        SELECT waybill_code,box_code,approval_code
+        SELECT waybill_code,box_code,approval_code,dms_code
         FROM DMS.load_bill
         WHERE
           yn=1
