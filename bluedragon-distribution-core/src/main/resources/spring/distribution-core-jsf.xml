@@ -23,6 +23,11 @@
                   protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="10000" retries="0">
         <jsf:parameter key="token" value="${getOrderMsgServiceJsf.jsf.token}" hide="true"/>
     </jsf:consumer>
+    
+    <!-- 返单业务接口 王建磊 -->
+    <jsf:consumer id="grossReturnSafService" interface="com.jd.etms.receive.api.saf.GrossReturnSaf"
+                  protocol="jsf" alias="${finance.jsf.alias}" timeout="10000" retries="0">
+    </jsf:consumer>
 
     <!-- erp接口 苗延超 杨庭柱 -->
 

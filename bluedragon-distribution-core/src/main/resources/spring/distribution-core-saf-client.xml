@@ -76,12 +76,12 @@
 	<saf:reference id="labelPrintingWS" interface="com.jd.bluedragon.preseparate.saf.LabelPrintingWS" version="1.0.0" group="${preseparate.saf.group}"  timeout="30000" check="false"/>
 
     <!-- F返单换单SAF接口-->
-    <saf:reference id="grossReturnSafService"
+<!--     <saf:reference id="grossReturnSafService"
                    interface="com.jd.etms.receive.api.saf.GrossReturnSaf"
                    version="${receive.saf.fwaybillexchange.version}"
                    group="${receive.saf.fwaybillexchange.group}"
                    timeout="${receive.saf.fwaybillexchange.timeout}"
-                   check="false" />
+                   check="false" /> -->
 
 <!--     <saf:reference id="vehicleManagerService"
                    interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
