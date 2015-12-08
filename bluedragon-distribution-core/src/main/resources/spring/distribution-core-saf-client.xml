@@ -83,12 +83,12 @@
                    timeout="${receive.saf.fwaybillexchange.timeout}"
                    check="false" />
 
-    <saf:reference id="vehicleManagerService"
+<!--     <saf:reference id="vehicleManagerService"
                    interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
                    version="${com.jd.etms.vehicle.manager.version}"
                    group="${com.jd.etms.vehicle.manager.group}"
                    timeout="${com.jd.etms.vehicle.manager.timeout}"
-                   check="false" />
+                   check="false" /> -->
                    
     <!-- 运单系统接口 开始 -->
     <saf:registry id="waybillClientRegistry" protocol="${saf.waybill.protocol}" address="${saf.waybill.address}" />
@@ -116,14 +116,14 @@
 		group="${saf.stock.deliveryConfigSafService.group}"	registry="stockClientRegistry" timeout="50000" version="${saf.stock.version}" jdtoken="${saf.stock.jdtoken}" filter="SafTokenFilter" />
 	<!-- 出管接口 结束 -->
 	
-	<!--VOS系统开始-->
+<!-- 	VOS系统开始
 	<saf:reference id="vosCarryDeparturePrintSaf"
 				   interface="com.jd.etms.vos.ws.VosQueryWS"
 				   version="${com.jd.etms.vos.ws.VosQueryWs.version}"
 				   group="${com.jd.etms.vos.ws.VosQueryWs.group}"
 				   timeout="${com.jd.etms.vos.ws.VosQueryWs.timeout}"
 				   check="false" retries="0" />
-	<!--VOS系统开始-->
+	VOS系统开始 -->
 
 <!-- 库房属性接口 刘世涛 平行库库rest接口下线, 此接口无用 -->
 <!-- 	<saf:registry id ="wareStockRegistry" protocol="${saf.ware.protocol}" address="${saf.ware.address}"/>

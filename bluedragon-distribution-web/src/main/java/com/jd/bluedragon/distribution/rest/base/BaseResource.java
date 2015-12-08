@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import java.awt.image.RescaleOp;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,37 +15,41 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.web.sysconfig.SysconfigController;
-import com.jd.etms.basic.domain.*;
-import com.jd.etms.vehicle.manager.domain.Vehicle;
-import com.jd.etms.vehicle.manager.service.saf.VehicleManagerService;
-import com.mysql.jdbc.JDBC4ResultSet;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BaseRequest;
+import com.jd.bluedragon.distribution.api.response.BaseDatadict;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.BaseStaffResponse;
+import com.jd.bluedragon.distribution.api.response.DatadictResponse;
+import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
+import com.jd.bluedragon.distribution.api.response.WarehouseResponse;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.basic.domain.BaseDataDict;
+import com.jd.etms.basic.domain.BaseOrg;
+import com.jd.etms.basic.domain.BaseVehicle;
+import com.jd.etms.basic.domain.PsStoreInfo;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.basic.dto.SimpleBaseSite;
 import com.jd.etms.utils.cache.monitor.CacheMonitor;
+import com.jd.etms.vehicle.manager.domain.Vehicle;
 
 @Component
 @Path(Constants.REST_URL)
@@ -64,8 +67,7 @@ public class BaseResource {
 	private BaseService baseService;
 
     @Autowired
-    @Qualifier("vehicleManagerService")
-    VehicleManagerService vehicleManagerService;
+    VmsManager vmsManager;
 
     @Autowired
     private BaseMinorManager baseMinorManager;
@@ -243,9 +245,9 @@ public class BaseResource {
             vehicle.setVehicleNumber(vehicleCode);
             vehicle.setVehicleCode(barCode);
             if (vehicleCode != null && !vehicleCode.isEmpty())
-                temp = vehicleManagerService.getVehicleInfoByNumber(vehicle);
+                temp = vmsManager.getVehicleInfoByNumber(vehicle);
             if (temp == null && barCode != null && !barCode.isEmpty())
-                temp = vehicleManagerService.getVehicleInfoByCode(vehicle);
+                temp = vmsManager.getVehicleInfoByCode(vehicle);
 
             if (temp != null) {
 				BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);

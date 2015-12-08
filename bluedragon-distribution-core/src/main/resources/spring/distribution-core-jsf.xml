@@ -59,4 +59,14 @@
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                  protocol="jsf" alias="${3pl.jsf.alias}" timeout="10000" retries="0">
 	</jsf:consumer>
+	
+	<!-- 车辆电子围栏 VOS系统 李胜涛  -->
+	<jsf:consumer id="vosCarryDeparturePrintJsf" interface="com.jd.etms.vos.ws.VosQueryWS"
+                 protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
+	</jsf:consumer>
+	
+    <!-- 车辆管理系统 VMS 系统 李胜涛  -->
+	<jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
+                 protocol="jsf" alias="${vms.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
+	</jsf:consumer>
 </beans>
