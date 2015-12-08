@@ -124,8 +124,9 @@
 				   check="false" retries="0" />
 	<!--VOS系统开始-->
 
-	<saf:registry id ="wareStockRegistry" protocol="${saf.ware.protocol}" address="${saf.ware.address}"/>
+<!-- 库房属性接口 刘世涛 平行库库rest接口下线, 此接口无用 -->
+<!-- 	<saf:registry id ="wareStockRegistry" protocol="${saf.ware.protocol}" address="${saf.ware.address}"/>
 	<saf:reference id="wareStockServiceExport" interface="com.jd.warestock.export.WareStockServiceExport"
 				   group="${saf.ware.group}"	registry="wareStockRegistry"
-				   timeout="${saf.ware.timeout}" version="${saf.ware.version}" check="false" retries="0"/>
+				   timeout="${saf.ware.timeout}" version="${saf.ware.version}" check="false" retries="0"/> -->
 </beans>
