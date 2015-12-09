@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.waybill.domain.Pickware;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.wss.PickupTaskWS;
 
 @Service("pickwareService")
 public class PickwareServiceImpl implements PickwareService {
@@ -18,12 +18,12 @@ public class PickwareServiceImpl implements PickwareService {
     private final Log logger = LogFactory.getLog(this.getClass());
     
     @Autowired
-    private PickupTaskWS pickwareWssService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
     
     public Pickware get(String code) {
         this.logger.info("取件单面单号：" + code);
         
-        BaseEntity<PickupTask> pickupTask = this.pickwareWssService.getDataBySfCode(code);
+        BaseEntity<PickupTask> pickupTask = this.waybillPickupTaskApi.getDataBySfCode(code);
         if (pickupTask == null || pickupTask.getData() == null) {
             this.logger.info("未找到此面单号相关信息, 取件单面单号：" + code);
             return null;

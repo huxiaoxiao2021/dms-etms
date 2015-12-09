@@ -12,11 +12,11 @@ import com.jd.etms.basic.domain.BaseDmsStore;
 import com.jd.etms.basic.domain.BaseResult;
 import com.jd.etms.basic.domain.CrossPackageTagNew;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,7 +30,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     public static final String LOG_PREFIX="包裹标签打印模板[AbstractLabelPrintingServiceTemplate] ";
 
     @Autowired
-    private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -184,7 +184,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         WChoice wchoice = new WChoice();
         wchoice.setQueryWaybillC(true);
         wchoice.setQueryWaybillE(true);
-        BaseEntity<BigWaybillDto> entity = waybillQueryWSProxy.getDataByChoice(request.getWaybillCode(), wchoice);
+        BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
         if(entity==null || entity.getData()==null){
             log.error(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
             return null;

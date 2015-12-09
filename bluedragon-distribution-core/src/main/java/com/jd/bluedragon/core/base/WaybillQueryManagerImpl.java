@@ -10,14 +10,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderTraceDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillAddWS;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -25,16 +24,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	@Autowired
-	private WaybillQueryWS waybillQueryWS;
+	private WaybillQueryApi waybillQueryApi;
 
 	@Autowired
-	private WaybillAddWS waybillAddWS;
+	private WaybillTraceApi waybillTraceApi;
 	
 	@Override
 	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode,
 			WChoice wChoice) {
-		return waybillQueryWS.getDataByChoice(waybillCode, wChoice);
+		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
 	}
 
 	@Override
@@ -47,7 +46,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryWaybillE(isWaybillE);
 		wChoice.setQueryWaybillM(isWaybillM);
 		wChoice.setQueryPackList(isPackList);
-		return waybillQueryWS.getDataByChoice(waybillCode, wChoice);
+		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
 	}
 
 	@Override
@@ -64,7 +63,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryPackList(isPackList);
 		wChoice.setQueryPickupTask(isPickupTask);
 		wChoice.setQueryServiceBillPay(isServiceBillPay);
-		return waybillQueryWS.getDataByChoice(waybillCode, wChoice);
+		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
 	}
 	
 	@Override
@@ -78,7 +77,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			orderTraceDto.setContent(content);
 			orderTraceDto.setOperatorName(operatorName);
 			orderTraceDto.setOperateTime(operateTime==null?new Date():operateTime);
-			BaseEntity<Boolean> baseEntity = waybillAddWS.sendOrderTrace(orderTraceDto);
+			BaseEntity<Boolean> baseEntity = waybillTraceApi.sendOrderTrace(orderTraceDto);
 			if(baseEntity!=null){
 				if(!baseEntity.getData()){
 					this.logger.error("分拣数据回传全程跟踪sendOrderTrace异常："+baseEntity.getMessage()+baseEntity.getData());
@@ -103,7 +102,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	public boolean sendBdTrace(BdTraceDto bdTraceDto) {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.sendBdTrace", false, true);
 		try{
-			BaseEntity baseEntity = waybillAddWS.sendBdTrace(bdTraceDto);
+			BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
 			if(baseEntity!=null){
 				if(baseEntity.getResultCode()!=1){
 					this.logger.error("分拣数据回传全程跟踪sendBdTrace异常："+baseEntity.getMessage());

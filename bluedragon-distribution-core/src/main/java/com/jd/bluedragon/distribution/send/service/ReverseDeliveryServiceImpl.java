@@ -19,7 +19,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,12 +52,12 @@ import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
 import com.jd.etms.third.service.dto.ShipCarrierReturnDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.postal.GetPrintDatasPortType;
 
 @Service("reversedeliveryService")
@@ -80,8 +79,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	private ThirdPartyLogisticManager thirdPartyLogisticManager;
 	
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 	
 	@Autowired
 	private DeliveryService deliveryService;
@@ -287,7 +285,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					wChoice.setQueryWaybillC(true);
 					wChoice.setQueryWaybillE(true);
 					wChoice.setQueryWaybillM(true);
-					BaseEntity<BigWaybillDto> baseEntity = waybillQueryWSProxy.getDataByChoice(waybillCode,
+					BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(waybillCode,
 					        wChoice);
 					if (baseEntity != null && baseEntity.getData() != null) {
 						com.jd.etms.waybill.domain.Waybill waybillWS = baseEntity.getData().getWaybill();

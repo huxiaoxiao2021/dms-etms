@@ -13,9 +13,9 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,8 +97,7 @@ public class WaybillResource {
 
 	/* 运单查询 */
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	private WaybillQueryApi waybillQueryApi;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -898,7 +897,7 @@ public class WaybillResource {
 			wChoice.setQueryWaybillE(true);
 			wChoice.setQueryWaybillM(true);
 			wChoice.setQueryGoodList(true);
-			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryWSProxy.getDataByChoice(
+			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
 					waybillCode, wChoice);
 			if(null == baseEntity || baseEntity.getData() == null){
 				logger.error("根据运单号获取SKU信息接口为空");
