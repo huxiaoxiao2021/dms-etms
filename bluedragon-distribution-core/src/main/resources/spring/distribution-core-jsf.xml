@@ -60,6 +60,12 @@
                   alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
     </jsf:consumer>
     
+    <!--调用dmsver分拣拦截验证服务-->
+    <jsf:consumer id="jsfSortingResourceService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
+                  alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="0">
+    </jsf:consumer>
+    
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                  protocol="jsf" alias="${3pl.jsf.alias}" timeout="10000" retries="0">

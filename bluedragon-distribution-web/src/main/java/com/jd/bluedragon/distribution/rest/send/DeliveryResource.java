@@ -205,7 +205,7 @@ public class DeliveryResource {
          */
         if (loadBillList != null && !loadBillList.isEmpty()) {
             for (LoadBill bill : loadBillList) {
-                if (bill.getApprovalCode().equals(LoadBill.REDLIGHT)) {
+                if (bill.getApprovalCode().equals(LoadBill.REDLIGHT) || !bill.getDmsCode().equals(request.getSiteCode())) {
                     return new DeliveryResponse(JdResponse.CODE_OK,
                             JdResponse.MESSAGE_OK);
                 }
