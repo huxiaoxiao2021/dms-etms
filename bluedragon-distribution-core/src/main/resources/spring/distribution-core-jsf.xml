@@ -80,4 +80,9 @@
 	<jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
                  protocol="jsf" alias="${vms.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
 	</jsf:consumer>
+	
+	<!--  出管接口 潘文华 于凯 -->
+	<jsf:consumer id="stockExportServiceJsf" interface="com.jd.stock.iwms.export.StockExportService" protocol="jsf" alias="${stock.jsf.alias}" timeout="3000" retries="2">
+        <jsf:parameter key="token" value="${stock.jsf.jdtoken}" hide="true"/>
+    </jsf:consumer>
 </beans>

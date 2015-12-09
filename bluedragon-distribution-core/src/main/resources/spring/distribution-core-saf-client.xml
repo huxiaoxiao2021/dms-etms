@@ -111,9 +111,9 @@
     <!-- 运单系统接口 结束 -->
 	
 	<!-- 出管接口 开始 -->
-	<saf:registry id="stockClientRegistry" protocol="${saf.stock.protocol}" address="${saf.stock.address}" />
+	<!-- <saf:registry id="stockClientRegistry" protocol="${saf.stock.protocol}" address="${saf.stock.address}" />
 	<saf:reference id="deliveryConfigSafService" interface="com.jd.stock.iwms.export.StockExportService" 
-		group="${saf.stock.deliveryConfigSafService.group}"	registry="stockClientRegistry" timeout="50000" version="${saf.stock.version}" jdtoken="${saf.stock.jdtoken}" filter="SafTokenFilter" />
+		group="${saf.stock.deliveryConfigSafService.group}"	registry="stockClientRegistry" timeout="50000" version="${saf.stock.version}" jdtoken="${saf.stock.jdtoken}" filter="SafTokenFilter" /> -->
 	<!-- 出管接口 结束 -->
 	
 <!-- 	VOS系统开始
