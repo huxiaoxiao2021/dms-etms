@@ -26,9 +26,9 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.ThridPackageDto;
-import com.jd.etms.waybill.wss.WaybillUpdateWS;
 
 @Service("partnerWaybillService")
 public class PartnerWaybillServiceImpl implements PartnerWaybillService {
@@ -40,7 +40,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	private PartnerWaybillDao partnerWaybillDao;
 
 	@Autowired
-	private WaybillUpdateWS waybillUpdateWS;
+	WaybillPackageApi waybillPackageApi;
 
 	@Autowired
 	private TaskService taskService;
@@ -112,7 +112,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 		}
 		if (!params.isEmpty()) {
 			try {
-				BaseEntity<Map<Long, Boolean>> baseEntity = this.waybillUpdateWS
+				BaseEntity<Map<Long, Boolean>> baseEntity = this.waybillPackageApi
 						.updateThirdOrder(params);
 				if (baseEntity.getResultCode() == Constants.INTERFACE_CALL_SUCCESS) {
 					// 接口调用成功

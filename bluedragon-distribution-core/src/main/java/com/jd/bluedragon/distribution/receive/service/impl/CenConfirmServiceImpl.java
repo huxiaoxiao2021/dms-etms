@@ -26,9 +26,9 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.wss.PickupTaskWS;
 
 @Service("cenConfirmService")
 public class CenConfirmServiceImpl implements CenConfirmService {
@@ -39,7 +39,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	private CenConfirmDao cenConfirmDao;
 
 	@Autowired
-	private PickupTaskWS pickupTaskWS;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 
 	@Autowired
 	private DeliveryService deliveryService;
@@ -160,7 +160,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	}
 
 	private CenConfirm FillPickupCode(CenConfirm cenConfirm) {
-		BaseEntity<PickupTask> baseEntity = pickupTaskWS
+		BaseEntity<PickupTask> baseEntity = waybillPickupTaskApi
 				.getDataBySfCode(cenConfirm.getPackageBarcode());
 		if (baseEntity.getResultCode() == Constants.INTERFACE_CALL_SUCCESS) {
 			PickupTask ptask = baseEntity.getData();

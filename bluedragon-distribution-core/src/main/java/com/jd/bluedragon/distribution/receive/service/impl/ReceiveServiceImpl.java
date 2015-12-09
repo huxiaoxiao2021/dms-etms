@@ -46,9 +46,9 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.wss.PickupTaskWS;
 
 @Service("receiveService")
 public class ReceiveServiceImpl implements ReceiveService {
@@ -89,7 +89,7 @@ public class ReceiveServiceImpl implements ReceiveService {
     private DeliveryService deliveryService;
 
 	@Autowired
-	private PickupTaskWS  pickupWebService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 
     @Autowired
     private DepartureService departureService;
@@ -137,7 +137,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 			if(BusinessHelper.isPickupCode(receive.getBoxCode())){
 				BaseEntity<PickupTask> pickup =null;
 				try {
-				pickup = this.pickupWebService.getDataBySfCode(receive.getBoxCode());
+				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive.getBoxCode());
 				} catch (Exception e) {
                     log.error("分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常["+receive.getBoxCode()+"]",e);
                 }

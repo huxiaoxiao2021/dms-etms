@@ -8,8 +8,8 @@ import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.wss.WaybillAddWS;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +43,7 @@ public class ReverseSpareRedisTask extends RedisSingleScheduler {
 	private MessageClient messageClient;
 
 	@Autowired
-	private WaybillAddWS waybillAddWS;
+	private WaybillTraceApi waybillTraceApi;
 
 	@Override
 	public boolean executeSingleTask(Task task, String ownSign)
@@ -107,7 +107,7 @@ public class ReverseSpareRedisTask extends RedisSingleScheduler {
 		BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
 		QualityControl qualityControl = convert2QualityControl(request);
 		logger.warn("分拣中心备件库分拣发质控和全程跟踪开始。运单号 " + request.getWaybillCode());
-		waybillAddWS.sendBdTrace(bdTraceDto);   // 推全程跟踪
+		waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
 		messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
 	}
 
