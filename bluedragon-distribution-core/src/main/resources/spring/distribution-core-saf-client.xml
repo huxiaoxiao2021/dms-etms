@@ -91,7 +91,7 @@
                    check="false" /> -->
                    
     <!-- 运单系统接口 开始 -->
-    <saf:registry id="waybillClientRegistry" protocol="${saf.waybill.protocol}" address="${saf.waybill.address}" />
+<!--     <saf:registry id="waybillClientRegistry" protocol="${saf.waybill.protocol}" address="${saf.waybill.address}" />
  
 	<saf:reference id="pickupTaskWSInfoProxy" interface="com.jd.etms.waybill.wss.PickupTaskWS"
                    group="${saf.waybill.pickupTaskWS.group}" registry="waybillClientRegistry" timeout="5000" version="${saf.waybill.version}" check="false" retries="0"/>
@@ -107,7 +107,7 @@
 	
 	<saf:reference id="waybillUpdateWS" interface="com.jd.etms.waybill.wss.WaybillUpdateWS"
                    group="${saf.waybill.waybillUpdateWS.group}" registry="waybillClientRegistry" timeout="5000" version="${saf.waybill.version}" check="false" retries="0"/>
-	
+	 -->
     <!-- 运单系统接口 结束 -->
 	
 	<!-- 出管接口 开始 -->

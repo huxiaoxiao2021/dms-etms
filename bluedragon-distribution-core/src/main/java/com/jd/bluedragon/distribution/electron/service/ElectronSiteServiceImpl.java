@@ -6,17 +6,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.etms.basic.dto.BaseGoodsPositionDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 
 @Service("electronSiteService")
 public class ElectronSiteServiceImpl implements ElectronSiteService {
@@ -27,8 +26,7 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 	BaseMinorManager baseMinorManager;
 
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWs;
+	WaybillQueryApi waybillQueryApi;
 
 	@Override
 	@Profiled(tag = "ElectronSiteService.getElecSiteInfo")
@@ -37,7 +35,7 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 
 		WChoice wChoice = new WChoice();
 		wChoice.setQueryWaybillC(true);
-		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryWs
+		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi
 				.getDataByChoice(waybillorPackCode, wChoice);
 		if (baseEntity != null && baseEntity.getData() != null) {
 			siteCode = baseEntity.getData().getWaybill().getOldSiteId();

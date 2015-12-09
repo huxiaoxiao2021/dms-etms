@@ -2,11 +2,10 @@ package com.jd.bluedragon.utils;
 
 import java.util.Date;
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.jd.etms.waybill.wss.WaybillAddWS;
+import com.jd.etms.waybill.api.WaybillExtendApi;
 
 public class SendMailUtil {
     private static final Log logger = LogFactory.getLog(SendMailUtil.class);
@@ -19,7 +18,7 @@ public class SendMailUtil {
             return;
         }
 
-        WaybillAddWS waybillAddWS = (WaybillAddWS) SpringHelper.getBean("waybillAddWS");
+        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("WaybillExtendApi");
 
         for (String user : users) {
             if (StringHelper.isEmpty(user)) {

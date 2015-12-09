@@ -20,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,12 +46,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.etms.waybill.domain.Waybill;
 
 /**
  * 验货Service
@@ -104,8 +102,7 @@ public class InspectionServiceImpl implements InspectionService {
 
 	/* 运单查询 */
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
 	public List<Inspection> parseInspections(Task task) {
 		if (task == null || StringUtils.isBlank(task.getBody())) {
@@ -324,7 +321,7 @@ public class InspectionServiceImpl implements InspectionService {
 		if (Constants.BUSSINESS_TYPE_FC == requestBean.getBusinessType()
 				.intValue()) {
 			try {
-				BaseEntity<Waybill> baseEntity = waybillQueryWSProxy
+				BaseEntity<Waybill> baseEntity = waybillQueryApi
 						.getWaybillByWaybillCode(waybillCode);
 				if (baseEntity != null && baseEntity.getData() != null
 						&& baseEntity.getData().getDistributeStoreId() != null) {

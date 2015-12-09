@@ -20,11 +20,11 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
-import com.jd.etms.waybill.wss.WaybillSyncWS;
 
 @Service("waybillStatusService")
 public class WaybillStatusServiceImpl implements WaybillStatusService {
@@ -37,7 +37,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private TaskService taskService;
 	
 	@Autowired
-	private WaybillSyncWS waybillSyncWebService;
+    WaybillSyncApi waybillSyncApi;
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
@@ -53,7 +53,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			return;
 		}
 
-		Map<Long, Result> results = this.waybillSyncWebService.batchUpdateWaybillByOperateCode(this
+		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(this
 				.parseWaybillSyncParameter(tasks));
 
 		if (results == null || results.isEmpty()) {
@@ -81,7 +81,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	public void sendModifyWaybillStatusFinished(Task task) {
 		logger.debug("开始妥投运单调用运单接口:");
-		BaseEntity<Boolean> result = this.waybillSyncWebService.batchUpdateWaybillByWaybillCode(this.parseWaybillParameter(task), 8);
+		BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(this.parseWaybillParameter(task), 8);
 		logger.debug("开始妥投运单成功:");
 		if (result != null && result.getData() == true) {
 			this.taskService.doDone(task);
@@ -439,7 +439,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 		}
 
-		Map<Long, Result> results = this.waybillSyncWebService.batchUpdateStateByCode(this
+		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
 		        .parseWaybillSyncParameter(tasks));
 		if (results == null || results.isEmpty()) {
 			return;

@@ -38,12 +38,12 @@ import com.jd.etms.basic.saf.BasicSafInterface;
 import com.jd.etms.basic.wss.BasicMajorWS;
 import com.jd.etms.basic.wss.BasicMinorWS;
 import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 
 @Service("baseService")
 public class BaseServiceImpl implements BaseService {
@@ -66,10 +66,8 @@ public class BaseServiceImpl implements BaseService {
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 	
-
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 	
 	@Autowired
 	WaybillQueryManager waybillQueryManager;
@@ -503,7 +501,7 @@ public class BaseServiceImpl implements BaseService {
 			wChoice.setQueryWaybillM(true);
 			wChoice.setQueryGoodList(true);
 			wChoice.setQueryPackList(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryWSProxy.getDataByChoice(orderCode,
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(orderCode,
 			        wChoice);
 			if (baseEntity != null && baseEntity.getData() != null) {
 				reverseSendWms = convWaybill(baseEntity.getData());

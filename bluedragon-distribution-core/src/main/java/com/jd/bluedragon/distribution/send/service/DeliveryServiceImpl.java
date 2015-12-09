@@ -67,14 +67,15 @@ import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.PickupTaskWS;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -117,8 +118,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private BoxService boxService;
 
     @Autowired
-    @Qualifier("waybillQueryWSProxy")
-    private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
     
     @Autowired
     private SortingService tSortingService;
@@ -127,7 +127,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private BaseService tBaseService;
 
     @Autowired
-    private PickupTaskWS pickupWebService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
+    
+    @Autowired
+	WaybillPackageApi waybillPackageApi;
 
     @Autowired
     private DmsToTmsWebService dmsToTmsWebService;
@@ -836,7 +839,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 			} else {
                 BaseEntity<PickupTask> pickup = null;
                 try {
-                    pickup = this.pickupWebService.getDataBySfCode(tsendM
+                    pickup = this.waybillPickupTaskApi.getDataBySfCode(tsendM
                             .getBoxCode());
                 } catch (Exception e) {
                     this.logger.error("调用取件单号信息ws接口异常");
@@ -1902,7 +1905,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Profiled(tag = "DeliveryService.getWaybillResult")
 	private void getWaybillResult(List<BigWaybillDto> datalist,WChoice queryWChoice, List<String> waybills) {
-		BaseEntity<List<BigWaybillDto>> results = waybillQueryWSProxy.getDatasByChoice(waybills, queryWChoice);
+		BaseEntity<List<BigWaybillDto>> results = waybillQueryApi.getDatasByChoice(waybills, queryWChoice);
 		if(results!=null && results.getResultCode()>0){
 			logger.info("调用运单接口返回信息"+results.getResultCode()+"-----"+results.getMessage());
 			List<BigWaybillDto> datas = results.getData();
@@ -2179,7 +2182,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		List<DeliveryPackageD> datas = null;
 		try {
 			//logger.info("调用运单queryPackageListForParcodes调用参数"+sendDetail.getPackageBarcode());
-			waybillWSRs = waybillQueryWSProxy.queryPackageListForParcodes(
+			waybillWSRs = waybillPackageApi.queryPackageListForParcodes(
 					Arrays.asList(new String[]{sendDetail.getPackageBarcode()}) );
 			if(waybillWSRs!=null){
 				datas = waybillWSRs.getData();
@@ -2496,7 +2499,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 								.isPickupCode(dto.getPackageBarcode())) {
 							BaseEntity<PickupTask> pickup = null;
 							try {
-								pickup = this.pickupWebService
+								pickup = this.waybillPickupTaskApi
 										.getDataBySfCode(dto
 												.getPackageBarcode());
 							} catch (Exception e) {
