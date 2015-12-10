@@ -23,7 +23,6 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -63,8 +62,8 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -78,8 +77,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	private MessageClient messageClient;
 
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
 	private WaybillCommonService waybillCommonService;
@@ -932,7 +930,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 					wChoice.setQueryWaybillE(true);
 					wChoice.setQueryWaybillM(true);
 					try {
-						Integer consignerId = this.waybillQueryWSProxy.getDataByChoice(waybillCode, wChoice).getData()
+						Integer consignerId = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice).getData()
 								.getWaybill().getConsignerId();
 
 						if (null != consignerId) {

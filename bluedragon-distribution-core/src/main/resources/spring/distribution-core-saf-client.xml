@@ -23,9 +23,10 @@
 	
 	-->
 
-	<saf:reference id="orderShipsService"
+<!-- 青龙三方路由JSF接口 陈全峰 -->
+<!-- 	<saf:reference id="orderShipsService"
 		interface="com.jd.etms.third.saf.OrderShipsServiceSaf" group="${bdbasic.saf.group2}"
-		timeout="5000" version="1.0" check="false" />
+		timeout="5000" version="1.0" check="false" /> -->
 
 	<!-- 引用远程服务：基础资料提供的根据创建站点、目的站点获得箱子路由信息的接口 -->
 	<saf:reference id="basicSafInterface"
@@ -62,13 +63,6 @@
 		version="1.0" group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}"
 		check="false" retries="0" />
 
-	<!-- 引用远程服务: 运单提供的ErpQuerySafWSInfoSafService  -->
-	<saf:reference id="baseErpQuerySafWSInfoSafService"
-		 interface="com.jd.etms.erp.ws.ErpQuerySafWS" version="${bdbasic.saf.erpQuerySafWS.version}"
-		 group="${bdbasic.saf.erpQuerySafWS.group}"  check="false" timeout="${bdbasic.saf.erpQuerySafWS.timeout}"/>
-
-
-
 	<!-- 批量接口bean -->
 	<!--
 		<bean id="basicMinorWSPageProxy"
@@ -82,22 +76,22 @@
 	<saf:reference id="labelPrintingWS" interface="com.jd.bluedragon.preseparate.saf.LabelPrintingWS" version="1.0.0" group="${preseparate.saf.group}"  timeout="30000" check="false"/>
 
     <!-- F返单换单SAF接口-->
-    <saf:reference id="grossReturnSafService"
+<!--     <saf:reference id="grossReturnSafService"
                    interface="com.jd.etms.receive.api.saf.GrossReturnSaf"
                    version="${receive.saf.fwaybillexchange.version}"
                    group="${receive.saf.fwaybillexchange.group}"
                    timeout="${receive.saf.fwaybillexchange.timeout}"
-                   check="false" />
+                   check="false" /> -->
 
-    <saf:reference id="vehicleManagerService"
+<!--     <saf:reference id="vehicleManagerService"
                    interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
                    version="${com.jd.etms.vehicle.manager.version}"
                    group="${com.jd.etms.vehicle.manager.group}"
                    timeout="${com.jd.etms.vehicle.manager.timeout}"
-                   check="false" />
+                   check="false" /> -->
                    
     <!-- 运单系统接口 开始 -->
-    <saf:registry id="waybillClientRegistry" protocol="${saf.waybill.protocol}" address="${saf.waybill.address}" />
+<!--     <saf:registry id="waybillClientRegistry" protocol="${saf.waybill.protocol}" address="${saf.waybill.address}" />
  
 	<saf:reference id="pickupTaskWSInfoProxy" interface="com.jd.etms.waybill.wss.PickupTaskWS"
                    group="${saf.waybill.pickupTaskWS.group}" registry="waybillClientRegistry" timeout="5000" version="${saf.waybill.version}" check="false" retries="0"/>
@@ -113,26 +107,27 @@
 	
 	<saf:reference id="waybillUpdateWS" interface="com.jd.etms.waybill.wss.WaybillUpdateWS"
                    group="${saf.waybill.waybillUpdateWS.group}" registry="waybillClientRegistry" timeout="5000" version="${saf.waybill.version}" check="false" retries="0"/>
-	
+	 -->
     <!-- 运单系统接口 结束 -->
 	
 	<!-- 出管接口 开始 -->
-	<saf:registry id="stockClientRegistry" protocol="${saf.stock.protocol}" address="${saf.stock.address}" />
+	<!-- <saf:registry id="stockClientRegistry" protocol="${saf.stock.protocol}" address="${saf.stock.address}" />
 	<saf:reference id="deliveryConfigSafService" interface="com.jd.stock.iwms.export.StockExportService" 
-		group="${saf.stock.deliveryConfigSafService.group}"	registry="stockClientRegistry" timeout="50000" version="${saf.stock.version}" jdtoken="${saf.stock.jdtoken}" filter="SafTokenFilter" />
+		group="${saf.stock.deliveryConfigSafService.group}"	registry="stockClientRegistry" timeout="50000" version="${saf.stock.version}" jdtoken="${saf.stock.jdtoken}" filter="SafTokenFilter" /> -->
 	<!-- 出管接口 结束 -->
 	
-	<!--VOS系统开始-->
+<!-- 	VOS系统开始
 	<saf:reference id="vosCarryDeparturePrintSaf"
 				   interface="com.jd.etms.vos.ws.VosQueryWS"
 				   version="${com.jd.etms.vos.ws.VosQueryWs.version}"
 				   group="${com.jd.etms.vos.ws.VosQueryWs.group}"
 				   timeout="${com.jd.etms.vos.ws.VosQueryWs.timeout}"
 				   check="false" retries="0" />
-	<!--VOS系统开始-->
+	VOS系统开始 -->
 
-	<saf:registry id ="wareStockRegistry" protocol="${saf.ware.protocol}" address="${saf.ware.address}"/>
+<!-- 库房属性接口 刘世涛 平行库库rest接口下线, 此接口无用 -->
+<!-- 	<saf:registry id ="wareStockRegistry" protocol="${saf.ware.protocol}" address="${saf.ware.address}"/>
 	<saf:reference id="wareStockServiceExport" interface="com.jd.warestock.export.WareStockServiceExport"
 				   group="${saf.ware.group}"	registry="wareStockRegistry"
-				   timeout="${saf.ware.timeout}" version="${saf.ware.version}" check="false" retries="0"/>
+				   timeout="${saf.ware.timeout}" version="${saf.ware.version}" check="false" retries="0"/> -->
 </beans>

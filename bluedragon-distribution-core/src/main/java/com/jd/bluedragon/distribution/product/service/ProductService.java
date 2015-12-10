@@ -10,17 +10,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BigDecimalHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.wss.PickupTaskWS;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
 
@@ -33,7 +32,7 @@ public class ProductService {
 	private OrderWebService orderWebService;
 	
 	@Autowired
-	private PickupTaskWS pickwareWssService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 	
 	@Autowired
 	private BlueDragonWebService lossWebService;
@@ -108,7 +107,7 @@ public class ProductService {
 	}
 	
 	public List<Product> getPickwareProductds(String code) {
-		BaseEntity<PickupTask> pickware = this.pickwareWssService.getDataBySfCode(code);
+		BaseEntity<PickupTask> pickware = this.waybillPickupTaskApi.getDataBySfCode(code);
 		if (pickware == null || pickware.getData() == null) {
 			return Collections.emptyList();
 		}

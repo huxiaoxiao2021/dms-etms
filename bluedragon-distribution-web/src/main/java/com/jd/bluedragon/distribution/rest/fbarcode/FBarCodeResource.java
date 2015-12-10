@@ -1,7 +1,24 @@
 package com.jd.bluedragon.distribution.rest.fbarcode;
 
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.FBarCodeRequest;
 import com.jd.bluedragon.distribution.api.response.FBarCodeResponse;
@@ -10,16 +27,6 @@ import com.jd.bluedragon.distribution.fBarCode.domain.FBarCode;
 import com.jd.bluedragon.distribution.fBarCode.service.FBarCodeService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
-import com.jd.etms.receive.api.saf.GrossReturnSaf;
-import org.springframework.util.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -33,7 +40,7 @@ public class FBarCodeResource {
     private FBarCodeService fBarCodeService;
 
     @Autowired
-    GrossReturnSaf grossReturnSafService;
+    ReceiveManager receiveManager;
 
 
     @POST
@@ -77,7 +84,7 @@ public class FBarCodeResource {
         this.logger.info("FBarCodeCode's " + code);
         try {
 
-            result.setData(this.grossReturnSafService.queryDeliveryIdByFcode(code));
+            result.setData(this.receiveManager.queryDeliveryIdByFcode(code));
             if(null!=result.getData()){
                 result.setCode(result.getData().getResultCode());
                 result.setMessage(result.getData().getResultMsg());

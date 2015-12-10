@@ -1,15 +1,16 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillArgs;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillResult;
 import com.jd.etms.receive.api.request.GrossReturnRequest;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
-import com.jd.etms.receive.api.saf.GrossReturnSaf;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 
 /**
@@ -24,7 +25,7 @@ public class FWaybillExchangeServiceImpl implements FWaybillExchangeService {
      * 接货中心换单接口
      */
     @Autowired
-    private GrossReturnSaf receiveExchangeService;
+    private ReceiveManager receiveManager;
 
     /**
      * F返单换单
@@ -45,7 +46,7 @@ public class FWaybillExchangeServiceImpl implements FWaybillExchangeService {
         request.setEntryId(fWaybillArgs.getUserId());
         request.setEntryName(fWaybillArgs.getEntryName());
         try {
-            GrossReturnResponse response = receiveExchangeService.generateGrossReturnWaybill(request);
+            GrossReturnResponse response = receiveManager.generateGrossReturnWaybill(request);
             if(200!=response.getResultCode()) {
                 result.setCode(response.getResultCode());
                 result.setMessage(response.getResultMsg());

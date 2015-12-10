@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.ibm.wsdl.util.xml.QNameUtils;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillSyncApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.wss.WaybillAddWS;
-import com.jd.service.common.json.JSON;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
-import com.jd.etms.waybill.wss.WaybillSyncWS;
 
 @Service("AbnormalOrderService")
 public class AbnormalOrderServiceImpl implements AbnormalOrderService {
@@ -50,7 +47,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	AbnormalOrderDao abnormalOrderDao;
 	
     @Autowired
-    WaybillSyncWS waybillSyncWebService;
+    WaybillSyncApi waybillSyncApi;
     
     @Autowired
     BaseService baseService;
@@ -59,7 +56,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	private MessageClient messageClient;
 
 	@Autowired
-	private WaybillAddWS waybillAddWS;
+	private WaybillTraceApi waybillTraceApi;
 
 	@Override
 	public AbnormalOrder queryAbnormalOrderByOrderId(String orderId){
@@ -164,7 +161,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		bdTraceDto.setWaybillCode(abnormalOrder.getOrderId());
 //		bdTraceDto.setOperatorDesp("包裹记录【" + abnormalOrder.getAbnormalReason2() + "】异常");
 		bdTraceDto.setOperatorDesp(abnormalOrder.getTrackContent());
-		waybillAddWS.sendBdTrace(bdTraceDto);
+		waybillTraceApi.sendBdTrace(bdTraceDto);
 	}
 
 	public RefundReason[] queryRefundReason(){
@@ -192,7 +189,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	
 	private void pushWaybill(List<WaybillSyncParameter> waybillList){
 		if(waybillList!=null && waybillList.size()>0){
-			waybillSyncWebService.batchUpdateStateByCode(waybillList);
+			waybillSyncApi.batchUpdateStateByCode(waybillList);
 		}
 	}
 	
