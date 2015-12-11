@@ -15,35 +15,33 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
-import com.google.common.collect.Lists;
-import com.jd.bluedragon.distribution.api.request.CarryDeparturePrintRequest;
-import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.distribution.departure.domain.*;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.vos.dto.CommonDto;
-import com.jd.etms.vos.dto.SendCarInfoDto;
-import com.jd.etms.vos.dto.SendCarParamDto;
-import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
-import org.jboss.resteasy.core.request.ServerDrivenNegotiation;
-import org.jgroups.protocols.EXAMPLE;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CarryDeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureSendRequest;
+import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
+import com.jd.bluedragon.distribution.api.response.CarryDeparturePrintResponse;
+import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
+import com.jd.bluedragon.distribution.api.response.DepartureResponse;
+import com.jd.bluedragon.distribution.api.response.DepartureTmpResponse;
+import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
+import com.jd.bluedragon.distribution.api.response.SendBoxResponse;
+import com.jd.bluedragon.distribution.api.response.SendMeasureResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
 import com.jd.bluedragon.distribution.departure.domain.Departure;
 import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
 import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
@@ -53,9 +51,14 @@ import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.basic.domain.BaseDataDict;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SendCarInfoDto;
+import com.jd.etms.vos.dto.SendCarParamDto;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -71,7 +74,7 @@ public class DepartureResource {
 	BaseService baseService;
 
 	@Autowired
-	VosQueryWS vosCarryDeparturePrintSaf;
+	VosManager vosManager;
 
 	@Autowired
 	DepartureTmpDao departureTmpDao;
@@ -614,7 +617,7 @@ public class DepartureResource {
 			paramDto.setHandoverCode(departurPrintRequest.getHandoverCode());
 			paramDto.setStartSiteCode(departurPrintRequest.getStartSiteCode());
 
-			CommonDto<List<SendCarInfoDto>> repose = this.vosCarryDeparturePrintSaf.getSendCar(paramDto);
+			CommonDto<List<SendCarInfoDto>> repose = this.vosManager.getSendCar(paramDto);
 			cars = repose.getData();
 			if (cars == null) {
 				logger.info("请求服务成功，运输发车数据为空！");

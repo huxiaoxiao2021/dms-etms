@@ -21,7 +21,6 @@ import org.perf4j.StopWatch;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,12 +46,12 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.wss.PickupTaskWS;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -79,11 +78,10 @@ public class SortingServiceImpl implements SortingService {
 	private OperationLogService operationLogService;
 
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
-	private PickupTaskWS pickupWebService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 
 	@Autowired
 	private BaseService siteWebService;
@@ -299,7 +297,7 @@ public class SortingServiceImpl implements SortingService {
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
-			BaseEntity<BigWaybillDto> waybill = this.waybillQueryWSProxy.getWaybillAndPackByWaybillCode(sorting
+			BaseEntity<BigWaybillDto> waybill = this.waybillQueryApi.getWaybillAndPackByWaybillCode(sorting
 					.getWaybillCode());
 			if (waybill != null && waybill.getData() != null) {
 				List<DeliveryPackageD> packages = waybill.getData().getPackageList();
@@ -727,7 +725,7 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private BaseEntity<PickupTask> getPickup(String packageCode) {
-		BaseEntity<PickupTask> pickup = this.pickupWebService.getDataBySfCode(packageCode);
+		BaseEntity<PickupTask> pickup = this.waybillPickupTaskApi.getDataBySfCode(packageCode);
 		if (pickup != null) {
 			this.logger.info("取件单号码为：" + pickup.getData().getPickupCode());
 			this.logger.info("取件单对应运单号码为：" + pickup.getData().getOldWaybillCode());
