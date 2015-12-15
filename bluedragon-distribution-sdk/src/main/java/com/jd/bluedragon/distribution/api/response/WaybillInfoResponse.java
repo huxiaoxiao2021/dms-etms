@@ -1,8 +1,15 @@
 package com.jd.bluedragon.distribution.api.response;
 
-public class WaybillInfoResponse {
+import java.io.Serializable;
+
+public class WaybillInfoResponse implements Serializable{
 	
-	 /** 相应状态码 */
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4755707246939641954L;
+
+	/** 相应状态码 */
     private Integer code;
     
     /** 响应消息 */
