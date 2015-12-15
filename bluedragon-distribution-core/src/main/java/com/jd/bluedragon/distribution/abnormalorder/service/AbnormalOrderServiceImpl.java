@@ -211,6 +211,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		parameter.setRemark(abnormalOrder.getAbnormalReason1() + "-" + abnormalOrder.getAbnormalReason2());
 		
 		WaybillSyncParameterExtend extend = new WaybillSyncParameterExtend();
+		extend.setTaskId(System.currentTimeMillis());
 		extend.setOperateType(OPERATE_TYPE_CODE);
 		
 		parameter.setWaybillSyncParameterExtend(extend);

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.api.response;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,8 +8,13 @@ import java.util.Date;
  * @author zhuchao
  *
  */
-public class SendBoxDetailResponse {
+public class SendBoxDetailResponse implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 824456845226480352L;
+
 	/**  交接单号     */
 	private String sendCode;
 	
