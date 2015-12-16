@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.rest.reverse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +23,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes( { MediaType.APPLICATION_JSON })
 @Produces( { MediaType.APPLICATION_JSON })
 public class ReversePrintResource {
-;
+
     private static final Log logger= LogFactory.getLog(ReversePrintResource.class);
 
     @Autowired
@@ -34,9 +34,11 @@ public class ReversePrintResource {
      */
     @POST
     @Path("/reverse/exchange/print")
-    public WaybillResponse<Boolean> handlePrint(ReversePrintRequest request){
-        logger.info("【逆向换单处理打印数据】"+request.toString());
-        WaybillResponse<Boolean> result=new WaybillResponse<Boolean>();
+    public InvokeResult<Boolean> handlePrint(ReversePrintRequest request){
+        if(logger.isInfoEnabled()) {
+            logger.info("【逆向换单处理打印数据】" + request.toString());
+        }
+        InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         try{
             reversePrintService.handlePrint(request);
             result.setCode(JdResponse.CODE_OK);
@@ -44,11 +46,61 @@ public class ReversePrintResource {
             result.setData(Boolean.TRUE);
         }
         catch (Exception e){
-            logger.error("【逆向换单】",e);
+            logger.error("【逆向换单打印】",e);
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             result.setData(Boolean.FALSE);
         }
         return result;
     }
+
+    /**
+     * 根据原单号获取对应的新单号
+     * 1.自营拒收：新运单规则：T+原运单号。调取运单来源：从运单处获取，调取运单新接口。
+     * 2.外单拒收：新运单规则：生成新的V单。调取运单来源：1）从外单获得新外单单号。2）通过新外单单号从运单处调取新外单的信息。
+     * 3.售后取件单：新运单规则：生成W单或VY单。调取运单来源：从运单处获取，调取运单新接口。
+     * 4.配送异常类订单：新运单规则：T+原运单号,调取运单来源：从运单处获得，调取运单新接口。
+     * 5.返单换单：1）新运单规则：F+原运单号  或  F+8位数字,调取运单来源：从运单处获得，调取运单新接口。2）分拣中心集中换单，暂时不做。
+     * @param oldWaybillCode 原单号
+     * @return
+     */
+    @GET
+    @Path("reverse/exchange/getNewWaybillCode/{oldWaybillCode}")
+    public InvokeResult<String> getNewWaybillCode(@PathParam("oldWaybillCode") String oldWaybillCode){
+        InvokeResult<String> result=new InvokeResult<String>();
+        try {
+            reversePrintService.getNewWaybillCode(oldWaybillCode);
+        }catch (Exception e){
+            logger.error("[逆向换单获取新单号]",e);
+            result.error(e);
+        }
+        return result;
+    }
+
+    /**
+     * 自营逆向换单
+     * @param oldWaybillCode    原运单号
+     * @return
+     */
+    @POST
+    @Path("reverse/exchange/ownWaybill")
+    public InvokeResult<String> exchangeOwnWaybill(
+            @FormParam("oldWaybillCode")String oldWaybillCode,
+            @FormParam("userId")Integer userId,
+            @FormParam("userRealName")String userRealName,
+            @FormParam("siteId")Integer siteId,
+            @FormParam("siteName")String siteName
+    ){
+        InvokeResult<String> result=new InvokeResult<String>();
+        try{
+
+        }catch (Exception e){
+            logger.error("自营逆向换单",e);
+            result.error(e);
+        }
+        return result;
+    }
+
+
+
 }

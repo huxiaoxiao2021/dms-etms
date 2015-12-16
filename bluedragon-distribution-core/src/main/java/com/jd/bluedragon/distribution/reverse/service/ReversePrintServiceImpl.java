@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.external.jos.service.JosService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -11,12 +12,15 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.erp.ws.ErpQuerySafWS;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 逆向换单打印
@@ -35,9 +39,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private IPushPackageToMqService pushMqService;
 
+
     private static final String REVERSE_PRINT_MQ_TOPIC="bd_blocker_complete";
 
     private static final String REVERSE_PRINT_MQ_MESSAGE_CATEGORY="BLOCKER_QUEUE_DMS_REVERSE_PRINT";
+
+    @Autowired
+    private ErpQuerySafWS baseErpQuerySafWSInfoSafService;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -100,6 +108,24 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         operationLogService.add(operationLog);
         return true;
     }
+
+    /**
+     * 根据原单号获取对应的新单号
+     * 1.自营拒收：新运单规则：T+原运单号。调取运单来源：从运单处获取，调取运单新接口。
+     * 2.外单拒收：新运单规则：生成新的V单。调取运单来源：1）从外单获得新外单单号。2）通过新外单单号从运单处调取新外单的信息。
+     * 3.售后取件单：新运单规则：生成W单或VY单。调取运单来源：从运单处获取，调取运单新接口。
+     * 4.配送异常类订单：新运单规则：T+原运单号,调取运单来源：从运单处获得，调取运单新接口。
+     * 5.返单换单：1）新运单规则：F+原运单号  或  F+8位数字,调取运单来源：从运单处获得，调取运单新接口。2）分拣中心集中换单，暂时不做。
+     * @param oldWaybillCode 原单号
+     * @return
+     */
+    @Override
+    public String getNewWaybillCode(String oldWaybillCode) {
+
+        this.baseErpQuerySafWSInfoSafService.getChangeWaybillCode(oldWaybillCode).getData();
+        return null;
+    }
+
 
     private String createMqBody(String orderId) {
         StringBuffer sb = new StringBuffer();
