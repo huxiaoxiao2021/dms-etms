@@ -1,16 +1,21 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MediaType;
-
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
+import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
+import com.jd.etms.basic.domain.BaseDataDict;
+import com.jd.etms.basic.domain.BaseOrg;
 import com.jd.etms.basic.domain.BaseResult;
 import com.jd.etms.basic.domain.PsStoreInfo;
-
+import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.basic.dto.BaseStoreInfoDto;
+import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.etms.basic.dto.SimpleBaseSite;
+import com.jd.etms.basic.wss.BasicMajorWS;
+import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -19,22 +24,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.utils.BaseContants;
-import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
-import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseStoreInfoDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
-import com.jd.etms.basic.dto.SimpleBaseSite;
-import com.jd.etms.basic.wss.BasicMajorWS;
-import com.jd.etms.utils.cache.annotation.Cache;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -220,7 +216,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	
 	private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
 	@Override
-	@Profiled
 	@Cache(key = "basicMajorServiceProxy.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
 		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {

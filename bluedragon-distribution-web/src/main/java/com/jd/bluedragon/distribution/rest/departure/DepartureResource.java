@@ -1,61 +1,37 @@
 package com.jd.bluedragon.distribution.rest.departure;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
 import com.google.common.collect.Lists;
-import com.jd.bluedragon.distribution.api.request.CarryDeparturePrintRequest;
-import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.distribution.departure.domain.*;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.vos.dto.CommonDto;
-import com.jd.etms.vos.dto.SendCarInfoDto;
-import com.jd.etms.vos.dto.SendCarParamDto;
-import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.jboss.resteasy.core.request.ServerDrivenNegotiation;
-import org.jgroups.protocols.EXAMPLE;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
-import com.jd.bluedragon.distribution.api.request.DepartureRequest;
-import com.jd.bluedragon.distribution.api.request.DepartureSendRequest;
+import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.departure.domain.Departure;
-import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
-import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
-import com.jd.bluedragon.distribution.departure.domain.SendBox;
-import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
+import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
+import com.jd.bluedragon.distribution.departure.domain.*;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.basic.domain.BaseDataDict;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SendCarInfoDto;
+import com.jd.etms.vos.dto.SendCarParamDto;
+import com.jd.etms.vos.ws.VosQueryWS;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.annotations.GZIP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -172,7 +148,6 @@ public class DepartureResource {
 
 	@POST
 	@Path("/departure/createDepartue")
-	@Profiled(tag = "DepartureResource.createDepartue")
 	public JdResponse createDepartue(DepartureRequest request) {
 		if (null == request) {
 			logger.error("发车接口：/departure/createDepartue ,DepartureRequest为空");
@@ -525,7 +500,6 @@ public class DepartureResource {
     @GET
     @GZIP
     @Path("/departure/deliveryinfo/{orderCode}")
-    @Profiled(tag = "DepartureResource.deliveryInfo")
     public DepartureResponse deliveryInfo(@PathParam("orderCode") String orderCode){
         logger.info("the ordercode is " + orderCode);
 		DepartureResponse dpResponse = new DepartureResponse();
@@ -644,7 +618,6 @@ public class DepartureResource {
 	 * */
 	@POST
 	@GZIP
-	@Profiled(tag = "DepartureResource.departureSendTemp")
 	@Path("/departure/departuresendtemp")
  	public DepartureTmpResponse departureSendTemp(DepartureTmpRequest request){
 		logger.info("PDA 发车支持200批次接口调用，参数 " + JsonHelper.toJson(request));

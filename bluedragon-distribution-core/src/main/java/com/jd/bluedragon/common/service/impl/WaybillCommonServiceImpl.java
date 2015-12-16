@@ -1,17 +1,5 @@
 package com.jd.bluedragon.common.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.jd.etms.waybill.domain.PickupTask;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -27,6 +15,17 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.wss.WaybillQueryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service("waybillCommonService")
@@ -48,7 +47,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     private OrderWebService orderWebService;
 
-    @Profiled(tag = "WaybillCommonServiceImpl.findByWaybillCode")
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -138,7 +136,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param waybillCode 运单号
      * @return
      */
-    @Profiled(tag = "WaybillCommonServiceImpl.getWaybillFromOrderService")
+    @JProfiler(jKey= "DMSWEB.WaybillCommonServiceImpl.getWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
@@ -162,7 +160,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return waybill;
     }
 
-    @Profiled(tag = "WaybillCommonServiceImpl.getHisWaybillFromOrderService")
+    @JProfiler(jKey= "DMSWEB.WaybillCommonServiceImpl.getHisWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getHisWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");

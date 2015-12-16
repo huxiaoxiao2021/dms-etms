@@ -1,18 +1,10 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
@@ -21,6 +13,11 @@ import com.jd.etms.basic.domain.BaseResult;
 import com.jd.etms.basic.domain.MainBranchSchedule;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service("siteService")
@@ -32,12 +29,10 @@ public class SiteServiceImpl implements SiteService {
 	@Autowired
 	private BaseMinorManager baseMinorManager;
 		
-	@Profiled(tag = "SiteService.getSite")
 	public BaseStaffSiteOrgDto getSite(Integer siteCode) {
 		return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
 	}
 	
-	@Profiled(tag = "SiteService.getTrader")
 	public BaseTradeInfoDto getTrader(Integer siteCode) {
 		return this.baseMinorManager.getBaseTraderById(siteCode);
 	}

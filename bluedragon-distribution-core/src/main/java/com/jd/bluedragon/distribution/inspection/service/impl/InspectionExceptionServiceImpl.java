@@ -1,26 +1,7 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
-import com.jd.bluedragon.distribution.weight.domain.OpeObject;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -39,8 +20,22 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
+import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 验货差异查询及处理Service
@@ -96,7 +91,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @return
 	 */
 	@Override
-	@Profiled(tag = "InspectionExceptionService.getListsByCondition")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getListsByCondition(InspectionEC inspectionEC) throws Exception{
 		return inspectionECDao.selectSelective(inspectionEC);
@@ -109,7 +103,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @throws Exception 
 	 */
 	@Override
-	@Profiled(tag = "InspectionExceptionService.getByThird")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getByThird(InspectionEC inspectionEC) throws Exception{
 		return inspectionECDao.queryByThird(inspectionEC);
@@ -122,7 +115,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @return
 	 */
 	@Override
-	@Profiled(tag = "InspectionExceptionService.exceptionCancel")
+	@JProfiler(jKey = "DMSWEB.InspectionExceptionService.exceptionCancel", mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int exceptionCancel(List<InspectionEC> inspectionECs, Integer operationType) {
 		int sortingResult = 0;
@@ -200,7 +193,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @return
 	 */
 	@Override
-	@Profiled(tag = "InspectionExceptionService.directDistribution")
+	@JProfiler(jKey= "DMSWEB.InspectionExceptionService.directDistribution")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int directDistribution(List<InspectionEC> inspectionECs, Integer operationType) {
 		
@@ -268,7 +261,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	/**
 	 * 异常对比，差异信息生成
 	 */
-	@Profiled(tag = "InspectionExceptionService.exceptionCompare")
+	@JProfiler(jKey= "DMSWEB.InspectionExceptionService.exceptionCompare")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void exceptionCompare(InspectionEC inspectionEC) throws Exception{
 		
@@ -455,7 +448,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
         }
 	}
 
-	@Profiled(tag = "InspectionExceptionService.insertOrUpdateBatch")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private void insertOrUpdateBatch(List<InspectionEC> list) throws Exception{
 		if( null==list || list.isEmpty() ) {

@@ -1,31 +1,8 @@
 package com.jd.bluedragon.distribution.rest.task;
 
-import java.util.*;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
-import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.sun.tools.jxc.apt.Const;
-import com.thoughtworks.xstream.io.xml.JDomReader;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
@@ -37,6 +14,18 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL)
@@ -51,7 +40,6 @@ public class TaskResource {
 
 	@GET
 	@Path("/tasks/{taskId}")
-	@Profiled
 	public TaskResponse get(@PathParam("taskId") Long taskId) {
 		Assert.notNull(taskId, "taskId must not be null");
 		return this.toTaskResponse(new Task());
@@ -126,7 +114,6 @@ public class TaskResource {
 
 	@GET
 	@Path("/checktasks/checkPendingTaskStatus")
-	@Profiled
 	public TaskResponse checkPendingTaskStatusHealth(
 			@QueryParam("type") Integer type,
 			@QueryParam("fetchNum") Integer fetchNum,
@@ -143,7 +130,6 @@ public class TaskResource {
 	
 	@GET
 	@Path("/task/findFailTasksNumsByType")
-	@Profiled
 	public TaskResponse findFailTasksNumsByType(
 			@QueryParam("type") Integer type,
 			@QueryParam("fetchNum") Integer fetchNum,

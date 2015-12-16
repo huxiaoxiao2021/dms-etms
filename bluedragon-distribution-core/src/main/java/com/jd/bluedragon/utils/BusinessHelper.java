@@ -81,6 +81,37 @@ public class BusinessHelper {
 		return null;
 	}
 
+    /**
+     * 判断输入字符串是否为包裹号码. 包裹号规则： 123456789N1S1
+     *
+     * @param s
+     *            用来判断的字符串
+     * @return 如果此字符串为包裹号，则返回 true，否则返回 false
+     */
+    public static Boolean isPackageCode(String s) {
+        if (StringHelper.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+
+        /**
+         * 亚一批次号会当箱号使用，排除亚一箱号
+         */
+        if(s.startsWith(Box.BOX_TYPE_WEARHOUSE)){
+            return Boolean.FALSE;
+        }
+
+        if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
+            return Boolean.TRUE;
+        } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
+                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
+            return Boolean.TRUE;
+        } else if (BusinessHelper.isPickupCode(s)) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
 	/**
 	 * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
 	 * B，正向；T，逆向；G取件退货;C普通物品；S奢侈品；2-8位，出发地编号；9-15位，到达地编号；最后8位，流水号。一共23位。 前面有两个字母
@@ -103,37 +134,6 @@ public class BusinessHelper {
 				|| s.startsWith(Box.BOX_TYPE_WEARHOUSE)) {
 			return Boolean.TRUE;
 		}
-		return Boolean.FALSE;
-	}
-
-	/**
-	 * 判断输入字符串是否为包裹号码. 包裹号规则： 123456789N1S1
-	 *
-	 * @param s
-	 *            用来判断的字符串
-	 * @return 如果此字符串为包裹号，则返回 true，否则返回 false
-	 */
-	public static Boolean isPackageCode(String s) {
-		if (StringHelper.isEmpty(s)) {
-			return Boolean.FALSE;
-		}
-		
-		/**
-		 * 亚一批次号会当箱号使用，排除亚一箱号
-		 */
-		if(s.startsWith(Box.BOX_TYPE_WEARHOUSE)){
-			return Boolean.FALSE;
-		}
-		
-		if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
-			return Boolean.TRUE;
-		} else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
-				&& s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
-			return Boolean.TRUE;
-		} else if (BusinessHelper.isPickupCode(s)) {
-			return Boolean.TRUE;
-		}
-
 		return Boolean.FALSE;
 	}
 

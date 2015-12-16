@@ -1,10 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.Map.Entry;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -12,39 +8,17 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
-import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
-import com.jd.bluedragon.distribution.send.domain.*;
-import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
-import com.jd.bluedragon.utils.*;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.CrossDmsBox;
-import com.jd.etms.basic.saf.BasicSafInterface;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
-import org.perf4j.StopWatch;
-import org.perf4j.aop.Profiled;
-import org.perf4j.log4j.Log4JStopWatch;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -56,14 +30,21 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingCheck;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.utils.*;
+import com.jd.etms.basic.domain.BaseResult;
+import com.jd.etms.basic.domain.CrossDmsBox;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.basic.saf.BasicSafInterface;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.message.produce.client.MessageClient;
@@ -79,7 +60,20 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Service("deliveryService")
 public class DeliveryServiceImpl implements DeliveryService {
@@ -455,12 +449,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("1");// 1 回传运单状态
-        tTask.setFingerprint(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode());
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode() + tTask.getKeyword1()));
         tTaskService.add(tTask, true);
         //只有箱号添加回传周转箱任务
         if(BusinessHelper.isBoxcode(domain.getBoxCode())){
         	tTask.setKeyword1("2");// 2回传周转箱号
-            tTask.setFingerprint(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode());
+            tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1()+domain.getBoxCode()+ tTask.getKeyword1()));
             tTaskService.add(tTask, true);
         }
         return 0;
@@ -471,7 +465,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param boxCode 箱号
      * @return 发货记录列表
      */
-    @Profiled(tag = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode")
     @JProfiler(jKey = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode", mState = { JProEnum.TP,
             JProEnum.FunctionError })
     public   List<SendM> getSendMListByBoxCode(String boxCode){
@@ -480,7 +473,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.sendMReadDao.findSendMByBoxCode(domain);
     }
 
-    @Profiled(tag = "DeliveryService.addSendDatail")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(SendDetail sendDetail) {
 		if (sendDetail.getPackageBarcode() == null) {
@@ -498,13 +490,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 		return this.sendDatailDao.add(SendDatailDao.namespace, sendDetail);
 	}
 
-    @Profiled(tag = "DeliveryService.updateSendDatail")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(SendDetail sendDetail) {
         return this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
     }
 
-    @Profiled(tag = "DeliveryService.updateCancelSendDatail")
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.deliveryService.updateCancel", mState = { JProEnum.TP,
 	        JProEnum.FunctionError })
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -514,7 +504,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrUpdateBatch(List<SendDetail> sdList) {
-    	StopWatch stopWatch1 = new Log4JStopWatch();
     	List<SendDetail>[] sendArray = splitList(sdList);
 		List<SendDetail> result = new ArrayList<SendDetail>();
 		
@@ -539,8 +528,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     			updateList.add(senddetail);
     		}
 		}
-		stopWatch1.stop("fh.saveOrUpdateBatch1");
-		StopWatch stopWatch2 = new Log4JStopWatch();
 		//对于存在send_d的执行批量更新
 		sendArray = splitList(updateList);
 		for(List<SendDetail> list: sendArray){
@@ -553,10 +540,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 			request.setReceiveSiteCode(receiveSiteCode);
 			sendDatailDao.updateCancelBatch(request);
 		}
-		stopWatch2.stop("fh.saveOrUpdateBatch2");
 	}
 
-    @Profiled(tag = "DeliveryService.saveOrUpdate")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void saveOrUpdate(SendDetail sendDetail) {
         if (Constants.NO_MATCH_DATA == this.update(sendDetail).intValue()) {
@@ -564,13 +549,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    @Profiled(tag = "DeliveryService.canCancel")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean canCancel(SendDetail sendDetail) {
         return this.sendDatailDao.canCancel(sendDetail);
     }
     
-    @Profiled(tag = "DeliveryService.canCancelFuzzy")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
 	public Boolean canCancelFuzzy(SendDetail sendDetail) {
@@ -583,16 +566,13 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMlist 发货相关数据
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    @Profiled(tag = "DeliveryService.insertSendM")
     public void insertSendM(List<SendM> sendMlist ,List<String> list) {
-    	StopWatch stopWatch = new Log4JStopWatch();
-    	
+
         for (SendM dSendM : sendMlist) {
 			if (!list.contains(dSendM.getBoxCode())) {
 				this.sendMDao.insertSendM(dSendM);
         	}
         }
-        stopWatch.stop("fh.insertSendM");
     }
 
     /*** 发货写入任务表*/
@@ -601,7 +581,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendTaskBody body=new SendTaskBody();
         body.setHandleCategory(1);
         body.copyFromParent(sendM);
-    	StopWatch stopWatch = new Log4JStopWatch();
 		Task tTask = new Task();
 		tTask.setBoxCode(sendM.getSendCode());
 		//tTask.setBody(sendM.getSendCode());
@@ -643,7 +622,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 		BatchSend batchSend = new BatchSend();
 		batchSend.setSendCode(sendM.getSendCode());
 		batchSendDao.batchUpdateStatus(batchSend);
-		stopWatch.stop("fh.addTaskSend");
 	}
 
     /**
@@ -675,7 +653,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param sendMList 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.dellDeliveryMessage")
 	public DeliveryResponse dellDeliveryMessage(List<SendM> sendMList) {
 		try {
 			return this.dellCreateSendM(sendMList);
@@ -691,7 +668,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param sendMList 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.dellCreateSendM")
 	public DeliveryResponse dellCreateSendM(List<SendM> sendMList) {
     	CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
     	Collections.sort(sendMList);
@@ -725,7 +701,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 批量判断箱号是否已经发货，提出公用，减少查询次数
      * * */
 	private List<String> batchQuerySendMList(List<SendM> sendMList){
-		StopWatch stopWatch = new Log4JStopWatch();
 		List<SendM>[] sendArray = splitSendMList(sendMList);
 		List<String> result = new ArrayList<String>();
 		for(List<SendM> list: sendArray){
@@ -739,7 +714,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 			result.addAll(sendMDao.batchQuerySendMList(request));
 		}
 		
-		stopWatch.stop("fh.batchQuerySendMList");
 		return result;
     }
     /**
@@ -748,11 +722,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param list 已发货的箱号列表
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    @Profiled(tag = "DeliveryService.cancelStatusReceipt")
 	private void cancelStatusReceipt(List<SendM> sendMList ,List<String> list) {
-    	StopWatch stopWatch = new Log4JStopWatch();
     	//操作过取消发货的箱子查询  result结果集
-    	StopWatch stopWatch1 = new Log4JStopWatch();
     	List<SendM>[] sendArray = splitSendMList(sendMList);
 		List<String> result = new ArrayList<String>();
 		for(List<SendM> slist: sendArray){
@@ -765,10 +736,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 			request.setReceiveSiteCode(receiveSiteCode);
 			result.addAll(sendMDao.batchQueryCancelSendMList(request));
 		}
-		stopWatch1.stop("fh.cancelStatusReceipt1");
 		List<SendDetail> sdList = new ArrayList<SendDetail>();
 		
-		StopWatch stopWatch2 = new Log4JStopWatch();
 		for (SendM tsendM : sendMList) {
 			SendDetail tSendDatail = new SendDetail();
 			tSendDatail.setBoxCode(tsendM.getBoxCode());
@@ -788,13 +757,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 				}
 			}
 		}
-		stopWatch2.stop("fh.cancelStatusReceipt2");
 		//批量处理
 		if(sdList!=null && !sdList.isEmpty()){
 			this.saveOrUpdateBatch(sdList);
 		}
 		
-		stopWatch.stop("fh.cancelStatusReceipt");
 	}
 
 	/**
@@ -802,11 +769,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList
      * @return
      */
-    @Profiled(tag = "DeliveryService.querySendCode")
 	private boolean querySendCode(List<SendM> sendMList) {
-    	StopWatch stopWatch = new Log4JStopWatch();
 		SendM sendM = sendMDao.selectBySendCode(sendMList.get(0).getSendCode());
-		stopWatch.stop("fh.querySendCode");
 		if (null != sendM && sendM.getSendMId() > 0) {
 			return true;
 		}
@@ -815,7 +779,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
     /*** 补全包裹信息*/
-    @Profiled(tag = "DeliveryService.fillPickup")
 	private void fillPickup(SendDetail tSendDatail, SendM tsendM) {
 		tSendDatail.setCreateUser(tsendM.getCreateUser());
 		tSendDatail.setCreateUserCode(tsendM.getCreateUserCode());
@@ -851,7 +814,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 		}
 	}
 
-    @Profiled(tag = "DeliveryService.findSendMByBoxCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
 		String reslut = "0";
@@ -938,7 +900,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param tSendMList 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.updateSendM")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean updateSendM(List<SendM> tSendMList) {
         return this.sendMDao.updateSendM(tSendMList);
@@ -951,7 +912,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * edit:将取消发货分为两类，一类为按箱号，另一类为按包裹（包括按运单、包裹、取件单）
      * @param tSendM 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.dellCancel")
+    @JProfiler(jKey= "DMSWEB.DeliveryService.dellCancel",mState = {JProEnum.TP})
 	public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM) {
 		try {
 			SendDetail tSendDatail = new SendDetail();
@@ -1090,7 +1051,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
     //处理箱子
-    @Profiled(tag = "DeliveryService.cancelUpdateDataByBox")
 	private ThreeDeliveryResponse cancelUpdateDataByBox(SendM tSendM,
 			SendDetail tSendDatail, List<SendM> sendMList) {
 		Collections.sort(sendMList);
@@ -1136,7 +1096,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 	
    //处理运单
-    @Profiled(tag = "DeliveryService.cancelUpdateDataByPack")
 	private ThreeDeliveryResponse cancelUpdateDataByPack(SendM tSendM,
 			List<SendDetail> tList) {
         Collections.sort(tList);
@@ -1181,7 +1140,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
     
 	//箱子更新取消发货状态
-    @Profiled(tag = "DeliveryService.cancelDeliveryStatusByBox")
     public ThreeDeliveryResponse cancelDeliveryStatusByBox(SendM tSendM, SendDetail tSendDatail) {
         SendDetail mSendDetail = new SendDetail();
         mSendDetail.setBoxCode(tSendM.getBoxCode());
@@ -1197,7 +1155,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
     }
 
-    @Profiled(tag = "DeliveryService.cancelDeliveryStatusByPack")
 	public ThreeDeliveryResponse cancelDeliveryStatusByPack(SendM tSendM,
 			SendDetail tSendDatail) {
 		// 更新m表和d表
@@ -1214,7 +1171,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param tSendM 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.cancelSendM")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean cancelSendM(SendM tSendM) {
 		return this.sendMDao.cancelSendM(tSendM);
@@ -1225,7 +1181,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param tSendDetail 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.cancelSendDatailByPackage")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean cancelSendDatailByPackage(SendDetail tSendDetail) {
     	if (tSendDetail != null) {
@@ -1245,7 +1200,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param tlist 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.cancelSendDatailByBox")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean cancelSendDatailByBox(List<SendDetail> tlist) {
 		if (tlist != null && !tlist.isEmpty()) {
@@ -1308,7 +1262,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		return splitList.toArray(new List[0]);
     }
     
-    @Profiled(tag = "DeliveryService.updateWaybillStatus")
+    @JProfiler(jKey= "DMSWEB.DeliveryService.updateWaybillStatus",mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean updateWaybillStatus(List<SendDetail> sendDetails) {
         logger.info(JsonHelper.toJson(sendDetails));
@@ -1502,7 +1456,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    @Profiled(tag = "DeliveryService.updateWaybillStatusByPackage")
 	private void updateWaybillStatusByPackage(List<SendDetail> newendDList) {
 		Collections.sort(newendDList);
 		for (SendDetail tSendDatail : newendDList) {
@@ -1518,7 +1471,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 		}
 	}
     
-    @Profiled(tag = "DeliveryService.updateWaybillStatusByPackage")
 	private void updateSendStatusByPackage(List<SendDetail> newendDList) {
 		Collections.sort(newendDList);
 		for (SendDetail tSendDatail : newendDList) {
@@ -1531,7 +1483,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param task
      * @return
      */
-    @Profiled(tag = "DeliveryService.updatewaybillCodeMessage")
+    @JProfiler(jKey= "DMSWORKER.DeliveryService.updatewaybillCodeMessage",mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean updatewaybillCodeMessage(Task task) {
         logger.info("发货状态开始处理"+JsonHelper.toJson(task)+"是否JSON字符串"+JsonHelper.isJsonString(task.getBody()));
@@ -1576,7 +1528,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 		return true;
 	}
 
-    @Profiled(tag = "DeliveryService.findSendwaybillMessage")
     public boolean findSendwaybillMessage(Task task) throws Exception {
     	if (task == null || task.getBoxCode() == null || task.getCreateSiteCode()==null ||task.getKeyword2()==null)
 			return true;
@@ -1621,7 +1572,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 
      * @param sendDetiallist 发货相关数据
      */
-    @Profiled(tag = "DeliveryService.updateSendDetialList")
     public void updateSendDetial(List<SendDetail> sendDetiallist) {
         if (sendDetiallist != null && !sendDetiallist.isEmpty()) {
             for (SendDetail tSendDatail : sendDetiallist) {
@@ -1668,7 +1618,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return tSorting;
     }
     
-    @Profiled(tag = "DeliveryService.checkSend")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public boolean checkSend(SendDetail tSendDatail) {
         List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
@@ -1685,7 +1634,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    @Profiled(tag = "DeliveryService.getSendSiteID")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public SendDetail getSendSiteID(String packbarCode, Integer sitecode) {
         if(packbarCode==null ||packbarCode.isEmpty() || sitecode==null){
@@ -1716,7 +1664,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return tSendDatail;
     }
 
-    @Profiled(tag = "DeliveryService.sendMTooldtms")
     public boolean sendMTooldtms(List<SendM> tSendMList) {
     	SendM tSendM = tSendMList.get(0);
         Set<ShouHuoInfo> shouHuoes = new HashSet<ShouHuoInfo>();
@@ -1900,7 +1847,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return datalist;
     }
 
-    @Profiled(tag = "DeliveryService.getWaybillResult")
 	private void getWaybillResult(List<BigWaybillDto> datalist,WChoice queryWChoice, List<String> waybills) {
 		BaseEntity<List<BigWaybillDto>> results = waybillQueryWSProxy.getDatasByChoice(waybills, queryWChoice);
 		if(results!=null && results.getResultCode()>0){
@@ -1921,7 +1867,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendDetail
      * @return
      */
-    @Profiled(tag = "DeliveryService.checkSendByPackage")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
 	public boolean checkSendByPackage(SendDetail sendDetail) {
@@ -1938,14 +1883,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     	return false;
 	}
 
-    @Profiled(tag = "DeliveryService.findOrder")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendDetail> findOrder(SendDetail sendDetail) {
     	return sendDatailDao.findOrder(sendDetail);
 	}
 
     @SuppressWarnings("rawtypes")
-    @Profiled(tag = "DeliveryResource.checkThreePackage")
     public List<SendThreeDetail> checkThreePackage(List<SendM> sendMList){
         Integer businessType= sendMList.size()>0?sendMList.get(0).getSendType():10;
     	List<SendDetail> allList = new ArrayList<SendDetail>();
@@ -1958,7 +1901,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    @Profiled(tag = "DeliveryResource.getAllList")
     public void getAllList(List<SendM> sendMList, List<SendDetail> allList) {
 		for(SendM tSendM :sendMList){
     		SendDetail tSendDatail = new SendDetail();
@@ -2064,7 +2006,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
     
     /******************* 根据包裹和站点查询箱号******************************************/
-	@Profiled(tag = "DeliveryResource.queryBoxCodeBypackageCode")
     private List<SendDetail> queryBoxCodeBypackageCode(String packageCode,
     		Integer createSite,Integer receiveSite){
     	SendDetail sendDatail = new SendDetail();
@@ -2157,7 +2098,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
 	@Override
-	@Profiled(tag = "DeliveryResource.findWaybillStatus")
 	public List<SendDetail> findWaybillStatus(List<String> queryCondition) {
 		logger.info("findWaybillStatus查询");
 		return sendDatailReadDao.findUpdatewaybillCodeMessage(queryCondition);
@@ -2328,7 +2268,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
 	@Override
-	@Profiled(tag = "DeliveryService.transitSend")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean transitSend(SendM domain) {
 		if(isTransferSend(domain)){
@@ -2348,7 +2287,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     @Override
-    @Profiled(tag="DeliveryService.isTransferSend")
     public boolean isTransferSend(SendM domain){
         if(!BusinessHelper.isBoxcode(domain.getBoxCode()))
             return false;
@@ -2377,7 +2315,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    @Profiled(tag = "DeliveryService.pushTransferSendTask")
     public void pushTransferSendTask(SendM domain){
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoxCode());
@@ -2391,13 +2328,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("5");//5 中转发货补全数据
-        tTask.setFingerprint(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1());
+        tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
         tTaskService.add(tTask,true);
         logger.info("插入中转发车任务"+JsonHelper.toJson(tTask));
     }
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	@Profiled(tag = "DeliveryService.findTransitSend")
+	@JProfiler(jKey= "DMSWORKER.DeliveryService.findTransitSend",mState = {JProEnum.TP})
 	public boolean findTransitSend(Task task) throws Exception {
 		if (task == null || task.getBoxCode() == null
 				|| task.getCreateSiteCode() == null

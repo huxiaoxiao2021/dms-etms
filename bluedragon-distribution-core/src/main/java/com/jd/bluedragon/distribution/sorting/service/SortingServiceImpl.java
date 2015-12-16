@@ -1,35 +1,11 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.utils.*;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.LoggingStopWatch;
-import org.perf4j.StopWatch;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -38,7 +14,10 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -46,6 +25,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -53,6 +33,22 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.wss.PickupTaskWS;
 import com.jd.etms.waybill.wss.WaybillQueryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -109,32 +105,27 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
-	@Profiled(tag = "SortingService.addSortring")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
 	}
 
-	@Profiled(tag = "SortingService.updateSortring")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer update(Sorting sorting) {
 		return this.sortingDao.update(SortingDao.namespace, sorting);
 	}
 
-	@Profiled(tag = "SortingService.updateStatus")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer updateStatus(String ids, Integer status) {
 		return this.sortingDao.updateStatus(ids, status);
 	}
 
-	@Profiled(tag = "SortingService.updateSortring")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addSortingAndSendDetail(Sorting sorting) {
 		this.addSorting(sorting, null);
 		this.addSendDetail(sorting, null);
 	}
 
-	@Profiled(tag = "SortingService.findSortingPackages")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
@@ -144,7 +135,6 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
-	@Profiled(tag = "SortingService.findSortingPackages")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findSortingPackages(Sorting sorting) {
 		String boxCodes = this.getBoxCodes(sorting);
@@ -166,19 +156,16 @@ public class SortingServiceImpl implements SortingService {
 		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
 	}
 
-	@Profiled(tag = "SortingService.findByBoxCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findByBoxCode(Sorting sorting) {
 		return this.sortingDao.findByBoxCode(sorting);
 	}
 
-	@Profiled(tag = "SortingService.queryByStatus")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findByStatus(Integer facthNumber) {
 		return this.sortingDao.findByStatus(facthNumber);
 	}
 
-	@Profiled(tag = "SortingService.canCancel")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancel(Sorting sorting) {
 		// sorting & send_d ---> cancel=1
@@ -191,7 +178,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Profiled(tag = "SortingService.canCancelSorting")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancelSorting(Sorting sorting) {
 		boolean result = this.sortingDao.canCancel(sorting)
@@ -202,7 +188,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Profiled(tag = "SortingService.canCancelSortingFuzzy")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
 	public Boolean canCancelSortingFuzzy(Sorting sorting) {
@@ -214,7 +199,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Profiled(tag = "SortingService.canCancelInspectionEC")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancelInspectionEC(Sorting sorting) {
 		InspectionEC inspectionEC = new InspectionEC.Builder(sorting.getPackageCode(), sorting.getCreateSiteCode())
@@ -272,7 +256,7 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-    @Profiled(tag = "SortingService.doSorting")
+    @JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean doSorting(Task task) {
         List<Sorting> sortings = this.prepareSorting(task);
@@ -330,7 +314,6 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@Override
-	@Profiled(tag = "SortingService.taskToSorting")
 	public boolean taskToSorting(List<Sorting> sortings) {
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
@@ -348,8 +331,6 @@ public class SortingServiceImpl implements SortingService {
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getSendMSelective", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	public SendM getSendMSelective(Sorting sorting){
-		StopWatch stopWatch = new LoggingStopWatch();
-		stopWatch.start("SortingServiceImpl.getSendMSelective()", "start");
 		SendM result = null;
 		try{
 			SendM sendM = new SendM();
@@ -369,7 +350,6 @@ public class SortingServiceImpl implements SortingService {
 		}catch (Throwable ex){
 			logger.error("find sendm selective error ", ex);
 		}
-		stopWatch.stop("SortingServiceImpl.getSendMSelective()", "stop");
 		return result;
 	}
 
@@ -735,13 +715,11 @@ public class SortingServiceImpl implements SortingService {
 		return pickup;
 	}
 
-	@Profiled(tag = "SortingService.findOrderDetail")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
 
-	@Profiled(tag = "SortingService.findOrder")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findOrder(Sorting sorting) {
 		return this.sortingDao.findOrder(sorting);

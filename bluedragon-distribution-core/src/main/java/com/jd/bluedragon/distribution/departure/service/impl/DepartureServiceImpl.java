@@ -1,46 +1,21 @@
 package com.jd.bluedragon.distribution.departure.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ServiceMessage;
+import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureSendRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
-import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.message.produce.client.MessageClient;
-import org.apache.log4j.Logger;
-import org.perf4j.LoggingStopWatch;
-import org.perf4j.StopWatch;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.ServiceMessage;
-import com.jd.bluedragon.common.domain.ServiceResultEnum;
-import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureSendDao;
-import com.jd.bluedragon.distribution.departure.domain.Departure;
-import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
-import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
-import com.jd.bluedragon.distribution.departure.domain.SendBox;
-import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
+import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
+import com.jd.bluedragon.distribution.departure.domain.*;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao;
 import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
@@ -56,15 +31,25 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.basic.domain.MainBranchSchedule;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.wss.WaybillAddWS;
 import com.jd.etms.waybill.wss.WaybillQueryWS;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
 
 
 @Service
@@ -123,7 +108,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param departure
 	 *            发车相关数据
 	 */
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public ServiceMessage<String> createDeparture(Departure departure)
 			throws Exception {
@@ -453,8 +437,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param sendMs 发车详细信息
 	 */
 	private void thirdDepartureToTMS(List<SendM> sendMs,long shieldsCarId) {
-		StopWatch stopWatch = new LoggingStopWatch();
-		stopWatch.start("DepartureServiceImpl.thirdDepartureToTMS()", "start");
 		try{
 			for (SendM sendM : sendMs) {
 				//判断如果三方运单为空的话，直接跳过,（9-10 去掉）
@@ -480,7 +462,6 @@ public class DepartureServiceImpl implements DepartureService {
 		}catch(Exception e){
 			logger.error("建立推送支线发车三方承运商发车到全程跟踪的任务(task_send)出错!", e);
 		}
-		stopWatch.stop("DepartureServiceImpl.thirdDepartureToTMS()", "stop");
 	}
 	
 	/**
@@ -489,8 +470,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param sendMs 发车详细信息
 	 */
 	private void thirdDepartureTo3PL(List<SendM> sendMs) {
-		StopWatch stopWatch = new LoggingStopWatch();
-		stopWatch.start("DepartureServiceImpl.thirdDepartureTo3PL()", "start");
 		try{
 			Set<DealData_Departure_3PL> dealDatas = new HashSet<DealData_Departure_3PL>();
 			//组装成DealData_Departure_3PL, 去重
@@ -526,16 +505,14 @@ public class DepartureServiceImpl implements DepartureService {
 		}catch(Exception e){
 			logger.error("建立推送支线发车三方承运商发车到3PL的任务(task_failqueue)出错!", e);
 		}
-		stopWatch.stop("DepartureServiceImpl.thirdDepartureTo3PL()", "stop");
 	}
 	
 	/**
 	 * 检查批次是否存在以及是否已经发车
 	 * 
-	 * @param departure
-	 *            发车相关数据
+	 * @param
+	 *
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public ServiceMessage<String> checkSendStatus(Integer siteCode,
 			String sendCode) {
@@ -569,7 +546,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param sendCode
 	 *            交接单号
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public SendMeasure getSendMeasure(Integer siteCode, String sendCode) {
 		SendMeasure response = new SendMeasure();
@@ -610,7 +586,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 *            箱号/包裹号
 	 * @return
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public boolean checkCarBoxCodeMatch(String carCode, String boxCode) {
 		String errMsg = "检查发货单车号[" + carCode + "]以及箱号[" + boxCode + "]是否匹配失败: ";
@@ -646,7 +621,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 *            箱号
 	 * @return
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendBox> getSendBoxInfo(String boxCode, Integer siteCode) {
 		String errMsg = "获得箱[" + boxCode + "]内包裹列表信息失败: ";
@@ -707,7 +681,6 @@ public class DepartureServiceImpl implements DepartureService {
 		return result;
 	}
 
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendBox> getSendInfo(String sendCode) {
 		String errMsg = "获得批次[" + sendCode + "]内包裹列表信息失败: ";
@@ -753,11 +726,10 @@ public class DepartureServiceImpl implements DepartureService {
 	/**
 	 * 批次根据箱号获得交接单号
 	 * 
-	 * @param boxCode
-	 *            箱号
+	 * @param
+	 *
 	 * @return
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendCode> getBoxSendCode(List<SendCode> sendCodes) {
 		if (sendCodes == null) {
@@ -804,11 +776,10 @@ public class DepartureServiceImpl implements DepartureService {
 	/**
 	 * 批次根据运单号获得交接单号
 	 * 
-	 * @param boxCode
-	 *            箱号
+	 * @param
+	 *
 	 * @return
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendCode> getSendCodesByWaybills(List<SendCode> sendCodes) {
 		if (sendCodes == null) {
@@ -868,7 +839,6 @@ public class DepartureServiceImpl implements DepartureService {
 	/**
 	 * 批次更新包裹重量
 	 */
-	@Profiled
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails) {
 		if (sendDatails == null || sendDatails.size() == 0) {
 			return;
@@ -1081,7 +1051,6 @@ public class DepartureServiceImpl implements DepartureService {
 		
 	}
 
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendDetail> getWaybillsByDeparture(String code, Integer type) {
 
@@ -1127,25 +1096,21 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	@Override
-	@Profiled(tag = "DepartureResource.queryDeliveryInfoByOrderCode")
 	public List<DeparturePrintResponse> queryDeliveryInfoByOrderCode(String ordercode) {
 		return departureCarDao.queryDeliveryInfoByOrderCode(ordercode);
 	}
 
 	@Override
-	@Profiled(tag = "DepartureResource.queryDepartureInfoBySendCode")
 	public List<DeparturePrintResponse> queryDepartureInfoBySendCode(List<String> sendCodes) {
 		return departureCarDao.queryDepartureInfoBySendCode(sendCodes);
 	}
 
 	@Override
-    @Profiled(tag="DepartureResource.queryArteryBillingInfo")
     public DeparturePrintResponse queryArteryBillingInfo(long carCode) {
         return departureCarDao.queryArteryBillingInfo(carCode);
     }
 
     @Override
-    @Profiled(tag="DepartureResource.queryArteryBillingInfoByBoxCode")
     public DeparturePrintResponse queryArteryBillingInfoByBoxCode(String boxCode) {
         return departureCarDao.queryArteryBillingInfoByBoxCode(boxCode);
 	}

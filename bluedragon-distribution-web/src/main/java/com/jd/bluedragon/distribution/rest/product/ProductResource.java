@@ -1,27 +1,20 @@
 package com.jd.bluedragon.distribution.rest.product;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -36,7 +29,6 @@ public class ProductResource {
 
     @GET
     @Path("/order/products/{orderId}")
-    @Profiled(tag = "ProductResource.getOrderProducts")
     public ProductResponse getOrderProducts(@PathParam("orderId") Long orderId) {
         if (orderId == null) {
             return this.paramError();
@@ -54,7 +46,6 @@ public class ProductResource {
 
     @GET
     @Path("/pickware/products/{code}")
-    @Profiled(tag = "ProductResource.getPickwareProducts")
     public ProductResponse getPickwareProducts(@PathParam("code") String code) {
         if (code == null) {
             return this.paramError();

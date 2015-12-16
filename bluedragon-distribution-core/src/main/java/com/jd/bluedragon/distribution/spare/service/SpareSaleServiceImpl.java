@@ -1,15 +1,13 @@
 package com.jd.bluedragon.distribution.spare.service;
 
-import org.perf4j.aop.Profiled;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.spare.dao.SpareSaleDao;
+import com.jd.bluedragon.distribution.spare.domain.SpareSale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.spare.dao.SpareSaleDao;
-import com.jd.bluedragon.distribution.spare.domain.SpareSale;
 
 @Service("spareSaleService")
 public class SpareSaleServiceImpl implements SpareSaleService {
@@ -20,7 +18,6 @@ public class SpareSaleServiceImpl implements SpareSaleService {
     private SpareSaleDao spareSaleDao;
     
     @Override
-    @Profiled(tag = "SpareSaleService.addOrUpdate")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int addOrUpdate(SpareSale spareSale) {
         Assert.notNull(spareSale, "spareSale must not be null");

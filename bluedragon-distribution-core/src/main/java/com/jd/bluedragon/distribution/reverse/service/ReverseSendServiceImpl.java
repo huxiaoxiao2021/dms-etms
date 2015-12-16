@@ -1,31 +1,5 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -35,17 +9,7 @@ import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.product.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.InOrder;
-import com.jd.bluedragon.distribution.reverse.domain.MessageResult;
-import com.jd.bluedragon.distribution.reverse.domain.OrderDetail;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
-import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -54,20 +18,34 @@ import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -173,7 +151,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 				+ ASION_NO_ONE_SITE_CODE_LIST);
 	}
 
-	@Profiled(tag = "ReverseSendService.findSendwaybillMessage")
+	@JProfiler(jKey= "DMSWORKER.ReverseSendService.findSendwaybillMessage", mState = {JProEnum.TP})
 	public boolean findSendwaybillMessage(Task task) throws Exception {
 		if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null) {
 			return true;

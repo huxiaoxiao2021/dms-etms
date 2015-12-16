@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -32,6 +22,14 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service("reverseReceiveService")
 public class ReverseReceiveServiceImpl implements ReverseReceiveService {
@@ -67,27 +65,23 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 
 
     
-    @Profiled(tag = "ReverseReceiveService.add")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(ReverseReceive reverseReceive) {
         return this.reverseReceiveDao.add(ReverseReceiveDao.namespace, reverseReceive);
     }
     
-    @Profiled(tag = "ReverseReceiveService.update")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(ReverseReceive reverseReceive) {
         return this.reverseReceiveDao.update(ReverseReceiveDao.namespace, reverseReceive);
     }
     
     
-    @Profiled(tag = "ReverseReceiveService.findByPackageCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCode(String packageCode) {
         return this.reverseReceiveDao.findByPackageCode(packageCode);
     }
     
     
-    @Profiled(tag = "ReverseReceiveService.findByPackageCodeAndSendCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCodeAndSendCode(String packageCode,String sendCode,Integer businessType) {
     	return this.reverseReceiveDao.findByPackageCodeAndSendCode(packageCode,sendCode,businessType);
@@ -99,7 +93,6 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 //    	return this.reverseReceiveDao.findByWaybillCodeAndSendCode(waybillCode,sendCode);
 //    }
     
-    @Profiled(tag = "ReverseReceiveService.aftersaleReceiveInspect")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void aftersaleReceiveInspect(Task task) {
         String body = task.getBody().substring(1, task.getBody().length() - 1);
@@ -291,7 +284,6 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         }
     }
     
-    @Profiled(tag = "ReverseReceiveService.addOpetationLog")
     public void addOpetationLog(ReverseReceive reverseReceive, Integer logType,String remark) {
         this.appentPickwareInfo(reverseReceive, reverseReceive.getPackageCode());
         OperationLog operationLog = new OperationLog();

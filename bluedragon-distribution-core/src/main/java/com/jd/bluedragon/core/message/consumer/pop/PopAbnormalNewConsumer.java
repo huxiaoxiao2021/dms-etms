@@ -1,12 +1,5 @@
 package com.jd.bluedragon.core.message.consumer.pop;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
@@ -17,7 +10,13 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.Message;
-import com.jd.etms.message.consumer.MessageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service("popAbnormalNewConsumer")
 public class PopAbnormalNewConsumer extends MessageBaseConsumer {
@@ -27,7 +26,7 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 	@Autowired
 	private PopReceiveAbnormalService popReceiveAbnormalService;
 
-	@Profiled(tag = "popAbnormalNewMessageConsumer.popMqFromPop")
+    @JProfiler(jKey = "popAbnormalNewMessageConsumer.popMqFromPop", mState = {JProEnum.TP})
 	public void consume(Message message) {
 		String popAbnormalReceiveJson = message.getContent();
 		Integer resultCode = Constants.YN_YES;

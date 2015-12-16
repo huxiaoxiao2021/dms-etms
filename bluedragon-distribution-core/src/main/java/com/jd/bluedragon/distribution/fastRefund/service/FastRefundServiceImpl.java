@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.fastRefund.service;
 
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
 import com.jd.bluedragon.distribution.fastRefund.domain.OrderCancelReq;
@@ -28,6 +18,16 @@ import com.jd.fa.orderrefund.XmlMessage;
 import com.jd.fa.refundService.CustomerRequestNew;
 import com.jd.fa.refundService.RefundServiceNewSoap;
 import com.jd.fa.refundService.ValidRequest;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 public class FastRefundServiceImpl implements FastRefundService{
@@ -54,8 +54,8 @@ public class FastRefundServiceImpl implements FastRefundService{
 	private static final Log logger = LogFactory.getLog(FastRefundServiceImpl.class);
 	
 	private static final String MQ_KEY = "orbrefundRq";
-	
-    @Profiled(tag = "FastRefundServiceImpl.execRefundMq")
+
+    @JProfiler(jKey = "DMSWEB.FastRefundServiceImpl.execRefundMq.fastRefundRequest", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public String execRefund(FastRefundRequest fastRefundRequest) throws Exception{
     	FastRefund fastRefund = toFastRefund(fastRefundRequest);
@@ -106,7 +106,7 @@ public class FastRefundServiceImpl implements FastRefundService{
     }
 	
 	
-    @Profiled(tag = "FastRefundServiceImpl.execRefund")
+    @JProfiler(jKey= "DMSWEB.FastRefundServiceImpl.execRefund.waybillCode", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public String execRefund(String waybillCode) throws Exception{
 			logger.info("FastRefundServiceImpl.execRefund 开始查询运单[" + waybillCode + "]");
@@ -156,7 +156,6 @@ public class FastRefundServiceImpl implements FastRefundService{
 		this.operationLogService.add(parseOperationLog(waybillCode, type,msg));
 	}
 	
-	@Profiled(tag = "FastRefundServiceImpl.parseOperationLog")
     public OperationLog parseOperationLog(String waybillCode,Integer type,String msg) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode("");
@@ -184,7 +183,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 	 * 先货
 	 * @param waybillCode
 	 */
-    @Profiled(tag = "FastRefundServiceImpl.fastRefundByGoods")
+    @JProfiler(jKey= "DMSWEB.FastRefundServiceImpl.fastRefundByGoods", mState = {JProEnum.TP})
     public String fastRefundByGoods(String waybillCode,BigWaybillDto waybill) throws Exception {
 		WaybillManageDomain waybillState = waybill.getWaybillState();
 		OrderCancelReq req = new OrderCancelReq(waybillCode, waybillState.getStoreId(), waybillState.getCky2(), waybill.getWaybill().getArriveAreaId());
@@ -237,7 +236,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 	 * 先款
 	 * @param waybillCode
 	 */
-    @Profiled(tag = "FastRefundServiceImpl.fastRefundByMoney")
+    @JProfiler(jKey= "DMSWEB.FastRefundServiceImpl.fastRefundByMoney")
     public String fastRefundByMoney(String waybillCode) throws Exception{
 			CustomerRequestNew customer = new  CustomerRequestNew();
 			customer.setOrderId(Long.parseLong(waybillCode));//订单号
@@ -269,7 +268,6 @@ public class FastRefundServiceImpl implements FastRefundService{
 			}
 	}
 
-    @Profiled(tag = "FastRefundServiceImpl.queryWaybillByCode")
     public BigWaybillDto queryWaybillByCode(String waybillCode){
 		BigWaybillDto dto = waybillService.getWaybill(waybillCode);
 		if(dto!=null){
@@ -295,7 +293,6 @@ public class FastRefundServiceImpl implements FastRefundService{
 		}
 	}
 
-	@Profiled(tag = "FastRefundServiceImpl.isCancel")
 	public boolean isCancel(String waybillCode){
 		return WaybillCancelClient.isWaybillCancel(waybillCode);
 	}

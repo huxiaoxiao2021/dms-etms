@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.response.PackageResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
@@ -24,6 +11,17 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.wss.WaybillQueryWS;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 运单包裹关联查询Service
@@ -71,7 +69,6 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * 通过运单号获得所有包裹
 	 */
 	@Override
-	@Profiled(tag = "WaybillPackageBarcodeService.getPackageBarcodeByWaybillCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<DeliveryPackageD> getPackageBarcodeByWaybillCode( String waybillCode ){
 		
@@ -90,7 +87,6 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * @param code
 	 */
 	@Override
-	@Profiled(tag = "WaybillPackageBarcodeService.getWaybillPackageBarcode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public WaybillResponse getWaybillPackageBarcode(String code,Integer siteCode, Integer receiveSiteCode) {
 		

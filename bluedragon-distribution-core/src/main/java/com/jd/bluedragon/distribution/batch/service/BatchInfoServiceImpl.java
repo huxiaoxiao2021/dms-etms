@@ -4,16 +4,14 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.dao.BatchInfoDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
-import com.jd.bluedragon.distribution.batch.service.BatchInfoService;
-import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dbs.objectId.IGenerateObjectId;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,7 +48,7 @@ class BatchInfoServiceImpl implements BatchInfoService {
     @Autowired
     BaseMinorManager baseMinorManager;
 
-    @Profiled(tag = "BatchInfoService.addBatchInfo")
+    @JProfiler(jKey = "DMSWEB.BatchInfoService.addBatchInfo", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(BatchInfo batchInfo) {
         Assert.notNull(batchInfo, "batchInfo must not be null");
@@ -89,7 +87,6 @@ class BatchInfoServiceImpl implements BatchInfoService {
     }
 
 
-    @Profiled(tag = "BatchInfoService.findBatchInfoByCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public BatchInfo findBatchInfoByCode(String code) {
         Assert.notNull(code, "code must not be null");
@@ -97,7 +94,7 @@ class BatchInfoServiceImpl implements BatchInfoService {
         return this.batchInfoDao.findBatchInfoByCode(code);
     }
 
-    @Profiled(tag = "BatchInfoService.findMaxCreqteTimeBatchInfo")
+    @JProfiler(jKey=  "DMSWEB.BatchInfoService.findMaxCreqteTimeBatchInfo", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED)
     public List<BatchInfo> findMaxCreateTimeBatchInfo(BatchInfo batchInfo) {
         Assert.notNull(batchInfo.getCreateSiteCode(), "createSiteCode must not be null");
@@ -145,14 +142,12 @@ class BatchInfoServiceImpl implements BatchInfoService {
     }
 
 
-    @Profiled(tag = "BatchInfoService.findBatchInfoByBatchInfoCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public BatchInfo findBatchInfoByBatchInfoCode(BatchInfo batchInfo) {
         Assert.notNull(batchInfo, "batchInfo must not be null");
         return this.batchInfoDao.findBatchInfoByBatchInfoCode(batchInfo);
     }
 
-    @Profiled(tag = "BatchInfoService.findBatchInfoesBySite")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<BatchInfo> findBatchInfoes(BatchInfo batchInfo) {
         Assert.notNull(batchInfo, "batchInfo must not be null");

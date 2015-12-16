@@ -5,9 +5,10 @@ import java.util.*;
 
 import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
 import com.jd.etms.basic.domain.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -348,8 +349,8 @@ public class BaseServiceImpl implements BaseService {
 	}
 
 	@Override
-	@Profiled
-	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteByCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+    @JProfiler(jKey = "DMSWEB.BaseServiceImpl.queryDmsBaseSiteByCode", mState = {JProEnum.TP})
+	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteByCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 		redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String code) {
 		try {
@@ -426,8 +427,8 @@ public class BaseServiceImpl implements BaseService {
 			return null;
 		}
 	}
-	
-	@Profiled
+
+    @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getDmsSiteAll" , mState = {JProEnum.TP})
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
 		try {
 			List<BaseStaffSiteOrgDto> results = baseMajorManager.getDmsSiteAll();
@@ -674,7 +675,7 @@ public class BaseServiceImpl implements BaseService {
 
 	/**
 	 * 根据参数查询 基础参数设置的总数据量
-	 * @param map
+	 * @param
 	 * @return INTEGET
 	 */
 	public Integer totalSysconfigSizeByParams(String key){

@@ -17,9 +17,10 @@ import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
         return tSendDetail;
     }
 
-	@Profiled(tag = "EmsOrderJosSafServiceImpl.getEmsWaybillInfo")
+	@JProfiler(jKey= "DMSWEB.EmsOrderJosSafServiceImpl.getEmsWaybillInfo",mState = {JProEnum.TP})
 	private WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
 
 		logger.error("JOS获取订单信息,订单号为" + waybillCode);
