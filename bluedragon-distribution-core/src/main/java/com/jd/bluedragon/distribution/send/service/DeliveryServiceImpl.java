@@ -480,7 +480,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public   List<SendM> getSendMListByBoxCode(String boxCode){
         SendM domain=new SendM();
         domain.setBoxCode(boxCode);
-        return this.sendMReadDao.findSendMByBoxCode(domain);
+        return this.sendMDao.findSendMByBoxCode(domain);
     }
 
     @Profiled(tag = "DeliveryService.addSendDatail")
