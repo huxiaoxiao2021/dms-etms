@@ -109,18 +109,10 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
         if(labelPrinting.getPrepareSiteCode()>LabelPrintingService.PREPARE_SITE_CODE_NOTHING && !labelPrinting.getPrepareSiteCode().equals(LabelPrintingService.PREPARE_SITE_CODE_EMS_DIRECT)){
-            BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, labelPrinting.getPrepareSiteCode(), request.getDmsCode());
-            if(! (BaseResult.SUCCESS==baseResult.getResultCode()) ){
-                log.error(" 获取基础资料包裹信息失败[getCrossPackageTagByPara],返回码 "+baseResult.getResultCode());
-                return null;
-            }
-
-            crossPackageTag = baseResult.getData();
-            if(crossPackageTag == null){
-                log.error(" 获取基础资料包裹信息失败[getCrossPackageTagByPara],crossPackageTag为空");
-                return null;
-            }
+            crossPackageTag = getCrossPackageTagByPara(baseDmsStore,labelPrinting.getPrepareSiteCode(),request.getDmsCode());
         }
+
+
 
         if(crossPackageTag==null){
             log.error(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
@@ -172,6 +164,29 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         response.setMessage(JdResponse.MESSAGE_OK);
 
         return response;
+    }
+
+    /**
+    * 查询基础资料大全表信息
+    * @param baseDmsStore
+    * @param prepareSiteCode
+    * @param dmsCode
+    * @return
+    */
+    public CrossPackageTagNew getCrossPackageTagByPara(BaseDmsStore baseDmsStore,Integer prepareSiteCode,Integer dmsCode){
+        BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, prepareSiteCode, dmsCode);
+        if(! (BaseResult.SUCCESS==baseResult.getResultCode()) ){
+            log.error(" 获取基础资料包裹信息失败[getCrossPackageTagByPara],返回码 "+baseResult.getResultCode());
+            return null;
+        }
+
+        CrossPackageTagNew crossPackageTag = baseResult.getData();
+        if(crossPackageTag == null){
+            log.error(" 获取基础资料包裹信息失败[getCrossPackageTagByPara],crossPackageTag为空");
+            return null;
+        }
+
+        return crossPackageTag;
     }
 
     /**
