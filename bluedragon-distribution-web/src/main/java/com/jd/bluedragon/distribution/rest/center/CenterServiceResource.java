@@ -18,10 +18,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
 @Path(Constants.REST_URL)
@@ -33,9 +34,9 @@ public class CenterServiceResource {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-
+	
 	@Autowired
-	private BaseMinorManager baseMinorManager;
+	private BaseService baseService;
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
@@ -61,7 +62,7 @@ public class CenterServiceResource {
 			@QueryParam("siteCode") String siteCode) {
 		BaseStaffSiteOrgDto result = null;
 		try {
-			result = baseMajorManager.getDmsBaseSiteByCode(siteCode);
+			result = baseService.queryDmsBaseSiteByCode(siteCode);
 		} catch (Exception e) {
 			logger.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteId=" + siteCode, e);
 		}

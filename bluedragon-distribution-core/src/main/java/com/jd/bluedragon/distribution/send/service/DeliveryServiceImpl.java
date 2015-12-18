@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -19,9 +20,6 @@ import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.CrossDmsBox;
-import com.jd.etms.basic.saf.BasicSafInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -63,7 +61,6 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.message.produce.client.MessageClient;
@@ -76,6 +73,9 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossDmsBox;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -175,9 +175,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private BaseService baseService;
-
-    @Autowired
     private SiteService siteService;
 
     @Autowired
@@ -187,7 +184,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private WaybillCommonService waybillCommonService;
 
     @Autowired
-    private BasicSafInterface basicSafInterface;
+    private BasicSafInterfaceManager basicSafInterfaceManager;
     
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
@@ -249,7 +246,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         {
             CrossDmsBox crossDmsBox = null;
             try{
-                BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(
+                BaseResult<CrossDmsBox> resData = basicSafInterfaceManager.getCrossDmsBoxByOriAndDes(
                         domain.getCreateSiteCode(), targetSortingCenterId);
                 crossDmsBox = resData.getData();
                 logger.info("调用基础资料获取跨分拣箱号规则 " + JsonHelper.toJson(crossDmsBox));
@@ -1081,7 +1078,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         status.setRemark("取消发货");
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
 
-        BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(tSendM.getCreateSiteCode().toString());
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());
         tTask.setBody(JsonHelper.toJson(status));
@@ -1347,8 +1344,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 					BaseStaffSiteOrgDto rbDto = null;
 					
 					try {
-						rbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getReceiveSiteCode()));
-						cbDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendDatail.getCreateSiteCode()));
+						rbDto = this.baseMajorManager.getBaseSiteBySiteId(tSendDatail.getReceiveSiteCode());
+						cbDto = this.baseMajorManager.getBaseSiteBySiteId(tSendDatail.getCreateSiteCode());
 					} catch (Exception e) {
 						this.logger.error("发货全程跟踪调用站点信息异常",e);
 					}
@@ -1761,8 +1758,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 BoxInfo tBoxInfo = new BoxInfo();
                 tBoxInfo.setBatchId(dSendM.getSendCode());
                 tBoxInfo.setBoxId(dSendM.getBoxCode());
-                BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(dSendM
-                        .getReceiveSiteCode()));
+                BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(dSendM
+                        .getReceiveSiteCode());
                 if (bDto != null) {
                     tBoxInfo.setSendType(String.valueOf(bDto.getSiteType()));
                     tBoxInfo.setSendName(bDto.getSiteName());
@@ -2362,8 +2359,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             return false;
         }
         String sendReceiveSiteType="" ;
-        BaseStaffSiteOrgDto yrDto = this.tBaseService
-                .queryDmsBaseSiteByCode(String.valueOf(domain.getReceiveSiteCode()));
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(domain.getReceiveSiteCode());
         if (yrDto != null) {
             sendReceiveSiteType = String.valueOf(yrDto.getSiteType());
         }

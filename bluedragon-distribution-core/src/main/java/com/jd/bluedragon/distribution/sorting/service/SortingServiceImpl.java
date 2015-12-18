@@ -30,7 +30,6 @@ import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
@@ -45,13 +44,13 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -82,9 +81,6 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
-
-	@Autowired
-	private BaseService siteWebService;
 
 	@Autowired
 	private MessageProducer messageProducer;
@@ -451,8 +447,8 @@ public class SortingServiceImpl implements SortingService {
 		BaseStaffSiteOrgDto createSite = null;
 		BaseStaffSiteOrgDto receiveSite = null;
 		try {
-			createSite = this.siteWebService.queryDmsBaseSiteByCode(String.valueOf(createSiteCode));
-			receiveSite = this.siteWebService.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
+			createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+			receiveSite = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());
 		}

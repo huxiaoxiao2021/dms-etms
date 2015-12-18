@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -29,8 +27,8 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.erp.ws.BizServiceInterface;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("sortingReturnService")
 public class SortingReturnServiceImple implements SortingReturnService {
@@ -67,9 +65,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 */
 	public final static Integer INTERCEPT_RECORD_TYPE = -1;
 	
-	@Autowired
-	private BaseService siteWebService;
-
 	@Autowired
 	private TaskService taskService;
 
@@ -295,7 +290,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 
 		BaseStaffSiteOrgDto createSite = null;
 		try {
-			createSite = this.siteWebService.queryDmsBaseSiteByCode(String.valueOf(createSiteCode));
+			createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}

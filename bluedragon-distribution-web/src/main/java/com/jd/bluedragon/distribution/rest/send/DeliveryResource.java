@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
-import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
@@ -14,8 +12,6 @@ import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
@@ -26,7 +22,7 @@ import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -47,15 +43,6 @@ import java.util.*;
 @Produces({MediaType.APPLICATION_JSON})
 public class DeliveryResource {
 
-
-    @Autowired
-    private CrossSortingService crossSortingService;
-
-    @Autowired
-    private BoxService boxService;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
     @Autowired
     DeliveryService deliveryService;
 
@@ -69,9 +56,6 @@ public class DeliveryResource {
     private SiteService siteService;
 
     public static final String SEND_M = "sendm";
-
-    @Autowired
-    private WaybillCommonService waybillCommonService;
 
     @Autowired
     private LoadBillService loadBillService;

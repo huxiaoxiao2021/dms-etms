@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.auto.service;
 
-import com.jd.bk.common.util.security.MD5Util;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -18,10 +18,10 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.basic.domain.BaseDmsStore;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.CrossPackageTagNew;
-import com.jd.etms.basic.wss.BasicMinorWS;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
     private SortingExceptionService sortingExceptionService;
 
     @Autowired
-    private BasicMinorWS basicMinorWSProxy;
+    private BaseMinorManager baseMinorManager;
     /**
      * 计算分拣站点【1：计算是否跨分拣中心；2：计算是否自提柜订单;3：返调度使用反调度后站点】
      * @param entity
@@ -88,7 +88,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         }
 
         BaseDmsStore bds = new BaseDmsStore();
-        BaseResult<CrossPackageTagNew> br = basicMinorWSProxy.getCrossPackageTagByPara(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode());
+        BaseResult<CrossPackageTagNew> br = baseMinorManager.getCrossPackageTagByPara(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode());
         log.info("自动分拣：获取目的分拣中心"+(null==br?"获取目的分拣中心对象为NULL":JsonHelper.toJson(br)));
         if(br!=null&&br.getData()!=null
                 &&br.getData().getDestinationDmsId()!=null

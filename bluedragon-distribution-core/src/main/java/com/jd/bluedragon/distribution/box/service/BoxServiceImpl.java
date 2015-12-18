@@ -12,17 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dbs.objectId.IGenerateObjectId;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -39,7 +39,7 @@ public class BoxServiceImpl implements BoxService {
     private BoxDao boxDao;
 
     @Autowired
-    private BaseService baseService;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private IGenerateObjectId genObjectId;
@@ -99,9 +99,8 @@ public class BoxServiceImpl implements BoxService {
 			if (dto == null || dto.getTraderCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站商家接口"
 						+ box.getCreateSiteCode());
-				BaseStaffSiteOrgDto createSite = this.baseService
-						.queryDmsBaseSiteByCode(String.valueOf(box
-								.getCreateSiteCode()));
+				BaseStaffSiteOrgDto createSite = this.baseMajorManager
+						.getBaseSiteBySiteId(box.getCreateSiteCode());
 				if (createSite == null || createSite.getDmsSiteCode() == null) {
 					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 							+ box.getCreateSiteCode());
@@ -113,9 +112,8 @@ public class BoxServiceImpl implements BoxService {
 				createSiteDms = dto.getTraderCode();
 			}
 		} else {
-			BaseStaffSiteOrgDto createSite = this.baseService
-					.queryDmsBaseSiteByCode(String.valueOf(box
-							.getCreateSiteCode()));
+			BaseStaffSiteOrgDto createSite = this.baseMajorManager
+					.getBaseSiteBySiteId(box.getCreateSiteCode());
 			if (createSite == null || createSite.getDmsSiteCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 						+ box.getCreateSiteCode());
@@ -132,9 +130,8 @@ public class BoxServiceImpl implements BoxService {
 			if (dto == null || dto.getTraderCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-目的站商家接口"
 						+ box.getReceiveSiteCode());
-				BaseStaffSiteOrgDto receiveSite = this.baseService
-						.queryDmsBaseSiteByCode(String.valueOf(box
-								.getReceiveSiteCode()));
+				BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
+						.getBaseSiteBySiteId(box.getReceiveSiteCode());
 				if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
 					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 							+ box.getReceiveSiteCode());
@@ -145,9 +142,8 @@ public class BoxServiceImpl implements BoxService {
 				receiveSiteDms = dto.getTraderCode();
 			}
 		} else {
-			BaseStaffSiteOrgDto receiveSite = this.baseService
-					.queryDmsBaseSiteByCode(String.valueOf(box
-							.getReceiveSiteCode()));
+			BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
+					.getBaseSiteBySiteId(box.getReceiveSiteCode());
 			if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 						+ box.getReceiveSiteCode());

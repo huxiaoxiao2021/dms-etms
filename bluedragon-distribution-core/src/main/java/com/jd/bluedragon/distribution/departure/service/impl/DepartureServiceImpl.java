@@ -56,13 +56,14 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.basic.domain.MainBranchSchedule;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.springframework.web.client.RestTemplate;
 
 

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
@@ -60,12 +61,12 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
 
 @Service("reverseSendService")
@@ -98,6 +99,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	@Autowired
 	private SendDatailDao sendDatailDao;
 
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+	
 	@Autowired
 	private BaseService tBaseService;
 	
@@ -206,7 +210,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			sendM = sendList.get(0);
 			BaseStaffSiteOrgDto bDto = null;
 			try {
-				bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(sendM.getReceiveSiteCode()));
+				bDto = this.baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -656,7 +660,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		if (result.getResultCode() == 1) {
 			this.logger.info("青龙发货至仓储WS消息成功，运单号为" + wallBillCode);
 			//向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
-			sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode().toString(), sendM.getReceiveSiteCode().toString());
+			sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
 		} else {
 			this.logger.error("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
 			this.logger.error("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
@@ -742,7 +746,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		if (result.getResultCode() == 1) {
 			this.logger.info("青龙发货至仓储WS消息成功，运单号为" + wallBillCode);
 			//向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
-			sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode().toString(), sendM.getReceiveSiteCode().toString());
+			sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
 		} else {
 			this.logger.error("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
 			this.logger.error("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
@@ -989,7 +993,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 					this.logger.error(waybillCode + "spwms发货备件库失败，返回json结果:" + bodyContent);
 				}else{
 					//向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
-					sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode().toString(), sendM.getReceiveSiteCode().toString());
+					sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
 				}
 
 				postMethod.releaseConnection();
@@ -1175,7 +1179,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param createSiteCode 创建站点
      * @param receiveSiteCode 收货站点，在这里指的是仓库、备件库
      */
-    private void sendReportLoss(String orderId, Integer receiveType, String createSiteCode, String receiveSiteCode) {
+    private void sendReportLoss(String orderId, Integer receiveType, Integer createSiteCode, Integer receiveSiteCode) {
     	
     	//判断收货类型，非大库、备件库直接返回
     	if(receiveType!=RECEIVE_TYPE_WMS && receiveType!=RECEIVE_TYPE_SPARE) return;
@@ -1188,10 +1192,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	    	String storeName=null;
 	    	
 	    	//仓储收货回传
-    		BaseStaffSiteOrgDto dto = tBaseService.queryDmsBaseSiteByCode(createSiteCode); 
+    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(createSiteCode); 
     		dmsId = dto.getSiteCode().toString();
     		dmsName = dto.getSiteName();
-    		BaseStaffSiteOrgDto dto1 = tBaseService.queryDmsBaseSiteByCode(receiveSiteCode); 
+    		BaseStaffSiteOrgDto dto1 = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode); 
     		storeId = dto1.getSiteCode().toString();
     		storeName = dto1.getSiteName();
 	    	

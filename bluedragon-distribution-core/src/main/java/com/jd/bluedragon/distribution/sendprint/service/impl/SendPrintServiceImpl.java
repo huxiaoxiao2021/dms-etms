@@ -10,12 +10,12 @@ import com.jd.bluedragon.distribution.sendprint.domain.*;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -27,7 +27,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -37,6 +36,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service
 public class SendPrintServiceImpl implements SendPrintService{
@@ -57,7 +57,7 @@ public class SendPrintServiceImpl implements SendPrintService{
     private SealBoxService tSealBoxService;
 	
 	@Autowired
-    private BaseService tBaseService;
+    private BaseMajorManager baseMajorManager;
 	
 	private final Logger logger = Logger.getLogger(SendPrintServiceImpl.class);
 	
@@ -345,7 +345,7 @@ public class SendPrintServiceImpl implements SendPrintService{
  						if(waybill != null && waybill.getOldSiteId()!=null)
  						siteId = waybill.getOldSiteId();
  						String siteName = null;
- 		    			BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(siteId));
+ 		    			BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteId);
  	        			if(bDto!=null){
   				           siteName = bDto.getSiteName();
   				           Integer siteType = bDto.getSiteType();
@@ -543,7 +543,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	}
 
     private String toSiteName(Integer siteCode) {
-        BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(siteCode));
+        BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         if(bDto==null){
         	return null;
         }
@@ -551,7 +551,7 @@ public class SendPrintServiceImpl implements SendPrintService{
     }
     
     private Integer toSiteType(Integer siteCode) {
-        BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(siteCode));
+        BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         if(bDto==null){
         	return null;
         }
@@ -814,8 +814,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 
 								Integer siteId = tJoinDetail.getOldSiteId();
 								String siteName = null;
-								BaseStaffSiteOrgDto bDto = this.tBaseService
-										.queryDmsBaseSiteByCode(String.valueOf(siteId));
+								BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteId);
 								if (bDto != null) {
 									siteName = bDto.getSiteName();
 									Integer siteType = bDto.getSiteType();

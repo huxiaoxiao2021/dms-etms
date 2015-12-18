@@ -27,7 +27,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
 @Path(Constants.REST_URL+"/audit")

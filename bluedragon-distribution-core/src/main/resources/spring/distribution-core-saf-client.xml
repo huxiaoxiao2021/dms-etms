@@ -29,17 +29,19 @@
 		timeout="5000" version="1.0" check="false" /> -->
 
 	<!-- 引用远程服务：基础资料提供的根据创建站点、目的站点获得箱子路由信息的接口 -->
-	<saf:reference id="basicSafInterface"
+	<!-- <saf:reference id="basicSafInterface"
 		interface="com.jd.etms.basic.saf.BasicSafInterface" version="1.0"
 		group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}" check="false" />
 	<saf:reference id="baseAirConfigSafService"
 		interface="com.jd.etms.basic.saf.BaseAirConfigSafService" version="1.0"
 		group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}" check="false" />
-
-	<saf:reference id="basicMajorWSSaf" interface="com.jd.etms.basic.wss.BasicMajorWS"
+ -->
+	<!-- <saf:reference id="basicMajorWSSaf" interface="com.jd.etms.basic.wss.BasicMajorWS"
 		version="1.0" group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}"
-		check="false" retries="0" />
-	<saf:reference id="basicMinorWSSaf" interface="com.jd.etms.basic.wss.BasicMinorWS"
+		check="false" retries="0" /> -->
+		
+	
+	<!-- <saf:reference id="basicMinorWSSaf" interface="com.jd.etms.basic.wss.BasicMinorWS"
 		version="1.0" group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}"
 		check="false" retries="0" />
 		
@@ -47,13 +49,13 @@
 		
 	<bean id="basicMinorWSProxy" class="com.jd.etms.basic.cache.proxy.impl.BasicMinorWSProxyImpl" >
 	  	<property name="basicMinorWSSaf" ref="basicMinorWSSaf"></property>
-	</bean>
+	</bean> -->
 	
-	<bean id="basicMajorWSProxy" class="com.jd.etms.basic.cache.proxy.impl.BasicMajorWSProxyImpl" >
+	<!-- <bean id="basicMajorWSProxy" class="com.jd.etms.basic.cache.proxy.impl.BasicMajorWSProxyImpl" >
 		<property name="basicMajorWSSaf" ref="basicMajorWSSaf"></property>
-	</bean>
+	</bean> -->
 	
-	<bean id="basicForeignWebServiceProxy" class="com.jd.etms.basic.cache.proxy.impl.BasicForeignWebServiceProxyImpl" >
+	<!-- <bean id="basicForeignWebServiceProxy" class="com.jd.etms.basic.cache.proxy.impl.BasicForeignWebServiceProxyImpl" >
 		<property name="basicForeignWebServiceSaf" ref="basicForeignWebServiceSaf"></property>
 	</bean>
 	
@@ -61,7 +63,7 @@
 	<saf:reference id="basicForeignWebServiceSaf"
 		interface="com.jd.etms.basic.webservice.BasicForeignWebService"
 		version="1.0" group="${bdbasic.saf.group}" timeout="${bdbasic.saf.timeout}"
-		check="false" retries="0" />
+		check="false" retries="0" /> -->
 
 	<!-- 批量接口bean -->
 	<!--

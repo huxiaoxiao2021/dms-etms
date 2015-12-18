@@ -4,8 +4,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.cross.dao.CrossSortingDao;
 import com.jd.bluedragon.distribution.cross.dao.CrossSortingReadDao;
 import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 
 import java.util.*;
 
@@ -14,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -28,8 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service("crossSortingService")
 public class CrossSortingImpl implements CrossSortingService {

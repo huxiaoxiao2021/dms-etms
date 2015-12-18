@@ -14,7 +14,6 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.basic.domain.CrossDmsBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
@@ -31,8 +31,8 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.saf.BasicSafInterface;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossDmsBox;
 
 @Component
 @Path(Constants.REST_URL)
@@ -49,7 +49,7 @@ public class BoxResource {
 	private SendMDao sendMDao;
 	
 	@Autowired
-	private BasicSafInterface basicSafInterface;
+	private BasicSafInterfaceManager basicSafInterfaceManager;
 
 	@GET
 	@Path("/boxes/{boxCode}")
@@ -68,7 +68,7 @@ public class BoxResource {
 		if(box.getTransportType()!=null&&box.getTransportType()==2){//只有公路运输的支持路由信息查询2014.3.10
 			//获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
 			try{
-				BaseResult<String> routInfoRes = this.basicSafInterface.getCrossDmsBox(box.getCreateSiteCode(), box.getReceiveSiteCode());
+				BaseResult<String> routInfoRes = this.basicSafInterfaceManager.getCrossDmsBox(box.getCreateSiteCode(), box.getReceiveSiteCode());
 				this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
 				
 				if(StringHelper.isNotEmpty(routInfoRes.getData())){
@@ -141,7 +141,7 @@ public class BoxResource {
 		if(request.getTransportType()!=null&&request.getTransportType()==2){//只有公路运输的支持路由信息查询2014.3.10
 			//获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪		
 			try{
-				BaseResult<String> routInfoRes = this.basicSafInterface.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
+				BaseResult<String> routInfoRes = this.basicSafInterfaceManager.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
 				this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
 				if(logger.isInfoEnabled()){
                     this.logger.info("调用基础资料获取箱号路由"+ JsonHelper.toJson(routInfoRes));
@@ -187,7 +187,7 @@ public class BoxResource {
         if(request.getTransportType()!=null&&request.getTransportType()==2){//只有公路运输的支持路由信息查询2014.3.10
             //获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
             try{
-                BaseResult<CrossDmsBox> resData = basicSafInterface.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
+                BaseResult<CrossDmsBox> resData = basicSafInterfaceManager.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
                 if(logger.isInfoEnabled()){
                     this.logger.info("调用基础资料获取箱号路由"+ JsonHelper.toJson(resData));
                 }
@@ -229,7 +229,7 @@ public class BoxResource {
 		if(request.getTransportType()!=null&&request.getTransportType()==2){//只有公路运输的支持路由信息查询2014.3.10
 			//获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪		
 			try{
-				BaseResult<String> routInfoRes = this.basicSafInterface.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
+				BaseResult<String> routInfoRes = this.basicSafInterfaceManager.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
 				this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
 				
 				if(StringHelper.isNotEmpty(routInfoRes.getData())){

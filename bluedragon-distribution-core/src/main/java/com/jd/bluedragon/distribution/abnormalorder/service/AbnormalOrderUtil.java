@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import com.jd.bluedragon.distribution.api.response.RefundReason;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.etms.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseDataDict;
 
 public class AbnormalOrderUtil {
     
