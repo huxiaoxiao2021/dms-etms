@@ -25,10 +25,10 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("cenConfirmService")
 public class CenConfirmServiceImpl implements CenConfirmService {

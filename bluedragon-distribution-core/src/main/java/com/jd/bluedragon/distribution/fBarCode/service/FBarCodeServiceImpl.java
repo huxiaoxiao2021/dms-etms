@@ -4,13 +4,10 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.fBarCode.domain.FBarCode;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dbs.objectId.IGenerateObjectId;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
@@ -31,17 +28,10 @@ class FBarCodeServiceImpl implements FBarCodeService  {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
-    private static final String separator = "$";
-
-    private static final String siteType = "1024";
-
     private static final int timeout = 172800;
 
     @Autowired
     private FBarCodeDao fBarCodeDao;
-
-    @Autowired
-    private BaseService baseService;
 
     @Autowired
     private IGenerateObjectId genObjectId;

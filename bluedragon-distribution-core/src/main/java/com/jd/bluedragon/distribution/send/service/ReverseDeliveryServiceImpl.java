@@ -48,7 +48,6 @@ import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
 import com.jd.etms.third.service.dto.ShipCarrierReturnDto;
@@ -59,6 +58,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.postal.GetPrintDatasPortType;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("reversedeliveryService")
 public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {

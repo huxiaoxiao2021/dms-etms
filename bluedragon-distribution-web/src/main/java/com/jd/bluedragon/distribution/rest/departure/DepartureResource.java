@@ -54,11 +54,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SendCarInfoDto;
 import com.jd.etms.vos.dto.SendCarParamDto;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @Path(Constants.REST_URL)

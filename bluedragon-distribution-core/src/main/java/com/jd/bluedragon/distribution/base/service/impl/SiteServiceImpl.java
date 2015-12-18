@@ -12,15 +12,14 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.MainBranchSchedule;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 
 @Service("siteService")

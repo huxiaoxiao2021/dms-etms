@@ -27,7 +27,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @Path(Constants.REST_URL)

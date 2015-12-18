@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import java.math.BigDecimal;
 import java.util.*;
 
-import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
-import com.jd.etms.basic.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.perf4j.aop.Profiled;
@@ -25,18 +23,9 @@ import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
-import com.jd.etms.basic.dto.BaseGoodsPositionDto;
-import com.jd.etms.basic.dto.BasePdaUserDto;
-import com.jd.etms.basic.dto.BaseSelfDDto;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseStoreInfoDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
-import com.jd.etms.basic.saf.BasicSafInterface;
-import com.jd.etms.basic.wss.BasicMajorWS;
-import com.jd.etms.basic.wss.BasicMinorWS;
 import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -44,6 +33,21 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.domain.Assort;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.dto.BaseGoodsPositionDto;
+import com.jd.ql.basic.dto.BasePdaUserDto;
+import com.jd.ql.basic.dto.BaseSelfDDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStoreInfoDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
+import com.jd.ql.basic.ws.BasicMixedWS;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 
 @Service("baseService")
 public class BaseServiceImpl implements BaseService {
@@ -51,18 +55,6 @@ public class BaseServiceImpl implements BaseService {
 	/** 日志 */
 	private Logger log = Logger.getLogger(BaseServiceImpl.class);
 
-	@Autowired
-	@Qualifier("basicMinorWSSaf")
-	private BasicMinorWS basicMinorWSSaf;
-
-	@Autowired
-	@Qualifier("basicMajorWSSaf")
-	private BasicMajorWS basicMajorWSSaf;
-	
-	@Autowired
-	@Qualifier("basicMajorWSProxy")
-	private BasicMajorWSProxy basicMajorWSProxy;
-	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 	
@@ -76,17 +68,30 @@ public class BaseServiceImpl implements BaseService {
 	SysConfigDao sysConfigDao;
 	
 	@Autowired
-	@Qualifier("basicSafInterface")
-	BasicSafInterface basicSafInterface;
+	@Qualifier("basicMixedWS")
+	BasicMixedWS basicMixedWS;
 
 	@Autowired
 	BaseMinorManager baseMinorManager;
 
-    @Autowired
-    private BasicMinorWSProxy basicMinorWSProxy;
-	
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+	@Qualifier("basicPrimaryWS")
+	private BasicPrimaryWS basicPrimaryWS;
+	
+	@Autowired
+	@Qualifier("basicPrimaryWSProxy")
+	private BasicPrimaryWSProxy basicPrimaryWSProxy;
+	
+	@Autowired
+	@Qualifier("basicSecondaryWS")
+	private BasicSecondaryWS basicSecondaryWS;
+	
+	@Autowired
+	@Qualifier("basicSecondaryWSProxy")
+	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 	
 	@Override
 	public PdaStaff login(String erpcode, String password) {
@@ -97,7 +102,7 @@ public class BaseServiceImpl implements BaseService {
 		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
 		BasePdaUserDto pdadata = null;
 		try {
-			pdadata = basicMinorWSSaf.pdaUserLogin(erpcode, password);
+			pdadata = baseMinorManager.pdaUserLogin(erpcode, password);
 		} catch (Exception e) {
 			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
 		}
@@ -167,14 +172,12 @@ public class BaseServiceImpl implements BaseService {
         return lst;
     }
 
-	@Cache(key = "basicMajorServiceProxy.getBaseStaffByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public BaseStaffSiteOrgDto[] queryDriverByOrgId(Integer orgid) {
 		/** 查询司机信息 */
 		/** 获取某个机构下的角色为staffRole员工信息 staff：2 司机 */
 		log.info("调用basicMajorServiceProxy.getBaseStaffByOrgId(id, 2)接口");
 		try {
-			List<BaseStaffSiteOrgDto> resultal = basicMajorWSProxy.getBaseStaffListByOrgId(orgid,
+			List<BaseStaffSiteOrgDto> resultal = baseMajorManager.getBaseStaffListByOrgId(orgid,
 			        2);
 			if (resultal != null) {
 				return resultal.toArray(new BaseStaffSiteOrgDto[0]);
@@ -185,23 +188,6 @@ public class BaseServiceImpl implements BaseService {
 		return null;
 	}
 
-	@Override
-	@Cache(key = "baseMinorServiceProxy.getBaseVehicleByOrg@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	public BaseVehicle[] queryVehicleByOrgId(Integer orgid) {
-		/** 查询车辆信息 */
-		log.info("调用baseMinorServiceProxy.getBaseVehicleByOrg(id)接口");
-		try {
-			List<BaseVehicle> resultal = basicMinorWSSaf.getBaseVehicleByOrg(orgid);
-			if (resultal != null) {
-				return resultal.toArray(new BaseVehicle[0]);
-			}
-		} catch (Exception e) {
-			log.error("调用baseMinorServiceProxy.getBaseVehicleByOrg(id)异常", e);
-		}
-		return null;
-	}
-	
 	public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromStore(
 			BaseStoreInfoDto store) {
 		BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
@@ -228,12 +214,12 @@ public class BaseServiceImpl implements BaseService {
 			/** 包括库房信息 */
 			List<BaseStaffSiteOrgDto> resultal = new ArrayList<BaseStaffSiteOrgDto>();
 			
-			List<BaseStaffSiteOrgDto> staff = basicMajorWSProxy
+			List<BaseStaffSiteOrgDto> staff = basicPrimaryWSProxy
 			        .getBaseSiteAllByOrgIdAndTime(orgid ,null,null);
 			
 			resultal.addAll(staff);
 			
-			List<BaseStoreInfoDto> store = basicMajorWSProxy
+			List<BaseStoreInfoDto> store = basicPrimaryWSProxy
 			        .getBaseStoreInfoByOrgIdAndTime(orgid ,null,null);
 			
 			for(BaseStoreInfoDto dto : store){
@@ -268,7 +254,7 @@ public class BaseServiceImpl implements BaseService {
 		log.info("调用basicMajorServiceProxy.getBaseDataDictList(" + typeGroup + ",2, " + typeGroup
 		        + ")接口");
 		try {
-			List<com.jd.etms.basic.domain.BaseDataDict> resultal = baseMajorManager
+			List<BaseDataDict> resultal = baseMajorManager
 			        .getBaseDataDictList(typeGroup, 2, typeGroup);
 			if (resultal != null) {
 				return resultal.toArray(new BaseDataDict[0]);
@@ -317,7 +303,7 @@ public class BaseServiceImpl implements BaseService {
 			for (Integer typeGroup : typeGroups) {
 				log.info("调用basicMajorServiceProxy.getBaseDataDictList(" + typeGroup + ",2, "
 				        + typeGroup + ")接口");
-				List<com.jd.etms.basic.domain.BaseDataDict> tmpal = baseMajorManager.getBaseDataDictList(
+				List<BaseDataDict> tmpal = baseMajorManager.getBaseDataDictList(
 						typeGroup, 2, typeGroup);
 				if (tmpal != null && tmpal.size() > 0) {
 					resultal.addAll(tmpal);
@@ -345,26 +331,13 @@ public class BaseServiceImpl implements BaseService {
 		return baseMajorManager.getBaseDataDictList(parentId, nodeLevel, typeGroup);
 	}
 
-	@Override
-	@Profiled
-	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteByCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
-		redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	public BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String code) {
-		try {
-			BaseStaffSiteOrgDto result = basicMajorWSSaf.getDmsBaseSiteByCode(code);
-			return result;
-		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getDmsBaseSiteByCode(code)异常", e);
-			return null;
-		}
-	}
 
 	@Override
 	@Cache(key = "BaseService.getAllOrg", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseOrg> getAllOrg() {
 		try {
-			List<BaseOrg> orgal = basicMajorWSSaf.getBaseOrgAll();
+			List<BaseOrg> orgal = basicPrimaryWS.getBaseOrgAll();
 			return orgal;
 		} catch (Exception e) {
 			log.error("调用basicMajorServiceProxy.getBaseOrgAll()异常", e);
@@ -383,48 +356,6 @@ public class BaseServiceImpl implements BaseService {
 		}
 	}
 
-	@Override
-	@Cache(key = "baseMinorServiceProxy.queryVehicleByVehicleCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	public BaseVehicle queryVehicleByVehicleCode(String vehiclecode) {
-		try {
-			BaseVehicle vehicle = basicMinorWSSaf.baseVehicleByLicense(vehiclecode);
-			return vehicle;
-		} catch (Exception e) {
-			log.error("调用baseMinorServiceProxy.baseVehicleByLicense(vehiclecode)异常", e);
-			return null;
-		}
-	}
-
-	@Override
-	@Cache(key = "baseMinorServiceProxy.getVehicleByBarCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	public BaseVehicle queryVehicleByBarCode(String barcode) {
-		try {
-			BaseVehicle vehicle = basicMinorWSSaf.getVehicleByBarCode(barcode);
-			return vehicle;
-		} catch (Exception e) {
-			log.error("调用baseMinorServiceProxy.getVehicleByBarCode(barcode)异常", e);
-			return null;
-		}
-	}
-
-	@Override
-	public List<com.jd.etms.basic.domain.BaseDataDict> getBaseDataDictListByDate(String date) {
-		try {
-			BaseDataDict baseDataDict = new BaseDataDict();
-			baseDataDict.setParentId(110);
-			baseDataDict.setNodeLevel(2);
-			baseDataDict.setTypeGroup(110);
-			List<com.jd.etms.basic.domain.BaseDataDict> results = basicMajorWSSaf
-			        .getBaseDataDictByTime(date, baseDataDict);
-			return results;
-		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseDataDictByTime(date, baseDataDict)异常", e);
-			return null;
-		}
-	}
-	
 	@Profiled
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
 		try {
@@ -432,20 +363,6 @@ public class BaseServiceImpl implements BaseService {
 			return results;
 		} catch (Exception e) {
 			log.error("调用basicMajorServiceProxy.getDmsSiteAll()异常", e);
-			return null;
-		}
-	}
-
-	@Cache(key = "basicMajorServiceProxy.getBaseSiteByAssort@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	public List<BaseSite> getDmsSitBySiteType(Integer siteType) {
-		BaseSite baseSite = new BaseSite();
-		baseSite.setSiteType(siteType);
-		try {
-			List<BaseSite> results = basicMajorWSSaf.getBaseSiteByAssort(baseSite);
-			return results;
-		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseSiteByAssort()异常", e);
 			return null;
 		}
 	}
@@ -611,7 +528,7 @@ public class BaseServiceImpl implements BaseService {
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public String getPopBusinessNameByCode(String popCode) {
 		try {
-			BaseTradeInfoDto baseTradeInfoDto = basicMinorWSSaf
+			BaseTradeInfoDto baseTradeInfoDto = basicSecondaryWS
 			        .getTraderInfoByPopCode(popCode);
 			if (null == baseTradeInfoDto || StringUtils.isBlank(baseTradeInfoDto.getTraderName())) {
 				return null;
@@ -658,8 +575,8 @@ public class BaseServiceImpl implements BaseService {
     @Cache(key = "basicMajorServiceProxy.getPopBaseSiteByOrgId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseStaffSiteOrgDto> getPopBaseSiteByOrgId(Integer paramInteger) {
-		List<BaseStaffSiteOrgDto> dataList = this.basicMajorWSProxy
-		        .getPopBaseSiteByOrgId(paramInteger);
+		List<BaseStaffSiteOrgDto> dataList = this.basicPrimaryWSProxy
+		        .getBaseSiteAllByOrgId(paramInteger);
 		if (dataList != null && !dataList.isEmpty()) {
 			BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
 			dto.setSiteCode(-1);
@@ -700,7 +617,7 @@ public class BaseServiceImpl implements BaseService {
 			}
 
 			//2.根据标识ID从基础资料中查询源类型
-			List<BaseDataDict> list = basicMajorWSSaf
+			List<BaseDataDict> list = basicPrimaryWS
 					.getBaseDataDictList(taskModeNum, 2, taskModeNum);
 			for (BaseDataDict item : list) {
 				if (item.getTypeName().equalsIgnoreCase("redis")) {
@@ -738,7 +655,7 @@ public class BaseServiceImpl implements BaseService {
 	@Cache(key = "basicSafInterface.getSiteSelfDBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public Integer getSiteSelfDBySiteCode(Integer sitecode){
-		BaseResult<BaseSelfDDto>  result = basicSafInterface.getSiteSelfDBySiteCode(sitecode);
+		BaseResult<BaseSelfDDto>  result = basicMixedWS.getSiteSelfDBySiteCode(sitecode);
 		if(result==null){
 			return -1;
 		}
@@ -767,7 +684,7 @@ public class BaseServiceImpl implements BaseService {
     @Override
     @Cache(memoryEnable = false,key = "getAssortById@args0")
     public Assort getAssortById(Integer assortId) {
-        List<Assort> list= basicMinorWSProxy.getBaseAssortList();
+        List<Assort> list= basicSecondaryWSProxy.getBaseAssortList();
         if(null!=list&&list.size()>0){
             for (Assort a:list){
                 if(a.getAssId().equals(assortId))
@@ -850,5 +767,14 @@ public class BaseServiceImpl implements BaseService {
 				proList.add(product);
 			}
 		}		
+	}
+
+	@Override
+	public BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String siteCode) {
+		// TODO Auto-generated method stub
+		if(NumberHelper.isStringNumber(siteCode))
+			return baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(siteCode));
+		else
+			return baseMajorManager.getBaseSiteByDmsCode(siteCode);
 	}
 }

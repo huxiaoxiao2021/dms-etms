@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
-import com.jd.etms.basic.domain.MainBranchSchedule;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 public interface SiteService {
 

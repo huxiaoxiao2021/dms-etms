@@ -28,10 +28,10 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * 离线分拣service

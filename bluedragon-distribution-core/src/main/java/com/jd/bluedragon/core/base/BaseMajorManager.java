@@ -2,12 +2,12 @@ package com.jd.bluedragon.core.base;
 
 import java.util.List;
 
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.domain.PsStoreInfo;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseStoreInfoDto;
-import com.jd.etms.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
+
 
 public interface BaseMajorManager {
 
@@ -31,12 +31,10 @@ public interface BaseMajorManager {
 	
 	public List<BaseStaffSiteOrgDto> getBaseSiteAll();
 	
-	List<BaseStaffSiteOrgDto> getBaseSiteByOrgId(Integer orgId,
-			String targetType);
+	List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId,
+			Integer targetType);
 
-	public abstract BaseStaffSiteOrgDto getDmsBaseSiteByCode(String siteCode);
-
-	public abstract BaseStoreInfoDto getBaseStoreInfoBySiteId(String dmsSiteCode);
+	public abstract BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode);
 
 	/**
 	 * 根据基础资料字典ID获取字典数据
@@ -67,4 +65,7 @@ public interface BaseMajorManager {
 	 */
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode);
 
+	public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup);
+
+	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid,int num);
 }

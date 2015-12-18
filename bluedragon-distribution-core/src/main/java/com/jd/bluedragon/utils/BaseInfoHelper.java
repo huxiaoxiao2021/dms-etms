@@ -3,10 +3,10 @@ package com.jd.bluedragon.utils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 
 public class BaseInfoHelper {
 	private static Logger log = Logger.getLogger(BaseInfoHelper.class);
