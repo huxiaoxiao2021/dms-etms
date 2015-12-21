@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.LoggingStopWatch;
-import org.perf4j.StopWatch;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.AbstractScheduleTask;
@@ -50,8 +48,6 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 		}
 		boolean result = false;
 		try {
-			StopWatch bizStopWatch = new LoggingStopWatch();
-			bizStopWatch.start(taskType + ".handleSingleTask", "start");
 			result = taskHanlder.preHandle(task);
 			if (result) {
 				result = executeSingleTask(task, ownSign);
@@ -61,7 +57,6 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 					taskHanlder.handleError(task);
 				}
 			}
-			bizStopWatch.stop(taskType + ".handleSingleTask", "stop");
 		} catch (Throwable e) {
 			taskHanlder.handleError(task);
 			logger.error("处理任务TaskId:"+task.getId()+"失败! "+e.getMessage(), e);
