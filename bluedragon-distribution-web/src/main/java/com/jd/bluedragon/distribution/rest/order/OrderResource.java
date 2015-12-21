@@ -20,6 +20,15 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import jd.oom.client.clientbean.Order;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -115,7 +124,7 @@ public class OrderResource {
 			return new JdResponse(10001, "此运单无商品明细！");
 		}
 		
-		List<Product> products = newArrayList();
+		List<Product> products = new ArrayList();
 		for (Goods good : waybill.getGoodsList()) {
 			Product product = new Product();
 			product.setName(good.getGoodName());

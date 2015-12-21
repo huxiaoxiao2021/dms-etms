@@ -13,6 +13,11 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.MainBranchSchedule;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service("siteService")

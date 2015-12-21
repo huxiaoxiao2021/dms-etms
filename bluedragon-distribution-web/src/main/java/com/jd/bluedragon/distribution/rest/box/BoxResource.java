@@ -1,26 +1,5 @@
 package com.jd.bluedragon.distribution.rest.box;
 
-import java.util.*;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -36,6 +15,18 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossDmsBox;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL)

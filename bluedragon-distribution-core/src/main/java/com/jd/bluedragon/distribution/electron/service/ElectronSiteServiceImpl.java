@@ -1,13 +1,5 @@
 package com.jd.bluedragon.distribution.electron.service;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
@@ -15,15 +7,13 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
+import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 
 @Service("electronSiteService")
 public class ElectronSiteServiceImpl implements ElectronSiteService {

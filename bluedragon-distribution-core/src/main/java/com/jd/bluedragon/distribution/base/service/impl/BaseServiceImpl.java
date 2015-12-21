@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.math.BigDecimal;
-import java.util.*;
-
-import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
-import com.jd.etms.basic.domain.*;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -40,17 +27,23 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.dto.BaseGoodsPositionDto;
-import com.jd.ql.basic.dto.BasePdaUserDto;
-import com.jd.ql.basic.dto.BaseSelfDDto;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseStoreInfoDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("baseService")
 public class BaseServiceImpl implements BaseService {
@@ -359,7 +352,6 @@ public class BaseServiceImpl implements BaseService {
 		}
 	}
 
-	@Profiled
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
 		try {
 			List<BaseStaffSiteOrgDto> results = baseMajorManager.getDmsSiteAll();

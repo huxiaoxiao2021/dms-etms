@@ -12,6 +12,16 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 运单包裹关联查询Service
@@ -62,7 +72,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 */
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<DeliveryPackageD> getPackageBarcodeByWaybillCode( String waybillCode ){
+	public List<DeliveryPackageD> getPackageBarcodeByWaybillCode(String waybillCode ){
 		
 		BaseEntity<com.jd.etms.waybill.dto.BigWaybillDto> entity = wssByWaybillCode(waybillCode);
 		if(null==entity)	return null;

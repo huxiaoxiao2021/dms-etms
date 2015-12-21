@@ -293,6 +293,13 @@
 			<artifactId>struts2-security-plugin</artifactId>
 			<version>0.1.2</version>
 		</dependency>
+
+        <dependency>
+            <groupId>org.apache.bval</groupId>
+            <artifactId>bval-jsr303</artifactId>
+            <version>0.5</version>
+        </dependency>
+
     </dependencies>
 
 	<build>

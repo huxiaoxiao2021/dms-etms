@@ -13,6 +13,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.ThridPackageDto;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service("partnerWaybillService")
 public class PartnerWaybillServiceImpl implements PartnerWaybillService {
@@ -64,8 +71,8 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	/**
 	 * 处理运单号关联包裹信息
 	 * 
-	 * @param inspections
-	 * @param receiveType
+	 * @param
+	 * @param
 	 * @return
 	 */
 	public boolean doWayBillCodesProcessed(List<Task> taskList) {
@@ -99,7 +106,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 				if (baseEntity.getResultCode() == Constants.INTERFACE_CALL_SUCCESS) {
 					// 接口调用成功
 					Map<Long, Boolean> data = baseEntity.getData();
-					Iterator<Entry<Long, Task>> iter = taskMap.entrySet()
+					Iterator<Map.Entry<Long, Task>> iter = taskMap.entrySet()
 							.iterator();
 					while (iter.hasNext()) {
 						Map.Entry<Long, Task> entry = iter.next();
@@ -128,7 +135,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	}
 
 	private void unLockTask(Map<Long, Task> taskMap) {
-		Iterator<Entry<Long, Task>> iter = taskMap.entrySet().iterator();
+		Iterator<Map.Entry<Long, Task>> iter = taskMap.entrySet().iterator();
 		while (iter.hasNext()) {
 			Map.Entry<Long, Task> entry = iter.next();
 			Task task = entry.getValue();
