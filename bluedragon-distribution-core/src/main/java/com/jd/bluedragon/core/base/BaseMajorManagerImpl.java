@@ -4,18 +4,7 @@ import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.etms.basic.cache.proxy.BasicMajorWSProxy;
-import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.PsStoreInfo;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseStoreInfoDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
-import com.jd.etms.basic.dto.SimpleBaseSite;
-import com.jd.etms.basic.wss.BasicMajorWS;
-import com.jd.etms.utils.cache.annotation.Cache;
+
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -28,9 +17,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.bluedragon.utils.BaseContants;
+import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStoreInfoDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -38,59 +37,61 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
 
 	@Autowired
-	@Qualifier("basicMajorWSSaf")
-	private BasicMajorWS basicMajorWSSaf;
+	@Qualifier("basicPrimaryWS")
+	private BasicPrimaryWS basicPrimaryWS;
 	
 	@Autowired
-	@Qualifier("basicMajorWSProxy")
-	private BasicMajorWSProxy basicMajorWSProxy;
+	@Qualifier("basicPrimaryWSProxy")
+	private BasicPrimaryWSProxy basicPrimaryWSProxy;
 	
 	@Autowired
-	@Qualifier("basicMinorWSProxy")
-	private BasicMinorWSProxy basicMinorWSProxy;
+	@Qualifier("basicSecondaryWSProxy")
+	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
-
-	@Cache(key = "basicMajorWSProxy.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	/**
+	 * 站点ID
+	 * */
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-		return basicMajorWSSaf.getBaseSiteBySiteId(paramInteger);
+		return basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
 	}
 
-	@Cache(key = "basicMajorWSProxy.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseDataDict> getBaseDataDictList(Integer paramInteger1,
 			Integer paramInteger2, Integer paramInteger3) {
-		return basicMajorWSSaf.getBaseDataDictList(paramInteger1,
+		return basicPrimaryWS.getBaseDataDictList(paramInteger1,
 				paramInteger2, paramInteger3);
 	}
 
-	@Cache(key = "basicMajorWSProxy.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseStaffByStaffId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer paramInteger) {
-		return basicMajorWSSaf.getBaseStaffByStaffId(paramInteger);
+		return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
 	}
 
-	@Cache(key = "basicMajorWSProxy.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
 		List<BaseStaffSiteOrgDto> allSite = new ArrayList<BaseStaffSiteOrgDto>();
 		
 		//基础站点
-		List<BaseStaffSiteOrgDto> baseSite = basicMajorWSProxy.getBaseSiteAll();
+		List<BaseStaffSiteOrgDto> baseSite = basicPrimaryWSProxy.getBaseSiteAll();
 		allSite.addAll(baseSite);
 		
 		//库房站点
-		List<BaseStoreInfoDto> baseStore = basicMajorWSProxy.getBaseAllStore();
+		List<BaseStoreInfoDto> baseStore = basicPrimaryWSProxy.getBaseAllStore();
 		for(BaseStoreInfoDto dto : baseStore){
 			allSite.add(getBaseStaffSiteOrgDtoFromStore(dto));
 		}
 		
 		//商家站点
-		List<BaseTradeInfoDto> baseTrader = basicMinorWSProxy.getBaseAllTrader();
+		List<BaseTradeInfoDto> baseTrader = basicSecondaryWSProxy.getBaseAllTrader();
 		for(BaseTradeInfoDto dto : baseTrader){
 			allSite.add(getBaseStaffSiteOrgDtoFromTrader(dto));
 		}
@@ -98,14 +99,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return allSite;
 	}
 
-	@Cache(key = "basicMajorWSProxy.getBaseOrgByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseOrgByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseOrgByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseOrg getBaseOrgByOrgId(Integer orgId) {
-		return basicMajorWSSaf.getBaseOrgByOrgId(orgId);
+		return basicPrimaryWS.getBaseOrgByOrgId(orgId);
 	}
 
-	@Cache(key = "basicMajorWSProxy.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	public Integer getBaseGoodsPositionDmsCodeSiteCode(String createCode,
 			String receiveCode) {
@@ -113,19 +114,19 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return null;
 	}
 	
-	@Cache(key = "basicMajorWSProxy.getBaseSiteAll", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteAll", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getBaseSiteAll() {
-		return basicMajorWSProxy.getBaseSiteAll();
+		return basicPrimaryWSProxy.getBaseSiteAll();
 	}
 	
-	@Cache(key = "basicMajorWSProxy.getBaseSiteByOrgId@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseStaffSiteOrgDto> getBaseSiteByOrgId(Integer orgId,
-			String targetType) {
-		return basicMajorWSProxy.getBaseSiteByOrgId(orgId,targetType);
+	public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId,
+			Integer targetType) {
+		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
 	}
 	
 	public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromStore(
@@ -158,40 +159,32 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
 		return baseStaffSiteOrgDto;
 	}
-	
+	/**
+	 * 7位编码
+	 * */
 	@Override
-	@Cache(key = "basicMajorWSProxy.getDmsBaseSiteByCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteByDmsCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsBaseSiteByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseStaffSiteOrgDto getDmsBaseSiteByCode(String siteCode) {
-		return basicMajorWSSaf.getDmsBaseSiteByCode(siteCode);
+	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
+		return basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
 	}
 
-	@Override
-	@Cache(key = "basicMajorWSProxy.getBaseStoreInfoBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
-	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseStoreInfoBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseStoreInfoDto getBaseStoreInfoBySiteId(String dmsSiteCode) {
-		BaseStoreInfoDto storeInfoDto = new BaseStoreInfoDto();
-		storeInfoDto.setDmsSiteCode(dmsSiteCode);
-		return basicMajorWSSaf.getBaseStoreInfo(storeInfoDto);
-	}
-
-	@Cache(key = "basicMajorWSProxy.getBaseDataDictById@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+	@Cache(key = "baseMajorManagerImpl.getBaseDataDictById@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictById", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseDataDict getBaseDataDictById(Integer id) {
-		return basicMajorWSSaf.getBaseDataDictById(id);
+		return basicPrimaryWS.getBaseDataDictById(id);
 	}
 
 
 	@Override
-	@Cache(key = "basicMajorWSProxy.getStoreByCky2@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+	@Cache(key = "baseMajorManagerImpl.getStoreByCky2@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID, String sys) {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getStoreByCky2", false, true);
 		try{
-			BaseResult<PsStoreInfo> storeInfoResult =  basicMajorWSSaf.getStoreByCky2Id(storeType, cky2, storeID, sys);
+			BaseResult<PsStoreInfo> storeInfoResult =  basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, sys);
 			if(0 == storeInfoResult.getResultCode()){
 				return storeInfoResult.getData();
 			}else{
@@ -211,12 +204,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsListByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId){
-		return basicMajorWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
+		return basicPrimaryWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
 	}
 	
 	private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
 	@Override
-	@Cache(key = "basicMajorServiceProxy.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
+	@Cache(key = "baseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
 		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver", false, true);
@@ -250,4 +243,21 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         logger.error("dmsver获取站点[" + siteCode + "]信息失败");
         return null;
 	}
+
+	@Override
+	@Cache(key = "baseMajorManagerImpl.getValidBaseDataDictList@args0@args1@args2" , memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 20 * 60 * 1000 )
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getValidBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup) {
+		return basicPrimaryWS.getValidDataDict(parentGroup, nodeLevel, typeGroup);
+	}
+
+	@Override
+	@Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid, int num) {
+		// TODO Auto-generated method stub
+		return basicPrimaryWSProxy.getBaseStaffListByOrgId(orgid,2);
+	}
+
 }

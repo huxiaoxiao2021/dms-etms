@@ -1,8 +1,18 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
@@ -20,8 +30,8 @@ import com.jd.bluedragon.distribution.waybill.service.PickwareService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +62,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	private MessageClient messageClient;
     
     @Autowired
-    private BaseService baseService;
+    private BaseMajorManager baseMajorManager;
     
 	@Autowired
 	private SendMDao sendMDao;
@@ -64,24 +74,24 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	private ReverseSpareService reverseSpareService;
 
 
-    
+
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(ReverseReceive reverseReceive) {
         return this.reverseReceiveDao.add(ReverseReceiveDao.namespace, reverseReceive);
     }
-    
+
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(ReverseReceive reverseReceive) {
         return this.reverseReceiveDao.update(ReverseReceiveDao.namespace, reverseReceive);
     }
     
-    
+
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCode(String packageCode) {
         return this.reverseReceiveDao.findByPackageCode(packageCode);
     }
     
-    
+
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCodeAndSendCode(String packageCode,String sendCode,Integer businessType) {
     	return this.reverseReceiveDao.findByPackageCodeAndSendCode(packageCode,sendCode,businessType);
@@ -92,7 +102,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 //    public ReverseReceive findByWaybillCodeAndSendCode(String waybillCode,String sendCode) {
 //    	return this.reverseReceiveDao.findByWaybillCodeAndSendCode(waybillCode,sendCode);
 //    }
-    
+
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void aftersaleReceiveInspect(Task task) {
         String body = task.getBody().substring(1, task.getBody().length() - 1);
@@ -232,19 +242,19 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	    	//仓储收货回传
 	    	if(receiveType==1){
 	    		SendM sendM =sendMDao.selectBySendCode(source.getSendCode());
-	    		BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(sendM.getCreateSiteCode().toString()); 
+	    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode());
 	    		dmsId = dto.getSiteCode().toString();
 	    		dmsName = dto.getSiteName();
-	    		BaseStaffSiteOrgDto dto1 = baseService.queryDmsBaseSiteByCode(sendM.getReceiveSiteCode().toString()); 
+	    		BaseStaffSiteOrgDto dto1 = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
 	    		storeId = dto1.getSiteCode().toString();
 	    		storeName = dto1.getSiteName();
 	    	}else if(receiveType==3){
 	    		List<ReverseSpare> reverseSpareList = reverseSpareService.queryBySpareTranCode(source.getSendCode());
 	    		SendM sendM =sendMDao.selectBySendCode(reverseSpareList.get(0).getSendCode());
-	    		BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(sendM.getCreateSiteCode().toString()); 
+	    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode());
 	    		dmsId = dto.getSiteCode().toString();
 	    		dmsName = dto.getSiteName();
-	    		BaseStaffSiteOrgDto dto1 = baseService.queryDmsBaseSiteByCode(sendM.getReceiveSiteCode().toString()); 
+	    		BaseStaffSiteOrgDto dto1 = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
 	    		storeId = dto1.getSiteCode().toString();
 	    		storeName = dto1.getSiteName();
 	    	}
@@ -283,7 +293,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
             reverseReceive.setPickWareCode(pickware.getCode());
         }
     }
-    
+
     public void addOpetationLog(ReverseReceive reverseReceive, Integer logType,String remark) {
         this.appentPickwareInfo(reverseReceive, reverseReceive.getPackageCode());
         OperationLog operationLog = new OperationLog();

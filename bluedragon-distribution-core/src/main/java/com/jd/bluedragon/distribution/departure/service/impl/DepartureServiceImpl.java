@@ -10,6 +10,22 @@ import com.jd.bluedragon.distribution.api.request.DepartureRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureSendRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
+import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
+import com.jd.bluedragon.utils.*;
+import com.jd.etms.message.produce.client.MessageClient;
+import org.apache.log4j.Logger;
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ServiceMessage;
+import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
@@ -33,20 +49,14 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.basic.domain.MainBranchSchedule;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.wss.WaybillAddWS;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -78,9 +88,9 @@ public class DepartureServiceImpl implements DepartureService {
 	private TaskService taskService;
 	@Autowired
 	TaskFailQueueDao taskFailQueueDao;
+
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillPackageApi waybillPackageApi;
 
 	@Autowired
 	private BaseService baseService;
@@ -89,7 +99,7 @@ public class DepartureServiceImpl implements DepartureService {
 	private SiteService siteService;
 	
 	@Autowired
-	private WaybillAddWS tWaybillAddWS;
+	private WaybillTraceApi waybillTraceApi;
 
 	@Autowired
 	private DepartureTmpDao departureTmpDao;
@@ -853,7 +863,7 @@ public class DepartureServiceImpl implements DepartureService {
 				requests.add(sendDatail.getPackageBarcode());
 			}
 			try {
-				waybillWSRs = waybillQueryWSProxy
+				waybillWSRs = waybillPackageApi
 						.queryPackageListForParcodes(requests);
 				datas = waybillWSRs.getData();
 				logger.info("调用运单queryPackageListForParcodes结束");
@@ -889,7 +899,7 @@ public class DepartureServiceImpl implements DepartureService {
 	@SuppressWarnings("rawtypes")
 	public void sendWaybillAddWS(BdTraceDto bdTraceDto) {
 		logger.info("发车回传全称跟踪信息，调用运单接口-----------bdTraceDto="+bdTraceDto.getWaybillCode()+"信息"+bdTraceDto.getOperatorDesp());
-		BaseEntity baseEntity = tWaybillAddWS.sendBdTrace(bdTraceDto);
+		BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
 		if(baseEntity!=null){
 			if(baseEntity.getResultCode()!=1){
 				logger.error("发车数据回传全程跟踪异常："+baseEntity.getMessage());

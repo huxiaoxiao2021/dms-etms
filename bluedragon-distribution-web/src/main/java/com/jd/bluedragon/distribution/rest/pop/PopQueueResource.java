@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.pop;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.ExpressResponse;
 import com.jd.bluedragon.distribution.api.request.PopQueueRequest;
 import com.jd.bluedragon.distribution.api.response.PopQueueResponse;
@@ -27,7 +27,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopQueue;
 import com.jd.bluedragon.distribution.popPrint.service.PopQueueService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * 
@@ -46,6 +46,9 @@ public class PopQueueResource {
 //	public final static SimpleDateFormat SimpleDateFormat_Short = new SimpleDateFormat("yyyyMMdd");
 	@Autowired
 	private BaseService baseService;
+	
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	@Autowired
 	private PopQueueService popQueueService;
 	private static int suffixLength = 4;
@@ -71,8 +74,9 @@ public class PopQueueResource {
 				response.setMessage("传入站点编码为空");
 				return response;
 			}
-			BaseStaffSiteOrgDto createSite = this.baseService.queryDmsBaseSiteByCode(String.valueOf(popQueueRequest
-					.getCreateSiteCode()));
+			BaseStaffSiteOrgDto createSite = this.baseMajorManager
+					.getBaseSiteBySiteId(popQueueRequest
+					.getCreateSiteCode());
 
 			if (createSite == null) {
 				response.setCode(response.CODE_INTERNAL_ERROR);

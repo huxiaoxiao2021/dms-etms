@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import java.util.List;
-import java.util.Map;
 
-import com.jd.bluedragon.distribution.api.request.SealVehicleRequest;
+import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 
 public interface SealVehicleService {
@@ -82,5 +81,12 @@ public interface SealVehicleService {
 	public boolean updateSealVehicle3(SealVehicle sealVehicle, String sealCodes);
 	
 	public List<SealVehicle> findByVehicleCode(String vehicleCode);
+
+	/**
+	 * 
+	 * @param SealVehicle通过封签号、车牌号、批次号取消封车操作
+	 * @return
+	 */
+	public SealVehicleResponse cancelSealVehicle(SealVehicle sealVehicle);
 
 }

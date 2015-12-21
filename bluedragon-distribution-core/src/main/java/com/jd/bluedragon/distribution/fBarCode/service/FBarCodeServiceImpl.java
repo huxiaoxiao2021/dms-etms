@@ -30,17 +30,10 @@ class FBarCodeServiceImpl implements FBarCodeService  {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
-    private static final String separator = "$";
-
-    private static final String siteType = "1024";
-
     private static final int timeout = 172800;
 
     @Autowired
     private FBarCodeDao fBarCodeDao;
-
-    @Autowired
-    private BaseService baseService;
 
     @Autowired
     private IGenerateObjectId genObjectId;

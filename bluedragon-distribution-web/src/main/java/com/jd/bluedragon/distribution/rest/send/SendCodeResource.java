@@ -12,15 +12,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @Path(Constants.REST_URL)

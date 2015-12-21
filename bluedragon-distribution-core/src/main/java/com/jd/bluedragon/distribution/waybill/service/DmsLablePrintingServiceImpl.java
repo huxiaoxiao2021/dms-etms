@@ -7,8 +7,9 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.domain.BaseDmsStore;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.domain.BaseDmsStore;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
@@ -54,11 +55,11 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             labelPrinting.setPrepareSiteCode(request.getPreSeparateCode());
             labelPrinting.setPrepareSiteName(request.getPreSeparateName());
             //如果调度的新地址为空，则应当显示老地址
-            labelPrinting.setPrintAddress(StringHelper.isNotEmpty(waybill.getNewRecAddr())?waybill.getReceiverAddress():waybill.getNewRecAddr());
+            labelPrinting.setPrintAddress(StringHelper.isEmpty(waybill.getNewRecAddr())?waybill.getReceiverAddress():waybill.getNewRecAddr());
         }
 
         //自提订单---打提字，并且地址不显示
-        StringBuilder specialMark = new StringBuilder(StringHelper.isNotEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
+        StringBuilder specialMark = new StringBuilder(StringHelper.isEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
         log.debug(new StringBuilder(LOG_PREFIX).append("waybill---distanceType").append(waybill.getDistanceType()).append("sendpay ").append(waybill.getSendPay()));
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
             if(waybill.getSendPay().charAt(21)!='5'){

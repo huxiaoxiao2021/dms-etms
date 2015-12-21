@@ -8,15 +8,16 @@ import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.domain.BaseDmsStore;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.CrossPackageTagNew;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,9 +30,8 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
     public static final String LOG_PREFIX="包裹标签打印模板[AbstractLabelPrintingServiceTemplate] ";
 
-
     @Autowired
-    private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -75,7 +75,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //现场调度标识
         if(request.getLocalSchedule()!=null && request.getLocalSchedule()==LabelPrintingService.LOCAL_SCHEDULE){
             //特殊标识 追加"调"字
-            if (!StringHelper.isNotEmpty(labelPrinting.getSpecialMark())) {
+            if (!StringHelper.isEmpty(labelPrinting.getSpecialMark())) {
                 StringBuffer sb = new StringBuffer(labelPrinting.getSpecialMark());
                 sb.append(LabelPrintingService.SPECIAL_MARK_LOCAL_SCHEDULE);
                 labelPrinting.setSpecialMark(sb.toString());
@@ -125,14 +125,14 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         if(crossPackageTag==null){
             log.error(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
-            if(StringHelper.isNotEmpty(labelPrinting.getPrepareSiteName())){
+            if(StringHelper.isEmpty(labelPrinting.getPrepareSiteName())){
                 labelPrinting.setPrepareSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
             }
             return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_BASE,LabelPrintingResponse.MESSAGE_EMPTY_BASE+"(crossPackageTag打印数据)"
                     ,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
         log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
-        StringBuilder specialMark = new StringBuilder(StringHelper.isNotEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
+        StringBuilder specialMark = new StringBuilder(StringHelper.isEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
         //航空标识
         if(crossPackageTag.getIsAirTransport()!=null && crossPackageTag.getIsAirTransport()==LabelPrintingService.AIR_TRANSPORT && request.isAirTransport()){
             specialMark.append(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
@@ -146,7 +146,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //目的站点
         if(request.getPreSeparateName()==null){
             labelPrinting.setPrepareSiteName(
-                    StringHelper.isNotEmpty(crossPackageTag.getPrintSiteName())?this.getBaseSite(labelPrinting.getPrepareSiteCode()):crossPackageTag.getPrintSiteName()
+                    StringHelper.isEmpty(crossPackageTag.getPrintSiteName())?this.getBaseSite(labelPrinting.getPrepareSiteCode()):crossPackageTag.getPrintSiteName()
             );
         }
 
@@ -185,7 +185,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         WChoice wchoice = new WChoice();
         wchoice.setQueryWaybillC(true);
         wchoice.setQueryWaybillE(true);
-        BaseEntity<BigWaybillDto> entity = waybillQueryWSProxy.getDataByChoice(request.getWaybillCode(), wchoice);
+        BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
         if(entity==null || entity.getData()==null){
             log.error(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
             return null;
@@ -232,10 +232,10 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         labelPrinting.setCustomerName(waybill.getReceiverName());
 
-        String contactTelephone = StringHelper.isNotEmpty(waybill.getReceiverTel())?null:waybill.getReceiverTel();
-        String contactMobilePhone = StringHelper.isNotEmpty(waybill.getReceiverMobile())?"":waybill.getReceiverMobile();
+        String contactTelephone = StringHelper.isEmpty(waybill.getReceiverTel())?null:waybill.getReceiverTel();
+        String contactMobilePhone = StringHelper.isEmpty(waybill.getReceiverMobile())?"":waybill.getReceiverMobile();
 
-        labelPrinting.setCustomerContacts( StringHelper.isNotEmpty(contactTelephone)?contactMobilePhone:(contactTelephone+","+contactMobilePhone));
+        labelPrinting.setCustomerContacts( StringHelper.isEmpty(contactTelephone)?contactMobilePhone:(contactTelephone+","+contactMobilePhone));
 
         //支付方式为在线支付，金额显示在线支付；货到付款，金额显示具体金额
         labelPrinting.setPackagePrice(waybill.getCodMoney());
@@ -246,7 +246,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         }
 
         //路区
-        labelPrinting.setRoad(StringHelper.isNotEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
+        labelPrinting.setRoad(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
 
         return labelPrinting;
     }

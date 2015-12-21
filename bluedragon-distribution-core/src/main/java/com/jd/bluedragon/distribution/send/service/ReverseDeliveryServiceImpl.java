@@ -1,5 +1,29 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jd.bluedragon.core.base.ThirdPartyLogisticManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -18,19 +42,23 @@ import com.jd.bluedragon.distribution.send.domain.whems.Ems4JingDongPortType;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillInfo;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.third.saf.OrderShipsServiceSaf;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CnUpperCaser;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
 import com.jd.etms.third.service.dto.ShipCarrierReturnDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import com.jd.postal.GetPrintDatasPortType;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
@@ -67,11 +95,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	private Ems4JingDongPortType whemsClientService;
 	
 	@Autowired
-	private OrderShipsServiceSaf orderShipsServiceSaf;
+	private ThirdPartyLogisticManager thirdPartyLogisticManager;
 	
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 	
 	@Autowired
 	private DeliveryService deliveryService;
@@ -202,7 +229,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return splitList.toArray(new List[0]);
     }
-	
+
 	public void batchProcessOrderInfo2DSF(List<SendM> tSendMList) {
 		
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
@@ -219,7 +246,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			toWhsmsServer(waybillList);
 		}
 	}
-	
+
 	public void batchProcesstoEmsServer(List<SendM> tSendMList) {
 		
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
@@ -236,7 +263,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			toEmsServer(waybillList);
 		}
 	}
-	
+
 	public void batchProcessOrderInfo3PL(List<SendM> tSendMList,Integer siteCode,String siteName) {
 		this.logger.info("batchProcessOrderInfo3PL推送数据");
 		List<SendDetail> slist = new ArrayList<SendDetail>();
@@ -250,7 +277,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 			List<String> waybillList = new CollectionHelper<String>()
 					.toList(waybillset);
-			dateTo3PlServer(waybillList,siteCode,siteName);
+			dataTo3PlServer(waybillList,siteCode,siteName);
 		}
 	}
 
@@ -258,9 +285,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	 * 调用3pl接口回传数据
 	 * @param waybillList
 	 */
-	private void dateTo3PlServer(List<String> waybillList ,Integer siteCode,String siteName) {
+	private void dataTo3PlServer(List<String> waybillList ,Integer siteCode,String siteName) {
 		if (waybillList != null && !waybillList.isEmpty()) {
-			this.logger.info("dateTo3PlServer处理任务数据"+ waybillList.size());
+			this.logger.info("dataTo3PlServer处理任务数据"+ waybillList.size());
 			List<String>[] splitListResultAl = splitList(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				List<OrderShipsReturnDto> returnDtoList = new ArrayList<OrderShipsReturnDto>();
@@ -274,7 +301,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					wChoice.setQueryWaybillC(true);
 					wChoice.setQueryWaybillE(true);
 					wChoice.setQueryWaybillM(true);
-					BaseEntity<BigWaybillDto> baseEntity = waybillQueryWSProxy.getDataByChoice(waybillCode,
+					BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(waybillCode,
 					        wChoice);
 					if (baseEntity != null && baseEntity.getData() != null) {
 						com.jd.etms.waybill.domain.Waybill waybillWS = baseEntity.getData().getWaybill();
@@ -295,7 +322,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					returnDto.setShipCarrierList(shipCarrierList);
 					returnDtoList.add(returnDto);
 				}
-				BaseResult<List<OrderShipsReturnDto>>  baseResult = orderShipsServiceSaf.insertOrderShips(returnDtoList, encryptData);
+				BaseResult<List<OrderShipsReturnDto>>  baseResult = thirdPartyLogisticManager.insertOrderShips(returnDtoList, encryptData);
 				if(baseResult!=null && baseResult.getCallState()==0){
 					this.logger.info("调用接口返回状态失败, 信息： " + baseResult.getMessage());
 				}
@@ -488,7 +515,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return new BigInteger(1, md.digest()).toString(16);
 	}
-	
+
 	public WhemsWaybillResponse getWhemsWaybill(List<String> wlist) {
 
 		WhemsWaybillResponse response = new WhemsWaybillResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
@@ -886,7 +913,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return list;
 	}
-	
+
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
 		
 		logger.error("JOS获取订单信息,订单号为" + waybillCode);

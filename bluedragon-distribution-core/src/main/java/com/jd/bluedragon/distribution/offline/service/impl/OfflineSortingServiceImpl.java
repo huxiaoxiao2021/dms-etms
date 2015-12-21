@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +28,10 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * 离线分拣service
@@ -52,8 +51,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	@Autowired
 	private SealBoxService sealBoxService;
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillPackageApi waybillPackageApi;
 	@Autowired
 	private InspectionDao inspectionDao;
 
@@ -73,7 +71,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		int n = 0;
 		if (StringUtils.isEmpty(request.getPackageCode())) {// 按照运单进行分拣
 			String waybillCode = request.getWaybillCode();
-			BaseEntity<List<DeliveryPackageD>> baseEntity = waybillQueryWSProxy
+			BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageApi
 					.getPackListByWaybillCode(waybillCode);
 			if (baseEntity != null) {
 				List<DeliveryPackageD> packageList = baseEntity.getData();

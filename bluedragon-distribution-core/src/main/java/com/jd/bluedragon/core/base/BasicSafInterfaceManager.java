@@ -1,8 +1,8 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.dto.BaseDmsStoreDto;
-
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossDmsBox;
+import com.jd.ql.basic.dto.BaseDmsStoreDto;
 
 public interface BasicSafInterfaceManager {
 
@@ -14,4 +14,8 @@ public interface BasicSafInterfaceManager {
 	 */
 	public abstract BaseResult<BaseDmsStoreDto> getDmsInfoByStoreInfo(Integer cky2, Integer orgId,
 			Integer storeId);
+	
+	public BaseResult<CrossDmsBox> getCrossDmsBoxByOriAndDes(Integer createSiteCode, Integer targetId);
+	
+	BaseResult<String> getCrossDmsBox(Integer createSiteCode, Integer receiveSiteCode);
 }

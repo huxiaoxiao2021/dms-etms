@@ -1,5 +1,18 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -19,22 +32,10 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author zhaohc
@@ -49,8 +50,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
 	private MessageClient messageClient;
@@ -263,7 +263,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
 			// wChoice.setQueryWaybillM(true);
-			BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryWSProxy
+			BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi
 					.getDataByChoice(waybillCode, wChoice);
 			if ((baseEntity != null) && (baseEntity.getData() != null)) {
 				popReceiveAbnormal = this.convWaybill(baseEntity.getData());
@@ -318,7 +318,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				.getSerialNumber())
 				+ "_" + String.valueOf(popAbnormalSend.getRetType()));
 	}
-	
+
 	private void pushMqToReceive(PopReceiveAbnormal popReceiveAbnormal,
 			PopAbnormalDetail popAbnormalDetail, Integer retType) {
 		

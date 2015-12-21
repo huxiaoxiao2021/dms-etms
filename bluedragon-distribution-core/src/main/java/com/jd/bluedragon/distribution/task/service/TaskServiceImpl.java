@@ -10,11 +10,8 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.task.dao.TaskDao;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -22,6 +19,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.perf4j.aop.Profiled;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -276,7 +274,7 @@ public class TaskServiceImpl implements TaskService {
     	
         return routerDao.addWithStatus(task);
     }
-    
+
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doError(Task task) {
         task.setStatus(Task.TASK_STATUS_PARSE_ERROR);
@@ -315,7 +313,7 @@ public class TaskServiceImpl implements TaskService {
     	
 		return routerDao.findTasks(task);
 	}
-	
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
 		Assert.notNull(type, "type must not be null");
@@ -337,7 +335,7 @@ public class TaskServiceImpl implements TaskService {
     	
 		return routerDao.findReverseSendTask(sendCode);
 	}
-	
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
@@ -481,7 +479,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
 		}
 	}
-	
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;    	
@@ -491,7 +489,7 @@ public class TaskServiceImpl implements TaskService {
     	
 		return routerDao.findTasksNumsByType(type, ownSign);
 	}
-	
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;    	

@@ -9,6 +9,19 @@ import com.jd.bluedragon.distribution.departure.dao.DepartureLogDao;
 import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
 import com.jd.bluedragon.distribution.departure.domain.DepartureLog;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.utils.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
+import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.receive.dao.ReceiveDao;
@@ -29,25 +42,11 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.wss.PickupTaskWS;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("receiveService")
 public class ReceiveServiceImpl implements ReceiveService {
@@ -88,7 +87,7 @@ public class ReceiveServiceImpl implements ReceiveService {
     private DeliveryService deliveryService;
 
 	@Autowired
-	private PickupTaskWS  pickupWebService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 
     @Autowired
     private DepartureService departureService;
@@ -136,7 +135,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 			if(BusinessHelper.isPickupCode(receive.getBoxCode())){
 				BaseEntity<PickupTask> pickup =null;
 				try {
-				pickup = this.pickupWebService.getDataBySfCode(receive.getBoxCode());
+				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive.getBoxCode());
 				} catch (Exception e) {
                     log.error("分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常["+receive.getBoxCode()+"]",e);
                 }

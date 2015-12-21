@@ -23,8 +23,13 @@
                   protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="10000" retries="0">
         <jsf:parameter key="token" value="${getOrderMsgServiceJsf.jsf.token}" hide="true"/>
     </jsf:consumer>
+    
+    <!-- 返单业务接口 王建磊 -->
+    <jsf:consumer id="grossReturnSafService" interface="com.jd.etms.receive.api.saf.GrossReturnSaf"
+                  protocol="jsf" alias="${finance.jsf.alias}" timeout="10000" retries="0">
+    </jsf:consumer>
 
-    <!-- erp接口 苗延超  -->
+    <!-- erp接口 苗延超 杨庭柱 -->
 
     <jsf:consumer id="bizServiceInterfaceJsf" interface="com.jd.etms.erp.ws.BizServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="0">
@@ -32,6 +37,10 @@
 
     <jsf:consumer id="supportServiceJsf"  interface="com.jd.etms.erp.ws.SupportServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="0">
+    </jsf:consumer>
+    
+    <jsf:consumer id="erpBizSafWS"  interface="com.jd.etms.erp.ws.ErpQuerySafWS"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="10000"  check="false" retries="0">
     </jsf:consumer>
 
 	<!-- 仓储dtc接口 乔洪佥 -->
@@ -45,9 +54,95 @@
         <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
     </jsf:consumer>
 
-    <!--调用预分拣获取预分拣站点信息-->
+    <!-- 预分拣接口,获得  订单-预分拣站点给自动分拣机用,为数据库复制备份 吴昊 -->
     <jsf:consumer id="preseparateOrderService"
                   interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
                   alias="${pre.order.alias}" protocol="jsf" timeout="${pre.order.timeout}" retries="2">
     </jsf:consumer>
+    
+    <!--调用dmsver分拣拦截验证服务-->
+    <jsf:consumer id="jsfSortingResourceService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
+                  alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="0">
+    </jsf:consumer>
+    
+    <!-- 青龙三方路由JSF接口 陈全峰 -->
+    <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
+                 protocol="jsf" alias="${3pl.jsf.alias}" timeout="10000" retries="0">
+	</jsf:consumer>
+	
+	<!-- 车辆电子围栏 VOS系统 李胜涛  -->
+	<jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
+                 protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
+	</jsf:consumer>
+	
+    <!-- 车辆管理系统 VMS 系统 李胜涛  -->
+	<jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
+                 protocol="jsf" alias="${vms.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
+	</jsf:consumer>
+	
+	<!--  出管接口 潘文华 于凯 -->
+	<jsf:consumer id="stockExportServiceJsf" interface="com.jd.stock.iwms.export.StockExportService" protocol="jsf" alias="${stock.jsf.alias}" timeout="3000" retries="2">
+        <jsf:parameter key="token" value="${stock.jsf.jdtoken}" hide="true"/>
+    </jsf:consumer>
+    
+    <!-- 运单系统接口 开始 -->
+    <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+	</jsf:consumer>
+	
+	<jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>			   
+    <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>			   
+    <jsf:consumer id="waybillSyncApiJsf" interface="com.jd.etms.waybill.api.WaybillSyncApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>			   
+    <jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>			   
+    <jsf:consumer id="waybillPickupTaskApiJsf" interface="com.jd.etms.waybill.api.WaybillPickupTaskApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>
+    <jsf:consumer id="waybillTraceApiJsf" interface="com.jd.etms.waybill.api.WaybillTraceApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>
+    <jsf:consumer id="waybillExtendApiJsf" interface="com.jd.etms.waybill.api.WaybillExtendApi" protocol="jsf" 
+    			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
+    </jsf:consumer>
+    
+    <!-- 运单系统接口 结束 -->
+     <!-- 基础资料系统接口 开始 -->
+    <!--获取站点，员工，机构等数据-->	
+	<jsf:consumer id="basicPrimaryWS" interface="com.jd.ql.basic.ws.BasicPrimaryWS" protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" >
+ 		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	</jsf:consumer>
+	
+	<!--basicPrimaryWS接口代理类，内有 获取全量站点、员工 方法-->
+	<bean id="basicPrimaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicPrimaryWSProxyImpl" >
+        <property name="basicPrimaryWS" ref="basicPrimaryWS"></property>
+     </bean>
+     
+     <!--获取省市县地址、商家、门店等数据-->
+     <jsf:consumer id="basicSecondaryWS" interface="com.jd.ql.basic.ws.BasicSecondaryWS" protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" > 
+		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	</jsf:consumer>
+	
+	<!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
+	<bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl" >
+        <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
+     </bean>
+     
+     <!--获取分拣路线、自提柜等数据-->
+	 <jsf:consumer id="basicMixedWS" interface="com.jd.ql.basic.ws.BasicMixedWS"  protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" > 
+		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	 </jsf:consumer>
+	 
+	 <!-- 获取航空配置数据 -->
+	 <jsf:consumer id="basicAirConfigWS" interface="com.jd.ql.basic.ws.BasicAirConfigWS" protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" >
+		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	 </jsf:consumer>
+	<!-- 基础资料系统接口 结束 -->
 </beans>

@@ -5,31 +5,21 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.OrderPackage;
 import com.jd.bluedragon.distribution.api.response.OrderResponse;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import jd.oom.client.clientbean.Order;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -43,7 +33,7 @@ public class OrderResource {
 	private static final String DEFAUIT_PACKAGE_WEIGHT = "0.0";
 
 	@Autowired
-	private BaseService baseService;
+	private BaseMajorManager baseMajorManager;
 
 	@Autowired
 	private WaybillService waybillService;
@@ -61,10 +51,10 @@ public class OrderResource {
 		}
 
 		Waybill waybill = waybillDto.getWaybill();
-		BaseStaffSiteOrgDto receiveSite = NumberHelper.isPositiveNumber(waybill.getOldSiteId()) ? this.baseService
-				.queryDmsBaseSiteByCode(String.valueOf(waybill.getOldSiteId())) : null;
-		BaseStaffSiteOrgDto transferSite = NumberHelper.isPositiveNumber(waybill.getTransferStationId()) ? this.baseService
-				.queryDmsBaseSiteByCode(String.valueOf(waybill.getTransferStationId())) : null;
+		BaseStaffSiteOrgDto receiveSite = NumberHelper.isPositiveNumber(waybill.getOldSiteId()) ? this.baseMajorManager
+				.getBaseSiteBySiteId(waybill.getOldSiteId()) : null;
+		BaseStaffSiteOrgDto transferSite = NumberHelper.isPositiveNumber(waybill.getTransferStationId()) ? this.baseMajorManager
+				.getBaseSiteBySiteId(waybill.getTransferStationId()) : null;
 
 		OrderResponse response = new OrderResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		response.setAddress(waybill.getReceiverAddress());

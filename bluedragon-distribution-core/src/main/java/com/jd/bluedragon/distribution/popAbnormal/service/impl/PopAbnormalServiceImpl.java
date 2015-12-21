@@ -1,5 +1,20 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -17,23 +32,13 @@ import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillPOPDto;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
-import com.jd.etms.waybill.wss.WaybillUpdateWS;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * @author zhaohc
@@ -51,11 +56,10 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	private BaseMajorManager baseMajorManager;
 
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
-	private WaybillUpdateWS waybillUpdateWS;
+	private WaybillUpdateApi waybillUpdateApi;
 
 	@Autowired
 	private PopAbnormalDao popAbnormalDao;
@@ -127,7 +131,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
 			// wChoice.setQueryWaybillM(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryWSProxy
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi
 					.getDataByChoice(orderCode, wChoice);
 			if ((baseEntity != null) && (baseEntity.getData() != null)) {
 				popAbnormal = this.convWaybill(baseEntity.getData());
@@ -280,7 +284,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		this.logger.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 开始，运单号："
 				+ popAbnormal.getWaybillCode());
 		startTime = System.currentTimeMillis();
-		BaseEntity<List<String>> baseEntity = waybillUpdateWS
+		BaseEntity<List<String>> baseEntity = waybillUpdateApi
 				.batchUpdataForPOP(convPopList(popAbnormal));
 		endTime = System.currentTimeMillis();
 		this.logger.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 结束参数：运单号【"

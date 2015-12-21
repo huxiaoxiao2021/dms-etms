@@ -3,9 +3,9 @@ package com.jd.bluedragon.distribution.rest.customerservice;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.CustomerServiceResponse;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.wss.PickupTaskWS;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class CustomerServiceResource {
     private static final String oldPrefix = "Q";
 
     @Autowired
-    private PickupTaskWS pickupWebService;
+    private WaybillPickupTaskApi waybillPickupTaskApi;
 
 
     @GET
@@ -42,7 +42,7 @@ public class CustomerServiceResource {
             Assert.isTrue(oldBillCode.startsWith(oldPrefix), "请输入正确的取件单号!");
             this.logger.info("oldBillCode's " + oldBillCode);
 
-            BaseEntity<PickupTask> task = this.pickupWebService.getPickTaskByPickCode(oldBillCode);
+            BaseEntity<PickupTask> task = this.waybillPickupTaskApi.getPickTaskByPickCode(oldBillCode);
             String surFaceCode="";
             PickupTask pickupTask = task.getData();
             surFaceCode = pickupTask.getSurfaceCode();

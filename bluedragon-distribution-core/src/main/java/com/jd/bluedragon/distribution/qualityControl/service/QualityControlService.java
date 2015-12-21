@@ -8,23 +8,20 @@ import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.basic.wss.BasicMajorWS;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.wss.WaybillAddWS;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,7 +43,7 @@ public class QualityControlService {
     private MessageClient messageClient;
 
     @Autowired
-    private WaybillAddWS waybillAddWS;
+	private WaybillTraceApi waybillTraceApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -116,7 +113,7 @@ public class QualityControlService {
             BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
             QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
             logger.warn("分拣中心异常页面发质控和全程跟踪开始。运单号" + qualityControl.getWaybillCode());
-            waybillAddWS.sendBdTrace(bdTraceDto);   // 推全程跟踪
+            waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
             messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
         }
     }

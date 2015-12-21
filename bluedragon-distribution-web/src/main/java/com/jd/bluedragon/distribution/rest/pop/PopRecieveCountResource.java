@@ -19,7 +19,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
-import com.jd.etms.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.BaseOrg;
 
 @Component
 @Path(Constants.REST_URL)

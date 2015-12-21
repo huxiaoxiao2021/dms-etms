@@ -13,15 +13,14 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
@@ -29,11 +28,9 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
@@ -41,13 +38,13 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.preseparate.saf.LabelPrintingWS;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.basic.dto.BaseCrossDto;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.preseparate.util.LableType;
 import com.jd.preseparate.util.OriginalType;
 import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.lablePrinting.LabelPrintingRequest;
 import com.jd.preseparate.vo.lablePrinting.LabelPrintingResponse;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.springframework.util.Assert;
 
 @Component
@@ -65,9 +62,6 @@ public class WaybillResource {
 	private PopPrintService popPrintService;
 
     @Autowired
-    private BaseMinorManager baseMinorManager;
-
-    @Autowired
     private AirTransportService airTransportService;
 
     @Autowired
@@ -75,9 +69,6 @@ public class WaybillResource {
 
 	@Autowired
 	private LabelPrinting labelPrinting;
-
-    @Autowired
-    private BaseService baseService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -97,8 +88,7 @@ public class WaybillResource {
 
 	/* 运单查询 */
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	private WaybillQueryApi waybillQueryApi;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -159,7 +149,7 @@ public class WaybillResource {
 
             this.setWaybillStatus(waybill);
 
-            this.setWaybillCrossCode(waybill, startDmsCode);
+            //this.setWaybillCrossCode(waybill, startDmsCode);
 
             // 设置航空标识
             this.setAirSigns(waybill, startDmsCode);
@@ -246,7 +236,7 @@ public class WaybillResource {
 
             this.setWaybillStatus(waybill);
 
-            this.setWaybillCrossCode(waybill, startDmsCode);
+            //this.setWaybillCrossCode(waybill, startDmsCode);
 
             this.setAirSigns(waybill, startDmsCode);
 
@@ -332,37 +322,6 @@ public class WaybillResource {
 			                SortingResponse.MESSAGE_29303);
 			}
 		}
-    }
-
-    private void setWaybillCrossCode(Waybill waybill, Integer startDmsCode) {
-    	if (waybill == null || StringUtils.isBlank(waybill.getWaybillCode())) {
-    		return;
-    	}
-    	String waybillCode = waybill.getWaybillCode();
-    	try {
-        	if (waybill.getSiteCode() != null && !waybill.getSiteCode().equals(0)) {
-        		this.logger.warn("运单号-初始分拣中心-目的站点【" + waybillCode + "-" + startDmsCode  + "-" + waybill.getSiteCode() + "】根据基础资料调用滑到信息开始");
-        		BaseCrossDto baseCrossDto = this.baseMinorManager.getComplexCrossDetail(String.valueOf(startDmsCode), String.valueOf(waybill.getSiteCode()));
-        		if (baseCrossDto != null) {
-        			waybill.setCrossCode(baseCrossDto.getStartDmsDkh());
-        			waybill.setTrolleyCode(baseCrossDto.getStartDmsLch());
-        			if (StringUtils.isNotBlank(baseCrossDto.getTargetDmsCode())) {
-        				waybill.setTargetDmsCode(Integer.parseInt(baseCrossDto.getTargetDmsCode()));
-        			}
-        			waybill.setTargetDmsName(baseCrossDto.getTargetDmsName());
-        			waybill.setTargetDmsDkh(baseCrossDto.getTargetDmsDkh());
-        			waybill.setTargetDmsLch(baseCrossDto.getTargetDmsLch());
-        			this.logger.warn("运单号-初始分拣中心-目的站点【" + waybillCode + "-" + startDmsCode  + "-" + waybill.getSiteCode() + "】根据基础资料调用滑到信息结束 返回有内容");
-        		} else {
-        			this.logger.warn("运单号-初始分拣中心-目的站点【" + waybillCode + "-" + startDmsCode  + "-" + waybill.getSiteCode() + "】根据基础资料调用滑到信息结束 返回对象为空");
-        		}
-        	} else {
-        		this.logger.warn("运单号-初始分拣中心-目的站点【" + waybillCode + "-" + startDmsCode  + "-" + waybill.getSiteCode() + "】根据基础资料调用滑到信息 站点信息为空或0");
-        	}
-
-        } catch (Throwable e) {
-        	this.logger.error("运单号-初始分拣中心-目的站点【" + waybillCode + "-" + startDmsCode  + "-" + waybill.getSiteCode() + "】根据基础资料调用滑到信息异常");
-        }
     }
 
     /**
@@ -770,7 +729,7 @@ public class WaybillResource {
         result.setCode(waybill.getCode());
         result.setMessage(waybill.getMessage());
         if(result.getCode()==200){
-            BaseStaffSiteOrgDto site= baseService.queryDmsBaseSiteByCode(waybill.getData().getBusiId().toString());
+            BaseStaffSiteOrgDto site= baseMajorManager.getBaseSiteBySiteId(waybill.getData().getBusiId());
             if(null!=site){
                 result.setData(site.getDmsSiteCode());
             }else {
@@ -898,7 +857,7 @@ public class WaybillResource {
 			wChoice.setQueryWaybillE(true);
 			wChoice.setQueryWaybillM(true);
 			wChoice.setQueryGoodList(true);
-			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryWSProxy.getDataByChoice(
+			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
 					waybillCode, wChoice);
 			if(null == baseEntity || baseEntity.getData() == null){
 				logger.error("根据运单号获取SKU信息接口为空");

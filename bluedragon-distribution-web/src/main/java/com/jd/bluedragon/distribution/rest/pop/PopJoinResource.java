@@ -29,13 +29,14 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 /**
  * @author zhaohc
@@ -65,8 +66,10 @@ public class PopJoinResource {
     private PopPrintService popPrintService;
 
     @Autowired
-    @Qualifier("waybillQueryWSProxy")
-    private WaybillQueryWS waybillQueryWSProxy;
+    private WaybillQueryApi waybillQueryApi;
+    
+    @Autowired
+    private WaybillTraceApi waybillTraceApi;
 
     @Autowired
     private BaseMinorManager baseMinorManager;
@@ -319,7 +322,7 @@ public class PopJoinResource {
             }
 
             try {
-                BaseEntity<List<PackageState>> baseEntity = this.waybillQueryWSProxy
+                BaseEntity<List<PackageState>> baseEntity = this.waybillTraceApi
                         .getPkStateByWCodes(waybillCodeList);
                 if (baseEntity != null && baseEntity.getData() != null) {
                     popPrints = convPopPrint(baseEntity.getData());
@@ -342,7 +345,7 @@ public class PopJoinResource {
                         wChoice.setQueryWaybillC(true);
                         wChoice.setQueryWaybillE(true);
                         wChoice.setQueryWaybillM(true);
-                        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryWSProxy
+                        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi
                                 .getDataByChoice(popPrint.getWaybillCode(), wChoice);
                         if (baseEntity != null && baseEntity.getData() != null) {
                             com.jd.etms.waybill.domain.Waybill waybillWS = baseEntity

@@ -9,15 +9,10 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.MainBranchSchedule;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 
 @Service("siteService")
@@ -28,11 +23,11 @@ public class SiteServiceImpl implements SiteService {
 	
 	@Autowired
 	private BaseMinorManager baseMinorManager;
-		
+
 	public BaseStaffSiteOrgDto getSite(Integer siteCode) {
 		return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
 	}
-	
+
 	public BaseTradeInfoDto getTrader(Integer siteCode) {
 		return this.baseMinorManager.getBaseTraderById(siteCode);
 	}

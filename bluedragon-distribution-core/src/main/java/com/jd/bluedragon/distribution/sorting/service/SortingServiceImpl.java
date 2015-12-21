@@ -1,5 +1,30 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
+import org.perf4j.aop.Profiled;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
@@ -7,7 +32,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
@@ -25,30 +49,13 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.wss.PickupTaskWS;
-import com.jd.etms.waybill.wss.WaybillQueryWS;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -75,14 +82,10 @@ public class SortingServiceImpl implements SortingService {
 	private OperationLogService operationLogService;
 
 	@Autowired
-	@Qualifier("waybillQueryWSProxy")
-	private WaybillQueryWS waybillQueryWSProxy;
+	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
-	private PickupTaskWS pickupWebService;
-
-	@Autowired
-	private BaseService siteWebService;
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 
 	@Autowired
 	private MessageProducer messageProducer;
@@ -283,7 +286,7 @@ public class SortingServiceImpl implements SortingService {
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
-			BaseEntity<BigWaybillDto> waybill = this.waybillQueryWSProxy.getWaybillAndPackByWaybillCode(sorting
+			BaseEntity<BigWaybillDto> waybill = this.waybillQueryApi.getWaybillAndPackByWaybillCode(sorting
 					.getWaybillCode());
 			if (waybill != null && waybill.getData() != null) {
 				List<DeliveryPackageD> packages = waybill.getData().getPackageList();
@@ -433,8 +436,8 @@ public class SortingServiceImpl implements SortingService {
 		BaseStaffSiteOrgDto createSite = null;
 		BaseStaffSiteOrgDto receiveSite = null;
 		try {
-			createSite = this.siteWebService.queryDmsBaseSiteByCode(String.valueOf(createSiteCode));
-			receiveSite = this.siteWebService.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
+			createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+			receiveSite = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());
 		}
@@ -707,7 +710,7 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private BaseEntity<PickupTask> getPickup(String packageCode) {
-		BaseEntity<PickupTask> pickup = this.pickupWebService.getDataBySfCode(packageCode);
+		BaseEntity<PickupTask> pickup = this.waybillPickupTaskApi.getDataBySfCode(packageCode);
 		if (pickup != null) {
 			this.logger.info("取件单号码为：" + pickup.getData().getPickupCode());
 			this.logger.info("取件单对应运单号码为：" + pickup.getData().getOldWaybillCode());

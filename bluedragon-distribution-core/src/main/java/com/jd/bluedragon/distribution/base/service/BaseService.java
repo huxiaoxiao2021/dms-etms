@@ -8,8 +8,10 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.etms.basic.domain.*;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.domain.Assort;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public interface BaseService {
 
@@ -29,7 +31,6 @@ public interface BaseService {
 	 *
 	 * @return BaseDataDict[]
 	 */
-	List<BaseDataDict> getBaseDataDictListByDate(String date);
 
 	/**
 	 * 根据司机编号查询司机
@@ -41,36 +42,11 @@ public interface BaseService {
 	BaseStaffSiteOrgDto queryDriverByDriverCode(Integer drivercode);
 
 	/**
-	 * 根据车辆编号查询车辆信息
-	 *
-	 * @param vehiclecode
-	 *            车辆编号
-	 * @return BaseVehicle 车辆信息列表
-	 */
-	BaseVehicle queryVehicleByVehicleCode(String vehiclecode);
-
-	/**
-	 * 根据车辆条码查询车辆信息
-	 *
-	 * @param vehiclecode
-	 *            车辆编号
-	 * @return BaseVehicle 车辆信息列表
-	 */
-	BaseVehicle queryVehicleByBarCode(String barcode);
-
-	/**
 	 * 获得所有的机构数据
 	 *
 	 * @return List<BaseOrg> @
 	 */
 	List<BaseOrg> getAllOrg();
-
-	/**
-	 * 根据站点编号或DMSCODE获得站点信息
-	 *
-	 * @return BaseStaffSiteOrgDto @
-	 */
-	BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String code);
 
 	/**
 	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务
@@ -118,7 +94,6 @@ public interface BaseService {
 	 *            机构ID
 	 * @return List 车辆信息列表
 	 */
-	BaseVehicle[] queryVehicleByOrgId(Integer orgid);
 
 	/**
 	 * 根据机构ID查询机构下的司机
@@ -205,8 +180,6 @@ public interface BaseService {
 	 * @return ReverseSendWms
 	 */
 
-	public List<BaseSite> getDmsSitBySiteType(Integer siteType);
-
 	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer staffId);
 
     public BaseStaffSiteOrgDto getCachedStaffByStaffId(Integer staffId);
@@ -246,4 +219,6 @@ public interface BaseService {
 	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(Integer createCode,Integer receiveCode);
 
     public Assort getAssortById(Integer assortId);
+
+	BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String siteCode);
 }
