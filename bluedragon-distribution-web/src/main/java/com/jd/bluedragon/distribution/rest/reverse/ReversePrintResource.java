@@ -84,17 +84,18 @@ public class ReversePrintResource {
      */
     @POST
     @Path("reverse/exchange/ownWaybill")
-    public InvokeResult<String> exchangeOwnWaybill(
+    public InvokeResult<Boolean> exchangeOwnWaybill(
             @FormParam("oldWaybillCode")String oldWaybillCode,
             @FormParam("userId")Integer userId,
             @FormParam("userRealName")String userRealName,
             @FormParam("siteId")Integer siteId,
             @FormParam("siteName")String siteName
     ){
-        InvokeResult<String> result=new InvokeResult<String>();
+        InvokeResult<Boolean> result;
         try{
-
+            result= reversePrintService.exchangeOwnWaybill(oldWaybillCode,userId,userRealName,siteId,siteName);
         }catch (Exception e){
+            result=new InvokeResult<Boolean>();
             logger.error("自营逆向换单",e);
             result.error(e);
         }

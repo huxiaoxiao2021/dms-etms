@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
+import javax.ws.rs.FormParam;
 
 
 /**
@@ -21,6 +23,16 @@ public interface ReversePrintService {
      * @param oldWaybillCode 原单号
      * @return
      */
-    String getNewWaybillCode(String oldWaybillCode);
+    InvokeResult<String> getNewWaybillCode(String oldWaybillCode);
 
+    /**
+     * 执行逆向换单
+     * @param oldWaybillCode    旧运单号
+     * @param userId            操作人ID
+     * @param userRealName      操作人真实姓名
+     * @param siteId            操作站点ID
+     * @param siteName          操作站点名称
+     * @return
+     */
+    InvokeResult<Boolean> exchangeOwnWaybill(String oldWaybillCode,Integer userId, String userRealName,Integer siteId,String siteName);
 }
