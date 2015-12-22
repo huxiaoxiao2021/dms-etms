@@ -64,7 +64,6 @@ public class WaybillResource {
     @Autowired
     private AirTransportService airTransportService;
 
-    @Autowired
     private LabelPrintingWS labelPrintingWS;
 
 	@Autowired

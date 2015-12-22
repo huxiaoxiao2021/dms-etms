@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.rest.quickProduce;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
@@ -41,7 +39,6 @@ public class QuickProduceResource {
     @Autowired
     private AirTransportService airTransportService;
 
-    @Autowired
     private LabelPrintingWS labelPrintingWS;
 
 
