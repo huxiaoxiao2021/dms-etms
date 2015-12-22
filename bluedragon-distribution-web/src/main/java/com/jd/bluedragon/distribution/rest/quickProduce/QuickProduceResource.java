@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.preseparate.saf.LabelPrintingWS;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.preseparate.util.LableType;
@@ -39,7 +40,8 @@ public class QuickProduceResource {
     @Autowired
     private AirTransportService airTransportService;
 
-    private LabelPrintingWS labelPrintingWS;
+    @Autowired
+    private LabelPrinting labelPrinting;
 
 
     /**
@@ -84,7 +86,7 @@ public class QuickProduceResource {
                     return new Waybill();
                 }
                 //调用预分拣接口获得基础资料信息
-                this.setBasicMessage(waybill, startDmsCode, localSchedule, paperless);
+                this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,1);//1：分拣中心； 2：站点；3：商家
             }
 
             this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
@@ -98,13 +100,15 @@ public class QuickProduceResource {
         }
     }
 
+
     @SuppressWarnings("unused")
-    private void setBasicMessage(Waybill waybill, Integer startDmsCode ,Integer localSchedule,Integer paperless) {
+    private void setBasicMessageByDistribution(Waybill waybill, Integer startDmsCode ,Integer localSchedule,Integer paperless,Integer startSiteType) {
         try {
-            LabelPrintingRequest request = new LabelPrintingRequest();
-            BaseResponseIncidental<LabelPrintingResponse> response = new BaseResponseIncidental<LabelPrintingResponse>();
+            com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest request = new com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest();
+            com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental<com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse> response = new com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental<com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse>();
             request.setWaybillCode(waybill.getWaybillCode());
             request.setDmsCode(startDmsCode);
+            request.setStartSiteType(startSiteType);
             if (localSchedule!=null && !localSchedule.equals(0))
                 request.setLocalSchedule(1);
             else
@@ -134,7 +138,7 @@ public class QuickProduceResource {
             else
                 request.setLabelType(LableType.PAPERLESS.getLabelPaper());
 
-            response = labelPrintingWS.dmsPrint(request);
+            response = labelPrinting.dmsPrint(request);
 
             if(response==null || response.getData()==null){
                 //
@@ -143,7 +147,7 @@ public class QuickProduceResource {
                 return;
             }
 
-            LabelPrintingResponse labelPrinting = response.getData();
+            com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse labelPrinting = response.getData();
             if(labelPrinting==null){
                 this.logger.error("根据运单号【" + waybill.getWaybillCode()
                         + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
@@ -182,6 +186,7 @@ public class QuickProduceResource {
                     + "】 获取预分拣的包裹打印信息接口 --> 异常", ee);
         }
     }
+
 
     private boolean checkAireSigns(Waybill waybill) {
         // 设置航空标识
