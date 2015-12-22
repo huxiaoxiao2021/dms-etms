@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.client.JsonUtil;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillArgs;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillResult;
 import com.jd.bluedragon.distribution.waybill.service.FWaybillExchangeService;
-import com.jd.service.common.json.JSON;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

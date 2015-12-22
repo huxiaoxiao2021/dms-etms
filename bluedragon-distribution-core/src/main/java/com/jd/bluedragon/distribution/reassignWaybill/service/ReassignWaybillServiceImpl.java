@@ -1,17 +1,16 @@
 package com.jd.bluedragon.distribution.reassignWaybill.service;
 
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 @Service("reassignWaybill")
 public class ReassignWaybillServiceImpl implements ReassignWaybillService {
@@ -21,7 +20,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Autowired
 	private CenConfirmService cenConfirmService;
 
-	@Profiled(tag = "PackTagPrintService.add")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean add(ReassignWaybill packTagPrint) {
 		Assert.notNull(packTagPrint, "packTagPrint must not be null");
@@ -40,7 +38,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	}
 
     @Override
-    @Profiled(tag = "ReassignWaybillService.packLastScheduleSite")
+    @JProfiler(jKey= "DMSWEB.ReassignWaybillService.packLastScheduleSite")
     @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
     public ReassignWaybill queryByPackageCode(String packageCode) {
         Assert.notNull(packageCode, "packageCode must not be null");

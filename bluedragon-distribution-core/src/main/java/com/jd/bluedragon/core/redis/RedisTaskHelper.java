@@ -1,18 +1,18 @@
 package com.jd.bluedragon.core.redis;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-
 import com.jd.cachecloud.driver.jedis.ShardedXCommands;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.CacheEntry;
 import com.jd.tbschedule.redis.QueueCacheEntry;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 公共数据类
@@ -78,7 +78,7 @@ public class RedisTaskHelper {
 	 * @param queueKeyInfo
 	 * @return 对应的队列或者null
 	 */
-	@Profiled(tag = "RedisTaskHelper.getQueueMap")
+    @JProfiler(jKey = "RedisTaskHelper.getQueueMap", mState = {JProEnum.TP})
 	public Map<String, ScheduleQueue> getQueueMap(QueueKeyInfo queueKeyInfo) {
 		if(redisClient==null){
 			log.error("RedisTaskHelper.redisClient 为空, 请检查redis服务器是否存活、系统启动有无异常!");

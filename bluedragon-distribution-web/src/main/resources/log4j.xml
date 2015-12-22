@@ -29,12 +29,7 @@
 		</layout>
 	</appender>
 	
-	<appender name="CoalescingStatistics"
-              class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
-        <param name="TimeSlice" value="1800000"/>
-        <appender-ref ref="fileAppender"/>
-    </appender>
-	
+
 	<appender name="fileAppender" class="org.apache.log4j.FileAppender">
         <param name="File" value="d:/logs/dms.web/perfStats.log"/>
         <layout class="org.apache.log4j.PatternLayout">
@@ -90,10 +85,7 @@
 		<appender-ref ref="console" />
 	</category>
 	
-	<category name="org.perf4j.TimingLogger">
-		<priority value="INFO" />
-	</category>
-	
+
 	<logger name="com.jd.dbs.transaction">
 		<level value="DEBUG" />
 	</logger>
@@ -128,7 +120,6 @@
 		<priority value="INFO" />
 		<appender-ref ref="console" />
 		<appender-ref ref="bluedragon" />
-		<appender-ref ref="CoalescingStatistics" />
 	</root>
 
 </log4j:configuration>

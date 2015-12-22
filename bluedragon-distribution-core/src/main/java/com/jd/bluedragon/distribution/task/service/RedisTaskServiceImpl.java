@@ -1,20 +1,18 @@
 package com.jd.bluedragon.distribution.task.service;
 
-import java.util.Date;
-
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskModeAware;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service("redisTaskService")
 public class RedisTaskServiceImpl implements RedisTaskService {
@@ -35,7 +33,6 @@ public class RedisTaskServiceImpl implements RedisTaskService {
 
     private static final String REDIS_ERROR_UMP_ALERT_KEY = "Bluedragon_dms_center.redis.write.QueueNotExist";
     
-	@Profiled(tag = "RedisTaskService.add")
 	public boolean add(TaskModeAware task) {
 		
 		try {

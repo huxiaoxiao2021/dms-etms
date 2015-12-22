@@ -1,19 +1,17 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.distribution.reverse.dao.PickWareDao;
+import com.jd.bluedragon.distribution.reverse.domain.PickWare;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
-import com.jd.bluedragon.distribution.reverse.dao.PickWareDao;
-import com.jd.bluedragon.distribution.reverse.domain.PickWare;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.StringHelper;
 @Service("pickWareService")
 public class PickWareServiceImpl implements PickWareService {
 
@@ -21,7 +19,6 @@ public class PickWareServiceImpl implements PickWareService {
 	private PickWareDao pickWareDao;
 	private final Log logger = LogFactory.getLog(this.getClass());
 	 
-	@Profiled(tag = "PickWareService.add")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(PickWare pickWare) {
 		this.initFingerPrint(pickWare);
@@ -54,7 +51,6 @@ public class PickWareServiceImpl implements PickWareService {
 		return Boolean.FALSE;
 	}
 	
-	@Profiled(tag = "PickWareService.findByFingerprint")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findByFingerprint(PickWare pickWare) {
 		Assert.notNull(pickWare.getFingerprint(), "fingerprint must not be null");

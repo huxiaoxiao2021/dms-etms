@@ -21,7 +21,6 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,17 +34,7 @@ import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.product.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.InOrder;
-import com.jd.bluedragon.distribution.reverse.domain.MessageResult;
-import com.jd.bluedragon.distribution.reverse.domain.OrderDetail;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
-import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -66,8 +55,28 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -101,7 +110,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	private BaseService tBaseService;
 	
@@ -175,7 +184,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 				+ ASION_NO_ONE_SITE_CODE_LIST);
 	}
 
-	@Profiled(tag = "ReverseSendService.findSendwaybillMessage")
+	@JProfiler(jKey= "DMSWORKER.ReverseSendService.findSendwaybillMessage", mState = {JProEnum.TP})
 	public boolean findSendwaybillMessage(Task task) throws Exception {
 		if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null) {
 			return true;
@@ -1192,10 +1201,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	    	String storeName=null;
 	    	
 	    	//仓储收货回传
-    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(createSiteCode); 
+    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
     		dmsId = dto.getSiteCode().toString();
     		dmsName = dto.getSiteName();
-    		BaseStaffSiteOrgDto dto1 = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode); 
+    		BaseStaffSiteOrgDto dto1 = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
     		storeId = dto1.getSiteCode().toString();
     		storeName = dto1.getSiteName();
 	    	

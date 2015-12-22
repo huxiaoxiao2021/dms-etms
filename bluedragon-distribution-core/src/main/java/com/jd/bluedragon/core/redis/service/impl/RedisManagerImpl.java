@@ -1,17 +1,5 @@
 package com.jd.bluedragon.core.redis.service.impl;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -22,6 +10,12 @@ import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.utils.JsonUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service("redisManager")
 public class RedisManagerImpl implements RedisManager {
@@ -48,14 +42,12 @@ public class RedisManagerImpl implements RedisManager {
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.lpush", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
-	@Profiled(tag = "RedisManager.lpush")
 	public Long lpush(String key, String body) {
 		return redisClient.lpush(key, body);
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.rpush", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
-	@Profiled(tag = "RedisManager.rpush")
 	public Long rpush(String key, String body) {
 		return redisClient.rpush(key, body);
 	}

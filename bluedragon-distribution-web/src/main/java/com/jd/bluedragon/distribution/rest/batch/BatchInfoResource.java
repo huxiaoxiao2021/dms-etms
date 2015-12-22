@@ -5,25 +5,20 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BatchInfoRequest;
 import com.jd.bluedragon.distribution.api.response.BatchInfoResponse;
-import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
 import com.jd.bluedragon.distribution.batch.service.BatchInfoService;
-import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.utils.DateHelper;
-
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,7 +85,6 @@ public class BatchInfoResource {
 
     @GET
     @Path("/batch/findBatchInfo/{createSiteCode}")
-    @Profiled(tag = "BatchInfoResource.findBatchInfo")
     public BatchInfoResponse findBatchInfo(@PathParam("createSiteCode") Integer createSiteCode) {
         Assert.notNull(createSiteCode, "createSiteCode must not be null");
         BatchInfo batchInfo = new BatchInfo();
@@ -101,7 +95,7 @@ public class BatchInfoResource {
 
     @GET
     @Path("/batch/findAllBatchInfo/{createSiteCode}/{createTime}/{updateTime}")
-    @Profiled(tag = "BatchInfoResource.findAllBatchInfo")
+    @JProfiler(jKey = "DMSWEB.BatchInfoResource.findAllBatchInfo",mState = {JProEnum.TP})
     public BatchInfoResponse findAllBatchInfo(@PathParam("createSiteCode") Integer createSiteCode,
                                               @PathParam("createTime") String createTime,
                                               @PathParam("updateTime") String updateTime) {

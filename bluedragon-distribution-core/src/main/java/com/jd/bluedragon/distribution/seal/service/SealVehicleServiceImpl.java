@@ -1,23 +1,5 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -34,6 +16,18 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.*;
 
 @Service("sealVehicleService")
 public class SealVehicleServiceImpl implements SealVehicleService {
@@ -41,12 +35,12 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	private static final int SEAL_CODE_SAME = 10; 
-	private static final int SEAL_CODE_UNSAME = 20; 
+	private static final int SEAL_CODE_UNSAME = 20;
 	
-	private static final Integer states = 1; 
-	
+	private static final Integer states = 1;
+
 	private static final Integer YN = 2; //撤销封车
-	
+
 	@Autowired
 	private SealVehicleDao sealVehicleDao;
 	
@@ -58,7 +52,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	
 	@Autowired
     private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
     private BatchSendService  batchSendService;
 
@@ -79,7 +73,6 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 //	}
 
 	@Override
-	@Profiled(tag = "SealVehicleService.findBySealCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public SealVehicle findBySealCode(String sealCode) {
 		Assert.notNull(sealCode, "sealCode must not be null");
@@ -116,7 +109,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 //	}
 
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.addSealVehicle")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.addSealVehicle",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addSealVehicle(SealVehicle sealVehicle) {
 		// 增加封车信息：先根据封车号、有效性查询封车信息是否存在
@@ -192,7 +185,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	 * 
 	 */
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.addSealVehicle")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.addSealVehiclel2",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addSealVehicle2(SealVehicle sealVehicle) {
 		// 增加封车信息：先根据封车号、有效性查询封车信息是否存在
@@ -289,7 +282,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.updateSealVehicle")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.updateSealVehicle", mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateSealVehicle(SealVehicle sealVehicle) {
 		// 增加解封车信息：先根据封车号、车牌号、创建站点（此参数是否存在）、有效性更新封车信息
@@ -347,7 +340,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.updateSealVehicle2")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.updateSealVehicle2",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateSealVehicle2(SealVehicle sealVehicle) {
 		// 增加解封车信息：先根据封车号、车牌号、创建站点（此参数是否存在）、有效性更新封车信息
@@ -472,7 +465,6 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 	
 	@Override
-	@Profiled(tag = "SealVehicleService.findBySendCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SealVehicle> findBySendCode(String sendCode) {
 		Assert.notNull(sendCode, "sendCode must not be null");
@@ -735,12 +727,12 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		//撤销增加yn=2的值
 		sealVehicle.setYn(YN);
 		this.sealVehicleDao.add2(SealVehicleDao.namespace, sealVehicle);
-		
+
 		//发送全程跟踪
 		taskService.add(this.toCancelTask(sealVehicle));
 		return new SealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 	}
-	
+
 	private Task toCancelTask(SealVehicle sealVehicle) {
 		WaybillStatus waybillStatus = new WaybillStatus();
 		waybillStatus.setOperatorId(sealVehicle.getCreateUserCode());
@@ -753,7 +745,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
         if(bDto != null ){
         	waybillStatus.setCreateSiteName(bDto.getSiteName());
         }
-        
+
 		Task task = new Task();
 		task.setTableName(Task.TABLE_NAME_POP);
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
@@ -764,5 +756,5 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		return task;
 	}
-	
+
 }

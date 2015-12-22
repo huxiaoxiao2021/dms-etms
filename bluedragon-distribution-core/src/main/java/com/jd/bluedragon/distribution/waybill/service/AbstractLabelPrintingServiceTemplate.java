@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -7,6 +8,8 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -17,9 +20,13 @@ import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
+import com.jd.fce.dos.service.contract.OrderMarkingService;
+import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
+import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
@@ -38,6 +45,9 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private OrderMarkingService orderMarkingService;
 
     /**
      * 初始化基础资料对象
@@ -263,6 +273,45 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //路区
         labelPrinting.setRoad(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
 
+        try {
+            if (request!=null&&request.getStartSiteType()!=null
+                    &&waybill!=null&&StringHelper.isNotEmpty(request.getWaybillCode())
+                    && SerialRuleUtil.isMatchReceiveWaybillNo(request.getWaybillCode())
+                    &&(waybill.getWaybillType()!=Constants.ORDER_TYPE_B&& NumberHelper.isNumber(waybill.getVendorId()))) {
+
+                log.warn("调用promise获取外单时效开始");
+
+                OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
+                if (waybill.getWaybillType() == Constants.ORDER_TYPE_B)
+                    orderMarkingRequest.setOrderId(0);//纯外单订单号设置为0
+                else
+                    orderMarkingRequest.setOrderId(Long.parseLong(waybill.getVendorId()));//订单号
+                orderMarkingRequest.setWaybillCode(waybill.getWaybillCode());//运单号
+                orderMarkingRequest.setOpeSiteId(request.dmsCode.toString());//分拣中心ID
+                orderMarkingRequest.setOpeSiteName(request.dmsName);//分拣中心名称
+
+                orderMarkingRequest.setOpesiteType(request.getStartSiteType() == 64 ? 1 : request.getStartSiteType() == 4 ? 2 : 3); //1：分拣中心； 2：站点；3：商家
+                orderMarkingRequest.setSource("11");//分拣中心环节 11
+                orderMarkingRequest.setProvinceId(waybill.getProvinceId()==null?0:waybill.getProvinceId());//省
+                orderMarkingRequest.setCityId(waybill.getCityId()==null?0:waybill.getCityId());//市
+                orderMarkingRequest.setCountyId(waybill.getCountryId()==null?0:waybill.getCountryId());//县
+                orderMarkingRequest.setTownId(waybill.getTownId()==null?0:waybill.getTownId());//镇
+                orderMarkingRequest.setCurrentDate(new Date());//当前时间
+//                }
+                log.warn("调用promise获取外单时效传入参数" + orderMarkingRequest == null ? "" : JsonHelper.toJson(orderMarkingRequest));
+                OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
+                if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
+                    labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
+                    labelPrinting.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
+                } else {
+                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse));
+                }
+                log.warn("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse));
+
+            }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
+        }catch (Exception e){
+            log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)));
+        }
         return labelPrinting;
     }
 

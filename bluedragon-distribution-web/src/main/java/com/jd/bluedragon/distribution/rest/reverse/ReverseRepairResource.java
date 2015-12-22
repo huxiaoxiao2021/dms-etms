@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
-import java.util.Date;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -22,6 +9,12 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Date;
 
 @Component
 @Path(Constants.REST_URL)
@@ -41,7 +34,6 @@ public class ReverseRepairResource {
 
 	@GET
 	@Path("/reverse/repair/sendcode")
-	@Profiled(tag = "ReverseRepairResource.repairSendCode")
 	public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
 		if (StringHelper.isEmpty(sendCode)) {
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
@@ -80,7 +72,6 @@ public class ReverseRepairResource {
 
 	@GET
 	@Path("/reverse/repair/waybill")
-	@Profiled(tag = "ReverseRepairResource.repairWaybill")
 	public JdResponse repairWaybill(@QueryParam("sendCode") String sendCode,
 			@QueryParam("waybillCode") String waybillCode) {
 		if (!Strings.isNullOrEmpty(sendCode) && !Strings.isNullOrEmpty(waybillCode)) {

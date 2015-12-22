@@ -2,8 +2,9 @@ package com.jd.bluedragon.core.message.producer;
 
 import java.util.Date;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class MessageProducer {
 	@Autowired
 	private MessageClient messageClient;
 
-	@Profiled(tag = "MessageProducer.send")
+    @JProfiler(jKey = "MessageProducer.send", mState = {JProEnum.TP})
 	public void send(String key, String message, String index) {
 		long begin_ms = System.currentTimeMillis();
 

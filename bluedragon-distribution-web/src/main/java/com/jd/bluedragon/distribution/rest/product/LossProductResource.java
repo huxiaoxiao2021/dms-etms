@@ -1,22 +1,5 @@
 package com.jd.bluedragon.distribution.rest.product;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.core.message.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
@@ -25,6 +8,15 @@ import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.etms.message.Message;
 import com.jd.etms.message.consumer.MessageDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Path("/services")
@@ -44,7 +36,6 @@ public class LossProductResource {
 	@POST
 	@Deprecated
 	@Path("/order/loss")
-	@Profiled(tag = "LossProductResource.addLossOrders")
 	public JdResponse add(MessageDto message) {
 		Message newMessage = new Message();
 		newMessage.setContent(message.getContent());
@@ -55,7 +46,6 @@ public class LossProductResource {
 	
 	@POST
 	@Path("/lossProduct/add")
-	@Profiled(tag = "LossProductResource.addLossOrders")
 	public JdResponse add(Message message) {
 		this.lossOrderConsumer.consume(message);
 
@@ -64,7 +54,6 @@ public class LossProductResource {
 
 	@GET
 	@Path("/order/product/quantity/{orderId}")
-	@Profiled(tag = "LossProductResource.getOrderProductQuantity")
 	public LossProductResponse getOrderProductQuantity(@PathParam("orderId") Long orderId) {
 		if (orderId == null) {
 			return paramError();
@@ -82,7 +71,6 @@ public class LossProductResource {
 
 	@GET
 	@Path("/order/loss/products/{orderId}")
-	@Profiled(tag = "LossProductResource.getLossOrderProducts")
 	public LossProductResponse getLossOrderProducts(@PathParam("orderId") Long orderId) {
 		if (orderId == null) {
 			return paramError();

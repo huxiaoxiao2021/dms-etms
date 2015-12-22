@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -36,6 +23,17 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc
@@ -78,7 +76,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 
 	@Override
-	@Profiled(tag = "PopReceiveAbnormalServiceImpl.findList")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopReceiveAbnormal> findList(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
@@ -254,7 +251,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 
 	@Override
-	@Profiled(tag = "PopReceiveAbnormalServiceImpl.getWaybillByWaybillCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public PopReceiveAbnormal getWaybillByWaybillCode(String waybillCode) {
 		PopReceiveAbnormal popReceiveAbnormal = null;
@@ -286,7 +282,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 	
 	@Override
-	@Profiled(tag = "PopReceiveAbnormalServiceImpl.delete")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int delete(Long abnormalId) {
 		if (abnormalId == null || abnormalId <= 0) {
@@ -295,7 +290,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		return this.popReceiveAbnormalDao.delete(abnormalId);
 	}
 
-	@Profiled(tag = "popReceiveAbnormalService.pushMqToPop")
 	private void pushMqToPop(PopReceiveAbnormal popReceiveAbnormal,
 			PopAbnormalDetail popAbnormalDetail, Integer retType) {
 
@@ -322,8 +316,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				.getSerialNumber())
 				+ "_" + String.valueOf(popAbnormalSend.getRetType()));
 	}
-	
-	@Profiled(tag = "popReceiveAbnormalService.pushMqToReceive")
+
 	private void pushMqToReceive(PopReceiveAbnormal popReceiveAbnormal,
 			PopAbnormalDetail popAbnormalDetail, Integer retType) {
 		

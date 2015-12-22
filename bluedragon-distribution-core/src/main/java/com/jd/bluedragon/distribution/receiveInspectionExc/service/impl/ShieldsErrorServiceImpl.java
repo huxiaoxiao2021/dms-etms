@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.receiveInspectionExc.service.impl;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.request.ShieldsBoxErrorRequest;
 import com.jd.bluedragon.distribution.api.request.ShieldsCarErrorRequest;
 import com.jd.bluedragon.distribution.receiveInspectionExc.dao.ShieldsErrorDao;
@@ -18,6 +8,14 @@ import com.jd.bluedragon.distribution.receiveInspectionExc.service.ShieldsErrorS
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service("shieldsErrorService")
 public class ShieldsErrorServiceImpl implements ShieldsErrorService {
@@ -31,7 +29,6 @@ public class ShieldsErrorServiceImpl implements ShieldsErrorService {
 	 * @param shieldsErrors
 	 * @return
 	 */
-	@Profiled(tag = "shieldsErrorService.doAddShieldsError")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doAddShieldsError(ShieldsError shieldsError) {
 		return shieldsErrorDao.add(ShieldsErrorDao.namespace, shieldsError) > 0;

@@ -15,7 +15,6 @@ import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,14 +49,12 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
 	@Autowired
 	BaseMinorManager baseMinorManager;
 
-    @Profiled(tag = "BoxService.addBox")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.add(BoxDao.namespace, box);
     }
 
-    @Profiled(tag = "BoxService.batchAdd")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public List<Box> batchAdd(Box param) {
     	List<Box> boxes = Lists.newArrayList();
@@ -170,13 +167,11 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
                 + box.getReceiveSiteCode();
     }
 
-    @Profiled(tag = "BoxService.updateStatusByCodes")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateStatusByCodes(Box box) {
         return this.boxDao.updateStatusByCodes(box);
     }
 
-    @Profiled(tag = "BoxService.findBoxByCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");
@@ -211,28 +206,24 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
 		return this.boxDao.findBoxByCode(code);
 	}
 
-    @Profiled(tag = "BoxService.findBoxByBoxCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Box findBoxByBoxCode(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxByBoxCode(box);
     }
 
-    @Profiled(tag = "BoxService.findBoxesBySite")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Box> findBoxesBySite(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxesBySite(box);
     }
 
-    @Profiled(tag = "BoxService.findBoxes")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Box> findBoxes(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxes(box);
     }
 
-    @Profiled(tag = "BoxService.print")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer print(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");
@@ -241,7 +232,6 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
         return this.boxDao.print(box);
     }
 
-    @Profiled(tag = "BoxService.reprint")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer reprint(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");

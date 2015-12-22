@@ -114,12 +114,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.perf4j</groupId>
-			<artifactId>perf4j</artifactId>
-			<version>0.9.16</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>${org.springframework.version}</version>
@@ -342,12 +336,6 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>com.jd</groupId>
-			<artifactId>saf</artifactId>
-			<version>1.0.9</version>
-		</dependency>
-		
-		<dependency>
             <groupId>com.jd.ql.basic</groupId>
             <artifactId>ql-basic-client</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -530,6 +518,12 @@
 			<artifactId>dos-area-contract</artifactId>
 			<version>0.0.9-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>com.jd.dos</groupId>
+			<artifactId>dos-ordermarking-contract</artifactId>
+			<version>0.2.15-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
             <groupId>com.jd.staig</groupId>
             <artifactId>receiver-rpc</artifactId>

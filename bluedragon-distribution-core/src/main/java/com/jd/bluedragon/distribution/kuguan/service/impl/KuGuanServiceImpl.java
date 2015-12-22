@@ -1,25 +1,19 @@
 package com.jd.bluedragon.distribution.kuguan.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
+import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.distribution.kuguan.service.KuGuanService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.iwmss.stock.client.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.distribution.kuguan.service.KuGuanService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.iwmss.stock.client.ArrayOfStock;
-import com.jd.iwmss.stock.client.ArrayOfStockDetail;
-import com.jd.iwmss.stock.client.Stock;
-import com.jd.iwmss.stock.client.StockDetail;
-import com.jd.iwmss.stock.client.StockParamter;
-import com.jd.iwmss.stock.client.StockWebServiceSoap;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class KuGuanServiceImpl implements KuGuanService {
@@ -28,7 +22,7 @@ public class KuGuanServiceImpl implements KuGuanService {
 	private StockWebServiceSoap stockWebService;
 	
 	@Override
-	@Profiled(tag = "KuGuanService.queryByParams")
+	@JProfiler(jKey = "DMSWEB.KuGuanService.queryByParams",mState = {JProEnum.TP})
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public KuGuanDomain queryByParams(Map<String, Object> params) {
 		String ddlType = (String) params.get("ddlType");
@@ -134,7 +128,6 @@ public class KuGuanServiceImpl implements KuGuanService {
 	}
 	
 	@Override
-	@Profiled(tag = "KuGuanService.queryMingxi")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<KuGuanDomain> queryMingxi(String kdanhao) {
 		// TODO Auto-generated method stub

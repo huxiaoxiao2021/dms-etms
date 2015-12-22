@@ -64,7 +64,6 @@ public class WaybillResource {
     @Autowired
     private AirTransportService airTransportService;
 
-    @Autowired
     private LabelPrintingWS labelPrintingWS;
 
 	@Autowired
@@ -548,7 +547,7 @@ public class WaybillResource {
 						JdResponse.MESSAGE_OK_NULL);
 			}
 			//调用分拣接口获得基础资料信息
-			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless);
+			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,null);
 
 			this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
@@ -565,12 +564,13 @@ public class WaybillResource {
 	}
 
 	@SuppressWarnings("unused")
-	private void setBasicMessageByDistribution(Waybill waybill, Integer startDmsCode ,Integer localSchedule,Integer paperless) {
+	private void setBasicMessageByDistribution(Waybill waybill, Integer startDmsCode ,Integer localSchedule,Integer paperless,Integer startSiteType) {
 		try {
 			com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest request = new com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest();
 			com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental<com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse> response = new com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental<com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse>();
 			request.setWaybillCode(waybill.getWaybillCode());
 			request.setDmsCode(startDmsCode);
+			request.setStartSiteType(startSiteType);
 			if (localSchedule!=null && !localSchedule.equals(0))
 				request.setLocalSchedule(1);
 			else
@@ -647,6 +647,54 @@ public class WaybillResource {
 			this.logger.error("根据运单号【" + waybill.getWaybillCode()
 					+ "】 获取预分拣的包裹打印信息接口 --> 异常", ee);
 		}
+	}
+
+	/**
+	 * 根据运单号或包裹号获取运单包裹信息接口
+	 * 新接口调用预分拣接口获取基础资料信息
+	 * @param waybillCodeOrPackage
+	 * @return
+	 */
+	@GET
+	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}")
+	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
+												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
+			,@PathParam("paperless") Integer paperless,@PathParam("startSiteType") Integer startSiteType) {
+		// 判断传入参数
+		if (startDmsCode == null || startDmsCode.equals(0)
+				|| StringUtils.isEmpty(waybillCodeOrPackage)) {
+			this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
+					+ waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
+			return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
+					JdResponse.MESSAGE_PARAM_ERROR);
+		}
+		// 转换运单号
+		String waybillCode = BusinessHelper
+				.getWaybillCode(waybillCodeOrPackage);
+		// 调用服务
+		try {
+			Waybill waybill = findWaybillMessage(waybillCode);
+			if (waybill == null) {
+				this.logger.info("运单号【" + waybillCode
+						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
+						JdResponse.MESSAGE_OK_NULL);
+			}
+			//调用分拣接口获得基础资料信息
+			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,startSiteType);
+
+			this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
+			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
+					JdResponse.MESSAGE_OK, waybill);
+
+		} catch (Exception e) {
+			// 调用服务异常
+			this.logger
+					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
+					JdResponse.MESSAGE_SERVICE_ERROR);
+		}
+
 	}
 
     /**

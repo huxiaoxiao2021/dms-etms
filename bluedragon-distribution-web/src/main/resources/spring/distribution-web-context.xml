@@ -21,7 +21,6 @@
 	<import resource="classpath:spring/distribution-web-authen.xml" />
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
 	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 
-	<import resource="classpath:spring/distribution-core-saf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	
 	

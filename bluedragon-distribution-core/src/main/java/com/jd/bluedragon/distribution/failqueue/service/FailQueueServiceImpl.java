@@ -1,21 +1,5 @@
 package com.jd.bluedragon.distribution.failqueue.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.client.Departure3PLDataClient;
 import com.jd.bluedragon.distribution.departure.domain.Departure;
@@ -32,6 +16,14 @@ import com.jd.etms.finance.wss.WaybillDataServiceWS;
 import com.jd.etms.finance.wss.pojo.ResponseMessage;
 import com.jd.etms.finance.wss.pojo.SortingCar;
 import com.jd.etms.finance.wss.pojo.SortingOrder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service
 public class FailQueueServiceImpl implements IFailQueueService {
@@ -54,7 +46,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		return taskFailQueueDao.query(param);
 	}
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void departureNewData(Departure departure, long shieldsCarId,
 			boolean pushDeparture) {
@@ -134,7 +125,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 	/**
 	 * @see com.jd.bluedragon.distribution.failqueue.service.IFailQueueService#departure3PLData(java.util.List)
 	 */
-	@Profiled
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void departure3PLData(List<TaskFailQueue> list){
     	if(list.size()==0){
@@ -181,7 +171,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		logger.info("处理完毕");
     }
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	private void departureFailData(List<TaskFailQueue> list) {
 		if (list.size() == 0) {
@@ -232,7 +221,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		logger.info("处理完毕");
 	}
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	private void sendDatailFailData(List<TaskFailQueue> list) {
 		if (list.size() == 0) {
@@ -342,7 +330,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		}
 	}
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void sendDatailBatchData(List<TaskFailQueue> sendDatailAl_batch) {
 		/* 组织批次号 */
@@ -401,7 +388,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		}
 	}
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void sendCodeNewData(String sendCode, Integer type) {
 		ArrayList<String> al = new ArrayList<String>();
@@ -410,7 +396,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		sendCodeNewData(al, type);
 	}
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void sendCodeNewData(List<String> sendCodeAl, Integer type) {
 		for (String sendCode : sendCodeAl) {
@@ -450,7 +435,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 		return splitList.toArray(new List[0]);
 	}
 
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void lock(List<TaskFailQueue> tasks) {
 		for (TaskFailQueue task : tasks) {

@@ -1,21 +1,19 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author zhaohc
@@ -36,7 +34,6 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 	private ReverseSpareDao reverseSpareDao;
 
 	@Override
-	@Profiled(tag = "ReverseSpareServiceImpl.batchAddSorting")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int batchAddSorting(List<Sorting> sortings,
 			List<ReverseSpare> reverseSpares) {
@@ -55,7 +52,6 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 	}
 
 	@Override
-	@Profiled(tag = "ReverseSpareServiceImpl.batchAddOrUpdate")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int batchAddOrUpdate(List<ReverseSpare> reverseSpares) {
 		if (reverseSpares == null || reverseSpares.size() <= 0) {

@@ -1,28 +1,9 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MediaType;
-
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.utils.PropertiesHelper;
-
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.utils.BaseContants;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -35,6 +16,21 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -56,14 +52,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	/**
 	 * 站点ID
 	 * */
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
 		return basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseDataDict> getBaseDataDictList(Integer paramInteger1,
@@ -72,14 +68,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 				paramInteger2, paramInteger3);
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseStaffByStaffId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer paramInteger) {
 		return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
@@ -104,14 +100,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return allSite;
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getBaseOrgByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseOrgByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseOrgByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseOrg getBaseOrgByOrgId(Integer orgId) {
 		return basicPrimaryWS.getBaseOrgByOrgId(orgId);
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	public Integer getBaseGoodsPositionDmsCodeSiteCode(String createCode,
 			String receiveCode) {
@@ -119,14 +115,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return null;
 	}
 	
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteAll", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteAll", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getBaseSiteAll() {
 		return basicPrimaryWSProxy.getBaseSiteAll();
 	}
 	
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId,
@@ -168,7 +164,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	 * 7位编码
 	 * */
 	@Override
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteByDmsCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseSiteByDmsCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
@@ -214,7 +210,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	
 	private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
 	@Override
-	@Profiled
 	@Cache(key = "baseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
 		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {
@@ -249,7 +244,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         logger.error("dmsver获取站点[" + siteCode + "]信息失败");
         return null;
 	}
-	
+
 	@Override
 	@Cache(key = "baseMajorManagerImpl.getValidBaseDataDictList@args0@args1@args2" , memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000 )
@@ -259,7 +254,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	}
 
 	@Override
-	@Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid, int num) {
 		// TODO Auto-generated method stub

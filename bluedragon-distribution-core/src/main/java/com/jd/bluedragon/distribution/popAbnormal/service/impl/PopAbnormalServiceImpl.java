@@ -1,20 +1,5 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -39,6 +24,15 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillPOPDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 /**
  * @author zhaohc
@@ -77,7 +71,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	private WaybillService waybillService; 
 
 	@Override
-	@Profiled(tag = "PopAbnormalServiceImpl.getBaseStaffByStaffId")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Map<String, Object> getBaseStaffByStaffId(Integer staffId) {
 		logger.info("根据员工编号获取员工信息，staffId:" + staffId);
@@ -115,7 +108,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Profiled(tag = "PopAbnormalServiceImpl.findList")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopAbnormal> findList(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
@@ -123,7 +115,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Profiled(tag = "PopAbnormalServiceImpl.getWaybillByOrderCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public PopAbnormal getWaybillByOrderCode(String orderCode) {
 		PopAbnormal popAbnormal = null;
@@ -165,7 +156,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Profiled(tag = "PopAbnormalServiceImpl.add")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(PopAbnormal popAbnormal) {
 		int flag = 0;
@@ -211,7 +201,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	@Profiled(tag = "PopAbnormalServiceImpl.updatePopPackNum")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updatePopPackNum(PopAbnormal popAbnormal) {
 		int flag = 0;
@@ -262,7 +251,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Profiled(tag = "PopAbnormalServiceImpl.updateById")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateById(PopAbnormal popAbnormal) {
 		int flag = 0;
