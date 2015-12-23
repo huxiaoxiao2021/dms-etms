@@ -461,11 +461,7 @@
 			<version>2.5.0-mini-SNAPSHOT</version>
         </dependency>
 		
-		<dependency>
-            <groupId>com.jd.ump</groupId>
-            <artifactId>profiler</artifactId>
-            <version>3.1.0</version>
-        </dependency>
+
         
 		<dependency>
                <groupId>com.jd.ump</groupId>

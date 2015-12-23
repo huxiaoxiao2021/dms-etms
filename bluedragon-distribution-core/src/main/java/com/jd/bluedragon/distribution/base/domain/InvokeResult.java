@@ -16,6 +16,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final Integer RESULT_NULL_CODE=Integer.valueOf(0);
     public static final String  RESULT_NULL_MESSAGE="结果为空！";
+    public static final Integer RESULT_SUCCESS_CODE=Integer.valueOf(200);
     public InvokeResult(){
         this.code=200;
     }

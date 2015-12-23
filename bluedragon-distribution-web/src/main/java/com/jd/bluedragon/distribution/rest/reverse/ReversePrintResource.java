@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.reverse.domain.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,16 +85,10 @@ public class ReversePrintResource {
      */
     @POST
     @Path("reverse/exchange/ownWaybill")
-    public InvokeResult<Boolean> exchangeOwnWaybill(
-            @FormParam("oldWaybillCode")String oldWaybillCode,
-            @FormParam("userId")Integer userId,
-            @FormParam("userRealName")String userRealName,
-            @FormParam("siteId")Integer siteId,
-            @FormParam("siteName")String siteName
-    ){
+    public InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain){
         InvokeResult<Boolean> result;
         try{
-            result= reversePrintService.exchangeOwnWaybill(oldWaybillCode,userId,userRealName,siteId,siteName);
+            result= reversePrintService.exchangeOwnWaybill(domain);
         }catch (Exception e){
             result=new InvokeResult<Boolean>();
             logger.error("自营逆向换单",e);

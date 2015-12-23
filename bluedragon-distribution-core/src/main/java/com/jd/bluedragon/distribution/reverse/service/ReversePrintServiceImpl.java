@@ -1,40 +1,33 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.ReceiveManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.external.jos.service.JosService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
-import com.jd.bluedragon.distribution.sorting.service.SortingReturnServiceImple;
+import com.jd.bluedragon.distribution.reverse.domain.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.erp.service.domain.BaseEntity;
 import com.jd.etms.erp.ws.ErpQuerySafWS;
 import com.jd.etms.waybill.api.WaybillSyncApi;
-import com.jd.etms.waybill.domain.WaybillParameter;
-import com.jd.etms.waybill.handler.WaybillSyncParameter;
-import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import sun.plugin2.message.Message;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 逆向换单打印
@@ -63,14 +56,16 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private ReceiveManager receiveManager;
 
-    @Autowired
-    private WaybillSyncApi waybillSyncApi;
 
     @Autowired
     private SiteService siteService;
 
     @Autowired
-    private ErpQuerySafWS baseErpQuerySafWSInfoSafService;
+    private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    @Qualifier("ownWaybillTransformMQ")
+    private DefaultJMQProducer ownWaybillTransformMQ;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -150,17 +145,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             return receiveManager.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
         }else{
             InvokeResult<String> targetResult=new InvokeResult<String>();
-            try {
-                BaseEntity<String> result = this.baseErpQuerySafWSInfoSafService.getChangeWaybillCode(oldWaybillCode);
-                if(null!=result){
-                    targetResult.setCode(result.getResultCode());
-                    targetResult.setMessage(result.getMessage());
-                    targetResult.setData(result.getData());
-                }else{
-                    targetResult.customMessage(InvokeResult.RESULT_NULL_CODE,InvokeResult.RESULT_NULL_MESSAGE);
-                }
-            }catch (Exception ex){
-                targetResult.error(ex);
+            InvokeResult<Waybill> result = this.waybillCommonService.getReverseWaybill(oldWaybillCode);
+            targetResult.setCode(result.getCode());
+            targetResult.setMessage(result.getMessage());
+            if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
+                targetResult.setData(result.getData().getWaybillCode());
             }
             return targetResult;
         }
@@ -168,32 +157,21 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     }
 
     @Override
-    public InvokeResult<Boolean> exchangeOwnWaybill(String oldWaybillCode, Integer userId, String userRealName, Integer siteId, String siteName) {
+    public InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain) {
         if(logger.isInfoEnabled()){
-            logger.info(MessageFormat.format("执行自营换单waybillCode={0},userId={1},userRealName={2},siteId={3},siteName={4}",oldWaybillCode,userId,userRealName,siteId,siteName));
+            logger.info(MessageFormat.format("执行自营换单waybillCode={0},userId={1},userRealName={2},siteId={3},siteName={4}",domain.getWaybillCode(),domain.getUserId(),domain.getUserRealName(),domain.getSiteId(),domain.getSiteName()));
         }
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
-        List<WaybillSyncParameter> parameters=new ArrayList<WaybillSyncParameter>(1);
-        WaybillSyncParameter para=new WaybillSyncParameter();
-        para.setOperatorCode(oldWaybillCode);
-        para.setOperatorId(userId);
-        para.setOperatorName(userRealName);
-        para.setOperateTime(new Date());
-        para.setZdId(siteId);
-        para.setZdName(siteName);
-        WaybillSyncParameterExtend extend = new WaybillSyncParameterExtend();
-        extend.setOperateType(EXCHANGE_OWN_WAYBILL_OP_TYPE);
-        extend.setTaskId(System.currentTimeMillis());
-        para.setWaybillSyncParameterExtend(extend);
+        domain.setOperateTime(new Date());
         try {
-            BaseStaffSiteOrgDto siteDomain = siteService.getSite(siteId);
+            BaseStaffSiteOrgDto siteDomain = siteService.getSite(domain.getSiteId());
             if(null!=siteDomain){
-                para.setZdType(siteDomain.getSiteType());
-                para.setOrgId(siteDomain.getOrgId());
-                para.setOrgName(siteDomain.getOrgName());
+                domain.setSiteType(siteDomain.getSiteType());
+                domain.setOrgName(siteDomain.getOrgName());
+                domain.setOrgId(siteDomain.getOrgId());
             }else {
-                result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空",siteId));
-                logger.error(MessageFormat.format("自营换单获取站点【ID={0}】信息为空",siteId));
+                result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空",domain.getSiteId()));
+                logger.error(MessageFormat.format("自营换单获取站点【ID={0}】信息为空",domain.getSiteId()));
                 return result;
             }
         }catch (Exception ex){
@@ -202,20 +180,16 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             return result;
         }
         try{
-            com.jd.etms.waybill.domain.BaseEntity<List<String>> waybillResult = this.waybillSyncApi.batchUpdateWaybillByOperatorCode(parameters, EXCHANGE_OWN_WAYBILL_OP_TYPE);
-            if(Integer.valueOf(1).equals(waybillResult.getResultCode())){
-                result.success();
-                result.setData(true);
-            }else {
-                result.customMessage(waybillResult.getResultCode(),"推送运单换单信息失败");
-                logger.error(MessageFormat.format("推送运单自营换单信息失败{0}", oldWaybillCode));
-            }
+            ownWaybillTransformMQ.send(domain.getWaybillCode(), JsonHelper.toJson(domain));
+            result.success();
+            result.setData(Boolean.TRUE);
         }catch (Exception ex){
-            logger.error("推送运单自营换单信息异常",ex);
-            result.error("推送运单自营换单信息异常");
+            logger.error("推送运单自营换单MQ异常",ex);
+            result.error("推送运单自营换单MQ异常");
         }
         return result;
     }
+
 
 
     private String createMqBody(String orderId) {
@@ -237,4 +211,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         sb.append("</OrderTaskInfo>");
         return sb.toString();
     }
+
+
 }

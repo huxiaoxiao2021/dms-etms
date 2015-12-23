@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.reverse.domain.OwnReverseTransferDomain;
 
 import javax.ws.rs.FormParam;
 
@@ -34,5 +35,5 @@ public interface ReversePrintService {
      * @param siteName          操作站点名称
      * @return
      */
-    InvokeResult<Boolean> exchangeOwnWaybill(String oldWaybillCode,Integer userId, String userRealName,Integer siteId,String siteName);
+    InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain);
 }

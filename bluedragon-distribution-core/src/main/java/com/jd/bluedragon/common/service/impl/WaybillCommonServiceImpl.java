@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -129,7 +130,39 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         
 		return waybill;
 	}
-	
+
+    @Override
+    public InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode) {
+        InvokeResult<Waybill> result=new InvokeResult<Waybill>();
+        Waybill waybill = null;
+
+        try {
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryPackList(true);
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getReturnWaybillByOldWaybillCode(
+                    oldWaybillCode, wChoice);
+            if (baseEntity != null && baseEntity.getData() != null) {
+                waybill = this.convWaybillWS(baseEntity.getData(), true, true);
+                if (Waybill.isInvalidWaybill(waybill)) {
+                    this.logger.error("运单号【 " + oldWaybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
+                    result.customMessage(-1,"运单缺少必要数据");
+                    return result;
+                }
+            }
+            if(logger.isInfoEnabled()) {
+                this.logger.info("运单号【 " + oldWaybillCode + "】调用运单JSF数据成功");
+            }
+        } catch (Exception e) {
+            this.logger.error("运单号【 " + oldWaybillCode + "】调用运单JSF异常：", e);
+            result.error(e);
+        }
+        result.setData(waybill);
+        return result;
+    }
+
     /**
      * 获取订单信息通过订单中间件
      * @param waybillCode 运单号
