@@ -767,7 +767,7 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String siteCode) {
 		// TODO Auto-generated method stub
-		if(NumberHelper.isStringNumber(siteCode))
+		if(NumberHelper.isNumber(siteCode))
 			return baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(siteCode));
 		else
 			return baseMajorManager.getBaseSiteByDmsCode(siteCode);
