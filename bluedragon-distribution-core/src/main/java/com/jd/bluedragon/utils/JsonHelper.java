@@ -46,7 +46,7 @@ public class JsonHelper {
                     JsonSerialize.Inclusion.NON_NULL);
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.error("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.error("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
@@ -71,7 +71,7 @@ public class JsonHelper {
                     JsonSerialize.Inclusion.NON_NULL);
             return JsonHelper.dfOneJson2ListMapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.error("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.error("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
@@ -86,7 +86,7 @@ public class JsonHelper {
         try {
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.error("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.error("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
@@ -110,7 +110,7 @@ public class JsonHelper {
         try {
             return JsonHelper.dfOneJson2ListMapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.error("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.error("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
