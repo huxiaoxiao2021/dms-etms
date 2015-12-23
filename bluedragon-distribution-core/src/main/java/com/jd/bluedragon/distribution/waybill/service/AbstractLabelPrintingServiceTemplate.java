@@ -274,43 +274,46 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         labelPrinting.setRoad(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
 
         try {
-            if (request!=null&&request.getStartSiteType()!=null
-                    &&waybill!=null&&StringHelper.isNotEmpty(request.getWaybillCode())
+            if (request != null && request.getStartSiteType() != null && request.dmsCode != null
+                    && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())
                     && SerialRuleUtil.isMatchReceiveWaybillNo(request.getWaybillCode())
-                    &&(waybill.getWaybillType()!=Constants.ORDER_TYPE_B&& NumberHelper.isNumber(waybill.getVendorId()))) {
+                    && (!Constants.ORDER_TYPE_B.equals(waybill.getWaybillType())&& NumberHelper.isNumber(waybill.getVendorId()))) {
 
-                log.warn("调用promise获取外单时效开始");
+                log.debug("调用promise获取外单时效开始");
 
                 OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
-                if (waybill.getWaybillType() == Constants.ORDER_TYPE_B)
-                    orderMarkingRequest.setOrderId(0);//纯外单订单号设置为0
+                if (Constants.ORDER_TYPE_B.equals(waybill.getWaybillType()) )
+                    orderMarkingRequest.setOrderId(Constants.ORDER_TYPE_B_ORDERNUMBER);//纯外单订单号设置为0
                 else
                     orderMarkingRequest.setOrderId(Long.parseLong(waybill.getVendorId()));//订单号
                 orderMarkingRequest.setWaybillCode(waybill.getWaybillCode());//运单号
                 orderMarkingRequest.setOpeSiteId(request.dmsCode.toString());//分拣中心ID
                 orderMarkingRequest.setOpeSiteName(request.dmsName);//分拣中心名称
 
-                orderMarkingRequest.setOpesiteType(request.getStartSiteType() == 64 ? 1 : request.getStartSiteType() == 4 ? 2 : 3); //1：分拣中心； 2：站点；3：商家
-                orderMarkingRequest.setSource("11");//分拣中心环节 11
-                orderMarkingRequest.setProvinceId(waybill.getProvinceId()==null?0:waybill.getProvinceId());//省
-                orderMarkingRequest.setCityId(waybill.getCityId()==null?0:waybill.getCityId());//市
-                orderMarkingRequest.setCountyId(waybill.getCountryId()==null?0:waybill.getCountryId());//县
-                orderMarkingRequest.setTownId(waybill.getTownId()==null?0:waybill.getTownId());//镇
+                orderMarkingRequest.setOpesiteType(request.getStartSiteType()
+                        .equals(Constants.BASE_SITE_DISTRIBUTION_CENTER) ? Constants.PROMISE_DISTRIBUTION_CENTER
+                        : request.getStartSiteType().equals(Constants.BASE_SITE_SITE) ? Constants.PROMISE_SITE
+                        : Constants.PROMISE_DISTRIBUTION_B);
+                orderMarkingRequest.setSource(Constants.DISTRIBUTION_SOURCE);
+                orderMarkingRequest.setProvinceId(waybill.getProvinceId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getProvinceId());//省
+                orderMarkingRequest.setCityId(waybill.getCityId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getCityId());//市
+                orderMarkingRequest.setCountyId(waybill.getCountryId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getCountryId());//县
+                orderMarkingRequest.setTownId(waybill.getTownId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getTownId());//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
 //                }
-                log.warn("调用promise获取外单时效传入参数" + orderMarkingRequest == null ? "" : JsonHelper.toJson(orderMarkingRequest));
+                log.debug("调用promise获取外单时效传入参数" + orderMarkingRequest == null ? "" : JsonHelper.toJson(orderMarkingRequest));
                 OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
                 if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
                     labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     labelPrinting.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse));
+                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
                 }
-                log.warn("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse));
+                log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
-            log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)));
+            log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)),e);
         }
         return labelPrinting;
     }
