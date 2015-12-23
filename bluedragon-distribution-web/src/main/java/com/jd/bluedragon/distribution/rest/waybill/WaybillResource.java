@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.produce.client.MessageClient;
@@ -918,4 +919,13 @@ public class WaybillResource {
 		}
 	}
 
+    @GET
+    @GZIP
+    @Path("/waybill/getPrintWaybill/{dmsCode}/{waybillCode}/{targetSiteCode}")
+    public InvokeResult<PrintWaybill> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
+                                                      @PathParam("waybillCode")String waybillCode,
+                                                      @PathParam("targetSiteCode")Integer targetSiteCode){
+        return  null;
+
+    }
 }
