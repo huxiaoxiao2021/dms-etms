@@ -16,6 +16,7 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -42,6 +43,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	private BasicPrimaryWS basicPrimaryWS;
 	
 	@Autowired
+	@Qualifier("basicSecondaryWS")
+	private BasicSecondaryWS basicSecondaryWS;
+	
+	@Autowired
 	@Qualifier("basicPrimaryWSProxy")
 	private BasicPrimaryWSProxy basicPrimaryWSProxy;
 	
@@ -56,7 +61,21 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-		return basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+		BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+		BaseTradeInfoDto dtoTrade = null;
+		if (dtoStaff != null)
+			return dtoStaff;
+		else
+			dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+
+		if (dtoStaff != null)
+			return dtoStaff;
+		else
+			dtoTrade = basicSecondaryWS.getBaseTraderById(paramInteger);
+
+		if (dtoTrade != null)
+			dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+		return dtoStaff;
 	}
 
 	@Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
@@ -168,7 +187,21 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
-		return basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
+		BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
+		BaseTradeInfoDto dtoTrade = null;
+		if (dtoStaff != null)
+			return dtoStaff;
+		else
+			dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
+
+		if (dtoStaff != null)
+			return dtoStaff;
+		else
+			dtoTrade = basicSecondaryWS.getBaseTraderByCode(siteCode);
+
+		if (dtoTrade != null)
+			dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+		return dtoStaff;
 	}
 
 	@Cache(key = "baseMajorManagerImpl.getBaseDataDictById@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
