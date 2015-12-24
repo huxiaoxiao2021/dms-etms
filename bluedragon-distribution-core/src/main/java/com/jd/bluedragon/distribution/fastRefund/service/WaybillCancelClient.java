@@ -1,27 +1,16 @@
 package com.jd.bluedragon.distribution.fastRefund.service;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.spi.Link;
-import org.jboss.resteasy.spi.LinkHeader;
-import org.jboss.resteasy.util.GenericType;
-import org.perf4j.aop.Profiled;
 import org.springframework.stereotype.Component;
 
-import com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse;
-import com.jd.bluedragon.utils.PropertiesHelper;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
+import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
-import java.util.Map;
 
 @Component
 public class WaybillCancelClient {
@@ -38,7 +27,6 @@ public class WaybillCancelClient {
     
     private static Integer MIN_VALID_CODE = 29300;
 
-    @Profiled(tag = "WaybillCancelClient.isWaybillCancel")
     public static boolean isWaybillCancel(String waybillCode) {
 
         try {

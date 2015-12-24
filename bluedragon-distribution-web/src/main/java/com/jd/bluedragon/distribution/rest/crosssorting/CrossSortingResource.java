@@ -7,14 +7,15 @@ import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingResponse;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.erp.service.dto.CommonDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,6 @@ public class CrossSortingResource {
 
     @POST
     @Path("/crosssorting/queryMixBoxSite")
-    @Profiled(tag = "CrossSortingResource.post")
     public CrossSortingResponse queryMixBoxSite(CrossSortingRequest request) {
         logger.info("查询建包发货规则"+JsonHelper.toJson(request));
         CrossSortingResponse response= new CrossSortingResponse();

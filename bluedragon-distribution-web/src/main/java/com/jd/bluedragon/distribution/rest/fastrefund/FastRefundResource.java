@@ -1,23 +1,16 @@
 package com.jd.bluedragon.distribution.rest.fastrefund;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -32,7 +25,6 @@ public class FastRefundResource {
 	
 	@GET
 	@Path("/fastrefund")
-	@Profiled(tag = "FastRefundResource.fastRefund")
 	public JdResponse fastRefund(@QueryParam("waybillCode") String waybillCode) {
 		try{
 			String result = fastRefundService.execRefund(waybillCode);
@@ -63,7 +55,6 @@ public class FastRefundResource {
 	
 	@POST
 	@Path("/fastrefundmq")
-	@Profiled(tag = "FastRefundResource.fastRefundmq")
 	public JdResponse fastRefund(FastRefundRequest fastRefundRequest) {
 		try{
 			String result = fastRefundService.execRefund(fastRefundRequest);

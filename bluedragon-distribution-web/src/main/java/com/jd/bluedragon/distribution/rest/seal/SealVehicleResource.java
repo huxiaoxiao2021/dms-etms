@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -37,10 +34,7 @@ public class SealVehicleResource {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	private static final int SEAL_CODE_SAME = 10; 
 	private static final int SEAL_CODE_UNSAME = 20; 
-	private static final boolean SEAL = true;
-	private static final boolean UNSEAL = false;
 	
 	@Autowired
 	private SealVehicleService sealVehicleService;
@@ -297,4 +291,27 @@ public class SealVehicleResource {
 	}
 	
 	/******************* 封车与解封车:封车号与批次号多对多关系版本 [结束]  ***************************/
+	
+	@POST
+	@Path("/seal/vehicle/cancel")
+	public SealVehicleResponse cancel(SealVehicleRequest request) {
+		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+		try{
+			if (request == null
+					|| StringUtils.isBlank(request.getVehicleCode())
+					|| request.getSealCode() == null
+					|| request.getSendCode() == null) {
+				this.logger.error("SealVehicleResource cancel --> 传入参数非法");
+				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+			}
+			SealVehicle sealVehicle = SealVehicle.toSealVehicle3(request); 
+			
+			SealVehicleResponse response = this.sealVehicleService.cancelSealVehicle(sealVehicle);
+			
+			return response;
+		}catch(Exception e){
+			this.logger.error("SealVehicleResource.cancel-error", e);
+		}
+		return sealVehicleResponse;
+	}
 }

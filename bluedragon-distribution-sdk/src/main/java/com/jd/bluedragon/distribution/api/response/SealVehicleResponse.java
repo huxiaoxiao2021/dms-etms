@@ -26,6 +26,12 @@ public class SealVehicleResponse extends JdResponse {
 
 	/** 封签号 , 可以传多个, 逗号隔开 */
 	private String sealCodes;
+	
+	public static final Integer CODE_2006_ERROR = 2006;
+    public static final String MESSAGE_2006_ERROR = "取消封签异常，请核实信息是否正确";
+    
+    public static final Integer CODE_2007_ERROR = 2007;
+    public static final String MESSAGE_2007_ERROR = "	已完成发车的封车签号不允许撤销封车";
 
 	public SealVehicleResponse() {
 		super();

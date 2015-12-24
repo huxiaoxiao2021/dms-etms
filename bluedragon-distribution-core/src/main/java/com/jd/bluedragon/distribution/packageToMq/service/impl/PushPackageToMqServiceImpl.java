@@ -1,13 +1,5 @@
 package com.jd.bluedragon.distribution.packageToMq.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackageRequest;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackagesRequest;
@@ -17,7 +9,15 @@ import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqServic
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
 
 @Service("IPushPackageToMqService")
 public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
@@ -41,7 +41,6 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 		execPush(waybillmqs);
 	}
 
-	@Profiled(tag = "PushPackageToMqServiceImpl.transData")
 	private WaybillMqMsg[] transData(WmsOrderPackagesRequest orderPackages){
 		HashMap<String,WaybillMqMsg> waybillmqmsg = new HashMap<String,WaybillMqMsg>();
 
@@ -68,7 +67,7 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 		return waybillmqmsg.values().toArray(new WaybillMqMsg[0]);
 	}
 
-	@Profiled(tag = "PushPackageToMqServiceImpl.execPush")
+	@JProfiler(jKey= "DMSWEB.PushPackageToMqServiceImpl.execPush",mState = {JProEnum.TP})
 	private void execPush(WaybillMqMsg[] waybillmqs) throws Exception{
         try {
         	for(WaybillMqMsg waybillmq:waybillmqs){
@@ -84,7 +83,6 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 	}
 
 	@Override
-	@Profiled(tag = "PushPackageToMqServiceImpl.pubshMq")
 	public void pubshMq(String key,String body,String busiId){
 		/*开始时间*/
 		long beign = System.currentTimeMillis();
@@ -106,7 +104,6 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 	}
 
 	@Override
-	@Profiled(tag = "PushPackageToMqServiceImpl.pushAlert")
 	public void pushAlert(String key,String msg) {
 		logger.info("PushPackageToMqServiceImpl.execPush ");
 		Profiler.businessAlarm(key, new Date().getTime(), msg);

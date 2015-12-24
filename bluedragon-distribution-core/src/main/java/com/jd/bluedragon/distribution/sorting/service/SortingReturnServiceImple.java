@@ -1,24 +1,8 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import com.jd.bluedragon.utils.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -29,8 +13,22 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.erp.ws.BizServiceInterface;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service("sortingReturnService")
 public class SortingReturnServiceImple implements SortingReturnService {
@@ -68,9 +66,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	public final static Integer INTERCEPT_RECORD_TYPE = -1;
 	
 	@Autowired
-	private BaseService siteWebService;
-
-	@Autowired
 	private TaskService taskService;
 
 	@Autowired
@@ -91,7 +86,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	@Autowired
 	private BizServiceInterface bizService;
 
-	@Profiled(tag = "SortingReturnService.doSortingReturnForTask")
+	@JProfiler(jKey= "DMSWORKER.SortingReturnService.doSortingReturnForTask",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void doSortingReturn(Task task) throws Exception {
 			this.execReturns(task);	
@@ -151,8 +146,8 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 *            sitecode
 	 * @return BaseStaffSiteOrgDto
 	 */
-	private BaseStaffSiteOrgDto getSiteDtoBySiteCode(Integer sitecode) {
-		BaseStaffSiteOrgDto dto = BaseInfoHelper.getSiteInfoMap(sitecode);
+	private com.jd.ql.basic.dto.BaseStaffSiteOrgDto getSiteDtoBySiteCode(Integer sitecode) {
+		com.jd.ql.basic.dto.BaseStaffSiteOrgDto dto = BaseInfoHelper.getSiteInfoMap(sitecode);
 		if (dto == null) {
 			/** 如果缓存中没有查询到数据，则重新加载数据库数据，再进行读取 */
 			BaseInfoHelper.setSiteInfoMap(this.baseMajorManager.getBaseSiteAll());
@@ -177,7 +172,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		}
 	}
 
-	@Profiled(tag = "SortingReturnService.addReturnslog")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private Integer add(SortingReturn returns) {
 		return this.sortingReturnDao.add(SortingReturnDao.namespace, returns);
@@ -190,7 +184,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 *            returns
 	 * @return
 	 */
-	@Profiled(tag = "SortingReturnService.updateReturnslog")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private Integer update(SortingReturn returns) {
 		return this.sortingReturnDao.update(SortingReturnDao.namespace, returns);
@@ -201,7 +194,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 *
 	 * @param requestBean
 	 */
-	@Profiled(tag = "SortingReturnService.addOperationLog")
 	private void addOperationLog(SortingReturn sortingReturn) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setCreateSiteCode(sortingReturn.getSiteCode());
@@ -221,7 +213,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	}
 
 	/********************************************* 运单转换 ********************************************************/
-	@Profiled(tag = "SortingReturnService.doExecReturns")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private void sendModifyWaybillStatusNotify(List<SortingReturn> _datas) throws Exception {
 		/** 站点信息匹配的数据 */
@@ -295,7 +286,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 
 		BaseStaffSiteOrgDto createSite = null;
 		try {
-			createSite = this.siteWebService.queryDmsBaseSiteByCode(String.valueOf(createSiteCode));
+			createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -351,7 +342,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		return waybillStatus;
 	}
 
-	@Profiled(tag = "SortingReturnService.doAddReturn")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer doAddReturn(SortingReturn returns) {
 		/** 设置查询参数 */

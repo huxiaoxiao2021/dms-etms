@@ -1,26 +1,7 @@
 package com.jd.bluedragon.distribution.rest.task;
 
-import java.util.Collection;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.ibatis.cache.CacheKey;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskMode;
@@ -28,8 +9,19 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tbschedule.dto.ScheduleQueue;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Collection;
+import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL)
@@ -50,7 +42,6 @@ public class RedisTaskResource {
 
     @GET
     @Path("/task/redis/checkRedisTask")
-    @Profiled(tag = "RedisTaskResource.checkRedisTask")
     public TaskResponse checkRedisTask(@QueryParam("type") Integer type,
                                        @QueryParam("upLimit") Integer upLimit,
                                        @QueryParam("ownSign") String ownSign) {
@@ -84,7 +75,6 @@ public class RedisTaskResource {
 
     @GET
     @Path("/task/redis/moveTaskToDB")
-    @Profiled(tag = "RedisTaskResource.moveTaskToDB")
     public TaskResponse moveTaskToDB(@QueryParam("taskType") String taskType,
                                      @QueryParam("ownSign") String ownSign) {
         TaskResponse response = new TaskResponse();
@@ -110,7 +100,6 @@ public class RedisTaskResource {
 
     @GET
     @Path("/task/redis/query")
-    @Profiled(tag = "RedisTaskResource.redisQuery")
     public TaskResponse redisQuery(@QueryParam("key") String key) {
         TaskResponse response = new TaskResponse();
         String value = JdResponse.MESSAGE_OK;
@@ -139,7 +128,6 @@ public class RedisTaskResource {
 
     @GET
     @Path("/task/redis/taskmode")
-    @Profiled(tag = "RedisTaskResource.getTaskMode")
     public TaskResponse getTaskMode() {
         TaskResponse response = new TaskResponse();
         String value = JdResponse.MESSAGE_OK;

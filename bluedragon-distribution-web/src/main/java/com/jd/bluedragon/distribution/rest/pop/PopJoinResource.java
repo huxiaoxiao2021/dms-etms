@@ -29,14 +29,14 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 /**
  * @author zhaohc

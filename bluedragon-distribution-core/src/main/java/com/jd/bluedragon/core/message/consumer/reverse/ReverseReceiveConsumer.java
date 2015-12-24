@@ -11,9 +11,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
@@ -32,8 +32,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
 
 @Service("reverseReceiveConsumer")
@@ -57,7 +57,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
     private ReverseSpareDao sparedao;
 	
 	@Autowired
-    private BaseService tBaseService;
+    private BaseMajorManager baseMajorManager;
 
 	@Override
 	public void consume(Message message) {
@@ -160,13 +160,13 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				tWaybillStatus.setWaybillCode(reverseReceive.getOrderId());
 				tWaybillStatus.setCreateSiteCode(tSendM.getCreateSiteCode());
 				
-				BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendM.getCreateSiteCode()));
+				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 		        if(bDto!=null ){
 		        	tWaybillStatus.setCreateSiteName(bDto.getSiteName());
 		        }
 				
 				tWaybillStatus.setReceiveSiteCode(tSendM.getReceiveSiteCode());
-				bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(tSendM.getReceiveSiteCode()));
+				bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getReceiveSiteCode());
 		        if(bDto!=null ){
 		        	tWaybillStatus.setReceiveSiteName(bDto.getSiteName());
 		        }

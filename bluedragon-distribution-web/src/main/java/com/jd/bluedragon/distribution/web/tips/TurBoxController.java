@@ -18,8 +18,8 @@ import com.jd.bluedragon.distribution.receive.domain.TurnoverBox;
 import com.jd.bluedragon.distribution.receive.service.TurnoverBoxService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.common.web.LoginContext;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @RequestMapping("/turBoxManager")
@@ -102,9 +102,9 @@ public class TurBoxController {
 		if (defaultSiteType != null && defaultSiteType.equals( Constants.DMS_SITE_TYPE)) {
 			siteList.add(baseStaffSiteOrgDto);
 		} else if (defaultOrgId != null) {
-			siteList = this.baseMajorManager.getBaseSiteByOrgId(defaultOrgId,String.valueOf( Constants.DMS_SITE_TYPE));
+			siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(defaultOrgId,Constants.DMS_SITE_TYPE);
 		} else if (turnoverBox.getOrgCode() != null) {
-			siteList = this.baseMajorManager.getBaseSiteByOrgId(turnoverBox.getOrgCode(), String.valueOf( Constants.DMS_SITE_TYPE));
+			siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(turnoverBox.getOrgCode(),Constants.DMS_SITE_TYPE);
 		}
 		model.addAttribute("siteList", siteList);
 	}

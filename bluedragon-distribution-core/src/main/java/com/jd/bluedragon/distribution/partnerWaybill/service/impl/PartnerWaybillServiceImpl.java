@@ -1,21 +1,5 @@
 package com.jd.bluedragon.distribution.partnerWaybill.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WayBillCodeRequest;
 import com.jd.bluedragon.distribution.partnerWaybill.dao.PartnerWaybillDao;
@@ -29,6 +13,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.ThridPackageDto;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service("partnerWaybillService")
 public class PartnerWaybillServiceImpl implements PartnerWaybillService {
@@ -48,7 +39,6 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	/**
 	 * 添加运单关联包裹信息
 	 */
-	@Profiled(tag = "partnerWaybillService.doCreateWayBillCode")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doCreateWayBillCode(PartnerWaybill partnerWaybill) {
 		Date date = new Date();
@@ -81,11 +71,10 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	/**
 	 * 处理运单号关联包裹信息
 	 * 
-	 * @param inspections
-	 * @param receiveType
+	 * @param
+	 * @param
 	 * @return
 	 */
-	@Profiled(tag = "partnerWaybillService.doWayBillCodesProcessed")
 	public boolean doWayBillCodesProcessed(List<Task> taskList) {
 		this.logger.info("开始处理运单号关联包裹数据");
 		// 接口参数
@@ -117,7 +106,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 				if (baseEntity.getResultCode() == Constants.INTERFACE_CALL_SUCCESS) {
 					// 接口调用成功
 					Map<Long, Boolean> data = baseEntity.getData();
-					Iterator<Entry<Long, Task>> iter = taskMap.entrySet()
+					Iterator<Map.Entry<Long, Task>> iter = taskMap.entrySet()
 							.iterator();
 					while (iter.hasNext()) {
 						Map.Entry<Long, Task> entry = iter.next();
@@ -146,7 +135,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	}
 
 	private void unLockTask(Map<Long, Task> taskMap) {
-		Iterator<Entry<Long, Task>> iter = taskMap.entrySet().iterator();
+		Iterator<Map.Entry<Long, Task>> iter = taskMap.entrySet().iterator();
 		while (iter.hasNext()) {
 			Map.Entry<Long, Task> entry = iter.next();
 			Task task = entry.getValue();

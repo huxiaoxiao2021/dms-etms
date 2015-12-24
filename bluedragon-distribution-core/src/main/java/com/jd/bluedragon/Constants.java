@@ -81,6 +81,8 @@ public class Constants {
     public static final int TRANS_SORTING_SITE_TYPE = 64;
     /** 跨分拣中心收货站点类型二级 **/
     public static final int TRANS_SORTING_SITE_TYPE_SECOND = 256;
+
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
@@ -99,12 +101,15 @@ public class Constants {
     /** 大件包裹标识 **/
     public static final String BOXING_TYPE = "2";
     /* 基础资料SiteType: 16为三方，4为自营 */
+    public static final int BASE_SITE_SITE = 4;//站点
     public static final Integer BASE_SITE_TYPE_THIRD = 16;
     /* 基础资料siteType:64为分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_CENTER = 64;
     /* 基础资料siteType:256为二级分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_SUBSIDIARY_CENTER = 256;
-    
+    /* 基础资料siteType:1024为B商家 */
+    public static final int BASE_SITE_BUSSINESS=1024;
+
     public static final int OPERATE_TYPE_THIRD_INSPECTION = 80;
     
     /**
@@ -229,4 +234,38 @@ public class Constants {
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
 
+
+    //region  Promise常量定义
+
+    /**
+     * Promsie 分拣中心类型
+     */
+    public static final Integer PROMISE_DISTRIBUTION_CENTER = 1;
+
+    /**
+     * Promsie 站点类型
+     */
+    public static final Integer PROMISE_SITE = 2;
+
+    /**
+     * Promsie B商家类型
+     */
+    public static final Integer PROMISE_DISTRIBUTION_B = 3;
+
+    /**
+     * 分拣中心环节请求
+     */
+    public static final String DISTRIBUTION_SOURCE = "11";
+
+    /**
+     * 纯外单约定订单号
+     */
+    public static final Integer ORDER_TYPE_B_ORDERNUMBER=0;
+
+    /**
+     * 省市县镇默认值
+     */
+    public static final Integer DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE=0;
+
+    //endregion
 }

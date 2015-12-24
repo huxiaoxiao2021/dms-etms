@@ -1,18 +1,16 @@
 package com.jd.bluedragon.distribution.popPrint.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.api.request.InspectionPOPRequest;
 import com.jd.bluedragon.distribution.popPrint.dao.PopSigninDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopSignin;
 import com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto;
 import com.jd.bluedragon.distribution.popPrint.service.PopSigninService;
 import com.jd.bluedragon.utils.DateHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 @Service
 public class PopSigninServiceImpl implements PopSigninService {
 	@Autowired
@@ -23,7 +21,6 @@ public class PopSigninServiceImpl implements PopSigninService {
 		return this.popSigninDao.insert(popSignin);
 	}
 	@Override
-	@Profiled(tag = "PopSigninService.insert")
 	public int insert(InspectionPOPRequest popRequest){
 		PopSignin popSignin = new PopSignin();
 		popSignin.setCreateSiteCode(popRequest.getSiteCode());
@@ -45,17 +42,14 @@ public class PopSigninServiceImpl implements PopSigninService {
 	}
 
 	@Override
-	@Profiled(tag = "PopSigninService.getPopSigninList")
 	public List<PopSignin> getPopSigninList(PopSigninDto popSigninDto) {
 		return this.popSigninDao.getPopSigninList(popSigninDto);
 	}
 	@Override
-	@Profiled(tag = "PopSigninService.update")
 	public int update(PopSignin popSignin) {
 		return this.popSigninDao.update(popSignin);
 	}
 	@Override
-	@Profiled(tag = "PopSigninService.getCount")
 	public int getCount(PopSigninDto popSigninDto) {
 		return this.popSigninDao.getCount(popSigninDto);
 	}

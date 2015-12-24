@@ -1,14 +1,5 @@
 package com.jd.bluedragon.distribution.framework;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.perf4j.LoggingStopWatch;
-import org.perf4j.StopWatch;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
@@ -18,6 +9,12 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.template.TBRedisWorkerMultiTemplate;
 import com.jd.tbschedule.redis.template.TaskEntry;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public abstract class RedisSingleScheduler extends
 		TBRedisWorkerMultiTemplate<Task> {
@@ -84,18 +81,11 @@ public abstract class RedisSingleScheduler extends
 
 		int dealDataFail = 0;
 		for (TaskEntry<Task> task : tasks) {
-			StopWatch bizStopWatch = new LoggingStopWatch();
-			bizStopWatch.start(taskType + ".handleSingleTask", "start");
 			boolean result = handleSingleTask(task.getTask(), ownSign);
-			bizStopWatch.stop(taskType + ".handleSingleTask", "stop");
 			if (!result) {
 				dealDataFail++;
 			}
-			
-			StopWatch stopWatch = new LoggingStopWatch();
-			stopWatch.start("RedisSingleScheduler.removeRedis()", "start");
 			super.removeRedis(task, super.queueNumberMap);
-			stopWatch.stop("RedisSingleScheduler.removeRedis()", "stop");
 		}
 
 		logger.info("[" + desc + "]worker 执行[" + tasks.size() + "]条任务完毕！");

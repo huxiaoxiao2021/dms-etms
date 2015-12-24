@@ -6,7 +6,7 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public interface ReverseSendService {
 

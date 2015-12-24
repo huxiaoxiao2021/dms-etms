@@ -22,8 +22,8 @@ import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 @Component
 @Path(Constants.REST_URL)

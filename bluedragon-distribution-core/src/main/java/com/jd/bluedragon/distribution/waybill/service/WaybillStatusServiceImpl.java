@@ -410,6 +410,30 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 task.setYn(0);
             }
             
+            /**
+             * 全程跟踪:回传 撤销封车信息至运单中心
+             */
+            if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_CANCEL_VEHICLE).equals(task.getKeyword2())){
+                toWaybillStatus3(tWaybillStatus, bdTraceDto);              
+                bdTraceDto.setOperatorDesp("货物已取消封车");
+                this.logger.info("向运单系统回传全程跟踪，已撤销封车：" );
+                String sendCodes = tWaybillStatus.getSendCode();
+                if(sendCodes != null){
+                	List<SendDetail> sendDetailList = sendDatailDao.queryWaybillsBySendCode(tWaybillStatus.getSendCode());
+                    if(null != sendDetailList && sendDetailList.size() > 0){
+	                    for(SendDetail sendDetail : sendDetailList){
+	                        bdTraceDto.setWaybillCode(sendDetail.getWaybillCode());
+	                        bdTraceDto.setPackageBarCode(sendDetail.getPackageBarcode());
+	                        waybillQueryManager.sendBdTrace(bdTraceDto);
+	                    }
+                    }
+                } else {
+                    this.logger.error("向运单系统回传全程跟踪，解封车：批次号为空" );
+                }
+                this.taskService.doDone(task);
+                task.setYn(0);
+            }
+            
             if(null!=task.getKeyword2()&&String.valueOf(3800).equals(task.getKeyword2())){
                 tWaybillStatus.setOperateType(3800);
 

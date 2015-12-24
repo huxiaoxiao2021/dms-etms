@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
-import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
@@ -14,8 +12,6 @@ import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
@@ -26,12 +22,11 @@ import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -47,15 +42,6 @@ import java.util.*;
 @Produces({MediaType.APPLICATION_JSON})
 public class DeliveryResource {
 
-
-    @Autowired
-    private CrossSortingService crossSortingService;
-
-    @Autowired
-    private BoxService boxService;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
     @Autowired
     DeliveryService deliveryService;
 
@@ -71,9 +57,6 @@ public class DeliveryResource {
     public static final String SEND_M = "sendm";
 
     @Autowired
-    private WaybillCommonService waybillCommonService;
-
-    @Autowired
     private LoadBillService loadBillService;
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -86,7 +69,6 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/packagesend")
-    @Profiled(tag = "DeliveryResource.packageSend")
     public InvokeResult<AbstractMap.Entry<Integer, String>> packageSend(PackageSendRequest request) {
         InvokeResult<SendResult> res = this.newPackageSend(request);
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
@@ -101,7 +83,6 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/newpackagesend")
-    @Profiled(tag = "DeliveryResource.newPackageSend")
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         logger.info(JsonHelper.toJson(request));
         SendM domain = new SendM();
@@ -150,7 +131,6 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/cancel")
-    @Profiled(tag = "DeliveryResource.cancelDeliveryInfo")
     public ThreeDeliveryResponse cancelDeliveryInfo(DeliveryRequest request) {
         logger.info("取消发货JSON" + JsonHelper.toJson(request));
         this.logger.info("开始写入取消发货信息");
@@ -225,7 +205,6 @@ public class DeliveryResource {
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/delivery/send")
-    @Profiled(tag = "DeliveryResource.sendDeliveryInfo")
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
         this.logger.info("开始写入发货信息");
         if (check(request)) {
@@ -244,7 +223,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/verification")
-    @Profiled(tag = "DeliveryResource.verification")
+    @JProfiler(jKey= "DMSWEB.DeliveryResource.verification",mState = {JProEnum.TP})
     public ThreeDeliveryResponse checkThreeDelivery(List<DeliveryRequest> request) {
         this.logger.info("开始三方发货不全验证");
         try {
@@ -329,7 +308,6 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/check")
-    @Profiled(tag = "DeliveryResource.checkDeliveryInfo")
     public DeliveryResponse checkDeliveryInfo(@QueryParam("boxCode") String boxCode,
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,
@@ -422,7 +400,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/whemsWaybill")
-    @Profiled(tag = "DeliveryResource.getWhemsWaybill")
+    @JProfiler(jKey= "DMSWEB.DeliveryResource.getWhemsWaybill",mState = {JProEnum.TP})
     public WhemsWaybillResponse getWhemsWaybill(List<String> request, @Context HttpServletRequest servletRequest) {
 
         this.logger.error("servletRequest.getHeader()" + servletRequest.getHeader("X-Forwarded-For"));
@@ -441,7 +419,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/pushWhemsWaybill")
-    @Profiled(tag = "DeliveryResource.pushWhemsWaybill")
+    @JProfiler(jKey= "DMSWEB.DeliveryResource.pushWhemsWaybill",mState = {JProEnum.TP})
     public WhemsWaybillResponse pushWhemsWaybill(List<String> request) {
         if (request == null || request.isEmpty()) {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
@@ -453,7 +431,6 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/toEmsServer")
-    @Profiled(tag = "DeliveryResource.toEmsServer")
     public WhemsWaybillResponse toEmsServer(List<String> request) {
         if (request == null || request.isEmpty()) {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
@@ -465,7 +442,6 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/whBcrsQuery")
-    @Profiled(tag = "DeliveryResource.whBcrsQuery")
     public WhBcrsQueryResponse whBcrsQuery(DeliveryRequest request) {
         String sendCode = request.getSendCode();
         if (sendCode == null || sendCode.isEmpty()) {
@@ -536,7 +512,6 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/findWaybillStatus/{id}")
-    @Profiled(tag = "DeliveryResource.findWaybillStatus")
     public String findWaybillStatus(@PathParam("id") String id) {
         String result = null;
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
@@ -559,7 +534,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/sendBatch")
-    @Profiled(tag = "DeliveryResource.sendBatch")
+    @JProfiler(jKey= "DMSWEB.DeliveryResource.sendBatch",mState = {JProEnum.TP})
     public DeliveryResponse sendBatch(DeliveryRequest request) {
         this.logger.info("开始批量发货写入信息");
         if (check(request)) {
@@ -617,7 +592,7 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/autoBatchSend")
-    @Profiled(tag = "DeliveryResource.atuoBatchSend")
+    @JProfiler(jKey= "DMSWEB.DeliveryResource.atuoBatchSend",mState = {JProEnum.TP})
     public DeliveryResponse autoBatchSend(DeliveryBatchRequest request) {
         this.logger.info("batchSend开始批量发货写入信息");
         if (checkAutoBatchSend(request)) {

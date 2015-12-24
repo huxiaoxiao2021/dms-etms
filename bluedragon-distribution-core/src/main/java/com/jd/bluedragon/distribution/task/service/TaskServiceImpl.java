@@ -1,40 +1,32 @@
 package com.jd.bluedragon.distribution.task.service;
 
-import java.util.*;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.bluedragon.distribution.task.dao.TaskDao;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.redis.TaskModeAgent;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.task.dao.TaskDao;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import java.util.*;
 
 public class TaskServiceImpl implements TaskService {
 
@@ -70,7 +62,7 @@ public class TaskServiceImpl implements TaskService {
      * @param ifCheckTaskMode 
      * @return
      */
-    @Profiled(tag = "TaskService.add")
+    @JProfiler(jKey= "DMSCORE.TaskService.add",mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
@@ -154,14 +146,12 @@ public class TaskServiceImpl implements TaskService {
 		}
 	}
 
-	@Profiled(tag = "TaskService.add")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Task task) {
 		return add(task, false);
 	}
 
 
-	@Profiled(tag = "TaskService.findTasks")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type) {
         Assert.notNull(type, "type must not be null");
@@ -173,7 +163,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findTasks(type);
     }
 
-    @Profiled(tag = "TaskService.findTasks.ownSign")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type, String ownSign) {
         Assert.notNull(type, "type must not be null");
@@ -185,7 +174,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findTasks(type, ownSign);
     }
 
-    @Profiled(tag = "TaskService.findLimitedTasks.waybill")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer fetchNum) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -197,7 +185,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findLimitedTasks(fetchNum);
     }
 
-    @Profiled(tag = "TaskService.findLimitedTasks")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
         Assert.notNull(type, "type must not be null");
@@ -210,7 +197,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findLimitedTasks(type, fetchNum);
     }
 
-    @Profiled(tag = "TaskService.findLimitedTasks.ownSign")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
         Assert.notNull(type, "type must not be null");
@@ -223,7 +209,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findLimitedTasks(type, fetchNum, ownSign);
     }
 
-	@Profiled(tag = "TaskService.findSpecifiedTasks.ownSign")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
 		Assert.notNull(type, "type must not be null");
@@ -236,7 +221,6 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
 	}
 
-    @Profiled(tag = "TaskService.findTasksByFingerprint")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasksByFingerprint(Task task) {
         Assert.notNull(task.getFingerprint(), "fingerprint must not be null");
@@ -249,7 +233,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.update",mState = {JProEnum.TP,JProEnum.FunctionError})
-    @Profiled(tag = "TaskService.updateBySelective")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean updateBySelective(Task task) {
         TaskDao routerDao = taskDao;    	
@@ -261,14 +244,12 @@ public class TaskServiceImpl implements TaskService {
         return Boolean.TRUE;
     }
 
-    @Profiled(tag = "TaskService.doLock")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doLock(Task task) {
         task.setStatus(Task.TASK_STATUS_PROCESSING);
         return this.updateBySelective(task);
     }
 
-    @Profiled(tag = "TaskService.doRevert")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doRevert(Task task) {
         task.setStatus(Task.TASK_STATUS_UNHANDLED);
@@ -277,7 +258,6 @@ public class TaskServiceImpl implements TaskService {
         return this.updateBySelective(task);
     }
 
-    @Profiled(tag = "TaskService.doDone")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doDone(Task task) {
         task.setStatus(Task.TASK_STATUS_FINISHED);
@@ -286,7 +266,6 @@ public class TaskServiceImpl implements TaskService {
         return this.updateBySelective(task);
     }
 
-    @Profiled(tag = "TaskService.doAddWithStatus")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
@@ -297,8 +276,7 @@ public class TaskServiceImpl implements TaskService {
     	
         return routerDao.addWithStatus(task);
     }
-    
-    @Profiled(tag = "TaskService.doError")
+
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doError(Task task) {
         task.setStatus(Task.TASK_STATUS_PARSE_ERROR);
@@ -328,7 +306,6 @@ public class TaskServiceImpl implements TaskService {
 	 * 
 	 * @return true没有执行完成
 	 */
-	@Profiled(tag = "TaskService.findTasks")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findTasks(Task task) {
         TaskDao routerDao = taskDao;    	
@@ -338,8 +315,7 @@ public class TaskServiceImpl implements TaskService {
     	
 		return routerDao.findTasks(task);
 	}
-	
-	@Profiled(tag = "TaskService.findSendTasks")
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
 		Assert.notNull(type, "type must not be null");
@@ -352,7 +328,6 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSendTasks(type, fetchNum, key);
 	}
 
-	@Profiled(tag = "TaskService.findReverseSendTask")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findReverseSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
@@ -362,8 +337,7 @@ public class TaskServiceImpl implements TaskService {
     	
 		return routerDao.findReverseSendTask(sendCode);
 	}
-	
-	@Profiled(tag = "TaskService.findWaybillSendTask")
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
@@ -507,8 +481,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
 		}
 	}
-	
-	@Profiled(tag = "TaskService.findTasksNumsByType")
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;    	
@@ -518,8 +491,7 @@ public class TaskServiceImpl implements TaskService {
     	
 		return routerDao.findTasksNumsByType(type, ownSign);
 	}
-	
-	@Profiled(tag = "TaskService.findFailTasksNumsByType")
+
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;    	
@@ -530,7 +502,6 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findFailTasksNumsByType(type, ownSign);
 	}
 
-	@Profiled(tag = "TaskService.addInspectSortingTask")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addInspectSortingTask(TaskRequest request) {
 		UploadedPackage uPackage = JsonHelper.fromJson(request.getBody(),UploadedPackage.class);

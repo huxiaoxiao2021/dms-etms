@@ -8,13 +8,15 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
+//import com.jd.etms.erp.ws.ErpQuerySafWS;
+//import com.jd.etms.waybill.wss.ErpQuerySafWS
 
 @Component
 @Path(Constants.REST_URL)
@@ -33,7 +35,6 @@ public class CustomerServiceResource {
 
     @GET
     @Path("/customerservice/{oldBillCode}")
-    @Profiled(tag = "CustomerServiceResource.get")
     public CustomerServiceResponse getSurfaceCode(@PathParam("oldBillCode") String oldBillCode) {
         CustomerServiceResponse response= new CustomerServiceResponse();
         try {

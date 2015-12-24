@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -25,10 +15,18 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service("cenConfirmService")
 public class CenConfirmServiceImpl implements CenConfirmService {
@@ -60,7 +58,6 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return createCenConfirm(inspection, null);
 	}
 
-	@Profiled(tag = "cenConfirmService.saveOrUpdateCenConfirm")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public synchronized void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {//FIXME:PRIVATE 取消事务
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
@@ -187,7 +184,6 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	}
 
 	@Override
-	@Profiled(tag = "cenConfirmService.queryHandoverInfo")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<CenConfirm> queryHandoverInfo(CenConfirm cenConfirm) {
 		return cenConfirmDao.queryHandoverInfo(cenConfirm);
@@ -251,7 +247,6 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		}
 		return cenConfirm;
 	}
-	@Profiled(tag = "cenConfirmService.syncWaybillStatusTask")
 	public void syncWaybillStatusTask(CenConfirm cenConfirm) {
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.etms.basic.domain.Assort;
 import jd.oom.client.clientbean.Order;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.utils.OrderServiceHelper;
 import com.jd.bluedragon.utils.SpringHelper;
+import com.jd.ql.basic.domain.Assort;
 
 @Service("orderWebService")
 public class OrderWebService {

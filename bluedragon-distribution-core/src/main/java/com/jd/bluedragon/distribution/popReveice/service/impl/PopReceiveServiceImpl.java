@@ -1,17 +1,5 @@
 package com.jd.bluedragon.distribution.popReveice.service.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -20,6 +8,16 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.dao.PopReceiveDao;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 import com.jd.bluedragon.distribution.popReveice.service.PopReceiveService;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc 
@@ -43,7 +41,6 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	private PopReceiveDao popReceiveDao;
 	
 	@Override
-	@Profiled(tag = "PopReceiveServiceImpl.findListNoReceive")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopPrint> findListNoReceive(Map<String, Object> paramMap) {
 		this.logger.info("根据条件查询POP已打印未收货集合，paramMap:" + paramMap);

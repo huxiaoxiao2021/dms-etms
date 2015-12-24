@@ -2,10 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import java.util.List;
 
-import com.jd.etms.basic.domain.*;
-import com.jd.etms.basic.dto.BaseCrossDto;
-import com.jd.etms.basic.dto.BaseGoodsPositionDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.domain.*;
+import com.jd.ql.basic.dto.*;
+
 
 public interface BaseMinorManager {
 	
@@ -15,8 +14,6 @@ public interface BaseMinorManager {
 
 	public abstract BaseResult<List<MainBranchSchedule>> getMainBranchScheduleList(
 			MainBranchSchedule mbs);
-	
-	public abstract BaseCrossDto getComplexCrossDetail (String dmsCode, String siteCode);
 	
 	public abstract AirTransport getAirConfig(Integer originalProvinceId, Integer originalCityId,Integer destinationProvinceId, Integer destinationCityId);
 	
@@ -33,7 +30,7 @@ public interface BaseMinorManager {
      * @return 签约商家ID列表
      */
     public List<String> getSignCustomer();
-
-	public abstract List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup);
+    
+    public BasePdaUserDto pdaUserLogin(String erpcode, String password);
 
 }

@@ -13,8 +13,6 @@ import com.jd.bluedragon.distribution.sendprint.domain.ExpressInfo;
 import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.basic.cache.proxy.BasicMinorWSProxy;
-import com.jd.etms.basic.domain.Assort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,28 +1,28 @@
 package com.jd.bluedragon.distribution.box.service;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.box.dao.BoxDao;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dbs.objectId.IGenerateObjectId;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.Lists;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.box.dao.BoxDao;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dbs.objectId.IGenerateObjectId;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.BaseTradeInfoDto;
+import java.util.List;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -39,7 +39,7 @@ public class BoxServiceImpl implements BoxService {
     private BoxDao boxDao;
 
     @Autowired
-    private BaseService baseService;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private IGenerateObjectId genObjectId;
@@ -50,14 +50,13 @@ public class BoxServiceImpl implements BoxService {
 	@Autowired
 	BaseMinorManager baseMinorManager;
 
-    @Profiled(tag = "BoxService.addBox")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.add(BoxDao.namespace, box);
     }
 
-    @Profiled(tag = "BoxService.batchAdd")
+    @JProfiler(jKey = "DMSWEB.BoxService.batchAdd",mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public List<Box> batchAdd(Box param) {
     	List<Box> boxes = Lists.newArrayList();
@@ -99,9 +98,8 @@ public class BoxServiceImpl implements BoxService {
 			if (dto == null || dto.getTraderCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站商家接口"
 						+ box.getCreateSiteCode());
-				BaseStaffSiteOrgDto createSite = this.baseService
-						.queryDmsBaseSiteByCode(String.valueOf(box
-								.getCreateSiteCode()));
+				BaseStaffSiteOrgDto createSite = this.baseMajorManager
+						.getBaseSiteBySiteId(box.getCreateSiteCode());
 				if (createSite == null || createSite.getDmsSiteCode() == null) {
 					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 							+ box.getCreateSiteCode());
@@ -113,9 +111,8 @@ public class BoxServiceImpl implements BoxService {
 				createSiteDms = dto.getTraderCode();
 			}
 		} else {
-			BaseStaffSiteOrgDto createSite = this.baseService
-					.queryDmsBaseSiteByCode(String.valueOf(box
-							.getCreateSiteCode()));
+			BaseStaffSiteOrgDto createSite = this.baseMajorManager
+					.getBaseSiteBySiteId(box.getCreateSiteCode());
 			if (createSite == null || createSite.getDmsSiteCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 						+ box.getCreateSiteCode());
@@ -132,9 +129,8 @@ public class BoxServiceImpl implements BoxService {
 			if (dto == null || dto.getTraderCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-目的站商家接口"
 						+ box.getReceiveSiteCode());
-				BaseStaffSiteOrgDto receiveSite = this.baseService
-						.queryDmsBaseSiteByCode(String.valueOf(box
-								.getReceiveSiteCode()));
+				BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
+						.getBaseSiteBySiteId(box.getReceiveSiteCode());
 				if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
 					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 							+ box.getReceiveSiteCode());
@@ -145,9 +141,8 @@ public class BoxServiceImpl implements BoxService {
 				receiveSiteDms = dto.getTraderCode();
 			}
 		} else {
-			BaseStaffSiteOrgDto receiveSite = this.baseService
-					.queryDmsBaseSiteByCode(String.valueOf(box
-							.getReceiveSiteCode()));
+			BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
+					.getBaseSiteBySiteId(box.getReceiveSiteCode());
 			if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 						+ box.getReceiveSiteCode());
@@ -171,13 +166,11 @@ public class BoxServiceImpl implements BoxService {
                 + box.getReceiveSiteCode();
     }
 
-    @Profiled(tag = "BoxService.updateStatusByCodes")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateStatusByCodes(Box box) {
         return this.boxDao.updateStatusByCodes(box);
     }
 
-    @Profiled(tag = "BoxService.findBoxByCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");
@@ -212,28 +205,24 @@ public class BoxServiceImpl implements BoxService {
 		return this.boxDao.findBoxByCode(code);
 	}
 
-    @Profiled(tag = "BoxService.findBoxByBoxCode")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Box findBoxByBoxCode(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxByBoxCode(box);
     }
 
-    @Profiled(tag = "BoxService.findBoxesBySite")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Box> findBoxesBySite(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxesBySite(box);
     }
 
-    @Profiled(tag = "BoxService.findBoxes")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Box> findBoxes(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxes(box);
     }
 
-    @Profiled(tag = "BoxService.print")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer print(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");
@@ -242,7 +231,6 @@ public class BoxServiceImpl implements BoxService {
         return this.boxDao.print(box);
     }
 
-    @Profiled(tag = "BoxService.reprint")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer reprint(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");

@@ -1,29 +1,14 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
+import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureLogDao;
 import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
 import com.jd.bluedragon.distribution.departure.domain.DepartureLog;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.departure.service.impl.DepartureServiceImpl;
-import com.jd.bluedragon.utils.*;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
-import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.receive.dao.ReceiveDao;
@@ -44,11 +29,25 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service("receiveService")
 public class ReceiveServiceImpl implements ReceiveService {
@@ -102,7 +101,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 *
 	 * @param
 	 */
-	@Profiled(tag = "receiveService.doReceiveing")
+	@JProfiler(jKey= "DMSWEB.receiveService.doReceiveing", mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void doReceiveing(Receive receive) {
 		receiveDao.add(ReceiveDao.namespace, receive);
@@ -146,7 +145,7 @@ public class ReceiveServiceImpl implements ReceiveService {
                  }
             }
 		}else{
-			List<SendDetail>  sendDetails=deliveryService.getSendByBox(receive.getBoxCode());
+			List<SendDetail> sendDetails=deliveryService.getSendByBox(receive.getBoxCode());
 			if (sendDetails == null || sendDetails.isEmpty()){
 				log.error("根据[boxCode=" + receive.getBoxCode()
 						+ "]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪");
@@ -388,7 +387,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 *
 	 * @param
 	 */
-	@Profiled(tag = "receiveService.turnoverBoxAdd")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void turnoverBoxAdd(TurnoverBox turnoverBox) {
 		turnoverBoxDao.add(TurnoverBoxDao.namespace, turnoverBox);
@@ -430,7 +428,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 * @return
 	 */
 	@Override
-	@Profiled(tag = "receiveService.findReceiveJoinList")
 	public List<Receive> findReceiveJoinList(Map<String, Object> paramMap){
 		return this.receiveDao.findReceiveJoinList(paramMap);
 	}

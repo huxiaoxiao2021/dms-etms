@@ -18,8 +18,11 @@ public class LabelPrintingRequest  extends BaseRequest {
     /**运单号*/
     public String waybillCode;
 
-    /**分拣中心id 分拣中心打印时调用*/
+    /** 分拣中心id 分拣中心打印时调用*/
     public Integer dmsCode;
+
+    /**始发站点类型*/
+    public Integer startSiteType;
 
     /**分拣中心名称 分拣中心打印时调用*/
     public String dmsName;
@@ -54,8 +57,9 @@ public class LabelPrintingRequest  extends BaseRequest {
     /**打印来源 1.分拣中心;2.备件库*/
     public String originalType;
 
-    /**标签类型 0：有纸化，1：无纸化*/
+    /** 标签类型 0：有纸化，1：无纸化 */
     public Integer labelType;
+
 
     public String getWaybillCode() {
         return waybillCode;
@@ -79,6 +83,14 @@ public class LabelPrintingRequest  extends BaseRequest {
 
     public void setDmsCode(Integer dmsCode) {
         this.dmsCode = dmsCode;
+    }
+
+    public Integer getStartSiteType() {
+        return startSiteType;
+    }
+
+    public void setStartSiteType(Integer startSiteType) {
+        this.startSiteType = startSiteType;
     }
 
     public String getDmsName() {

@@ -43,7 +43,7 @@ import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * In order to inspection operation

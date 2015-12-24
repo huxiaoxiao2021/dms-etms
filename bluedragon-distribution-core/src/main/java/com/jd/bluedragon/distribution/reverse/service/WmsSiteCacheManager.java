@@ -6,12 +6,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
 public class WmsSiteCacheManager {
@@ -25,7 +24,7 @@ public class WmsSiteCacheManager {
 	private static final Integer CACHE_NUM_THRESHOLD = 500;
 
 	@Autowired
-	private BaseService baseService;
+	private BaseMajorManager baseMajorManager;
 
 	public WmsSite getWmsSite(Integer siteCode) {
 		if (siteCode == null) {
@@ -42,8 +41,7 @@ public class WmsSiteCacheManager {
 			}
 		}
 		if ((site == null) || needRefresh) {
-			BaseStaffSiteOrgDto dto = queryDmsBaseSiteByCode(String
-					.valueOf(siteCode));
+			BaseStaffSiteOrgDto dto = queryDmsBaseSiteByCode(siteCode);
 			site = toWmsSite(dto);
 			if (site != null) {
 				site.setLastModifiedTime(System.currentTimeMillis());
@@ -60,10 +58,10 @@ public class WmsSiteCacheManager {
 		}
 	}
 
-	private BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String code) {
+	private BaseStaffSiteOrgDto queryDmsBaseSiteByCode(Integer code) {
 		try {
-			BaseStaffSiteOrgDto result = baseService
-					.queryDmsBaseSiteByCode(code);
+			BaseStaffSiteOrgDto result = baseMajorManager
+					.getBaseSiteBySiteId(code);
 			return result;
 		} catch (Exception e) {
 			logger.error(

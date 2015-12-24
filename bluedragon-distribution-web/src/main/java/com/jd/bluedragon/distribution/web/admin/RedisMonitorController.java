@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.admin.service.RedisMonitorService;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.wss.BasicMajorWS;
 import com.jd.etms.erp.service.dto.CommonDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @RequestMapping("/admin/redis-monitor")
@@ -34,8 +33,7 @@ public class RedisMonitorController {
 	private RedisMonitorService redisMonitorService;
 
 	@Autowired
-	@Qualifier("basicMajorWSSaf")
-	private BasicMajorWS basicMajorWSSaf;
+	private BaseMajorManager baseMajorManager;
 
 	@Autowired
 	private RedisManager redisManager;
@@ -120,7 +118,7 @@ public class RedisMonitorController {
 	public CommonDto<List<Map<String, Object>>> add() {
 		CommonDto<List<Map<String, Object>>> cdto = new CommonDto<List<Map<String, Object>>>();
 		try {
-			BaseStaffSiteOrgDto dto = basicMajorWSSaf.getBaseSiteBySiteId(1);
+			BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(1);
 			String value = JsonHelper.toJson(dto);
 			redisManager.setex("basicMajorWSProxy.getBaseSiteBySiteId@1", 1000000, value);
 			cdto.setCode(CommonDto.CODE_NORMAL);

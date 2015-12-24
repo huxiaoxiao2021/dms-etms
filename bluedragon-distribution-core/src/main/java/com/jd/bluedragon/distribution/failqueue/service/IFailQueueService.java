@@ -1,14 +1,10 @@
 package com.jd.bluedragon.distribution.failqueue.service;
 
-import java.util.List;
-import java.util.Map;
-
-import org.perf4j.aop.Profiled;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.departure.domain.Departure;
 import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
+
+import java.util.List;
+import java.util.Map;
 
 public interface IFailQueueService {
 	

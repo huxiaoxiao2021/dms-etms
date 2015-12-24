@@ -1,27 +1,5 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
@@ -43,6 +21,19 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL)
@@ -376,7 +367,6 @@ public class SortingResource {
 	 */
 	@GET
 	@Path("/sortingRet/haveSortingRet")
-	@Profiled(tag = "SortingResource.haveSortingRet")
 	public SortingResponse isSortingRet(@QueryParam("packageCode") String packageCodeOrWaybillCode) {
 		try {
 			this.logger.info("调用SortingResource.haveSortingRet 判断是否已经操作分拣退货[" + packageCodeOrWaybillCode + "]");
@@ -407,7 +397,6 @@ public class SortingResource {
 	 */
 	@GET
 	@Path("/sortingRet/checkReDispatch")
-	@Profiled(tag = "SortingResource.checkReDispatch")
 	public SortingResponse checkReDispatch(@QueryParam("packageCode") String packageCode) {
 		try {
 			this.logger.info("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[" + packageCode + "]");
