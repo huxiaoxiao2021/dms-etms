@@ -1,11 +1,14 @@
-package com.jd.bluedragon.distribution.reverse.domain;
+package com.jd.bluedragon.distribution.message;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by wangtingwei on 2015/12/22.
  */
-public class OwnReverseTransferDomain {
+public class OwnReverseTransferDomain implements Serializable {
+
+
     private String waybillCode;
     private Integer userId;
     private String userRealName;

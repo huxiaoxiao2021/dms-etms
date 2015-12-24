@@ -10,15 +10,12 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
-import com.jd.bluedragon.distribution.reverse.domain.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.erp.service.domain.BaseEntity;
-import com.jd.etms.erp.ws.ErpQuerySafWS;
-import com.jd.etms.waybill.api.WaybillSyncApi;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 逆向换单打印

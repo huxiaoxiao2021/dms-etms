@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.waybill.domain;
+package com.jd.bluedragon.distribution.print.domain;
 
 import java.io.Serializable;
 import java.util.List;
@@ -52,7 +52,7 @@ public class PrintWaybill implements Serializable {
     /**
      * B商家ID
      */
-    private Long busiId ;
+    private Integer busiId ;
 
     /**
      * B商家名称
@@ -258,11 +258,11 @@ public class PrintWaybill implements Serializable {
         this.isPrintInvoice = isPrintInvoice;
     }
 
-    public Long getBusiId() {
+    public Integer getBusiId() {
         return busiId;
     }
 
-    public void setBusiId(Long busiId) {
+    public void setBusiId(Integer busiId) {
         this.busiId = busiId;
     }
 

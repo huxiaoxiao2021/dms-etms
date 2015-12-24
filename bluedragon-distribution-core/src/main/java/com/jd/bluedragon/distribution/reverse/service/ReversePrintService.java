@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.reverse.domain.OwnReverseTransferDomain;
-
-import javax.ws.rs.FormParam;
+import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 
 
 /**

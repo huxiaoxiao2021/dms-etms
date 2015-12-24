@@ -4,7 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.reverse.domain.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

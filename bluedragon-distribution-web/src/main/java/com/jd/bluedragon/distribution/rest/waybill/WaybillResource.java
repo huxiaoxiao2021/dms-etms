@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.message.produce.client.MessageClient;
@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
@@ -795,7 +794,7 @@ public class WaybillResource {
     		BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
     		if(br!=null) response.setSiteCode(br.getDmsId());
     	}catch(Exception e){
-    		this.logger.error("根据运单号【" + startDmsCode +"-"+ siteCode + "】 获取目的分拣中心信息接口",e);
+    		this.logger.error("根据运单号【" + startDmsCode + "-" + siteCode + "】 获取目的分拣中心信息接口", e);
     	}
     	return response;
     }
@@ -842,7 +841,7 @@ public class WaybillResource {
 		}catch (Exception e){
 			jdResponse.setCode(1000);
 			jdResponse.setMessage("执行订单修改MQ消息失败");
-			logger.error("dms_modify_order_info执行订单修改电话或者地址MQ失败"+modifyOrderInfo.getOrderId()+"，失败原因 " + e);
+			logger.error("dms_modify_order_info执行订单修改电话或者地址MQ失败" + modifyOrderInfo.getOrderId() + "，失败原因 " + e);
 		}
 		return  jdResponse;
 	}

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.waybill.domain;
+package com.jd.bluedragon.distribution.print.domain;
 
 import java.io.Serializable;
 
