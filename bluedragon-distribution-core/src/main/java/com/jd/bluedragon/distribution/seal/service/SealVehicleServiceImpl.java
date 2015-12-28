@@ -716,12 +716,10 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	@Override
 	public SealVehicleResponse cancelSealVehicle(SealVehicle sealVehicle) {
 
-		if (sealVehicle.getCreateTime() != null) {
-			sealVehicle.setCreateTime(new Date());
-		}
+		sealVehicle.setCreateTime(new Date());
 		//判断该批次是否已经发车
 		BatchSend batchSend= batchSendService.readBySendCode(sealVehicle.getSendCode());
-		if(batchSend!=null && batchSend.getSendCarState().equals(states)){
+		if(batchSend!=null && states.equals(batchSend.getSendCarState())){
 			return new SealVehicleResponse(SealVehicleResponse.CODE_2007_ERROR, SealVehicleResponse.MESSAGE_2007_ERROR);
 		}
 		//撤销增加yn=2的值
