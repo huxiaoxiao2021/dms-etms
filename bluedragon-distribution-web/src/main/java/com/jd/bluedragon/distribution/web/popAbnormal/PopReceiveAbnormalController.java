@@ -45,11 +45,11 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.WorkBookObject;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.pop.sortcenter.ws.SortCenterService;
 import com.jd.pop.sortcenter.ws.VenderOperInfoResult;
 import com.jd.pop.sortcenter.ws.VenderOperateInfo;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * @author zhaohc
@@ -748,12 +748,12 @@ public class PopReceiveAbnormalController {
 					&& defaultSiteType.equals(Constants.DMS_SITE_TYPE)) {
 				siteList.add(baseStaffSiteOrgDto);
 			} else if (defaultOrgId != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgId(defaultOrgId,
-						Constants.DMS_SITE_TYPE.toString());
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(defaultOrgId,
+						Constants.DMS_SITE_TYPE);
 			} else if (paramMap != null && paramMap.get("orgCode") != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgId(
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(
 						(Integer) paramMap.get("orgCode"),
-						Constants.DMS_SITE_TYPE.toString());
+						Constants.DMS_SITE_TYPE);
 			}
 			model.addAttribute("siteList", siteList);
 		} catch (Exception e) {

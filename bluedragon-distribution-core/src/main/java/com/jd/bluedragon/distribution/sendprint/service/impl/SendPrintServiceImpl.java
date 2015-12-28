@@ -1,42 +1,36 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
-import java.util.*;
-
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
-import com.jd.bluedragon.distribution.sendprint.domain.*;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service
 public class SendPrintServiceImpl implements SendPrintService{
@@ -57,7 +51,7 @@ public class SendPrintServiceImpl implements SendPrintService{
     private SealBoxService tSealBoxService;
 	
 	@Autowired
-    private BaseService tBaseService;
+    private BaseMajorManager baseMajorManager;
 	
 	private final Logger logger = Logger.getLogger(SendPrintServiceImpl.class);
 	
@@ -69,7 +63,6 @@ public class SendPrintServiceImpl implements SendPrintService{
 	 * 
 	 * 批次汇总&&批次汇总打印
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria) {
 	    SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
@@ -138,7 +131,6 @@ public class SendPrintServiceImpl implements SendPrintService{
 	 * 
 	 * 汇总&&汇总打印
 	 */
-	@Profiled
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public SummaryPrintResult summaryPrintQuery(SendM sendM,List<SendM> sendMs,PrintQueryCriteria criteria) {
 		Date startDate = new Date();
@@ -345,7 +337,7 @@ public class SendPrintServiceImpl implements SendPrintService{
  						if(waybill != null && waybill.getOldSiteId()!=null)
  						siteId = waybill.getOldSiteId();
  						String siteName = null;
- 		    			BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(siteId));
+ 		    			BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteId);
  	        			if(bDto!=null){
   				           siteName = bDto.getSiteName();
   				           Integer siteType = bDto.getSiteType();
@@ -519,7 +511,6 @@ public class SendPrintServiceImpl implements SendPrintService{
 	/**
 	 * 基本查询
 	 */
-	@Profiled(tag="SendPrintService.basicPrintQuery")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
 		Date startDate = new Date();
@@ -543,7 +534,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	}
 
     private String toSiteName(Integer siteCode) {
-        BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(siteCode));
+        BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         if(bDto==null){
         	return null;
         }
@@ -551,7 +542,7 @@ public class SendPrintServiceImpl implements SendPrintService{
     }
     
     private Integer toSiteType(Integer siteCode) {
-        BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(siteCode));
+        BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         if(bDto==null){
         	return null;
         }
@@ -586,7 +577,6 @@ public class SendPrintServiceImpl implements SendPrintService{
     }
 
 	@Override
-	@Profiled(tag="SendPrintService.sopPrintQuery")
 	public BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria) {
 	    BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
 	    try {
@@ -678,7 +668,6 @@ public class SendPrintServiceImpl implements SendPrintService{
 
 
     @Override
-    @Profiled(tag = "SendPrintService.selectBoxBySendCode")
     public BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends) {
         logger.info("获取发货批次下的原包及箱子信息-selectBoxBySendCode");
         BatchSendInfoResponse batchSendInfoResponse=new BatchSendInfoResponse();
@@ -712,7 +701,6 @@ public class SendPrintServiceImpl implements SendPrintService{
     /**
 	 * 快生打印
 	 */
-	@Profiled(tag="SendPrintService.basicPrintQueryOffline")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria) {
 		Date startDate = new Date();
@@ -814,8 +802,8 @@ public class SendPrintServiceImpl implements SendPrintService{
 
 								Integer siteId = tJoinDetail.getOldSiteId();
 								String siteName = null;
-								BaseStaffSiteOrgDto bDto = this.tBaseService
-										.queryDmsBaseSiteByCode(String.valueOf(siteId));
+								BaseStaffSiteOrgDto bDto = this.baseMajorManager
+										.getBaseSiteBySiteId(siteId);
 								if (bDto != null) {
 									siteName = bDto.getSiteName();
 									Integer siteType = bDto.getSiteType();

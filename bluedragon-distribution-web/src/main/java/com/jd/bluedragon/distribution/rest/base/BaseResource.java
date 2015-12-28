@@ -42,14 +42,13 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.domain.BaseVehicle;
-import com.jd.etms.basic.domain.PsStoreInfo;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.dto.SimpleBaseSite;
 import com.jd.etms.utils.cache.monitor.CacheMonitor;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
 
 @Component
 @Path(Constants.REST_URL)
@@ -188,44 +187,6 @@ public class BaseResource {
 		response.setDriverId(driver.getStaffNo());
 		response.setOrgId(driver.getOrgId());
 		response.setOrgName(driver.getOrgName());
-
-		return response;
-	}
-
-	@GET
-	@Path("/bases/vehicle/")
-	public BaseResponse getVehicle(@QueryParam("vehicleCode") String vehicleCode,
-	        @QueryParam("barCode") String barCode) {
-		this.logger.info("vehicleCode is " + vehicleCode + " and barCode is " + barCode);
-
-		BaseVehicle vehicle = null;
-		try {
-			if (null != vehicleCode) {
-				vehicle = baseService.queryVehicleByVehicleCode(vehicleCode);
-			}
-
-			if (null != barCode) {
-				vehicle = baseService.queryVehicleByBarCode(barCode);
-			}
-		} catch (Exception e) {
-			logger.error("获取车辆失败", e);
-			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
-			        JdResponse.MESSAGE_SERVICE_ERROR);
-			return response;
-		}
-
-		if (null == vehicle) {
-			logger.error("没有对应车辆");
-			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
-			        JdResponse.MESSAGE_VEHICLES_EMPTY);
-			return response;
-		}
-
-		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		response.setCarCode(vehicle.getVehicleLicense());
-		response.setLicense(vehicle.getBarcode());
-		// 待确认 response.setCarCode(vehicle.getVehicleRuleCode());
-		// 待确认 response.setLicense(vehicle.getVehicleLicense());
 
 		return response;
 	}
@@ -470,69 +431,6 @@ public class BaseResource {
 			ll.add(response);
 		}
 
-		return ll;
-	}
-
-	@GET
-	@Path("/bases/cars/{orgId}")
-	public List<BaseResponse> getCarNumbers(@PathParam("orgId") Integer orgId) {
-		// 根据机构ID获取对应的车牌号信息列表
-		this.logger.info("orgId is " + orgId);
-		this.logger.info("获取车牌号信息开始");
-		List<BaseResponse> ll = new ArrayList<BaseResponse>();
-		BaseVehicle[] result = null;
-		try {
-			result = baseService.queryVehicleByOrgId(orgId);
-		} catch (Exception e) {
-			logger.error("获取车牌号信息失败", e);
-			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
-			        JdResponse.MESSAGE_SERVICE_ERROR);
-			ll.add(response);
-			return ll;
-		}
-
-		if (null == result) {
-			logger.error("获取车牌号信息失败");
-			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
-			        JdResponse.MESSAGE_SERVICE_ERROR);
-			ll.add(response);
-			return ll;
-		}
-
-		if (result.length == 0) {
-			logger.error("获取车牌号信息为空");
-			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
-			        JdResponse.MESSAGE_VEHICLES_EMPTY);
-			ll.add(response);
-			return ll;
-		}
-
-		for (BaseVehicle dto : result) {
-			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-			// 车牌号
-			response.setCarId(dto.getVehicleLicense());
-			// 车牌号条码
-			response.setCarCode(dto.getBarcode());
-			// gps编号
-			response.setGpsNo(dto.getGpsNo());
-			// Sim卡号
-			response.setSimNo(dto.getSimNo());
-			// 车辆类型
-			response.setCarType(dto.getVehicleType());
-			// 承载量
-			if (null == dto.getLoadCapacity()) {
-				response.setLoadCapacity(0.0);
-			} else {
-				response.setLoadCapacity(dto.getLoadCapacity().doubleValue());
-			}
-			// 所属车队
-			if (null == dto.getVehicleTeam()) {
-				response.setCarTeam(0);
-			} else {
-				response.setCarTeam(dto.getVehicleTeam());
-			}
-			ll.add(response);
-		}
 		return ll;
 	}
 
@@ -1239,7 +1137,7 @@ public class BaseResource {
                 , parentGroup, nodeLevel, typeGroup));
 		DatadictResponse datadictResponse = null;
 		try{
-			List<BaseDataDict> baseDataDicts = baseMinorManager.getValidBaseDataDictList(
+			List<BaseDataDict> baseDataDicts = baseMajorManager.getValidBaseDataDictList(
 												parentGroup,nodeLevel,typeGroup);
 			List<BaseDatadict> bdds = new ArrayList<BaseDatadict>();
 			for(BaseDataDict bd : baseDataDicts){

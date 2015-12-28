@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -23,8 +23,8 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("offlineDeliveryService")
 public class OfflineDeliveryServiceImpl implements OfflineService {
@@ -35,7 +35,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 	private DeliveryService deliveryService;
 
 	@Autowired
-	private BaseService baseService;
+	private BaseMajorManager baseMajorManager;
 
 	@Autowired
 	private BoxService boxService;
@@ -166,8 +166,8 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 			return Boolean.FALSE;
 		}
 
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
-				.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
+				.getBaseSiteBySiteId(receiveSiteCode);
 
 		if (baseStaffSiteOrgDto == null
 				|| baseStaffSiteOrgDto.getSiteCode() == null) {

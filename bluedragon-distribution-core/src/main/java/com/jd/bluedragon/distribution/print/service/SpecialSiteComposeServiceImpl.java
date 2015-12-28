@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.etms.basic.wss.BasicMajorWS;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
     private static String PREPARE_SITE_NAME_EMS_DIRECT = "EMS全国直发";
 
     @Autowired
-    private BasicMajorWS basicMajorWS;
+    private BaseService baseService;
 
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
@@ -65,7 +64,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
 
 
         if(null==waybill.getPrepareSiteName()&&null!=waybill.getPrepareSiteCode()){
-            BaseStaffSiteOrgDto site= basicMajorWS.getBaseSiteBySiteId(waybill.getPrepareSiteCode());
+            BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(waybill.getPrepareSiteCode());
             if(null!=site){
                 waybill.setPrepareSiteName(site.getSiteName());
             }

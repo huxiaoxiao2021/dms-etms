@@ -17,8 +17,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.cookie.CookieUtils;
-import com.jd.etms.basic.domain.BaseDataDict;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * @author zhaohc

@@ -1,13 +1,5 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.api.request.RejectRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -19,12 +11,13 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.Pickware;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.PickwareService;
-import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("reverseRejectService")
 public class ReverseRejectServiceImpl implements ReverseRejectService {
@@ -43,19 +36,16 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
     @Autowired
     private OperationLogService operationLogService;
     
-    @Profiled(tag = "ReverseRejectService.add")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(ReverseReject reverseReject) {
         return this.reverseRejectDao.add(ReverseRejectDao.namespace, reverseReject);
     }
     
-    @Profiled(tag = "ReverseRejectService.update")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(ReverseReject reverseReject) {
         return this.reverseRejectDao.update(ReverseRejectDao.namespace, reverseReject);
     }
     
-    @Profiled(tag = "ReverseRejectService.get")
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ReverseReject get(Integer businessType, String orderId, String packageCode) {
         ReverseReject reverseReject = new ReverseReject();
@@ -65,7 +55,6 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         return this.reverseRejectDao.get(reverseReject);
     }
     
-    @Profiled(tag = "ReverseRejectService.reject")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void reject(ReverseReject source) {
         if (!this.check(source)) {
@@ -97,7 +86,6 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
     }
     
-    @Profiled(tag = "ReverseRejectService.rejectInspect")
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void rejectInspect(Task task) {
         String body = task.getBody().substring(1, task.getBody().length() - 1);

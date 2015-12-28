@@ -8,10 +8,9 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
-import com.jd.etms.basic.domain.BaseDmsStore;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -51,7 +50,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     @Autowired
     private AirTransportService airTransportService;
 
-    @Autowired
+
     private List<ComposeService> composeServiceList;
 
 

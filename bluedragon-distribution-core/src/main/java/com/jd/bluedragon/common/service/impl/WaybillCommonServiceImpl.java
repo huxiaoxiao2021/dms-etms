@@ -7,25 +7,26 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 
 @Service("waybillCommonService")
@@ -41,12 +42,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private WaybillQueryApi waybillQueryApi;
 
     @Autowired
-    private BaseService baseService;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private OrderWebService orderWebService;
 
-    @Profiled(tag = "WaybillCommonServiceImpl.findByWaybillCode")
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -168,7 +168,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param waybillCode 运单号
      * @return
      */
-    @Profiled(tag = "WaybillCommonServiceImpl.getWaybillFromOrderService")
+    @JProfiler(jKey= "DMSWEB.WaybillCommonServiceImpl.getWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
@@ -192,7 +192,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return waybill;
     }
 
-    @Profiled(tag = "WaybillCommonServiceImpl.getHisWaybillFromOrderService")
+    @JProfiler(jKey= "DMSWEB.WaybillCommonServiceImpl.getHisWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getHisWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
@@ -221,7 +221,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     /**
      * 转换运单基本信息
      *
-     * @param waybillWS
+     * @param
      * @return
      */
     public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack) {
@@ -320,8 +320,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if (siteCode != null) {
             waybill.setSiteCode(siteCode);
             // 根据站点ID获取站点Name
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
-                    .queryDmsBaseSiteByCode(String.valueOf(siteCode));
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
+                    .getBaseSiteBySiteId(siteCode);
             if (baseStaffSiteOrgDto != null) {
                 waybill.setSiteName(baseStaffSiteOrgDto.getSiteName());
                 this.logger.info("运单号为【 " + waybillCode + "】  调用接口设置站点名称成功【 "
@@ -338,8 +338,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		if (transferStationId != null) {
 			waybill.setTransferStationId(transferStationId);
 			// 根据中转站站点ID获取中转站站点Name
-			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
-            		.queryDmsBaseSiteByCode(String.valueOf(transferStationId));
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
+            		.getBaseSiteBySiteId(transferStationId);
 			if (baseStaffSiteOrgDto != null) {
 				waybill.setTransferStationName(baseStaffSiteOrgDto.getSiteName());
 				this.logger.info("运单号为【 " + waybillCode + "】 调用接口设置中转站站点名称成功【 "

@@ -1,26 +1,11 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.SealVehicleRequest;
-import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
+import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.batch.service.BatchSendService;
 import com.jd.bluedragon.distribution.seal.dao.SealVehicleDao;
 import com.jd.bluedragon.distribution.seal.dao.SealVehicleReadDao;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
@@ -30,7 +15,19 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.*;
 
 @Service("sealVehicleService")
 public class SealVehicleServiceImpl implements SealVehicleService {
@@ -38,12 +35,11 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	private static final int SEAL_CODE_SAME = 10; 
-	private static final int SEAL_CODE_UNSAME = 20; 
-	private static final boolean SEAL = true;
-	private static final boolean UNSEAL = false;
+	private static final int SEAL_CODE_UNSAME = 20;
 	
-//	@Autowired
-//	private TaskService taskService;
+	private static final Integer states = 1;
+
+	private static final Integer YN = 2; //撤销封车
 
 	@Autowired
 	private SealVehicleDao sealVehicleDao;
@@ -55,7 +51,10 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	private TaskService taskService;
 	
 	@Autowired
-    private BaseService tBaseService;
+    private BaseMajorManager baseMajorManager;
+
+	@Autowired
+    private BatchSendService  batchSendService;
 
 //	@Override
 //	@Profiled(tag = "SealVehicleService.addSealVehicle")
@@ -74,7 +73,6 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 //	}
 
 	@Override
-	@Profiled(tag = "SealVehicleService.findBySealCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public SealVehicle findBySealCode(String sealCode) {
 		Assert.notNull(sealCode, "sealCode must not be null");
@@ -111,7 +109,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 //	}
 
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.addSealVehicle")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.addSealVehicle",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addSealVehicle(SealVehicle sealVehicle) {
 		// 增加封车信息：先根据封车号、有效性查询封车信息是否存在
@@ -187,7 +185,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	 * 
 	 */
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.addSealVehicle")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.addSealVehiclel2",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addSealVehicle2(SealVehicle sealVehicle) {
 		// 增加封车信息：先根据封车号、有效性查询封车信息是否存在
@@ -257,7 +255,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		waybillStatus.setOperateTime(sealVehicle.getCreateTime());
 		waybillStatus.setCreateSiteCode(sealVehicle.getCreateSiteCode());
 		
-		BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(sealVehicle.getCreateSiteCode()));
+		BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(sealVehicle.getCreateSiteCode());
         if(bDto != null ){
         	waybillStatus.setCreateSiteName(bDto.getSiteName());
         }
@@ -284,7 +282,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.updateSealVehicle")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.updateSealVehicle", mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateSealVehicle(SealVehicle sealVehicle) {
 		// 增加解封车信息：先根据封车号、车牌号、创建站点（此参数是否存在）、有效性更新封车信息
@@ -342,7 +340,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 
 	@Override
-	@Profiled(tag = "SealVehicleServiceImpl.updateSealVehicle2")
+	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.updateSealVehicle2",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateSealVehicle2(SealVehicle sealVehicle) {
 		// 增加解封车信息：先根据封车号、车牌号、创建站点（此参数是否存在）、有效性更新封车信息
@@ -413,7 +411,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		waybillStatus.setOperateTime(sealVehicle.getUpdateTime());
 		waybillStatus.setReceiveSiteCode(sealVehicle.getReceiveSiteCode());
 		
-		BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(sealVehicle.getReceiveSiteCode()));
+		BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(sealVehicle.getReceiveSiteCode());
         if(bDto != null ){
         	waybillStatus.setReceiveSiteName(bDto.getSiteName());
         }
@@ -467,7 +465,6 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 	
 	@Override
-	@Profiled(tag = "SealVehicleService.findBySendCode")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SealVehicle> findBySendCode(String sendCode) {
 		Assert.notNull(sendCode, "sendCode must not be null");
@@ -619,7 +616,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SEAL_VEHICLE); //封车
 		waybillStatus.setSendCode(getSendCodes(sealVehicleList));
 		waybillStatus.setRemark(toSealDesp(sealVehicleList));
-		BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(sealVehicle.getCreateSiteCode()));
+		BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(sealVehicle.getCreateSiteCode());
 		if(bDto != null ){
 	        waybillStatus.setCreateSiteName(bDto.getSiteName());
         }
@@ -647,7 +644,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		waybillStatus.setRemark(toUnSealDesp(sealVehicleDBList));
 		Integer receiveSiteCode = sealVehicle.getReceiveSiteCode();
 		if(receiveSiteCode != null && receiveSiteCode > 0){
-			BaseStaffSiteOrgDto bDto = this.tBaseService.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
+			BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
 			if(bDto != null ){
 		        waybillStatus.setReceiveSiteName(bDto.getSiteName());
 	        }
@@ -715,4 +712,47 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		logger.info("SealVehicleServiceImpl.findByVehicleCode begin...");
 		return sealVehicleReadDao.findByVehicleCode(vehicleCode);
 	}
+
+	@Override
+	public SealVehicleResponse cancelSealVehicle(SealVehicle sealVehicle) {
+
+		sealVehicle.setCreateTime(new Date());
+		//判断该批次是否已经发车
+		BatchSend batchSend= batchSendService.readBySendCode(sealVehicle.getSendCode());
+		if(batchSend!=null && states.equals(batchSend.getSendCarState())){
+			return new SealVehicleResponse(SealVehicleResponse.CODE_2007_ERROR, SealVehicleResponse.MESSAGE_2007_ERROR);
+		}
+		//撤销增加yn=2的值
+		sealVehicle.setYn(YN);
+		this.sealVehicleDao.add2(SealVehicleDao.namespace, sealVehicle);
+
+		//发送全程跟踪
+		taskService.add(this.toCancelTask(sealVehicle));
+		return new SealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+	}
+
+	private Task toCancelTask(SealVehicle sealVehicle) {
+		WaybillStatus waybillStatus = new WaybillStatus();
+		waybillStatus.setOperatorId(sealVehicle.getCreateUserCode());
+		waybillStatus.setOperator(sealVehicle.getCreateUser());
+		waybillStatus.setOperateTime(sealVehicle.getCreateTime());
+		waybillStatus.setCreateSiteCode(sealVehicle.getCreateSiteCode());
+		waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_CANCEL_VEHICLE); //撤销封车
+		waybillStatus.setSendCode(sealVehicle.getSendCode());
+		BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(sealVehicle.getCreateSiteCode());
+        if(bDto != null ){
+        	waybillStatus.setCreateSiteName(bDto.getSiteName());
+        }
+
+		Task task = new Task();
+		task.setTableName(Task.TABLE_NAME_POP);
+		task.setSequenceName(Task.getSequenceName(task.getTableName()));
+		task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+		task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+		task.setBody(JsonHelper.toJson(waybillStatus));
+		task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+		task.setOwnSign(BusinessHelper.getOwnSign());
+		return task;
+	}
+
 }

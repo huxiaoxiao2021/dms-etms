@@ -1,25 +1,19 @@
 package com.jd.bluedragon.distribution.rest.electronictag;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ElectronSiteResponse;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.electron.service.ElectronSiteService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 /**
  * 根据订单包裹号 获取电子标签信息
@@ -48,7 +42,6 @@ public class ElectronResource {
 	 */
 	@GET
 	@Path("/electronictag/{dmsID}/{waybillorPackCode}")
-	@Profiled(tag = "ElectronResource.get")
 	public ElectronSiteResponse get(@PathParam("dmsID") Integer dmsID,
 			@PathParam("waybillorPackCode") String waybillorPackCode) {
 		Assert.notNull(dmsID, "dmsID must not be null");
@@ -77,7 +70,6 @@ public class ElectronResource {
 	 */
 	@GET
 	@Path("/taskAreaNo/{dmsID}/{taskAreaNo}")
-	@Profiled(tag = "ElectronResource.getTaskAreaNo")
 	public ElectronSiteResponse getTaskAreaNo(@PathParam("dmsID") Integer dmsID,
 			@PathParam("taskAreaNo") Integer taskAreaNo) {
 		Assert.notNull(dmsID, "dmsID must not be null");

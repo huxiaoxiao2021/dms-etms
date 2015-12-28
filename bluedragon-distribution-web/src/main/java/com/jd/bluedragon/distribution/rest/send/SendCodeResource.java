@@ -1,20 +1,5 @@
 package com.jd.bluedragon.distribution.rest.send;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,7 +12,15 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -68,7 +61,6 @@ public class SendCodeResource {
 
 	@GET
 	@Path("/departure/check")
-	@Profiled(tag = "DeliveryResource.checkDeliveryInfo")
 	public JdResponse isAirTransportBatch(@QueryParam("siteCode") Integer siteCode,
 			@QueryParam("carrierSiteCode") Integer carrierSiteCode, @QueryParam("sendCode") String sendCode) {
 		if (siteCode == null || carrierSiteCode == null || Strings.isNullOrEmpty(sendCode)) {
@@ -123,7 +115,6 @@ public class SendCodeResource {
 	
 	@GET
 	@Path("/send/repair/sendcode")
-	@Profiled(tag = "ReverseRepairResource.repairSendCode")
 	public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
 		if (StringHelper.isEmpty(sendCode)) {
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
@@ -164,7 +155,6 @@ public class SendCodeResource {
 	
 	@GET
 	@Path("/send/repair/waybillCode")
-	@Profiled(tag = "ReverseRepairResource.repairWaybillCode")
 	public JdResponse repairWaybillCode(@QueryParam("waybillCode") String waybillCode) {
 		if (StringHelper.isEmpty(waybillCode)) {
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,

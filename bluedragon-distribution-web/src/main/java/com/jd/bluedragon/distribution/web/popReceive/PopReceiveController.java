@@ -36,8 +36,8 @@ import com.jd.bluedragon.distribution.web.JsonResult;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.common.web.LoginContext;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * @author zhaohc
@@ -222,8 +222,8 @@ public class PopReceiveController {
 				} else {
 					this.logger
 							.info("初始化查询条件-->员工信息 不属于分拣中心，调用基础资料查询所属机构下的所有分拣中心站点信息开始");
-					siteList = this.baseMajorManager.getBaseSiteByOrgId(
-							defaultOrgId, Constants.DMS_SITE_TYPE.toString());
+					siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(
+							defaultOrgId, Constants.DMS_SITE_TYPE);
 					this.logger
 							.info("初始化查询条件-->员工信息 不属于分拣中心，调用基础资料查询所属机构下的所有分拣中心站点信息结束");
 				}
@@ -237,8 +237,8 @@ public class PopReceiveController {
 				this.logger.info("初始化查询条件-->调用基础资料获取某个员工信息 为空");
 				orgList = baseService.getAllOrg();
 				if (paramMap != null && paramMap.get("orgCode") != null) {
-					siteList = this.baseMajorManager.getBaseSiteByOrgId(
-							(Integer)paramMap.get("orgCode"), Constants.DMS_SITE_TYPE.toString());
+					siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(
+							(Integer)paramMap.get("orgCode"), Constants.DMS_SITE_TYPE);
 				}
 			}
 		} catch (Exception e) {
@@ -336,9 +336,9 @@ public class PopReceiveController {
 		if (defaultSiteType != null && defaultSiteType.equals( Constants.DMS_SITE_TYPE)) {
 			siteList.add(baseStaffSiteOrgDto);
 		} else if (defaultOrgId != null) {
-			siteList = this.baseMajorManager.getBaseSiteByOrgId(defaultOrgId,String.valueOf( Constants.DMS_SITE_TYPE));
+			siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(defaultOrgId,Constants.DMS_SITE_TYPE);
 		} else if (query.getOrgCode() != null) {
-			siteList = this.baseMajorManager.getBaseSiteByOrgId(query.getOrgCode(), String.valueOf( Constants.DMS_SITE_TYPE));
+			siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(query.getOrgCode(),Constants.DMS_SITE_TYPE);
 		}
 		model.addAttribute("siteList", siteList);
 	}

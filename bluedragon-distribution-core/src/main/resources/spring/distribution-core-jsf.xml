@@ -54,6 +54,11 @@
         <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
     </jsf:consumer>
 
+    <jsf:consumer id="orderMarkingService" interface="com.jd.fce.dos.service.contract.OrderMarkingService"
+                  protocol="jsf" alias="${fce.dos.ofc.alias}" timeout="${fce.dos.ofc.timeout}" retries="0">
+    </jsf:consumer>
+
+
     <!-- 预分拣接口,获得  订单-预分拣站点给自动分拣机用,为数据库复制备份 吴昊 -->
     <jsf:consumer id="preseparateOrderService"
                   interface="com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF"
@@ -118,4 +123,35 @@
                  >
     </jsf:consumer>
     <!-- 运单系统接口 结束 -->
+     <!-- 基础资料系统接口 开始 -->
+    <!--获取站点，员工，机构等数据-->	
+	<jsf:consumer id="basicPrimaryWS" interface="com.jd.ql.basic.ws.BasicPrimaryWS" protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" >
+ 		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	</jsf:consumer>
+	
+	<!--basicPrimaryWS接口代理类，内有 获取全量站点、员工 方法-->
+	<bean id="basicPrimaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicPrimaryWSProxyImpl" >
+        <property name="basicPrimaryWS" ref="basicPrimaryWS"></property>
+     </bean>
+     
+     <!--获取省市县地址、商家、门店等数据-->
+     <jsf:consumer id="basicSecondaryWS" interface="com.jd.ql.basic.ws.BasicSecondaryWS" protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" > 
+		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	</jsf:consumer>
+	
+	<!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
+	<bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl" >
+        <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
+     </bean>
+     
+     <!--获取分拣路线、自提柜等数据-->
+	 <jsf:consumer id="basicMixedWS" interface="com.jd.ql.basic.ws.BasicMixedWS"  protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" > 
+		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	 </jsf:consumer>
+	 
+	 <!-- 获取航空配置数据 -->
+	 <jsf:consumer id="basicAirConfigWS" interface="com.jd.ql.basic.ws.BasicAirConfigWS" protocol="jsf" alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" >
+		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+	 </jsf:consumer>
+	<!-- 基础资料系统接口 结束 -->
 </beans>

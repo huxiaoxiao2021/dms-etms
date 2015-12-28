@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,7 +14,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.common.cached.CacheUtils;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @RequestMapping("/common")
@@ -61,8 +60,8 @@ public class CommonController {
 		List<BaseStaffSiteOrgDto> list = null;
 		for (int m = 1; m < 4; m++) {
 			try {
-				list = this.baseMajorManager.getBaseSiteByOrgId(orgCode,
-				        Constants.DMS_SITE_TYPE.toString());
+				list = this.baseMajorManager.getBaseSiteByOrgIdSubType(orgCode,
+				        Constants.DMS_SITE_TYPE);
 				if (list != null) {
 					break;
 				}

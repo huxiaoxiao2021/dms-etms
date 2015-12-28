@@ -1,20 +1,18 @@
 package com.jd.bluedragon.distribution.popPrint.service.impl;
 
-import java.util.List;
-import java.util.Map;
-
+import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc 
@@ -66,7 +64,6 @@ public class PopPrintServiceImpl implements PopPrintService {
 	}
 
 	@Override
-	@Profiled(tag = "PopPrintServiceImpl.add")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(PopPrint popPrint) {
 		if (popPrint == null) {
@@ -89,7 +86,6 @@ public class PopPrintServiceImpl implements PopPrintService {
 	}
 
 	@Override
-	@Profiled(tag = "PopPrintServiceImpl.findLimitListNoReceive")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
 		return popPrintDao.findLimitListNoReceive(paramMap);

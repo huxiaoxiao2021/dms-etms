@@ -16,17 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReverseSpareDto;
 import com.jd.bluedragon.distribution.api.request.ReverseSpareRequest;
 import com.jd.bluedragon.distribution.api.response.PopJoinResponse;
 import com.jd.bluedragon.distribution.api.response.ReverseSpareResponse;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
 @Path(Constants.REST_URL)
@@ -40,7 +40,7 @@ public class ReverseSpareResource {
 	private ReverseSpareService reverseSpareService;
 
 	@Autowired
-	private BaseService baseService;
+	private BaseMajorManager baseMajorManager;
 
 	@GET
 	@Path("/reverseSpare/getBySpareCode/{createSiteCode}/{spareCode}")
@@ -102,8 +102,8 @@ public class ReverseSpareResource {
 			this.logger
 					.info("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称开始，站点号【"
 							+ receiveSiteCode + "】");
-			BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService
-					.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager
+					.getBaseSiteBySiteId(receiveSiteCode);
 			if (baseStaffSiteOrgDto != null) {
 				request.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
 				this.logger

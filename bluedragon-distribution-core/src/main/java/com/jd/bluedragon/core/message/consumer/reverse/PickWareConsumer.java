@@ -16,9 +16,9 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.basic.domain.BaseResult;
-import com.jd.etms.basic.dto.BaseDmsStoreDto;
 import com.jd.etms.message.Message;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.dto.BaseDmsStoreDto;
 
 @Service("pickWareConsumer")
 public class PickWareConsumer extends MessageBaseConsumer {  

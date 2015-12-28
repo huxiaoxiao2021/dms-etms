@@ -1,33 +1,33 @@
 package com.jd.bluedragon.distribution.abnormalorder.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
-import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.etms.message.produce.client.MessageClient;
-import com.jd.etms.waybill.api.WaybillSyncApi;
-import com.jd.etms.waybill.api.WaybillTraceApi;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.abnormalorder.dao.AbnormalOrderDao;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrderMq;
 import com.jd.bluedragon.distribution.api.response.RefundReason;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
+import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.etms.message.produce.client.MessageClient;
+import com.jd.etms.waybill.api.WaybillSyncApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service("abnormalOrderService")
 public class AbnormalOrderServiceImpl implements AbnormalOrderService {
@@ -64,14 +64,13 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	}
 	
 	@Override
-	@Profiled
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateResult(AbnormalOrder abnormalOrder){
 		abnormalOrderDao.updateResult(abnormalOrder);
 	}
 	
 	@Override
-	@Profiled
+	@JProfiler(jKey = "DMSWEB.AbnormalOrderService.pushNewDataFromPDA", mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public HashMap<String/*运单号*/,Integer/*操作结果*/> pushNewDataFromPDA(AbnormalOrder[] abnormalOrders) {
 		HashMap<String/*运单号*/,Integer/*操作结果*/> result = new HashMap<String, Integer>();
@@ -211,6 +210,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		parameter.setRemark(abnormalOrder.getAbnormalReason1() + "-" + abnormalOrder.getAbnormalReason2());
 		
 		WaybillSyncParameterExtend extend = new WaybillSyncParameterExtend();
+		extend.setTaskId(System.currentTimeMillis());
 		extend.setOperateType(OPERATE_TYPE_CODE);
 		
 		parameter.setWaybillSyncParameterExtend(extend);

@@ -7,8 +7,9 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.basic.domain.BaseDmsStore;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.domain.BaseDmsStore;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;

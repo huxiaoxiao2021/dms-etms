@@ -19,8 +19,8 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopQueue;
 import com.jd.bluedragon.distribution.popPrint.service.PopQueueService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.common.web.LoginContext;
-import com.jd.etms.basic.domain.BaseOrg;
-import com.jd.etms.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @RequestMapping("/popQueueManager")
@@ -105,9 +105,9 @@ public class PopQueueController {
 		if (defaultSiteType != null && defaultSiteType.equals( Constants.DMS_SITE_TYPE)) {
 			siteList.add(baseStaffSiteOrgDto);
 		} else if (defaultOrgId != null) {
-			siteList = this.baseMajorManager.getBaseSiteByOrgId(defaultOrgId,String.valueOf( Constants.DMS_SITE_TYPE));
+			siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(defaultOrgId,Constants.DMS_SITE_TYPE);
 		} else if (query.getOrgCode() != null) {
-			siteList = this.baseMajorManager.getBaseSiteByOrgId(query.getOrgCode(), String.valueOf( Constants.DMS_SITE_TYPE));
+			siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(query.getOrgCode(),Constants.DMS_SITE_TYPE);
 		}
 		model.addAttribute("siteList", siteList);
 	}

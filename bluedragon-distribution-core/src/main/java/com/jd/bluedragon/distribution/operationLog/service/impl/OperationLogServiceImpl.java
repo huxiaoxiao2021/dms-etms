@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.operationLog.service.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -19,6 +9,15 @@ import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class OperationLogServiceImpl implements OperationLogService {
@@ -40,7 +39,7 @@ public class OperationLogServiceImpl implements OperationLogService {
 	//cassandra开关
 	public static final String CASSANDRA_SWITCH = "CASSANDRA_SWITCH";
 
-	@Profiled(tag = "OperationLogService.add")
+	@JProfiler(jKey= "DMSWEB.OperationLogService.add")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(OperationLog operationLog) {
 		try {
@@ -65,14 +64,12 @@ public class OperationLogServiceImpl implements OperationLogService {
 		return 1;
 	}
 
-	@Profiled(tag = "OperationLogService.queryByParams")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<OperationLog> queryByParams(Map<String, Object> params) {
 		// TODO Auto-generated method stub
 		return operationLogReadDao.queryByParams(params);
 	}
 
-	@Profiled(tag = "OperationLogService.totalSizeByParams")
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer totalSizeByParams(Map<String, Object> params) {
 		return operationLogReadDao.totalSizeByParams(params);

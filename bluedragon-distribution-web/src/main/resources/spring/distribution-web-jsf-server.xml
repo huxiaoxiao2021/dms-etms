@@ -144,11 +144,22 @@
                   ref="josReadService" server="dmsjsf">
     </jsf:provider>
     
+    <bean id="waybillSafService"
+		class="com.jd.bluedragon.distribution.saf.WaybillSafServiceImpl" />
+	<bean id="ordersResourceSafService"
+		class="com.jd.bluedragon.distribution.saf.OrdersResourceSafServiceImpl">
+		<property name="ordersResource" ref="ordersResource"></property>
+	</bean>
+    
+  	<bean id="emsOrderJosSafService"
+		class="com.jd.bluedragon.distribution.saf.EmsOrderJosSafServiceImpl" />
+	<jsf:provider id="jsfEmsOrderJos" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService" alias="${dms.jsf.alias}" ref="emsOrderJosSafService" server="dmsjsf"/>
+				  
   
-	<jsf:provider id="jsfEmsOrderJos" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService" alias="${dms.saf.group}" ref="emsOrderJosSafService" server="dmsjsf"/>
-  
+  	<bean id="getWaybillSafService"
+		class="com.jd.bluedragon.distribution.saf.GetWaybillSafServiceImpl" />
     <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService" 
 				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService" 
-				  alias="${dms.saf.group}"/>
+				  alias="${dms.jsf.alias}"/>
 
 </beans>

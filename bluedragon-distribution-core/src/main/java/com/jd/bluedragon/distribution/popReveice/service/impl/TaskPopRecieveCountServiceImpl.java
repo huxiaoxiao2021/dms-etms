@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.popReveice.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popPrint.dao.PopSigninDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopSignin;
@@ -24,6 +13,15 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.message.produce.client.MessageClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -47,27 +45,23 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
-	@Profiled(tag = "TaskPopRecieveCountService.insert(taskPopRecieveCount)")
 	public int insert(TaskPopRecieveCount taskPopRecieveCount) {
 		return this.taskPopRecieveCountDao.insert(taskPopRecieveCount);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
-	@Profiled(tag = "TaskPopRecieveCountService.update")
 	public int update(TaskPopRecieveCount taskPopRecieveCount) {
 		return this.taskPopRecieveCountDao.update(taskPopRecieveCount);
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	@Profiled(tag = "TaskPopRecieveCountService.getTaskPopRevieveCountById")
 	public TaskPopRecieveCount getTaskPopRevieveCountById(Long taskId) {
 		return this.taskPopRecieveCountDao.getTaskPopRevieveCountById(taskId);
 	}
 
 	@Override
-	@Profiled(tag = "TaskPopRecieveCountService.getTaskPopRevieveCountByWaybillCode")
 	public List<TaskPopRecieveCount> getTaskPopRevieveCountByWaybillCode(String waybillCode) {
 		return this.taskPopRecieveCountDao.getTaskPopRevieveCountByWaybillCode(waybillCode);
 	}
@@ -82,7 +76,6 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	* @return int
 	 */
 	@Override
-	@Profiled(tag = "TaskPopRecieveCountService.insert(popReceive)")
 	public int insert(PopReceive popReceive) {
 		int n = 0;
 		TaskPopRecieveCount taskPopRecieveCount = new TaskPopRecieveCount();
@@ -155,7 +148,6 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	}
 
 	@Override
-	@Profiled(tag = "TaskPopRecieveCountService.insert(inspection)")
 	public int insert(Inspection inspection) {
 		int n = 0;
 		TaskPopRecieveCount taskPopRecieveCount = new TaskPopRecieveCount();
@@ -179,7 +171,6 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	}
 
 	@Override
-	@Profiled(tag = "TaskPopRecieveCountService.findLimitedTasks")
 	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
 		List<TaskPopRecieveCount> dataList = this.taskPopRecieveCountDao.findLimitedTasks(type, fetchNum, ownSign);
 		return dataList;

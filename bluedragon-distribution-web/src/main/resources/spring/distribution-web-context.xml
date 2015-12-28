@@ -15,13 +15,12 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.web" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
-	<context:component-scan base-package="com.jd.bluedragon.distribution"/>
-
+	
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<import resource="classpath:spring/distribution-web-authen.xml" />
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
-	<import resource="classpath:spring/distribution-web-wss-service.xml" />
+	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	
 	

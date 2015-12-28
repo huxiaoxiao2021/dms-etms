@@ -1,14 +1,12 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import org.perf4j.aop.Profiled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -16,7 +14,6 @@ public class WaybillServiceImpl implements WaybillService {
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
 
-	@Profiled(tag = "WaybillService.getWaybill")
 	public BigWaybillDto getWaybill(String waybillCode) {
 		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
 
@@ -31,7 +28,6 @@ public class WaybillServiceImpl implements WaybillService {
 		return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
 	}
 
-	@Profiled(tag = "WaybillService.getWaybillProduct")
 	public BigWaybillDto getWaybillProduct(String waybillCode) {
 		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
 		
@@ -43,8 +39,7 @@ public class WaybillServiceImpl implements WaybillService {
 		
 		return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
 	}
-	
-	@Profiled(tag = "WaybillService.getWaybillState")
+
 	public BigWaybillDto getWaybillState(String waybillCode) {
 
 		WChoice wChoice = new WChoice();
