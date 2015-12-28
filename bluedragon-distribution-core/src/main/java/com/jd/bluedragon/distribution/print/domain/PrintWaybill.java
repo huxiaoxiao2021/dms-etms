@@ -9,6 +9,19 @@ import java.util.List;
  */
 public class PrintWaybill implements Serializable {
 
+    private Boolean isAir;
+
+    private Boolean isSelfService;
+
+    private Integer orgId;
+
+    private Integer cky2;
+
+    /**
+     * 库房号
+     */
+    private String storeName;
+
     /**
      * 运单号
      */
@@ -32,7 +45,7 @@ public class PrintWaybill implements Serializable {
     /**
     * 打包数量
     */
-    private int quantity ;
+    private Integer quantity ;
 
     /**
     * 10987POP商家ID号
@@ -77,10 +90,14 @@ public class PrintWaybill implements Serializable {
     /**
     * 始发分拣中心
     */
-    
-    
-
     private String originalDmsName;
+
+    private Integer originalDmsCode;
+
+    private Integer purposefulDmsCode;
+
+    private String newAddress;
+
     /**
     * 目的分拣中心
     */
@@ -111,7 +128,7 @@ public class PrintWaybill implements Serializable {
     */
     private String prepareSiteName ;
 
-    private String prepareSiteCode ;
+    private Integer prepareSiteCode ;
     /**
     * 收货地址
     */
@@ -163,6 +180,36 @@ public class PrintWaybill implements Serializable {
     */
     private String customerContacts ;
 
+    private Integer distributeType;
+
+    private String sendPay;
+
+    private String waybillSign;
+
+    public Integer getDistributeType() {
+        return distributeType;
+    }
+
+    public void setDistributeType(Integer distributeType) {
+        this.distributeType = distributeType;
+    }
+
+    public String getWaybillSign() {
+        return waybillSign;
+    }
+
+    public void setWaybillSign(String waybillSign) {
+        this.waybillSign = waybillSign;
+    }
+
+    public String getSendPay() {
+        return sendPay;
+    }
+
+    public void setSendPay(String sendPay) {
+        this.sendPay = sendPay;
+    }
+
     /**
     * 
     */
@@ -193,6 +240,30 @@ public class PrintWaybill implements Serializable {
     * 包裹列表
     */
     private List<PrintPackage> packList ;
+
+    public String getNewAddress() {
+        return newAddress;
+    }
+
+    public void setNewAddress(String newAddress) {
+        this.newAddress = newAddress;
+    }
+
+    public Integer getOriginalDmsCode() {
+        return originalDmsCode;
+    }
+
+    public void setOriginalDmsCode(Integer originalDmsCode) {
+        this.originalDmsCode = originalDmsCode;
+    }
+
+    public Integer getPurposefulDmsCode() {
+        return purposefulDmsCode;
+    }
+
+    public void setPurposefulDmsCode(Integer purposefulDmsCode) {
+        this.purposefulDmsCode = purposefulDmsCode;
+    }
 
     public String getWaybillCode() {
         return waybillCode;
@@ -226,11 +297,11 @@ public class PrintWaybill implements Serializable {
         this.statusMessage = statusMessage;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -354,11 +425,11 @@ public class PrintWaybill implements Serializable {
         this.prepareSiteName = prepareSiteName;
     }
 
-    public String getPrepareSiteCode() {
+    public Integer getPrepareSiteCode() {
         return prepareSiteCode;
     }
 
-    public void setPrepareSiteCode(String prepareSiteCode) {
+    public void setPrepareSiteCode(Integer prepareSiteCode) {
         this.prepareSiteCode = prepareSiteCode;
     }
 
@@ -496,5 +567,45 @@ public class PrintWaybill implements Serializable {
 
     public void setPackList(List<PrintPackage> packList) {
         this.packList = packList;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    public Integer getCky2() {
+        return cky2;
+    }
+
+    public void setCky2(Integer cky2) {
+        this.cky2 = cky2;
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
+    }
+
+    public Boolean getIsAir() {
+        return isAir;
+    }
+
+    public void setIsAir(Boolean isAir) {
+        this.isAir = isAir;
+    }
+
+    public Boolean getIsSelfService() {
+        return isSelfService;
+    }
+
+    public void setIsSelfService(Boolean isSelfService) {
+        this.isSelfService = isSelfService;
     }
 }

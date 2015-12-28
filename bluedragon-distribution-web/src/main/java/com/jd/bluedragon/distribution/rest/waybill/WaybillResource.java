@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
@@ -94,6 +95,8 @@ public class WaybillResource {
 
 	public static final Integer DMSTYPE = 10; // 建包
 
+    @Autowired
+    private WaybillPrintService waybillPrintService;
 
 	/* 运单查询 */
 	@Autowired
@@ -924,7 +927,7 @@ public class WaybillResource {
     public InvokeResult<PrintWaybill> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
                                                       @PathParam("waybillCode")String waybillCode,
                                                       @PathParam("targetSiteCode")Integer targetSiteCode){
-        return  null;
-
+        //return printService.
+        return waybillPrintService.getPrintWaybill(dmsCode,waybillCode,targetSiteCode);
     }
 }

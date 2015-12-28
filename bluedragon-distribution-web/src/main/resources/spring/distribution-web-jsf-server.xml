@@ -146,7 +146,6 @@
     
   
 	<jsf:provider id="jsfEmsOrderJos" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService" alias="${dms.saf.group}" ref="emsOrderJosSafService" server="dmsjsf"/>
-				  
   
     <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService" 
 				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService" 

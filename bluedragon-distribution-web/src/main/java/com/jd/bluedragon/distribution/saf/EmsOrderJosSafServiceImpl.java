@@ -21,10 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.aop.Profiled;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service("emsOrderJosSafService")
 public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());

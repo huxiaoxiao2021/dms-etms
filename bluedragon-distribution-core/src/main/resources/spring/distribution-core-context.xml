@@ -21,7 +21,6 @@
 	<import resource="classpath:spring/distribution-core-wss.xml" />
 	<import resource="classpath:spring/order_service_config.xml" />
 	<import resource="classpath:spring/distribution-core-redis.xml" />
-	<import resource="classpath:spring/distribution-core-saf-client.xml" />
 	<import resource="classpath:spring/distribution-core-jsf.xml" />
 	<import resource="classpath:spring/distribution-core-cassandra.xml" />
     <import resource="classpath:spring/distribution-core-jmq.xml" />
@@ -30,6 +29,7 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.ws" />
+    <context:component-scan base-package="com.jd.bluedragon.distribution" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.core.message.producer" />
 	<context:component-scan base-package="com.jd.bluedragon.core.message.consumer.*" />

@@ -29,7 +29,7 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
 
-@Service("AbnormalOrderService")
+@Service("abnormalOrderService")
 public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 	private static final String FXM_MQ_ADDRESS = "pushFXM";
