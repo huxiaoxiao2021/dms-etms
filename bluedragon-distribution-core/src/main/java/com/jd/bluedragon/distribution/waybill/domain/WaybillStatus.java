@@ -80,7 +80,7 @@ public class WaybillStatus {
     /**
      * 撤销封车
      */
-    public static final Integer WAYBILL_TRACK_CANCEL_VEHICLE = 2400;
+    public static final Integer WAYBILL_TRACK_CANCEL_VEHICLE = 4200;
     
     /**
 	 * 全程跟踪消息类型mstType-仓储收货确认

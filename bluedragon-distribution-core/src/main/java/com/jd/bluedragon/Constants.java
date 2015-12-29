@@ -266,6 +266,9 @@ public class Constants {
      * 省市县镇默认值
      */
     public static final Integer DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE=0;
+    
+    //运力编码京东自营 -1
+    public static final String JDZY = "-1";
 
     //endregion
 }

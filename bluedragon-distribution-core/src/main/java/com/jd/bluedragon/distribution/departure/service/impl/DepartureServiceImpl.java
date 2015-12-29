@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.request.DepartureRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureSendRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureTmpRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
@@ -39,7 +40,6 @@ import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.ql.basic.domain.MainBranchSchedule;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -949,10 +949,10 @@ public class DepartureServiceImpl implements DepartureService {
 				if (task.getBoxCode().equals(send.getSendCode())
 						&& send.getCapacityCode() != null
 						&& send.getCapacityCode().trim() != "") {
-					MainBranchSchedule schedule = siteService
-							.getByCapacityCodeInfo(send.getCapacityCode());
-					if (schedule != null) {
-						receiveSiteCode = schedule.getDesSiteId();
+					RouteTypeResponse response = siteService
+							.getCapacityCodeInfo(send.getCapacityCode());
+					if (response != null) {
+						receiveSiteCode = response.getSiteCode();
 					}
 				}
 			}
