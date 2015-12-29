@@ -4,15 +4,25 @@ package com.jd.bluedragon.distribution.waybill.service;
  * Created by yanghongqiang on 2015/11/30.
  */
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.fce.dos.service.contract.OrderMarkingService;
+import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
+import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.domain.BaseDmsStore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * 分拣中心包裹标签打印
@@ -26,6 +36,8 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 
     public static final String LOG_PREFIX="包裹标签打印-分拣[DmsLablePrintingServiceImpl] ";
 
+    @Autowired
+    private OrderMarkingService orderMarkingService;
     /**
      * 初始化基础资料对象
      */
@@ -86,6 +98,48 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
                 labelPrinting.setTimeCategory("4日达及以上");
         }
 
+        try {
+            if (request != null && request.getStartSiteType() != null && request.dmsCode != null
+                    && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())
+                    && SerialRuleUtil.isMatchReceiveWaybillNo(request.getWaybillCode())
+                    && (!Constants.ORDER_TYPE_B.equals(waybill.getWaybillType())&& NumberHelper.isNumber(waybill.getVendorId()))) {
+
+                log.debug("调用promise获取外单时效开始");
+
+                OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
+                if (Constants.ORDER_TYPE_B.equals(waybill.getWaybillType()) )
+                    orderMarkingRequest.setOrderId(Constants.ORDER_TYPE_B_ORDERNUMBER);//纯外单订单号设置为0
+                else
+                    orderMarkingRequest.setOrderId(Long.parseLong(waybill.getVendorId()));//订单号
+                orderMarkingRequest.setWaybillCode(waybill.getWaybillCode());//运单号
+                orderMarkingRequest.setOpeSiteId(request.dmsCode.toString());//分拣中心ID
+                orderMarkingRequest.setOpeSiteName(request.dmsName);//分拣中心名称
+
+                orderMarkingRequest.setOpesiteType(request.getStartSiteType()
+                        .equals(Constants.BASE_SITE_DISTRIBUTION_CENTER) ? Constants.PROMISE_DISTRIBUTION_CENTER
+                        : request.getStartSiteType().equals(Constants.BASE_SITE_SITE) ? Constants.PROMISE_SITE
+                        : Constants.PROMISE_DISTRIBUTION_B);
+                orderMarkingRequest.setSource(Constants.DISTRIBUTION_SOURCE);
+                orderMarkingRequest.setProvinceId(waybill.getProvinceId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getProvinceId());//省
+                orderMarkingRequest.setCityId(waybill.getCityId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getCityId());//市
+                orderMarkingRequest.setCountyId(waybill.getCountryId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getCountryId());//县
+                orderMarkingRequest.setTownId(waybill.getTownId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getTownId());//镇
+                orderMarkingRequest.setCurrentDate(new Date());//当前时间
+//                }
+                log.debug("调用promise获取外单时效传入参数" + orderMarkingRequest == null ? "" : JsonHelper.toJson(orderMarkingRequest));
+                OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
+                if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
+                    labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
+                    labelPrinting.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
+                } else {
+                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
+                }
+                log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
+
+            }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
+        }catch (Exception e){
+            log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)),e);
+        }
         //加promise调用获取时效具体信息
         return labelPrinting;
     }
