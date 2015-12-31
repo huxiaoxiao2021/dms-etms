@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.domain;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,9 +10,10 @@ import java.util.List;
  */
 public class PrintWaybill implements Serializable {
 
-    private Boolean isAir;
 
-    private Boolean isSelfService;
+    private transient Boolean isAir;
+
+    private transient Boolean isSelfService;
 
     private Integer orgId;
 
@@ -240,6 +242,13 @@ public class PrintWaybill implements Serializable {
     * 包裹列表
     */
     private List<PrintPackage> packList ;
+
+    public PrintWaybill(){
+        this.isAir=false;
+        this.isSelfService=false;
+        this.isPrintInvoice=false;
+
+    }
 
     public String getNewAddress() {
         return newAddress;

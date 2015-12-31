@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -58,13 +60,18 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
         InvokeResult<PrintWaybill> result=new InvokeResult<PrintWaybill>();
-        loadWaybillInfo(result,dmsCode,waybillCode,targetSiteCode);
-        if(null!=result.getData()){
-            loadPrintedData(result.getData());
-            loadBasicData(result.getData());
-            for (ComposeService service:composeServiceList){
-                service.handle(result.getData(),dmsCode,targetSiteCode);
+        try {
+            loadWaybillInfo(result, dmsCode, waybillCode, targetSiteCode);
+            if (null != result.getData()) {
+                loadPrintedData(result.getData());
+                loadBasicData(result.getData());
+                for (ComposeService service : composeServiceList) {
+                    service.handle(result.getData(), dmsCode, targetSiteCode);
+                }
             }
+        }catch (Exception ex){
+            logger.error("标签打印接口异常",ex);
+            result.error(ex);
         }
         return result;
     }
@@ -85,8 +92,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
         if (baseEntity != null
                 && baseEntity.getData() != null
-                &&null!=baseEntity.getData().getWaybill()
-                &&null!=baseEntity.getData().getWaybillState()) {
+                &&null!=baseEntity.getData().getWaybill()) {
             if(null==result.getData()){
                 result.setData(new PrintWaybill());
             }
@@ -99,25 +105,52 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
-            commonWaybill.setStoreId(tmsWaybill.getDistributeStoreId());
-            commonWaybill.setStoreName(tmsWaybill.getDistributeStoreName());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
             commonWaybill.setOriginalDmsCode(dmsCode);
             commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
             commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
             commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
             commonWaybill.setRoad(tmsWaybill.getRoadCode());
+            commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
+            if(tmsWaybill.getPayment()!=null){
+                if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
+                    commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
+                }
+            }
+            commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
+            commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
+            if(null!=tmsWaybillManageDomain){
+                commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
+                //commonWaybill.setStoreName(tmsWaybillManageDomain);
+            }
             if(null!=baseEntity.getData().getPackageList()){
                 List<PrintPackage> packageList=new ArrayList<PrintPackage>(baseEntity.getData().getPackageList().size());{
                     for (DeliveryPackageD item:baseEntity.getData().getPackageList()){
                         PrintPackage pack=new PrintPackage();
                         pack.setPackageCode(item.getPackageBarcode());
                         pack.setWeight(item.getGoodWeight());
-
+                        packageList.add(pack);
                     }
                 }
+                commonWaybill.setPackList(packageList);
             }
         }
+    }
+
+
+    private final String concatPhone(String mobile,String phone){
+        StringBuilder sb=new StringBuilder();
+        if(StringHelper.isNotEmpty(mobile)){
+            sb.append(mobile);
+        }
+
+        if( StringHelper.isNotEmpty(phone)){
+            if(StringHelper.isNotEmpty(mobile)) {
+                sb.append(",");
+            }
+            sb.append(phone);
+        }
+        return sb.toString();
     }
 
     /**
