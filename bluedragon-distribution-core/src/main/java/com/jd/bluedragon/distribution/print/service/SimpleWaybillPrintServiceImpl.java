@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
@@ -8,7 +7,6 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
@@ -24,7 +22,6 @@ import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
