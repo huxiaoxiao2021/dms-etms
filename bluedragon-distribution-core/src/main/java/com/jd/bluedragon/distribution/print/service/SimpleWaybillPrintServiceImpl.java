@@ -187,7 +187,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 tag=baseResult.getData();
             }else{
                 com.jd.ql.basic.domain.BaseResult<ReverseCrossPackageTag> reverseResult= basicSecondaryWS.getReverseCrossPackageTag(waybill.getOriginalDmsCode(),waybill.getPrepareSiteCode());
-                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.SUCCESS==reverseResult.getResultCode()){
+                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()){
                     tag=new CrossPackageTagNew();
                     tag.setTargetSiteName(reverseResult.getData().getTargetStoreName());
                     tag.setTargetSiteId(reverseResult.getData().getTargetStoreId());
