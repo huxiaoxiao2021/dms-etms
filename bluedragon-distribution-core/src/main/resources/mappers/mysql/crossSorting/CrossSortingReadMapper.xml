@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.cross.dao.CrossSortingReadDao">
+
+	<resultMap id="crossSorting"
+		type="com.jd.bluedragon.distribution.cross.domain.CrossSorting">
+		<result column="id" property="id" />
+		<result column="org_id" property="orgId" />
+		<result column="create_dms_code" property="createDmsCode" />
+		<result column="create_dms_name" property="createDmsName" />
+		<result column="destination_dms_code" property="destinationDmsCode" />
+		<result column="destination_dms_name" property="destinationDmsName" />
+		<result column="mix_dms_code" property="mixDmsCode" />
+		<result column="mix_dms_name" property="mixDmsName" />
+		<result column="create_user_code" property="createUserCode" />
+		<result column="create_user_name" property="createUserName" />
+		<result column="delete_user_code" property="deleteUserCode" />
+		<result column="delete_user_name" property="deleteUserName" />
+		<result column="create_time" property="createTime" />
+		<result column="delete_time" property="deleteTime" />
+		<result column="yn" property="yn" />
+	</resultMap>
+
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="createUserName != null">
+				AND create_user_name like '%'||#{createUserName,jdbcType=VARCHAR}||'%'
+			</if>
+			<if test="orgId != null">
+				AND org_id = #{orgId,jdbcType=INTEGER}
+			</if>
+			<if test="createDmsCode != null">
+				AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
+			</if>
+			<if test="destinationDmsCode != null">
+				AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
+			</if>
+		</where>
+	</sql>
+
+	<select id="findPageTask" resultMap="crossSorting" parameterType="map">
+		<if test="startIndex != null">
+			select * from ( select t.*, rownum l from (
+		</if>
+		SELECT
+		id, org_id, create_dms_code, create_dms_name,
+		destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name, 
+		create_user_code, create_user_name, create_time
+		FROM cross_sorting
+		<include refid="Base_Where_List" />
+		ORDER BY CREATE_TIME
+		<if test="startIndex != null">
+			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) where <![CDATA[l >]]>
+			#{startIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="findCountTask" resultType="Integer" parameterType="map">
+		SELECT count(1)
+		FROM cross_sorting
+		<include refid="Base_Where_List" />
+	</select>
+	
+	<select id="findMixDms" resultMap="crossSorting" parameterType="map">
+		SELECT
+		id, org_id, create_dms_code, destination_dms_code, 
+		mix_dms_code, mix_dms_name
+		FROM cross_sorting
+		WHERE yn = 1
+		      AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
+		      AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
+	</select>
+
+    <select id="findOne" resultMap="crossSorting" parameterType="map">
+        SELECT
+        id, org_id, create_dms_code, destination_dms_code,
+        mix_dms_code, mix_dms_name
+        FROM cross_sorting
+        WHERE yn = 1
+        AND create_dms_code = #{createDmsCode,jdbcType=INTEGER}
+        AND destination_dms_code = #{destinationDmsCode,jdbcType=INTEGER}
+        AND MIX_DMS_CODE= #{mixDmsCode,jdbcType=INTEGER}
+    </select>
+
+
+</mapper>

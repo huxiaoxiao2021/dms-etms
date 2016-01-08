@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.task.dao.TaskDao">
+
+	<resultMap id="task"
+		type="com.jd.bluedragon.distribution.task.domain.Task">
+		<result column="task_id" property="id" />
+		<result column="create_site_code" property="createSiteCode" />
+		<result column="receive_site_code" property="receiveSiteCode" />
+		<result column="box_code" property="boxCode" />
+		<result column="execute_count" property="executeCount" />
+		<result column="execute_time" property="executeTime" />
+		<result column="fingerprint" property="fingerprint" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="task_status" property="status" />
+		<result column="keyword1" property="keyword1" />
+		<result column="keyword2" property="keyword2" />
+		<result column="task_type" property="type" />
+		<result column="body" property="body" />
+		<result column="own_sign" property="ownSign" />
+		<result column="yn" property="yn" />
+	</resultMap>
+
+	<insert id="add" parameterType="task">
+	INSERT INTO ${tableName} (
+	task_type, create_site_code,
+	receive_site_code, box_code, body,
+	keyword1, keyword2, create_time,
+	update_time, execute_count, execute_time,
+	fingerprint, task_status, yn,
+	own_sign)
+	VALUES (
+	#{type,jdbcType=INTEGER},
+	#{createSiteCode,jdbcType=INTEGER},
+	#{receiveSiteCode,jdbcType=INTEGER},
+	#{boxCode,jdbcType=VARCHAR},
+	#{body,jdbcType=VARCHAR},
+	#{keyword1,jdbcType=VARCHAR},
+	#{keyword2,jdbcType=VARCHAR},
+	NOW(), NOW(), 0, NOW(),
+	#{fingerprint,jdbcType=VARCHAR}, 0, 1,
+	#{ownSign,jdbcType=VARCHAR})
+	</insert>
+
+	<insert id="addWithStatus" parameterType="task">
+	INSERT INTO
+	${tableName} (
+	task_type, create_site_code,
+	receive_site_code, box_code, body,
+	keyword1, keyword2, create_time,
+	update_time, execute_count,
+	execute_time,
+	fingerprint, task_status, yn,
+	own_sign)
+	VALUES (
+	#{type,jdbcType=INTEGER},
+	#{createSiteCode,jdbcType=INTEGER},
+	#{receiveSiteCode,jdbcType=INTEGER},
+	#{boxCode,jdbcType=VARCHAR},
+	#{body,jdbcType=VARCHAR},
+	#{keyword1,jdbcType=VARCHAR},
+	#{keyword2,jdbcType=VARCHAR},
+	NOW(), NOW(),
+	#{executeCount,jdbcType=INTEGER}, NOW(),
+	#{fingerprint,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 1,
+	#{ownSign,jdbcType=VARCHAR})
+	</insert>
+
+	<select id="findTasksByFingerprint" resultMap="task"
+		parameterType="map">
+		SELECT task_id
+		FROM ${tableName}
+		WHERE fingerprint = #{fingerprint}
+	</select>
+
+	<select id="findTasks" resultMap="task" parameterType="map">
+		SELECT task_id, task_type, box_code, create_site_code,
+		receive_site_code, body,
+		execute_count, task_status, create_time
+		FROM
+		${tableName}
+		<where>
+			yn = 1 AND task_type = #{type}
+			<if test="ownSign != null">
+				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
+	<select id="findLimitedTasks" resultMap="task" parameterType="map">
+        <![CDATA[
+            SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body,
+                 execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
+            FROM ${tableName}
+            WHERE yn = 1 AND execute_count < 5 
+                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3) 
+                LIMIT #{fetchNum}
+        ]]>
+	</select>
+
+	<select id="findSpecifiedTasks" resultMap="task" parameterType="map">
+		SELECT task_id, task_type, box_code, create_site_code,
+		receive_site_code, body,
+		execute_count,execute_time, task_status,
+		create_time,yn,keyword1,keyword2
+		FROM ${tableName}
+		<where>
+			yn = 1 AND execute_count <![CDATA[<]]>
+			5
+			AND (execute_time <![CDATA[<]]>
+			NOW() OR execute_time IS NULL)
+			AND task_status IN (0, 4) AND
+			task_type = #{type}
+			<if test="ownSign != null">
+				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			LIMIT #{fetchNum}
+		</where>
+	</select>
+
+	<select id="findLimitedTasksByType" resultMap="task"
+		parameterType="map">
+		SELECT task_id, task_type, box_code, create_site_code,
+		receive_site_code, body,
+		execute_count,execute_time, task_status, create_time,yn,keyword1,keyword2
+		FROM ${tableName}
+		<where>
+			yn = 1 AND execute_count <![CDATA[<]]>
+			5
+			AND (execute_time <![CDATA[<]]>
+			NOW() OR execute_time IS NULL)
+			AND task_status IN (0, 3) AND task_type = #{type}
+			<if test="ownSign != null">
+				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			LIMIT #{fetchNum}
+		</where>
+	</select>
+
+	<select id="findTasksStatusByBoxcode" resultMap="task"
+		parameterType="map">
+		SELECT task_id, task_type, box_code, execute_count, task_status
+		FROM ${tableName}
+		WHERE yn = 1 AND task_status in (${statuses})
+		AND box_code = #{boxCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		LIMIT 50
+	</select>
+
+	<update id="updateBySelective" parameterType="task">
+		UPDATE ${tableName}
+		<set>
+			<if test="executeCount != null">
+				execute_count = #{executeCount},
+			</if>
+			<if test="executeTime != null">
+				execute_time = #{executeTime},
+			</if>
+			<if test="status != null">
+				task_status = #{status},
+			</if>
+			<if test="yn != null">
+				yn = #{yn},
+			</if>
+		</set>
+		WHERE task_id = #{id}
+	</update>
+
+	<select id="findSendTasks" resultMap="task" parameterType="map">
+		SELECT task_id, task_type, box_code, create_site_code,
+		receive_site_code, body,
+		execute_count, task_status, create_time, keyword2
+		FROM ${tableName}
+		<where>
+			yn = 1 AND (task_status = 0 or task_status=4) AND task_type = #{type}
+			AND keyword1 = #{key} and execute_count<![CDATA[<]]>5
+			<if test="key != 1">
+				and create_time <![CDATA[<=]]>
+				timestampadd(minute, -5, now()) 
+			</if>
+			LIMIT #{fetchNum}
+		</where>
+	</select>
+
+	<select id="findReverseSendTask" resultMap="task" parameterType="map">
+		SELECT task_id
+		FROM task_send
+		WHERE yn=1 AND keyword1 = 4 AND body = #{body}
+	</select>
+
+	<select id="findWaybillSendTask" resultMap="task" parameterType="map">
+		SELECT task_id
+		FROM task_send
+		WHERE yn=1 AND keyword1 = 3 AND body = #{body}  and task_type='1300'
+	</select>
+
+	<select id="findTasksNumsByType" resultType="Integer"
+		parameterType="map">
+		SELECT count(task_id)
+		FROM ${tableName}
+		<where>
+			yn = 1 AND execute_count <![CDATA[<]]>
+			5
+			AND (execute_time <![CDATA[<]]>
+			NOW() OR execute_time IS NULL)
+			AND task_status IN (0, 3) AND task_type = #{type}
+			<if test="ownSign != null">
+				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="findFailTasksNumsByType" resultType="Integer"
+		parameterType="map">
+		SELECT count(task_id)
+		FROM ${tableName}
+		<where>
+			yn = 1 AND execute_count <![CDATA[<]]>
+			5
+			AND (execute_time <![CDATA[<]]>
+			NOW() OR execute_time IS NULL)
+			AND task_status=4 AND task_type = #{type}
+			<if test="ownSign != null">
+				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1 AND task_status != 2
+			<if test="taskType != null">
+				AND task_type = #{taskType}
+			</if>
+			<if test="taskStatus != null">
+				AND task_status = #{taskStatus}
+			</if>
+			<if test="executeCount != null">
+				AND execute_count = #{executeCount}
+			</if>
+			<if test="keyword1 != null">
+				AND keyword1 = #{keyword1}
+			</if>
+			<if test="keyword2 != null">
+				AND keyword2 = #{keyword2}
+			</if>
+			<if test="startTime != null">
+				AND execute_time <![CDATA[>=]]>
+				#{startTime}
+			</if>
+			<if test="endTime != null">
+				AND execute_time <![CDATA[<=]]>
+				#{endTime}
+			</if>
+		</where>
+	</sql>
+
+	<select id="findPageTask" resultMap="task" parameterType="map">
+		SELECT
+		TASK_ID, TASK_TYPE, TASK_STATUS,
+		KEYWORD1, KEYWORD2, BODY,
+		EXECUTE_TIME, OWN_SIGN
+		FROM ${tableName}
+		<include refid="Base_Where_List" />
+		ORDER BY EXECUTE_TIME
+		<if test="startIndex != null">
+		LIMIT #{startIndex},#{pageSize}
+		</if>
+	</select>
+
+	<select id="findCountTask" resultType="Integer" parameterType="map">
+		SELECT count(1)
+		FROM ${tableName}
+		<include refid="Base_Where_List" />
+	</select>
+
+	<select id="findTaskTypeByTableName" resultType="Integer"
+		parameterType="map">
+		SELECT DISTINCT TASK_TYPE
+		FROM ${tableName}
+	</select>
+
+	<update id="updateTaskById" parameterType="map">
+		UPDATE ${tableName}
+		SET TASK_STATUS = 0, EXECUTE_COUNT = 0
+		WHERE TASK_ID = #{id, jdbcType=INTEGER}
+	</update>
+
+	<update id="updateBatchTask" parameterType="map">
+		UPDATE ${tableName}
+		SET TASK_STATUS = 0, EXECUTE_COUNT = 0
+		<include refid="Base_Where_List" />
+	</update>
+</mapper>

@@ -107,7 +107,7 @@
 	<bean id="sessionTemplate" class="com.jd.dbs.DBSqlSessionTemplate">
 		<constructor-arg index="0" ref="dataSources" />		
 		<constructor-arg index="1" value="dms" />		
-		<property name="configLocation" value="classpath:mybatis-config.xml"/>	
+		<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml"/>	
 	</bean>
 	
 	<!-- dms读库 数据源  -start-->
@@ -115,7 +115,7 @@
 	
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dmsReadDataSource" />
-		<property name="configLocation" value="classpath:mybatis-config-read.xml" />
+		<property name="configLocation" value="classpath:config/oracle/mybatis-config-read.xml" />
 	</bean>
 	
 	
@@ -128,7 +128,7 @@
     <!-- worker配置 数据源    -start-->
     <bean id="workerSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="taskDataSource" />
-        <property name="configLocation" value="classpath:mybatis-config-worker.xml" />
+        <property name="configLocation" value="classpath:config/oracle/mybatis-config-worker.xml" />
     </bean>
 
 

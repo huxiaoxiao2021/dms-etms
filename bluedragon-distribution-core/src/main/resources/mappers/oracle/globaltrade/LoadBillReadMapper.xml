@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao">
+
+	<resultMap id="loadBill"
+		type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill">
+		<result column="id" property="id" />
+		<result column="load_id" property="loadId" />
+		<result column="warehouse_id" property="warehouseId" />
+		<result column="waybill_code" property="waybillCode" />
+		<result column="package_barcode" property="packageBarcode" />
+		<result column="package_amount" property="packageAmount" />
+		<result column="order_id" property="orderId" />
+		<result column="box_code" property="boxCode" />
+		<result column="dms_code" property="dmsCode" />
+		<result column="dms_name" property="dmsName" />
+		<result column="send_time" property="sendTime" />
+		<result column="send_code" property="sendCode" />
+		<result column="truck_no" property="truckNo" />
+		<result column="approval_code" property="approvalCode" />
+		<result column="approval_time" property="approvalTime" />
+		<result column="ctno" property="ctno" />
+		<result column="gjno" property="gjno" />
+		<result column="tpl" property="tpl" />
+		<result column="weight" property="weight" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="gen_time" property="genTime" />
+		<result column="package_user_code" property="packageUserCode" />
+		<result column="package_user" property="packageUser" />
+		<result column="package_time" property="packageTime" />
+		<result column="remark" property="remark" />
+		<result column="yn" property="yn" />
+	</resultMap>
+
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="sendCodeList != null">
+				AND send_code IN
+				<foreach collection="sendCodeList" item="item" index="index" open="(" close=")" separator=",">
+					#{item}  
+				</foreach>
+			</if>
+			<if test="dmsCode != null">
+				AND dms_code = #{dmsCode,jdbcType=INTEGER}
+			</if>
+			<if test="approvalCode != null">
+				AND approval_code = #{approvalCode,jdbcType=INTEGER}
+			</if>
+			<if test="sendTimeFrom != null">
+				AND send_time >= #{sendTimeFrom,jdbcType=TIMESTAMP}
+			</if>
+			<if test="sendTimeTo != null">
+				AND send_time <![CDATA[<=]]> #{sendTimeTo,jdbcType=TIMESTAMP}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</sql>
+	
+	<select id="findPage" resultMap="loadBill" parameterType="map">
+		<if test="startIndex != null">
+			select * from ( select t.*, rownum l from (
+		</if>
+		SELECT
+		id, load_id, waybill_code, package_barcode, order_id, dms_name,
+		send_time, send_code, truck_no, approval_code, 
+		approval_time, remark
+		FROM DMS.load_bill
+		<include refid="Base_Where_List" />
+		ORDER BY CREATE_TIME
+		<if test="startIndex != null">
+			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) where <![CDATA[l >]]>
+			#{startIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<select id="findCount" resultType="Integer" parameterType="map">
+		SELECT count(1)
+		FROM DMS.load_bill
+		<include refid="Base_Where_List" />
+	</select>
+
+
+
+    <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
+        SELECT waybill_code,box_code,approval_code,dms_code
+        FROM DMS.load_bill
+        WHERE
+          yn=1
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="boxCode != null">
+            AND box_code = #{boxCode,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+</mapper>
