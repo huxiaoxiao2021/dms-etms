@@ -289,17 +289,14 @@ public class SerialRuleUtil
     public static int getPackageCounter(String packageCode)
     {
         packageCode = packageCode.toUpperCase().trim();
-        String waybillCode;
         Matcher match =RULE_PACKAGE_OWN_REGEX.matcher(packageCode);
         if (match.matches())
         {
-            waybillCode = match.group(1).trim();
             return Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)) ? Integer.valueOf(match.group(3)) : -1;
         }
         match =RULE_PACKAGE_OUTER_REGEX.matcher(packageCode);
         if (match.matches())
         {
-            waybillCode = match.group(1).trim();
             return Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)) ? Integer.valueOf(match.group(3)) : -1;
         }
         return -1;
@@ -340,6 +337,21 @@ public class SerialRuleUtil
         return list;
     }
 
+    /**
+     * 获取运单号
+     * 当输入为包裹号时，返回对应的运单号，否则返回自身
+     * @param input 包裹号或运单号
+     * @return
+     */
+    public static String getWaybillCode(String input){
+        Matcher match =RULE_GENERATE_PACKAGE_ALL_REGEX.matcher(input.toUpperCase().trim());
+        if(match.matches()){
+            return match.group(1);
+        }else{
+            return input.toUpperCase();
+        }
+
+    }
     /*
     public static void main(String[] args) {
         List<String> list= generateAllPackageCodes("VA05328419025-1-200-");

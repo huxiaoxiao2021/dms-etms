@@ -297,8 +297,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.info(MessageFormat.format("插入SENDM时长{0}", System.currentTimeMillis() - startTime));
             startTime=System.currentTimeMillis();
         }
-        logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());
-        if(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())) {
+        if(!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
             pushSorting(domain);//大件写TASK_SORTING
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("写task_sorting时长{0}", System.currentTimeMillis() - startTime));
@@ -363,7 +362,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortDomain.setFeatureType(0);
         sortDomain.setUserName(domain.getCreateUser());
         sortDomain.setBusinessType(10);
-        sortDomain.setWaybillCode(SerialRuleUtil.getAllWaybillCode(domain.getBoxCode()).getResult());
+        sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
@@ -2712,7 +2711,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             int hasDiff=0;
             if(counter!=scanCount){/* 有差异*/
 
-                com.jd.bluedragon.common.domain.Waybill waybill= waybillCommonService.findWaybillAndPack(SerialRuleUtil.getAllWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()).getResult());
+                com.jd.bluedragon.common.domain.Waybill waybill= waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
                 List<String> geneList=null;
                 if(null!=waybill&&null!=waybill.getPackList()&&waybill.getPackList().size()>0){
                     logger.info("运单中包裹数量为"+waybill.getPackList().size());

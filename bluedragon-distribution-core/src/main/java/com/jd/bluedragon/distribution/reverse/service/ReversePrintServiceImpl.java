@@ -137,7 +137,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      */
     @Override
     public InvokeResult<String> getNewWaybillCode(String oldWaybillCode) {
-        if(SerialRuleUtil.isMatchReceivePackageNo(oldWaybillCode)){
+        if(SerialRuleUtil.isMatchReceiveWaybillNo(oldWaybillCode)){
             return receiveManager.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
         }else{
             InvokeResult<String> targetResult=new InvokeResult<String>();

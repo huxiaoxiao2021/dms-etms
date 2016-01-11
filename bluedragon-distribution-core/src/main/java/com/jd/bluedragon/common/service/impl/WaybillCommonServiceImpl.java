@@ -155,7 +155,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(logger.isInfoEnabled()) {
                 this.logger.info("运单号【 " + oldWaybillCode + "】调用运单JSF数据成功");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             this.logger.error("运单号【 " + oldWaybillCode + "】调用运单JSF异常：", e);
             result.error(e);
         }

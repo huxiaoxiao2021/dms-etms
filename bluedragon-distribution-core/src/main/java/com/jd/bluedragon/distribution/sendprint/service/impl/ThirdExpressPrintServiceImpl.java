@@ -84,7 +84,7 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
         if(logger.isInfoEnabled()){
             logger.info("获取站点为ID["+data.getSiteId()+"]名称["+data.getSiteName()+"]");
         }
-        QuickProduceWabill waybill=quickProduceService.getQuickProduceWabill(SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
+        QuickProduceWabill waybill=quickProduceService.getQuickProduceWabill(SerialRuleUtil.getWaybillCode(packageCode));
         if(null==waybill||null==waybill.getWaybill()){
             result.customMessage(0,WAYBILL_NOT_FOUND);
             return result;
@@ -101,7 +101,7 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
         data.setReceiverMobile(waybill.getWaybill().getReceiverMobile());
         data.setReceiverName(waybill.getWaybill().getReceiverName());
         data.setReceiverPhone(waybill.getWaybill().getReceiverTel());
-        data.setWaybillCode(SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
+        data.setWaybillCode(SerialRuleUtil.getWaybillCode(packageCode));
         data.setReceiverPostcode(waybill.getWaybill().getReceiverZipCode());
         data.setReceiverCityname(waybill.getWaybill().getCityName());
         data.setDistributeType(waybill.getWaybill().getShipmentType());

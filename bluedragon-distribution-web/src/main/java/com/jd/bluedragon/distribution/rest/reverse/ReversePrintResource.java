@@ -66,7 +66,7 @@ public class ReversePrintResource {
      * @return
      */
     @GET
-    @Path("reverse/exchange/getNewWaybillCode/{oldWaybillCode}")
+    @Path("/reverse/exchange/getNewWaybillCode/{oldWaybillCode}")
     public InvokeResult<String> getNewWaybillCode(@PathParam("oldWaybillCode") String oldWaybillCode){
         InvokeResult<String> result=new InvokeResult<String>();
         try {
@@ -89,7 +89,7 @@ public class ReversePrintResource {
         InvokeResult<Boolean> result;
         try{
             result= reversePrintService.exchangeOwnWaybill(domain);
-        }catch (Exception e){
+        }catch (Throwable e){
             result=new InvokeResult<Boolean>();
             logger.error("自营逆向换单",e);
             result.error(e);
