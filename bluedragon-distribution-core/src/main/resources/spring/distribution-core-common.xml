@@ -20,6 +20,8 @@
 		</property>
 	</bean>
 	
+	<import resource="classpath:spring/distribution-core-datasource-backup.xml"/>
+	
 	<bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
 	    <property name="driverClassName" value="${db.driverClassName}"/>
 		<property name="defaultAutoCommit" value="true"/>
@@ -104,15 +106,26 @@
 	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 
-	<bean id="sessionTemplate" class="com.jd.dbs.DBSqlSessionTemplate">
-		<constructor-arg index="0" ref="dataSources" />		
-		<constructor-arg index="1" value="dms" />		
-		<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml"/>	
+	<bean id="mainWriteSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dms_main" />
+		<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />
+	</bean>
+	
+	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory">
+		<constructor-arg index="0" ref="mainWriteSessionFactory"/>
+		<property name="enable" value="true" />
+		<property name="statementDecider">
+			<bean class="com.jd.bluedragon.common.dao.migration.DmsBackupDataSourceStatementDecider" />
+		</property>
+		<property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
+		<property name="ignoreExceptionWhenReplication" value="true" />
+	</bean>
+	
+	<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="mainWriteReplicationSqlSessionFactory" />
 	</bean>
 	
 	<!-- dms读库 数据源  -start-->
-	
-	
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dmsReadDataSource" />
 		<property name="configLocation" value="classpath:config/oracle/mybatis-config-read.xml" />
