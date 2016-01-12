@@ -102,12 +102,12 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             if (request != null && request.getStartSiteType() != null && request.dmsCode != null
                     && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())
                     && SerialRuleUtil.isMatchReceiveWaybillNo(request.getWaybillCode())
-                    && (!Constants.ORDER_TYPE_B.equals(waybill.getWaybillType())&& NumberHelper.isNumber(waybill.getVendorId()))) {
+                    && ((Constants.WAYBILL_SIGN_B!=waybill.getWaybillSign().charAt(1)&& NumberHelper.isNumber(waybill.getVendorId()))||Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))) {
 
                 log.debug("调用promise获取外单时效开始");
 
                 OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
-                if (Constants.ORDER_TYPE_B.equals(waybill.getWaybillType()) )
+                if (Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))
                     orderMarkingRequest.setOrderId(Constants.ORDER_TYPE_B_ORDERNUMBER);//纯外单订单号设置为0
                 else
                     orderMarkingRequest.setOrderId(Long.parseLong(waybill.getVendorId()));//订单号
