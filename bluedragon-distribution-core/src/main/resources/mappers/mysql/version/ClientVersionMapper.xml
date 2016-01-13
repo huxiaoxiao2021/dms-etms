@@ -53,12 +53,11 @@
 	</select>
 
 	<insert id="add" parameterType="clientVersion">
-		INSERT INTO client_version (version_id,version_code, version_type,download_url,memo, create_time,update_time, yn)
-		VALUES (
-		SEQ_CLIENT_VERSION.NEXTVAL, 
+		INSERT INTO client_version (version_code, version_type,download_url,memo, create_time,update_time, yn)
+		VALUES ( 
 		#{versionCode, jdbcType=VARCHAR},#{versionType, jdbcType=INTEGER}, 
 		#{downloadUrl, jdbcType=VARCHAR}, #{memo, jdbcType=VARCHAR}, 
-		sysdate, sysdate, 1
+		NOW(), NOW(), 1
 		)
 	</insert>
 
@@ -80,7 +79,7 @@
 			<if test="yn != null">
 				yn = #{yn, jdbcType=INTEGER},
       		</if>
-			update_time = sysdate
+			update_time = NOW()
 		</set>
 		where version_id = #{versionId, jdbcType=BIGINT}
 	</update>

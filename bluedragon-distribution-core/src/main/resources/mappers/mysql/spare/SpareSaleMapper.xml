@@ -16,13 +16,13 @@
 	
 	<insert id="add" parameterType="spareSale" >
 		INSERT INTO spare_sale (
-			id, spare_code, product_id, product_name,
+			spare_code, product_id, product_name,
             sale_amount, sale_time, create_time, update_time, yn)
 		VALUES (
-			SEQ_SPARE_SALE.NEXTVAL, #{spareCode,jdbcType=VARCHAR}, 
+			#{spareCode,jdbcType=VARCHAR}, 
 			#{productId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR},
 			#{saleAmount,jdbcType=INTEGER}, #{saleTime,jdbcType=TIMESTAMP},
-			SYSDATE, SYSDATE, 1)
+			NOW(), NOW(), 1)
 	</insert>
 	
 	<update id="update"  parameterType="spareSale" >
@@ -43,7 +43,7 @@
             <if test="yn != null">
                 yn = #{yn,jdbcType=INTEGER},
             </if>
-            update_time = SYSDATE
+            update_time = NOW()
         </set>
         <where>
 			<choose>

@@ -16,13 +16,13 @@
 	
 	<insert id="add" parameterType="sysconfig" >
 		INSERT INTO sysconfig(
-			config_id,config_type,config_name,
+			config_type,config_name,
 			config_content,config_order,memo,yn,
 			create_time,update_time)
 		VALUES(
-			SEQ_SYSCONFIG.NEXTVAL,#{configType,jdbcType=VARCHAR},#{configName,jdbcType=VARCHAR},
+			#{configType,jdbcType=VARCHAR},#{configName,jdbcType=VARCHAR},
 			#{configContent,jdbcType=VARCHAR},#{configOrder,jdbcType=INTEGER},#{memo,jdbcType=VARCHAR},1,
-			SYSDATE,SYSDATE
+			NOW(),NOW()
 		)
 	</insert>
 	
@@ -36,9 +36,6 @@
 	</select>
 	
 	<select id="queryByKey" resultMap="sysconfig" parameterType="sysconfig">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 			SELECT
 				config_id,config_type,config_name,
 				config_content,config_order,memo,yn,
@@ -46,11 +43,9 @@
 			FROM sysconfig
 			WHERE config_name like #{configName} and yn = 1 and  config_type not in(-1,-100)
 			ORDER BY config_name,config_order
-		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
-		</if>
+			<if test="startIndex != null">
+			  LIMIT #{startIndex},#{pageSize}
+			</if>
 	</select>
 	
 	<select id="totalSysconfigSizeByParams" resultType="Integer" parameterType="java.lang.String">
@@ -78,7 +73,7 @@
         <if test="memo != null">
             memo=#{memo,jdbcType=VARCHAR},
         </if>
-        update_time=SYSDATE
+        update_time=NOW()
 		WHERE yn = 1
 		<if test="configId != null">
             AND config_id = #{configId}

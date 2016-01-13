@@ -16,7 +16,7 @@
               #{item.baseTaskType,jdbcType=VARCHAR},
               #{item.curServer,jdbcType=VARCHAR},
               #{item.reqServer,jdbcType=VARCHAR},
-              SYSDATE,SYSDATE FROM DUAL
+              NOW(),NOW() FROM DUAL
           </foreach>
     </insert>
 

@@ -23,17 +23,17 @@
 	
 	<insert id="add" parameterType="sortingReturn" >
 		INSERT INTO sorting_ret (
-			sorting_ret_id, waybill_code, package_code, create_user_code, create_user_name,
+			waybill_code, package_code, create_user_code, create_user_name,
 			create_site_code, create_site_name, create_time, update_time, ret_status,
 			yn,ret_type, shields_error, shields_type, excute_count, excute_time)
 		VALUES (
-			SEQ_CEN_CONFIRM.NEXTVAL, #{waybillCode,jdbcType=VARCHAR},
+			#{waybillCode,jdbcType=VARCHAR},
 			#{packageCode,jdbcType=VARCHAR}, #{userCode,jdbcType=INTEGER},
 			#{userName,jdbcType=VARCHAR}, #{siteCode,jdbcType=INTEGER},
 			#{siteName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
 			#{updateTime,jdbcType=TIMESTAMP}, 1, 1, #{businessType,jdbcType=INTEGER},
 			#{shieldsError,jdbcType=VARCHAR}, #{shieldsType,jdbcType=INTEGER},
-			0, SYSDATE)
+			0, NOW())
     </insert>
     
 	<update id="update" parameterType="sortingReturn" >
@@ -63,14 +63,14 @@
 		UPDATE sorting_ret
 		SET ret_status = #{status,jdbcType=INTEGER},
 		    yn = #{yn,jdbcType=INTEGER},
-		    update_time = SYSDATE
+		    update_time = NOW()
 		WHERE sorting_ret_id = #{id} 
 	</update>
 
 	<update id="updateListStatusSuccess" parameterType="list">
 		UPDATE sorting_ret
 		SET ret_status = 1,
-			update_time = SYSDATE, 
+			update_time = NOW(), 
 			excute_count = (excute_count + 1) 
 		WHERE sorting_ret_id in 
 			<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
@@ -80,9 +80,9 @@
     
     <update id="updateListStatusFail" parameterType="list">
 		UPDATE sorting_ret
-		SET update_time = SYSDATE, 
+		SET update_time = NOW(), 
 			excute_count = (excute_count + 1),
-			excute_time = (excute_time + 15/(24*60))
+			excute_time = timestampadd(minute, 15, excute_time) 
 		WHERE sorting_ret_id in 
 			<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
 				#{item.id,jdbcType=BIGINT}
@@ -95,7 +95,7 @@
 			ret_status, yn, ret_type, shields_error, shields_type
 	    FROM sorting_ret
 		WHERE sorting_ret_id = #{id}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
     </select>
 	
 	<select id="exists" resultMap="sortingReturn" parameterType="sortingReturn">
@@ -124,8 +124,8 @@
 				ret_status, yn, ret_type, shields_error, shields_type
 			FROM sorting_ret
 			WHERE yn=1 AND ret_status = 0 
-				AND excute_count < 5 AND excute_time < SYSDATE 
-				AND ROWNUM <= #{fetchNum}
+				AND excute_count < 5 AND excute_time < NOW() 
+				AND LIMIT #{fetchNum}
 		]]>
 	</select>
 </mapper>

@@ -19,14 +19,14 @@
 	
 	<insert id="add" parameterType="spare" >
 		INSERT INTO Spare (
-			spare_id, spare_code, spare_type, create_user_code, create_user,
+		    spare_code, spare_type, create_user_code, create_user,
 			update_user_code, update_user, create_time, update_time, times,
 			spare_status, yn)
 		VALUES (
-			SEQ_SPARE.NEXTVAL, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
-			SYSDATE, SYSDATE, 1, 1, 1)
+			NOW(), NOW(), 1, 1, 1)
 	</insert>
 	
 	<update id="update"  parameterType="spare" >
@@ -47,7 +47,7 @@
             <if test="status != null">
                 spare_status = #{status,jdbcType=INTEGER},
             </if>
-            update_time = SYSDATE, times = (times + 1)
+            update_time = NOW(), times = (times + 1)
         </set>
         WHERE spare_code = #{code}
     </update>

@@ -20,8 +20,7 @@
     </resultMap>
     
     <sql id="field">
-              ID
-            , CREATE_SITE_CODE
+              CREATE_SITE_CODE
             , RECEIVE_SITE_CODE
             , BUSINESS_TYPE
             , BOX_CODE
@@ -41,8 +40,7 @@
         INSERT INTO SORTING_EC
             (<include refid="field"/> )
             VALUES
-            (SEQ_SORTING_EC.NEXTVAL
-            , #{createSiteCode,jdbcType=INTEGER}
+            (#{createSiteCode,jdbcType=INTEGER}
             , #{receiveSiteCode,jdbcType=INTEGER}
             , #{businessType,jdbcType=INTEGER}
             , #{boxCode,jdbcType=VARCHAR}

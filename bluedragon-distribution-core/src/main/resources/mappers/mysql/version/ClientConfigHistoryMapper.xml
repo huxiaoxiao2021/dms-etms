@@ -38,7 +38,7 @@
 		values (
 		SEQ_CLIENT_CONFIG_HISTORY.NEXTVAL, #{siteCode, jdbcType=VARCHAR},
 		#{programType, jdbcType=INTEGER}, #{versionCode, jdbcType=VARCHAR}, 
-		sysdate, sysdate, 1
+		NOW(), NOW(), 1
 		)
 	</insert> 
 </mapper>

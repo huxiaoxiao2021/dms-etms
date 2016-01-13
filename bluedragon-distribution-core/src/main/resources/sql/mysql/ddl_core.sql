@@ -186,7 +186,7 @@ CREATE TABLE `client_config` (
 DROP TABLE IF EXISTS `client_config_history`;
 
 CREATE TABLE `client_config_history` (
-  `CONFIG_HISTORY_ID` bigint(20) unsigned NOT NULL,
+  `CONFIG_HISTORY_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SITE_CODE` varchar(20) DEFAULT NULL,
   `PROGRAM_TYPE` tinyint(3) unsigned DEFAULT NULL,
   `VERSION_CODE` varchar(20) DEFAULT NULL,

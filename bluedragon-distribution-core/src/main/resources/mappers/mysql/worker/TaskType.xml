@@ -31,9 +31,9 @@
     </sql>
 
     <select id="selectByNameUsePager" resultMap="taskTypeResult" parameterType="com.jd.bluedragon.Pager">
-        SELECT * FROM (SELECT t.*,rownum as rowno FROM (
-            SELECT
-            <include refid="baseColumns"/> FROM  PAMIRS_SCHEDULE_TASKTYPE
+        SELECT
+            <include refid="baseColumns"/> 
+            FROM  PAMIRS_SCHEDULE_TASKTYPE
         <where>
             1=1
             <if test="data!=null">
@@ -41,10 +41,9 @@
             </if>
         </where>
               ORDER BY id ASC
-        )t
-        )
-        WHERE rowno<![CDATA[<=]]>#{endIndex} AND rowno>#{startIndex}
-
+        <if test="startIndex != null">
+			  LIMIT #{startIndex},#{pageSize}
+		</if>
     </select>
     <select id="selectCounterByName" resultType="int" parameterType="com.jd.bluedragon.Pager">
         SELECT count(1) FROM PAMIRS_SCHEDULE_TASKTYPE
@@ -66,7 +65,7 @@
          SLEEP_TIME_NODATA=#{sleepTimeNoData,jdbcType=NUMERIC},
          SLEEP_TIME_INTERVAL=#{sleepTimeInterval,jdbcType=NUMERIC},
          PROCESSOR_TYPE=#{processorType,jdbcType=NUMERIC},
-         GMT_MODIFIED=SYSDATE
+         GMT_MODIFIED=NOW()
         WHERE id=#{id}
     </update>
 
@@ -90,8 +89,8 @@
         #{lastAssignTime,jdbcType=DATE },
         #{lastAssignUuid,jdbcType=VARCHAR },
         #{expireOwnSignInterval,jdbcType=NUMERIC },
-        SYSDATE,
-        SYSDATE
+        NOW(),
+        NOW()
         )
 
     </insert>

@@ -62,11 +62,11 @@
 	</select>
 	
 	<insert id="add" parameterType="clientConfig">
-		insert into client_config (config_id, site_code, program_type, version_code,create_time,update_time, yn)
+		insert into client_config (site_code, program_type, version_code,create_time,update_time, yn)
 		values (
-		SEQ_CLIENT_CONFIG.NEXTVAL, #{siteCode, jdbcType=VARCHAR},
+		#{siteCode, jdbcType=VARCHAR},
 		#{programType, jdbcType=INTEGER}, #{versionCode, jdbcType=VARCHAR}, 
-		sysdate, sysdate, 1
+		NOW(), NOW(), 1
 		)
 	</insert>
 
@@ -85,7 +85,7 @@
 			<if test="yn != null">
 				yn = #{yn, jdbcType=INTEGER},
 			</if>
-			update_time = sysdate,
+			update_time = NOW()
 		</set>
 		where config_id = #{configId, jdbcType=INTEGER}
 	</update>
