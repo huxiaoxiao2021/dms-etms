@@ -46,7 +46,7 @@ public class ReversePrintResource {
             result.setMessage(JdResponse.MESSAGE_OK);
             result.setData(Boolean.TRUE);
         }
-        catch (Exception e){
+        catch (Throwable e){
             logger.error("【逆向换单打印】",e);
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
@@ -71,7 +71,7 @@ public class ReversePrintResource {
         InvokeResult<String> result=new InvokeResult<String>();
         try {
             reversePrintService.getNewWaybillCode(oldWaybillCode);
-        }catch (Exception e){
+        }catch (Throwable e){
             logger.error("[逆向换单获取新单号]",e);
             result.error(e);
         }
