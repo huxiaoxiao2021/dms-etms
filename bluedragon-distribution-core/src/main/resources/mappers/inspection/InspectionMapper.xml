@@ -13,6 +13,7 @@
     <result column="create_user" property="createUser" jdbcType="VARCHAR" />
     <result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+     <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
     <result column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
     <result column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER"/>
     <result column="update_user" property="updateUser" jdbcType="VARCHAR"/>
@@ -38,7 +39,7 @@
     inspection_id, waybill_code, box_code, 
     package_barcode, inspection_status, exception_type, 
     inspection_type, operate_type, create_user, 
-    create_user_code, create_time, create_site_code , 
+    create_user_code, create_time,operate_time, create_site_code ,
     receive_site_code, update_user, 
     update_user_code, update_time, yn, third_waybill_code, pop_flag,
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
@@ -308,7 +309,7 @@
     	#{inspectionId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{exceptionType,jdbcType=VARCHAR},
 		#{inspectionType,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
-      	#{createUserCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
+      	#{createUserCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{operateTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
       	#{receiveSiteCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
       	#{updateUserCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 1, #{thirdWaybillCode,jdbcType=VARCHAR},
       	#{popFlag,jdbcType=INTEGER}, #{popSupId,jdbcType=INTEGER}, #{popSupName,jdbcType=VARCHAR}, 
