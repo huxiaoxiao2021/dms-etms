@@ -26,8 +26,7 @@
 
 	<insert id="add" parameterType="com.jd.bluedragon.distribution.send.domain.SendQuery">
 		INSERT INTO SEND_QUERY
-            (ID
-            , SEND_CODE
+            (SEND_CODE
             , CREATE_SITE_CODE
             , CREATE_USER
             , CREATE_USER_CODE
@@ -36,18 +35,16 @@
             , CREATE_TIME
             , UPDATE_TIME
             , YN,IP_ADDRESS)
-        VALUES(SEQ_SEND_D.NEXTVAL
-        , #{sendCode,jdbcType=VARCHAR}
+        #{sendCode,jdbcType=VARCHAR}
         , #{createSiteCode,jdbcType=INTEGER}
         , #{createUserRealName,jdbcType=VARCHAR}
         , #{createUserCode,jdbcType=INTEGER}
         , #{updateUserRealName,jdbcType=VARCHAR}
         , #{updateUserCode,jdbcType=INTEGER}
-        , to_date(to_char(#{createTime,jdbcType=TIMESTAMP},'yyyy-MM-dd hh24:mi:ss'),'yyyy-MM-dd hh24:mi:ss')
-        , to_date(to_char(#{updateTime,jdbcType=TIMESTAMP},'yyyy-MM-dd hh24:mi:ss'),'yyyy-MM-dd hh24:mi:ss')
+        , #{createTime,jdbcType=TIMESTAMP}
+        , #{updateTime,jdbcType=TIMESTAMP}
         , #{yn,jdbcType=INTEGER}
         , #{ipAddress,jdbcType=VARCHAR})
 	</insert>
-	
 
 </mapper>

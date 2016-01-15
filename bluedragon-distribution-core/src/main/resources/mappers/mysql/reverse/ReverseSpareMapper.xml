@@ -27,12 +27,11 @@
 	
 	<insert id="add" parameterType="reverseSpare" >
 		INSERT INTO reverse_spare (
-			system_id, spare_code, send_code, waybill_code, product_id,
+			spare_code, send_code, waybill_code, product_id,
 		    product_code, product_name, arrt_code1, arrt_desc1,
             arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
             arrt_code4, arrt_desc4, create_time, update_time, yn, product_price, spare_tran_code)
 		VALUES (
-			SEQ_REVERSE_SPARE.NEXTVAL, 
 			#{spareCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR},#{productId,jdbcType=VARCHAR},
 			#{productCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR},

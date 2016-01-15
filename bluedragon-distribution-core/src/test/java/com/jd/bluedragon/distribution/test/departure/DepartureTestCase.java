@@ -81,22 +81,6 @@ public class DepartureTestCase {
         System.out.println("createDeparture result: " + result);
     }
     
-    public void getGetBoxSendCode() {
-        List<SendCode> sendCodes = new ArrayList<SendCode>();
-        SendCode sendCode1 = new SendCode();
-        sendCode1.setBoxCode("444444444444445");
-        SendCode sendCode2 = new SendCode();
-        sendCode2.setBoxCode("444444444444446");
-        sendCodes.add(sendCode1);
-        sendCodes.add(sendCode2);
-        List<SendCode> results = this.departureService.getBoxSendCode(sendCodes);
-        if (results != null) {
-            for (SendCode sendCode : results) {
-                System.out.println(sendCode.toString());
-            }
-        }
-    }
-    
     public static void main(String args[]) {
         RestTemplate template = new RestTemplate();
         

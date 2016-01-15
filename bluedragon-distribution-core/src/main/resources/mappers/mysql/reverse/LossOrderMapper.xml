@@ -21,11 +21,10 @@
 	
 	<insert id="add" parameterType="lossOrder" >
 		INSERT INTO loss_order (
-			system_id, order_id, loss_type, loss_code, product_id, product_name, 
+			order_id, loss_type, loss_code, product_id, product_name, 
 			product_quantity, user_erp, user_name, loss_quantity, loss_time,
 			create_time, update_time, yn )
-		VALUES ( 
-			SEQ_LOSS_ORDER.NEXTVAL, 
+		VALUES (  
 			#{orderId,jdbcType=BIGINT}, #{lossType,jdbcType=INTEGER},
 			#{lossCode,jdbcType=INTEGER},
 			#{productId,jdbcType=INTEGER},#{productName,jdbcType=INTEGER},

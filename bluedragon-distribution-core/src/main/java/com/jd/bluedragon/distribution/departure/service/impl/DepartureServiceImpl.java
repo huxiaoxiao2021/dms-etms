@@ -723,56 +723,6 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	/**
-	 * 批次根据箱号获得交接单号
-	 * 
-	 * @param
-	 *
-	 * @return
-	 */
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<SendCode> getBoxSendCode(List<SendCode> sendCodes) {
-		if (sendCodes == null) {
-			return null;
-		}
-		List<String> boxCodes = new ArrayList<String>();
-		for (SendCode sendCode : sendCodes) {
-			String boxCode = sendCode.getBoxCode();
-			if (boxCode != null) {
-				boxCodes.add(boxCode);
-			}
-		}
-		if (boxCodes.size() == 0) {
-			return sendCodes;
-		}
-		String boxCodeIn = StringHelper.join(boxCodes, ",", "(", ")", "'");
-		// 根据箱号获得批次号
-		List<SendM> sendMs = sendMDao.querySendCodesByBoxCodes(boxCodeIn);
-
-		List<SendCode> results = new ArrayList<SendCode>();
-		Map<String, String> resultMap = new HashMap<String, String>();
-		if (sendMs != null) {
-			for (SendM sendM : sendMs) {
-				resultMap.put(sendM.getBoxCode(), sendM.getSendCode());
-			}
-		}
-		for (SendCode sendCode : sendCodes) {
-			String boxCode = sendCode.getBoxCode();
-			if ((sendMs != null) && (resultMap.containsKey(boxCode))) {
-				SendCode result = new SendCode();
-				result.setBoxCode(boxCode);
-				result.setSendCode(resultMap.get(boxCode));
-				results.add(result);
-			} else {
-				SendCode result = new SendCode();
-				result.setBoxCode(boxCode);
-				result.setSendCode(null);
-				results.add(result);
-			}
-		}
-		return results;
-	}
-
-	/**
 	 * 批次根据运单号获得交接单号
 	 * 
 	 * @param

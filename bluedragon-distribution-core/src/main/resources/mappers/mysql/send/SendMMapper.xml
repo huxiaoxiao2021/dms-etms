@@ -46,14 +46,6 @@
 		excute_time
 	</sql>
 	
-	<select id="selectByPrimaryKey" parameterType="java.lang.String"
-		resultMap="SendM">
-		select
-		<include refid="Base_Column_List" />
-		from send_m
-		where send_m_id= #{sendMId,jdbcType=BIGINT}
-	</select>
-	
 	<select id="selectBySendCode" parameterType="SendM"
 		resultMap="SendM">
 		select
@@ -121,10 +113,10 @@
 				and create_user_code = #{createUserCode,jdbcType=INTEGER}
 			</if>
 			<if test="operateTime!=null">
-				and operate_time <![CDATA[>=]]> to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+				and operate_time <![CDATA[>=]]> str_to_date(date_format(#{operateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="updateTime!=null">
-				and operate_time <![CDATA[<=]]> to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+				and operate_time <![CDATA[<=]]> str_to_date(date_format(#{updateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
 			
 		</where>
@@ -246,33 +238,6 @@
 		where send_code = #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</update>
 
-	<update id="batchUpdateForDepartrue" parameterType="SendM">
-		update send_m
-		<set>
-			<if test="planStartTime!=null">
-				PLAN_START_TIME = #{planStartTime},
-			</if>
-			<if test="PLAN_END_TIME!=null ">
-				PLAN_END_TIME = #{planEndTime},
-			</if>
-		</set>
-		WHERE WORKSHEET_ID IN
-		<foreach item="worksheetId" index="index" collection="idList"
-			open="(" close=")" separator=",">
-			#{worksheetId}
-		</foreach>
-	</update>
-	
-    <update id="updateSendM" parameterType="list">
-				UPDATE send_m
-				SET yn=0  , update_time = NOW()
-				WHERE yn =1 and send_code in 
-				<foreach collection="list" item="items" index="index" open="("
-					close=")" separator=",">
-					#{items.sendCode,jdbcType=VARCHAR}
-				</foreach> 
-	 </update>
-	 
 	 <select id="findSendMByBoxCode" parameterType="SendM"  resultMap="SendM">
 		 select  
          <include refid="Base_Column_List" />
@@ -325,47 +290,6 @@
 		</where>
 	</update>
 
-	<select id="querySendCodesByBoxCodes" parameterType="SendM"
-		resultMap="SendM">
-		SELECT box_code, send_code
-		FROM send_m where yn=1 and
-		box_code in ${boxCode}
-	</select>
-	
-	<select id="findCancel" parameterType="SendM"
-		resultMap="SendM">
-		select
-		<include refid="Base_Column_List" />
-		from send_m  
-		<where>
-		yn =0 
-		    <if test="createSiteCode!=null">
-				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			</if>
-			<if test="receiveSiteCode!=null">
-				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-			</if>
-			<if test="boxCode!=null">
-				and box_code = #{boxCode,jdbcType=VARCHAR}
-			</if>
-		</where>
-	</select>
-	
-	
-	<update id="updatetmstBySendCode" parameterType="SendM">
-		update send_m
-		set sendm_status = #{sendmStatus,jdbcType=INTEGER}
-		<if test="excuteCount != null">
-		, excute_count = (excute_count + 1)
-		</if>
-		
-		<if test="excuteTime != null">
-		, excute_time = (excute_time + 15/(24*60))
-		</if>	
-		,update_time = NOW()
-		where send_code = #{sendCode,jdbcType=VARCHAR} 
-	</update>
-	
 	<select id="checkSendByBox" parameterType="SendM"  resultType="Integer">
 		SELECT COUNT(send_m_id)
 		FROM send_m
@@ -376,18 +300,6 @@
 		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 	</select>
 	
-	<select id="findsendMToReverse" resultMap="SendM">
-		SELECT 
-		<include refid="Base_Column_List" />
-		FROM send_m  where sendm_status=0 and send_type =20 and yn=1
-		
-			AND (excute_count <![CDATA[<]]> 4 or excute_count is  null)
-		
-			AND (excute_time <![CDATA[<]]> NOW() or excute_time is   null)
-		
-		 and operate_time <![CDATA[<=]]> NOW() - interval '5' MINUTE  and LIMIT 100
-	</select>
-
 	<select id="querySendCodesByDepartue" parameterType="SendM"
 		resultMap="SendM">
 		SELECT distinct send_code
@@ -395,7 +307,6 @@
 		WHERE yn = 1 and SHIELDS_CAR_ID=
 		#{shieldsCarId,jdbcType=INTEGER}
 	</select>
-	
 	
 	<select id="batchQuerySendMList" parameterType="SendM"
 		resultMap="SendMList">

@@ -16,10 +16,10 @@
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <insert id="add" parameterType="list" >
-    insert into shields_error(error_id,box_code,car_code,shields_code,shields_error, 
+    insert into shields_error(box_code,car_code,shields_code,shields_error, 
     create_site_code, create_time, create_user,create_user_code, yn, business_type, update_time)
     values 
-   (SEQ_SHIELDS_ERROR.NEXTVAL, #{boxCode,jdbcType=VARCHAR}, #{carCode,jdbcType=VARCHAR},#{shieldsCode,jdbcType=VARCHAR},
+   (#{boxCode,jdbcType=VARCHAR}, #{carCode,jdbcType=VARCHAR},#{shieldsCode,jdbcType=VARCHAR},
       #{shieldsError,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createTime,jdbcType=TIMESTAMP},#{createUser,jdbcType=VARCHAR}, 
       #{createUserCode,jdbcType=INTEGER}, #{yn,jdbcType=TINYINT},#{businessType,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}
       )

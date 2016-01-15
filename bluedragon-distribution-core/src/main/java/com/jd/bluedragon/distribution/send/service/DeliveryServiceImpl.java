@@ -897,17 +897,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
     /**
-     * 发货明细表数据更新
-     * 
-     * @param tSendMList 发货相关数据
-     */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean updateSendM(List<SendM> tSendMList) {
-        return this.sendMDao.updateSendM(tSendMList);
-    }
-
-
-    /**
      * 生成取消发货数据处理
      * updated by wangtingwei@jd.com
      * edit:将取消发货分为两类，一类为按箱号，另一类为按包裹（包括按运单、包裹、取件单）

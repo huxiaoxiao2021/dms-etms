@@ -4,11 +4,11 @@
 	<insert id="add" parameterType="PickWare">
 		INSERT INTO pick_ware
 		(
-		pickware_id,org_id,package_code, pickware_code,
+		org_id,package_code, pickware_code,
 		order_id,operate_type,operator,operate_time,
 		can_receive,create_time, update_time, yn,fingerprint)
 		VALUES (
-		SEQ_PICK_WARE.NEXTVAL,#{orgId,jdbcType=INTEGER},
+		#{orgId,jdbcType=INTEGER},
 		#{packageCode,jdbcType=VARCHAR},#{pickwareCode,jdbcType=VARCHAR},
 		#{orderId,jdbcType=BIGINT},#{operateType,jdbcType=INTEGER},#{operator,jdbcType=VARCHAR},#{pickwareTime,jdbcType=TIMESTAMP},
 		#{canReceive,jdbcType=INTEGER},NOW(),NOW(), 1,#{fingerprint,jdbcType=VARCHAR})

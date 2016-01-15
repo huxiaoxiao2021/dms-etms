@@ -34,11 +34,9 @@
 			and receive_type = 60
 			and create_site_code = #{createSiteCode, jdbcType=INTEGER}
 			and create_time <![CDATA[>=]]>
-			to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
-			hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			and create_time <![CDATA[<=]]>
-			to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
-			hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			<if test="createUser != null">
 				and create_user like #{createUser, jdbcType=VARCHAR} || '%'
 			</if>
@@ -76,18 +74,13 @@
 
 	<select id="findReceiveJoinList" resultMap="BaseResultMap"
 		parameterType="java.util.Map">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		select
 		<include refid="Base_Column_List" />
 		from receive
 		<include refid="Receive_Join_Where_List" />
 		order by receive_id
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+			WHERE LIMIT #{startIndex, jdbcType=INTEGER} ,#{endIndex, jdbcType=INTEGER}
 		</if>
 	</select>
 </mapper>

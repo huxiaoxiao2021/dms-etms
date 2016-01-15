@@ -4,12 +4,12 @@
 	<insert id="add" parameterType="reassignWaybill">
 		INSERT INTO
 		reassign_waybill (
-		reassign_waybill_id, package_barcode, address, receive_site_name, receive_site_code,
+		package_barcode, address, receive_site_name, receive_site_code,
 		change_site_name,change_site_code,operate_time,
 		create_site_code,create_site_name,create_user_code, create_user,
 	    create_time, update_time, yn,waybill_code)
 		VALUES (
-		SEQ_REASSIGN_WAYBILL.NEXTVAL, #{packageBarcode,jdbcType=VARCHAR},
+		#{packageBarcode,jdbcType=VARCHAR},
 		#{address,jdbcType=VARCHAR},#{receiveSiteName,jdbcType=VARCHAR},
 		#{receiveSiteCode,jdbcType=INTEGER},#{changeSiteName,jdbcType=VARCHAR},
 		#{changeSiteCode,jdbcType=INTEGER},#{operateTime,jdbcType=TIMESTAMP},

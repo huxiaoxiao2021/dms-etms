@@ -28,6 +28,12 @@
 		CREATE_TIME, UPDATE_TIME, IS_REVERSE, FINGERPRINT, YN
 	</sql>
 	
+	<sql id="Base_Column_ListNo">
+		RECEIVE_TYPE, WAYBILL_CODE, THIRD_WAYBILL_CODE, ORIGINAL_NUM, ACTUAL_NUM, 
+		CREATE_SITE_CODE, CREATE_SITE_NAME, OPERATOR_CODE, OPERATOR_NAME, OPERATE_TIME, 
+		CREATE_TIME, UPDATE_TIME, IS_REVERSE, FINGERPRINT, YN
+	</sql>
+	
 	<sql id="Base_Where_List">
 		<where>
   			YN = 1
@@ -50,18 +56,16 @@
 				and OPERATOR_NAME = #{operatorName, jdbcType=VARCHAR}
 			</if>
 			<if test="startTime != null">
-				and CREATE_TIME <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+				and CREATE_TIME <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="endTime != null">
-				and CREATE_TIME <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+				and CREATE_TIME <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="operateStartTime != null">
-			AND <![CDATA[ OPERATE_TIME>=to_date(#{operateStartTime},'yyyy-mm-dd
-				hh24:mi:ss')]]>
+			AND <![CDATA[ OPERATE_TIME>=str_to_date(#{operateStartTime},'%Y-%m-%d %H:%i:%s')]]>
 		</if>
 		<if test="operateEndTime != null">
-			AND <![CDATA[ OPERATE_TIME<=to_date(#{operateEndTime},'yyyy-mm-dd
-				hh24:mi:ss')]]>
+			AND <![CDATA[ OPERATE_TIME<=str_to_date(#{operateEndTime},'%Y-%m-%d %H:%i:%s')]]>
 		</if>
 		</where>
 	</sql>
@@ -81,25 +85,17 @@
 		<include refid="Base_Column_List" />
 		FROM pop_receive
 		<include refid="Base_Where_List" />
-			and CREATE_TIME <![CDATA[>=]]> trunc(NOW())
+			and CREATE_TIME <![CDATA[>=]]> DATE_FORMAT(CURDATE(),'%Y-%m-%d %H:%i:%s')
 	</select>
 	
 	<select id="findPopReceiveList" resultMap="popReceive"
 		parameterType="java.util.Map">
-				<if test="start!=null">
-		SELECT *
-		FROM (SELECT A.*, ROWNUM RN
-		FROM (
-		</if>
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM pop_receive
 		<include refid="Base_Where_List" />
 		<if test="start!=null">
-		) A WHERE LIMIT
-		#{end} )
-		WHERE RN <![CDATA[ > ]]>
-		#{start}
+		 LIMIT #{start},#{end}
 		</if>
 	</select>
 	<select id="count" resultType="int"
@@ -110,10 +106,10 @@
 	
 	<insert id="add" parameterType="PopReceive">
 		insert into pop_receive (
-		<include refid="Base_Column_List" />
+		<include refid="Base_Column_ListNo" />
 		)
 		values (
-		SEQ_POP_RECEIVE.NEXTVAL, #{receiveType, jdbcType=INTEGER}, #{waybillCode, jdbcType=VARCHAR}, 
+		#{receiveType, jdbcType=INTEGER}, #{waybillCode, jdbcType=VARCHAR}, 
 		#{thirdWaybillCode, jdbcType=VARCHAR}, #{originalNum, jdbcType=INTEGER}, #{actualNum, jdbcType=INTEGER}, 
 		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR}, #{operatorCode, jdbcType=INTEGER}, 
 		#{operatorName, jdbcType=VARCHAR}, #{operateTime, jdbcType=TIMESTAMP}, NOW(), NOW(),

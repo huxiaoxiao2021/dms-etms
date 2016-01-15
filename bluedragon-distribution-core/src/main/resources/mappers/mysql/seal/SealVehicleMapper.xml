@@ -27,11 +27,11 @@
 	<insert id="add" parameterType="sealVehicle">
 		INSERT INTO
 		seal_vehicle (
-		system_id, vehicle_code, seal_code, driver_code, driver,
+		vehicle_code, seal_code, driver_code, driver,
 		create_site_code, receive_site_code, create_user_code, create_user,
 		update_user_code, update_user, create_time, update_time, yn)
 		VALUES (
-		SEQ_SEAL_VEHICLE.NEXTVAL, #{vehicleCode,jdbcType=VARCHAR},
+		#{vehicleCode,jdbcType=VARCHAR},
 		#{code,jdbcType=VARCHAR},
 		#{driverCode,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
@@ -43,12 +43,12 @@
 	<insert id="add2" parameterType="sealVehicle">
 		INSERT INTO
 		seal_vehicle (
-		system_id, vehicle_code, seal_code, driver_code, driver,
+		vehicle_code, seal_code, driver_code, driver,
 		create_site_code, receive_site_code, create_user_code, create_user,
 		update_user_code, update_user, create_time, update_time, yn,
 		send_code, volume, weight, package_num)
 		VALUES (
-		SEQ_SEAL_VEHICLE.NEXTVAL, #{vehicleCode,jdbcType=VARCHAR},
+		#{vehicleCode,jdbcType=VARCHAR},
 		#{code,jdbcType=VARCHAR},
 		#{driverCode,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
@@ -151,11 +151,11 @@
 	<insert id="addBatch" parameterType="list">
 	     INSERT INTO seal_vehicle
          (
-			system_id, vehicle_code, seal_code, driver_code, driver,
+			vehicle_code, seal_code, driver_code, driver,
 			create_site_code, receive_site_code, create_user_code, create_user,
 			update_user_code, update_user, create_time, update_time, yn,
 			send_code, volume, weight, package_num
-         ) select  SEQ_SEAL_VEHICLE.NEXTVAL, A.* FROM(
+         ) select  A.* FROM(
 	        <foreach collection="list" item="item" index="index" separator="UNION ALL">
 				SELECT
 					#{item.vehicleCode,jdbcType=VARCHAR} AS vehicle_code,

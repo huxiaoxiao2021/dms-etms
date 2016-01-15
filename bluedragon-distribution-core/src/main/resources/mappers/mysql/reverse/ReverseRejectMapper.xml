@@ -26,14 +26,13 @@
 	
 	<insert id="add" parameterType="reverseReject" >
 		INSERT INTO Reverse_Reject (
-			system_id, create_site_code, create_site_name,
+			create_site_code, create_site_name,
 		    org_id, cky2, store_id, business_type,
             order_id, pickware_code, package_code, 
             operator_code, operator, operate_time, 
             inspector_code, inspector, inspect_time, 
             create_time, update_time, yn)
 		VALUES (
-			SEQ_REVERSE_REJECT.NEXTVAL, 
 			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
 			#{orgId,jdbcType=INTEGER}, #{cky2,jdbcType=INTEGER}, #{storeId,jdbcType=INTEGER},
 			#{businessType,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR},

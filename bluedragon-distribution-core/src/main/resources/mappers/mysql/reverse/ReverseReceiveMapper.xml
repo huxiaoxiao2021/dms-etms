@@ -21,11 +21,10 @@
 	
 	<insert id="add" parameterType="reverseReceive" >
 		INSERT INTO Reverse_Receive (
-			system_id,operator_code,operator,operate_time,
+			operator_code,operator,operate_time,
 			send_code,package_barcode,can_receive,reject_code,reject_message,
             create_time, update_time, yn,business_type)
 		VALUES (
-			SEQ_REVERSE_Receive.NEXTVAL, 
 			#{operatorId,jdbcType=VARCHAR},			
 			#{operatorName,jdbcType=VARCHAR},			
 			#{receiveTime,jdbcType=TIMESTAMP},			

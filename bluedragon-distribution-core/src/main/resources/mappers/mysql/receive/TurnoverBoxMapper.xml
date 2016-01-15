@@ -13,10 +13,10 @@
 
 	<insert id="add" parameterType="TurnoverBox">
 		insert into turnoverbox
-		(turnoverbox_id,turnoverbox_code,create_user,create_user_code,create_time,
+		(turnoverbox_code,create_user,create_user_code,create_time,
 		operate_time,create_site_code,receive_site_code,update_time,yn,operate_type,receive_site_name,create_site_name)
 		values
-		(SEQ_TURNOVERBOX.NEXTVAL,#{turnoverBoxCode,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
+		(#{turnoverBoxCode,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
 		NOW(),#{operateTime,jdbcType=TIMESTAMP},#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},
 		NOW(),1,#{operateType,jdbcType=INTEGER},#{receiveSiteName,jdbcType=VARCHAR},#{createSiteName,jdbcType=VARCHAR})
 	</insert>
@@ -24,16 +24,10 @@
 	<select id="getTurnoverBoxList"
 		parameterType="TurnoverBox"
 		resultMap="BaseResultMap">
-		SELECT *
-		FROM (SELECT A.*, ROWNUM RN
-		FROM (
-		SELECT * FROM turnoverbox t1
+		
+		SELECT * FROM turnoverbox 
 		<include refid="where"/>
-		) A
-		WHERE LIMIT
-		#{end} )
-		WHERE RN <![CDATA[ > ]]>
-		#{start}
+		WHERE LIMIT #{start} ,#{end}
 	</select>
 	
 	<select id="getCount"
@@ -54,12 +48,10 @@
 				and t1.operate_type = #{operateType,jdbcType=INTEGER }
 			</if>
 			<if test="printStartTime != null and printStartTime!=''">
-				AND <![CDATA[ t1.create_time>=to_date(#{printStartTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.create_time>=str_to_date(#{printStartTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 			<if test="printEndTime != null and printEndTime!='' ">
-				AND <![CDATA[ t1.create_time<=to_date(#{printEndTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.create_time<=str_to_date(#{printEndTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 			
 			order by create_time
