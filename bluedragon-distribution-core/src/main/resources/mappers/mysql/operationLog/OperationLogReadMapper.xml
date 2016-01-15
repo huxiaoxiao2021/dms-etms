@@ -106,7 +106,7 @@
 		#{receiveSiteCode,jdbcType=INTEGER},
 		#{receiveSiteName,jdbcType=VARCHAR},
 		#{remark,jdbcType=VARCHAR},
-		#{operateTime,jdbcType=TIMESTAMP}, sysdate, sysdate, 1
+		#{operateTime,jdbcType=TIMESTAMP}, NOW(), NOW(), 1
 		)
 	</insert>
 
@@ -136,7 +136,7 @@
 		<include refid="Base_Where_List" />
 		order by operate_time
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 			) where <![CDATA[l >]]>
 			#{startIndex, jdbcType=INTEGER}
 		</if>

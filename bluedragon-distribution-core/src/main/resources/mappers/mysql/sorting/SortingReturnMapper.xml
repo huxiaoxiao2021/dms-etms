@@ -103,7 +103,7 @@
 		    create_user_name, create_site_code, create_site_name, create_time, update_time,
 			ret_status, yn, ret_type, shields_error, shields_type
 		FROM sorting_ret
-		WHERE yn=1 AND ret_type <![CDATA[>]]> -1 AND ROWNUM <![CDATA[<=]]> 1
+		WHERE yn=1 AND ret_type <![CDATA[>]]> -1 AND LIMIT 1
 		<if test="siteCode != null">
 			AND create_site_code = #{siteCode}
 		</if>

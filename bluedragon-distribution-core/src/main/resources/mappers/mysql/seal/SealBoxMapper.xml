@@ -31,7 +31,7 @@
 		#{receiveSiteCode,jdbcType=INTEGER},
 		#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 		#{updateUserCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
-		sysdate, sysdate, 1)
+		NOW(), NOW(), 1)
 	</insert>
 
 	<insert id="addSealBox" parameterType="sealBox">
@@ -56,7 +56,7 @@
 		receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
 		update_user_code = #{updateUserCode,jdbcType=INTEGER},
 		update_user =
-		#{updateUser,jdbcType=VARCHAR}, update_time = sysdate
+		#{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE
 		seal_code =
 		#{code}
@@ -100,7 +100,7 @@
 		FROM seal_box
 		WHERE seal_code
 		= #{sealCode}
-		and rownum <![CDATA[<=]]>
+		and LIMIT
 		1
 	</select>
 
@@ -110,7 +110,7 @@
 		WHERE box_code
 		= #{boxCode}  order by create_time  desc
 		)
-		where rownum <![CDATA[<=]]>
+		where LIMIT
 		1
 	</select>
 

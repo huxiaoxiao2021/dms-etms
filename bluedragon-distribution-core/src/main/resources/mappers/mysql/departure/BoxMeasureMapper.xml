@@ -31,7 +31,7 @@
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM box_measure
-		WHERE yn = 1 and status = 0 limit #{fetchNum};
+		WHERE yn = 1 and status = 0 LIMIT #{fetchNum};
 	</select>
 
 	<update id="updateBySelective" parameterType="BoxMeasure">

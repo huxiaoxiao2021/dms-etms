@@ -25,22 +25,22 @@
 	
 	<insert id="add" parameterType="abnormalOrder" >
 		INSERT INTO abnormal_order(
-			system_id,fingerprint,order_id,
+			fingerprint,order_id,
 			abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
 			create_user_code,create_user_erp,create_user,
 			operate_time,create_time,update_time,
 			create_site_code,create_site_name,
 			is_cancel,memo,yn)
 		VALUES(
-			SEQ_ABNORMALORDER.NEXTVAL,#{fingerprint,jdbcType=VARCHAR},#{orderId,jdbcType=VARCHAR},
+			#{fingerprint,jdbcType=VARCHAR},#{orderId,jdbcType=VARCHAR},
 			#{abnormalCode1,jdbcType=INTEGER},#{abnormalReason1,jdbcType=VARCHAR},#{abnormalCode2,jdbcType=INTEGER},#{abnormalReason2,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER},#{createUserErp,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},
-			#{operateTime,jdbcType=TIMESTAMP},SYSDATE,SYSDATE,
+			#{operateTime,jdbcType=TIMESTAMP},NOW(),NOW(),
 			#{createSiteCode,jdbcType=VARCHAR},#{createSiteName,jdbcType=VARCHAR},
 			-1,#{memo,jdbcType=VARCHAR},1
 		)
 	</insert>
-	
+
 	<select id="get" resultMap="abnormalOrder" parameterType="java.lang.String">
 		SELECT
 			system_id,fingerprint,order_id,
@@ -49,12 +49,12 @@
 			operate_time,create_time,update_time,
 			create_site_code,create_site_name,is_cancel,memo,yn
 		FROM abnormal_order
-		WHERE order_id = #{orderId} and rownum <![CDATA[<=]]>1
+		WHERE order_id = #{orderId} and LIMIT 1
 	</select>
-	
+
 	<update id="update" parameterType="abnormalOrder" >
 		UPDATE abnormal_order
-		SET 
+		SET
 			fingerprint=#{fingerprint,jdbcType=VARCHAR},
 			abnormal_code1=#{abnormalCode1,jdbcType=INTEGER},
 			abnormal_reason1=#{abnormalReason1,jdbcType=VARCHAR},
@@ -68,17 +68,17 @@
 			operate_time=#{operateTime,jdbcType=VARCHAR},
 			memo=#{memo,jdbcType=VARCHAR},
 			is_cancel=#{isCancel,jdbcType=VARCHAR},
-			update_time=SYSDATE
+			update_time=NOW()
 		WHERE
 			order_id = #{orderId,jdbcType=VARCHAR} and yn = 1
 	</update>
-	
+
 	<update id="updateResult" parameterType="abnormalOrder" >
 		UPDATE abnormal_order
-		SET 
+		SET
 			memo=#{memo,jdbcType=VARCHAR},
 			is_cancel=#{isCancel,jdbcType=VARCHAR},
-			update_time=SYSDATE
+			update_time=NOW()
 		WHERE
 			order_id = #{orderId,jdbcType=VARCHAR} and yn = 1
 	</update>

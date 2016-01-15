@@ -13,7 +13,7 @@
     <insert id="insert" parameterType="DepartureTmpSend">
         INSERT INTO departure_tmp (departure_tmp_id,batch_code,send_code,create_time,yn,operate_time,third_waybill_code)
         VALUES (seq_departure_tmp.nextval,#{batchCode,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},
-        sysdate,1,#{operateTime,jdbcType=TIMESTAMP},#{thirdWaybillCode,jdbcType=VARCHAR})
+        NOW(),1,#{operateTime,jdbcType=TIMESTAMP},#{thirdWaybillCode,jdbcType=VARCHAR})
     </insert>
 
     <select id="queryDepartureTmpByBatchCode" resultMap="DepartureTmpSendResult" parameterType="java.lang.String">

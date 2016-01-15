@@ -17,8 +17,8 @@
 		operate_time,create_site_code,receive_site_code,update_time,yn,operate_type,receive_site_name,create_site_name)
 		values
 		(SEQ_TURNOVERBOX.NEXTVAL,#{turnoverBoxCode,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
-		sysdate,#{operateTime,jdbcType=TIMESTAMP},#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},
-		sysdate,1,#{operateType,jdbcType=INTEGER},#{receiveSiteName,jdbcType=VARCHAR},#{createSiteName,jdbcType=VARCHAR})
+		NOW(),#{operateTime,jdbcType=TIMESTAMP},#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},
+		NOW(),1,#{operateType,jdbcType=INTEGER},#{receiveSiteName,jdbcType=VARCHAR},#{createSiteName,jdbcType=VARCHAR})
 	</insert>
 	
 	<select id="getTurnoverBoxList"
@@ -30,7 +30,7 @@
 		SELECT * FROM turnoverbox t1
 		<include refid="where"/>
 		) A
-		WHERE ROWNUM <![CDATA[ <= ]]>
+		WHERE LIMIT
 		#{end} )
 		WHERE RN <![CDATA[ > ]]>
 		#{start}

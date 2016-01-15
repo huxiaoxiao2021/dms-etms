@@ -116,7 +116,7 @@
 			ORDER BY ${orderByString} desc
 		</if>
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>
@@ -162,7 +162,7 @@
 		#{waybillCode, jdbcType=VARCHAR}, #{popSupNo, jdbcType=VARCHAR}, #{popSupName, jdbcType=VARCHAR},
 		#{abnormalStatus, jdbcType=INTEGER}, #{attr1, jdbcType=VARCHAR}, #{attr2, jdbcType=VARCHAR},
 		#{attr3, jdbcType=VARCHAR}, #{attr4, jdbcType=VARCHAR}, #{operatorName, jdbcType=VARCHAR},
-		sysdate, #{updateTime, jdbcType=TIMESTAMP}, 1,
+		NOW(), #{updateTime, jdbcType=TIMESTAMP}, 1,
 		#{waybillType, jdbcType=INTEGER}, #{orderCode, jdbcType=VARCHAR}
 		)
 	</insert>

@@ -45,8 +45,8 @@
 		#{taskType,jdbcType=INTEGER},
 		#{executeCount,jdbcType=INTEGER},
 		#{ownSign,jdbcType=VARCHAR},
-		sysdate,
-		sysdate,
+		NOW(),
+		NOW(),
 		1
 		)
 	</insert>
@@ -83,7 +83,7 @@
 			<if test="executeCount != null">
 				EXECUTE_COUNT=#{executeCount},
 			</if>
-			update_time=sysdate
+			update_time=NOW()
 		</set>
 		where task_id=#{taskId} 
 	</update>
@@ -96,17 +96,18 @@
 	select * from TASK_POP_RECIEVE_COUNT where waybill_code=#{waybillCode} AND task_status=0 and YN=1
 	</select>
 	<select id="findLimitedTasksByType" resultMap="TaskPopRecieveCountMap" parameterType="map" >
+	<select id="findLIMIT edTasksByType" resultMap="TaskPopRecieveCountMap" parameterType="map" >
 		SELECT task_id, task_type, WAYBILL_CODE,THIRD_WAYBILL_CODE,EXPRESS_CODE,EXPRESS_NAME,ACTUAL_NUM,OPERATE_TIME,EXECUTE_TIME,
 			 execute_count, task_status, create_time
 	    FROM ${tableName}
        	<where>
 		   	yn = 1 AND execute_count <![CDATA[<]]> 5
-		   	AND (execute_time <![CDATA[<]]> SYSDATE OR execute_time IS NULL)
+		   	AND (execute_time <![CDATA[<]]> NOW() OR execute_time IS NULL)
 		    AND task_status IN (0, 3) AND task_type = #{type} 
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
-			AND ROWNUM  <![CDATA[<=]]> #{fetchNum}
+			AND LIMIT #{fetchNum}
 		</where>
     </select>	
 	

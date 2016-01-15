@@ -34,7 +34,7 @@
 			#{canReceive,jdbcType=VARCHAR},			
 			#{rejectCode,jdbcType=INTEGER},			
 			#{rejectMessage,jdbcType=VARCHAR},			
-			SYSDATE, SYSDATE, 1,
+			NOW(), NOW(), 1,
 			#{receiveType,jdbcType=VARCHAR})
 	</insert>
 	
@@ -43,7 +43,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
 		FROM Reverse_Receive
 		WHERE yn = 1 AND package_barcode = #{packageCode}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
 	
 	
@@ -52,7 +52,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
 		FROM Reverse_Receive
 		WHERE yn = 1 AND package_barcode = #{packageCode} AND send_code = #{sendCode} AND business_type = #{receiveType}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
 	
 	
@@ -61,7 +61,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
 		FROM Reverse_Receive
 		WHERE yn = 1 AND package_barcode = #{orderId} AND send_code = #{sendCode} 
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
 	
 	
@@ -96,7 +96,7 @@
                 business_type = #{receiveType,jdbcType=VARCHAR},
             </if>
             
-            update_time = SYSDATE
+            update_time = NOW()
         </set>
 		WHERE system_id = #{id}
 	</update>

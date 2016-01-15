@@ -28,7 +28,7 @@
 			#{createSiteName,jdbcType=VARCHAR}, #{receiveSiteCode,jdbcType=INTEGER},
 			#{receiveSiteName,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER},#{operator_name,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-			SYSDATE, #{printNum,jdbcType=INTEGER}, 1)
+			NOW(), #{printNum,jdbcType=INTEGER}, 1)
 	</insert>
 	
 </mapper> 

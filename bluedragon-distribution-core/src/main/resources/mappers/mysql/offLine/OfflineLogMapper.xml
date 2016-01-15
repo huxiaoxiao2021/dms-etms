@@ -76,8 +76,8 @@
 		values
 		(SEQ_OFFLINE_LOG.NEXTVAL,#{waybillCode,jdbcType=VARCHAR},#{packageCode,jdbcType=VARCHAR},#{boxCode,jdbcType=VARCHAR},
 		#{businessType,jdbcType=INTEGER},#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
-		sysdate,#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},
-		#{receiveSiteCode,jdbcType=INTEGER},sysdate,#{operateTime,jdbcType=TIMESTAMP},
+		NOW(),#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},
+		#{receiveSiteCode,jdbcType=INTEGER},NOW(),#{operateTime,jdbcType=TIMESTAMP},
 		#{turnoverBoxCode,jdbcType=VARCHAR},#{weight,jdbcType=DOUBLE},#{volume,jdbcType=DOUBLE},#{exceptionType,jdbcType=VARCHAR},
 		#{sendCode,jdbcType=VARCHAR},#{sealBoxCode,jdbcType=VARCHAR},#{shieldsCarCode,jdbcType=VARCHAR},
 		#{vehicleCode,jdbcType=VARCHAR},#{taskType,jdbcType=INTEGER},#{sendUser,jdbcType=VARCHAR},#{sendUserCode,jdbcType=INTEGER},
@@ -103,7 +103,7 @@
 		<include refid="Base_Where_List" />
 		order by update_time desc
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 			) where <![CDATA[l >]]>
 			#{startIndex, jdbcType=INTEGER}
 		</if>
@@ -119,7 +119,7 @@
 	<update id="updateById" parameterType="OfflineLog">
 		UPDATE offline_log
 		<set>
-			UPDATE_TIME = sysdate,
+			UPDATE_TIME = NOW(),
 			<if test="boxCode != null and boxCode != ''">
 				 box_code = #{boxCode},
 			</if>

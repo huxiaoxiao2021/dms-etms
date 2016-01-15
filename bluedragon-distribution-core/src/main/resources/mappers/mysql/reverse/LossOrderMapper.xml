@@ -31,7 +31,7 @@
 			#{productId,jdbcType=INTEGER},#{productName,jdbcType=INTEGER},
 			#{productQuantity,jdbcType=INTEGER}, #{userErp,jdbcType=VARCHAR},
 			#{userName,jdbcType=INTEGER}, #{lossQuantity,jdbcType=INTEGER},
-			#{lossTime,jdbcType=INTEGER}, SYSDATE, SYSDATE, 1)
+			#{lossTime,jdbcType=INTEGER}, NOW(), NOW(), 1)
 	</insert>
 	
 </mapper>

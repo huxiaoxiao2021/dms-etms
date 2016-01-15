@@ -41,7 +41,7 @@
 			#{operatorCode,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR},
 			#{operateTime,jdbcType=TIMESTAMP}, #{inspector,jdbcType=VARCHAR},
 			#{inspectorCode,jdbcType=INTEGER}, #{inspectTime,jdbcType=TIMESTAMP},
-			SYSDATE, SYSDATE, 1)
+			NOW(), NOW(), 1)
 	</insert>
 	
 	<select id="get" resultMap="reverseReject" parameterType="reverseReject" >
@@ -57,7 +57,7 @@
 		<if test="packageCode != null">
             AND package_code = #{packageCode}
         </if>
-		AND ROWNUM <![CDATA[<=]]> 1
+		AND LIMIT 1
 	</select>
 	
 	<update id="update"  parameterType="reverseReject" >
@@ -105,7 +105,7 @@
             <if test="inspectTime != null">
                 inspect_time = #{inspectTime,jdbcType=TIMESTAMP}, 
             </if>
-            update_time = SYSDATE
+            update_time = NOW()
         </set>
 		WHERE system_id = #{id}
 	</update>

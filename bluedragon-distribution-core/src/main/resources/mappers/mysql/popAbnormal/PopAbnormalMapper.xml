@@ -99,7 +99,7 @@
 			ORDER BY ${orderByString} ASC
 		</if>
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>
@@ -139,8 +139,8 @@
 		#{operatorName, jdbcType=VARCHAR},
 		#{createSiteCode, jdbcType=INTEGER},
 		#{createSiteName, jdbcType=VARCHAR},
-		sysdate,
-		#{confirmTime, jdbcType=TIMESTAMP}, sysdate, 1,
+		NOW(),
+		#{confirmTime, jdbcType=TIMESTAMP}, NOW(), 1,
 		#{memo, jdbcType=VARCHAR}, 1
 		)
 	</insert>
@@ -148,7 +148,7 @@
 	<update id="updateById" parameterType="PopAbnormal">
 		UPDATE pop_abnormal_order
 		SET abnormal_state = 2, confirm_num = #{confirmNum, jdbcType=INTEGER},
-		confirm_time = #{confirmTime, jdbcType=TIMESTAMP}, update_time = sysdate
+		confirm_time = #{confirmTime, jdbcType=TIMESTAMP}, update_time = NOW()
 		WHERE id = #{id, jdbcType=BIGINT}
 		AND yn = 1
 	</update>

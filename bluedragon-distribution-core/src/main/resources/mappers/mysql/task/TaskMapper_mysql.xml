@@ -89,6 +89,7 @@
 	</select>
 
 	<select id="findLimitedTasks" resultMap="task" parameterType="map">
+	<select id="findLIMIT edTasks" resultMap="task" parameterType="map">
         <![CDATA[
             SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body,
                  execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
@@ -120,6 +121,7 @@
 	</select>
 
 	<select id="findLimitedTasksByType" resultMap="task"
+	<select id="findLIMIT edTasksByType" resultMap="task"
 		parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,

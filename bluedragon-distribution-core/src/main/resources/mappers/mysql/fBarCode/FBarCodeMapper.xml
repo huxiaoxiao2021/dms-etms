@@ -20,16 +20,16 @@
 	
 	<insert id="add" parameterType="com.jd.bluedragon.distribution.fBarCode.domain.FBarCode" >
 		INSERT INTO FBarCode (
-			fbarcode_id, fbarcode_code, create_site_code, create_site_name,
+			fbarcode_code, create_site_code, create_site_name,
 			create_user_code, create_user,
 			update_user_code, update_user,
 			create_time,update_time,
 			fbarcode_status, times,  yn)
 		VALUES (
-			SEQ_FBARCODE.NEXTVAL, #{code,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
-			 SYSDATE, SYSDATE, 1, 1, 1)
+			 NOW(), NOW(), 1, 1, 1)
 	</insert>
 </mapper>

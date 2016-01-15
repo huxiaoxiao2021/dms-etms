@@ -18,23 +18,22 @@
 	
 	<insert id="add" parameterType="batchInfo" >
 		INSERT INTO batchinfo (
-			id, batch_code, create_site_code, create_user, create_user_code,
+			batch_code, create_site_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,
 			yn)
 		VALUES (
-			SEQ_BATCHINFO.NEXTVAL, #{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
+			#{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
 			#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
 			#{updateUserCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
-			SYSDATE
-			, to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
-			,1)
+			NOW() , #{updateTime, jdbcType=TIMESTAMP},1
+			)
 	</insert>
 
     <select id="findMaxCreateTimeBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
 		SELECT id, batch_code, create_site_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,yn
 		FROM batchinfo WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		AND ROWNUM <![CDATA[<=]]> 1
+		AND LIMIT 1
 		AND yn = 1
 		AND create_time = (SELECT MAX (create_time)
 		                    FROM batchinfo
@@ -46,7 +45,7 @@
 		SELECT batch_code, create_site_code, create_time, update_time
 		FROM batchinfo
 		WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		AND ROWNUM <![CDATA[<=]]> 1
+		AND LIMIT 1
 		and update_time is null
 		AND yn = 1
 	</select>
@@ -56,13 +55,13 @@
 			update_user_code, update_user
         FROM batchinfo
         WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
-        AND ROWNUM <![CDATA[<=]]> 1
+        AND LIMIT 1
         AND yn = 1
-        AND create_time<![CDATA[<=]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        AND create_time<![CDATA[<=]]>#{operateTime, jdbcType=TIMESTAMP}
         AND (
-              update_time<![CDATA[>]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+              update_time<![CDATA[>]]>#{operateTime, jdbcType=TIMESTAMP}
               OR
-              update_time=to_date(to_char(#{minTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+              update_time=#{minTime, jdbcType=TIMESTAMP}
              )
     </select>
 	<select id="findAllBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
@@ -71,10 +70,10 @@
 		FROM batchinfo
 		WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		<if test="createTime!=null">
-			and create_time <![CDATA[>=]]> to_date(to_char(#{createTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			and create_time <![CDATA[>=]]> #{createTime, jdbcType=TIMESTAMP}
 		</if>
 		<if test="updateTime!=null">
-			and create_time <![CDATA[<=]]> to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			and create_time <![CDATA[<=]]> #{updateTime, jdbcType=TIMESTAMP}
 		</if>
 	</select>
 
@@ -84,12 +83,12 @@
 			update_user_code, update_user, create_time, update_time,yn
 		FROM batchinfo
 		WHERE yn = 1 AND batch_code = #{batchCode}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
 
     <update id="update" parameterType="batchInfo" >
         UPDATE batchinfo
-        SET update_time = to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        SET update_time = #{updateTime, jdbcType=TIMESTAMP}
         WHERE  batch_code =  #{batchCode,jdbcType=VARCHAR}
     </update>
 

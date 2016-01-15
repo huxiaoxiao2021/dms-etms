@@ -11,7 +11,7 @@
 		SEQ_PICK_WARE.NEXTVAL,#{orgId,jdbcType=INTEGER},
 		#{packageCode,jdbcType=VARCHAR},#{pickwareCode,jdbcType=VARCHAR},
 		#{orderId,jdbcType=BIGINT},#{operateType,jdbcType=INTEGER},#{operator,jdbcType=VARCHAR},#{pickwareTime,jdbcType=TIMESTAMP},
-		#{canReceive,jdbcType=INTEGER},SYSDATE,SYSDATE, 1,#{fingerprint,jdbcType=VARCHAR})
+		#{canReceive,jdbcType=INTEGER},NOW(),NOW(), 1,#{fingerprint,jdbcType=VARCHAR})
 	</insert>
 	<select id="findByFingerprint" resultType="Integer" parameterType="map" >
         SELECT count(pickware_id)

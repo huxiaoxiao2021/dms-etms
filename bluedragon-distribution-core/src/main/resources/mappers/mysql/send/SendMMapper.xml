@@ -59,7 +59,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
+		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and LIMIT 1
 	</select>
 	
 	<select id="selectOneBySendCode" parameterType="SendM"
@@ -67,7 +67,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
+		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and LIMIT 1
 	</select>
 	
 	<select id="selectOneBySiteAndSendCode" parameterType="SendM"
@@ -79,7 +79,7 @@
 		<if test = "null!=createSiteCode">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 		</if>
-		and rownum <![CDATA[<=]]>1
+		and LIMIT 1
 	</select>
 	
 	<select id="selectBySiteAndSendCode" parameterType="SendM"
@@ -144,9 +144,9 @@
 			(
 			SEQ_SEND_M.NEXTVAL,#{sendCode,jdbcType=VARCHAR},#{sendUser,jdbcType=VARCHAR},#{sendUserCode,jdbcType=INTEGER},#{boxCode,jdbcType=VARCHAR},#{turnoverBoxCode,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{carCode,jdbcType=INTEGER},#{sendType,jdbcType=INTEGER},
-			#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},SYSDATE,#{operateTime,jdbcType=TIMESTAMP},
+			#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},NOW(),#{operateTime,jdbcType=TIMESTAMP},
 			#{updateUserCode,jdbcType=INTEGER},#{updaterUser,jdbcType=VARCHAR},1,#{updateTime,jdbcType=TIMESTAMP},#{yn,jdbcType=TINYINT},#{shieldsCarId,jdbcType=INTEGER}
-			,0,sysdate,#{transporttype,jdbcType=INTEGER})
+			,0,NOW(),#{transporttype,jdbcType=INTEGER})
 	</insert>
 	
 	<insert id="addBatch" parameterType="list" >
@@ -174,7 +174,7 @@
 				#{item.sendType,jdbcType=INTEGER} as send_type,
 				#{item.createUser,jdbcType=VARCHAR} as create_user,
 				#{item.createUserCode,jdbcType=INTEGER} as create_user_code,				
-				sysdate as create_time,
+				NOW() as create_time,
 				#{item.operateTime,jdbcType=TIMESTAMP} as operate_time,
 				#{item.updateUserCode,jdbcType=INTEGER} as update_user_code,
 				#{item.updaterUser,jdbcType=VARCHAR} as updater_user,
@@ -183,7 +183,7 @@
 				#{item.yn,jdbcType=TINYINT} as yn,
 				#{item.shieldsCarId,jdbcType=INTEGER} as shields_car_id,
 				0 as excute_count,
-				sysdate as excute_time,
+				NOW() as excute_time,
 				#{item.transporttype,jdbcType=INTEGER} as transport_type
 	            from dual
 	        </foreach>
@@ -234,7 +234,7 @@
 				updater_user = #{updaterUser,jdbcType=VARCHAR},
 			</if>
 			<if test="updateTime != null">
-				update_time = sysdate,
+				update_time = NOW(),
 			</if>
 			<if test="yn != null">
 				yn = #{yn,jdbcType=TINYINT},
@@ -265,7 +265,7 @@
 	
     <update id="updateSendM" parameterType="list">
 				UPDATE send_m
-				SET yn=0  , update_time = sysdate
+				SET yn=0  , update_time = NOW()
 				WHERE yn =1 and send_code in 
 				<foreach collection="list" item="items" index="index" open="("
 					close=")" separator=",">
@@ -362,7 +362,7 @@
 		<if test="excuteTime != null">
 		, excute_time = (excute_time + 15/(24*60))
 		</if>	
-		,update_time = sysdate
+		,update_time = NOW()
 		where send_code = #{sendCode,jdbcType=VARCHAR} 
 	</update>
 	
@@ -383,9 +383,9 @@
 		
 			AND (excute_count <![CDATA[<]]> 4 or excute_count is  null)
 		
-			AND (excute_time <![CDATA[<]]> SYSDATE or excute_time is   null)
+			AND (excute_time <![CDATA[<]]> NOW() or excute_time is   null)
 		
-		 and operate_time <![CDATA[<=]]> sysdate - interval '5' MINUTE  and rownum <![CDATA[<=]]>100
+		 and operate_time <![CDATA[<=]]> NOW() - interval '5' MINUTE  and LIMIT 100
 	</select>
 
 	<select id="querySendCodesByDepartue" parameterType="SendM"

@@ -72,7 +72,7 @@
                 INNER JOIN departure_send ds ON dc.departure_car_id = ds.departure_car_id
                 INNER JOIN send_m sm ON ds.send_code = sm.send_code
                 WHERE dc.departure_car_id = #{carCode})
-        WHERE ROWNUM <![CDATA[<=]]> 1
+        WHERE LIMIT 1
     </select>
 
     <select id="queryArteryBillingInfoByBoxCode" resultMap="arteryBillingMap" parameterType="String">
@@ -84,7 +84,7 @@
                 INNER JOIN departure_send ds ON sm.send_code = ds.send_code
                 INNER JOIN departure_car dc ON ds.departure_car_id = dc.departure_car_id
                 WHERE sm.box_code = #{boxCode})
-        WHERE ROWNUM <![CDATA[<=]]> 1
+        WHERE LIMIT 1
     </select>
 
     <insert id="insert" parameterType="DepartureCar">
@@ -115,13 +115,13 @@
 	<select id="getSeqNextVal" resultType="Long">
 		select SEQ_DEPARTURE_CAR.NEXTVAL as id from dual
 	</select>
-	
+
 	<select id="findDepartureCarByFingerprint" resultMap="BaseResultMap" parameterType="map" >
         SELECT departure_car_id
         FROM departure_car
         WHERE fingerprint = #{fingerprint}
     </select>
-    
+
     <select id="findDepartureList" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.api.request.DeparturePrintRequest">
     select t.*
    	from DEPARTURE_CAR t where t.yn=1 and t.DEPART_TYPE=3
@@ -148,15 +148,15 @@
 	   and t.departure_car_id in(select departure_car_id from departure_send t2 where t2.third_waybill_code=#{thirdWaybillCode, jdbcType=VARCHAR})
 	   </if>
      </select>
-     
+
      <select id="getDepartureCarObj" parameterType="long" resultMap="BaseResultMap">
      select * from departure_car where departure_car_id = #{departureCarId}
      </select>
-     
+
 	<update id="updatePrintTime" parameterType="long">
 		UPDATE DEPARTURE_CAR
 		<set>
-			print_time = sysdate
+			print_time = NOW()
 		</set>
 		where departure_car_id = #{departureCarId}
 	</update>

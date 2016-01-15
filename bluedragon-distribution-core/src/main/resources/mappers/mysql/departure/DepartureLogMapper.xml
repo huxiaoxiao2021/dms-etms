@@ -14,10 +14,10 @@
               <result column="FINGERPRINT" property="fingerPrint" jdbcType="VARCHAR"/>
        </resultMap>
        <insert id="insert" parameterType="DepartureLog">
-              INSERT INTO DEPARTURE_LOG(DEPARTURE_LOG_ID,DISTRIBUTE_CODE,DISTRIBUTE_NAME,OPERATOR_CODE
+              INSERT INTO DEPARTURE_LOG(DISTRIBUTE_CODE,DISTRIBUTE_NAME,OPERATOR_CODE
                                         ,OPERATOR_NAME,DEPARTURE_TIME,RECEIVE_TIME
                                         ,DEPARTURE_CAR_ID,CAPACITY_CODE,FINGERPRINT)
-              VALUES(SEQ_DEPARTURE_LOG.NEXTVAL,#{distributeCode,jdbcType=NUMERIC}
+              VALUES(#{distributeCode,jdbcType=NUMERIC}
                     ,#{distributeName,jdbcType=VARCHAR},#{operatorCode,jdbcType=NUMERIC}
                     ,#{operatorName,jdbcType=VARCHAR},#{departureTime,jdbcType=TIMESTAMP}
                     ,#{receiveTime,jdbcType=TIMESTAMP},#{departureCarID,jdbcType=NUMERIC}

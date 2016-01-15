@@ -72,7 +72,7 @@
 		<include refid="Base_Column_List" />
 		FROM pop_receive
 		WHERE FINGERPRINT = #{fingerPrint, jdbcType=VARCHAR} and yn = 1
-			AND rownum <![CDATA[ <= ]]> 1
+			AND LIMIT 1
 	</select>
 	
 	<select id="findListByPopReceive" resultMap="popReceive"
@@ -81,7 +81,7 @@
 		<include refid="Base_Column_List" />
 		FROM pop_receive
 		<include refid="Base_Where_List" />
-			and CREATE_TIME <![CDATA[>=]]> trunc(sysdate)
+			and CREATE_TIME <![CDATA[>=]]> trunc(NOW())
 	</select>
 	
 	<select id="findPopReceiveList" resultMap="popReceive"
@@ -96,7 +96,7 @@
 		FROM pop_receive
 		<include refid="Base_Where_List" />
 		<if test="start!=null">
-		) A WHERE ROWNUM <![CDATA[ <= ]]>
+		) A WHERE LIMIT
 		#{end} )
 		WHERE RN <![CDATA[ > ]]>
 		#{start}
@@ -116,7 +116,7 @@
 		SEQ_POP_RECEIVE.NEXTVAL, #{receiveType, jdbcType=INTEGER}, #{waybillCode, jdbcType=VARCHAR}, 
 		#{thirdWaybillCode, jdbcType=VARCHAR}, #{originalNum, jdbcType=INTEGER}, #{actualNum, jdbcType=INTEGER}, 
 		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR}, #{operatorCode, jdbcType=INTEGER}, 
-		#{operatorName, jdbcType=VARCHAR}, #{operateTime, jdbcType=TIMESTAMP}, sysdate, sysdate,
+		#{operatorName, jdbcType=VARCHAR}, #{operateTime, jdbcType=TIMESTAMP}, NOW(), NOW(),
 		#{isReverse, jdbcType=INTEGER}, #{fingerPrint, jdbcType=VARCHAR}, 1
 		)
 	</insert>
@@ -146,7 +146,7 @@
 	   		<if test="operateTime != null">
 				OPERATE_TIME = #{operateTime, jdbcType=TIMESTAMP},
 			</if>
-			update_time = sysdate,
+			update_time = NOW(),
 		</set>
 		where WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
 			and FINGERPRINT = #{fingerPrint, jdbcType=VARCHAR}

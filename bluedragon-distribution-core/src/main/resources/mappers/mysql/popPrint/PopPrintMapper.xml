@@ -76,7 +76,7 @@
                     hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
                 </if>
             </if>
-            and p.create_time <![CDATA[>=]]> sysdate - interval '7' DAY
+            and p.create_time <![CDATA[>=]]> NOW() - interval '7' DAY
             and p.waybill_code is not null
             and i.waybill_code is null
         </where>
@@ -88,7 +88,7 @@
         <include refid="Base_Column_List"/>
         FROM pop_print
         WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
-        AND rownum <![CDATA[ <= ]]> 1
+        AND LIMIT 1
     </select>
 
     <select id="findSitePrintDetail" resultMap="popPrint" parameterType="java.util.Map">
@@ -110,7 +110,7 @@
                AND queue_no = #{queueNo,jdbcType=VARCHAR}
                </if>
               ORDER BY id ) alldata
-        WHERE <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]> )
+        WHERE <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]> )
         WHERE  <![CDATA[num >]]> #{startIndex, jdbcType=INTEGER}
     </select>
 
@@ -160,12 +160,13 @@
         <include refid="Base_Where_List"/>
         order by p.id desc
         <if test="startIndex != null">
-            ) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+            ) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
             ) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
         </if>
     </select>
 
     <select id="findLimitListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
+    <select id="findLIMIT ListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
         SELECT
         p.id, p.waybill_code, p.create_site_code, p.print_pack_code,
         p.print_pack_time, p.print_invoice_code, p.print_invoice_time,
@@ -177,8 +178,10 @@
         FROM pop_print p
         WHERE p.yn = 1
         AND p.operate_type = 1
-        AND p.create_time <![CDATA[ <= ]]> sysdate - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
-        AND p.create_time <![CDATA[ >= ]]> sysdate - #{limitHour, jdbcType=VARCHAR}/24
+        AND p.create_time <![CDATA[ <= ]]> NOW() - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
+        AND p.create_time <![CDATA[ >= ]]> NOW() - #{limitHour, jdbcType=VARCHAR}/24
+        AND p.create_time <![CDATA[ <= ]]> NOW() - #{LIMIT Min, jdbcType=VARCHAR}/(24 * 60)
+        AND p.create_time <![CDATA[ >= ]]> NOW() - #{LIMIT Hour, jdbcType=VARCHAR}/24
         <choose>
             <when test="ownSign == 'PRE'">
                 AND p.pop_receive_type = 4
@@ -191,7 +194,7 @@
                 i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
             </otherwise>
         </choose>
-        AND rownum <![CDATA[ <= ]]> #{fetchNum, jdbcType=INTEGER}
+        AND LIMIT #{fetchNum, jdbcType=INTEGER}
     </select>
 
     <insert id="add" parameterType="PopPrint">
@@ -203,7 +206,7 @@
         #{createSiteCode, jdbcType=INTEGER}, #{printPackCode, jdbcType=INTEGER},
         #{printPackTime, jdbcType=TIMESTAMP}, #{printInvoiceCode, jdbcType=INTEGER},
         #{printInvoiceTime, jdbcType=TIMESTAMP},
-        sysdate, sysdate, 1, #{printPackUser, jdbcType=VARCHAR}, #{printInvoiceUser, jdbcType=VARCHAR},
+        NOW(), NOW(), 1, #{printPackUser, jdbcType=VARCHAR}, #{printInvoiceUser, jdbcType=VARCHAR},
         #{popSupId, jdbcType=INTEGER}, #{popSupName, jdbcType=VARCHAR}, #{quantity, jdbcType=INTEGER},
         #{crossCode, jdbcType=VARCHAR}, #{waybillType, jdbcType=INTEGER}, #{popReceiveType, jdbcType=INTEGER},
         #{printCount,jdbcType=INTEGER}, #{thirdWaybillCode,jdbcType=VARCHAR},#{queueNo,jdbcType=VARCHAR},
@@ -262,7 +265,7 @@
             <if test="queueNo != null">
                 queue_no = #{queueNo,jdbcType=VARCHAR},
             </if>
-            update_time = sysdate,
+            update_time = NOW(),
         </set>
         where waybill_code = #{waybillCode, jdbcType=VARCHAR}
         and yn = 1
@@ -330,7 +333,7 @@
             <if test="busiName != null">
                 busi_name = #{busiName, jdbcType=VARCHAR},
             </if>
-            update_time = sysdate,
+            update_time = NOW(),
         </set>
         where waybill_code = #{waybillCode, jdbcType=VARCHAR}
         and package_barcode = #{packageBarcode, jdbcType=VARCHAR}

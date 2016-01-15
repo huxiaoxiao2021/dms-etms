@@ -27,7 +27,7 @@
 		SELECT * FROM dms.POP_SIGNIN t1
 		<include refid="where" />
 		<if test="start!=null">
-		) A WHERE ROWNUM <![CDATA[ <= ]]>
+		) A WHERE LIMIT
 		#{end} )
 		WHERE RN <![CDATA[ > ]]>
 		#{start}
