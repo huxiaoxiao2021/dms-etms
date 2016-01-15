@@ -95,6 +95,7 @@
 	<select id="getTaskPopRevieveCountByWaybillCode" parameterType="string" resultMap="TaskPopRecieveCountMap">
 	select * from TASK_POP_RECIEVE_COUNT where waybill_code=#{waybillCode} AND task_status=0 and YN=1
 	</select>
+	<select id="findLimitedTasksByType" resultMap="TaskPopRecieveCountMap" parameterType="map" >
 	<select id="findLIMIT edTasksByType" resultMap="TaskPopRecieveCountMap" parameterType="map" >
 		SELECT task_id, task_type, WAYBILL_CODE,THIRD_WAYBILL_CODE,EXPRESS_CODE,EXPRESS_NAME,ACTUAL_NUM,OPERATE_TIME,EXECUTE_TIME,
 			 execute_count, task_status, create_time

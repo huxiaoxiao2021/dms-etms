@@ -205,6 +205,8 @@
 	    <include refid="Base_Column_List" />
 	    FROM inspection
 	    <include refid="where_condition"/>
+	    <if test="limitNo!=null and startNo!=null">
+	    	AND LIMIT ${limitNo}
 	    <if test="LIMIT No!=null and startNo!=null">
 	    	AND LIMIT ${LIMIT No}
 	    </if>
