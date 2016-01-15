@@ -297,8 +297,8 @@
   	<include refid="Base_Column_List"/>
   	FROM inspection_e_c
   	<include refid="whereCondition"/>
-  	<if test="startNo != null and limitNo != null">
-  	AND LIMIT ${limitNo}
+  	<if test="startNo != null and LIMIT No != null">
+  	AND LIMIT ${LIMIT No}
   	</if>
   	ORDER BY check_id DESC
   </select>

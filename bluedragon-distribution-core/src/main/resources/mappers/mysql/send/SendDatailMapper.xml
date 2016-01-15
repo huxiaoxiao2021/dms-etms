@@ -209,7 +209,7 @@
 		resultMap="SendDetail">
 		SELECT 
 		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and box_code=#{boxCode,jdbcType=VARCHAR} and LIMIT1
+		FROM send_d where yn=1 and box_code=#{boxCode,jdbcType=VARCHAR} and LIMIT 1
 	</select>
 	
 	<select id="queryOneSendDatailBySendM" parameterType="SendDetail"
@@ -228,7 +228,7 @@
 			<if test="boxCode!=null">
 				and box_code = #{boxCode,jdbcType=VARCHAR}
 			</if>
-			and LIMIT1
+			and LIMIT 1
 		</where>
 	</select>
 	
@@ -280,7 +280,7 @@
         and sed.receive_site_code= sem.receive_site_code
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=0  
-		and LIMIT500
+		and LIMIT 500
 		and sem.create_Time <= NOW() - interval '10' MINUTE
 		and sed.create_Time >= NOW() - interval '2' DAY
 		]]>
@@ -378,7 +378,7 @@
 		where sed.sendd_status=1 and sed.send_type = 20 and sem.yn=1 and sed.is_cancel=0 
 		AND sed.excute_count < 5 
 		AND sed.excute_time < NOW()
-		and LIMIT300
+		and LIMIT 300
 		]]>
 	</select>
 	
@@ -438,7 +438,7 @@
 		where sed.sendd_status=1 and sed.send_type = 10  and sed.is_cancel in (0,2) 
 		AND sed.excute_count < 5 
 		AND sed.excute_time < NOW()
-		and LIMIT300]]>
+		and LIMIT 300]]>
 	</select>
 	
 	<update id="updateSendDatail" parameterType="SendDetail">
@@ -630,7 +630,7 @@
 			and is_cancel=0
 			and operate_time <![CDATA[<=]]> NOW() - interval '2' MINUTE
 			and sendd_status = 0 
-			and LIMIT1
+			and LIMIT 1
 		</where>
 	</select>
 	<select id="queryBySendCodeAndSendType" parameterType="SendDetail" resultMap="SendDetail">

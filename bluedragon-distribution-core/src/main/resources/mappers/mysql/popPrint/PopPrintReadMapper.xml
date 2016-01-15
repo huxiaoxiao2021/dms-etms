@@ -36,7 +36,7 @@
     	<result column="busi_name" property="busiName" jdbcType="VARCHAR" />
 	</resultMap>
 	
-	<select id="findLimitListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
+	<select id="findLIMIT ListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
 		SELECT 
 			p.id, p.waybill_code, p.create_site_code, p.print_pack_code, 
 			p.print_pack_time, p.print_invoice_code, p.print_invoice_time,
@@ -48,8 +48,8 @@
 		FROM DMS.pop_print p 
 		WHERE p.yn = 1 
 			AND p.operate_type = 1
-			AND p.create_time <![CDATA[ <= ]]> NOW() - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
-			AND p.create_time <![CDATA[ >= ]]> NOW() - #{limitHour, jdbcType=VARCHAR}/24
+			AND p.create_time <![CDATA[ <= ]]> NOW() - #{LIMIT Min, jdbcType=VARCHAR}/(24 * 60)
+			AND p.create_time <![CDATA[ >= ]]> NOW() - #{LIMIT Hour, jdbcType=VARCHAR}/24
 			<choose>
 				<when test="ownSign == 'PRE'">
 					AND p.pop_receive_type = 4

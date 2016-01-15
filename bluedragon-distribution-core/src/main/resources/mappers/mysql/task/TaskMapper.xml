@@ -75,7 +75,7 @@
 		</where>
 	</select>
 
-	<select id="findLimitedTasks" resultMap="task" parameterType="map">
+	<select id="findLIMIT edTasks" resultMap="task" parameterType="map">
         <![CDATA[
             SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body,
                  execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
@@ -102,12 +102,12 @@
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
-			AND limit
+			AND LIMIT
 			#{fetchNum}
 		</where>
 	</select>
 
-	<select id="findLimitedTasksByType" resultMap="task"
+	<select id="findLIMIT edTasksByType" resultMap="task"
 		parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
@@ -122,7 +122,7 @@
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
-			AND limit
+			AND LIMIT
 			#{fetchNum}
 		</where>
 	</select>
@@ -134,7 +134,7 @@
 		WHERE yn = 1 AND task_status in (${statuses})
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		AND limit
+		AND LIMIT
 		50
 	</select>
 

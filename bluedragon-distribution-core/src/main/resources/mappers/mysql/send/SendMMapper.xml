@@ -59,7 +59,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and LIMIT1
+		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and LIMIT 1
 	</select>
 	
 	<select id="selectOneBySendCode" parameterType="SendM"
@@ -67,7 +67,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and LIMIT1
+		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and LIMIT 1
 	</select>
 	
 	<select id="selectOneBySiteAndSendCode" parameterType="SendM"
@@ -79,7 +79,7 @@
 		<if test = "null!=createSiteCode">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 		</if>
-		and LIMIT1
+		and LIMIT 1
 	</select>
 	
 	<select id="selectBySiteAndSendCode" parameterType="SendM"
@@ -385,7 +385,7 @@
 		
 			AND (excute_time <![CDATA[<]]> NOW() or excute_time is   null)
 		
-		 and operate_time <![CDATA[<=]]> NOW() - interval '5' MINUTE  and LIMIT100
+		 and operate_time <![CDATA[<=]]> NOW() - interval '5' MINUTE  and LIMIT 100
 	</select>
 
 	<select id="querySendCodesByDepartue" parameterType="SendM"
