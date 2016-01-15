@@ -34,9 +34,19 @@
 		<property name="password" value="${db.backup.db.password}" />
 	</bean>
 	
+	<bean id="backupWriteSequenceDataSource" class="com.jd.ql.framework.ddf.jdbc.sequence.SequenceDataSource">
+	    <constructor-arg index="0">
+	      <bean class="com.jd.ql.framework.idgenerator.support.DdfSequenceGenerator">
+	        <property name="jsfAlias" value="${sequenceService.alias}"/>
+	        <property name="jsfTimeout" value="${sequenceService.timeout}"/>
+	      </bean>
+	    </constructor-arg>
+	    <constructor-arg index="1" ref="backupWriteDataSource"/>
+  	</bean>
+	
 	<!-- 备份写数据源的sqlSession -->
 	<bean id="backupWriteSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="backupWriteDataSource" />
+		<property name="dataSource" ref="backupWriteSequenceDataSource" />
 		<property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
 	</bean>
 	
