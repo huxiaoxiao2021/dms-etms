@@ -145,7 +145,7 @@
 		update_user_code, update_user, create_time, update_time
 		FROM seal_vehicle
 		WHERE seal_code = #{sealCode} AND yn = 1
-		and rownum <![CDATA[<=]]> 1
+		and LIMIT 1
 	</select>
 
 	<insert id="addBatch" parameterType="list">

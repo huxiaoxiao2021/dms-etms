@@ -20,7 +20,7 @@
 		<result column="UPDATE_TIME" property="updateTime" />
 	</resultMap>
 	<select id="getCurrentWaitNo" resultType="int" parameterType="int">
-		select max(WAIT_NO) from POP_QUEUE where to_char(CREATE_TIME,'yyyy-mm-dd')=to_char(sysdate,'yyyy-mm-dd') and create_site_code = #{createSiteCode}
+		select max(WAIT_NO) from POP_QUEUE where to_char(CREATE_TIME,'yyyy-mm-dd')=to_char(NOW(),'yyyy-mm-dd') and create_site_code = #{createSiteCode}
 	</select>
 
 	<insert id="insertPopQueue" parameterType="popQueue">
@@ -39,8 +39,8 @@
 		#{createUserCode,jdbcType=INTEGER},
 		#{createUser,jdbcType=VARCHAR},
 		#{operateTime},
-		sysdate,
-		sysdate,
+		NOW(),
+		NOW(),
 		1
 		)
 	</insert>
@@ -57,7 +57,7 @@
 			<if test="endTime != null">
 				END_TIME=#{endTime},
 			</if>
-			update_time=sysdate
+			update_time=NOW()
 		</set>
 		where QUEUE_NO=#{queueNo,jdbcType=VARCHAR}
 	</update>
@@ -76,7 +76,7 @@
 		SELECT * FROM POP_QUEUE t1
 		<include refid="where"/>
 		) A
-		WHERE ROWNUM <![CDATA[ <= ]]>
+		WHERE LIMIT
 		#{end} )
 		WHERE RN <![CDATA[ > ]]>
 		#{start}

@@ -192,7 +192,7 @@
   	UPDATE inspection_e_c
   	SET exception_status=#{status,jdbcType=INTEGER}, box_code = #{boxCode,jdbcType=VARCHAR}, 
   	update_user=#{updateUser,jdbcType=VARCHAR}, 
-  	update_user_code=#{updateUserCode,jdbcType=INTEGER}, update_time = sysdate 
+  	update_user_code=#{updateUserCode,jdbcType=INTEGER}, update_time = NOW()
   	WHERE
   	create_site_code = #{createSiteCode,jdbcType=INTEGER}
   	<if test=" null!=boxCode and ''!=boxCode ">
@@ -298,7 +298,7 @@
   	FROM inspection_e_c
   	<include refid="whereCondition"/>
   	<if test="startNo != null and limitNo != null">
-  	AND rownum <![CDATA[<=]]> ${limitNo}
+  	AND LIMIT ${limitNo}
   	</if>
   	ORDER BY check_id DESC
   </select>
@@ -405,7 +405,7 @@
 	  SELECT
 	  <include refid="Base_Column_List"/>
 	  FROM inspection_e_c
-	  WHERE exception_status=0 AND yn=1 AND rownum <![CDATA[<=]]> 1
+	  WHERE exception_status=0 AND yn=1 AND LIMIT 1
 	</select>
 	  
 	<select id="queryExceptionsCore" parameterType="java.util.Map" resultType="Integer">
@@ -515,7 +515,7 @@
 	</if>
 	AND iec.exception_status NOT IN( 3,4,5,6 )
 	<if test="startIndex != null">
-		) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+		) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 	) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 	</if>	
 

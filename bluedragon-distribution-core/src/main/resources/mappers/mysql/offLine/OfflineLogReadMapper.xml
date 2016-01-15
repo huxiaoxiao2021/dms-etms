@@ -87,7 +87,7 @@
 		<include refid="Base_Where_List" />
 		order by update_time desc
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 			) where <![CDATA[l >]]>
 			#{startIndex, jdbcType=INTEGER}
 		</if>

@@ -41,9 +41,9 @@
 			#{pickupCode,jdbcType=VARCHAR}, #{sendType,jdbcType=INTEGER},
 			#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
 			#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
-			SYSDATE,
-			#{operateTime,jdbcType=TIMESTAMP}, SYSDATE,
-			 0, #{isCancel,jdbcType=INTEGER}, 0, SYSDATE,-1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER})
+			NOW(),
+			#{operateTime,jdbcType=TIMESTAMP}, NOW(),
+			 0, #{isCancel,jdbcType=INTEGER}, 0, NOW(),-1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER})
     </insert>
 	
 	<update id="update" parameterType="SendDetail" >
@@ -99,9 +99,9 @@
 		SET
 			is_cancel = 0,
 			sendd_status = 0,
-			update_time = sysdate,
+			update_time = NOW(),
 			excute_count = 0,
-			excute_time = sysdate
+			excute_time = NOW()
 		where
 		    yn = 1 AND is_cancel=2 AND box_code = #{boxCode,jdbcType=VARCHAR}
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -113,9 +113,9 @@
 		SET
 			is_cancel = 0,
 			sendd_status = 0,
-			update_time = sysdate,
+			update_time = NOW(),
 			excute_count = 0,
-			excute_time = sysdate
+			excute_time = NOW()
 		where
 		    yn = 1 AND box_code in (${boxCode})
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -124,7 +124,7 @@
     
 	<update id="canCancel" parameterType="SendDetail">
 		UPDATE Send_d 
-		SET is_cancel = 1, update_time = sysdate
+		SET is_cancel = 1, update_time = NOW()
 		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 			AND send_type = #{sendType,jdbcType=INTEGER}
 		<if test="packageBarcode != null">
@@ -143,7 +143,7 @@
 	
 	<update id="canCancelFuzzy" parameterType="SendDetail">
 		UPDATE Send_d 
-		SET is_cancel = 1, update_time = sysdate
+		SET is_cancel = 1, update_time = NOW()
 		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 			AND send_type = #{sendType,jdbcType=INTEGER}
 			AND package_barcode like '${packageBarcode}'
@@ -209,7 +209,7 @@
 		resultMap="SendDetail">
 		SELECT 
 		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and box_code=#{boxCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
+		FROM send_d where yn=1 and box_code=#{boxCode,jdbcType=VARCHAR} and LIMIT1
 	</select>
 	
 	<select id="queryOneSendDatailBySendM" parameterType="SendDetail"
@@ -228,7 +228,7 @@
 			<if test="boxCode!=null">
 				and box_code = #{boxCode,jdbcType=VARCHAR}
 			</if>
-			and rownum <![CDATA[<=]]>1
+			and LIMIT1
 		</where>
 	</select>
 	
@@ -280,9 +280,9 @@
         and sed.receive_site_code= sem.receive_site_code
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=0  
-		and rownum <=500 
-		and sem.create_Time <= sysdate - interval '10' MINUTE
-		and sed.create_Time >= sysdate - interval '2' DAY
+		and LIMIT500
+		and sem.create_Time <= NOW() - interval '10' MINUTE
+		and sed.create_Time >= NOW() - interval '2' DAY
 		]]>
 	</select>
 	
@@ -310,7 +310,7 @@
 			<if test="operateTime != null">
 				operate_time = #{operateTime,jdbcType=TIMESTAMP},
 			</if>
-				update_time = sysdate,
+				update_time = NOW(),
 			<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 			</if>
@@ -349,7 +349,7 @@
 			<if test="operateTime != null">
 				operate_time = #{operateTime,jdbcType=TIMESTAMP},
 			</if>
-				update_time = sysdate,
+				update_time = NOW(),
 			<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 			</if>
@@ -377,8 +377,8 @@
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=1 and sed.send_type = 20 and sem.yn=1 and sed.is_cancel=0 
 		AND sed.excute_count < 5 
-		AND sed.excute_time < SYSDATE 
-		and rownum <=300
+		AND sed.excute_time < NOW()
+		and LIMIT300
 		]]>
 	</select>
 	
@@ -388,7 +388,7 @@
 				<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 				</if>
-				update_time = sysdate ,
+				update_time = NOW() ,
 				excute_count = (excute_count + 1) 
 				<if test="status == 1">
 					, excute_time = (excute_time + 15/(24*60))
@@ -403,9 +403,9 @@
     
     <update id="cancelSendDatail" parameterType="SendDetail" timeout="8">
         UPDATE send_d
-				SET sendd_status=0 , is_cancel=2 , update_time = sysdate ,
+				SET sendd_status=0 , is_cancel=2 , update_time = NOW() ,
 				excute_count = 0,
-			    excute_time = sysdate, send_code=null
+			    excute_time = NOW(), send_code=null
 		<where>
 		    is_cancel=0 
 			<if test="createSiteCode!=null">
@@ -437,8 +437,8 @@
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=1 and sed.send_type = 10  and sed.is_cancel in (0,2) 
 		AND sed.excute_count < 5 
-		AND sed.excute_time < SYSDATE 
-		and rownum <=300]]>
+		AND sed.excute_time < NOW()
+		and LIMIT300]]>
 	</select>
 	
 	<update id="updateSendDatail" parameterType="SendDetail">
@@ -447,7 +447,7 @@
 				<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 				</if>
-				update_time = sysdate ,
+				update_time = NOW() ,
 				excute_count = (excute_count + 1) 
 				<if test="status == 1">
 					, excute_time = (excute_time + 15/(24*60))
@@ -464,7 +464,7 @@
 		resultMap="SendDetail">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and weight = -1 and rownum <![CDATA[<=]]> 2000
+		FROM send_d where yn=1 and weight = -1 and LIMIT 2000
 	</select>
 	
 	<select id="querySendCodesByWaybills" parameterType="SendDetail"
@@ -575,7 +575,7 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		From send_d where 
-	 	package_num > 1 and operate_time > (SYSDATE - 2)
+	 	package_num > 1 and operate_time > (NOW() - 2)
 		and send_code is null and yn=1 and (is_cancel = 0 or is_cancel=2)
 		<if test="createSiteCode!=null">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -592,7 +592,7 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		From send_d where 
-		package_num is null and operate_time > (SYSDATE - 2)
+		package_num is null and operate_time > (NOW() - 2)
 		and send_code is null and yn=1  
 		<if test="createSiteCode!=null">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -628,9 +628,9 @@
 				and box_code = #{boxCode,jdbcType=VARCHAR}
 			</if>
 			and is_cancel=0
-			and operate_time <![CDATA[<=]]> sysdate - interval '2' MINUTE
+			and operate_time <![CDATA[<=]]> NOW() - interval '2' MINUTE
 			and sendd_status = 0 
-			and rownum <![CDATA[<=]]>1
+			and LIMIT1
 		</where>
 	</select>
 	<select id="queryBySendCodeAndSendType" parameterType="SendDetail" resultMap="SendDetail">

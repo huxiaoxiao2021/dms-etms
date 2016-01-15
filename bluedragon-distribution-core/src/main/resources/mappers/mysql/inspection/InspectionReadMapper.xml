@@ -152,7 +152,7 @@
 	 		<include refid="Pop_Join_Where_List" />
 		order by inspection_id 
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>
@@ -174,7 +174,7 @@
 	 		<include refid="BPop_Join_Where_List" />
 		order by inspection_id 
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>

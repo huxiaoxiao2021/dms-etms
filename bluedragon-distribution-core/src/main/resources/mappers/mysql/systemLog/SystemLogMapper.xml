@@ -57,7 +57,7 @@
 		#{keyword4,jdbcType=INTEGER},
 		#{content,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER},
-		sysdate, 1
+		NOW(), 1
 		)
 	</insert>
 
@@ -77,7 +77,7 @@
 		<include refid="Base_Where_List" />
 		order by create_time desc
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 			) where <![CDATA[l >]]>
 			#{startIndex, jdbcType=INTEGER}
 		</if>

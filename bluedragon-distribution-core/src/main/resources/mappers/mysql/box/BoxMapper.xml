@@ -24,16 +24,13 @@
 	</resultMap>
 	
 	<insert id="add" parameterType="box" >
-		<selectKey order="BEFORE" resultType="java.lang.Long" keyProperty="id">
-			select dms_core_box.nextval
-		</selectKey>
 		INSERT INTO Box (
 			box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, create_user,
 			update_user_code, update_user, transport_type,mix_box_type,
 			create_time, update_time, times, box_status, yn)
 		VALUES (
-			#{id}, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+			#{id,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
 			#{receiveSiteCode,jdbcType=VARCHAR}, #{receiveSiteName,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
@@ -41,7 +38,7 @@
 			#{transportType,jdbcType=INTEGER}, #{mixBoxType,jdbcType=INTEGER},
 			 NOW(), NOW(), 1, 1, 1)
 	</insert>
-	
+
 	<select id="findBoxByCode" resultMap="box" parameterType="String" >
 
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
@@ -49,47 +46,47 @@
 			transport_type,mix_box_type
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
 
-	
+
 	<select id="findBoxByBoxCode" resultMap="box" parameterType="box" >
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, box_status,
 			transport_type,mix_box_type
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code} AND create_site_code = #{createSiteCode}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
-	
+
 	<select id="findBoxesBySite" resultMap="box" parameterType="box" >
 		SELECT box_id, box_code
 		FROM Box
 		WHERE yn = 1 AND box_status = 0 AND times = 0 AND box_type = #{type}
 		    AND create_site_code = #{createSiteCode}
 			AND receive_site_code = #{receiveSiteCode}
-			AND ROWNUM <![CDATA[<=]]> #{quantity}
+			AND LIMIT #{quantity}
 	</select>
-	
+
 	<update id="updateStatusByCodes"  parameterType="box" >
 		UPDATE Box
-		SET box_status = #{status}, update_time = SYSDATE,
+		SET box_status = #{status}, update_time = NOW(),
 			update_user = #{updateUser,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=VARCHAR}
 		WHERE yn = 1 AND box_code in (${codes})
 			AND box_status <![CDATA[<]]> #{status}
 	</update>
-	
+
 	<update id="print"  parameterType="box">
 		UPDATE Box
 		SET times = (times + 1), update_user_code = #{updateUserCode,jdbcType=INTEGER},
-		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = SYSDATE, box_status=1   
-		WHERE box_code= #{code,jdbcType=VARCHAR} 
+		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW(), box_status=1
+		WHERE box_code= #{code,jdbcType=VARCHAR}
 	</update>
-	
+
 	<update id="reprint"  parameterType="box">
 		UPDATE Box
 		SET times = (times + 1), update_user_code = #{updateUserCode,jdbcType=INTEGER},
-		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = SYSDATE  
+		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE box_code= #{code,jdbcType=VARCHAR}  
 	</update>
 	

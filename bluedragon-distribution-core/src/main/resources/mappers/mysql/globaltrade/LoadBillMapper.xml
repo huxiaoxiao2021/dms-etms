@@ -51,10 +51,10 @@
 			#{boxCode,jdbcType=VARCHAR}, #{dmsCode,jdbcType=INTEGER},
 			#{dmsName,jdbcType=VARCHAR}, #{sendTime,jdbcType=TIMESTAMP},
 			#{sendCode,jdbcType=VARCHAR}, #{truckNo,jdbcType=VARCHAR},
-			#{approvalCode,jdbcType=VARCHAR}, sysdate,
+			#{approvalCode,jdbcType=VARCHAR}, NOW(),
 			#{ctno,jdbcType=VARCHAR}, #{gjno,jdbcType=VARCHAR}, 
 			#{tpl,jdbcType=VARCHAR}, #{weight,jdbcType=DOUBLE},
-			sysdate, sysdate, sysdate,
+			NOW(), NOW(), NOW(),
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{packageUserCode,jdbcType=INTEGER}, #{packageUser,jdbcType=VARCHAR},
 			#{packageTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, 1
@@ -99,12 +99,12 @@
 	<select id="findByPackageBarcode" parameterType="String" resultMap="loadBill">
 		SELECT id
 		FROM load_bill
-		WHERE yn = 1 AND package_barcode = #{packageBarcode,jdbcType=VARCHAR} AND ROWNUM = 1
+		WHERE yn = 1 AND package_barcode = #{packageBarcode,jdbcType=VARCHAR} AND LIMIT 1
 	</select>
 
     <update id="updateLoadBillById" parameterType="java.util.Map">
         UPDATE load_bill
-          SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode},approval_time = sysdate
+          SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode},approval_time = NOW()
         WHERE yn = 1 AND id IN
         <foreach collection="data" item="item" index="index" open="(" close=")" separator=",">
             #{item}
@@ -154,9 +154,9 @@
 					#{item.gjno,jdbcType=VARCHAR} AS gjno, 
 					#{item.tpl,jdbcType=VARCHAR} AS tpl, 
 					#{item.weight,jdbcType=DOUBLE} AS weight,
-					sysdate AS create_time,
-					sysdate AS update_time,
-					sysdate AS gen_time,
+					NOW() AS create_time,
+					NOW() AS update_time,
+					NOW() AS gen_time,
 					#{item.createUserCode,jdbcType=INTEGER} AS create_user_code,
 					#{item.createUser,jdbcType=VARCHAR} AS create_user,
 					#{item.packageUserCode,jdbcType=INTEGER} AS package_user_code,
@@ -195,7 +195,7 @@
 	<update id="updateCancelLoadBillStatus" parameterType="loadBill">
 		UPDATE load_bill
 		SET approval_code = #{approvalCode,jdbcType=INTEGER},
-		update_time = SYSDATE
+		update_time = NOW()
 		WHERE yn = 1 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		AND id = #{id}
 	</update>

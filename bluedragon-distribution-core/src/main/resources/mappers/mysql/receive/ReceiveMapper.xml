@@ -85,7 +85,7 @@
 		<include refid="Receive_Join_Where_List" />
 		order by receive_id
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 			) where <![CDATA[l >]]>
 			#{startIndex, jdbcType=INTEGER}
 		</if>

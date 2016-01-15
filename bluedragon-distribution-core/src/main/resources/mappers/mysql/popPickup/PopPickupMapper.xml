@@ -86,7 +86,7 @@
 		#{packageNumber,jdbcType=INTEGER}, #{popBusinessCode,jdbcType=VARCHAR}, #{popBusinessName,jdbcType=VARCHAR},#{carCode,jdbcType=VARCHAR},
       	#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER}, #{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},  
       	#{updateUser,jdbcType=VARCHAR}, #{updateUserCode,jdbcType=INTEGER},
-      	SYSDATE, SYSDATE, #{operateTime,jdbcType=TIMESTAMP},1, #{waybillType, jdbcType=INTEGER}
+      	NOW(), NOW(), #{operateTime,jdbcType=TIMESTAMP},1, #{waybillType, jdbcType=INTEGER}
       )
   </insert>
   
@@ -101,7 +101,7 @@
    		receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
    		update_user =#{updateUser,jdbcType=VARCHAR},
    		update_user_code = #{updateUserCode,jdbcType=INTEGER},
-   		update_time = SYSDATE,
+   		update_time = NOW(),
    		operate_time = #{operateTime,jdbcType=TIMESTAMP}
     </set>
     WHERE yn = 1 
@@ -127,7 +127,7 @@
 	 		<include refid="Pop_Pickup_Where_List" />
 		order by pickup_id 
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>

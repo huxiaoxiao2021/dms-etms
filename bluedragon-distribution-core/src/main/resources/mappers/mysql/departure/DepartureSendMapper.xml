@@ -14,11 +14,11 @@
 		<result column="capacity_Code" jdbcType="VARCHAR" property="capacityCode" />
 	</resultMap>
 	<insert id="insert" parameterType="DepartureSend">
-		insert into DEPARTURE_SEND (departure_send_ID,departure_car_id,send_code,create_site_code,create_time,create_user,
+		insert into DEPARTURE_SEND (departure_car_id,send_code,create_site_code,create_time,create_user,
 		create_user_code,update_time,yn,third_waybill_code,capacity_Code)
-		values (SEQ_DEPARTURE_SEND.NEXTVAL,#{shieldsCarId,jdbcType=BIGINT},#{sendCode,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},
-		sysdate, #{createUser,jdbcType=VARCHAR},
-		#{createUserCode,jdbcType=INTEGER}, sysdate,1,#{thirdWaybillCode,jdbcType=VARCHAR},#{capacityCode,jdbcType=VARCHAR})
+		values (#{shieldsCarId,jdbcType=BIGINT},#{sendCode,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},
+		NOW(), #{createUser,jdbcType=VARCHAR},
+		#{createUserCode,jdbcType=INTEGER}, NOW(),1,#{thirdWaybillCode,jdbcType=VARCHAR},#{capacityCode,jdbcType=VARCHAR})
 	</insert>
 	
 	<select id="getDepartureSendByCarId" parameterType="long" resultMap="BaseResultMap">

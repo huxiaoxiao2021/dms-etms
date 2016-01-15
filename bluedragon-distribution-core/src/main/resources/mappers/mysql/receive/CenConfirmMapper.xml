@@ -86,7 +86,7 @@
 		#{inspectionTime,jdbcType=TIMESTAMP},
 		#{operateType,jdbcType=INTEGER},
 		#{pickupCode,jdbcType=VARCHAR},
-		0, SYSDATE,
+		0, NOW(),
 		#{operateTime,jdbcType=TIMESTAMP},
 		#{receiveTime,jdbcType=TIMESTAMP},
 		#{operateUser,jdbcType=VARCHAR},
@@ -97,7 +97,7 @@
 		parameterType="com.jd.bluedragon.distribution.receive.domain.CenConfirm">
 		update cen_confirm
 		<set>
-			update_time=SYSDATE,
+			update_time=NOW(),
 			<if test="receiveUser!= null">
 				receive_user=#{receiveUser,jdbcType=VARCHAR},
 			</if>

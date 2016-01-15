@@ -48,8 +48,8 @@
 		FROM DMS.pop_print p 
 		WHERE p.yn = 1 
 			AND p.operate_type = 1
-			AND p.create_time <![CDATA[ <= ]]> sysdate - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
-			AND p.create_time <![CDATA[ >= ]]> sysdate - #{limitHour, jdbcType=VARCHAR}/24 
+			AND p.create_time <![CDATA[ <= ]]> NOW() - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
+			AND p.create_time <![CDATA[ >= ]]> NOW() - #{limitHour, jdbcType=VARCHAR}/24
 			<choose>
 				<when test="ownSign == 'PRE'">
 					AND p.pop_receive_type = 4
@@ -60,7 +60,7 @@
 					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode = i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
 				</otherwise>
 			</choose>
-			AND rownum <![CDATA[ <= ]]> #{fetchNum, jdbcType=INTEGER}
+			AND LIMIT #{fetchNum, jdbcType=INTEGER}
 	</select>
 
 </mapper>

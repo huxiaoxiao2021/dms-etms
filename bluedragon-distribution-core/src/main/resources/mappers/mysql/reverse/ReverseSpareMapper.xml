@@ -40,7 +40,7 @@
 			#{arrtCode2,jdbcType=INTEGER}, #{arrtDesc2,jdbcType=VARCHAR},
 			#{arrtCode3,jdbcType=INTEGER}, #{arrtDesc3,jdbcType=VARCHAR},
 			#{arrtCode4,jdbcType=INTEGER}, #{arrtDesc4,jdbcType=VARCHAR},
-			SYSDATE, SYSDATE, 1, #{productPrice,jdbcType=DOUBLE}, #{spareTranCode,jdbcType=VARCHAR})
+			NOW(), NOW(), 1, #{productPrice,jdbcType=DOUBLE}, #{spareTranCode,jdbcType=VARCHAR})
 	</insert>
 	
 	<select id="queryBySpareCode" resultMap="reverseSpare" parameterType="String" >
@@ -50,7 +50,7 @@
             arrt_code4, arrt_desc4, create_time, update_time, yn, product_price
 		FROM reverse_spare
 		WHERE yn = 1 AND spare_code = #{spareCode}
-			AND ROWNUM <![CDATA[<=]]> 1
+			AND LIMIT 1
 	</select>
 	
 	<select id="queryByWayBillCode" resultMap="reverseSpare" parameterType="reverseSpare" >
@@ -119,7 +119,7 @@
             <if test="spareTranCode != null">
 				spare_tran_code = #{spareTranCode,jdbcType=VARCHAR},
 			</if>
-            update_time = SYSDATE
+            update_time = NOW()
         </set>
         <where>
 			<choose>

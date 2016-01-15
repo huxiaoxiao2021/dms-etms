@@ -49,24 +49,25 @@
 			#{busiId,jdbcType=INTEGER},
 			#{busiType,jdbcType=INTEGER},
 			#{body,jdbcType=VARCHAR},
-			sysdate,
-			sysdate,
+			NOW(),
+			NWO(),
 			1,
 			0,
 			0,
 			<choose>
 				<when test="busiType != null and busiType == 4">
-					(sysdate+ 60/(24*60))
+-- 					(Sys+ 60/(24*60))
+					DATE_ADD(NOW(),INTERVAL 1 HOUR)
 				</when>
 				<otherwise>
-					sysdate
+					NOW()
 				</otherwise>
 			</choose>
 		)
 	</insert>
 	<update id="update" parameterType="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue">
 		update task_failqueue
-			set 
+			set
 				busi_type = #{busiType,jdbcType=INTEGER},
 				body = #{body,jdbcType=VARCHAR}
 		where YN=1 and busi_id = #{busiId,jdbcType=INTEGER}
@@ -74,91 +75,95 @@
 	<update id="updateFail"
 		parameterType="java.lang.Long">
 		update task_failqueue
-			set 
-				update_time=SYSDATE,
+			set
+				update_time=NOW(),
 				excute_count = (excute_count + 1),
-				excute_time = (excute_time + 15/(24*60)),
+				--excute_time = (excute_time + 15/(24*60)),
+				excute_time = timestampadd(excute_time,INTERVAL 15 MINUTES),
 				fail_status = (case when excute_count = 5 then 4 else 3 end)
 		where YN=1 and failqueue_id = #{id}
 	</update>
 	<update id="updateLock"
 		parameterType="java.lang.Long">
 		update task_failqueue
-			set 
-				update_time=SYSDATE,
+			set
+				--update_time=NOW(),
+				update_time=NOW(),
 				fail_status = 1
 		where YN=1 and failqueue_id = #{id}
 	</update>
 	<update id="updateSuccess"
 		parameterType="java.lang.Long">
 		update task_failqueue
-			set 
-				update_time=SYSDATE,
+			set
+				--update_time=NOW(),
+				update_time=NOW(),
 				fail_status = 2
 		where YN=1 and failqueue_id = #{id}
 	</update>
-	<select id="query" resultMap="TaskFailQueue"  parameterType="java.util.Map">		
+	<select id="query" resultMap="TaskFailQueue"  parameterType="java.util.Map">
 		select
 			failqueue_id,
 			busi_id,busi_type,body,create_time,update_time,
 			yn,fail_status,excute_count,excute_time
 		from task_failqueue
-		where YN=1 AND excute_count <![CDATA[<=]]> 5 
-			AND excute_time <![CDATA[<=]]> SYSDATE
+		where YN=1 AND excute_count <![CDATA[<=]]> 5
+			--AND excute_time <![CDATA[<=]]> NOW()
+			AND excute_time <![CDATA[<=]]> NOW()
 			AND fail_status in (0,3)
 		<if test="fetchNum != null">
-			AND ROWNUM <![CDATA[<=]]> #{fetchNum}
+			AND LIMIT #{fetchNum}
 		</if>
 		<if test="busiType != null">
 			AND busi_type = #{busiType}
 		</if>
 		order by failqueue_id
 	</select>
-	
-	<select id="queryBatch" resultType="long"  parameterType="list">		
+
+	<select id="queryBatch" resultType="long"  parameterType="list">
 		select
 			busi_id
 		from task_failqueue
-		where yn = 1 and busi_id in 
+		where yn = 1 and busi_id in
 		<foreach collection="list" item="items" index="index" open="("
 					close=")" separator=",">
 					#{items,jdbcType=BIGINT}
-		</foreach> 
+		</foreach>
 	</select>
-	<select id="querySendCodeByBusiId" resultType="long"  parameterType="list">		
+	<select id="querySendCodeByBusiId" resultType="long"  parameterType="list">
 		select
 			busi_id
 		from task_failqueue
-		where yn = 1 and busi_id in 
+		where yn = 1 and busi_id in
 		<foreach collection="list" item="items" index="index" open="("
 					close=")" separator=",">
 					#{items,jdbcType=LONG}
-		</foreach> 	
+		</foreach>
 	</select>
 	<select id="querySendDatail_SELF" parameterType="list" resultMap="SendDatail_TaskFailQueue">
 		select
-			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code, 
+			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code,
     		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
 		from send_d
-		where send_code in 
+		where send_code in
 		<foreach collection="list" item="items" index="index" open="("
 					close=")" separator=",">
 					#{items,jdbcType=VARCHAR}
 		</foreach> and yn = 1 and send_type = 10
 	</select>
-	
+
 	<select id="querySendDatail_3PL" parameterType="list" resultMap="SendDatail_TaskFailQueue">
 		select
-			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code, 
+			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code,
     		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
 		from send_d
-		where send_code in 
+		where send_code in
 		<foreach collection="list" item="items" index="index" open="("
 					close=")" separator=",">
 					#{items,jdbcType=VARCHAR}
 		</foreach> and yn = 1 and send_type = 30
 	</select>
-	
+
 	<insert id="batchInsert" parameterType="list">
          insert into task_failqueue
          (
@@ -171,12 +176,12 @@
 				#{item.busiId,jdbcType=BIGINT javaType=long} as busi_id,
 				#{item.busiType,jdbcType=INTEGER javaType=int} as busi_type,
 				#{item.body,jdbcType=VARCHAR javaType=string} as body,
-				sysdate as create_time,
-				sysdate as update_time,
+				NOW() as create_time,
+				NOW() as update_time,
 				1 as yn,
 				0 as fail_status,
 				0 as excute_count,
-				(sysdate+ 60/(24*60)) as excute_time
+				(NOW()+ 60/(24*60)) as excute_time
 	            from dual
 	        </foreach>
         ) A 

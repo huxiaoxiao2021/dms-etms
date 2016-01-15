@@ -70,7 +70,7 @@
 		SEQ_POP_ABNORMAL_DETAIL.NEXTVAL, #{abnormalId, jdbcType=BIGINT},
 		#{operatorCode, jdbcType=INTEGER}, #{operatorName, jdbcType=VARCHAR},
 		#{operatorTime, jdbcType=TIMESTAMP}, #{remark, jdbcType=VARCHAR},
-		sysdate, sysdate, #{fingerPrint, jdbcType=VARCHAR}, 1
+		NOW(), NOW(), #{fingerPrint, jdbcType=VARCHAR}, 1
 		)
 	</insert>
 </mapper>

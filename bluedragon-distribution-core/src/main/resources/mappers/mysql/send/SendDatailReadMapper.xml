@@ -38,9 +38,9 @@
         and sed.receive_site_code= sem.receive_site_code
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=0  
-		and rownum <=500 
-		and sem.create_Time <= sysdate - interval '10' MINUTE
-		and sed.create_Time >= sysdate - interval '2' DAY
+		and LIMIT500
+		and sem.create_Time <= NOW() - interval '10' MINUTE
+		and sed.create_Time >= NOW() - interval '2' DAY
 		and mod(sed.send_d_id,8) in ${queueId}
 		]]>
 	</select>

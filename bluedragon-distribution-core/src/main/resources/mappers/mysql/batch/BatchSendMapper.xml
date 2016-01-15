@@ -22,10 +22,10 @@
 	<update id="updateSendCarState" parameterType="batchSend">
         UPDATE batch_send SET
           send_car_state=#{sendCarState,jdbcType=INTEGER},
-          send_car_operate_time= to_date(to_char(#{sendCarOperateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+          send_car_operate_time= #{sendCarOperateTime, jdbcType=TIMESTAMP}
           WHERE
               send_code=#{sendCode,jdbcType=VARCHAR}
-              AND send_car_operate_time<![CDATA[<]]>to_date(to_char(#{sendCarOperateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+              AND send_car_operate_time<![CDATA[<]]>#{sendCarOperateTime, jdbcType=TIMESTAMP}
               AND send_car_state<![CDATA[<>]]>#{sendCarState,jdbcType=INTEGER}
     </update>
     <select id="readBySendCode" parameterType="String" resultMap="batchSend">
@@ -33,29 +33,29 @@
 			update_user_code, update_user, create_time, update_time,send_car_operate_time,send_car_state,
 			yn
 		    FROM BATCH_SEND
-		    WHERE send_code=#{value,jdbcType=VARCHAR} and ROWNUM=1 and yn=1
+		    WHERE send_code=#{value,jdbcType=VARCHAR} and LIMIT 1 and yn=1
     </select>
 	<insert id="insertOne" parameterType="batchSend" >
 		INSERT INTO batch_send (
-			id, batch_code, create_site_code,receive_site_code,send_code, create_user, create_user_code,
+			batch_code, create_site_code,receive_site_code,send_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,send_status,
 			yn,send_car_state,send_car_operate_time)
 		VALUES (
-			SEQ_BATCH_SEND.NEXTVAL, #{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{sendCode,jdbcType=VARCHAR},
+			#{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{sendCode,jdbcType=VARCHAR},
 			#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
 			#{updateUserCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
-			SYSDATE, SYSDATE,#{sendStatus,jdbcType=INTEGER},
-			1,0,SYSDATE)
+			NOW(), NOW(),#{sendStatus,jdbcType=INTEGER},
+			1,0,NOW())
 	</insert>
-	
+
 	<select id="getBatchSend" parameterType="BatchSend"  resultMap="batchSend" >
         SELECT id, batch_code, create_site_code,receive_site_code,send_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,send_car_operate_time,send_car_state,
 			yn
 		    FROM BATCH_SEND
-		    WHERE batch_code=#{batchCode,jdbcType=VARCHAR} AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} and ROWNUM=1
+		    WHERE batch_code=#{batchCode,jdbcType=VARCHAR} AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} and LIMIT 1
 	</select>
-	
+
 	<select id="findBatchSend" resultMap="batchSend" parameterType="com.jd.bluedragon.distribution.batch.domain.BatchSendRequest" >
 		SELECT batch_code, create_site_code, receive_site_code,send_code,create_time, update_time,send_status,yn,send_car_operate_time,send_car_state
 		FROM batch_send
@@ -67,18 +67,18 @@
 			and batch_code = #{batchCode,jdbcType=VARCHAR}
 		</if>
 		<if test="createTime!=null">
-			and create_time <![CDATA[>=]]> to_date(to_char(#{createTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			and create_time <![CDATA[>=]]> #{createTime, jdbcType=TIMESTAMP}
 		</if>
 		<if test="updateTime!=null">
-			and create_time <![CDATA[<=]]> to_date(to_char(#{updateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+			and create_time <![CDATA[<=]]> #{updateTime, jdbcType=TIMESTAMP}
 		</if>
 		 and batch_code !=send_code
 		 and send_status=0
 	</select>
-	
+
 	<update id="batchUpdateStatus" parameterType="batchSend" >
         UPDATE batch_send
-        SET update_time = SYSDATE,send_status=1
+        SET update_time = NOW(),send_status=1
         WHERE  send_code =  #{sendCode,jdbcType=VARCHAR}
     </update>
 </mapper>

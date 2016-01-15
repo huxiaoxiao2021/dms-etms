@@ -196,7 +196,7 @@
     <include refid="Base_Column_List" />
     FROM inspection
     <include refid="where_condition"/>
-    AND rownum <![CDATA[<=]]> 1
+    AND LIMIT 1
   </select>
   
   
@@ -206,7 +206,7 @@
 	    FROM inspection
 	    <include refid="where_condition"/>
 	    <if test="limitNo!=null and startNo!=null">
-	    	AND rownum <![CDATA[<=]]> ${limitNo}
+	    	AND LIMIT ${limitNo}
 	    </if>
   </select>
   
@@ -259,7 +259,7 @@
 	 		<include refid="Pop_Join_Where_List" />
 		order by inspection_id 
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>
@@ -281,7 +281,7 @@
 	 		<include refid="BPop_Join_Where_List" />
 		order by inspection_id 
 		<if test="startIndex != null">
-			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
 		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
 		</if>
 	</select>
@@ -489,6 +489,6 @@
   			AND inspection_type != 20
   			</if>
   		
-		AND rownum <![CDATA[<=]]> 1
+		AND LIMIT 1
 	</select>
 </mapper>

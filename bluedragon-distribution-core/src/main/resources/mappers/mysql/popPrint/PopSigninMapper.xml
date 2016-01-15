@@ -28,8 +28,8 @@
 		#{expressName,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{createSiteName,jdbcType=VARCHAR},
-		sysdate,
-		sysdate,
+		NOW(),
+		NOW(),
 		1)
 	</insert>
 	<update id="update" parameterType="PopSignin" timeout="8">
@@ -53,7 +53,7 @@
 	<if test="expressName!=null and expressName!=''">
 				 EXPRESS_NAME = #{expressName,jdbcType=VARCHAR },
 	</if>
-	UPDATE_TIME=sysdate 
+	UPDATE_TIME=NOW()
 	</set>
 	where CREATE_SITE_CODE =#{createSiteCode,jdbcType=INTEGER } and THIRD_WAYBILL_CODE = #{thirdWaybillCode,jdbcType=VARCHAR }
 				
@@ -69,7 +69,7 @@
 		SELECT * FROM POP_SIGNIN t1
 		<include refid="where" />
 		<if test="start!=null">
-		) A WHERE ROWNUM <![CDATA[ <= ]]>
+		) A WHERE LIMIT
 		#{end} )
 		WHERE RN <![CDATA[ > ]]>
 		#{start}

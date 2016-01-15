@@ -15,7 +15,7 @@
 		#{changeSiteCode,jdbcType=INTEGER},#{operateTime,jdbcType=TIMESTAMP},
 	    #{siteCode,jdbcType=INTEGER}, #{siteName,jdbcType=VARCHAR},
 		#{userCode,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR},
-		sysdate,sysdate,1,#{waybillCode,jdbcType=VARCHAR})
+		NOW(),NOW(),1,#{waybillCode,jdbcType=VARCHAR})
 	</insert>
 
     <resultMap id="ReassignWayBill"
@@ -51,7 +51,7 @@
             WHERE
               package_barcode = #{packageCode} ORDER BY operate_time DESC)
          WHERE
-            ROWNUM <![CDATA[<=]]> 1
+            LIMIT 1
     </select>
     
     <select id="queryByWaybillCode" parameterType="java.lang.String" resultMap="ReassignWayBill">
@@ -65,7 +65,7 @@
             WHERE
               waybill_code = #{waybillCode} ORDER BY operate_time DESC)
          WHERE
-            ROWNUM <![CDATA[<=]]> 1
+            LIMIT 1
     </select>
     
 </mapper>
