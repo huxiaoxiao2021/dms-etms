@@ -29,6 +29,14 @@
         PERMIT_RUN_END_TIME, LAST_ASSIGN_TIME, LAST_ASSIGN_UUID,
         EXPIRE_OWN_SIGN_INTERVAL, GMT_CREATE, GMT_MODIFIED
     </sql>
+    
+    <sql id="baseNoIdColumns">
+        TASK_TYPE, DEAL_BEAN_NAME, HEARTBEAT_RATE, JUDGE_DEAD_INTERVAL,
+        THREAD_NUMBER, EXECUTE_NUMBER, FETCH_NUMBER, SLEEP_TIME_NODATA,
+        SLEEP_TIME_INTERVAL, PROCESSOR_TYPE, PERMIT_RUN_START_TIME,
+        PERMIT_RUN_END_TIME, LAST_ASSIGN_TIME, LAST_ASSIGN_UUID,
+        EXPIRE_OWN_SIGN_INTERVAL, GMT_CREATE, GMT_MODIFIED
+    </sql>
 
     <select id="selectByNameUsePager" resultMap="taskTypeResult" parameterType="com.jd.bluedragon.Pager">
         SELECT
@@ -71,9 +79,8 @@
 
     <insert id="insertSingle" parameterType="com.jd.bluedragon.distribution.worker.domain.TBTaskType">
         INSERT INTO PAMIRS_SCHEDULE_TASKTYPE(
-        <include refid="baseColumns"/>)
+        <include refid="baseNoIdColumns"/>)
         VALUES(
-        #{id,jdbcType=NUMERIC},
         #{baseTaskType,jdbcType=VARCHAR},
         #{dealBeanName,jdbcType=VARCHAR },
         #{heartBeatRate,jdbcType=NUMERIC },

@@ -14,9 +14,6 @@ public interface SortingService {
 
     Integer update(Sorting sorting);
 
-    /** 修改状态 */
-    Integer updateStatus(String ids, Integer status);
-
     void addSortingAndSendDetail(Sorting sorting);
 
     /** 任务转分拣记录 
@@ -28,9 +25,6 @@ public interface SortingService {
 
     /** 通过操作站点编号、箱号，查询对应分拣信息 */
     List<Sorting> findByBoxCode(Sorting sorting);
-
-    /** 通过回传状态，查询未回传分拣信息 */
-    List<Sorting> findByStatus(Integer facthNumber);
 
     /** 通过创建站点、包裹号码或运单号码、业务类型，判断其分拣记录及验货异常能否被取消 */
     Boolean canCancel(Sorting sorting);
