@@ -56,6 +56,11 @@ public class SerialRuleUtil
     private static final Pattern RULE_PACKAGE_OWN_REGEX = Pattern.compile("^([1-9]{1}\\d{8,})(?:-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(?:-(?=\\d{1,3}-)|S(?=\\d{1,3}H))(\\d{1,3})[-|H]([A-Za-z0-9]*)?$");
 
     /**
+     * 运单简易正则
+     */
+    private static final Pattern RULE_GENERATE_WAYBILL_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,32})$");
+
+    /**
      * 生成包裹列表专用正则
      * 【分组一：运单号】
      * 【分组二：-或N】
@@ -65,6 +70,7 @@ public class SerialRuleUtil
      * 【分组六：（-或H）与道口号组合】
      */
     private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
+
     /**
     * 京东外单运单号正则表达式
     * ("^((([A-Z][A-Z0])|90|00)[0-9]{1,}[0-6])$")
@@ -119,6 +125,11 @@ public class SerialRuleUtil
     public static final boolean isMatchFWaybillCode(String input)
     {
         return RULE_F_WAYBILL_CODE_REGEX.matcher(input).matches();
+    }
+
+
+    public static final boolean isMatchAllWaybillCode(String input){
+        return RULE_GENERATE_WAYBILL_ALL_REGEX.matcher(input).matches();
     }
 
     /**

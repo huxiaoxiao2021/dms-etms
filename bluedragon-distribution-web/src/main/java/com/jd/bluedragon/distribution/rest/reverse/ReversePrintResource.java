@@ -70,7 +70,7 @@ public class ReversePrintResource {
     public InvokeResult<String> getNewWaybillCode(@PathParam("oldWaybillCode") String oldWaybillCode){
         InvokeResult<String> result=new InvokeResult<String>();
         try {
-            reversePrintService.getNewWaybillCode(oldWaybillCode);
+           result= reversePrintService.getNewWaybillCode(oldWaybillCode);
         }catch (Throwable e){
             logger.error("[逆向换单获取新单号]",e);
             result.error(e);
