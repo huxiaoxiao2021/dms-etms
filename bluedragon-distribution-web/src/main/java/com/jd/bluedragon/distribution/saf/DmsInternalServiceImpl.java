@@ -1,0 +1,243 @@
+package com.jd.bluedragon.distribution.saf;
+
+import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.rest.audit.AuditResource;
+import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.distribution.rest.box.BoxResource;
+import com.jd.bluedragon.distribution.rest.orders.ReassignWaybillResource;
+import com.jd.bluedragon.distribution.rest.pop.PopPrintResource;
+import com.jd.bluedragon.distribution.rest.product.LossProductResource;
+import com.jd.bluedragon.distribution.rest.task.TaskResource;
+import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ * @author dudong
+ * @date 2016/1/5
+ */
+public class DmsInternalServiceImpl implements DmsInternalService {
+
+    private static final Log logger = LogFactory.getLog(DmsInternalServiceImpl.class);
+
+    @Autowired
+    private BoxResource boxResource;
+
+    @Autowired
+    private BaseResource baseResource;
+
+    @Autowired
+    private TaskResource taskResource;
+
+    @Autowired
+    private WaybillResource waybillResource;
+
+    @Autowired
+    private ReassignWaybillResource reassignWaybillResource;
+
+    @Autowired
+    private AuditResource auditResource;
+
+    @Autowired
+    private LossProductResource lossProductResource;
+
+    @Autowired
+    private PreseparateWaybillResource preseparateWaybillResource;
+
+    @Autowired
+    private PopPrintResource popPrintResource;
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
+    public DatadictResponse getDatadict(Integer parentID, Integer nodeLevel, Integer typeGroup) {
+        if (logger.isInfoEnabled()) {
+            logger.info("getDatadict param " + "parentID" + parentID + "nodeLevel" + nodeLevel + "typeGroup" + typeGroup);
+        }
+        try {
+            return baseResource.getOrignalBackBusIds(parentID, nodeLevel, typeGroup);
+        } catch (Exception e) {
+            logger.error("getDatadict error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getBox",mState = JProEnum.TP)
+    public BoxResponse getBox(String boxCode){
+        if (logger.isInfoEnabled()) {
+            logger.info("getBox param " + boxCode);
+        }
+        try {
+            return boxResource.get(boxCode);
+        } catch (Exception e) {
+            logger.error("getBox error", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getSiteByCode",mState = JProEnum.TP)
+    public BaseResponse getSiteByCode(String code) {
+        if (logger.isInfoEnabled()) {
+            logger.info("getSiteByCode param " + code);
+        }
+        try {
+            return baseResource.getSite(code);
+        } catch (Exception e) {
+            logger.error("getSiteByCode error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.addTask",mState = JProEnum.TP)
+    public TaskResponse addTask(TaskRequest request) {
+        if (logger.isInfoEnabled()) {
+            logger.info("addTask param " + JsonHelper.toJson(request));
+        }
+        try {
+            return taskResource.add(request);
+        } catch (Exception e) {
+            logger.error("addTask error ", e);
+            return null;
+        }
+    }
+
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getBelongSiteCode",mState = JProEnum.TP)
+    public BaseResponse getBelongSiteCode(Integer code) {
+        if(logger.isInfoEnabled()){
+            logger.info("getBelongSiteCode param " + code);
+        }
+        try{
+            return baseResource.getselfD(code);
+        }catch (Exception e){
+            logger.error("getBelongSiteCode error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getTargetDmsCenter",mState = JProEnum.TP)
+    public BaseResponse getTargetDmsCenter(Integer startDmsCode, Integer siteCode) {
+        if(logger.isInfoEnabled()){
+          logger.info("getTargetDmsCenter param " + "startDmsCode" + startDmsCode + "siteCode" + siteCode);
+        }
+        try{
+            return waybillResource.getTargetDmsCenter(startDmsCode, siteCode);
+        }catch (Exception e){
+            logger.error("getTargetDmsCenter error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getLastScheduleSite",mState = JProEnum.TP)
+    public BaseResponse getLastScheduleSite(String packageCode) {
+        if(logger.isInfoEnabled()){
+            logger.info("getLastScheduleSite param " + packageCode);
+        }
+        try{
+            return reassignWaybillResource.queryLastScheduleSite(packageCode);
+        }catch (Exception e){
+            logger.error("getLastScheduleSite error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getReverseReceive",mState = JProEnum.TP)
+    public ReverseReceiveResponse getReverseReceive(String waybillCode) {
+       if(logger.isInfoEnabled()){
+           logger.info("getReverseReceive param " + waybillCode);
+       }
+       try{
+           return auditResource.getReverseReceiveByCode(waybillCode);
+       } catch (Exception e){
+           logger.error("getReverseReceive error ", e);
+           return null;
+       }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getLossOrderProducts",mState = JProEnum.TP)
+    public LossProductResponse getLossOrderProducts(Long orderId) {
+        if(logger.isInfoEnabled()){
+            logger.info("getLossOrderProducts param " + orderId);
+        }
+        try{
+            return lossProductResource.getLossOrderProducts(orderId);
+        }catch (Exception e){
+            logger.error("getLossOrderProducts error ", e);
+            return null;
+        }
+    }
+
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getSwitchStatus",mState = JProEnum.TP)
+    public SysConfigResponse getSwitchStatus(String conName) {
+        if(logger.isInfoEnabled()){
+            logger.info("getSwitchStatus param " + conName);
+        }
+        try{
+            return baseResource.getSwitchStatus(conName);
+        }catch (Exception e){
+            logger.error("getSwitchStatus error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.createAutoSortingBox",mState = JProEnum.TP)
+    public InvokeResult<AutoSortingBoxResult> createAutoSortingBox(BoxRequest request) {
+        if(logger.isInfoEnabled()){
+            logger.info("createAutoSortingBox param " + JsonHelper.toJson(request));
+        }
+        try{
+            return boxResource.create(request);
+        }catch (Exception e){
+            logger.error("createAutoSortingBox error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getPreseparateSiteId",mState = JProEnum.TP)
+    public InvokeResult<Integer> getPreseparateSiteId(String waybillCode) {
+        if(logger.isInfoEnabled()){
+            logger.info("getPreseparateSiteId param " + waybillCode);
+        }
+        try{
+            return preseparateWaybillResource.getPreseparateSiteId(waybillCode);
+        }catch (Exception e){
+            logger.error("getPreseparateSiteId error ", e);
+            return null;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getPopPrintByWaybillCode",mState = JProEnum.TP)
+    public PopPrintResponse getPopPrintByWaybillCode(String waybillCode) {
+        if(logger.isInfoEnabled()){
+            logger.info("getPreseparateSiteId param " + waybillCode);
+        }
+        try{
+            return popPrintResource.findByWaybillCode(waybillCode);
+        }catch (Exception e){
+            logger.error("getPreseparateSiteId error ", e);
+            return null;
+        }
+    }
+
+}
