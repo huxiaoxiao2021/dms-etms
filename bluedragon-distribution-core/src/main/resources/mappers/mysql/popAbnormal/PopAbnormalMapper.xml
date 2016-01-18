@@ -31,6 +31,13 @@
 		operator_name, create_site_code, create_site_name, create_time, 
 		confirm_time, update_time, abnormal_state, memo, yn
 	</sql>
+
+	<sql id="Base_Insert_Column_List">
+		serial_number, abnormal_type, waybill_code, order_code,
+		pop_sup_no, rsv1, current_num, actual_num, confirm_num, operator_code,
+		operator_name, create_site_code, create_site_name, create_time,
+		confirm_time, update_time, abnormal_state, memo, yn
+	</sql>
 	
 	<select id="findTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
 		SELECT
@@ -125,10 +132,10 @@
 
 	<insert id="add" parameterType="PopAbnormal">
 		insert into pop_abnormal_order (
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		values (
-		SEQ_POP_ABNORMAL_ORDER.NEXTVAL, #{serialNumber, jdbcType=VARCHAR},
+		#{serialNumber, jdbcType=VARCHAR},
 		#{abnormalType, jdbcType=INTEGER},
 		#{waybillCode, jdbcType=VARCHAR},
 		#{orderCode, jdbcType=VARCHAR}, 

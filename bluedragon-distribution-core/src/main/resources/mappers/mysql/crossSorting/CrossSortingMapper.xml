@@ -24,12 +24,12 @@
 	<insert id="add" parameterType="crossSorting">
 		INSERT INTO
 		cross_sorting (
-		id, org_id, create_dms_code, create_dms_name,
+		org_id, create_dms_code, create_dms_name,
 		destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name,
 		create_user_code, create_user_name, delete_user_code, delete_user_name,
 		create_time, delete_time, yn)
 		VALUES (
-		SEQ_CROSS_SORTING.NEXTVAL, #{orgId,jdbcType=INTEGER},
+		#{orgId,jdbcType=INTEGER},
 		#{createDmsCode,jdbcType=INTEGER},#{createDmsName,jdbcType=VARCHAR},
 		#{destinationDmsCode,jdbcType=INTEGER}, #{destinationDmsName,jdbcType=VARCHAR},
 		#{mixDmsCode,jdbcType=INTEGER}, #{mixDmsName,jdbcType=VARCHAR},
@@ -40,11 +40,11 @@
 
 	<insert id="addBatch" parameterType="list"> 
 		INSERT INTO cross_sorting ( 
-			id, org_id, create_dms_code, create_dms_name,
+			org_id, create_dms_code, create_dms_name,
 			destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name,
 			create_user_code, create_user_name, delete_user_code, delete_user_name,
 			create_time, delete_time, yn
-		) SELECT SEQ_CROSS_SORTING.NEXTVAL, A.* FROM( 
+		) SELECT A.* FROM(
 		<foreach collection="list" item="item" index="index" separator="UNION ALL"> 
 			<![CDATA[ 
 				SELECT 

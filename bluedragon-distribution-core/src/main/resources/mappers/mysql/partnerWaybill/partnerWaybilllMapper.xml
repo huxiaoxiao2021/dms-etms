@@ -33,6 +33,16 @@
 		update_user, update_user_code,
 		update_time, yn
 	</sql>
+
+	<sql id="Base_Insert_Column_List">
+		partner_waybill_code, waybill_code,
+		package_barcode, partner_status, partner_site_code,
+		create_user, create_user_code,
+		create_time, create_site_code,
+		update_user, update_user_code,
+		update_time, yn
+	</sql>
+
 	<sql id="where_condition">
 		<where>
 			<if test="relationId!=null">
@@ -84,11 +94,11 @@
 	<insert id="add" parameterType="list">
 		insert into partner_waybill
 		(
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		values
 		(
-		SEQ_PARTNER_WAYBILL.NEXTVAL, #{partnerWaybillCode,jdbcType=VARCHAR},
+		#{partnerWaybillCode,jdbcType=VARCHAR},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{partnerSiteCode,jdbcType=INTEGER},
 		#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=VARCHAR},

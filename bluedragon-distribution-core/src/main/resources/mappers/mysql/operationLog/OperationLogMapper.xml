@@ -36,6 +36,18 @@
 		create_time, update_time,yn
     </sql>
 
+	<sql id="Base_Insert_Column_List">
+		box_code, waybill_code,
+		pickup_code, package_code,
+		log_type, send_code,
+		create_user_code, create_user,
+		create_site_code,
+		create_site_name,
+		receive_site_code, receive_site_name,
+		remark, operate_time,
+		create_time, update_time,yn
+	</sql>
+
 	<sql id="Base_Where_List">
 		<where>
 			yn = 1
@@ -85,15 +97,11 @@
 	</sql>
 
 	<insert id="add">
-		<selectKey resultType="long" keyProperty="logId" order="BEFORE"
-			statementType="PREPARED">      
-			<![CDATA[SELECT SEQ_OPERATION_LOG.NEXTVAL FROM DUAL]]>
-		</selectKey>
 		INSERT INTO operation_log_0(
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		VALUES(
-		#{logId,jdbcType=BIGINT}, #{boxCode,jdbcType=VARCHAR},
+		#{boxCode,jdbcType=VARCHAR},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{pickupCode,jdbcType=VARCHAR},
 		#{packageCode,jdbcType=VARCHAR},
@@ -118,10 +126,7 @@
 	</select>
 
 	<select id="queryByParams" resultMap="BaseResultMap"
-		parameterType="OperationLog">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
+			parameterType="OperationLog">
 		SELECT
 		log_id, box_code, waybill_code,
 		pickup_code, package_code,
@@ -133,12 +138,10 @@
 		operate_time,
 		create_time, update_time
 		FROM operation_log_0
-		<include refid="Base_Where_List" />
+		<include refid="Base_Where_List"/>
 		order by operate_time
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 </mapper>

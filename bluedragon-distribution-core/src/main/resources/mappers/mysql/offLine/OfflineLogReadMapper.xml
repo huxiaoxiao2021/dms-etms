@@ -78,18 +78,13 @@
 
 	<select id="queryByParams" resultMap="BaseResultMap"
 		parameterType="OfflineLog">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM dms.offline_log
 		<include refid="Base_Where_List" />
 		order by update_time desc
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	

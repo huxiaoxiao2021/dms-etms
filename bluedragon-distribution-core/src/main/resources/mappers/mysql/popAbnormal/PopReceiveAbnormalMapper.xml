@@ -34,6 +34,13 @@
 		POP_SUP_NO, POP_SUP_NAME, ABNORMAL_STATUE, ATTR1, ATTR2, ATTR3, ATTR4,
 		OPERATOR_NAME, CREATE_TIME, UPDATE_TIME, YN, waybill_type, order_code
 	</sql>
+
+	<sql id="Base_Insert_Column_List">
+		ORG_CODE, ORG_NAME, CREATE_SITE_CODE, CREATE_SITE_NAME,
+		MAIN_TYPE, MAIN_TYPE_NAME, SUB_TYPE, SUB_TYPE_NAME, WAYBILL_CODE,
+		POP_SUP_NO, POP_SUP_NAME, ABNORMAL_STATUE, ATTR1, ATTR2, ATTR3, ATTR4,
+		OPERATOR_NAME, CREATE_TIME, UPDATE_TIME, YN, waybill_type, order_code
+	</sql>
 	
 	<sql id="Pop_Abnormal_Where_List">
 		<where>
@@ -45,18 +52,18 @@
 	 			<otherwise>
 	 				<if test="dateType == 1">
 						<if test="startTime != null">
-							and CREATE_TIME <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+							and CREATE_TIME <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 						</if>
 						<if test="endTime != null">
-							and CREATE_TIME <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+							and CREATE_TIME <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 						</if>
 					</if>
 					<if test="dateType == 2">
 						<if test="startTime != null">
-							and UPDATE_TIME <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+							and UPDATE_TIME <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 						</if>
 						<if test="endTime != null">
-							and UPDATE_TIME <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+							and UPDATE_TIME <![CDATA[<=]]> str_to_date(date_fromat(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 						</if>
 					</if>
 		 			<if test="orgCode != null and orgCode != 0">
@@ -103,21 +110,17 @@
 	 	from POP_ABNORMAL
  		<include refid="Pop_Abnormal_Where_List" />
 	</select>
-	
+
 	<select id="findList" resultMap="popReceiveAbnormal" parameterType="java.util.Map">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
-		select 
-			<include refid="Base_Column_List" />
-	 	from POP_ABNORMAL
-	 		<include refid="Pop_Abnormal_Where_List" />
+		select
+		<include refid="Base_Column_List"/>
+		from POP_ABNORMAL
+		<include refid="Pop_Abnormal_Where_List"/>
 		<if test="orderByString != null">
 			ORDER BY ${orderByString} desc
 		</if>
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+			where LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	
@@ -148,14 +151,11 @@
     </select>
 	
 	<insert id="add" parameterType="PopReceiveAbnormal">
-		<selectKey resultType="long" order="AFTER" keyProperty="abnormalId" > 
-			SELECT SEQ_POP_ABNORMAL.CURRVAL AS ABNORMAL_ID FROM DUAL 
-		</selectKey> 
 		insert into POP_ABNORMAL (
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		values (
-		SEQ_POP_ABNORMAL.NEXTVAL, #{orgCode, jdbcType=INTEGER}, #{orgName, jdbcType=VARCHAR},
+		#{orgCode, jdbcType=INTEGER}, #{orgName, jdbcType=VARCHAR},
 		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR},
 		#{mainType, jdbcType=INTEGER}, #{mainTypeName, jdbcType=VARCHAR},
 		#{subType, jdbcType=INTEGER}, #{subTypeName, jdbcType=VARCHAR},

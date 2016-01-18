@@ -37,14 +37,13 @@
 	
 	<insert id="add" parameterType="LoadBill">
 		INSERT INTO load_bill ( 
-			id, load_id, warehouse_id, waybill_code, package_barcode,
+			load_id, warehouse_id, waybill_code, package_barcode,
 		    package_amount, order_id, box_code, dms_code, dms_name,
 			send_time, send_code, truck_no, approval_code, approval_time,
 			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
 			create_user_code, create_user, package_user_code, package_user,
 			package_time, remark, yn
 		) VALUES (
-			SEQ_LOAD_BILL.NEXTVAL,
 			#{loadId,jdbcType=VARCHAR}, #{warehouseId,jdbcType=VARCHAR}, 
 			#{waybillCode,jdbcType=VARCHAR}, #{packageBarcode,jdbcType=VARCHAR},
 			#{packageAmount,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR},
@@ -126,13 +125,13 @@
 
 	<insert id="addBatch" parameterType="list">
 		INSERT INTO load_bill ( 
-			id, load_id, warehouse_id, waybill_code, package_barcode,
+			load_id, warehouse_id, waybill_code, package_barcode,
 		    package_amount, order_id, box_code, dms_code, dms_name,
 			send_time, send_code, truck_no, approval_code, approval_time,
 			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
 			create_user_code, create_user, package_user_code, package_user,
 			package_time, remark, yn
-		) SELECT SEQ_LOAD_BILL.NEXTVAL, A.* FROM( 
+		) SELECT  A.* FROM(
 		<foreach collection="list" item="item" index="index" separator="UNION ALL"> 
 			<![CDATA[ 
 				SELECT 

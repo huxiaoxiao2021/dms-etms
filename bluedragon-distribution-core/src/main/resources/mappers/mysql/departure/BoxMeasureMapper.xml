@@ -16,9 +16,9 @@
 	
 	<insert id="add" parameterType="BoxMeasure">
 		insert into box_measure
-		(box_measure_id, box_code, create_site_code, weight,
+		( box_code, create_site_code, weight,
 		volume, status, yn, create_time, update_time) values
-		(#{BoxMeasureId,jdbcType=BIGINT}, #{boxCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
+		(#{boxCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
 		#{weight,jdbcType=DOUBLE},#{volume,jdbcType=DOUBLE},
 		#{status,jdbcType=TINYINT},#{yn,jdbcType=TINYINT},#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP})
 	</insert>
