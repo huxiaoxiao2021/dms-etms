@@ -41,6 +41,15 @@
 	turnoverbox_code,weight,volume,exception_type,send_code,seal_box_code,seal_vehicle_code,vehicle_code,
 	task_type,send_user,send_user_code, yn,status
     </sql>
+
+	<sql id="Base_Insert_Column_List">
+		waybill_code,package_code,box_code,business_type,
+		create_user, create_user_code, create_time, create_site_code,
+		create_site_name,receive_site_code,update_time,
+		operate_time,
+		turnoverbox_code,weight,volume,exception_type,send_code,seal_box_code,seal_vehicle_code,vehicle_code,
+		task_type,send_user,send_user_code, yn,status
+	</sql>
     
     <sql id="Base_Where_List">
 		<where>
@@ -71,10 +80,10 @@
 	
 	<insert id="add" parameterType="OfflineLog">
 		insert into offline_log(
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		values
-		(SEQ_OFFLINE_LOG.NEXTVAL,#{waybillCode,jdbcType=VARCHAR},#{packageCode,jdbcType=VARCHAR},#{boxCode,jdbcType=VARCHAR},
+		(#{waybillCode,jdbcType=VARCHAR},#{packageCode,jdbcType=VARCHAR},#{boxCode,jdbcType=VARCHAR},
 		#{businessType,jdbcType=INTEGER},#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
 		NOW(),#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},
 		#{receiveSiteCode,jdbcType=INTEGER},NOW(),#{operateTime,jdbcType=TIMESTAMP},
@@ -94,18 +103,13 @@
 
 	<select id="queryByParams" resultMap="BaseResultMap"
 		parameterType="OfflineLog">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM offline_log
 		<include refid="Base_Where_List" />
 		order by update_time desc
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	

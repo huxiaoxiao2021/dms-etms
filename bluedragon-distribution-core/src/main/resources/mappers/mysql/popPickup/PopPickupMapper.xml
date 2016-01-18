@@ -33,6 +33,15 @@
     update_user, update_user_code, 
     create_time, update_time, operate_time,yn, waybill_type
   </sql>
+
+	<sql id="Base_Insert_Column_List" >
+		waybill_code, box_code,
+		package_barcode, pickup_status, pickup_type,
+		package_number, pop_business_code, pop_business_name, car_code,
+		create_user, create_user_code, create_site_code, receive_site_code ,
+		update_user, update_user_code,
+		create_time, update_time, operate_time,yn, waybill_type
+	</sql>
   
   <sql id="Pop_Pickup_Where_List">
 	<where>
@@ -55,8 +64,8 @@
 		<if test="waybillType != null and waybillType != 0">
 			and waybill_type = #{waybillType, jdbcType=INTEGER}
 		</if>
-		and operate_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
-		and operate_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		and operate_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i-%s'), '%Y-%m-%d %H:%i-%s')
+		and operate_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i-%s'), '%Y-%m-%d %H:%i-%s')
 		<if test="popBusinessCode != null and popBusinessCode != 0">
 			and pop_business_code = #{popBusinessCode, jdbcType=INTEGER}
 		</if>
@@ -74,11 +83,8 @@
   
   
   <insert id="add" parameterType="PopPickup" >
-  	<selectKey resultType="long"  keyProperty="pickupId" order="BEFORE" statementType="PREPARED">      
-		<![CDATA[SELECT SEQ_POP_PICKUP.NEXTVAL FROM DUAL]]>
-    </selectKey>
     INSERT INTO pop_pickup (
-    <include refid="Base_Column_List"/>
+    <include refid="Base_Insert_Column_List"/>
     )
     VALUES (
     	#{pickupId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
@@ -116,19 +122,15 @@
 	 	from pop_pickup
 			<include refid="Pop_Pickup_Where_List" />
 	</select>
-	
+
 	<select id="findPopPickupList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List"/>
+		from pop_pickup
+		<include refid="Pop_Pickup_Where_List"/>
+		order by pickup_id
 		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
-		select 
-			<include refid="Base_Column_List" />
-	 	from pop_pickup
-	 		<include refid="Pop_Pickup_Where_List" />
-		order by pickup_id 
-		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex},{endIndex}
 		</if>
 	</select>
   

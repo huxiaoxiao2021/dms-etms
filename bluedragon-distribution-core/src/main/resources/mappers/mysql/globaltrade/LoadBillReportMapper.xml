@@ -17,10 +17,9 @@
 
 	<insert id="add" parameterType="LoadBillReport">
 		INSERT INTO load_bill_report (
-			id, report_id, load_id, warehouse_id,
+			report_id, load_id, warehouse_id,
 			process_time, status, order_id, notes, yn)
 		VALUES (
-			SEQ_LOAD_BILL_REPORT.NEXTVAL,
 			#{reportId,jdbcType=VARCHAR}, 
 			#{loadId,jdbcType=VARCHAR},
 			#{warehouseId,jdbcType=VARCHAR},
@@ -33,9 +32,9 @@
 
 	<insert id="addBatch" parameterType="list">
 		INSERT INTO load_bill_report (
-			id, report_id, load_id, warehouse_id,
+			report_id, load_id, warehouse_id,
 			process_time, status, order_id, notes, yn
-		) SELECT SEQ_LOAD_BILL_REPORT.NEXTVAL, A.* FROM(
+		) SELECT A.* FROM(
 		<foreach collection="list" item="item" index="index" separator="UNION ALL">
 			<![CDATA[
 				SELECT

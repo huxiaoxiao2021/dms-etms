@@ -20,11 +20,11 @@
 	
 	<insert id="add" parameterType="label" >
 		INSERT INTO REVERSE_LABEL (
-			ID, LABEL_TYPE, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
+			LABEL_TYPE, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
 			RECEIVE_SITE_NAME, CREATE_USER, CREATE_USER_CODE,OPERATOR_NAME, CREATE_TIME,
 			UPDATE_TIME, PRINT_NUM, yn)
 		VALUES (
-			SEQ_REVERSE_LABEL.NEXTVAL, #{type,jdbcType=INTEGER}, #{createSiteCode,jdbcType=INTEGER},
+			#{type,jdbcType=INTEGER}, #{createSiteCode,jdbcType=INTEGER},
 			#{createSiteName,jdbcType=VARCHAR}, #{receiveSiteCode,jdbcType=INTEGER},
 			#{receiveSiteName,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER},#{operator_name,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},

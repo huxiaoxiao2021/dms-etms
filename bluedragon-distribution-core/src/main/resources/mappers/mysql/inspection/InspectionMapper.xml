@@ -33,8 +33,8 @@
     <result column="busi_id" property="busiId" jdbcType="INTEGER" />
    	<result column="busi_name" property="busiName" jdbcType="VARCHAR" />
   </resultMap>
-  
-  <sql id="Base_Column_List" >
+
+	<sql id="Base_Column_List">
     inspection_id, waybill_code, box_code, 
     package_barcode, inspection_status, exception_type, 
     inspection_type, operate_type, create_user, 
@@ -44,7 +44,7 @@
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
     pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name
   </sql>
-  <sql id ="where_condition">
+	<sql id ="where_condition">
   	<where>
   	    <if test="thirdWaybillCode!= null">
 			AND third_waybill_code =#{thirdWaybillCode,jdbcType=VARCHAR}
@@ -286,7 +286,7 @@
 		</if>
 	</select>
 	
-	<select id="findPopByWaybillCodes" resultMap="BaseResultMap">
+	<select id="findPopByWaybillCodes" resultMap="BaseResultMap" parameterType="java.util.Map">
 		select 
 			<include refid="Base_Column_List" />
 	 	from inspection
@@ -294,6 +294,9 @@
  		<foreach item="waybillCode" index="index" collection="list" open="(" separator="," close=")">
             #{waybillCode}
         </foreach>
+		<if test="create_site_code != null">
+			and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		</if>
 		order by inspection_id 
 	</select>
   
@@ -459,6 +462,10 @@
    	<if test=" null!=boxCode and ''!=boxCode ">
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 	</if>
+	  WHERE
+	  <if test="create_site_code != null">
+		  and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+	  </if>
   </update>
   
   <update id="updateYnByPackageFuzzy" parameterType="Inspection">
@@ -471,6 +478,10 @@
    	<if test=" null!=boxCode and ''!=boxCode ">
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 	</if>
+	  WHERE
+	  <if test="create_site_code != null">
+		  and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+	  </if>
   </update>
   
   <select id="haveInspection" resultMap="BaseResultMap"
@@ -488,6 +499,10 @@
   			<if test="inspectionType != null and inspectionType==10"> 
   			AND inspection_type != 20
   			</if>
+
+	        <if test="create_site_code != null">
+		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
+	        </if>
   		
 		AND LIMIT 1
 	</select>

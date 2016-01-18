@@ -64,8 +64,8 @@
 		<if test="waybillType != null and waybillType != 0">
 			and waybill_type = #{waybillType, jdbcType=INTEGER}
 		</if>
-		and create_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
-		and create_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		and create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), %Y-%M-%d %H:%i:%s')
+		and create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
 		<if test="popSupId != null and popSupId != 0">
 			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
 		</if>
@@ -103,8 +103,8 @@
 		<if test="waybillType != null and waybillType != 0">
 			and waybill_type = #{waybillType, jdbcType=INTEGER}
 		</if>
-		and create_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
-		and create_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		and create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+		and create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
 		<if test="popSupId != null and popSupId != 0">
 			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
 		</if>
@@ -141,19 +141,15 @@
 	 	from DMS.inspection
  		<include refid="Pop_Join_Where_List" />
 	</select>
-	
+
 	<select id="findPopJoinList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List"/>
+		from DMS.inspection
+		<include refid="Pop_Join_Where_List"/>
+		order by inspection_id
 		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
-		select 
-			<include refid="Base_Column_List" />
-	 	from DMS.inspection
-	 		<include refid="Pop_Join_Where_List" />
-		order by inspection_id 
-		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+			where LIMIT #{startIndex} ,#{endIndex}
 		</if>
 	</select>
 	
@@ -165,17 +161,13 @@
 	</select>
 	
 	<select id="findBPopJoinList" resultMap="BaseResultMap" parameterType="java.util.Map">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		select 
 			<include refid="Base_Column_List" />
 	 	from DMS.inspection
 	 		<include refid="BPop_Join_Where_List" />
-		order by inspection_id 
+		order by inspection_id
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+			where LIMIT #{startIndex} ,#{endIndex}
 		</if>
 	</select>
 

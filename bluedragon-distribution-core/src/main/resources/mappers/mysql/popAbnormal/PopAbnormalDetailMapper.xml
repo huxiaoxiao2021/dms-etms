@@ -19,6 +19,11 @@
 		ABNORMAL_DETAIL_ID, ABNORMAL_ID, OPERATOR_CODE, OPERATOR_NAME, OPERATOR_TIME,
 		REMARK, CREATE_TIME, UPDATE_TIME, FINGERPRINT, YN
 	</sql>
+
+	<sql id="Base_Insert_Column_List">
+		ABNORMAL_ID, OPERATOR_CODE, OPERATOR_NAME, OPERATOR_TIME,
+		REMARK, CREATE_TIME, UPDATE_TIME, FINGERPRINT, YN
+	</sql>
 	
 	<sql id="Pop_Abnormal_Detail_Where_List">
 		<where>
@@ -64,10 +69,10 @@
 	
 	<insert id="add" parameterType="PopAbnormalDetail">
 		insert into POP_ABNORMAL_DETAIL (
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		values (
-		SEQ_POP_ABNORMAL_DETAIL.NEXTVAL, #{abnormalId, jdbcType=BIGINT},
+		#{abnormalId, jdbcType=BIGINT},
 		#{operatorCode, jdbcType=INTEGER}, #{operatorName, jdbcType=VARCHAR},
 		#{operatorTime, jdbcType=TIMESTAMP}, #{remark, jdbcType=VARCHAR},
 		NOW(), NOW(), #{fingerPrint, jdbcType=VARCHAR}, 1

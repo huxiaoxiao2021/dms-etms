@@ -39,13 +39,11 @@
 	<insert id="add"
 		parameterType="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue">
 		insert into task_failqueue (
-			failqueue_id,
 			busi_id,busi_type,body,create_time,update_time,
 			yn,fail_status,excute_count,excute_time
 		)
 		values
 		(
-			SEQ_TASK_FAILQUEUE.NEXTVAL,
 			#{busiId,jdbcType=INTEGER},
 			#{busiType,jdbcType=INTEGER},
 			#{body,jdbcType=VARCHAR},
@@ -56,8 +54,7 @@
 			0,
 			<choose>
 				<when test="busiType != null and busiType == 4">
--- 					(Sys+ 60/(24*60))
-					DATE_ADD(NOW(),INTERVAL 1 HOUR)
+					timestampadd(HOUR,1,NOW())
 				</when>
 				<otherwise>
 					NOW()
@@ -78,8 +75,7 @@
 			set
 				update_time=NOW(),
 				excute_count = (excute_count + 1),
-				--excute_time = (excute_time + 15/(24*60)),
-				excute_time = timestampadd(excute_time,INTERVAL 15 MINUTES),
+				excute_time = timestampadd(MINUTES,15,excute_time),
 				fail_status = (case when excute_count = 5 then 4 else 3 end)
 		where YN=1 and failqueue_id = #{id}
 	</update>
@@ -87,7 +83,6 @@
 		parameterType="java.lang.Long">
 		update task_failqueue
 			set
-				--update_time=NOW(),
 				update_time=NOW(),
 				fail_status = 1
 		where YN=1 and failqueue_id = #{id}
@@ -96,7 +91,6 @@
 		parameterType="java.lang.Long">
 		update task_failqueue
 			set
-				--update_time=NOW(),
 				update_time=NOW(),
 				fail_status = 2
 		where YN=1 and failqueue_id = #{id}
@@ -108,7 +102,6 @@
 			yn,fail_status,excute_count,excute_time
 		from task_failqueue
 		where YN=1 AND excute_count <![CDATA[<=]]> 5
-			--AND excute_time <![CDATA[<=]]> NOW()
 			AND excute_time <![CDATA[<=]]> NOW()
 			AND fail_status in (0,3)
 		<if test="fetchNum != null">
@@ -181,7 +174,7 @@
 				1 as yn,
 				0 as fail_status,
 				0 as excute_count,
-				(NOW()+ 60/(24*60)) as excute_time
+				timestampadd(HOUR ,1,NOW())
 	            from dual
 	        </foreach>
         ) A 
