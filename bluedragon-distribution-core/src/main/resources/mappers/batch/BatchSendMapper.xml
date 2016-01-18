@@ -28,7 +28,7 @@
               AND send_car_operate_time<![CDATA[<]]>to_date(to_char(#{sendCarOperateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
               AND send_car_state<![CDATA[<>]]>#{sendCarState,jdbcType=INTEGER}
     </update>
-    <select id="readBySendCode" parameterType="String" resultType="com.jd.bluedragon.distribution.batch.domain.BatchSend">
+    <select id="readBySendCode" parameterType="String" resultMap="batchSend">
     SELECT id, batch_code, create_site_code,receive_site_code,send_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,send_car_operate_time,send_car_state,
 			yn
