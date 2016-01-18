@@ -61,9 +61,6 @@
 	</sql>
 	
 	<select id="findPage" resultMap="loadBill" parameterType="map">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		SELECT
 		id, load_id, waybill_code, package_barcode, order_id, dms_name,
 		send_time, send_code, truck_no, approval_code, 
@@ -72,9 +69,7 @@
 		<include refid="Base_Where_List" />
 		ORDER BY CREATE_TIME
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	
