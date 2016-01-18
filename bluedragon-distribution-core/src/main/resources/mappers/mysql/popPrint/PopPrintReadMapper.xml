@@ -37,7 +37,6 @@
 	</resultMap>
 	
 	<select id="findLimitListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
-	<select id="findLIMIT ListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
 		SELECT 
 			p.id, p.waybill_code, p.create_site_code, p.print_pack_code, 
 			p.print_pack_time, p.print_invoice_code, p.print_invoice_time,

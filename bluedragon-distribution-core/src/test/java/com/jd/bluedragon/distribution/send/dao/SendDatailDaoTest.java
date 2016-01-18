@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.send.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
 public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
@@ -29,7 +28,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testGetSendDatailsWithoutMeasures() {
         Map parameter = new HashMap();
-        sendDatailDao.getSendDatailsWithoutMeasures(parameter);
+        sendDatailDao.getSendDatailsWithoutMeasures(100);
     }
 	
 	@Test
@@ -45,7 +44,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(205);
         parameter.setReceiveSiteCode(227);
         parameter.setBoxCode("Stone");
-        sendDatailDao.UpdatewaybillCodeStatus(parameter);
+        sendDatailDao.updatewaybillCodeStatus(parameter);
     }
 	
 	@Test
@@ -119,8 +118,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindUpdatewaybillCodeMessage() {
-        Map parameter = new HashMap();
-        sendDatailDao.findUpdatewaybillCodeMessage(parameter);
+        sendDatailDao.findUpdatewaybillCodeMessage();
     }
 	
 	@Test
@@ -194,7 +192,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         parameter.setWaybillCode("Jax");
         parameter.setCreateSiteCode(233);
         parameter.setReceiveSiteCode(377);
-        sendDatailDao.UpdateMessageTotmsStatus(parameter);
+        sendDatailDao.updateMessageTotmsStatus(parameter);
     }
 	
 	@Test
@@ -243,7 +241,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBoxCode("Mary");
         parameter.setCreateSiteCode(987);
         parameter.setReceiveSiteCode(922);
-        sendDatailDao.updateCancelStasus(parameter);
+        sendDatailDao.updateCancel(parameter);
     }
 	
 	@Test
@@ -330,7 +328,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(437);
         parameter.setReceiveSiteCode(203);
         parameter.setPackageBarcode("Jax");
-        sendDatailDao.update(parameter);
+        sendDatailDao.update(SendDatailDao.namespace, parameter);
     }
 	
 	@Test
@@ -357,7 +355,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
     public void testQuerySendCodesByWaybills() {
         SendDetail parameter = new SendDetail();
         parameter.setWaybillCode("Jax");
-        sendDatailDao.querySendCodesByWaybills(parameter);
+        sendDatailDao.querySendCodesByWaybills("Jax");
     }
 	
 	@Test
@@ -385,17 +383,17 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPackageNum(27);
         parameter.setWaybillCode("Jax");
         parameter.setPickupCode("Jone");
-        parameter.setSendType(198);
+        parameter.setSendType(30);
         parameter.setCreateSiteCode(731);
         parameter.setReceiveSiteCode(171);
         parameter.setCreateUser("James");
         parameter.setCreateUserCode(521);
         parameter.setOperateTime(new Date());
-        parameter.setIsCancel(334);
+        parameter.setIsCancel(0);
         parameter.setSpareReason("Stone");
-        parameter.setIsLoss(787);
-        parameter.setFeatureType(345);
-        sendDatailDao.add(parameter);
+        parameter.setIsLoss(1);
+        parameter.setFeatureType(3);
+        sendDatailDao.add(SendDatailDao.namespace, parameter);
     }
 	
 	@Test

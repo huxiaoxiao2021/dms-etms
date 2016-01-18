@@ -50,6 +50,10 @@
 	</sql>
 	<insert id="add"
 		parameterType="com.jd.bluedragon.distribution.receive.domain.CenConfirm">
+		<selectKey resultType="long"  keyProperty="confirmId" order="BEFORE" statementType="PREPARED">      
+			<![CDATA[SELECT dms_core_cen_confirm.NEXTVAL FROM DUAL]]>
+	    </selectKey>
+		
 		insert into cen_confirm (confirm_id, send_code,
 		receive_user,
 		receive_user_code, create_time, create_site_code,
@@ -66,7 +70,7 @@
 		operate_time,receive_time,operate_user,operate_user_code
 		)
 		values
-		(SEQ_CEN_CONFIRM.NEXTVAL,
+		(#{confirmId},
 		#{sendCode,jdbcType=VARCHAR},
 		#{receiveUser,jdbcType=VARCHAR},
 		#{receiveUserCode,jdbcType=INTEGER},

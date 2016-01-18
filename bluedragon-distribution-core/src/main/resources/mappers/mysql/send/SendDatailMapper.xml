@@ -31,12 +31,16 @@
 	<resultMap id="SendDetailList" type="java.lang.String" />
 	
   	<insert id="add" parameterType="SendDetail" >
+  		<selectKey resultType="long"  keyProperty="sendDId" order="BEFORE" statementType="PREPARED">      
+			<![CDATA[select dms_core_send_d.nextval]]>
+	    </selectKey>
+  	
 	    INSERT INTO Send_d (
 	    	send_d_id, send_code, box_code, package_barcode, package_num, waybill_code,pickup_code, send_type,
 			create_site_code, receive_site_code, create_user, create_user_code,create_time, operate_time, update_time,
 			sendd_status, is_cancel,excute_count, excute_time,  weight, yn, spare_reason, is_loss, feature_type)
 	    VALUES (
-	    	SEQ_SEND_D.NEXTVAL, #{sendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
+	    	#{sendDId}, #{sendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		    #{packageBarcode,jdbcType=VARCHAR}, #{packageNum,jdbcType=INTEGER}, #{waybillCode,jdbcType=VARCHAR},
 			#{pickupCode,jdbcType=VARCHAR}, #{sendType,jdbcType=INTEGER},
 			#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},

@@ -1,15 +1,16 @@
 package com.jd.bluedragon.distribution.inspection.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-import java.util.List;
+import com.jd.bluedragon.distribution.box.dao.BoxDao;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 
 public class InspectionDaoTest extends AbstractDaoIntegrationTest{
@@ -82,8 +83,8 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBoxCode("Stone");
         parameter.setPackageBarcode("Jim");
         parameter.setExceptionType("Jax");
-        parameter.setInspectionType(946);
-        parameter.setOperateType(486);
+        parameter.setInspectionType(50);
+        parameter.setOperateType(1);
         parameter.setCreateUser("Stone");
         parameter.setCreateUserCode(276);
         parameter.setCreateTime(new Date());
@@ -93,23 +94,23 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUserCode(542);
         parameter.setCreateTime(new Date());
         parameter.setThirdWaybillCode("Mary");
-        parameter.setPopFlag(284);
+        parameter.setPopFlag(1);
         parameter.setPopSupId(830);
         parameter.setPopSupName("Joe");
         parameter.setQuantity(285);
         parameter.setCrossCode("James");
-        parameter.setWaybillType(282);
-        parameter.setPopReceiveType(546);
+        parameter.setWaybillType(1);
+        parameter.setPopReceiveType(3);
         parameter.setQueueNo("Jim");
         parameter.setDriverCode("Stone");
         parameter.setDriverName("Jone");
         parameter.setBusiId(639);
         parameter.setBusiName("Stone");
-        inspectionDao.add(parameter);
+        inspectionDao.add(InspectionDao.namespace, parameter);
     }
 	
 	@Test
-    public void testQueryForObject() {
+    public void testQueryForObject() throws Exception {
         Inspection parameter = new Inspection();
         parameter.setThirdWaybillCode("Jax");
         parameter.setInspectionId((long)1709);
@@ -170,7 +171,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
     }
 	
 	@Test
-    public void testSelectSelective() {
+    public void testSelectSelective() throws Exception {
         Inspection parameter = new Inspection();
         parameter.setThirdWaybillCode("Stone");
         parameter.setInspectionId((long)8216);
@@ -201,12 +202,6 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(204);
         parameter.setReceiveSiteCode(796);
         inspectionDao.inspectionCount(parameter);
-    }
-	
-	@Test
-    public void testSelectByPrimaryKey() {
-        Long inspectionId = (long)6650;
-        inspectionDao.selectByPrimaryKey(inspectionId);
     }
 	
 	@Test
@@ -251,12 +246,13 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPackageBarcode("Mary");
         parameter.setCreateSiteCode(215);
         parameter.setReceiveSiteCode(662);
-        inspectionDao.update(parameter);
+        inspectionDao.update(BoxDao.namespace, parameter);
     }
 	
 	@Test
     public void testFindPopByWaybillCodes() {
-        inspectionDao.findPopByWaybillCodes();
+		List parameter = new ArrayList();
+        inspectionDao.findPopByWaybillCodes(parameter);
     }
 	
 	@Test
@@ -273,14 +269,14 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
     }
 	
 	@Test
-    public void testUpdateStatusBatchByPrimaryKey() {
+    public void testUpdateStatusBatchByPrimaryKey() throws Exception {
         List parameter = new ArrayList();
         //set property for record.inspectionId
         inspectionDao.updateStatusBatchByPrimaryKey(parameter);
     }
 	
 	@Test
-    public void testUpdateByBoxPackageBarcode() {
+    public void testUpdateByBoxPackageBarcode() throws Exception {
         Map parameter = new HashMap();
         // parameter.put("waybillCode", new Object());
         // parameter.put("status", new Object());
@@ -294,7 +290,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("yn", new Object());
         // parameter.put("boxCode", new Object());
         // parameter.put("packageBarcode", new Object());
-        inspectionDao.updateByBoxPackageBarcode(parameter);
+        inspectionDao.updateByBoxPackageBarcode("222", "ss");
     }
 	
 	@Test

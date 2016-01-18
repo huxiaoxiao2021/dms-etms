@@ -30,6 +30,11 @@
 	</resultMap>
 	
 	<insert id="add" parameterType="sorting" >
+	
+		<selectKey resultType="long"  keyProperty="id" order="BEFORE" statementType="PREPARED">      
+			<![CDATA[select dms_core_sorting.nextval]]>
+	    </selectKey>
+	    
 		INSERT INTO Sorting (
 			sorting_id, bsend_code , box_code, package_code, waybill_code, pickup_code, 
 			sorting_type, create_site_code, receive_site_code,
@@ -37,7 +42,7 @@
 			create_time, update_time, operate_time, is_cancel, excute_count, excute_time, 
 			sorting_status, yn, spare_reason, is_loss, feature_type)
 		VALUES (
-			SEQ_SORTING.NEXTVAL, #{bsendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
+			#{id}, #{bsendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR}, #{pickupCode,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
 			#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},

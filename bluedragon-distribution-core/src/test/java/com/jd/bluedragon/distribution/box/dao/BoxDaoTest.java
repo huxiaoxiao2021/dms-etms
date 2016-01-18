@@ -1,14 +1,10 @@
 package com.jd.bluedragon.distribution.box.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 
 public class BoxDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -19,9 +15,8 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         Box parameter = new Box();
-        parameter.setId((long)7626);
         parameter.setCode("James");
-        parameter.setType("James");
+        parameter.setType("1");
         parameter.setCreateSiteCode(691);
         parameter.setCreateSiteName("Mary");
         parameter.setReceiveSiteCode(288);
@@ -30,9 +25,9 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateUser("Jim");
         parameter.setCreateUserCode(781);
         parameter.setCreateUser("Jim");
-        parameter.setTransportType(667);
+        parameter.setTransportType(3);
         parameter.setMixBoxType(60);
-        boxDao.add(parameter);
+        boxDao.add(BoxDao.namespace, parameter);
     }
 	
 	@Test

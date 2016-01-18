@@ -207,8 +207,6 @@
 	    <include refid="where_condition"/>
 	    <if test="limitNo!=null and startNo!=null">
 	    	AND LIMIT ${limitNo}
-	    <if test="LIMIT No!=null and startNo!=null">
-	    	AND LIMIT ${LIMIT No}
 	    </if>
   </select>
   
@@ -301,7 +299,7 @@
   
   <insert id="add" parameterType="Inspection" >
   	<selectKey resultType="long"  keyProperty="inspectionId" order="BEFORE" statementType="PREPARED">      
-		<![CDATA[SELECT SEQ_INSPECTION.NEXTVAL FROM DUAL]]>
+		<![CDATA[select dms_core_inspection.nextval]]>
     </selectKey>
     INSERT into inspection (
     <include refid="Base_Column_List"/>

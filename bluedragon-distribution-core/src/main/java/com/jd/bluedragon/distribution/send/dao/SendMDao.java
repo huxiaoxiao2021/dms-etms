@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 
 public class SendMDao extends BaseDao<SendM>  {
 	
-	private static final String namespace = SendMDao.class.getName();
+	public static final String namespace = SendMDao.class.getName();
 	
 	public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();

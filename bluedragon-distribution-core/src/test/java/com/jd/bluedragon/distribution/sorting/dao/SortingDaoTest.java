@@ -1,15 +1,13 @@
 package com.jd.bluedragon.distribution.sorting.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
+import java.util.Date;
+import java.util.HashMap;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import java.util.HashMap;
 
 public class SortingDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -32,7 +30,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         HashMap parameter = new HashMap();
         // parameter.put("createSiteCode", new Object());
         // parameter.put("boxCode", new Object());
-        sortingDao.findPackCount(parameter);
+        sortingDao.findPackCount(11, "boxCode");
     }
 	
 	@Test
@@ -65,7 +63,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         HashMap parameter = new HashMap();
         // parameter.put("boxCode", new Object());
         // parameter.put("createSiteCode", new Object());
-        sortingDao.findBoxDescSite(parameter);
+        sortingDao.findBoxDescSite(11, "ss");
     }
 	
 	@Test
@@ -91,7 +89,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPackageCode("Joe");
         parameter.setCreateSiteCode(786);
         parameter.setReceiveSiteCode(911);
-        sortingDao.update(parameter);
+        sortingDao.update(SortingDao.namespace, parameter);
     }
 	
 	@Test
@@ -173,7 +171,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPackageCode("Stone");
         parameter.setWaybillCode("Jax");
         parameter.setPickupCode("Joe");
-        parameter.setType(767);
+        parameter.setType(30);
         parameter.setCreateSiteCode(131);
         parameter.setReceiveSiteCode(177);
         parameter.setCreateUserCode(37);
@@ -181,10 +179,10 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateUserCode(420);
         parameter.setCreateUser("Mary");
         parameter.setOperateTime(new Date());
-        parameter.setIsCancel(200);
+        parameter.setIsCancel(0);
         parameter.setSpareReason("Jone");
-        parameter.setIsLoss(764);
-        parameter.setFeatureType(27);
-        sortingDao.add(parameter);
+        parameter.setIsLoss(0);
+        parameter.setFeatureType(2);
+        sortingDao.add(SortingDao.namespace, parameter);
     }
 }
