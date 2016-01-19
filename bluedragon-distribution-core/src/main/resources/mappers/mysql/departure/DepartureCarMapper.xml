@@ -127,7 +127,7 @@
    	from DEPARTURE_CAR t where t.yn=1 and t.DEPART_TYPE=3
  	   <if test="startTime != null">
  	   and  t.CREATE_TIME between
-       to_date(#{startTime} ， 'yyyy-mm-dd hh24:mi:ss') and to_date(#{endTime}, 'yyyy-mm-dd hh24:mi:ss')
+       str_to_date(#{startTime} ， '%Y-%m-%d %H:%i:%s') and str_to_date(#{endTime}, '%Y-%m-%d %H:%i:%s')
         </if>
        <if test="sendUser != null">
         and t.send_user_code=#{sendUser}

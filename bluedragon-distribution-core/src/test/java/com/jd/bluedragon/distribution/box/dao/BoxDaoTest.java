@@ -15,7 +15,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         Box parameter = new Box();
-        parameter.setCode("James");
+        parameter.setCode("123");
         parameter.setType("1");
         parameter.setCreateSiteCode(691);
         parameter.setCreateSiteName("Mary");
@@ -32,17 +32,17 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindBoxByCode() {
-        String code = "James";
+        String code = "123";
         boxDao.findBoxByCode(code);
     }
 	
 	@Test
     public void testFindBoxesBySite() {
         Box parameter = new Box();
-        parameter.setType("Jone");
-        parameter.setCreateSiteCode(297);
-        parameter.setReceiveSiteCode(958);
-        parameter.setQuantity(641);
+        parameter.setType("1");
+        parameter.setCreateSiteCode(691);
+        parameter.setReceiveSiteCode(288);
+        parameter.setQuantity(1);
         boxDao.findBoxesBySite(parameter);
     }
 	
@@ -50,8 +50,8 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
     public void testReprint() {
         Box parameter = new Box();
         parameter.setUpdateUserCode(10);
-        parameter.setUpdateUser("James");
-        parameter.setCode("Jax");
+        parameter.setUpdateUser("James1");
+        parameter.setCode("123");
         boxDao.reprint(parameter);
     }
 	
@@ -59,36 +59,35 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
     public void testPrint() {
         Box parameter = new Box();
         parameter.setUpdateUserCode(159);
-        parameter.setUpdateUser("Mary");
-        parameter.setCode("Joe");
+        parameter.setUpdateUser("Mary1");
+        parameter.setCode("123");
         boxDao.print(parameter);
     }
 	
 	@Test
     public void testBatchUpdateStatus() {
         Box parameter = new Box();
-        parameter.setStatus(957);
-        parameter.setCode("Jim");
-        parameter.setCreateSiteCode(682);
+        parameter.setStatus(4);
+        parameter.setCode("123");
+        parameter.setCreateSiteCode(691);
         boxDao.batchUpdateStatus(parameter);
     }
 	
 	@Test
     public void testUpdateStatusByCodes() {
         Box parameter = new Box();
-        parameter.setStatus(594);
-        parameter.setUpdateUser("Mary");
+        parameter.setStatus(3);
+        parameter.setUpdateUser("123");
         parameter.setUpdateUserCode(352);
-        parameter.setCodes("Joe");
-        parameter.setStatus(463);
+        parameter.setCodes("123");
         boxDao.updateStatusByCodes(parameter);
     }
 	
 	@Test
     public void testFindBoxByBoxCode() {
         Box parameter = new Box();
-        parameter.setCode("Jim");
-        parameter.setCreateSiteCode(879);
+        parameter.setCode("123");
+        parameter.setCreateSiteCode(691);
         boxDao.findBoxByBoxCode(parameter);
     }
 }

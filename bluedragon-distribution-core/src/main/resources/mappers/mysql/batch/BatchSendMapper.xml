@@ -22,7 +22,7 @@
 	<update id="updateSendCarState" parameterType="batchSend">
         UPDATE batch_send SET
           send_car_state=#{sendCarState,jdbcType=INTEGER},
-          send_car_operate_time= str_to_date(#{sendCarOperateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+          send_car_operate_time= #{sendCarOperateTime, jdbcType=TIMESTAMP}
           WHERE
               send_code=#{sendCode,jdbcType=VARCHAR}
               AND send_car_operate_time <![CDATA[<]]> str_to_date(date_format(#{sendCarOperateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
@@ -33,7 +33,7 @@
 			update_user_code, update_user, create_time, update_time,send_car_operate_time,send_car_state,
 			yn
 		    FROM BATCH_SEND
-		    WHERE send_code=#{value,jdbcType=VARCHAR} and LIMIT 1 and yn=1
+		    WHERE send_code=#{value,jdbcType=VARCHAR} and yn=1  LIMIT 1
     </select>
 	<insert id="insertOne" parameterType="batchSend" >
 		INSERT INTO batch_send (
@@ -53,7 +53,7 @@
 			update_user_code, update_user, create_time, update_time,send_car_operate_time,send_car_state,
 			yn
 		    FROM BATCH_SEND
-		    WHERE batch_code=#{batchCode,jdbcType=VARCHAR} AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} and LIMIT 1
+		    WHERE batch_code=#{batchCode,jdbcType=VARCHAR} AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} LIMIT 1
 	</select>
 
 	<select id="findBatchSend" resultMap="batchSend" parameterType="com.jd.bluedragon.distribution.batch.domain.BatchSendRequest" >
