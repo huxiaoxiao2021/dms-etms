@@ -17,7 +17,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         Box parameter = new Box();
         parameter.setCode("James");
         parameter.setType("1");
-        parameter.setCreateSiteCode(691);
+        parameter.setCreateSiteCode(10);
         parameter.setCreateSiteName("Mary");
         parameter.setReceiveSiteCode(288);
         parameter.setReceiveSiteName("Jax");
