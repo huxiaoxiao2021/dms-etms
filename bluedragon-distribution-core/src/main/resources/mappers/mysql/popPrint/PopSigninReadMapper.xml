@@ -19,20 +19,11 @@
 	<select id="getPopSigninList"
 		parameterType="com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto"
 		resultMap="PopSigninMap">
-		<if test="start!=null">
-		SELECT *
-		FROM (SELECT A.*, ROWNUM RN
-		FROM (
-		</if>
-		SELECT * FROM dms.POP_SIGNIN t1
+		SELECT * FROM dms.POP_SIGNIN  t1
 		<include refid="where" />
 		<if test="start!=null">
-		) A WHERE LIMIT
-		#{end} )
-		WHERE RN <![CDATA[ > ]]>
-		#{start}
+		    WHERE LIMIT #{start} ,#{end} 
 		</if>
-		
 	</select>
 	<select id="getCount"
 		parameterType="com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto"
@@ -66,12 +57,10 @@
 				#{createUser,jdbcType=VARCHAR }
 			</if>
 			<if test="signStartTime != null and signStartTime!=''">
-				AND <![CDATA[ t1.OPERATE_TIME>=to_date(#{signStartTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.OPERATE_TIME>=str_to_date(#{signStartTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 			<if test="signEndTime != null and signEndTime!='' ">
-				AND <![CDATA[ t1.OPERATE_TIME<=to_date(#{signEndTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.OPERATE_TIME<=str_to_date(#{signEndTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 		</where>
 	</sql>

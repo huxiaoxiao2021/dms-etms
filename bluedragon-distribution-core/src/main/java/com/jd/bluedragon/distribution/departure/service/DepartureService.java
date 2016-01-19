@@ -50,8 +50,6 @@ public interface DepartureService {
 	 */
 	public List<SendBox> getSendBoxInfo(String boxCode, Integer siteCode);
 	
-	public List<SendDetail> getSendDatailsWithoutMeasures(Integer fetchNum);
-	
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails);
 	
 	public List<SendBox> getSendInfo(String sendCode);

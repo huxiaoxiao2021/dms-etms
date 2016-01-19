@@ -39,8 +39,8 @@
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=0  
 		and LIMIT 500
-		and sem.create_Time <= NOW() - interval '10' MINUTE
-		and sed.create_Time >= NOW() - interval '2' DAY
+		and sem.create_Time <= timestampadd(minute, -10, now())
+		and sed.create_Time >=  timestampadd(DAY, -2, now()) 
 		and mod(sed.send_d_id,8) in ${queueId}
 		]]>
 	</select>
@@ -51,11 +51,11 @@
 	</select>
 	
 	<select id="findSendBoxByWaybillCode" parameterType="java.util.Map" resultMap="SendDetail">
-		select send_code,box_code,package_barcode  
-		from (select send_code,box_code,package_barcode,row_number() over(partition by package_barcode order by create_time desc) rn 
+		select send_code,box_code,package_barcode
               from DMS.send_d
-              where yn = 1 and waybill_code = #{waybillCode}) t1 
-        where t1.rn = 1
+              where yn = 1 and waybill_code = #{waybillCode}
+              order by create_time desc
+        limit 1 
 	</select>
 	
 	<select id="findBySendCode" parameterType="map" resultMap="SendDetail">

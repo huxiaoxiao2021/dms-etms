@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;

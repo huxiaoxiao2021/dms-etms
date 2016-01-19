@@ -17,20 +17,6 @@ import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 public interface PopReceiveService {
 	
 	/**
-	 * 根据条件查询POP已打印未收货集合总数
-	 * @param paramMap
-	 * @return
-	 */
-	public int findTotalCount(Map<String, Object> paramMap);
-
-	/**
-	 * 根据条件查询POP已打印未收货集合
-	 * @param paramMap
-	 * @return
-	 */
-	public List<PopPrint> findListNoReceive(Map<String, Object> paramMap);
-	
-	/**
 	 * 根据运单号查询打印信息
 	 * @param waybillCode
 	 * @return
