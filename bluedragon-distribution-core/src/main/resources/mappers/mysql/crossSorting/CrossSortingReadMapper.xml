@@ -40,9 +40,6 @@
 	</sql>
 
 	<select id="findPageTask" resultMap="crossSorting" parameterType="map">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		SELECT
 		id, org_id, create_dms_code, create_dms_name,
 		destination_dms_code, destination_dms_name, mix_dms_code, mix_dms_name, 
@@ -51,9 +48,7 @@
 		<include refid="Base_Where_List" />
 		ORDER BY CREATE_TIME
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 

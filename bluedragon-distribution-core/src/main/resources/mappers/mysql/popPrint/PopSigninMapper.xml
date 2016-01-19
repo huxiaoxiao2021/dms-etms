@@ -17,8 +17,8 @@
 	</resultMap>
 	<insert id="insert" parameterType="PopSignin">
 		INSERT INTO
-		POP_SIGNIN(ID,QUEUE_NO,THIRD_WAYBILL_CODE,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,EXPRESS_CODE,EXPRESS_NAME,CREATE_SITE_CODE,CREATE_SITE_NAME,CREATE_TIME,UPDATE_TIME,YN)
-		VALUES(SEQ_POP_SIGNIN.Nextval,
+		POP_SIGNIN(QUEUE_NO,THIRD_WAYBILL_CODE,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,EXPRESS_CODE,EXPRESS_NAME,CREATE_SITE_CODE,CREATE_SITE_NAME,CREATE_TIME,UPDATE_TIME,YN)
+		VALUES(
 		#{queueNo,jdbcType=VARCHAR},
 		#{thirdWaybillCode,jdbcType=VARCHAR},
 		#{createUserCode,jdbcType=INTEGER},
@@ -61,18 +61,10 @@
 	<select id="getPopSigninList"
 		parameterType="com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto"
 		resultMap="PopSigninMap">
-		<if test="start!=null">
-		SELECT *
-		FROM (SELECT A.*, ROWNUM RN
-		FROM (
-		</if>
-		SELECT * FROM POP_SIGNIN t1
+		SELECT * FROM dms.POP_SIGNIN  t1
 		<include refid="where" />
 		<if test="start!=null">
-		) A WHERE LIMIT
-		#{end} )
-		WHERE RN <![CDATA[ > ]]>
-		#{start}
+		    WHERE LIMIT #{start} ,#{end} 
 		</if>
 		
 	</select>
@@ -108,12 +100,10 @@
 				#{createUser,jdbcType=VARCHAR }
 			</if>
 			<if test="signStartTime != null and signStartTime!=''">
-				AND <![CDATA[ t1.OPERATE_TIME>=to_date(#{signStartTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.OPERATE_TIME>=str_to_date(#{signStartTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 			<if test="signEndTime != null and signEndTime!='' ">
-				AND <![CDATA[ t1.OPERATE_TIME<=to_date(#{signEndTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.OPERATE_TIME<=str_to_date(#{signEndTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 		</where>
 	</sql>

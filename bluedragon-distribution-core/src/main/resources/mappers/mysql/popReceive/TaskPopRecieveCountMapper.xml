@@ -109,8 +109,4 @@
 			AND LIMIT #{fetchNum}
 		</where>
     </select>	
-	
-	
-
-
 </mapper>

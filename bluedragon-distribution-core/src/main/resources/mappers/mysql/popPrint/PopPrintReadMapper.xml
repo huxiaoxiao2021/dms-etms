@@ -48,10 +48,8 @@
 		FROM DMS.pop_print p 
 		WHERE p.yn = 1 
 			AND p.operate_type = 1
-			AND p.create_time <![CDATA[ <= ]]> NOW() - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
-			AND p.create_time <![CDATA[ >= ]]> NOW() - #{limitHour, jdbcType=VARCHAR}/24
-			AND p.create_time <![CDATA[ <= ]]> NOW() - #{LIMIT Min, jdbcType=VARCHAR}/(24 * 60)
-			AND p.create_time <![CDATA[ >= ]]> NOW() - #{LIMIT Hour, jdbcType=VARCHAR}/24
+			AND p.create_time <![CDATA[ <= ]]> timestampadd(minute, -#{limitMin, jdbcType=VARCHAR}, now())
+			AND p.create_time <![CDATA[ >= ]]> timestampadd(hour, -#{limitHour, jdbcType=VARCHAR}, now())
 			<choose>
 				<when test="ownSign == 'PRE'">
 					AND p.pop_receive_type = 4

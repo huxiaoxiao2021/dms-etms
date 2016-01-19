@@ -776,16 +776,6 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	/**
-	 * 获得没有重量的箱子列表
-	 * 
-	 * @return
-	 */
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<SendDetail> getSendDatailsWithoutMeasures(Integer fetchNum) {
-		return sendDatailDao.getSendDatailsWithoutMeasures(fetchNum);
-	}
-
-	/**
 	 * 批次更新包裹重量
 	 */
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails) {

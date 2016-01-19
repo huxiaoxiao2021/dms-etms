@@ -434,6 +434,7 @@ public class InspectionResource {
 		queryParam.setInspectionTime(DateHelper
 				.parseDateTime(inspectionFCRequest.getEndTime()));// end
 		queryParam.setWaybillCode(inspectionFCRequest.getWaybillCode());
+		queryParam.setCreateSiteCode(inspectionFCRequest.getSiteCode());
 		List<CenConfirm> cenConfirms = cenConfirmService
 				.queryHandoverInfo(queryParam);
 		if (cenConfirms != null && !cenConfirms.isEmpty()) {

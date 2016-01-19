@@ -20,14 +20,13 @@
 		<result column="UPDATE_TIME" property="updateTime" />
 	</resultMap>
 	<select id="getCurrentWaitNo" resultType="int" parameterType="int">
-		select max(WAIT_NO) from POP_QUEUE where to_char(CREATE_TIME,'yyyy-mm-dd')=to_char(NOW(),'yyyy-mm-dd') and create_site_code = #{createSiteCode}
+		select max(WAIT_NO) from POP_QUEUE where date_format(CREATE_TIME,'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d') and create_site_code = #{createSiteCode}
 	</select>
 
 	<insert id="insertPopQueue" parameterType="popQueue">
 		insert into
-		POP_QUEUE(ID,QUEUE_NO,CREATE_SITE_CODE,CREATE_SITE_NAME,QUEUE_TYPE,EXPRESS_CODE,EXPRESS_NAME,QUEUE_STATUS,WAIT_NO,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,CREATE_TIME,UPDATE_TIME,YN)
+		POP_QUEUE(QUEUE_NO,CREATE_SITE_CODE,CREATE_SITE_NAME,QUEUE_TYPE,EXPRESS_CODE,EXPRESS_NAME,QUEUE_STATUS,WAIT_NO,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,CREATE_TIME,UPDATE_TIME,YN)
 		VALUES(
-		SEQ_POP_QUEUE.Nextval,
 		#{queueNo,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{createSiteName,jdbcType=VARCHAR},
@@ -70,16 +69,9 @@
 	<select id="getPopQueueList"
 		parameterType="com.jd.bluedragon.distribution.api.request.PopQueueQuery"
 		resultMap="popQueueMap">
-		SELECT *
-		FROM (SELECT A.*, ROWNUM RN
-		FROM (
 		SELECT * FROM POP_QUEUE t1
 		<include refid="where"/>
-		) A
-		WHERE LIMIT
-		#{end} )
-		WHERE RN <![CDATA[ > ]]>
-		#{start}
+		WHERE LIMIT #{start} ,#{end}
 	</select>
 	<select id="getCount"
 		parameterType="com.jd.bluedragon.distribution.api.request.PopQueueQuery" resultType="int">
@@ -102,12 +94,10 @@
 				and t1.EXPRESS_CODE = #{expressCode,jdbcType=VARCHAR }
 			</if>
 			<if test="printStartTime != null and printStartTime!=''">
-				AND <![CDATA[ t1.OPERATE_TIME>=to_date(#{printStartTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.OPERATE_TIME>=str_to_date(#{printStartTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 			<if test="printEndTime != null and printEndTime!='' ">
-				AND <![CDATA[ t1.OPERATE_TIME<=to_date(#{printEndTime,jdbcType=TIMESTAMP },'yyyy-mm-dd
-				hh24:mi:ss')]]>
+				AND <![CDATA[ t1.OPERATE_TIME<=str_to_date(#{printEndTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
 			</if>
 		</where>
 </sql>

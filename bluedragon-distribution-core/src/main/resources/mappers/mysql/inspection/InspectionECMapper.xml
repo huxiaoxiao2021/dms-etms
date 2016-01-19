@@ -295,7 +295,7 @@
   	FROM inspection_e_c
   	<include refid="whereCondition"/>
   	<if test="startNo != null and limitNo != null">
-  	AND LIMIT ${LIMIT No}
+  	AND LIMIT ${limitNo}
   	</if>
   	ORDER BY check_id DESC
   </select>
@@ -373,7 +373,7 @@
 		</if>
 		AND sm.yn=1
 	)
-	AND ROWNUM <![CDATA[<]]> 100
+	AND LIMIT 100
   </select>
   
   <select id="queryListByBox" resultMap="BaseResultMap"  parameterType="InspectionEC">
@@ -457,9 +457,6 @@
 	</select>
 	
 	<select id="queryThirdByParams" resultMap="BaseResultMap"  parameterType="java.util.Map">
-	<if test="startIndex != null">
-		select * from ( select t.*, rownum l from (
-	</if>
   	SELECT
 	<include refid="Base_Column_Alias_List"/>
 	FROM inspection_e_c iec 
@@ -512,8 +509,7 @@
 	</if>
 	AND iec.exception_status NOT IN( 3,4,5,6 )
 	<if test="startIndex != null">
-		) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-	) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+	  where LIMIT #{startIndex},#{endIndex}
 	</if>	
 
   </select>

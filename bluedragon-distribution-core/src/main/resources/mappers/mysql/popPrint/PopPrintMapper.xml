@@ -37,7 +37,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-		id, waybill_code, create_site_code, print_pack_code,
+		waybill_code, create_site_code, print_pack_code,
 		print_pack_time,print_invoice_code, print_invoice_time, 
 		create_time, update_time, yn, print_pack_user, 
 		print_invoice_user, pop_sup_id, pop_sup_name, quantity,
@@ -58,25 +58,21 @@
             </if>
             <if test="isPackOrInvoice == 1">
                 <if test="startTime != null">
-                    and p.print_pack_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
-                    hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                    and p.print_pack_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
                 </if>
                 <if test="endTime != null">
-                    and p.print_pack_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
-                    hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                    and p.print_pack_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
                 </if>
             </if>
             <if test="isPackOrInvoice == 2">
                 <if test="startTime != null">
-                    and p.print_invoice_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP},
-                    'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                    and p.print_invoice_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
                 </if>
                 <if test="endTime != null">
-                    and p.print_invoice_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
-                    hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                    and p.print_invoice_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
                 </if>
             </if>
-            and p.create_time <![CDATA[>=]]> NOW() - interval '7' DAY
+            and p.create_time <![CDATA[>=]]> timestampadd(day, -5, now()) 
             and p.waybill_code is not null
             and i.waybill_code is null
         </where>
@@ -92,14 +88,12 @@
     </select>
 
     <select id="findSitePrintDetail" resultMap="popPrint" parameterType="java.util.Map">
-        SELECT * FROM
-           (SELECT rownum num,alldata.* FROM
-              (SELECT
+        SELECT
               <include refid="Base_Column_List"/>
                FROM pop_print
               WHERE create_site_code=#{createSiteCode,jdbcType=INTEGER}
-               AND create_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
-               AND create_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+               AND create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+               AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
                <if test="popReceiveType != null and popReceiveType !=0">
                AND pop_receive_type = #{popReceiveType,jdbc="INTEGER"}
                </if>
@@ -109,17 +103,16 @@
                <if test="queueNo!=null">
                AND queue_no = #{queueNo,jdbcType=VARCHAR}
                </if>
-              ORDER BY id ) alldata
-        WHERE <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]> )
-        WHERE  <![CDATA[num >]]> #{startIndex, jdbcType=INTEGER}
+              ORDER BY id 
+              LIMIT  #{startIndex, jdbcType=INTEGER} , #{endIndex, jdbcType=INTEGER} 
     </select>
 
     <select id="findSitePrintDetailCount" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT count(p.id)
         FROM pop_print p
         WHERE create_site_code=#{createSiteCode,jdbcType=INTEGER}
-          AND create_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
-		AND create_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+          AND create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+		AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 		<if test="popReceiveType != null and popReceiveType !=0" >
             AND pop_receive_type = #{popReceiveType,jdbc="INTEGER"}
         </if>
@@ -139,61 +132,31 @@
         WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
     </select>
 
-    <select id="findTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
-        SELECT
-        count(p.id)
-        from pop_print p
-        left join inspection i on p.waybill_code = i.waybill_code and i.inspection_type = 40 and i.yn = 1
-        <include refid="Base_Where_List"/>
-    </select>
-
-    <select id="findListNoReceive" resultMap="popPrint"
-            parameterType="java.util.Map">
-        <if test="startIndex != null">
-            select * from ( select t.*, rownum l from (
-        </if>
-        select
-        p.waybill_code, p.create_site_code, p.print_pack_code,
-        p.print_pack_time, p.print_invoice_code, p.print_invoice_time
-        from pop_print p
-        left join inspection i on p.waybill_code = i.waybill_code and i.inspection_type = 40
-        <include refid="Base_Where_List"/>
-        order by p.id desc
-        <if test="startIndex != null">
-            ) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-            ) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
-        </if>
-    </select>
-
     <select id="findLimitListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
-        SELECT
-        p.id, p.waybill_code, p.create_site_code, p.print_pack_code,
-        p.print_pack_time, p.print_invoice_code, p.print_invoice_time,
-        p.print_pack_user, p.print_invoice_user, p.pop_sup_id, p.pop_sup_name,
-        p.quantity, p.cross_code, p.waybill_type, p.pop_receive_type,
-        p.third_waybill_code, p.queue_no, p.package_barcode, p.operate_type,
-        p.create_user, p.create_user_code, p.box_code, p.DRIVER_CODE, p.DRIVER_NAME,
-        p.busi_id, p.busi_name
-        FROM pop_print p
-        WHERE p.yn = 1
-        AND p.operate_type = 1
-        AND p.create_time <![CDATA[ <= ]]> NOW() - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
-        AND p.create_time <![CDATA[ >= ]]> NOW() - #{limitHour, jdbcType=VARCHAR}/24
-        AND p.create_time <![CDATA[ <= ]]> NOW() - #{LIMIT Min, jdbcType=VARCHAR}/(24 * 60)
-        AND p.create_time <![CDATA[ >= ]]> NOW() - #{LIMIT Hour, jdbcType=VARCHAR}/24
-        <choose>
-            <when test="ownSign == 'PRE'">
-                AND p.pop_receive_type = 4
-                AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
-                i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
-            </when>
-            <otherwise>
-                AND p.pop_receive_type <![CDATA[ < ]]> 4
-                AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
-                i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
-            </otherwise>
-        </choose>
-        AND LIMIT #{fetchNum, jdbcType=INTEGER}
+        SELECT 
+			p.id, p.waybill_code, p.create_site_code, p.print_pack_code, 
+			p.print_pack_time, p.print_invoice_code, p.print_invoice_time,
+			p.print_pack_user, p.print_invoice_user, p.pop_sup_id, p.pop_sup_name, 
+			p.quantity, p.cross_code, p.waybill_type, p.pop_receive_type,
+			p.third_waybill_code, p.queue_no, p.package_barcode, p.operate_type, 
+			p.create_user, p.create_user_code, p.box_code, p.DRIVER_CODE, p.DRIVER_NAME,
+			p.busi_id, p.busi_name
+		FROM DMS.pop_print p 
+		WHERE p.yn = 1 
+			AND p.operate_type = 1
+			AND p.create_time <![CDATA[ <= ]]> timestampadd(minute, -#{limitMin, jdbcType=VARCHAR}, now())
+			AND p.create_time <![CDATA[ >= ]]> timestampadd(hour, -#{limitHour, jdbcType=VARCHAR}, now())
+			<choose>
+				<when test="ownSign == 'PRE'">
+					AND p.pop_receive_type = 4
+					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code and p.create_site_code=i.create_site_code  AND p.package_barcode = i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
+				</when>
+				<otherwise>
+					AND p.pop_receive_type <![CDATA[ < ]]> 4
+					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code and p.create_site_code=i.create_site_code  AND p.package_barcode = i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
+				</otherwise>
+			</choose>
+			AND LIMIT #{fetchNum, jdbcType=INTEGER}
     </select>
 
     <insert id="add" parameterType="PopPrint">
@@ -201,7 +164,7 @@
         <include refid="Base_Column_List"/>
         )
         values (
-        SEQ_POP_PRINT.NEXTVAL, #{waybillCode, jdbcType=VARCHAR},
+        #{waybillCode, jdbcType=VARCHAR},
         #{createSiteCode, jdbcType=INTEGER}, #{printPackCode, jdbcType=INTEGER},
         #{printPackTime, jdbcType=TIMESTAMP}, #{printInvoiceCode, jdbcType=INTEGER},
         #{printInvoiceTime, jdbcType=TIMESTAMP},
@@ -228,7 +191,7 @@
                         print_count = #{printCount,jdbcType=INTEGER},
                     </when>
                     <otherwise>
-                        print_count = NVL(print_count, 0) + 1,
+                        print_count = IFNULL(print_count, 0) + 1,
                     </otherwise>
                 </choose>
             </if>

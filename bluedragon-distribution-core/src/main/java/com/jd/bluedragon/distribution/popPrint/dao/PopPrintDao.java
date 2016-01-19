@@ -86,29 +86,4 @@ public class PopPrintDao extends BaseDao<PopPrint> {
         return this.getSqlSession().update(namespace + ".updateByWaybillOrPack", popPrint);
     }
 
-    /**
-     * 根据条件查询POP已打印未收货总数
-     *
-     * @param paramMap
-     * @return
-     */
-    public int findTotalCount(Map<String, Object> paramMap) {
-        Object obj = this.getSqlSession().selectOne(namespace + ".findTotalCount", paramMap);
-        int totalCount = (Integer) ((obj == null) ? 0 : obj);
-        return totalCount;
-    }
-
-    /**
-     * 根据条件查询POP已打印未收货集合
-     *
-     * @param paramMap
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public List<PopPrint> findListNoReceive(Map<String, Object> paramMap) {
-        Object obj = this.getSqlSession().selectList(namespace + ".findListNoReceive", paramMap);
-        List<PopPrint> popPrints = (List<PopPrint>) ((obj == null) ? null : obj);
-        return popPrints;
-    }
-
 }
