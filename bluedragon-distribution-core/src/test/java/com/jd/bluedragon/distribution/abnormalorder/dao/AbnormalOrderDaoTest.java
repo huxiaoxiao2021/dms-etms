@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.abnormalorder.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
+import java.util.Date;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+
+import junit.framework.Assert;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
@@ -20,12 +20,13 @@ public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
     public void testUpdateResult() {
         AbnormalOrder parameter = new AbnormalOrder();
         parameter.setMemo("Joe");
-        parameter.setIsCancel(834);
-        parameter.setOrderId("Stone");
-        abnormalOrderDao.updateResult(parameter);
+        parameter.setIsCancel(2);
+        parameter.setOrderId("11111");
+        int i = abnormalOrderDao.updateResult(parameter);
+        Assert.assertEquals(1, i);
     }
 	
-	@Test
+	//@Test
     public void testUpdate() {
         AbnormalOrder parameter = new AbnormalOrder();
         parameter.setFingerprint("Jim");
@@ -40,22 +41,24 @@ public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteName("Mary");
         parameter.setOperateTime(new Date());
         parameter.setMemo("Jax");
-        parameter.setIsCancel(902);
-        parameter.setOrderId("Jim");
-        abnormalOrderDao.update(parameter);
+        parameter.setIsCancel(1);
+        parameter.setOrderId("11111");
+        int i = abnormalOrderDao.updateSome(parameter);
+        Assert.assertEquals(1, i);
     }
 	
-	@Test
+	//@Test
     public void testGet() {
-        String orderId = "Mary";
-        abnormalOrderDao.get(orderId);
+        String orderId = "11111";
+        AbnormalOrder abnormalOrder = abnormalOrderDao.query(orderId);
+        Assert.assertNotNull(abnormalOrder);
     }
 	
-	@Test
+	//@Test
     public void testAdd() {
         AbnormalOrder parameter = new AbnormalOrder();
         parameter.setFingerprint("Jax");
-        parameter.setOrderId("James");
+        parameter.setOrderId("11111");
         parameter.setAbnormalCode1(366);
         parameter.setAbnormalReason1("Jax");
         parameter.setAbnormalCode2(797);
@@ -67,6 +70,7 @@ public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(589);
         parameter.setCreateSiteName("Stone");
         parameter.setMemo("Jim");
-        abnormalOrderDao.add(parameter);
+        int i = abnormalOrderDao.insert(parameter);
+        Assert.assertEquals(1, i);
     }
 }

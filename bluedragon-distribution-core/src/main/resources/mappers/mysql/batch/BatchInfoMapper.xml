@@ -33,21 +33,18 @@
 		SELECT id, batch_code, create_site_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,yn
 		FROM batchinfo WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		AND LIMIT 1
-		AND yn = 1
-		AND create_time = (SELECT MAX (create_time)
-		                    FROM batchinfo
-	                    	WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		                    AND yn = 1)
+        AND yn = 1 
+		order by create_time desc                     
+		LIMIT 1
 	</select>
 
 	<select id="findBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
 		SELECT batch_code, create_site_code, create_time, update_time
 		FROM batchinfo
 		WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		AND LIMIT 1
 		and update_time is null
 		AND yn = 1
+		LIMIT 1
 	</select>
 
     <select id="findCurrent" resultMap="batchInfo" parameterType="java.util.Map" >
@@ -55,7 +52,6 @@
 			update_user_code, update_user
         FROM batchinfo
         WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
-        AND LIMIT 1
         AND yn = 1
         AND create_time <![CDATA[<=]]> str_to_date(date_format(#{operateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
         AND (
@@ -63,6 +59,7 @@
               OR
               update_time <![CDATA[=]]> str_to_date(date_format(#{minTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
              )
+         LIMIT 1
     </select>
 	<select id="findAllBatchInfo" resultMap="batchInfo" parameterType="batchInfo" >
 		SELECT batch_code, create_site_code, create_time, update_time,create_user, create_user_code,
@@ -83,12 +80,12 @@
 			update_user_code, update_user, create_time, update_time,yn
 		FROM batchinfo
 		WHERE yn = 1 AND batch_code = #{batchCode}
-			AND LIMIT 1
+		LIMIT 1
 	</select>
 
     <update id="update" parameterType="batchInfo" >
         UPDATE batchinfo
-        SET update_time = str_to_date(date_format(#{updateTime, jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        SET update_time = #{updateTime, jdbcType=TIMESTAMP}
         WHERE  batch_code =  #{batchCode,jdbcType=VARCHAR}
     </update>
 

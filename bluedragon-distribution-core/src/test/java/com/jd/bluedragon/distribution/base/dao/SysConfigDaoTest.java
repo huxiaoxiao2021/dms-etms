@@ -1,14 +1,11 @@
 package com.jd.bluedragon.distribution.base.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 
 public class SysConfigDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -29,11 +26,12 @@ public class SysConfigDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testQueryByKey() {
+		Map<String, Object> params = new HashMap<String, Object>();
         SysConfig parameter = new SysConfig();
         parameter.setConfigName("Stone");
         // parameter.getStartIndex(new Object());
         // parameter.getPageSize(new Object());
-        sysConfigDao.queryByKey(parameter);
+        sysConfigDao.queryByKey(params);
     }
 	
 	@Test
@@ -58,7 +56,7 @@ public class SysConfigDaoTest extends AbstractDaoIntegrationTest{
         parameter.setConfigContent("Joe");
         parameter.setConfigOrder(799);
         parameter.setMemo("Jax");
-        sysConfigDao.add(parameter);
+        sysConfigDao.add(SysConfigDao.namespace,parameter);
     }
 	
 	@Test
@@ -71,7 +69,7 @@ public class SysConfigDaoTest extends AbstractDaoIntegrationTest{
         parameter.setMemo("Jone");
         parameter.setConfigId((long)8101);
         parameter.setConfigName("Jim");
-        sysConfigDao.update(parameter);
+        sysConfigDao.update(SysConfigDao.namespace,parameter);
     }
 	
 	@Test
@@ -83,6 +81,6 @@ public class SysConfigDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testGet() {
         Long config_id = (long)1074;
-        sysConfigDao.get(config_id);
+        sysConfigDao.get(SysConfigDao.namespace,config_id);
     }
 }
