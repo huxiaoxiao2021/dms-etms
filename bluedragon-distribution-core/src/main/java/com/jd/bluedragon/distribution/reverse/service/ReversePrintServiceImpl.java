@@ -144,7 +144,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             InvokeResult<Waybill> result = this.waybillCommonService.getReverseWaybill(oldWaybillCode);
             targetResult.setCode(result.getCode());
             targetResult.setMessage(result.getMessage());
-            if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
+            if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                 targetResult.setData(result.getData().getWaybillCode());
             }
             return targetResult;

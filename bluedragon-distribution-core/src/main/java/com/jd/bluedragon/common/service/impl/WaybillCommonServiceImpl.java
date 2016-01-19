@@ -146,11 +146,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     oldWaybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
-                if (Waybill.isInvalidWaybill(waybill)) {
+                /*if (Waybill.isInvalidWaybill(waybill)) {
                     this.logger.error("运单号【 " + oldWaybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
                     result.customMessage(-1,"运单缺少必要数据");
                     return result;
-                }
+                }*/
             }
             if(logger.isInfoEnabled()) {
                 this.logger.info("运单号【 " + oldWaybillCode + "】调用运单JSF数据成功");
