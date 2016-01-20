@@ -414,7 +414,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
              * 全程跟踪:回传 撤销封车信息至运单中心
              */
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_CANCEL_VEHICLE).equals(task.getKeyword2())){
-                toWaybillStatus3(tWaybillStatus, bdTraceDto);              
+                toWaybillStatus2(tWaybillStatus, bdTraceDto);              
                 bdTraceDto.setOperatorDesp("货物已取消封车");
                 this.logger.info("向运单系统回传全程跟踪，已撤销封车：" );
                 String sendCodes = tWaybillStatus.getSendCode();

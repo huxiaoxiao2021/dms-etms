@@ -81,6 +81,15 @@
                  protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
 	</jsf:consumer>
 	
+	<!-- 运力编码Vts系统 李胜涛  -->
+	<jsf:consumer id="vtsQueryWS" interface="com.jd.etms.vts.ws.VtsQueryWS" protocol="jsf" 
+    			   alias="${vst.jsf.alias}" serialization="hessian" timeout="10000" retries="0"> 
+    </jsf:consumer>
+    
+    <bean id="vtsQueryWSProxy" class="com.jd.etms.vts.proxy.impl.VtsQueryWSProxyImpl" >
+        <property name="vtsQueryWS" ref="vtsQueryWS"></property>
+    </bean>
+	
     <!-- 车辆管理系统 VMS 系统 李胜涛  -->
 	<jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
                  protocol="jsf" alias="${vms.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">

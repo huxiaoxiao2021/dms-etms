@@ -1,4 +1,7 @@
 package com.jd.bluedragon;
+
+import oracle.sql.CHAR;
+
 public class Constants {
     
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
@@ -134,6 +137,7 @@ public class Constants {
     public static final Integer POP_LBP = 23;
     public static final Integer POP_SOPL = 25;
     public static final Integer ORDER_TYPE_B = 10000;
+    public static final char WAYBILL_SIGN_B='3';
     
     public static final Integer POP_SOP_EMS_CODE = 999999999;
     public static final String POP_SOP_EMS_NAME = "EMS全国直发";
@@ -266,6 +270,9 @@ public class Constants {
      * 省市县镇默认值
      */
     public static final Integer DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE=0;
+    
+    //运力编码京东自营 -1
+    public static final String JDZY = "-1";
 
     //endregion
 }
