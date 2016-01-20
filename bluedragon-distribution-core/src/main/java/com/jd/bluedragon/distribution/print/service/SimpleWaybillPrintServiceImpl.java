@@ -180,8 +180,8 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         baseDmsStore.setDmsId(waybill.getOriginalDmsCode());//分拣中心编号
         CrossPackageTagNew tag = null;
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
-        if(waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
-                && !waybill.getPrepareSiteCode().equals(ComposeService.PREPARE_SITE_CODE_EMS_DIRECT)){
+        if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
+                && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
             BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode());
             if(BaseResult.SUCCESS==baseResult.getResultCode()&&null!=baseResult.getData()) {
                 tag=baseResult.getData();
@@ -209,7 +209,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 waybill.setIsAir(this.airTransportService.getAirSigns(waybill.getBusiId()));
             }
             //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
-            if(tag.getIsZiTi().equals(ComposeService.ARAYACAK_CABINET)){
+            if(null!=tag.getIsZiTi()&&tag.getIsZiTi().equals(ComposeService.ARAYACAK_CABINET)){
                 waybill.setIsSelfService(true);
                 waybill.setPrintAddress(tag.getPrintAddress());
             }
