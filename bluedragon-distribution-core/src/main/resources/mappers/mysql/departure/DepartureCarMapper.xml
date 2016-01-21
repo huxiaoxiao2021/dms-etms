@@ -87,13 +87,13 @@
         WHERE LIMIT 1
     </select>
 
-    <insert id="insert" parameterType="DepartureCar">
-		insert into departure_car (departure_car_id, car_code, shields_car_code,
+    <insert id="insert" parameterType="DepartureCar" useGeneratedKeys="true" keyProperty="shieldsCarId">
+		insert into departure_car (car_code, shields_car_code,
 		send_user, send_user_code,
 		create_site_code, create_time, create_user,
 		create_user_code, update_time, yn, weight, volume, send_user_type,fingerprint,old_car_code,depart_type,
 		run_number,receive_site_codes,capacity_Code)
-		values (#{shieldsCarId,jdbcType=BIGINT}, #{carCode,jdbcType=VARCHAR},
+		values ( #{carCode,jdbcType=VARCHAR},
 		#{shieldsCarCode,jdbcType=VARCHAR}, #{sendUser,jdbcType=VARCHAR},
 		#{sendUserCode,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUser,jdbcType=VARCHAR},
@@ -111,10 +111,6 @@
 		send_user,send_user_code,create_site_code, create_time, create_user,
 		create_user_code, update_time, yn, weight, volume, send_user_type
 	</sql>
-
-	<select id="getSeqNextVal" resultType="Long">
-		select SEQ_DEPARTURE_CAR.NEXTVAL as id from dual
-	</select>
 
 	<select id="findDepartureCarByFingerprint" resultMap="BaseResultMap" parameterType="map" >
         SELECT departure_car_id

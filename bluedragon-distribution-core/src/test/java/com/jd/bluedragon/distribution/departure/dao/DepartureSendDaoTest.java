@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.departure.dao;
 
+import java.util.List;
+
 import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,28 +15,30 @@ public class DepartureSendDaoTest extends AbstractDaoIntegrationTest{
 	private DepartureSendDao departureSendDao;
 	
 	
-	@Test
+	//@Test
     public void testInsert() {
         DepartureSend parameter = new DepartureSend();
-        parameter.setShieldsCarId((long)8435);
-        parameter.setSendCode("Jax");
-        parameter.setCreateSiteCode(719);
+        parameter.setShieldsCarId((long)234);
+        parameter.setSendCode("2222");
+        parameter.setCreateSiteCode(346);
         parameter.setCreateUser("Jax");
         parameter.setCreateUserCode(442);
         parameter.setThirdWaybillCode("Jone");
         parameter.setCapacityCode("Jim");
-        departureSendDao.insert(parameter);
+        Assert.assertEquals(1, departureSendDao.insert(parameter));
     }
 	
-	@Test
+	//@Test
     public void testGetDepartureSendByCarId() {
-        Long departureCarId] = (long)3288;
-        departureSendDao.getDepartureSendByCarId(departureCarId]);
+        Long departureCarId = (long)234;
+        List<DepartureSend> list = departureSendDao.getDepartureSendByCarId(departureCarId);
+        Assert.assertNotNull(list);
     }
 	
 	@Test
     public void testGetByThirdWaybillCode() {
-        String thirdWaybillCode] = "Jim";
-        departureSendDao.getByThirdWaybillCode(thirdWaybillCode]);
+        String thirdWaybillCode = "Jone";
+        List<DepartureSend> list = departureSendDao.getByThirdWaybillCode(thirdWaybillCode);
+        Assert.assertNotNull(list);
     }
 }

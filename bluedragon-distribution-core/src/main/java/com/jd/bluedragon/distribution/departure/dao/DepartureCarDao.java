@@ -15,10 +15,6 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
 		return this.getSqlSession().insert(namespace + ".insert", record);
 	}
 	
-	public Long getSeqNextVal() {
-		return (Long) this.getSqlSession().selectOne(namespace + ".getSeqNextVal");
-	}
-	
 	@SuppressWarnings("unchecked")
 	public List<DepartureCar> findDepartureCarByFingerprint(DepartureCar departureCar) {
 	   return this.getSqlSession().selectList(namespace + ".findDepartureCarByFingerprint",

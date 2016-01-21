@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
+import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
 
 public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -17,18 +18,18 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
 	private DepartureCarDao departureCarDao;
 	
 	
-	//@Test
+	@Test
     public void testQueryDepartureInfoBySendCode() {
 		List<String> sendCodes = new ArrayList<String>();
-		sendCodes.add("123456789");
-		sendCodes.add("1234567891");
-        departureCarDao.queryDepartureInfoBySendCode(sendCodes);
+		sendCodes.add("1111");
+		sendCodes.add("2222");
+		List<DeparturePrintResponse> list = departureCarDao.queryDepartureInfoBySendCode(sendCodes);
+		Assert.assertNotNull(list);
     }
 	
 	//@Test
     public void testInsert() {
         DepartureCar parameter = new DepartureCar();
-        parameter.setShieldsCarId((long)2);
         parameter.setCarCode("Jone");
         parameter.setShieldsCarCode("Jone");
         parameter.setSendUser("James");
@@ -48,12 +49,9 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
         parameter.setRunNumber(38);
         parameter.setReceiveSiteCodes("Joe");
         parameter.setCapacityCode("Jax");
-        Assert.assertEquals(1, departureCarDao.insert(parameter));
-    }
-	
-	//@Test
-    public void testGetSeqNextVal() {
-        departureCarDao.getSeqNextVal();
+        int  i = departureCarDao.insert(parameter);
+        System.out.println(parameter.getShieldsCarId());
+        Assert.assertEquals(1, i);
     }
 	
 	//@Test
@@ -62,16 +60,17 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
         departureCarDao.updatePrintTime(departureCarId);
     }
 	
-	//@Test
+	@Test
     public void testQueryArteryBillingInfo() {
-        Long carCode = (long)1;
+        Long carCode = (long)234;
         departureCarDao.queryArteryBillingInfo(carCode);
     }
 	
 	//@Test
     public void testQueryDeliveryInfoByOrderCode() {
-        String orderCode = "123456789";
-        departureCarDao.queryDeliveryInfoByOrderCode(orderCode);
+        String orderCode = "3333";
+        List<DeparturePrintResponse> list = departureCarDao.queryDeliveryInfoByOrderCode(orderCode);
+        Assert.assertNotNull(list);
     }
 	
 	//@Test
