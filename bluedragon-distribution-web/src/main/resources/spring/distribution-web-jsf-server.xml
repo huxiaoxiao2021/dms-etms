@@ -162,4 +162,9 @@
 				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService" 
 				  alias="${dms.jsf.alias}"/>
 
+    <!-- 分拣中心内部系统jsf接口 -->
+    <bean id="dmsInternalService" class="com.jd.bluedragon.distribution.saf.DmsInternalServiceImpl" />
+    <jsf:provider id="jsfDmsInternalService" server="dmsjsf" ref="dmsInternalService"
+                  interface="com.jd.bluedragon.distribution.internal.service.DmsInternalService"
+                  alias="${dms.jsf.internal.alias}"/>
 </beans>

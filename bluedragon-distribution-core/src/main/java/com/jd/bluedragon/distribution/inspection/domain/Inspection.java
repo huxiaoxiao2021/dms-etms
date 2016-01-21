@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.utils.DateHelper;
 
+
 /**
  * 验货表 db: db_dms
  * @author wangzichen
@@ -47,6 +48,9 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 
     /*创建时间*/
     private Date createTime;
+
+    /*操作时间*/
+    private Date operateTime;
 
     /*操作单位Code*/
     private Integer createSiteCode;
@@ -140,6 +144,14 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 	private Float high;
 	//包裹体积
 	private Float volume;
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
+    }
 
     public String getQueueNo() {
 		return queueNo;
@@ -536,8 +548,10 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		inspection.setHigh(requestBean.getHigh());
 		inspection.setVolume(requestBean.getVolume());
 		Date operateTime = StringUtils.isBlank(requestBean.getOperateTime())?new Date():DateHelper.getSeverTime(requestBean.getOperateTime());
-		inspection.setCreateTime(operateTime);
-		inspection.setUpdateTime(operateTime);
+        Date createTime = new Date();
+        inspection.setOperateTime(operateTime);
+		inspection.setCreateTime(createTime);
+		inspection.setUpdateTime(createTime);
 		return inspection;
 	}
 

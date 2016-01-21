@@ -30,7 +30,6 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
@@ -97,22 +96,20 @@ public class ReverseReceiveNotifyStockService {
 	private StockExportManager stockExportManager;
 	
 	public Long receive(String message) {
-		if (JsonHelper.isJson(message, ReverseReceiveRequest.class)) {
-			return -1L;
+		
+		if (XmlHelper.isXml(message, ReverseReceiveRequest.class, null)) {
+			ReverseReceiveRequest request = (ReverseReceiveRequest) XmlHelper.toObject(message,
+					ReverseReceiveRequest.class);
+
+			if (request == null) {
+				this.logger.warn("消息序列化出现异常, 消息：" + message);
+			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())
+					&& ReverseReceive.RECEIVE.equals(request.getCanReceive())) {
+				return new Long(request.getOrderId());
+			} else {
+				this.logger.info("消息来源：" + request.getReceiveType());
+			}
 		}
-
-		ReverseReceiveRequest request = (ReverseReceiveRequest) XmlHelper
-				.toObject(message, ReverseReceiveRequest.class);
-
-		if (request == null) {
-			this.logger.warn("消息序列化出现异常, 消息：" + message);
-		} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())
-				&& ReverseReceive.RECEIVE.equals(request.getCanReceive())) {
-			return new Long(request.getOrderId());
-		} else {
-			this.logger.info("消息来源：" + request.getReceiveType());
-		}
-
 		return -1L;
 	}
 

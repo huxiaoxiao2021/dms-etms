@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
-import com.jd.preseparate.vo.BaseRequest;
-
 /**
  * Created by yanghongqiang on 2015/11/30.
  */
-public class LabelPrintingRequest  extends BaseRequest {
+public class LabelPrintingRequest   {
 
     /**
      *
