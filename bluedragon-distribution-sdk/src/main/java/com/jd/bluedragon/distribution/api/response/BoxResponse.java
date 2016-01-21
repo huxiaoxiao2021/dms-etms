@@ -2,9 +2,13 @@ package com.jd.bluedragon.distribution.api.response;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 
+import javax.print.DocFlavor;
+
 public class BoxResponse extends JdResponse {
 
 	private static final long serialVersionUID = 6421643159029953636L;
+
+
 
 	public static final Integer CODE_BOX_NOT_FOUND = 20101;
 	public static final String MESSAGE_BOX_NOT_FOUND = "无箱号信息";
@@ -14,7 +18,12 @@ public class BoxResponse extends JdResponse {
 
 	public static final Integer CODE_BOX_SENDED = 20104;
 	public static final String MESSAGE_BOX_SENDED = "此箱号已经发货";
-	
+
+    public static final Integer CODE_SITE_SENDED = 20105;
+    public static final String MESSAGE_SITE_SENDED = "此箱号对应站点异常";
+
+
+
 	/** 全局唯一ID */
 	private Long id;
 
@@ -47,7 +56,18 @@ public class BoxResponse extends JdResponse {
 	/** 箱子的路由信息 */
 	private String[] routerInfo;
 
-	public Integer getTransportType() {
+    /** 站点类型**/
+    private Integer siteType;
+
+    public Integer getSiteType() {
+        return siteType;
+    }
+
+    public void setSiteType(Integer siteType) {
+        this.siteType = siteType;
+    }
+
+    public Integer getTransportType() {
 		return transportType;
 	}
 
