@@ -267,5 +267,6 @@ public class Constants {
      */
     public static final Integer DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE=0;
 
+    public static final String T_WAYBILL = "T"; // 正向物流发货
     //endregion
 }

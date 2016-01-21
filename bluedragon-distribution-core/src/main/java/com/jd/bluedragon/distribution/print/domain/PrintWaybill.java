@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.domain;
 
-import java.beans.Transient;
 import java.io.Serializable;
 import java.util.List;
 

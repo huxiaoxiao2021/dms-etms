@@ -1,14 +1,19 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.RejectRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReject;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
@@ -21,6 +26,9 @@ public class ReverseRejectConsumer extends MessageBaseConsumer {
 
 	@Autowired
 	private ReverseRejectService reverseRejectService;
+	
+	@Autowired
+    private SendDatailDao sendDatailDao;
 
 	@Override
 	public void consume(Message message) throws Exception {
@@ -40,6 +48,13 @@ public class ReverseRejectConsumer extends MessageBaseConsumer {
 
 		ReverseReject reverseReject = new ReverseReject();
 		BeanHelper.copyProperties(reverseReject, request);
+		
+		//添加订单处理，判断是否是T单 2016-1-8
+		SendDetail tsendDatail = new SendDetail();
+		tsendDatail.setWaybillCode(Constants.T_WAYBILL + request.getOrderId());
+		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+		if (sendDatailist != null && !sendDatailist.isEmpty())
+			request.setOrderId(Constants.T_WAYBILL + request.getOrderId());
 
 		this.reverseRejectService.reject(reverseReject);
 	}
