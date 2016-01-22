@@ -98,7 +98,7 @@
 	<select id="findByPackageBarcode" parameterType="String" resultMap="loadBill">
 		SELECT id
 		FROM load_bill
-		WHERE yn = 1 AND package_barcode = #{packageBarcode,jdbcType=VARCHAR} AND LIMIT 1
+		WHERE yn = 1 AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}  LIMIT 1
 	</select>
 
     <update id="updateLoadBillById" parameterType="java.util.Map">
@@ -120,55 +120,9 @@
     </select>
 
     <select id="selectPreLoadBillId" resultType="java.lang.Long">
-        SELECT SEQ_PRE_LOAD_BILL.NEXTVAL FROM dual
+       select dms_core_box.nextval
     </select>
 
-	<insert id="addBatch" parameterType="list">
-		INSERT INTO load_bill ( 
-			load_id, warehouse_id, waybill_code, package_barcode,
-		    package_amount, order_id, box_code, dms_code, dms_name,
-			send_time, send_code, truck_no, approval_code, approval_time,
-			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
-			create_user_code, create_user, package_user_code, package_user,
-			package_time, remark, yn
-		) SELECT  A.* FROM(
-		<foreach collection="list" item="item" index="index" separator="UNION ALL"> 
-			<![CDATA[ 
-				SELECT 
-					#{item.loadId,jdbcType=VARCHAR} AS load_id, 
-					#{item.warehouseId,jdbcType=VARCHAR} AS warehouse_id, 
-					#{item.waybillCode,jdbcType=VARCHAR} AS waybill_code,
-					#{item.packageBarcode,jdbcType=VARCHAR} AS package_barcode,
-					#{item.packageAmount,jdbcType=INTEGER} AS package_amount,
-					#{item.orderId,jdbcType=VARCHAR} AS order_id,
-					#{item.boxCode,jdbcType=VARCHAR} AS box_code,
-					#{item.dmsCode,jdbcType=INTEGER} AS dms_code,
-					#{item.dmsName,jdbcType=VARCHAR} AS dms_name,
-					#{item.sendTime,jdbcType=TIMESTAMP} AS send_time,
-					#{item.sendCode,jdbcType=VARCHAR} AS send_code,
-					#{item.truckNo,jdbcType=VARCHAR} AS truck_no,
-					#{item.approvalCode,jdbcType=VARCHAR} AS approval_code,
-					#{item.approvalTime,jdbcType=TIMESTAMP} AS approval_time,
-					#{item.ctno,jdbcType=VARCHAR} AS ctno,
-					#{item.gjno,jdbcType=VARCHAR} AS gjno, 
-					#{item.tpl,jdbcType=VARCHAR} AS tpl, 
-					#{item.weight,jdbcType=DOUBLE} AS weight,
-					NOW() AS create_time,
-					NOW() AS update_time,
-					NOW() AS gen_time,
-					#{item.createUserCode,jdbcType=INTEGER} AS create_user_code,
-					#{item.createUser,jdbcType=VARCHAR} AS create_user,
-					#{item.packageUserCode,jdbcType=INTEGER} AS package_user_code,
-					#{item.packageUser,jdbcType=VARCHAR} AS package_user,
-					#{item.packageTime,jdbcType=TIMESTAMP} AS package_time,
-					#{item.remark,jdbcType=VARCHAR} AS remark,
-					1 AS yn
-				FROM dual 
-			]]> 
-		</foreach> 
-		) A 
-	</insert>
-	
 	<update id="updateLoadBillStatus" parameterType="map">
 		UPDATE load_bill
 		SET approval_code = #{approvalCode,jdbcType=INTEGER}
@@ -205,4 +159,65 @@
 		WHERE yn = 1 AND approval_code = 40
 		AND id = #{id}
 	</select>
+	
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="sendCodeList != null">
+				AND send_code IN
+				<foreach collection="sendCodeList" item="item" index="index" open="(" close=")" separator=",">
+					#{item}  
+				</foreach>
+			</if>
+			<if test="dmsCode != null">
+				AND dms_code = #{dmsCode,jdbcType=INTEGER}
+			</if>
+			<if test="approvalCode != null">
+				AND approval_code = #{approvalCode,jdbcType=INTEGER}
+			</if>
+			<if test="sendTimeFrom != null">
+				AND send_time >= #{sendTimeFrom,jdbcType=TIMESTAMP}
+			</if>
+			<if test="sendTimeTo != null">
+				AND send_time <![CDATA[<=]]> #{sendTimeTo,jdbcType=TIMESTAMP}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</sql>
+	
+	<select id="findPage" resultMap="loadBill" parameterType="map">
+		SELECT
+		id, load_id, waybill_code, package_barcode, order_id, dms_name,
+		send_time, send_code, truck_no, approval_code, 
+		approval_time, remark
+		FROM DMS.load_bill
+		<include refid="Base_Where_List" />
+		ORDER BY CREATE_TIME
+		<if test="startIndex != null">
+			LIMIT #{startIndex},#{endIndex}
+		</if>
+	</select>
+	
+	<select id="findCount" resultType="Integer" parameterType="map">
+		SELECT count(1)
+		FROM DMS.load_bill
+		<include refid="Base_Where_List" />
+	</select>
+
+
+
+    <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
+        SELECT waybill_code,box_code,approval_code,dms_code
+        FROM DMS.load_bill
+        WHERE
+          yn=1
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="boxCode != null">
+            AND box_code = #{boxCode,jdbcType=VARCHAR}
+        </if>
+    </select>
 </mapper>

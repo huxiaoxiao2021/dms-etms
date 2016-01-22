@@ -9,8 +9,12 @@ import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
+import com.jd.bluedragon.utils.StringHelper;
 
 public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -20,13 +24,13 @@ public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testUpdateLoadBillStatus() {
-        Map parameter = new HashMap();
-        // parameter.put("approvalCode", new Object());
-        // parameter.put("warehouseId", new Object());
-        // parameter.put("item", new Object());
-        // parameter.put("item", new Object());
-        // parameter.put("item", new Object());
-        loadBillDao.updateLoadBillStatus(parameter);
+		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
+		List<String> list = new ArrayList<String>();
+		list.add("a");
+			loadBillStatusMap.put("loadIdList", list);
+			loadBillStatusMap.put("warehouseId", "Jax");
+			loadBillStatusMap.put("approvalCode", LoadBill.FAILED);
+        loadBillDao.updateLoadBillStatus(loadBillStatusMap);
     }
 	
 	@Test
@@ -59,92 +63,64 @@ public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPackageUser("James");
         parameter.setPackageTime(new Date());
         parameter.setRemark("Stone");
-        parameter.setPackageBarcode("Jax");
         loadBillDao.update(parameter);
     }
 	
 	@Test
-    public void testSelectLoadBillById() {
-        List parameter = new ArrayList();
-        // parameter.getItem(new Object());
-        loadBillDao.selectLoadBillById(parameter);
+    public void i () {
+		List<Long> billId = new ArrayList<Long>();
+		billId.add(27426L);
+		List<LoadBill> list = loadBillDao.getLoadBills(billId);
+		 Assert.assertNotNull(list);
     }
 	
 	@Test
     public void testFindByPackageBarcode() {
-        String packageBarcode = "Jone";
-        loadBillDao.findByPackageBarcode(packageBarcode);
+        String packageBarcode = "Mary";
+        LoadBill bill = loadBillDao.findByPackageBarcode(packageBarcode);
+        Assert.assertNotNull(bill);
     }
 	
 	@Test
     public void testUpdateCancelLoadBillStatus() {
         LoadBill parameter = new LoadBill();
         parameter.setApprovalCode(95);
-        parameter.setWaybillCode("Joe");
-        parameter.setId((long)5028);
+        parameter.setWaybillCode("James");
+        parameter.setId((long)27426);
         loadBillDao.updateCancelLoadBillStatus(parameter);
     }
 	
 	@Test
     public void testFindLoadbillByID() {
-        Long id = (long)5224;
+        Long id = (long)27426;
         loadBillDao.findLoadbillByID(id);
     }
 	
 	@Test
     public void testUpdateLoadBillById() {
-        Map parameter = new HashMap();
-        // parameter.put("loadId", new Object());
-        // parameter.put("trunkNo", new Object());
-        // parameter.put("approvalCode", new Object());
-        // parameter.put("item", new Object());
-        loadBillDao.updateLoadBillById(parameter);
-    }
-	
-	@Test
-    public void testAddBatch() {
-        List parameter = new ArrayList();
-        //set property for item.loadId
-        //set property for item.warehouseId
-        //set property for item.waybillCode
-        //set property for item.packageBarcode
-        //set property for item.packageAmount
-        //set property for item.orderId
-        //set property for item.boxCode
-        //set property for item.dmsCode
-        //set property for item.dmsName
-        //set property for item.sendTime
-        //set property for item.sendCode
-        //set property for item.truckNo
-        //set property for item.approvalCode
-        //set property for item.approvalTime
-        //set property for item.ctno
-        //set property for item.gjno
-        //set property for item.tpl
-        //set property for item.weight
-        //set property for item.createUserCode
-        //set property for item.createUser
-        //set property for item.packageUserCode
-        //set property for item.packageUser
-        //set property for item.packageTime
-        //set property for item.remark
-        loadBillDao.addBatch(parameter);
+        // List<Long> billId,String trunkNo,String loadId,Integer approvalCode
+		List<Long> billId = new ArrayList<Long>();
+		billId.add(27426L);
+		String trunkNo ="a";
+		String loadId ="a";
+		Integer approvalCode =1;
+        loadBillDao.updatePreLoadBillById(billId,trunkNo,loadId,approvalCode);
     }
 	
 	@Test
     public void testAdd() {
         LoadBill parameter = new LoadBill();
-        parameter.setLoadId("Joe");
+        parameter.setLoadId("1");
         parameter.setWarehouseId("Jim");
-        parameter.setWaybillCode("James");
+        parameter.setWaybillCode("1111");
         parameter.setPackageBarcode("Mary");
         parameter.setPackageAmount(231);
-        parameter.setOrderId("Jone");
-        parameter.setBoxCode("Mary");
+        parameter.setOrderId("3333");
+        parameter.setBoxCode("2222");
         parameter.setDmsCode(330);
         parameter.setDmsName("Jone");
         parameter.setSendTime(new Date());
-        parameter.setSendCode("Jone");
+        parameter.setSendCode("2222");
         parameter.setTruckNo("Jone");
         parameter.setApprovalCode(162);
         parameter.setCtno("Mary");
@@ -162,6 +138,28 @@ public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testSelectPreLoadBillId() {
-        loadBillDao.selectPreLoadBillId();
+		for(int i=0;i<100;i++){
+		Long a =loadBillDao.selectPreLoadBillId();
+		System.out.println();
+		Assert.assertEquals(1, 1);
+		}
     }
+	
+	@Test
+    public void findPageLoadBill(){
+		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
+		
+		List<String> billId = new ArrayList<String>();
+		billId.add("1111");
+		billId.add("2222");
+			loadBillStatusMap.put("startIndex", 1);
+			loadBillStatusMap.put("endIndex", 3);
+			loadBillStatusMap.put("sendCodeList", billId);
+			loadBillStatusMap.put("dmsCode", "330");
+			loadBillStatusMap.put("approvalCode", "162");
+			loadBillStatusMap.put("sendTimeFrom", new Date());
+			loadBillStatusMap.put("sendTimeTo", new Date());
+			loadBillStatusMap.put("waybillCode", "1111");
+			loadBillDao.findPageLoadBill(loadBillStatusMap);
+	}
 }

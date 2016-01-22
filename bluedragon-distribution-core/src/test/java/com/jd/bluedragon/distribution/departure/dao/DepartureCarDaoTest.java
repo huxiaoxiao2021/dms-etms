@@ -18,7 +18,7 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
 	private DepartureCarDao departureCarDao;
 	
 	
-	@Test
+	//@Test
     public void testQueryDepartureInfoBySendCode() {
 		List<String> sendCodes = new ArrayList<String>();
 		sendCodes.add("1111");
@@ -54,9 +54,9 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertEquals(1, i);
     }
 	
-	//@Test
+	@Test
     public void testUpdatePrintTime() {
-        Long departureCarId = 1L;
+        Long departureCarId = 234L;
         departureCarDao.updatePrintTime(departureCarId);
     }
 	
@@ -73,29 +73,25 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertNotNull(list);
     }
 	
-	//@Test
-    public void testGetDepartureCarObj() {
-        Long departureCarId = (long)1;
-        departureCarDao.getDepartureCarObj(departureCarId);
-    }
-	
-	//@Test
+	@Test
     public void testFindDepartureCarByFingerprint() {
 		DepartureCar departureCar = new DepartureCar();
-		departureCar.setFingerprint("123");
-        departureCarDao.findDepartureCarByFingerprint(departureCar);
+		departureCar.setFingerprint("Mary");
+		List<DepartureCar> list = departureCarDao.findDepartureCarByFingerprint(departureCar);
+		Assert.assertNotNull(list);
     }
 	
-	//@Test
+	@Test
     public void testFindDepartureList() {
         DeparturePrintRequest parameter = new DeparturePrintRequest();
-        parameter.setStartTime("Mary");
-        parameter.setEndTime("Jone");
-        parameter.setSendUser("Jim");
-        parameter.setCarCode("Mary");
-        parameter.setCreate_code("James");
-        parameter.setThirdWaybillCode("James");
-        departureCarDao.findDepartureList(parameter);
+        parameter.setStartTime("2016-01-19 10:49:00");
+        parameter.setEndTime("2016-01-21 10:49:00");
+        parameter.setSendUser("524");
+        parameter.setCarCode("Jone");
+        parameter.setCreate_code("346");
+        parameter.setThirdWaybillCode("Jone");
+        List<DepartureCar> list =  departureCarDao.findDepartureList(parameter);
+        Assert.assertNotNull(list);
     }
 	
 	//@Test

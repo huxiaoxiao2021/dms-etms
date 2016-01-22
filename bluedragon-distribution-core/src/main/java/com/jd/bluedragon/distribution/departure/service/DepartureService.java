@@ -66,7 +66,6 @@ public interface DepartureService {
 	public List<DepartureSend> getDepartureSendByCarId(Long departureCarId);
 	public List<DepartureCar> findDepartureList(DeparturePrintRequest  departurPrintRequest);
 	
-	public DepartureCar getDepartureCarObj(long departureCarId);
 	public List<SendDetail> getWaybillsByDeparture(String code, Integer type);
 	
 	/**

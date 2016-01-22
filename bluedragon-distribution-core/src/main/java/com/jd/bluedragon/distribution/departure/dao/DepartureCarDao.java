@@ -26,10 +26,6 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
 		return this.getSqlSession().selectList(namespace + ".findDepartureList", departurPrintRequest);
 	}
 	
-	public DepartureCar getDepartureCarObj(long departureCarId){
-		return (DepartureCar)this.getSqlSession().selectOne(namespace + ".getDepartureCarObj", departureCarId);
-	}
-	
 	public boolean updatePrintTime(long departureCarId){
 		return this.getSqlSession().update(namespace + ".updatePrintTime", departureCarId)>0;
 	}

@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
@@ -20,51 +23,42 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testQuery() {
-        Map parameter = new HashMap();
-        // parameter.put("fetchNum", new Object());
-        // parameter.put("busiType", new Object());
-        taskFailQueueDao.query(parameter);
-    }
-	
-	@Test
-    public void testBatchInsert() {
-        List parameter = new ArrayList();
-        //set property for item.busiId
-        //set property for item.busiType
-        //set property for item.body
-        taskFailQueueDao.batchInsert(parameter);
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("fetchNum", 2);
+		param.put("busiType", 12);
+        taskFailQueueDao.query(param);
     }
 	
 	@Test
     public void testQuerySendDatail_SELF() {
-        List parameter = new ArrayList();
-        // parameter.getItems(new Object());
-        taskFailQueueDao.querySendDatail_SELF(parameter);
+		List<String> param =new ArrayList<String>();
+		param.add("1111");
+        taskFailQueueDao.querySendDatail_SELF(param);
     }
 	
 	@Test
     public void testQuerySendCodeByBusiId() {
-        List parameter = new ArrayList();
-        // parameter.getItems(new Object());
-        taskFailQueueDao.querySendCodeByBusiId(parameter);
+		List<Long> param = new ArrayList<Long>();
+		param.add((long)3437);
+        taskFailQueueDao.querySendCodeByBusiId(param);
     }
 	
 	@Test
     public void testUpdateSuccess() {
-        Long id = (long)8385;
+        Long id = (long)1;
         taskFailQueueDao.updateSuccess(id);
     }
 	
 	@Test
     public void testQueryBatch() {
-        List parameter = new ArrayList();
-        // parameter.getItems(new Object());
-        taskFailQueueDao.queryBatch(parameter);
+		List<Long> param = new ArrayList<Long>();
+		param.add((long)3437);
+        taskFailQueueDao.queryBatchByBusiId(param);
     }
 	
 	@Test
     public void testUpdateLock() {
-        Long id = (long)5282;
+        Long id = (long)1;
         taskFailQueueDao.updateLock(id);
     }
 	
@@ -72,18 +66,18 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
     public void testAdd() {
         TaskFailQueue parameter = new TaskFailQueue();
         parameter.setBusiId((long)3437);
-        parameter.setBusiType(554);
+        parameter.setBusiType(4);
         parameter.setBody("James");
-        taskFailQueueDao.add(parameter);
+        taskFailQueueDao.add(TaskFailQueueDao.namespace ,parameter);
     }
 	
 	@Test
     public void testUpdate() {
         TaskFailQueue parameter = new TaskFailQueue();
-        parameter.setBusiType(378);
+        parameter.setBusiType(12);
         parameter.setBody("Jone");
-        parameter.setBusiId((long)4247);
-        taskFailQueueDao.update(parameter);
+        parameter.setBusiId((long)3437);
+        taskFailQueueDao.update(TaskFailQueueDao.namespace ,parameter);
     }
 	
 	@Test
@@ -95,7 +89,7 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testUpdateFail() {
-        Long id = (long)9694;
+        Long id = (long)1;
         taskFailQueueDao.updateFail(id);
     }
 }

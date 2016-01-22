@@ -986,12 +986,6 @@ public class DepartureServiceImpl implements DepartureService {
 		return this.departureCarDao.findDepartureList(departurPrintRequest);
 	}
 	
-	public DepartureCar getDepartureCarObj(long departureCarId){
-		return this.departureCarDao.getDepartureCarObj(departureCarId);
-		
-		
-	}
-
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendDetail> getWaybillsByDeparture(String code, Integer type) {
 

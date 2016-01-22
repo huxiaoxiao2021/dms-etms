@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
@@ -19,11 +21,6 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
 		logger.info("LoadBillDao.updateLoadBillStatus loadId is " + loadBillStatusMap.get("loadIdList").toString());
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillStatus", loadBillStatusMap);
-	}
-
-	public int addBatch(List<LoadBill> loadBillList) {
-		logger.info("LoadBillDao.addBatch with number of loadBillList is " + loadBillList.size());
-		return this.getSqlSession().insert(LoadBillDao.namespace + ".addBatch", loadBillList);
 	}
 
     public List<LoadBill> getLoadBills(List<Long> billId){
@@ -62,4 +59,19 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	public int updateCancelLoadBillStatus(LoadBill loadBill) {
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateCancelLoadBillStatus", loadBill);
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LoadBill> findPageLoadBill(Map<String, Object> params) {
+		return (List<LoadBill>) super.getSqlSession().selectList(LoadBillDao.namespace + ".findPage", params);
+	}
+
+	public Integer findCountLoadBill(Map<String, Object> params) {
+		return (Integer) super.getSqlSession().selectOne(LoadBillDao.namespace + ".findCount", params);
+	}
+    @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public List<LoadBill> findWaybillInLoadBill(Map<String, Object> params) {
+        return (List<LoadBill>) super.getSqlSession().selectList(LoadBillDao.namespace + ".findWaybillinLoadBill", params);
+    }
 }

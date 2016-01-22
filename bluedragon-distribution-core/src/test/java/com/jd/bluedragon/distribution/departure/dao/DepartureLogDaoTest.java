@@ -29,8 +29,6 @@ public class DepartureLogDaoTest extends AbstractDaoIntegrationTest{
         parameter.setDistributeName("Jim");
         parameter.setOperatorCode(681);
         parameter.setOperatorName("James");
-        parameter.setDepartureTime(new Date());
-        parameter.setReceiveTime(new Date());
         parameter.setDepartureCarID((long)6316);
         parameter.setCapacityCode("Jim");
         parameter.setFingerPrint("Joe");

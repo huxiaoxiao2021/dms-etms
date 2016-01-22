@@ -27,7 +27,6 @@ public class DepartureTmpDaoTest extends AbstractDaoIntegrationTest{
         DepartureTmpRequest parameter = new DepartureTmpRequest();
         parameter.setBatchCode("James");
         parameter.setSendCode("Jax");
-        parameter.setOperateTime(new Date());
         parameter.setThirdWaybillCode("Jax");
         departureTmpDao.insert(parameter);
     }

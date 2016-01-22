@@ -1,10 +1,6 @@
 package com.jd.bluedragon.distribution.fBarCode.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +22,6 @@ public class FBarCodeDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateUser("Jax");
         parameter.setCreateUserCode(91);
         parameter.setCreateUser("James");
-        fBarCodeDao.add(parameter);
+        fBarCodeDao.add(FBarCodeDao.namespace , parameter);
     }
 }

@@ -9,10 +9,6 @@ public class BoxDao extends BaseDao<Box> {
 
     public static final String namespace = BoxDao.class.getName();
 
-    public Integer print(Box box) {
-        return super.getSqlSession().update(BoxDao.namespace + ".print", box);
-    }
- 
     public Integer reprint(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".reprint", box);
     } 
@@ -37,10 +33,6 @@ public class BoxDao extends BaseDao<Box> {
 
     public Integer updateStatusByCodes(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".updateStatusByCodes", box);
-    }
-
-    public Integer batchUpdateStatus(Box box) {
-        return super.getSqlSession().update(BoxDao.namespace + ".batchUpdateStatus", box);
     }
 
 }

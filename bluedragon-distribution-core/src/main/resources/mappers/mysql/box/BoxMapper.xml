@@ -79,24 +79,11 @@
 			AND box_status <![CDATA[<]]> #{status}
 	</update>
 
-	<update id="print"  parameterType="box">
-		UPDATE Box
-		SET times = (times + 1), update_user_code = #{updateUserCode,jdbcType=INTEGER},
-		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW(), box_status=1
-		WHERE box_code= #{code,jdbcType=VARCHAR}
-	</update>
-
 	<update id="reprint"  parameterType="box">
 		UPDATE Box
 		SET times = (times + 1), update_user_code = #{updateUserCode,jdbcType=INTEGER},
 		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE box_code= #{code,jdbcType=VARCHAR}  
-	</update>
-	
-	<update id="batchUpdateStatus"  parameterType="box" >
-		UPDATE Box
-		SET box_status = #{status,jdbcType=INTEGER}
-		WHERE box_code in ${code} and create_site_code = #{createSiteCode}
 	</update>
 	
 </mapper>
