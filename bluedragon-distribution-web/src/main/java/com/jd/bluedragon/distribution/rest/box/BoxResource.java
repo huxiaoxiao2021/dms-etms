@@ -190,18 +190,10 @@ public class BoxResource {
         this.logger.info("BoxRequest's " + request.toString());
 
         List<Box> availableBoxes = this.boxService.batchAdd(this.toBox(request));
-
-<<<<<<< Updated upstream
         com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result=new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
         AutoSortingBoxResult boxResult=new AutoSortingBoxResult();
         List<String> boxs=new ArrayList<String>(availableBoxes.size());
         for (Box item:availableBoxes){
-=======
-        InvokeResult<AutoSortingBoxResult> result = new InvokeResult<AutoSortingBoxResult>();
-        AutoSortingBoxResult boxResult = new AutoSortingBoxResult();
-        List<String> boxs = new ArrayList<String>(availableBoxes.size());
-        for (Box item : availableBoxes) {
->>>>>>> Stashed changes
             boxs.add(item.getCode());
         }
         boxResult.setBoxCode(boxs);
