@@ -202,6 +202,7 @@
                 <bean class="com.jd.bluedragon.distribution.print.service.ScheduleComposeServiceImpl"/>
                 <bean class="com.jd.bluedragon.distribution.print.service.SpecialMarkComposeServiceImpl"/>
                 <bean class="com.jd.bluedragon.distribution.print.service.SpecialSiteComposeServiceImpl"/>
+                <bean class="com.jd.bluedragon.distribution.print.service.PromiseComposeServiceImpl"/>
             </list>
         </property>
     </bean>

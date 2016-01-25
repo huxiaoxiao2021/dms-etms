@@ -109,6 +109,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
             commonWaybill.setRoad(tmsWaybill.getRoadCode());
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
+            commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);

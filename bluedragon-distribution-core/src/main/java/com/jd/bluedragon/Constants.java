@@ -1,6 +1,6 @@
 package com.jd.bluedragon;
 public class Constants {
-    
+    public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
     public static final String REST_KEY = "REST_KEY";
     

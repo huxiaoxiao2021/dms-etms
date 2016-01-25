@@ -6,10 +6,12 @@ import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 
@@ -19,6 +21,9 @@ import java.util.Date;
 public class PromiseComposeServiceImpl implements  ComposeService {
 
     private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);
+
+    @Autowired
+    private OrderMarkingService orderMarkingService;
 
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
@@ -37,9 +42,8 @@ public class PromiseComposeServiceImpl implements  ComposeService {
         }
 
         try {
-            if (request.getStartSiteType() != null && dmsCode != null
-                    && SerialRuleUtil.isMatchReceiveWaybillNo(waybill.getWaybillCode())
-                    && ((Constants.WAYBILL_SIGN_B!=waybill.getWaybillSign().charAt(1)&& NumberHelper.isNumber(waybill.getVendorId()))||Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))) {
+            if (SerialRuleUtil.isMatchReceiveWaybillNo(waybill.getWaybillCode())
+                    && ((Constants.WAYBILL_SIGN_B!=waybill.getWaybillSign().charAt(1)&& NumberHelper.isNumber(waybill.getOrderCode()))||Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))) {
 
                 log.debug("调用promise获取外单时效开始");
 
@@ -47,20 +51,17 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 if (Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))
                     orderMarkingRequest.setOrderId(Constants.ORDER_TYPE_B_ORDERNUMBER);//纯外单订单号设置为0
                 else
-                    orderMarkingRequest.setOrderId(Long.parseLong(waybill.getVendorId()));//订单号
+                    orderMarkingRequest.setOrderId(Long.parseLong(waybill.getOrderCode()));//订单号
                 orderMarkingRequest.setWaybillCode(waybill.getWaybillCode());//运单号
-                orderMarkingRequest.setOpeSiteId(request.dmsCode.toString());//分拣中心ID
-                orderMarkingRequest.setOpeSiteName(request.dmsName);//分拣中心名称
+                orderMarkingRequest.setOpeSiteId(dmsCode.toString());//分拣中心ID
+                orderMarkingRequest.setOpeSiteName(dmsCode.toString());//分拣中心名称
 
-                orderMarkingRequest.setOpesiteType(request.getStartSiteType()
-                        .equals(Constants.BASE_SITE_DISTRIBUTION_CENTER) ? Constants.PROMISE_DISTRIBUTION_CENTER
-                        : request.getStartSiteType().equals(Constants.BASE_SITE_SITE) ? Constants.PROMISE_SITE
-                        : Constants.PROMISE_DISTRIBUTION_B);
+                orderMarkingRequest.setOpesiteType( Constants.PROMISE_DISTRIBUTION_CENTER);
                 orderMarkingRequest.setSource(Constants.DISTRIBUTION_SOURCE);
-                orderMarkingRequest.setProvinceId(waybill.getProvinceId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getProvinceId());//省
-                orderMarkingRequest.setCityId(waybill.getCityId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getCityId());//市
-                orderMarkingRequest.setCountyId(waybill.getCountryId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getCountryId());//县
-                orderMarkingRequest.setTownId(waybill.getTownId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getTownId());//镇
+                orderMarkingRequest.setProvinceId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//省
+                orderMarkingRequest.setCityId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//市
+                orderMarkingRequest.setCountyId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//县
+                orderMarkingRequest.setTownId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
 //                }
                 log.debug("调用promise获取外单时效传入参数" + orderMarkingRequest == null ? "" : JsonHelper.toJson(orderMarkingRequest));
