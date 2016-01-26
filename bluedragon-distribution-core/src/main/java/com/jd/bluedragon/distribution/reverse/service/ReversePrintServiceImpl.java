@@ -15,6 +15,9 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +55,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private ReceiveManager receiveManager;
 
+
+    @Autowired
+    private WaybillPickupTaskApi waybillPickupTaskApi;
 
     @Autowired
     private SiteService siteService;
@@ -137,18 +143,34 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      */
     @Override
     public InvokeResult<String> getNewWaybillCode(String oldWaybillCode) {
-        if(SerialRuleUtil.isMatchReceiveWaybillNo(oldWaybillCode)){
-            return receiveManager.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
-        }else{
+        if(oldWaybillCode.toUpperCase().startsWith("Q")) {
             InvokeResult<String> targetResult=new InvokeResult<String>();
-            InvokeResult<Waybill> result = this.waybillCommonService.getReverseWaybill(oldWaybillCode);
-            targetResult.setCode(result.getCode());
-            targetResult.setMessage(result.getMessage());
-            if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
-                targetResult.setData(result.getData().getWaybillCode());
+
+            BaseEntity<PickupTask> result= waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
+            if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
+                targetResult.setData(result.getData().getSurfaceCode());
+            }else{
+                targetResult.customMessage(-1,"没有获取到新的取件单");
             }
             return targetResult;
         }
+        else{
+                InvokeResult<String> targetResult=new InvokeResult<String>();
+                InvokeResult<Waybill> result = this.waybillCommonService.getReverseWaybill(oldWaybillCode);
+                targetResult.setCode(result.getCode());
+                targetResult.setMessage(result.getMessage());
+                if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
+                    targetResult.setData(result.getData().getWaybillCode());
+                    return targetResult;
+                }
+
+                if(SerialRuleUtil.isMatchReceiveWaybillNo(oldWaybillCode)){
+                    return receiveManager.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
+                }else{
+                    return targetResult;
+                }
+        }
+
 
     }
 
