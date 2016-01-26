@@ -10,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,7 +107,7 @@ public class PopPrintResource {
 	@Path("/popPrint/savePopPrint")
 	public PopPrintResponse savePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !BusinessHelper.isWaybillCode(popPrintRequest.getWaybillCode())
+				|| !SerialRuleUtil.isMatchAllWaybillCode(popPrintRequest.getWaybillCode())
 				|| StringUtils.isBlank(popPrintRequest.getPackageBarcode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null

@@ -3,7 +3,7 @@ package com.jd.bluedragon;
 import oracle.sql.CHAR;
 
 public class Constants {
-    
+    public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
     public static final String REST_KEY = "REST_KEY";
     
@@ -274,5 +274,6 @@ public class Constants {
     //运力编码京东自营 -1
     public static final String JDZY = "-1";
 
+    public static final String T_WAYBILL = "T"; // 正向物流发货
     //endregion
 }
