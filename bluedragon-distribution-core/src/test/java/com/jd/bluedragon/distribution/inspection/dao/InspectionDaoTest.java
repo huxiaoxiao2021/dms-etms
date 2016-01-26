@@ -18,17 +18,6 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	@Autowired
 	private InspectionDao inspectionDao;
 	
-	
-	@Test
-    public void testQueryListByBox() {
-        Inspection parameter = new Inspection();
-        parameter.setBoxCode("Jone");
-        parameter.setInspectionType(953);
-        parameter.setCreateSiteCode(318);
-        parameter.setReceiveSiteCode(613);
-        inspectionDao.queryListByBox(parameter);
-    }
-	
 	@Test
     public void testFindBPopJoinTotalCount() {
         Map parameter = new HashMap();
@@ -79,16 +68,16 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
     public void testAdd() {
         Inspection parameter = new Inspection();
         parameter.setInspectionId((long)2738);
-        parameter.setWaybillCode("Joe");
-        parameter.setBoxCode("Stone");
-        parameter.setPackageBarcode("Jim");
-        parameter.setExceptionType("Jax");
+        parameter.setWaybillCode("Joe1");
+        parameter.setBoxCode("Stone1");
+        parameter.setPackageBarcode("Jim1");
+        parameter.setExceptionType("1");
         parameter.setInspectionType(50);
         parameter.setOperateType(1);
         parameter.setCreateUser("Stone");
         parameter.setCreateUserCode(276);
         parameter.setCreateTime(new Date());
-        parameter.setCreateSiteCode(596);
+        parameter.setCreateSiteCode(593);
         parameter.setReceiveSiteCode(204);
         parameter.setUpdateUser("James");
         parameter.setUpdateUserCode(542);
@@ -107,29 +96,6 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBusiId(639);
         parameter.setBusiName("Stone");
         inspectionDao.add(InspectionDao.namespace, parameter);
-    }
-	
-	@Test
-    public void testQueryForObject() throws Exception {
-        Inspection parameter = new Inspection();
-        parameter.setThirdWaybillCode("Jax");
-        parameter.setInspectionId((long)1709);
-        parameter.setWaybillCode("Jim");
-        parameter.setBoxCode("Jone");
-        parameter.setPackageBarcode("Jone");
-        parameter.setStatus(168);
-        parameter.setExceptionType("Joe");
-        parameter.setInspectionType(325);
-        parameter.setCreateUser("Jone");
-        parameter.setCreateUserCode(145);
-        parameter.setCreateTime(new Date());
-        parameter.setCreateSiteCode(377);
-        parameter.setReceiveSiteCode(26);
-        parameter.setUpdateUser("James");
-        parameter.setUpdateUserCode(282);
-        parameter.setUpdateTime(new Date());
-        parameter.setYn(358);
-        inspectionDao.queryForObject(parameter);
     }
 	
 	@Test
@@ -157,68 +123,36 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindPopJoinTotalCount() {
         Map parameter = new HashMap();
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("thirdWaybillCode", new Object());
-        // parameter.put("waybillType", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("popSupId", new Object());
-        // parameter.put("popSupName", new Object());
-        // parameter.put("createUserCode", new Object());
-        // parameter.put("createUser", new Object());
-        // parameter.put("queueNo", new Object());
-        inspectionDao.findPopJoinTotalCount(parameter);
-    }
-	
-	@Test
-    public void testSelectSelective() throws Exception {
-        Inspection parameter = new Inspection();
-        parameter.setThirdWaybillCode("Stone");
-        parameter.setInspectionId((long)8216);
-        parameter.setWaybillCode("Mary");
-        parameter.setBoxCode("Jax");
-        parameter.setPackageBarcode("Jone");
-        parameter.setStatus(602);
-        parameter.setExceptionType("Mary");
-        parameter.setInspectionType(704);
-        parameter.setCreateUser("James");
-        parameter.setCreateUserCode(222);
-        parameter.setCreateTime(new Date());
-        parameter.setCreateSiteCode(823);
-        parameter.setReceiveSiteCode(949);
-        parameter.setUpdateUser("Jim");
-        parameter.setUpdateUserCode(207);
-        parameter.setUpdateTime(new Date());
-        parameter.setYn(276);
-        parameter.setLimitNo(125);
-        inspectionDao.selectSelective(parameter);
+        parameter.put("createSiteCode", 596);
+        parameter.put("popReceiveType", 0);
+         parameter.put("startTime", new Date());
+         parameter.put("endTime", new Date());
+         parameter.put("popSupName", "J");
+         inspectionDao.findPopJoinTotalCount(parameter);
     }
 	
 	@Test
     public void testInspectionCount() {
         Inspection parameter = new Inspection();
-        parameter.setBoxCode("Jone");
-        parameter.setInspectionType(974);
-        parameter.setCreateSiteCode(204);
-        parameter.setReceiveSiteCode(796);
+        parameter.setBoxCode("Stone");
+        parameter.setInspectionType(50);
+        parameter.setCreateSiteCode(596);
+        parameter.setReceiveSiteCode(204);
         inspectionDao.inspectionCount(parameter);
     }
 	
 	@Test
     public void testFindPopJoinList() {
         Map parameter = new HashMap();
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("thirdWaybillCode", new Object());
-        // parameter.put("waybillType", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("popSupId", new Object());
-        // parameter.put("popSupName", new Object());
-        // parameter.put("createUserCode", new Object());
-        // parameter.put("createUser", new Object());
-        // parameter.put("queueNo", new Object());
-        // parameter.put("endIndex", new Object());
-        // parameter.put("startIndex", new Object());
+       
+        parameter.put("endIndex", 2);
+        parameter.put("startIndex", 1);
+        
+        parameter.put("createSiteCode", 596);
+        parameter.put("popReceiveType", 0);
+         parameter.put("startTime", new Date());
+         parameter.put("endTime", new Date());
+         parameter.put("popSupName", "J");
         inspectionDao.findPopJoinList(parameter);
     }
 	
@@ -232,21 +166,16 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdate() {
         Inspection parameter = new Inspection();
-        parameter.setBoxCode("Joe");
-        parameter.setExceptionType("Mary");
-        parameter.setCreateSiteCode(701);
-        parameter.setReceiveSiteCode(91);
+        parameter.setExceptionType("2");
         parameter.setUpdateUser("Jone");
         parameter.setUpdateUserCode(368);
         parameter.setUpdateTime(new Date());
         parameter.setBoxCode("Stone");
-        parameter.setOperateType(458);
-        parameter.setInspectionType(56);
-        parameter.setWaybillCode("Jax");
-        parameter.setPackageBarcode("Mary");
-        parameter.setCreateSiteCode(215);
-        parameter.setReceiveSiteCode(662);
-        inspectionDao.update(BoxDao.namespace, parameter);
+        parameter.setPackageBarcode("Jim");
+        parameter.setCreateSiteCode(596);
+        parameter.setReceiveSiteCode(204);
+        parameter.setInspectionType(40);
+        inspectionDao.update(InspectionDao.namespace, parameter);
     }
 	
 	@Test
@@ -266,31 +195,6 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(724);
         parameter.setBoxCode("Jax");
         inspectionDao.updateYnByPackageFuzzy(parameter);
-    }
-	
-	@Test
-    public void testUpdateStatusBatchByPrimaryKey() throws Exception {
-        List parameter = new ArrayList();
-        //set property for record.inspectionId
-        inspectionDao.updateStatusBatchByPrimaryKey(parameter);
-    }
-	
-	@Test
-    public void testUpdateByBoxPackageBarcode() throws Exception {
-        Map parameter = new HashMap();
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("status", new Object());
-        // parameter.put("exceptionType", new Object());
-        // parameter.put("inspectionType", new Object());
-        // parameter.put("createSiteCode", new Object());
-        //set property for record.receiveSiteCode
-        // parameter.put("updateUser", new Object());
-        // parameter.put("updateUserCode", new Object());
-        // parameter.put("updateTime", new Object());
-        // parameter.put("yn", new Object());
-        // parameter.put("boxCode", new Object());
-        // parameter.put("packageBarcode", new Object());
-        inspectionDao.updateByBoxPackageBarcode("222", "ss");
     }
 	
 	@Test

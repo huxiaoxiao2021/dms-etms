@@ -38,7 +38,7 @@
 			and create_time <![CDATA[<=]]>
 			str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			<if test="createUser != null">
-				and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+				and create_user like concat(#{createUser, jdbcType=VARCHAR},'%')
 			</if>
 			<if test="queueNo != null and queueNo != ''">
 				and queueno = #{queueNo, jdbcType=VARCHAR}

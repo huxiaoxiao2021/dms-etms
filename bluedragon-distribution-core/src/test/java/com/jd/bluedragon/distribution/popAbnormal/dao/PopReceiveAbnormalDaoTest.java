@@ -9,6 +9,9 @@ import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopReceiveAbnormal;
+
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
@@ -20,25 +23,19 @@ public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindByMap() {
         Map parameter = new HashMap();
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("mainType", new Object());
-        // parameter.put("subType", new Object());
         popReceiveAbnormalDao.findByMap(parameter);
     }
 	
 	@Test
     public void testFindList() {
         Map parameter = new HashMap();
-        // parameter.put("abnormalId", new Object());
-        // parameter.put("orderByString", new Object());
-        // parameter.put("endIndex", new Object());
-        // parameter.put("startIndex", new Object());
+        parameter.put("abnormalId", 40);
         popReceiveAbnormalDao.findList(parameter);
     }
 	
 	@Test
     public void testDelete() {
-        Long abnormalId = (long)4418;
+        Long abnormalId = (long)40;
         popReceiveAbnormalDao.delete(abnormalId);
     }
 	
@@ -58,14 +55,14 @@ public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindByObj() {
         PopReceiveAbnormal parameter = new PopReceiveAbnormal();
-        parameter.setAbnormalId((long)4827);
+        parameter.setAbnormalId((long)40);
         popReceiveAbnormalDao.findByObj(parameter);
     }
 	
 	@Test
     public void testFindTotalCount() {
         Map parameter = new HashMap();
-        // parameter.put("abnormalId", new Object());
+        parameter.put("abnormalId", 40);
         popReceiveAbnormalDao.findTotalCount(parameter);
     }
 	
@@ -78,20 +75,20 @@ public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteName("Stone");
         parameter.setMainType(17);
         parameter.setMainTypeName("Stone");
-        parameter.setSubType(892);
+        parameter.setSubType(1);
         parameter.setSubTypeName("Mary");
         parameter.setWaybillCode("James");
         parameter.setPopSupNo("Stone");
         parameter.setPopSupName("Mary");
-        parameter.setAbnormalStatus(141);
+        parameter.setAbnormalStatus(1);
         parameter.setAttr1("Jax");
         parameter.setAttr2("Stone");
         parameter.setAttr3("Stone");
         parameter.setAttr4("Jax");
         parameter.setOperatorName("Stone");
         parameter.setUpdateTime(new Date());
-        parameter.setWaybillType(934);
+        parameter.setWaybillType(1);
         parameter.setOrderCode("James");
-        popReceiveAbnormalDao.add(parameter);
+        popReceiveAbnormalDao.add(PopReceiveAbnormalDao.NAME_SPACE,parameter);
     }
 }

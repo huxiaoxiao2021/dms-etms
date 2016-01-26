@@ -70,13 +70,13 @@
 			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
 		</if>
 		<if test="popSupName != null">
-			and pop_sup_name like #{popSupName, jdbcType=VARCHAR} || '%'
+			and pop_sup_name like concat(#{popSupName, jdbcType=VARCHAR}, '%')
 		</if>
 		<if test="createUserCode != null and createUserCode != 0">
 			and create_user_code = #{createUserCode,jdbcType=INTEGER}
 		</if>
 		<if test="createUser != null">
-			and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+			and create_user like concat(#{createUser, jdbcType=VARCHAR} , '%')
 		</if>
 		<if test="queueNo != null and queueNo != ''">
 			and queue_no = #{queueNo, jdbcType=VARCHAR}
@@ -109,19 +109,19 @@
 			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
 		</if>
 		<if test="popSupName != null">
-			and pop_sup_name like #{popSupName, jdbcType=VARCHAR} || '%'
+			and pop_sup_name like concat(#{popSupName, jdbcType=VARCHAR}, '%')
 		</if>
 		<if test="busiId != null and busiId != 0">
 			and busi_id = #{busiId, jdbcType=INTEGER}
 		</if>
 		<if test="busiName != null">
-			and busi_name like #{busiName, jdbcType=VARCHAR} || '%'
+			and busi_name like concat(#{busiName, jdbcType=VARCHAR} , '%')
 		</if>
 		<if test="createUserCode != null and createUserCode != 0">
 			and create_user_code = #{createUserCode,jdbcType=INTEGER}
 		</if>
 		<if test="createUser != null">
-			and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+			and create_user like concat(#{createUser, jdbcType=VARCHAR} , '%')
 		</if>
 		<if test="queueNo != null and queueNo != ''">
 			and queue_no = #{queueNo, jdbcType=VARCHAR}
@@ -149,7 +149,7 @@
 		<include refid="Pop_Join_Where_List"/>
 		order by inspection_id
 		<if test="startIndex != null">
-			where LIMIT #{startIndex} ,#{endIndex}
+		 LIMIT #{startIndex} ,#{endIndex}
 		</if>
 	</select>
 	
@@ -167,7 +167,7 @@
 	 		<include refid="BPop_Join_Where_List" />
 		order by inspection_id
 		<if test="startIndex != null">
-			where LIMIT #{startIndex} ,#{endIndex}
+			 LIMIT #{startIndex} ,#{endIndex}
 		</if>
 	</select>
 

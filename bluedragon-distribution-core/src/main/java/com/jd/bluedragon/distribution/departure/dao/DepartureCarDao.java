@@ -45,4 +45,8 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
     public DeparturePrintResponse queryArteryBillingInfoByBoxCode(String boxCode){
         return (DeparturePrintResponse) this.getSqlSession().selectOne(namespace + ".queryArteryBillingInfoByBoxCode", boxCode);
     }
+    
+    public Long getSeqNextVal() {
+		return (Long) this.getSqlSession().selectOne(namespace + ".getSeqNextVal");
+	}
 }

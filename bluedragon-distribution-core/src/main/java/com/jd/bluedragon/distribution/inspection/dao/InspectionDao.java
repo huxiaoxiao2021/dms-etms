@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.inspection.dao;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,40 +16,6 @@ public class InspectionDao extends BaseDao<Inspection>{
 
 	public static final String namespace = InspectionDao.class.getName();
 	
-
-	/**
-	 * 根据条件查询一个Inspection对象
-	 * @param inspection
-	 * @return
-	 */
-	public Inspection queryForObject(Inspection inspection) throws Exception{
-		Object o = this.getSqlSession().selectOne(namespace+".queryForObject", inspection);
-		Inspection bean = o==null?null:(Inspection)o;
-		return bean;
-	}
-
-	
-	/**
-	 * 根据条数限制
-	 * @param limitNo
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Inspection> selectSelective( Inspection inspection ) throws Exception{
-		return this.getSqlSession().selectList(namespace+ ".selectSelective", inspection);
-	}
-
-	public int updateByBoxPackageBarcode( String boxCode, String packageBarcode ) throws Exception{
-		if( StringUtils.isBlank(boxCode) && StringUtils.isBlank(boxCode) ){
-			logger.info("updateByBoxPackageBarcode fail : boxCode or packageBarcode is blank ");
-			throw new InspectionException(" boxCode or packageBarcode is null ");
-		}
-		Map<String,String> map = new HashMap<String,String>();
-		map.put("boxCode", boxCode);
-		map.put("packageBarcode", packageBarcode);
-		return this.getSqlSession().update(namespace+".updateByBoxPackageBarcode", map);
-	}
-	
 	/**
 	 * 更新POP验货信息
 	 * @param inspection
@@ -63,24 +28,6 @@ public class InspectionDao extends BaseDao<Inspection>{
 			return 0;
 		}
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);
-	}
-	
-	/**
-	 * batch update status value of 1 that have been processed   
-	 * @param list
-	 * @return
-	 */
-	public int updateStatusBatchByPrimaryKey( List<Inspection> list ) throws Exception{
-		if( null==list || list.isEmpty() ){
-			logger.info(" updateBatchByPrimaryKey for inspection fail because of parameter list is null");
-			throw new InspectionException(" list is empty ");
-		}
-		return this.getSqlSession().update(namespace+".updateStatusBatchByPrimaryKey", list);
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<Inspection> queryListByBox(Inspection inspection) {
-		return this.getSqlSession().selectList(namespace+".queryListByBox",inspection);
 	}
 	
 	public Integer inspectionCount( Inspection inspection ){
@@ -102,7 +49,7 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 * @return
 	 */
 	public int findPopJoinTotalCount(Map<String, Object> paramMap) {
-		Object obj = this.getSqlSessionRead().selectOne(namespace + ".findPopJoinTotalCount", paramMap);
+		Object obj = this.getSqlSession().selectOne(namespace + ".findPopJoinTotalCount", paramMap);
 		int totalCount = (Integer)((obj == null) ? 0 : obj);
 		return totalCount;
 	}
@@ -115,7 +62,7 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Inspection> findPopJoinList(Map<String, Object> paramMap) {
-		Object obj = this.getSqlSessionRead().selectList(namespace + ".findPopJoinList", paramMap);
+		Object obj = this.getSqlSession().selectList(namespace + ".findPopJoinList", paramMap);
 		List<Inspection> inspections = (List<Inspection>)((obj == null) ? null : obj);
 		return inspections;
 	}
@@ -126,7 +73,7 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 * @return
 	 */
 	public int findBPopJoinTotalCount(Map<String, Object> paramMap) {
-		Object obj = this.getSqlSessionRead().selectOne(namespace + ".findBPopJoinTotalCount", paramMap);
+		Object obj = this.getSqlSession().selectOne(namespace + ".findBPopJoinTotalCount", paramMap);
 		int totalCount = (Integer)((obj == null) ? 0 : obj);
 		return totalCount;
 	}
@@ -139,7 +86,7 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Inspection> findBPopJoinList(Map<String, Object> paramMap) {
-		Object obj = this.getSqlSessionRead().selectList(namespace + ".findBPopJoinList", paramMap);
+		Object obj = this.getSqlSession().selectList(namespace + ".findBPopJoinList", paramMap);
 		List<Inspection> inspections = (List<Inspection>)((obj == null) ? null : obj);
 		return inspections;
 	}

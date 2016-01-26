@@ -103,7 +103,7 @@
 			ORDER BY ${orderByString} ASC
 		</if>
 		<if test="startIndex != null">
-			 where LIMIT #{startIndex},#{endIndex}
+			  LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	

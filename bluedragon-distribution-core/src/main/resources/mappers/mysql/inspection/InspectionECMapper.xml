@@ -31,6 +31,16 @@
     update_time, yn
   </sql>
   
+  <sql id="Base_Column_ListNoID" >
+    waybill_code, 
+    box_code, package_barcode, 
+    inspection_e_c_type, exception_status, inspection_type, 
+    exception_type, create_user, create_user_code, 
+    create_time, create_site_code, receive_site_code,
+    update_user, update_user_code, 
+    update_time, yn
+  </sql>
+  
   <sql id="Base_Column_Alias_List" >
     iec.check_id, iec.waybill_code, 
     iec.box_code, iec.package_barcode, 
@@ -44,7 +54,7 @@
   <insert id="add"  parameterType="InspectionEC">
   	INSERT INTO  inspection_e_c
   	(  
-	<include refid="Base_Column_List"/>
+	<include refid="Base_Column_ListNoID"/>
   	)
   	VALUES(
   		#{waybillCode,jdbcType=VARCHAR},
@@ -56,74 +66,6 @@
   		#{updateTime,jdbcType=TIMESTAMP}, 1
   	)
   </insert>
-  
-  <update id="update">
-	UPDATE inspection_e_c
-    <set >
-      <if test="record.checkId!= null" >
-        check_id = #{record.checkId,jdbcType=BIGINT},
-      </if>
-      <if test="record.waybillCode != null" >
-        waybill_code = #{record.waybillCode,jdbcType=VARCHAR},
-      </if>
-      <if test="record.boxCode != null" >
-        box_code = #{record.boxCode,jdbcType=VARCHAR},
-      </if>
-      <if test="record.packageBarcode != null" >
-        package_barcode = #{record.packageBarcode,jdbcType=VARCHAR},
-      </if>
-      <if test="record.inspectionECType!=null">
-      	inspection_e_c_type = #{record.inspectionECType,jdbcType=INTEGER},
-      </if>
-      <if test="record.status!=null">
-      	exception_status = #{record.status,jdbcType=INTEGER},
-      </if>
-      <if test="record.inspectionType != null" >
-        inspection_type = #{record.inspectionType,jdbcType=INTEGER},
-      </if>
-      <if test="record.exceptionType != null" >
-        exception_type = #{record.exceptionType,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createUser != null" >
-        create_user = #{record.createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createUserCode != null" >
-        create_user_code = #{record.createUserCode,jdbcType=INTEGER},
-      </if>
-      <if test="record.createTime != null" >
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.createSiteCode != null" >
-        create_site_code = #{record.createSiteCode,jdbcType=INTEGER},
-      </if>
-      <if test="receiveSiteCode!=null">
-      	receive_site_code = #{record.receiveSiteCode,jdbcType=INTEGER},
-      </if>
-      <if test="record.updateUser!=null">
-      	update_user = #{record.updateUser,jdbcType=VARCHAR},
-      </if>
-       <if test="record.updateUserCode!=null">
-      	update_user_code = #{record.updateUserCode,jdbcType=INTEGER},
-      </if>
-      <if test="record.updateTime != null" >
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.yn != null" >
-        yn = #{record.yn,jdbcType=INTEGER},
-      </if>
-      
-    </set>
-  </update>
-  
-  <update id="updateBatch" parameterType="list">
-  	UPDATE inspection_e_c
-  	SET yn=0
-  	WHERE
-  	<foreach collection="list" item="record" separator="OR" open="" close="">
-  		(create_site_code = #{record.createSiteCode,jdbcType=INTEGER} 
-  		AND inspection_e_c_type =#{record.inspectionECType,jdbcType=INTEGER})
-  	</foreach>
-  </update>
   
   <update id="updateStatus" parameterType="InspectionEC">
   	UPDATE inspection_e_c
@@ -169,20 +111,6 @@
   	<if test=" receiveSiteCode!=null">
   	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
   	</if>
-  </update>
-  
-  <update id="updateStatusFuzzy" parameterType="InspectionEC">
-  	UPDATE inspection_e_c
-  	SET exception_status=#{status,jdbcType=INTEGER}, update_user=#{updateUser,jdbcType=VARCHAR}, 
-  	update_user_code=#{updateUserCode,jdbcType=INTEGER}, update_time = #{updateTime,jdbcType=TIMESTAMP} 
-  	WHERE
-  	create_site_code = #{createSiteCode,jdbcType=INTEGER} 
-  	AND package_barcode like '${packageBarcode}'
-  	AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
-  	<if test=" null!=boxCode and ''!=boxCode ">
-  	AND box_code = #{boxCode,jdbcType=VARCHAR}
-  	</if>
-  	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
   </update>
   
   <update id="updateForSorting" parameterType="InspectionEC">
@@ -294,10 +222,11 @@
   	<include refid="Base_Column_List"/>
   	FROM inspection_e_c
   	<include refid="whereCondition"/>
-  	<if test="startNo != null and limitNo != null">
-  	AND LIMIT ${limitNo}
-  	</if>
   	ORDER BY check_id DESC
+  	
+  	<if test="startNo != null and limitNo != null">
+  	 LIMIT ${startNo} ,${limitNo}
+  	</if>
   </select>
   
   <select id="get" resultMap="BaseResultMap" parameterType="InspectionEC">
@@ -376,35 +305,6 @@
 	AND LIMIT 100
   </select>
   
-  <select id="queryListByBox" resultMap="BaseResultMap"  parameterType="InspectionEC">
-	  SELECT
-	   <include refid="Base_Column_List"/>
-	  FROM inspection_e_c
-	  WHERE box_code = #{boxCode,jdbcType=VARCHAR}
-	  AND inspection_type = #{inspectionType,jdbcType=INTEGER}
-	  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-	  AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-	  AND yn=1
-  </select>
-  
-  	<select id="queryLast"  resultMap="BaseResultMap" >
-		SELECT
-		<include refid="Base_Column_List"/>
-		 FROM inspection_e_c
-		 WHERE box_code = #{boxCode,jdbcType=VARCHAR}
-		 AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-		 AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		 AND ( inspection_e_c_type=0 AND exception_status=1 ) OR ( inspection_e_c_type=6 AND exception_status=2 )
-		 AND yn=1
-  	</select>
-  
-  	<select id="getOneUntreated"  resultMap="BaseResultMap"  >
-	  SELECT
-	  <include refid="Base_Column_List"/>
-	  FROM inspection_e_c
-	  WHERE exception_status=0 AND yn=1 AND LIMIT 1
-	</select>
-	  
 	<select id="queryExceptionsCore" parameterType="java.util.Map" resultType="Integer">
 		SELECT
 		COUNT(check_id)

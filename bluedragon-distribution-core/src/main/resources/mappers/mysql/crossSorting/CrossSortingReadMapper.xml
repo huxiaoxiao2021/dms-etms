@@ -25,7 +25,8 @@
 		<where>
 			yn = 1
 			<if test="createUserName != null">
-				AND create_user_name like '%'||#{createUserName,jdbcType=VARCHAR}||'%'
+				AND (create_user_name like   concat('%',#{createUserName,jdbcType=VARCHAR})
+				or create_user_name like   concat(#{createUserName,jdbcType=VARCHAR},'%'))
 			</if>
 			<if test="orgId != null">
 				AND org_id = #{orgId,jdbcType=INTEGER}

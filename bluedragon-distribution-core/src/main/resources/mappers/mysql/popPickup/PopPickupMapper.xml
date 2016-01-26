@@ -70,13 +70,13 @@
 			and pop_business_code = #{popBusinessCode, jdbcType=INTEGER}
 		</if>
 		<if test="popBusinessName != null">
-			and pop_business_name like #{popBusinessName, jdbcType=VARCHAR} || '%'
+			and pop_business_name like concat(#{popBusinessName, jdbcType=VARCHAR},'%')
 		</if>
 		<if test="createUserCode != null and createUserCode != 0">
 			and create_user_code = #{createUserCode,jdbcType=INTEGER}
 		</if>
 		<if test="createUser != null">
-			and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+			and create_user like concat(#{createUser, jdbcType=VARCHAR}, '%')
 		</if>
 	</where>
   </sql>
@@ -87,7 +87,7 @@
     <include refid="Base_Insert_Column_List"/>
     )
     VALUES (
-    	#{pickupId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
+       #{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{pickupType,jdbcType=INTEGER},
 		#{packageNumber,jdbcType=INTEGER}, #{popBusinessCode,jdbcType=VARCHAR}, #{popBusinessName,jdbcType=VARCHAR},#{carCode,jdbcType=VARCHAR},
       	#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER}, #{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},  
@@ -130,7 +130,7 @@
 		<include refid="Pop_Pickup_Where_List"/>
 		order by pickup_id
 		<if test="startIndex != null">
-			LIMIT #{startIndex},{endIndex}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
   

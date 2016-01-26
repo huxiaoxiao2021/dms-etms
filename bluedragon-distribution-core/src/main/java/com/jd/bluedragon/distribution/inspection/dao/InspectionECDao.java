@@ -22,14 +22,6 @@ public class InspectionECDao extends BaseDao<InspectionEC>{
 		return (List<InspectionEC>)this.getSqlSession().selectList(namespace+".queryByThird",inspectionEC );
 	}
 	
-//	public int addBatch( List<InspectionEC> list ) throws Exception{
-//		return this.getSqlSession().insert(namespace+".addBatch", list);
-//	}
-
-	public int updateBatch(List<InspectionEC> list) throws Exception{
-		return this.getSqlSession().update(namespace+".updateBatch", list);
-	}
-
 	/**
 	 * update status --> 3:超区退回,4:多验退回,5:少验取消
 	 * @param inspecgtionEC
@@ -40,10 +32,6 @@ public class InspectionECDao extends BaseDao<InspectionEC>{
 		return this.getSqlSession().update(namespace+".updateStatus",inspectionEC);
 	}
 
-	public int updateStatusFuzzy(InspectionEC inspectionEC) {
-		return this.getSqlSession().update(namespace+".updateStatusFuzzy",inspectionEC);		
-	}
-	
 	public int updateYnByWaybillCode(InspectionEC inspectionEC){
 		return this.getSqlSession().update(namespace+".updateYnByWaybillCode",inspectionEC);
 	}
@@ -60,10 +48,6 @@ public class InspectionECDao extends BaseDao<InspectionEC>{
 		return this.getSqlSession().update(namespace+".updateOne",inspectionEC);
 	}
 
-	public InspectionEC getOneUntreated() throws Exception{
-		return (InspectionEC)getSqlSession().selectOne(namespace+".getOneUntreated",1);
-	}
-
 	public int batchUpdateInspectionECType(Set<InspectionEC> set) throws Exception{
 		int result = 0;
 		for( InspectionEC inspectionEC:set ){
@@ -74,11 +58,6 @@ public class InspectionECDao extends BaseDao<InspectionEC>{
 
 	public int updateInspectionECType(InspectionEC inspectionEC) throws Exception {
 		return this.getSqlSession().update(namespace+".updateInspectionECType",inspectionEC);
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<InspectionEC> queryLast(InspectionEC inspectionECLast) {
-		return this.getSqlSession().selectList(namespace+".queryLast",inspectionECLast);
 	}
 
 	/**

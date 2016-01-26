@@ -110,7 +110,6 @@ public class DepartureServiceImpl implements DepartureService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public ServiceMessage<String> createDeparture(Departure departure)
 			throws Exception {
-
 		ServiceMessage<String> result = new ServiceMessage<String>();
 		List<SendM> sendMs = departure.getSendMs();
 		// 没有发货批次，无需生成发车表以及封车表
@@ -120,12 +119,13 @@ public class DepartureServiceImpl implements DepartureService {
 			return result;
 		}
 
+		long shieldsCarId = departureCarDao.getSeqNextVal();
 		if (Departure.DEPARTRUE_TYPE_TURNTABLE == departure.getType()) {
 			/*
 			 * 转车(type=2) 1.生成发车表数据 2.插[DepartureSend]中间表
 			 */
-			Long  shieldsCarId = createDepartureCar(departure, sendMs,departure.getType());
-			if (shieldsCarId>0) {
+			if (createDepartureCar(departure, sendMs, shieldsCarId,
+					departure.getType())) {
 				createDepartureSend(sendMs, shieldsCarId);
 			} else {
 				result.setResult(ServiceResultEnum.FAILED);
@@ -135,20 +135,18 @@ public class DepartureServiceImpl implements DepartureService {
 		} else if (Departure.DEPARTRUE_TYPE_TURNTABLE != departure.getType()
 				&& Integer.valueOf(Constants.BUSSINESS_TYPE_REVERSE).equals(
 						departure.getBusinessType())) {
-			commonLogic(departure, sendMs, departure.getType());
+			commonLogic(departure, sendMs, shieldsCarId, departure.getType());
 			// 推逆向系统  取消逆向发车的时候推送仓储任务，修改到发货环节推送 20150724
 			//toReverse(sendMs);
 
 		} else if (Departure.DEPARTRUE_TYPE_TURNTABLE != departure.getType()
 				&& Integer.valueOf(Constants.BUSSINESS_TYPE_POSITIVE).equals(
 						departure.getBusinessType())) {
-			
-			Long shieldsCarId =0L;
 			if (departure.getType() == Departure.DEPARTRUE_TYPE_ZHIXIAN) {// 支线正向发车
-				shieldsCarId = commonLogic(departure, sendMs,
+				commonLogic(departure, sendMs, shieldsCarId,
 						Departure.DEPARTRUE_TYPE_BRANCH);
 			} else {
-				shieldsCarId = commonLogic(departure, sendMs,
+				commonLogic(departure, sendMs, shieldsCarId,
 						departure.getType());
 			}
 			
@@ -197,19 +195,16 @@ public class DepartureServiceImpl implements DepartureService {
 		}
 	}
 
-	private Long commonLogic(Departure departure, List<SendM> sendMs,int type) {
+	private void commonLogic(Departure departure, List<SendM> sendMs,
+			long shieldsCarId, int type) {
 		// 更新批次内箱子信息
 		Collections.sort(sendMs);
-		
-		// 生成发车表数据
-		Long shieldsCarId = createDepartureCar(departure, sendMs, type);
-		
 		updateBoxsBySendCode(sendMs, shieldsCarId);
-		
+		// 生成发车表数据
+		createDepartureCar(departure, sendMs, shieldsCarId, type);
 		// 生成封签表数据(封签表数据只有在封签号不为空的时候才能生成)
 		createSealVehicle(departure, sendMs);
 		
-		return shieldsCarId;
 	}
 
 	/****************************************************************
@@ -245,10 +240,10 @@ public class DepartureServiceImpl implements DepartureService {
 		}
 	}
 
-	private Long createDepartureCar(Departure departure, List<SendM> sendMs, int type) {
+	private Boolean createDepartureCar(Departure departure, List<SendM> sendMs, long shieldsCarId,int type) {
 		{
 			DepartureCar car = new DepartureCar();
-			//car.setShieldsCarId(shieldsCarId); // 封车ID
+			car.setShieldsCarId(shieldsCarId); // 封车ID
 			car.setCarCode(departure.getCarCode()); // 车号(车号可以为空)
 
 			car.setShieldsCarCode(departure.getShieldsCarCode());// 封签号(封签号可以为空)
@@ -288,8 +283,9 @@ public class DepartureServiceImpl implements DepartureService {
 			}
 			if (!hasDepartureCarByFingerprint(car)) {
 				departureCarDao.insert(car);
+				return Boolean.TRUE;
 			}
-			return car.getShieldsCarId();
+			return Boolean.FALSE;
 		}
 	}
 

@@ -125,13 +125,13 @@
 			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
 		</if>
 		<if test="popSupName != null">
-			and pop_sup_name like #{popSupName, jdbcType=VARCHAR} || '%'
+			and pop_sup_name like  concat(#{popSupName, jdbcType=VARCHAR},'%')
 		</if>
 		<if test="createUserCode != null and createUserCode != 0">
 			and create_user_code = #{createUserCode,jdbcType=INTEGER}
 		</if>
 		<if test="createUser != null">
-			and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+			and create_user like concat(#{createUser, jdbcType=VARCHAR} , '%')
 		</if>
 		<if test="queueNo != null and queueNo != ''">
 			and queue_no = #{queueNo, jdbcType=VARCHAR}
@@ -164,19 +164,19 @@
 			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
 		</if>
 		<if test="popSupName != null">
-			and pop_sup_name like #{popSupName, jdbcType=VARCHAR} || '%'
+			and pop_sup_name like concat(#{popSupName, jdbcType=VARCHAR}, '%')
 		</if>
 		<if test="busiId != null and busiId != 0">
 			and busi_id = #{busiId, jdbcType=INTEGER}
 		</if>
 		<if test="busiName != null">
-			and busi_name like #{busiName, jdbcType=VARCHAR} || '%'
+			and busi_name like concat(#{busiName, jdbcType=VARCHAR} , '%')
 		</if>
 		<if test="createUserCode != null and createUserCode != 0">
 			and create_user_code = #{createUserCode,jdbcType=INTEGER}
 		</if>
 		<if test="createUser != null">
-			and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+			and create_user like concat(#{createUser, jdbcType=VARCHAR} , '%')
 		</if>
 		<if test="queueNo != null and queueNo != ''">
 			and queue_no = #{queueNo, jdbcType=VARCHAR}
@@ -190,44 +190,6 @@
 	</where>
   </sql>
 
-  
-  <select id="queryForObject" parameterType="Inspection" resultMap="BaseResultMap">
-  	SELECT
-    <include refid="Base_Column_List" />
-    FROM inspection
-    <include refid="where_condition"/>
-    AND LIMIT 1
-  </select>
-  
-  
-  <select id="selectSelective" resultMap="BaseResultMap"  parameterType="Inspection">
-  		SELECT
-	    <include refid="Base_Column_List" />
-	    FROM inspection
-	    <include refid="where_condition"/>
-	    <if test="limitNo!=null and startNo!=null">
-	    	AND LIMIT ${limitNo}
-	    </if>
-  </select>
-  
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    SELECT 
-    <include refid="Base_Column_List" />
-    FROM inspection
-    WHERE inspection_id = #{inspectionId,jdbcType=BIGINT}
-  </select>
-  
-  <select id="queryListByBox" resultMap="BaseResultMap"  parameterType="Inspection">
-	  SELECT
-	   <include refid="Base_Column_List"/>
-	  FROM inspection
-	  WHERE box_code = #{boxCode,jdbcType=VARCHAR}
-	  AND inspection_type = #{inspectionType,jdbcType=INTEGER}
-	  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-	  AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-	  AND inspection_type=30
-	  AND yn=1
-  </select>
   
   <select id="inspectionCount" resultType="Integer"  parameterType="Inspection">
 	  SELECT
@@ -256,7 +218,7 @@
 	 		<include refid="Pop_Join_Where_List" />
 		order by inspection_id 
 		<if test="startIndex != null">
-		    where LIMIT #{startIndex},#{endIndex}
+		     LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	
@@ -274,7 +236,7 @@
 	 		<include refid="BPop_Join_Where_List" />
 		order by inspection_id 
 		<if test="startIndex != null">
-		 where LIMIT #{startIndex},#{endIndex}
+		  LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	
@@ -303,9 +265,9 @@
     	#{inspectionId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{exceptionType,jdbcType=VARCHAR},
 		#{inspectionType,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
-      	#{createUserCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
+      	#{createUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), #{createSiteCode,jdbcType=INTEGER},
       	#{receiveSiteCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
-      	#{updateUserCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 1, #{thirdWaybillCode,jdbcType=VARCHAR},
+      	#{updateUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, 1, #{thirdWaybillCode,jdbcType=VARCHAR},
       	#{popFlag,jdbcType=INTEGER}, #{popSupId,jdbcType=INTEGER}, #{popSupName,jdbcType=VARCHAR}, 
       	#{quantity,jdbcType=INTEGER}, #{crossCode,jdbcType=VARCHAR}, #{waybillType,jdbcType=INTEGER}, 
       	#{popReceiveType, jdbcType=INTEGER}, #{queueNo,jdbcType=VARCHAR}, #{driverCode, jdbcType=VARCHAR}, 
@@ -313,49 +275,11 @@
       )
   </insert>
   
-  <update id="updateByBoxPackageBarcode" parameterType="map" >
-    UPDATE inspection
-    <set >
-      <if test="waybillCode != null" >
-        waybill_code = #{waybillCode,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        inspection_status = #{status,jdbcType=INTEGER},
-      </if>
-      <if test="exceptionType != null" >
-        exception_type = #{exceptionType,jdbcType=VARCHAR},
-      </if>
-      <if test="inspectionType!=null">
-      	inspection_type = #{inspectionType,jdbcType=INTEGER},
-      </if>
-      <if test="createSiteCode != null" >
-        create_site_code = #{createSiteCode,jdbcType=INTEGER},
-      </if>
-      <if test="receiveSiteCode!=null">
-      	receive_site_code = #{record.receiveSiteCode,jdbcType=INTEGER},
-      </if>
-      <if test="updateUser!=null">
-      	update_user = #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateUserCode!=null">
-      	update_user_code = #{updateUserCode,jdbcType=INTEGER},
-      </if>
-      <if test="updateTime != null" >
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="yn != null" >
-        yn = #{yn,jdbcType=INTEGER},
-      </if>
-    </set>
-    WHERE box_code = #{boxCode,jdbcType=VARCHAR} AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
-  </update>
-  
   <update id="update" parameterType="Inspection" >
 	UPDATE inspection
     <set> 
 		box_code = #{boxCode,jdbcType=VARCHAR},
 		exception_type = #{exceptionType,jdbcType=VARCHAR},
-   		create_site_code = #{createSiteCode,jdbcType=INTEGER},
    		receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
    		update_user =#{updateUser,jdbcType=VARCHAR},
    		update_user_code = #{updateUserCode,jdbcType=INTEGER},
@@ -435,15 +359,6 @@
 		</if>
   </update>
   
-  <update id="updateStatusBatchByPrimaryKey" parameterType="list">
-  	UPDATE inspection 
-  	SET inspection_status=1
-  	WHERE
-  	<foreach collection="list" item="record" separator="OR" open="" close="">
-  		inspection_id = #{record.inspectionId,jdbcType=BIGINT}
-  	</foreach>
-  </update>
-  
   <update id="updateYnByPackage" parameterType="Inspection">
   	UPDATE inspection 
   	SET yn=0, update_user =#{updateUser,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=INTEGER}
@@ -454,10 +369,7 @@
    	<if test=" null!=boxCode and ''!=boxCode ">
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 	</if>
-	  WHERE
-	  <if test="create_site_code != null">
-		  and create_site_code = #{createSiteCode, jdbcType=INTEGER}
-	  </if>
+	
   </update>
   
   <update id="updateYnByPackageFuzzy" parameterType="Inspection">
@@ -470,10 +382,7 @@
    	<if test=" null!=boxCode and ''!=boxCode ">
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 	</if>
-	  WHERE
-	  <if test="create_site_code != null">
-		  and create_site_code = #{createSiteCode, jdbcType=INTEGER}
-	  </if>
+	 
   </update>
   
   <select id="haveInspection" resultMap="BaseResultMap"
@@ -496,6 +405,6 @@
 		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 	        </if>
   		
-		AND LIMIT 1
+		 LIMIT 1
 	</select>
 </mapper>

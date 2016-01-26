@@ -94,10 +94,10 @@
 						and POP_SUP_NO = #{popSupNo, jdbcType=VARCHAR}
 					</if>
 					<if test="popSupName != null and popSupName != ''">
-						and POP_SUP_NAME like #{popSupName, jdbcType=VARCHAR} || '%'
+						and POP_SUP_NAME like concat(#{popSupName, jdbcType=VARCHAR}, '%')
 					</if>
 					<if test="operatorName != null and operatorName != ''">
-						and OPERATOR_NAME like #{operatorName, jdbcType=VARCHAR} || '%'
+						and OPERATOR_NAME like concat(#{operatorName, jdbcType=VARCHAR}, '%')
 					</if>
 	 			</otherwise>
 	 		</choose>
@@ -120,7 +120,7 @@
 			ORDER BY ${orderByString} desc
 		</if>
 		<if test="startIndex != null">
-			where LIMIT #{startIndex},#{endIndex}
+		 LIMIT #{startIndex},#{endIndex}
 		</if>
 	</select>
 	

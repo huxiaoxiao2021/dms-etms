@@ -110,6 +110,10 @@
 		send_user,send_user_code,create_site_code, create_time, create_user,
 		create_user_code, update_time, yn, weight, volume, send_user_type
 	</sql>
+	
+	<select id="getSeqNextVal" resultType="Long">
+		select dms_core_box.nextval
+	</select>
 
 	<select id="findDepartureCarByFingerprint" resultMap="BaseResultMap" parameterType="map" >
         SELECT departure_car_id
