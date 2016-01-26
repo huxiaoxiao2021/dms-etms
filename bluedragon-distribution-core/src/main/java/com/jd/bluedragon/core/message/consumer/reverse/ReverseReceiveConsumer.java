@@ -128,8 +128,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		tsendDatail.setSendCode(reverseReceive.getSendCode());
 		tsendDatail.setWaybillCode(Constants.T_WAYBILL + reverseReceive.getOrderId());
 		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
-		if (sendDatailist != null && !sendDatailist.isEmpty())
+		if (sendDatailist != null && !sendDatailist.isEmpty()){
 			reverseReceive.setOrderId(Constants.T_WAYBILL + reverseReceive.getOrderId());
+		}
 		
 		this.reverseReceiveService.aftersaleReceive(reverseReceive);
 
@@ -173,7 +174,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				tWaybillStatus.setOperator(reverseReceive.getOperatorName());
 				tWaybillStatus.setOperateTime(reverseReceive.getReceiveTime());
 				tWaybillStatus.setWaybillCode(reverseReceive.getOrderId());
+				tWaybillStatus.setPackageCode(reverseReceive.getOrderId());
 				tWaybillStatus.setCreateSiteCode(tSendM.getCreateSiteCode());
+				tWaybillStatus.setOperatorId(-1);
 				
 				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 		        if(bDto!=null ){
@@ -227,7 +230,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		Task task = new Task();
 		task.setTableName(Task.TABLE_NAME_WAYBILL);
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
-		task.setKeyword2(String.valueOf(tWaybillStatus.getOperateType()));
+		task.setKeyword2(String.valueOf(tWaybillStatus.getWaybillCode()));
 		task.setKeyword1(tWaybillStatus.getWaybillCode());
 		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
 		task.setBody(JsonHelper.toJson(tWaybillStatus));
