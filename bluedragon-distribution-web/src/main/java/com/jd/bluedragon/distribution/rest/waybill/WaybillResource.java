@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
