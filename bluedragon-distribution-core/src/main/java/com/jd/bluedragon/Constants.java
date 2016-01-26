@@ -137,6 +137,7 @@ public class Constants {
     public static final Integer POP_LBP = 23;
     public static final Integer POP_SOPL = 25;
     public static final Integer ORDER_TYPE_B = 10000;
+    public static final char WAYBILL_SIGN_B='3';
     
     public static final Integer POP_SOP_EMS_CODE = 999999999;
     public static final String POP_SOP_EMS_NAME = "EMS全国直发";
