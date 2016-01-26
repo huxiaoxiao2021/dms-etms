@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Date;
 
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 
@@ -40,12 +41,34 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveTime(new Date());
         parameter.setOperateUser("Stone");
         parameter.setOperateUserCode(505);
-        cenConfirmDao.add(parameter);
+        Assert.assertTrue(cenConfirmDao.add(cenConfirmDao.getClass().getName(), parameter) > 0);
     }
 	
 	@Test
     public void testUpdateYnByPackage() {
-        cenConfirmDao.updateYnByPackage();
+        CenConfirm parameter = new CenConfirm();
+        parameter.setSendCode("Jim");
+        parameter.setReceiveUser("Jax");
+        parameter.setReceiveUserCode(212);
+        parameter.setCreateTime(new Date());
+        parameter.setCreateSiteCode(774);
+        parameter.setWaybillCode("Jim");
+        parameter.setBoxCode("Stone");
+        parameter.setPackageBarcode("Jim");
+        parameter.setType((short)5985);
+        parameter.setUpdateTime(new Date());
+        parameter.setThirdWaybillCode("Mary");
+        parameter.setReceiveSiteCode(817);
+        parameter.setInspectionUser("Jax");
+        parameter.setInspectionUserCode(407);
+        parameter.setInspectionTime(new Date());
+        parameter.setOperateType(727);
+        parameter.setPickupCode("Joe");
+        parameter.setOperateTime(new Date());
+        parameter.setReceiveTime(new Date());
+        parameter.setOperateUser("Stone");
+        parameter.setOperateUserCode(505);
+        Assert.assertTrue(cenConfirmDao.updateYnByPackage(parameter) > 0);
     }
 	
 	@Test
@@ -56,8 +79,8 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(178);
         parameter.setWaybillCode("Joe");
         parameter.setCreateTime(new Date());
-        parameter.setInspectionTime(new Date());
-        cenConfirmDao.queryHandoverInfo(parameter);
+        parameter.setInspectionTime(new java.util.Date());
+        Assert.assertTrue(cenConfirmDao.queryHandoverInfo(parameter).size()>0);
     }
 	
 	@Test
@@ -74,6 +97,6 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setOperateUser("James");
         parameter.setOperateUserCode(109);
         parameter.setConfirmId((long)3);
-        cenConfirmDao.updateFillField(parameter);
+        Assert.assertTrue(cenConfirmDao.updateFillField(parameter)>0);
     }
 }

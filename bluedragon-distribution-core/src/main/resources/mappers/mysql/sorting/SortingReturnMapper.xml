@@ -95,7 +95,7 @@
 			ret_status, yn, ret_type, shields_error, shields_type
 	    FROM sorting_ret
 		WHERE sorting_ret_id = #{id}
-			AND LIMIT 1
+			LIMIT 1
     </select>
 	
 	<select id="exists" resultMap="sortingReturn" parameterType="sortingReturn">
@@ -103,18 +103,19 @@
 		    create_user_name, create_site_code, create_site_name, create_time, update_time,
 			ret_status, yn, ret_type, shields_error, shields_type
 		FROM sorting_ret
-		WHERE yn=1 AND ret_type <![CDATA[>]]> -1 AND LIMIT 1
+		WHERE yn=1 AND ret_type <![CDATA[>]]> -1
 		<if test="siteCode != null">
 			AND create_site_code = #{siteCode}
 		</if>
-			AND (
-				<if test="waybillCode != null">
-					package_code = #{waybillCode}
-				</if>
-				<if test="packageCode != null">
-					or package_code = #{packageCode}
-				</if>
-			)		
+		AND (
+		<if test="waybillCode != null">
+			package_code = #{waybillCode}
+		</if>
+		<if test="packageCode != null">
+			or package_code = #{packageCode}
+		</if>
+		)
+		LIMIT 1
 	</select>
 	
 	<select id="findByStatus" resultMap="sortingReturn" parameterType="java.lang.Integer">
@@ -125,7 +126,7 @@
 			FROM sorting_ret
 			WHERE yn=1 AND ret_status = 0 
 				AND excute_count < 5 AND excute_time < NOW() 
-				AND LIMIT #{fetchNum}
+				LIMIT #{fetchNum}
 		]]>
 	</select>
 </mapper>

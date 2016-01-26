@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.spare.domain.SpareSale;
 
+import java.util.Date;
+
 public class SpareSaleDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -24,7 +26,8 @@ public class SpareSaleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setProductName("Jim");
         parameter.setSaleAmount(0.6356595230603049);
         parameter.setSaleTime(new Date());
-        spareSaleDao.add(parameter);
+        Integer i=spareSaleDao.add(SpareSaleDao.class.getName(), parameter);
+        Assert.assertTrue("SpareSaleDaoTest.add",i>0);
     }
 	
 	@Test
@@ -35,7 +38,7 @@ public class SpareSaleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setSaleAmount(0.4732763582798408);
         parameter.setSaleTime(new Date());
         parameter.setYn(447);
-        parameter.setId((long)4016);
-        spareSaleDao.update(parameter);
+        parameter.setId((long) 4016);
+        spareSaleDao.update(SpareSaleDao.class.getName(), parameter);
     }
 }

@@ -37,11 +37,11 @@
 		Inner Join DMS.send_m sem  On sed.box_code = sem.box_code 
         and sed.receive_site_code= sem.receive_site_code
 		and sed.create_site_code= sem.create_site_code
-		where sed.sendd_status=0  
-		and LIMIT 500
+		where sed.sendd_status=0
 		and sem.create_Time <= timestampadd(minute, -10, now())
 		and sed.create_Time >=  timestampadd(DAY, -2, now()) 
 		and mod(sed.send_d_id,8) in ${queueId}
+		LIMIT 500
 		]]>
 	</select>
 	

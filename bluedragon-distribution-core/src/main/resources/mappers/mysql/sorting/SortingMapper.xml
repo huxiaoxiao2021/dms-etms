@@ -60,7 +60,6 @@
 			waybill_code = #{waybillCode,jdbcType=VARCHAR},
 			pickup_code = #{pickupCode,jdbcType=VARCHAR},
 			sorting_type = #{type,jdbcType=INTEGER},
-			create_site_code = #{createSiteCode,jdbcType=INTEGER},
 			receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
 			operate_time = #{operateTime,jdbcType=TIMESTAMP},
 			update_user_code = #{updateUserCode,jdbcType=INTEGER},
@@ -201,7 +200,7 @@
 			WHERE yn=1 AND is_cancel = 0
 			    AND box_code = #{boxCode, jdbcType=VARCHAR}
 			    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			    AND LIMIT 1
+			    LIMIT 1
 		]]>
 	</select>
 	

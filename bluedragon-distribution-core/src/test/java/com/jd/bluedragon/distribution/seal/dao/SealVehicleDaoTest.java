@@ -8,6 +8,8 @@ import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 
@@ -28,14 +30,14 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateTime(new Date());
         parameter.setCode("Joe");
         parameter.setVehicleCode("Mary");
-        sealVehicleDao.updateSealVehicle(parameter);
+        Assert.assertTrue(sealVehicleDao.updateSealVehicle(parameter) > 0);
     }
 	
 	@Test
     public void testUpdateDisable() {
         SealVehicle parameter = new SealVehicle();
         parameter.setId((long)2689);
-        sealVehicleDao.updateDisable(parameter);
+        Assert.assertTrue(sealVehicleDao.updateDisable(parameter) > 0);
     }
 	
 	@Test
@@ -48,7 +50,7 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUser("Stone");
         parameter.setUpdateTime(new Date());
         parameter.setVehicleCode("James");
-        sealVehicleDao.updateBatch(parameter);
+        Assert.assertTrue(sealVehicleDao.updateBatch(parameter) > 0);
     }
 	
 	@Test
@@ -63,13 +65,13 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setSendCode("Jim");
         parameter.setCode("Joe");
         parameter.setVehicleCode("James");
-        sealVehicleDao.updateSealVehicle2(parameter);
+       Assert.assertTrue(sealVehicleDao.updateSealVehicle2(parameter) > 0);
     }
 	
 	@Test
     public void testFindBySealCode() {
         String sealCode = "Jax";
-        sealVehicleDao.findBySealCode(sealCode);
+        Assert.assertNotNull(sealVehicleDao.findBySealCode(sealCode));
     }
 	
 	@Test
@@ -92,30 +94,32 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setVolume(0.753347065623078);
         parameter.setWeight(0.7062918926343418);
         parameter.setPackageNum(293);
-        sealVehicleDao.add2(parameter);
+        Assert.assertTrue(sealVehicleDao.add2(SealVehicleDao.class.getName(), parameter) > 0);
     }
 	
 	@Test
     public void testAddBatch() {
-        List parameter = new ArrayList();
-        //set property for item.vehicleCode
-        //set property for item.code
-        //set property for item.driverCode
-        //set property for item.driver
-        //set property for item.createSiteCode
-        //set property for item.receiveSiteCode
-        //set property for item.createUserCode
-        //set property for item.createUser
-        //set property for item.updateUserCode
-        //set property for item.updateUser
-        //set property for item.createTime
-        //set property for item.updateTime
-        //set property for item.yn
-        //set property for item.sendCode
-        //set property for item.volume
-        //set property for item.weight
-        //set property for item.packageNum
-        sealVehicleDao.addBatch(parameter);
+        List<SealVehicle> parameter = new ArrayList();
+        SealVehicle item = new SealVehicle();
+        item.setVehicleCode("James");
+        item.setCode("James");
+        item.setDriverCode("James");
+        item.setDriver("James");
+        item.setCreateSiteCode(910);
+        item.setReceiveSiteCode(910);
+        item.setCreateUserCode(910);
+        item.setCreateUser("James");
+        item.setUpdateUserCode(910);
+        item.setUpdateUser("James");
+        item.setCreateTime(new Date());
+        item.setUpdateTime(new Date());
+        item.setYn(1);
+        item.setSendCode("James");
+        item.setVolume(910d);
+        item.setWeight(910d);
+        item.setPackageNum(910);
+        parameter.add(item);
+        Assert.assertTrue(sealVehicleDao.addBatch(parameter) > 0);
     }
 	
 	@Test
@@ -134,6 +138,6 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
         parameter.setYn(709);
-        sealVehicleDao.add(parameter);
+        Assert.assertTrue(sealVehicleDao.add(SealVehicleDao.class.getName(), parameter) > 0);
     }
 }

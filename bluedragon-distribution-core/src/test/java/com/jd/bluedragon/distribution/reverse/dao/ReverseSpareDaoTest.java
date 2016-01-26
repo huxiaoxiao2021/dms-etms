@@ -43,14 +43,14 @@ public class ReverseSpareDaoTest extends AbstractDaoIntegrationTest{
         parameter.setYn(873);
         parameter.setSpareTranCode("Jone");
         parameter.setSystemId((long)2078);
-        reverseSpareDao.update(parameter);
+        Assert.assertTrue(reverseSpareDao.update(ReverseSpareDao.class.getName(),parameter) > 0);
     }
 	
 	@Test
     public void testFindByWayBillCode() {
         ReverseSpare parameter = new ReverseSpare();
         parameter.setWaybillCode("James");
-        reverseSpareDao.findByWayBillCode(parameter);
+        Assert.assertTrue(reverseSpareDao.findByWayBillCode(parameter)!=null);
     }
 	
 	@Test
@@ -72,7 +72,7 @@ public class ReverseSpareDaoTest extends AbstractDaoIntegrationTest{
         parameter.setArrtDesc4("Jone");
         parameter.setProductPrice(0.736938607382397);
         parameter.setSpareTranCode("Jax");
-        reverseSpareDao.add(parameter);
+        Assert.assertTrue(reverseSpareDao.add(ReverseSpareDao.class.getName(), parameter) > 0);
     }
 	
 	@Test
@@ -83,8 +83,6 @@ public class ReverseSpareDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testQueryBySpareTranCode() {
-        ReverseSpare parameter = new ReverseSpare();
-        parameter.setSpareTranCode("Jax");
-        reverseSpareDao.queryBySpareTranCode(parameter);
+        Assert.assertTrue(reverseSpareDao.queryBySpareTranCode("James")!=null&&reverseSpareDao.queryBySpareTranCode("James").size()>0);
     }
 }

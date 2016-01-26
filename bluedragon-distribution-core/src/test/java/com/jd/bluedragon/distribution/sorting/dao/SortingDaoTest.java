@@ -2,20 +2,22 @@ package com.jd.bluedragon.distribution.sorting.dao;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
-public class SortingDaoTest extends AbstractDaoIntegrationTest{
-	
-	@Autowired
-	private SortingDao sortingDao;
-	
-	
-	@Test
+public class SortingDaoTest extends AbstractDaoIntegrationTest {
+
+    @Autowired
+    private SortingDao sortingDao;
+
+
+    @Test
     public void testFindOrder() {
         Sorting parameter = new Sorting();
         parameter.setBoxCode("Mary");
@@ -24,16 +26,16 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateTime(new Date());
         sortingDao.findOrder(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testFindPackCount() {
         HashMap parameter = new HashMap();
         // parameter.put("createSiteCode", new Object());
         // parameter.put("boxCode", new Object());
         sortingDao.findPackCount(11, "boxCode");
     }
-	
-	@Test
+
+    @Test
     public void testFindOrderDetail() {
         Sorting parameter = new Sorting();
         parameter.setBoxCode("Stone");
@@ -43,8 +45,8 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateTime(new Date());
         sortingDao.findOrderDetail(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testCanCancelFuzzy() {
         Sorting parameter = new Sorting();
         parameter.setUpdateUserCode(329);
@@ -57,132 +59,129 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(970);
         sortingDao.canCancelFuzzy(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testFindBoxDescSite() {
         HashMap parameter = new HashMap();
         // parameter.put("boxCode", new Object());
         // parameter.put("createSiteCode", new Object());
-        sortingDao.findBoxDescSite(11, "ss");
+        Sorting sorting = sortingDao.findBoxDescSite(910, "James");
+        Assert.assertTrue(sorting != null);
     }
-	
-	@Test
+
+    @Test
     public void testUpdate() {
         Sorting parameter = new Sorting();
-        parameter.setBsendCode("Jone");
-        parameter.setBoxCode("Jone");
-        parameter.setPackageCode("Jim");
-        parameter.setWaybillCode("Mary");
-        parameter.setPickupCode("Stone");
-        parameter.setType(743);
-        parameter.setCreateSiteCode(87);
-        parameter.setReceiveSiteCode(750);
+        parameter.setBsendCode("James");
+        parameter.setBoxCode("James");
+        parameter.setPackageCode("James");
+        parameter.setWaybillCode("James");
+        parameter.setPickupCode("James");
+        parameter.setReceiveSiteCode(910);
         parameter.setOperateTime(new Date());
-        parameter.setUpdateUserCode(345);
-        parameter.setUpdateUser("Mary");
-        parameter.setSpareReason("Jone");
-        parameter.setIsCancel(484);
-        parameter.setIsLoss(229);
-        parameter.setFeatureType(966);
-        parameter.setBoxCode("Stone");
-        parameter.setType(246);
-        parameter.setPackageCode("Joe");
-        parameter.setCreateSiteCode(786);
-        parameter.setReceiveSiteCode(911);
-        sortingDao.update(SortingDao.namespace, parameter);
+        parameter.setUpdateUserCode(910);
+        parameter.setUpdateUser("James");
+        parameter.setSpareReason("James");
+        parameter.setCreateSiteCode(910);
+        parameter.setIsCancel(0);
+        parameter.setIsLoss(0);
+        parameter.setFeatureType(0);
+        parameter.setType(1120);
+        Assert.assertTrue(sortingDao.update(SortingDao.namespace, parameter) > 0);
     }
-	
-	@Test
+
+    @Test
     public void testFindSortingPackages() {
         Sorting parameter = new Sorting();
-        parameter.setType(468);
-        parameter.setBoxCodes("Jim");
-        parameter.setCreateSiteCode(401);
-        parameter.setPackageCode("Jone");
-        parameter.setWaybillCode("Mary");
-        sortingDao.findSortingPackages(parameter);
+        parameter.setType(1120);
+        parameter.setBoxCodes("'James'");
+        parameter.setCreateSiteCode(910);
+        parameter.setPackageCode("James");
+        parameter.setWaybillCode("James");
+        List<Sorting> list = sortingDao.findSortingPackages(parameter);
+        Assert.assertTrue(list != null && list.size() > 0);
     }
-	
-	@Test
+
+    @Test
     public void testFindByBoxCode() {
         Sorting parameter = new Sorting();
-        parameter.setBoxCode("Jax");
-        parameter.setCreateSiteCode(177);
-        parameter.setReceiveSiteCode(497);
-        parameter.setType(59);
+        parameter.setBoxCode("James");
+        parameter.setCreateSiteCode(910);
+        parameter.setReceiveSiteCode(910);
+        parameter.setType(1120);
         sortingDao.findByBoxCode(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testFindByBsendCode() {
         Sorting parameter = new Sorting();
-        parameter.setBsendCode("Jax");
-        parameter.setCreateSiteCode(382);
+        parameter.setBsendCode("James");
+        parameter.setCreateSiteCode(910);
         sortingDao.findByBsendCode(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testCanCancel() {
         Sorting parameter = new Sorting();
         parameter.setUpdateUserCode(511);
-        parameter.setUpdateUser("Jim");
-        parameter.setCreateSiteCode(21);
-        parameter.setType(874);
-        parameter.setPackageCode("Jone");
-        parameter.setWaybillCode("Jone");
-        parameter.setBoxCode("Joe");
-        parameter.setReceiveSiteCode(821);
+        parameter.setUpdateUser("James");
+        parameter.setCreateSiteCode(910);
+        parameter.setType(1120);
+        parameter.setPackageCode("James");
+        parameter.setWaybillCode("James");
+        parameter.setBoxCode("James");
+        parameter.setReceiveSiteCode(910);
         sortingDao.canCancel(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testExistSortingByPackageCode() {
         Sorting parameter = new Sorting();
-        parameter.setPackageCode("Jone");
-        parameter.setCreateSiteCode(799);
+        parameter.setPackageCode("James");
+        parameter.setCreateSiteCode(910);
         sortingDao.existSortingByPackageCode(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testFindBoxPackList() {
         Sorting parameter = new Sorting();
-        parameter.setCreateSiteCode(278);
-        parameter.setType(517);
-        parameter.setWaybillCode("Mary");
-        parameter.setPackageCode("Stone");
+        parameter.setCreateSiteCode(910);
+        parameter.setType(1120);
+        parameter.setWaybillCode("James");
+        parameter.setPackageCode("James");
         sortingDao.findBoxPackList(parameter);
     }
-	
-	@Test
+
+    @Test
     public void testQueryByCode() {
         Sorting parameter = new Sorting();
-        parameter.setCreateSiteCode(355);
-        parameter.setType(860);
+        parameter.setCreateSiteCode(910);
+        parameter.setType(1120);
         parameter.setWaybillCode("James");
-        parameter.setPackageCode("Stone");
-        sortingDao.queryByCode(parameter);
+        parameter.setPackageCode("James");
+        Assert.assertTrue(sortingDao.queryByCode(parameter) != null && sortingDao.queryByCode(parameter).size() > 0);
     }
-	
-	@Test
+
+    @Test
     public void testAdd() {
         Sorting parameter = new Sorting();
-        parameter.setBsendCode("Mary");
-        parameter.setBoxCode("Stone");
-        parameter.setPackageCode("Stone");
-        parameter.setWaybillCode("Jax");
-        parameter.setPickupCode("Joe");
-        parameter.setType(30);
-        parameter.setCreateSiteCode(131);
-        parameter.setReceiveSiteCode(177);
-        parameter.setCreateUserCode(37);
-        parameter.setCreateUser("Joe");
+        parameter.setBsendCode("James");
+        parameter.setBoxCode("James");
+        parameter.setPackageCode("James");
+        parameter.setWaybillCode("James");
+        parameter.setPickupCode("James");
+        parameter.setType(1120);
+        parameter.setCreateSiteCode(910);//按createsitecode分库
+        parameter.setReceiveSiteCode(910);//Oracle造mysql方案，
+        parameter.setCreateUserCode(910);
+        parameter.setCreateUser("James");
         parameter.setCreateUserCode(420);
-        parameter.setCreateUser("Mary");
+        parameter.setCreateUser("James");
         parameter.setOperateTime(new Date());
         parameter.setIsCancel(0);
-        parameter.setSpareReason("Jone");
+        parameter.setSpareReason("James");
         parameter.setIsLoss(0);
-        parameter.setFeatureType(2);
-        sortingDao.add(SortingDao.namespace, parameter);
+        parameter.setFeatureType(0);
+        Assert.assertTrue(sortingDao.add(SortingDao.namespace, parameter) > 0);
     }
 }

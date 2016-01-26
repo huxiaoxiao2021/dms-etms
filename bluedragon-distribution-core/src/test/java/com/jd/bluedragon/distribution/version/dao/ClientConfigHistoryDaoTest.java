@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.version.domain.ClientConfigHistory;
 
+import java.util.List;
+
 public class ClientConfigHistoryDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -23,22 +25,34 @@ public class ClientConfigHistoryDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testGetByProgramType() {
-        Integer programType = 869;
-        clientConfigHistoryDao.getByProgramType(programType);
+        ClientConfigHistory parameter = new ClientConfigHistory();
+        parameter.setSiteCode("3011");
+        parameter.setProgramType(244);
+        parameter.setVersionCode("Joe");
+        clientConfigHistoryDao.add(parameter);
+        List<ClientConfigHistory> list = clientConfigHistoryDao.getByProgramType(244);
+        Assert.assertNotNull("按类型获取版本配置历史", list);
+        Assert.assertTrue("按类型获取版本配置历史列表", list != null && list.size() > 0);
     }
 	
 	@Test
     public void testGetBySiteCode() {
-        String siteCode = "James";
-        clientConfigHistoryDao.getBySiteCode(siteCode);
+        ClientConfigHistory parameter = new ClientConfigHistory();
+        parameter.setSiteCode("3011");
+        parameter.setProgramType(244);
+        parameter.setVersionCode("Joe");
+        clientConfigHistoryDao.add(parameter);
+        List<ClientConfigHistory> list= clientConfigHistoryDao.getBySiteCode(parameter.getSiteCode());
+        Assert.assertTrue("根据站点获取配置历史",list!=null&&list.size()>0);
     }
 	
 	@Test
     public void testAdd() {
         ClientConfigHistory parameter = new ClientConfigHistory();
         parameter.setSiteCode("Jone");
-        parameter.setProgramType(412);
+        parameter.setProgramType(30);
         parameter.setVersionCode("Joe");
-        clientConfigHistoryDao.add(parameter);
+        boolean b=clientConfigHistoryDao.add(parameter);
+        Assert.assertTrue("配置版本历史",b);
     }
 }

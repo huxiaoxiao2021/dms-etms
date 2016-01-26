@@ -34,9 +34,9 @@
 	</select> 
 
 	<insert id="add" parameterType="clientConfigHistory">
-		insert into client_config_history(config_history_id, site_code, program_type, version_code,create_time,update_time, yn)
+		insert into client_config_history(site_code, program_type, version_code,create_time,update_time, yn)
 		values (
-		SEQ_CLIENT_CONFIG_HISTORY.NEXTVAL, #{siteCode, jdbcType=VARCHAR},
+		#{siteCode, jdbcType=VARCHAR},
 		#{programType, jdbcType=INTEGER}, #{versionCode, jdbcType=VARCHAR}, 
 		NOW(), NOW(), 1
 		)

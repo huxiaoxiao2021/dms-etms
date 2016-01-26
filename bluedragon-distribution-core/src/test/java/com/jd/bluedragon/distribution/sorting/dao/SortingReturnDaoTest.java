@@ -8,7 +8,9 @@ import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 
 public class SortingReturnDaoTest extends AbstractDaoIntegrationTest{
@@ -19,46 +21,52 @@ public class SortingReturnDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testUpdate() {
+
         SortingReturn parameter = new SortingReturn();
-        parameter.setWaybillCode("James");
-        parameter.setPackageCode("Jim");
+        parameter.setWaybillCode("Mary");
+        parameter.setPackageCode("Mary");
         parameter.setUserCode(103);
         parameter.setUserName("Stone");
         parameter.setSiteCode(441);
         parameter.setSiteName("Stone");
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
-        parameter.setBusinessType(735);
+        parameter.setBusinessType(391);
         parameter.setShieldsError("Mary");
         parameter.setShieldsType(734);
-        parameter.setSiteCode(851);
-        parameter.setBusinessType(626);
-        parameter.setPackageCode("Jax");
-        parameter.setWaybillCode("Jone");
-        sortingReturnDao.update(parameter);
+        parameter.setSiteCode(924);
+        parameter.setBusinessType(391);
+        Integer i=sortingReturnDao.update(SortingReturnDao.class.getName(), parameter);
+        Assert.assertTrue("sortingReturnDao.testUpdate",i>0);
     }
 	
 	@Test
     public void testUpdateStatus() {
         SortingReturn parameter = new SortingReturn();
-        parameter.setStatus(607);
-        parameter.setYn(315);
-        parameter.setId((long)3757);
-        sortingReturnDao.updateStatus(parameter);
+        parameter.setStatus(1);
+        parameter.setYn(1);
+        parameter.setId(6111l);
+        Integer i=sortingReturnDao.updateStatus(parameter);
+        Assert.assertTrue("sortingReturnDao.testUpdate",i>0);
+
     }
-	
-	@Test
-    public void testUpdateListStatusSuccess() {
-        List parameter = new ArrayList();
-        //set property for item.id
-        sortingReturnDao.updateListStatusSuccess(parameter);
-    }
-	
+
 	@Test
     public void testUpdateListStatusFail() {
         List parameter = new ArrayList();
+        SortingReturn p1 = new SortingReturn();
+        p1.setStatus(607);
+        p1.setYn(1);
+        p1.setId(6111l);
+        parameter.add(p1);
+        SortingReturn p2 = new SortingReturn();
+        p2.setStatus(607);
+        p2.setYn(1);
+        p2.setId(6112l);
+        parameter.add(p1);
         //set property for item.id
-        sortingReturnDao.updateListStatusFail(parameter);
+        Integer i= sortingReturnDao.updateListStatusFail(parameter);
+        Assert.assertTrue("SortingReturnDao.testAdd",i>0);
     }
 	
 	@Test
@@ -75,27 +83,33 @@ public class SortingReturnDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBusinessType(391);
         parameter.setShieldsError("James");
         parameter.setShieldsType(970);
-        sortingReturnDao.add(parameter);
+        parameter.setStatus(0);
+        Integer i=sortingReturnDao.add(SortingReturnDao.class.getName(), parameter);
+        Assert.assertTrue("SortingReturnDao.testAdd",i>0);
     }
 	
 	@Test
     public void testExists() {
         SortingReturn parameter = new SortingReturn();
-        parameter.setSiteCode(700);
-        parameter.setWaybillCode("Jone");
-        parameter.setPackageCode("Jim");
-        sortingReturnDao.exists(parameter);
+        parameter.setSiteCode(924);
+        parameter.setWaybillCode("Mary");
+        parameter.setPackageCode("Mary");
+        parameter.setBusinessType(391);
+        boolean b=sortingReturnDao.exists(parameter);
+        Assert.assertTrue("SortingReturnDao.testExists",b);
     }
 	
 	@Test
     public void testFindByStatus() {
-        Integer fetchNum = 581;
-        sortingReturnDao.findByStatus(fetchNum);
+        List<SortingReturn> ll=sortingReturnDao.findByStatus(1);
+        Assert.assertTrue("SortingReturnDao.testFindByStatus",ll==null||ll.size()>0);
     }
 	
 	@Test
     public void testGet() {
-        String id = "Joe";
-        sortingReturnDao.get(id);
+        List<SortingReturn> ll=sortingReturnDao.findByStatus(1);
+        SortingReturn sr= sortingReturnDao.get(SortingReturnDao.class.getName(), ll.get(0).getId());
+        Assert.assertTrue("SortingReturnDao.get",sr!=null);
+
     }
 }

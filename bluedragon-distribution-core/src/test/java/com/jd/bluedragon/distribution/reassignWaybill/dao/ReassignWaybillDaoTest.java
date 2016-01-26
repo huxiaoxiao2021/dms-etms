@@ -25,7 +25,7 @@ public class ReassignWaybillDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(722);
         parameter.setChangeSiteName("Jim");
         parameter.setChangeSiteCode(842);
-        parameter.setOperateTime(new Date());
+//        parameter.setOperateTime(new Date());
         parameter.setSiteCode(575);
         parameter.setSiteName("Joe");
         parameter.setUserCode(817);

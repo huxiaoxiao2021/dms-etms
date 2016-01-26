@@ -211,4 +211,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryWaybillsByDepartID", departureID);
     }
+
+
+	public List<String> querySendCodesByDepartID(Long departureID){
+		return this.getSqlSession().selectList(
+				SendDatailDao.namespace + ".querySendCodesByDepartID", departureID);
+	}
 }

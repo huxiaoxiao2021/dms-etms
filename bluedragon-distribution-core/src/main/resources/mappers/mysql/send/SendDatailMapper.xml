@@ -71,9 +71,6 @@
 			<if test="sendType != null">
 				send_type = #{sendType,jdbcType=SMALLINT},
 			</if>
-			<if test="createSiteCode != null">
-				create_site_code = #{createSiteCode,jdbcType=INTEGER},
-			</if>
 			<if test="receiveSiteCode != null">
 				receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
 			</if>
@@ -214,7 +211,7 @@
 		resultMap="SendDetail">
 		SELECT 
 		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and box_code=#{boxCode,jdbcType=VARCHAR} and LIMIT 1
+		FROM send_d where yn=1 and box_code=#{boxCode,jdbcType=VARCHAR} LIMIT 1
 	</select>
 	
 	<select id="querySendDatailsBySelective" parameterType="SendDetail"
@@ -264,10 +261,10 @@
 		Inner Join send_m sem  On sed.box_code = sem.box_code 
         and sed.receive_site_code= sem.receive_site_code
 		and sed.create_site_code= sem.create_site_code
-		where sed.sendd_status=0  
-		and LIMIT 500
+		where sed.sendd_status=0
 		and sem.create_Time <= timestampadd(minute, -10, now())
-		and sed.create_Time >=  timestampadd(DAY, -2, now()) 
+		and sed.create_Time >=  timestampadd(DAY, -2, now())
+		LIMIT 500
 		]]>
 	</select>
 	
@@ -371,7 +368,7 @@
 				and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
 			</if>
 			<if test="sendCode!=null">
-				and package_barcode in ${sendCode}
+				and package_barcode in (${sendCode})
 			</if>
 		</where>
     </update>
@@ -399,7 +396,7 @@
 		resultMap="SendDetail">
 		SELECT 
 		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and waybill_code in ${waybillCode} order by update_time
+		FROM send_d where yn=1 and waybill_code in (${waybillCode}) order by update_time
 	</select>
 	<select id="getSendSiteID" parameterType="SendDetail"
 		resultMap="SendDetail">
@@ -559,7 +556,7 @@
 			and is_cancel=0
 			and operate_time <![CDATA[<=]]> timestampadd(minute, -2, now()) 
 			and sendd_status = 0 
-			and LIMIT 1
+			LIMIT 1
 		</where>
 	</select>
 	<select id="queryBySendCodeAndSendType" parameterType="SendDetail" resultMap="SendDetail">
@@ -616,11 +613,8 @@
         AND yn = 1
         AND send_code = #{sendCode,jdbcType=VARCHAR}
     </select>
-    <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
-        SELECT sd.waybill_code,sd.package_barcode
-        FROM departure_send ds
-        INNER JOIN send_d sd
-        ON ds.send_code = sd.send_code
-        where ds.departure_car_id = #{departureID,jdbcType=BIGINT}
-    </select>
+
+	<select id="querySendCodesByDepartID"  parameterType="java.lang.Long" resultType="String">
+		select SEND_CODE from DEPARTURE_SEND where departure_car_id=#{departureID]}
+	</select>
 </mapper>

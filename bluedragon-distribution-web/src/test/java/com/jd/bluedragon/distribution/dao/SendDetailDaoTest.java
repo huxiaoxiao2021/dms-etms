@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.StringHelper;
 import junit.framework.Assert;
+import org.apache.activemq.transport.stomp.Stomp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
@@ -172,7 +173,14 @@ public class SendDetailDaoTest {
                 "6929";
 
         for(String dr : departures.split("\n")){
-            List<SendDetail> sendDetails = sendDatailDao.queryWaybillsByDepartID(Long.parseLong(dr));
+            List<String> sendCodess = sendDatailDao.querySendCodesByDepartID(Long.parseLong(dr));
+            List<SendDetail> sendDetails=null;
+            if (sendCodess != null && sendCodess.size() > 0) {
+                List<SendDetail> temp = sendDatailDao.queryWaybillsBySendCode(sendCodess.get(0));
+                if(temp!=null&&temp.size()>0){
+                    sendDetails.addAll(temp);
+                }
+            }
             log.error(StringHelper.join(sendDetails,"getWaybillCode",","));
         }
     }

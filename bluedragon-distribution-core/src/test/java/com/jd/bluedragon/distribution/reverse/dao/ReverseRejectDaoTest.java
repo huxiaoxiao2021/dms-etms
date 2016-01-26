@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReject;
 
+import java.util.Date;
+
 public class ReverseRejectDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -34,7 +36,7 @@ public class ReverseRejectDaoTest extends AbstractDaoIntegrationTest{
         parameter.setInspector("James");
         parameter.setInspectorCode("Mary");
         parameter.setInspectTime(new Date());
-        reverseRejectDao.add(parameter);
+        Assert.assertTrue(reverseRejectDao.add(ReverseRejectDao.class.getName(), parameter)>0);
     }
 	
 	@Test
@@ -43,7 +45,7 @@ public class ReverseRejectDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBusinessType(716);
         parameter.setOrderId("Joe");
         parameter.setPackageCode("Mary");
-        reverseRejectDao.get(parameter);
+        Assert.assertNotNull(reverseRejectDao.get(parameter));
     }
 	
 	@Test
@@ -64,6 +66,6 @@ public class ReverseRejectDaoTest extends AbstractDaoIntegrationTest{
         parameter.setInspector("Jax");
         parameter.setInspectTime(new Date());
         parameter.setId((long)5840);
-        reverseRejectDao.update(parameter);
+        Assert.assertTrue(reverseRejectDao.update(ReverseRejectDao.class.getName(), parameter) > 0);
     }
 }

@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.Map;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -20,16 +21,16 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindSpecifiedTasks() {
         Map parameter = new HashMap();
-        // parameter.put("tableName", new Object());
-        // parameter.put("type", new Object());
-        // parameter.put("ownSign", new Object());
-        // parameter.put("fetchNum", new Object());
+        parameter.put("tableName", new Object());
+        parameter.put("type", new Object());
+        parameter.put("ownSign", new Object());
+        parameter.put("fetchNum", new Object());
         taskDao.findSpecifiedTasks(parameter);
     }
 	
 	@Test
     public void testFindCountTask() {
-        Map parameter = new HashMap();
+//        Map parameter = new HashMap();
         // parameter.put("tableName", new Object());
         // parameter.put("taskType", new Object());
         // parameter.put("taskStatus", new Object());
@@ -43,10 +44,10 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindLimitedTasks() {
-        Map parameter = new HashMap();
+//        Map parameter = new HashMap();
         // parameter.put("tableName", new Object());
         // parameter.put("fetchNum", new Object());
-        taskDao.findLimitedTasks(parameter);
+//        taskDao.findLimitedTasks(parameter);
     }
 	
 	@Test
@@ -54,7 +55,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         Task parameter = new Task();
         parameter.setTableName("Jone");
         parameter.setExecuteCount(85);
-        parameter.setExecuteTime(new Date());
+//        parameter.setExecuteTime(new Date());
         parameter.setStatus(345);
         parameter.setYn(524);
         parameter.setId((long)1796);
@@ -63,14 +64,14 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindWaybillSendTask() {
-        Map parameter = new HashMap();
+//        Map parameter = new HashMap();
         // parameter.put("body", new Object());
-        taskDao.findWaybillSendTask(parameter);
+//        taskDao.findWaybillSendTask(parameter);
     }
 	
 	@Test
     public void testFindFailTasksNumsByType() {
-        Map parameter = new HashMap();
+//        Map parameter = new HashMap();
         // parameter.put("tableName", new Object());
         // parameter.put("type", new Object());
         // parameter.put("ownSign", new Object());
@@ -79,7 +80,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindPageTask() {
-        Map parameter = new HashMap();
+//        Map parameter = new HashMap();
         // parameter.put("tableName", new Object());
         // parameter.put("taskType", new Object());
         // parameter.put("taskStatus", new Object());
@@ -162,7 +163,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         parameter.setKeyword2("Mary");
         parameter.setFingerprint("Joe");
         parameter.setOwnSign("Jim");
-        taskDao.add(parameter);
+        taskDao.add(TaskDao.class.getName(),parameter);
     }
 	
 	@Test

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 
+import java.util.Date;
+
 public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -19,67 +21,67 @@ public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindBySealCode() {
-        String sealCode = "Joe";
-        sealBoxDao.findBySealCode(sealCode);
+        String sealCode = "James";
+        Assert.assertTrue(sealBoxDao.findBySealCode(sealCode)!=null);
     }
 	
 	@Test
     public void testAdd() {
         SealBox parameter = new SealBox();
-        parameter.setBoxCode("Mary");
-        parameter.setCode("Jax");
-        parameter.setCreateSiteCode(773);
-        parameter.setReceiveSiteCode(474);
-        parameter.setCreateUserCode(375);
-        parameter.setCreateUser("Joe");
-        parameter.setUpdateUserCode(889);
-        parameter.setUpdateUser("Jax");
-        sealBoxDao.add(parameter);
+        parameter.setBoxCode("James");
+        parameter.setCode("James");
+        parameter.setCreateSiteCode(910);
+        parameter.setReceiveSiteCode(910);
+        parameter.setCreateUserCode(910);
+        parameter.setCreateUser("James");
+        parameter.setUpdateUserCode(910);
+        parameter.setUpdateUser("James");
+        Assert.assertTrue(sealBoxDao.add(SealBoxDao.class.getName(), parameter)>0);
     }
 	
 	@Test
     public void testUpdate() {
         SealBox parameter = new SealBox();
-        parameter.setReceiveSiteCode(598);
-        parameter.setUpdateUserCode(232);
-        parameter.setUpdateUser("Jim");
+        parameter.setReceiveSiteCode(910);
+        parameter.setUpdateUserCode(910);
+        parameter.setUpdateUser("James");
         parameter.setCode("James");
-        sealBoxDao.update(parameter);
+        Assert.assertTrue(sealBoxDao.update(SealBoxDao.class.getName(), parameter) > 0);
     }
 	
 	@Test
     public void testAddSealBox() {
         SealBox parameter = new SealBox();
-        parameter.setBoxCode("Stone");
-        parameter.setCode("Jax");
-        parameter.setCreateSiteCode(15);
-        parameter.setReceiveSiteCode(816);
-        parameter.setCreateUserCode(6);
+        parameter.setBoxCode("James");
+        parameter.setCode("James");
+        parameter.setCreateSiteCode(910);
+        parameter.setReceiveSiteCode(910);
+        parameter.setCreateUserCode(910);
         parameter.setCreateUser("James");
-        parameter.setUpdateUserCode(372);
-        parameter.setUpdateUser("Stone");
+        parameter.setUpdateUserCode(910);
+        parameter.setUpdateUser("James");
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
-        sealBoxDao.addSealBox(parameter);
+        Assert.assertTrue(sealBoxDao.addSealBox(parameter) > 0);
     }
 	
 	@Test
     public void testUpdateSealBox() {
-        SealVehicle parameter = new SealVehicle();
-        parameter.setCreateSiteCode(370);
-        parameter.setCreateUserCode(631);
-        parameter.setCreateUser("Mary");
-        parameter.setReceiveSiteCode(50);
-        parameter.setUpdateUserCode(386);
+        SealBox parameter = new SealBox();
+        parameter.setCreateSiteCode(910);
+        parameter.setCreateUserCode(910);
+        parameter.setCreateUser("James");
+        parameter.setReceiveSiteCode(910);
+        parameter.setUpdateUserCode(910);
         parameter.setUpdateUser("James");
         parameter.setUpdateTime(new Date());
-        parameter.setCode("Jax");
-        sealBoxDao.updateSealBox(parameter);
+        parameter.setCode("James");
+        Assert.assertTrue(sealBoxDao.updateSealBox(parameter) > 0);
     }
 	
 	@Test
     public void testFindByBoxCode() {
-        String boxCode = "Joe";
-        sealBoxDao.findByBoxCode(boxCode);
+        String boxCode = "James";
+        Assert.assertTrue(sealBoxDao.findByBoxCode(boxCode) != null);
     }
 }

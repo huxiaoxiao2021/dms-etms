@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.reverse.domain.LossOrder;
 
+import java.util.Date;
+
 public class LossOrderDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -20,15 +22,15 @@ public class LossOrderDaoTest extends AbstractDaoIntegrationTest{
     public void testAdd() {
         LossOrder parameter = new LossOrder();
         parameter.setOrderId((long)6192);
-        parameter.setLossType(281);
-        parameter.setLossCode(176);
-        parameter.setProductId((long)6588);
-        parameter.setProductName("Stone");
-        parameter.setProductQuantity(250);
-        parameter.setUserErp("Stone");
-        parameter.setUserName("Jax");
-        parameter.setLossQuantity(209);
+        parameter.setLossType(1);
+        parameter.setLossCode(1);
+        parameter.setProductId((long)1);
+        parameter.setProductName("James");
+        parameter.setProductQuantity(1);
+        parameter.setUserErp("James");
+        parameter.setUserName("James");
+        parameter.setLossQuantity(1);
         parameter.setLossTime(new Date());
-        lossOrderDao.add(parameter);
+        Assert.assertTrue(lossOrderDao.add(LossOrderDao.class.getName(), parameter)>0);
     }
 }

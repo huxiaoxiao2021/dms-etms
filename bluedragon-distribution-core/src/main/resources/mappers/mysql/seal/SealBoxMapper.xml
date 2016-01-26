@@ -20,11 +20,12 @@
 
 	<insert id="add" parameterType="sealBox">
 		INSERT INTO seal_box (
-		box_code, seal_code, create_site_code,receive_site_code,
+-- 		box_code,
+		seal_code, create_site_code,receive_site_code,
 		create_user_code, create_user, update_user_code, update_user,
 		create_time, update_time, yn)
 		VALUES (
-		SEQ_SEAL_BOX.NEXTVAL,
+-- 		SEQ_SEAL_BOX.NEXTVAL,
 		#{code,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{receiveSiteCode,jdbcType=INTEGER},
@@ -97,7 +98,7 @@
 		FROM seal_box
 		WHERE seal_code
 		= #{sealCode}
-		and LIMIT 1
+		LIMIT 1
 	</select>
 
     <select id="findByBoxCode" resultMap="sealBox" parameterType="String">
@@ -105,8 +106,8 @@
 		FROM seal_box
 		WHERE box_code
 		= #{boxCode}  order by create_time  desc
-		)
-		where LIMIT 1
+		) a
+		 LIMIT 1
 	</select>
 
 </mapper>

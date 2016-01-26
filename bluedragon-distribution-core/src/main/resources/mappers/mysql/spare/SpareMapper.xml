@@ -56,7 +56,7 @@
 		SELECT spare_id, spare_code, spare_type, create_user_code, spare_status, times
 		FROM Spare
 		WHERE yn = 1 AND spare_code = #{code}
-			AND LIMIT 1
+			 LIMIT 1
 	</select>
 	
 	<select id="findSpares" resultMap="spare" parameterType="spare" >
@@ -66,7 +66,7 @@
 		    AND spare_type = #{type}
 		    AND spare_status = #{status}
 		     AND times = #{times}
-			AND LIMIT #{quantity}
+			LIMIT #{quantity}
 	</select>
 	
 </mapper>

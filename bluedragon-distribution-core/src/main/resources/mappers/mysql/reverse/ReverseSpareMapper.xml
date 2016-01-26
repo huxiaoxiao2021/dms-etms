@@ -49,7 +49,7 @@
             arrt_code4, arrt_desc4, create_time, update_time, yn, product_price
 		FROM reverse_spare
 		WHERE yn = 1 AND spare_code = #{spareCode}
-			AND LIMIT 1
+			LIMIT 1
 	</select>
 	
 	<select id="queryByWayBillCode" resultMap="reverseSpare" parameterType="reverseSpare" >

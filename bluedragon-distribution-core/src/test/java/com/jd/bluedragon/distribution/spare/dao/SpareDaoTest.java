@@ -10,49 +10,58 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.spare.domain.Spare;
 
-public class SpareDaoTest extends AbstractDaoIntegrationTest{
-	
-	@Autowired
-	private SpareDao spareDao;
-	
-	
-	@Test
+import java.util.List;
+
+public class SpareDaoTest extends AbstractDaoIntegrationTest {
+
+    @Autowired
+    private SpareDao spareDao;
+
+
+    @Test
     public void testAdd() {
         Spare parameter = new Spare();
-        parameter.setCode("Joe");
+        parameter.setCode("Joe1");
         parameter.setType("Jone");
         parameter.setCreateUserCode(484);
         parameter.setCreateUser("Mary");
         parameter.setCreateUserCode(705);
         parameter.setCreateUser("Stone");
-        spareDao.add(parameter);
+        Integer i = spareDao.add(SpareDao.class.getName(), parameter);
+        Assert.assertTrue("SpareDao.add", i > 0);
     }
-	
-	@Test
+
+    @Test
     public void testUpdate() {
-        Spare parameter = new Spare();
+
+        Spare parameter = spareDao.findBySpareCode("Joe");
         parameter.setCreateUserCode(860);
         parameter.setCreateUser("Mary");
         parameter.setUpdateUserCode(238);
         parameter.setUpdateUser("Jax");
-        parameter.setStatus(545);
-        parameter.setCode("Jim");
-        spareDao.update(parameter);
+        parameter.setStatus(2);
+        parameter.setCode("Joe1");
+        Integer i = spareDao.update(SpareDao.class.getName(), parameter);
+        Assert.assertTrue("SpareDao.update", i > 0);
     }
-	
-	@Test
+
+    @Test
     public void testFindSpares() {
         Spare parameter = new Spare();
-        parameter.setType("Mary");
-        parameter.setStatus(836);
-        parameter.setTimes(191);
+        parameter.setType("Jone");
+        parameter.setStatus(2);
+        parameter.setTimes(2);
         parameter.setQuantity(328);
-        spareDao.findSpares(parameter);
+        List<Spare> list = spareDao.findSpares(parameter);
+        Assert.assertTrue("SpareDao.testFindSpares", list != null && list.size() > 0);
+
     }
-	
-	@Test
+
+    @Test
     public void testFindBySpareCode() {
-        String code = "Jim";
-        spareDao.findBySpareCode(code);
+
+        Spare sp = spareDao.findBySpareCode("Joe");
+        Assert.assertTrue("SpareDao.testFindBySpareCode", sp != null);
+
     }
 }

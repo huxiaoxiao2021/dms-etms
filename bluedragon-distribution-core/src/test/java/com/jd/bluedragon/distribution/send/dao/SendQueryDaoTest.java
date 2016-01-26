@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.send.domain.SendQuery;
 
+import java.util.Date;
+
 public class SendQueryDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -18,23 +20,23 @@ public class SendQueryDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testQueryBySendCode() {
-        String sendMId = "Jone";
-        sendQueryDao.queryBySendCode(sendMId);
+        String sendMId = "James";
+        Assert.assertTrue(sendQueryDao.queryBySendCode(sendMId)!=null);
     }
 	
 	@Test
     public void testAdd() {
         SendQuery parameter = new SendQuery();
         parameter.setSendCode("James");
-        parameter.setCreateSiteCode(78);
-        parameter.setCreateUserRealName("Jone");
-        parameter.setCreateUserCode(302);
-        parameter.setUpdateUserRealName("Mary");
-        parameter.setUpdateUserCode(198);
+        parameter.setCreateSiteCode(910);
+        parameter.setCreateUserRealName("James");
+        parameter.setCreateUserCode(910);
+        parameter.setUpdateUserRealName("James");
+        parameter.setUpdateUserCode(910);
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
-        parameter.setYn(499);
+        parameter.setYn(1);
         parameter.setIpAddress("James");
-        sendQueryDao.add(parameter);
+        Assert.assertTrue(sendQueryDao.add(parameter));
     }
 }

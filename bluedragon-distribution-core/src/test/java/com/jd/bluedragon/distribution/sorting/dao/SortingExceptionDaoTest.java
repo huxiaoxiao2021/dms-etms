@@ -8,6 +8,9 @@ import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.jd.bluedragon.distribution.sorting.domain.SortingException;
 
@@ -19,21 +22,19 @@ public class SortingExceptionDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testGetListByBatchCodeAndSiteCode() {
-        Map parameter = new HashMap();
-        // parameter.put("batchCode", new Object());
-        // parameter.put("siteCode", new Object());
-        sortingExceptionDao.getListByBatchCodeAndSiteCode(parameter);
+        List<SortingException> list= sortingExceptionDao.search("Jax", 910);
+        Assert.assertTrue(list==null||list.size()==0);
     }
 	
 	@Test
     public void testAdd() {
         SortingException parameter = new SortingException();
-        parameter.setCreateSiteCode(208);
+        parameter.setCreateSiteCode(910);
         parameter.setReceiveSiteCode(767);
         parameter.setBusinessType(730);
         parameter.setBoxCode("Jax");
         parameter.setPackageCode("Stone");
-        parameter.setExceptionCode(203);
+        parameter.setExceptionCode(2);
         parameter.setExceptionMessage("Jone");
         parameter.setCreateUserCode(603);
         parameter.setCreateUserName("Joe");
@@ -41,7 +42,8 @@ public class SortingExceptionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUserName("Jax");
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
-        parameter.setYn(768);
-        sortingExceptionDao.add(parameter);
+        parameter.setYn(1);
+        Integer i= sortingExceptionDao.add(parameter);
+        Assert.assertTrue("SortingExceptionDao.Add",i>0);
     }
 }
