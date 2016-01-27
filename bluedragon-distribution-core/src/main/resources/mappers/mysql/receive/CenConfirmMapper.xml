@@ -51,7 +51,7 @@
 	<insert id="add"
 		parameterType="com.jd.bluedragon.distribution.receive.domain.CenConfirm">
 		<selectKey resultType="long"  keyProperty="confirmId" order="BEFORE" statementType="PREPARED">      
-			<![CDATA[SELECT dms_core_cen_confirm.nextval]]>
+			<![CDATA[select dms_core_cen_confirm.nextval]]>
 	    </selectKey>
 		
 		insert into cen_confirm (confirm_id, send_code,
