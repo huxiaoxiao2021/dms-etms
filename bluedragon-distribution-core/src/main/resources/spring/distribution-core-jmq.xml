@@ -5,7 +5,7 @@
        xmlns:jmq="http://code.jd.com/schema/jmq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="http://www.springframework.org/schema/beans">
-    <jmq:transport channelMaxIdleTime="10000" epoll="false" app="${jmq.producer.app}" password="${jmq.password}" user="${jmq.user}" address="${jmq.address}"/>
+    <jmq:transport channelMaxIdleTime="10000" epoll="false" app="${jmq.dms.producer.app}" password="${jmq.dms.password}" user="${jmq.dms.user}" address="${jmq.dms.address}"/>
     <jmq:producer id="jmqProducer" transport="jmq.transport" retryTimes="3" />
     <bean id="ownWaybillTransformMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
