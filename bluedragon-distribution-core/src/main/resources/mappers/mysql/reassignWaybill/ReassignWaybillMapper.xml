@@ -49,8 +49,7 @@
             FROM
               reassign_waybill
             WHERE
-              package_barcode = #{packageCode} ORDER BY operate_time DESC)
-         WHERE
+              package_barcode = #{packageCode} ORDER BY operate_time DESC) t
             LIMIT 1
     </select>
     
@@ -63,8 +62,7 @@
             FROM
               reassign_waybill
             WHERE
-              waybill_code = #{waybillCode} ORDER BY operate_time DESC)
-         WHERE
+              waybill_code = #{waybillCode} ORDER BY operate_time DESC) t
             LIMIT 1
     </select>
     

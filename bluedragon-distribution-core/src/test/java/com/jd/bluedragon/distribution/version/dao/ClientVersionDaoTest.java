@@ -55,7 +55,7 @@ public class ClientVersionDaoTest extends AbstractDaoIntegrationTest{
         List<ClientVersion> list=clientVersionDao.getAllAvailable();
 
         ClientVersion parameter=new ClientVersion();
-        parameter.setVersionCode("fdsafdsaf");
+        parameter.setVersionCode("20130323R");
         parameter.setVersionId(list.get(0).getVersionId());
         boolean b = clientVersionDao.update(parameter);
         Assert.assertTrue("更新版本新信息", b);

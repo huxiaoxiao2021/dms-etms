@@ -76,7 +76,7 @@
 		<include refid="Base_Column_List" />
 		FROM pop_receive
 		WHERE FINGERPRINT = #{fingerPrint, jdbcType=VARCHAR} and yn = 1
-			AND LIMIT 1
+			LIMIT 1
 	</select>
 	
 	<select id="findListByPopReceive" resultMap="popReceive"

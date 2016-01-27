@@ -8,6 +8,8 @@ import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 
@@ -76,7 +78,7 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         PopReceive parameter = new PopReceive();
-        parameter.setReceiveType(890);
+        parameter.setReceiveType(10);
         parameter.setWaybillCode("Stone");
         parameter.setThirdWaybillCode("Jone");
         parameter.setOriginalNum(595);
@@ -88,7 +90,7 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.setOperateTime(new Date());
         parameter.setIsReverse(483);
         parameter.setFingerPrint("Jim");
-        popReceiveDao.add(parameter);
+        popReceiveDao.add(popReceiveDao.getClass().getName(),parameter);
     }
 	
 	@Test
@@ -104,6 +106,6 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.setOperateTime(new Date());
         parameter.setWaybillCode("Stone");
         parameter.setFingerPrint("Jax");
-        popReceiveDao.update(parameter);
+        popReceiveDao.update(popReceiveDao.getClass().getName(),parameter);
     }
 }

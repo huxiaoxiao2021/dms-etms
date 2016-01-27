@@ -42,7 +42,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
 		FROM Reverse_Receive
 		WHERE yn = 1 AND package_barcode = #{packageCode}
-			AND LIMIT 1
+			LIMIT 1
 	</select>
 	
 	
@@ -51,7 +51,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
 		FROM Reverse_Receive
 		WHERE yn = 1 AND package_barcode = #{packageCode} AND send_code = #{sendCode} AND business_type = #{receiveType}
-			AND LIMIT 1
+			LIMIT 1
 	</select>
 	
 	
@@ -60,7 +60,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
 		FROM Reverse_Receive
 		WHERE yn = 1 AND package_barcode = #{orderId} AND send_code = #{sendCode} 
-			AND LIMIT 1
+			LIMIT 1
 	</select>
 	
 	

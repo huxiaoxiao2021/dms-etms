@@ -20,53 +20,53 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         CenConfirm parameter = new CenConfirm();
-        parameter.setSendCode("Jim");
-        parameter.setReceiveUser("Jax");
-        parameter.setReceiveUserCode(212);
+        parameter.setSendCode("James");
+        parameter.setReceiveUser("James");
+        parameter.setReceiveUserCode(910);
         parameter.setCreateTime(new Date());
-        parameter.setCreateSiteCode(774);
-        parameter.setWaybillCode("Jim");
-        parameter.setBoxCode("Stone");
-        parameter.setPackageBarcode("Jim");
-        parameter.setType((short)5985);
+        parameter.setCreateSiteCode(910);
+        parameter.setWaybillCode("James");
+        parameter.setBoxCode("James");
+        parameter.setPackageBarcode("James");
+        parameter.setType((short)10);
         parameter.setUpdateTime(new Date());
-        parameter.setThirdWaybillCode("Mary");
-        parameter.setReceiveSiteCode(817);
-        parameter.setInspectionUser("Jax");
-        parameter.setInspectionUserCode(407);
+        parameter.setThirdWaybillCode("James");
+        parameter.setReceiveSiteCode(910);
+        parameter.setInspectionUser("James");
+        parameter.setInspectionUserCode(910);
         parameter.setInspectionTime(new Date());
-        parameter.setOperateType(727);
-        parameter.setPickupCode("Joe");
+        parameter.setOperateType(10);
+        parameter.setPickupCode("James");
         parameter.setOperateTime(new Date());
         parameter.setReceiveTime(new Date());
-        parameter.setOperateUser("Stone");
-        parameter.setOperateUserCode(505);
+        parameter.setOperateUser("James");
+        parameter.setOperateUserCode(910);
         Assert.assertTrue(cenConfirmDao.add(cenConfirmDao.getClass().getName(), parameter) > 0);
     }
 	
 	@Test
     public void testUpdateYnByPackage() {
         CenConfirm parameter = new CenConfirm();
-        parameter.setSendCode("Jim");
-        parameter.setReceiveUser("Jax");
+        parameter.setSendCode("James");
+        parameter.setReceiveUser("James");
         parameter.setReceiveUserCode(212);
         parameter.setCreateTime(new Date());
         parameter.setCreateSiteCode(774);
-        parameter.setWaybillCode("Jim");
-        parameter.setBoxCode("Stone");
-        parameter.setPackageBarcode("Jim");
+        parameter.setWaybillCode("James");
+        parameter.setBoxCode("James");
+        parameter.setPackageBarcode("James");
         parameter.setType((short)5985);
         parameter.setUpdateTime(new Date());
-        parameter.setThirdWaybillCode("Mary");
+        parameter.setThirdWaybillCode("James");
         parameter.setReceiveSiteCode(817);
         parameter.setInspectionUser("Jax");
         parameter.setInspectionUserCode(407);
         parameter.setInspectionTime(new Date());
         parameter.setOperateType(727);
-        parameter.setPickupCode("Joe");
+        parameter.setPickupCode("James");
         parameter.setOperateTime(new Date());
         parameter.setReceiveTime(new Date());
-        parameter.setOperateUser("Stone");
+        parameter.setOperateUser("James");
         parameter.setOperateUserCode(505);
         Assert.assertTrue(cenConfirmDao.updateYnByPackage(parameter) > 0);
     }
@@ -77,7 +77,7 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setType((short)15953);
         parameter.setCreateSiteCode(114);
         parameter.setReceiveSiteCode(178);
-        parameter.setWaybillCode("Joe");
+        parameter.setWaybillCode("James");
         parameter.setCreateTime(new Date());
         parameter.setInspectionTime(new java.util.Date());
         Assert.assertTrue(cenConfirmDao.queryHandoverInfo(parameter).size()>0);
@@ -90,13 +90,13 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveUserCode(127);
         parameter.setReceiveTime(new Date());
         parameter.setReceiveSiteCode(986);
-        parameter.setInspectionUser("Mary");
+        parameter.setInspectionUser("James");
         parameter.setInspectionUserCode(674);
         parameter.setInspectionTime(new Date());
         parameter.setOperateTime(new Date());
         parameter.setOperateUser("James");
         parameter.setOperateUserCode(109);
         parameter.setConfirmId((long)3);
-        Assert.assertTrue(cenConfirmDao.updateFillField(parameter)>0);
+        Assert.assertTrue(cenConfirmDao.updateFillField(parameter) >0);
     }
 }

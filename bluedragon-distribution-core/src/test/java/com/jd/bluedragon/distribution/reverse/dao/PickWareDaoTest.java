@@ -29,14 +29,14 @@ public class PickWareDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         PickWare parameter = new PickWare();
-        parameter.setOrgId(338);
+        parameter.setOrgId(6);
         parameter.setPackageCode("Jax");
         parameter.setPickwareCode("Jim");
         parameter.setOrderId((long)7102);
-        parameter.setOperateType(351);
+        parameter.setOperateType(10);
         parameter.setOperator("Jone");
         parameter.setPickwareTime(new Date());
-        parameter.setCanReceive(792);
+        parameter.setCanReceive(1);
         parameter.setFingerprint("Mary");
         Assert.assertTrue(pickWareDao.add(PickWareDao.class.getName(), parameter) > 0);
     }

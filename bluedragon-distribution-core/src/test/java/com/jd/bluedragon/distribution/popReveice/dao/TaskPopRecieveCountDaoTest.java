@@ -8,6 +8,8 @@ import org.junit.runner.RunWith;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import com.jd.bluedragon.distribution.popReveice.domain.TaskPopRecieveCount;
 
@@ -24,7 +26,7 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("type", new Object());
         // parameter.put("ownSign", new Object());
         // parameter.put("fetchNum", new Object());
-        taskPopRecieveCountDao.findLimitedTasksByType(parameter);
+//        taskPopRecieveCountDao.findLimitedTasksByType(parameter);
     }
 	
 	@Test
@@ -46,7 +48,7 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testGetTaskPopRevieveCountById() {
-        Integer taskId = 883;
+        Long taskId = 883l;
         taskPopRecieveCountDao.getTaskPopRevieveCountById(taskId);
     }
 	

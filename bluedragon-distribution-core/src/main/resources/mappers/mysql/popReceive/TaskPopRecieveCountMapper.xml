@@ -106,7 +106,7 @@
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
-			AND LIMIT #{fetchNum}
+			LIMIT #{fetchNum}
 		</where>
     </select>	
 </mapper>

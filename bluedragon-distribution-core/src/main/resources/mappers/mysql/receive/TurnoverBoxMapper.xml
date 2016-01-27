@@ -25,9 +25,9 @@
 		parameterType="TurnoverBox"
 		resultMap="BaseResultMap">
 		
-		SELECT * FROM turnoverbox 
+		SELECT * FROM turnoverbox t1
 		<include refid="where"/>
-		WHERE LIMIT #{start} ,#{end}
+		LIMIT #{start} ,#{end}
 	</select>
 	
 	<select id="getCount"

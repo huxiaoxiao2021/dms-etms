@@ -47,14 +47,14 @@
 	</sql>
 
 	<insert id="add" parameterType="Receive">
-		insert into receive (receive_id, create_user, create_user_code,
+		insert into receive ( create_user, create_user_code,
 		create_time, create_site_code, waybill_code,
 		package_barcode, box_code, receive_type,boxing_type,
 		receive_status, update_time, YN, turnoverbox_code, 
 		queueNo,departure_car_id, shields_car_time
 		)
 		values
-		(SEQ_RECEIVE.NEXTVAL, #{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
+		( #{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
 		#{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{receiveType,jdbcType=SMALLINT},
@@ -80,7 +80,7 @@
 		<include refid="Receive_Join_Where_List" />
 		order by receive_id
 		<if test="startIndex != null">
-			WHERE LIMIT #{startIndex, jdbcType=INTEGER} ,#{endIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex, jdbcType=INTEGER} ,#{endIndex, jdbcType=INTEGER}
 		</if>
 	</select>
 </mapper>

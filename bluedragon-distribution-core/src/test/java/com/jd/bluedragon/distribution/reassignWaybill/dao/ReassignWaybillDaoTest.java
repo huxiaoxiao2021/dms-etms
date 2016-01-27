@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 
+import java.util.Date;
+
 public class ReassignWaybillDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -19,30 +21,30 @@ public class ReassignWaybillDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         ReassignWaybill parameter = new ReassignWaybill();
-        parameter.setPackageBarcode("Joe");
-        parameter.setAddress("Mary");
-        parameter.setReceiveSiteName("Jone");
-        parameter.setReceiveSiteCode(722);
-        parameter.setChangeSiteName("Jim");
-        parameter.setChangeSiteCode(842);
-//        parameter.setOperateTime(new Date());
-        parameter.setSiteCode(575);
-        parameter.setSiteName("Joe");
-        parameter.setUserCode(817);
-        parameter.setUserName("Stone");
-        parameter.setWaybillCode("Mary");
-        reassignWaybillDao.add(parameter);
+        parameter.setPackageBarcode("James");
+        parameter.setAddress("James");
+        parameter.setReceiveSiteName("James");
+        parameter.setReceiveSiteCode(910);
+        parameter.setChangeSiteName("James");
+        parameter.setChangeSiteCode(910);
+        parameter.setOperateTime(new Date());
+        parameter.setSiteCode(910);
+        parameter.setSiteName("James");
+        parameter.setUserCode(910);
+        parameter.setUserName("James");
+        parameter.setWaybillCode("James");
+       Assert.assertTrue(reassignWaybillDao.add(parameter));
     }
 	
 	@Test
     public void testQueryByPackageCode() {
-        String packageCode = "Jim";
-        reassignWaybillDao.queryByPackageCode(packageCode);
+        String packageCode = "James";
+        Assert.assertNotNull(reassignWaybillDao.queryByPackageCode(packageCode));
     }
 	
 	@Test
     public void testQueryByWaybillCode() {
-        String waybillCode = "Joe";
-        reassignWaybillDao.queryByWaybillCode(waybillCode);
+        String waybillCode = "James";
+        Assert.assertNotNull(reassignWaybillDao.queryByWaybillCode(waybillCode));
     }
 }
