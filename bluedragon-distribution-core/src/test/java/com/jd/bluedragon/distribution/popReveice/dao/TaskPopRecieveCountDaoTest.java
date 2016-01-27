@@ -61,16 +61,16 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testInsert() {
         TaskPopRecieveCount parameter = new TaskPopRecieveCount();
-        parameter.setWaybillCode("Mary");
-        parameter.setThirdWaybillCode("Jim");
-        parameter.setExpressCode("Jone");
+        parameter.setWaybillCode("James");
+        parameter.setThirdWaybillCode("James");
+        parameter.setExpressCode("James");
         parameter.setExpressName("James");
-        parameter.setActualNum(194);
+        parameter.setActualNum(1);
         parameter.setOperateTime(new Date());
-        parameter.setTaskStatus(899);
-        parameter.setTaskType(499);
-        parameter.setExecuteCount(206);
-        parameter.setOwnSign("Stone");
+        parameter.setTaskStatus(1);
+        parameter.setTaskType(1120);
+        parameter.setExecuteCount(1);
+        parameter.setOwnSign("James");
         taskPopRecieveCountDao.insert(parameter);
     }
 }

@@ -79,17 +79,17 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
     public void testAdd() {
         PopReceive parameter = new PopReceive();
         parameter.setReceiveType(10);
-        parameter.setWaybillCode("Stone");
-        parameter.setThirdWaybillCode("Jone");
-        parameter.setOriginalNum(595);
-        parameter.setActualNum(698);
-        parameter.setCreateSiteCode(139);
-        parameter.setCreateSiteName("Joe");
-        parameter.setOperatorCode(458);
-        parameter.setOperatorName("Joe");
+        parameter.setWaybillCode("James");
+        parameter.setThirdWaybillCode("James");
+        parameter.setOriginalNum(3);
+        parameter.setActualNum(1);
+        parameter.setCreateSiteCode(910);
+        parameter.setCreateSiteName("James");
+        parameter.setOperatorCode(910);
+        parameter.setOperatorName("James");
         parameter.setOperateTime(new Date());
-        parameter.setIsReverse(483);
-        parameter.setFingerPrint("Jim");
+        parameter.setIsReverse(1);
+        parameter.setFingerPrint("James");
         popReceiveDao.add(popReceiveDao.getClass().getName(),parameter);
     }
 	
