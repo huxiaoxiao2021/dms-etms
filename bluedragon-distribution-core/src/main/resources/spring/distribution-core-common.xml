@@ -195,4 +195,15 @@
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <constructor-arg ref="requestFactory"/>
     </bean>
+    <bean id="waybillPrintService" class="com.jd.bluedragon.distribution.print.service.SimpleWaybillPrintServiceImpl" >
+        <property name="composeServiceList" >
+            <list>
+                <bean class="com.jd.bluedragon.distribution.print.service.InterceptComposeServiceImpl"/>
+                <bean class="com.jd.bluedragon.distribution.print.service.ScheduleComposeServiceImpl"/>
+                <bean class="com.jd.bluedragon.distribution.print.service.SpecialMarkComposeServiceImpl"/>
+                <bean class="com.jd.bluedragon.distribution.print.service.SpecialSiteComposeServiceImpl"/>
+                <bean class="com.jd.bluedragon.distribution.print.service.PromiseComposeServiceImpl"/>
+            </list>
+        </property>
+    </bean>
 </beans>

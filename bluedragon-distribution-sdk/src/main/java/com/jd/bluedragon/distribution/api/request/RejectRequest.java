@@ -25,7 +25,7 @@ public class RejectRequest extends JdRequest {
     private Integer storeId;
     
     /** 订单编号 */
-    private Long orderId;
+    private String orderId;
     
     /** 取件单号 */
     private String pickwareCode;
@@ -105,15 +105,15 @@ public class RejectRequest extends JdRequest {
         this.storeId = storeId;
     }
     
-    public Long getOrderId() {
-        return this.orderId;
-    }
-    
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-    
-    public String getPickwareCode() {
+    public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
+
+	public String getPickwareCode() {
         return this.pickwareCode;
     }
     
