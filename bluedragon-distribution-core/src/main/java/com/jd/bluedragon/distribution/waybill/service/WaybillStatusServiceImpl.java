@@ -325,8 +325,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
              */
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_REVERSE_PRINT).equals(task.getKeyword2())){
                 if(BusinessHelper.isPackageCode(tWaybillStatus.getWaybillCode())){
-                    tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(tWaybillStatus.getWaybillCode()));
                     tWaybillStatus.setPackageCode(tWaybillStatus.getWaybillCode());
+                    tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(tWaybillStatus.getWaybillCode()));
+
                 }
                 tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_REVERSE_PRINT);
 
