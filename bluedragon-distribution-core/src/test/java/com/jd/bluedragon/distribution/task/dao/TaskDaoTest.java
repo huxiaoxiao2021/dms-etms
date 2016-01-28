@@ -17,7 +17,8 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private TaskDao taskDao;
-	
+
+    private String table_name="task_offline";
 	
 	@Test
     public void testFindSpecifiedTasks() {
@@ -27,7 +28,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindCountTask() {
         Map parameter = new HashMap();
-        parameter.put("tableName", "task_sorting");
+        parameter.put("tableName", table_name);
         parameter.put("taskType", 1120);
         parameter.put("taskStatus", 0);
         parameter.put("executeCount", 0);
@@ -46,7 +47,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdateBySelective() {
         Task parameter = new Task();
-        parameter.setTableName("task_sorting");
+        parameter.setTableName(table_name);
         parameter.setExecuteCount(1);
         parameter.setExecuteTime(new Date());
         parameter.setStatus(1);
@@ -75,7 +76,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindPageTask() {
         Map parameter = new HashMap();
-        parameter.put("tableName","task_sorting");
+        parameter.put("tableName",table_name);
         parameter.put("taskType", 1120);
         parameter.put("taskStatus", 1);
         parameter.put("executeCount", 1);
@@ -111,7 +112,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
     public void testFindTasksByFingerprint() {
         Task task=new Task();
         task.setType(1120);
-        task.setTableName("task_sorting");
+        task.setTableName(table_name);
         task.setOwnSign("DMS");
         taskDao.findTasksByFingerprint(task);
     }
@@ -120,7 +121,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
     public void testFindTasks() {
         Task task=new Task();
         task.setType(1120);
-        task.setTableName("task_sorting");
+        task.setTableName(table_name);
         task.setOwnSign("DMS");
         taskDao.findTasks(task);
     }
@@ -128,7 +129,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAddWithStatus() {
         Task parameter = new Task();
-        parameter.setTableName("task_sorting");
+        parameter.setTableName(table_name);
         parameter.setSequenceName("Joe");
         parameter.setType(1120);
         parameter.setCreateSiteCode(910);
@@ -147,7 +148,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         Task parameter = new Task();
-        parameter.setTableName("task_sorting");
+        parameter.setTableName(table_name);
         parameter.setSequenceName("James");
         parameter.setType(1120);
         parameter.setCreateSiteCode(910);
@@ -171,7 +172,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindSendTasks() {
         Map parameter = new HashMap();
-        parameter.put("tableName", "task_sorting");
+        parameter.put("tableName", table_name);
         parameter.put("type", 1120);
         parameter.put("key", new Object());
         parameter.put("fetchNum", new Object());
@@ -182,13 +183,13 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
     public void testFindTaskTypeByTableName() {
         Map parameter = new HashMap();
         parameter.put("tableName", new Object());
-        taskDao.findTaskTypeByTableName("task_sorting");
+        taskDao.findTaskTypeByTableName(table_name);
     }
 	
 	@Test
     public void testUpdateTaskById() {
         Map parameter = new HashMap();
-        parameter.put("tableName", "task_sorting");
+        parameter.put("tableName", table_name);
         parameter.put("id", 1);
         taskDao.updateTaskById(parameter);
     }
@@ -196,12 +197,12 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdateBatchTask() {
         Map parameter = new HashMap();
-        parameter.put("tableName","task_sorting");
+        parameter.put("tableName",table_name);
         parameter.put("taskType", 1120);
         parameter.put("taskStatus",1);
         parameter.put("executeCount",1);
-        parameter.put("keyword1", "task_sorting");
-        parameter.put("keyword2","task_sorting");
+        parameter.put("keyword1", table_name);
+        parameter.put("keyword2",table_name);
         parameter.put("startTime", new Date(100,1,1,1,1));
         parameter.put("endTime", new Date());
         taskDao.updateBatchTask(parameter);
