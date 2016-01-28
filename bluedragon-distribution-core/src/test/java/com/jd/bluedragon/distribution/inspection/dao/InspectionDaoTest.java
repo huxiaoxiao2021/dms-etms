@@ -160,6 +160,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
     public void testHaveInspection() {
         Inspection parameter = new Inspection();
         parameter.setPackageBarcode("James");
+        parameter.setCreateSiteCode(1);
         inspectionDao.haveInspection(parameter);
     }
 	
@@ -181,6 +182,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindPopByWaybillCodes() {
 		List parameter = new ArrayList();
+		parameter.add("123");
         inspectionDao.findPopByWaybillCodes(parameter);
     }
 	

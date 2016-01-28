@@ -210,7 +210,7 @@
     	#{inspectionId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{exceptionType,jdbcType=VARCHAR},
 		#{inspectionType,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
-      	#{createUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), #{createSiteCode,jdbcType=INTEGER},
+      	#{createUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
       	#{receiveSiteCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
       	#{updateUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, 1, #{thirdWaybillCode,jdbcType=VARCHAR},
       	#{popFlag,jdbcType=INTEGER}, #{popSupId,jdbcType=INTEGER}, #{popSupName,jdbcType=VARCHAR}, 
