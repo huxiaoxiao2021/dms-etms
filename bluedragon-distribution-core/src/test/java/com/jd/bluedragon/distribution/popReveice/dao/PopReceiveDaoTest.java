@@ -44,9 +44,9 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("createSiteName","James");
         parameter.put("operatorCode", 910);
         parameter.put("operatorName", "James");
-        parameter.put("startTime", new Date());
+        parameter.put("startTime", new Date(100,10,28,10,12,50));
         parameter.put("endTime", new Date());
-        parameter.put("operateStartTime", new Date());
+        parameter.put("operateStartTime", new Date(100,10,28,10,12,50));
         parameter.put("operateEndTime", new Date());
         parameter.put("end",  10);
         parameter.put("start", 0);
@@ -68,9 +68,9 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("createSiteName", "James");
         parameter.put("operatorCode", 910);
         parameter.put("operatorName", "James");
-        parameter.put("startTime", new Date());
+        parameter.put("startTime", new Date(100,10,28,10,12,50));
         parameter.put("endTime", new Date());
-        parameter.put("operateStartTime", new Date());
+        parameter.put("operateStartTime", new Date(100,10,28,10,12,50));
         parameter.put("operateEndTime", new Date());
         Assert.assertTrue(popReceiveDao.count(parameter) > 0);
     }
@@ -96,7 +96,7 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdate() {
         PopReceive parameter = new PopReceive();
-        parameter.setThirdWaybillCode("Jim");
+        parameter.setThirdWaybillCode("James");
         parameter.setOriginalNum(1);
         parameter.setActualNum(1);
         parameter.setCreateSiteCode(910);

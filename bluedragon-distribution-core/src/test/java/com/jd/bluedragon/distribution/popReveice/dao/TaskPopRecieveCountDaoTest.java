@@ -39,16 +39,16 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
         parameter.setActualNum(634);
         parameter.setOperateTime(new Date());
         parameter.setExecuteTime(new Date());
-        parameter.setTaskStatus(10);
-        parameter.setTaskType(446);
+        parameter.setTaskStatus(1);
+        parameter.setTaskType(1120);
         parameter.setExecuteCount(118);
-        parameter.setTaskId((long)7385);
+        parameter.setTaskId((long)1);
         Assert.assertTrue(taskPopRecieveCountDao.update(parameter)>0);
     }
 	
 	@Test
     public void testGetTaskPopRevieveCountById() {
-        Long taskId = 883l;
+        Long taskId = 1l;
         Assert.assertTrue(taskPopRecieveCountDao.getTaskPopRevieveCountById(taskId) != null);
     }
 	
