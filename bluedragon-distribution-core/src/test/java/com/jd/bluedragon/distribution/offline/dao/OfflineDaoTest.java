@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.offline.dao;
 
 import org.junit.Assert;
+
+import java.util.Date;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +31,7 @@ public class OfflineDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(188);
         // parameter.getEndIndex(new Object());
         // parameter.getStartIndex(new Object());
-        offlineDao.queryByParams(parameter);
+        //offlineDao.queryByParams(parameter);
     }
 	
 	@Test
@@ -53,7 +56,7 @@ public class OfflineDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(401);
         parameter.setStatus(778);
         parameter.setCreateSiteCode(317);
-        offlineDao.totalSizeByParams(parameter);
+        //offlineDao.totalSizeByParams(parameter);
     }
 	
 	@Test
@@ -81,7 +84,7 @@ public class OfflineDaoTest extends AbstractDaoIntegrationTest{
         parameter.setSendUser("Jone");
         parameter.setSendUserCode(847);
         parameter.setStatus(933);
-        offlineDao.add(parameter);
+        //offlineDao.add(parameter);
     }
 	
 	@Test

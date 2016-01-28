@@ -84,7 +84,7 @@
         <include refid="Base_Column_List"/>
         FROM pop_print
         WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
-        AND LIMIT 1
+         LIMIT 1
     </select>
 
     <select id="findSitePrintDetail" resultMap="popPrint" parameterType="java.util.Map">
@@ -146,17 +146,7 @@
 			AND p.operate_type = 1
 			AND p.create_time <![CDATA[ <= ]]> timestampadd(minute, -#{limitMin, jdbcType=VARCHAR}, now())
 			AND p.create_time <![CDATA[ >= ]]> timestampadd(hour, -#{limitHour, jdbcType=VARCHAR}, now())
-			<choose>
-				<when test="ownSign == 'PRE'">
-					AND p.pop_receive_type = 4
-					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code and p.create_site_code=i.create_site_code  AND p.package_barcode = i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
-				</when>
-				<otherwise>
-					AND p.pop_receive_type <![CDATA[ < ]]> 4
-					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code and p.create_site_code=i.create_site_code  AND p.package_barcode = i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
-				</otherwise>
-			</choose>
-			AND LIMIT #{fetchNum, jdbcType=INTEGER}
+			LIMIT #{fetchNum, jdbcType=INTEGER}
     </select>
 
     <insert id="add" parameterType="PopPrint">

@@ -9,6 +9,9 @@ import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
@@ -19,25 +22,13 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindAllByWaybillCode() {
-        String waybillCode = "Joe";
+        String waybillCode = "Jax";
         popPrintDao.findAllByWaybillCode(waybillCode);
     }
 	
 	@Test
-    public void testFindTotalCount() {
-        Map parameter = new HashMap();
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        popPrintDao.findTotalCount(parameter);
-    }
-	
-	@Test
     public void testFindByWaybillCode() {
-        String waybillCode = "James";
+        String waybillCode = "Jax";
         popPrintDao.findByWaybillCode(waybillCode);
     }
 	
@@ -57,7 +48,7 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPopSupName("Jone");
         parameter.setQuantity(118);
         parameter.setCrossCode("Jim");
-        parameter.setWaybillType(381);
+        parameter.setWaybillType(12);
         parameter.setPopReceiveType(44);
         parameter.setThirdWaybillCode("Jim");
         parameter.setQueueNo("James");
@@ -66,58 +57,44 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
         parameter.setDriverName("Jax");
         parameter.setBusiId(238);
         parameter.setBusiName("Jax");
-        parameter.setWaybillCode("Jim");
+        parameter.setWaybillCode("Jax");
         parameter.setPackageBarcode("Stone");
-        parameter.setOperateType(204);
+        parameter.setOperateType(191);
         popPrintDao.updateByWaybillOrPack(parameter);
-    }
-	
-	@Test
-    public void testFindListNoReceive() {
-        Map parameter = new HashMap();
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("endIndex", new Object());
-        // parameter.put("startIndex", new Object());
-        popPrintDao.findListNoReceive(parameter);
     }
 	
 	@Test
     public void testFindSitePrintDetail() {
         Map parameter = new HashMap();
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("popReceiveType", new Object());
-        // parameter.put("waybillType", new Object());
-        // parameter.put("queueNo", new Object());
-        // parameter.put("endIndex", new Object());
-        // parameter.put("startIndex", new Object());
+         parameter.put("createSiteCode", 981);
+         parameter.put("startTime", new Date());
+         parameter.put("endTime", new Date());
+         parameter.put("popReceiveType", 1);
+         parameter.put("waybillType", 1);
+         parameter.put("endIndex", 2);
+         parameter.put("startIndex", 1);
         popPrintDao.findSitePrintDetail(parameter);
     }
 	
 	@Test
     public void testFindLimitListNoReceive() {
         Map parameter = new HashMap();
-        // parameter.put("limitMin", new Object());
-        // parameter.put("limitHour", new Object());
-        // parameter.put("fetchNum", new Object());
+        parameter.put("limitMin", 5);
+        parameter.put("limitHour", 3);
+        parameter.put("fetchNum", 50);
         popPrintDao.findLimitListNoReceive(parameter);
     }
 	
 	@Test
     public void testFindSitePrintDetailCount() {
         Map parameter = new HashMap();
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("popReceiveType", new Object());
-        // parameter.put("waybillType", new Object());
-        // parameter.put("queueNo", new Object());
+        parameter.put("createSiteCode", 981);
+        parameter.put("startTime", new Date());
+        parameter.put("endTime", new Date());
+        parameter.put("popReceiveType", 1);
+        parameter.put("waybillType", 1);
+        parameter.put("endIndex", 2);
+        parameter.put("startIndex", 1);
         popPrintDao.findSitePrintDetailCount(parameter);
     }
 	
@@ -136,8 +113,8 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPopSupName("Jax");
         parameter.setQuantity(228);
         parameter.setCrossCode("Joe");
-        parameter.setWaybillType(505);
-        parameter.setPopReceiveType(501);
+        parameter.setWaybillType(1);
+        parameter.setPopReceiveType(1);
         parameter.setPrintCount(331);
         parameter.setThirdWaybillCode("Joe");
         parameter.setQueueNo("Jax");
@@ -159,7 +136,7 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
         parameter.setPrintPackCode(644);
         parameter.setPrintPackUser("Jone");
         parameter.setPrintPackTime(new Date());
-        parameter.setPrintCount(324);
+        parameter.setPrintCount(12);
         parameter.setPrintInvoiceCode(428);
         parameter.setPrintInvoiceUser("Jone");
         parameter.setPrintInvoiceTime(new Date());
@@ -169,10 +146,10 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
         parameter.setQuantity(160);
         parameter.setCrossCode("Jim");
         parameter.setWaybillType(0);
-        parameter.setPopReceiveType(828);
+        parameter.setPopReceiveType(2);
         parameter.setThirdWaybillCode("Mary");
         parameter.setQueueNo("Joe");
-        parameter.setWaybillCode("Jim");
+        parameter.setWaybillCode("Jax");
         popPrintDao.updateByWaybillCode(parameter);
     }
 }

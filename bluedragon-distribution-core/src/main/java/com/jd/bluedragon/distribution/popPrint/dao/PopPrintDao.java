@@ -57,7 +57,7 @@ public class PopPrintDao extends BaseDao<PopPrint> {
      */
     @SuppressWarnings("unchecked")
     public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
-        Object obj = this.getSqlSessionRead().selectList(namespace + ".findLimitListNoReceive", paramMap);
+        Object obj = this.getSqlSession().selectList(namespace + ".findLimitListNoReceive", paramMap);
         List<PopPrint> popPrints = (List<PopPrint>) ((obj == null) ? null : obj);
         return popPrints;
     }

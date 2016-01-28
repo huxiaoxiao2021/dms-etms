@@ -25,7 +25,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("type", new Object());
         parameter.put("ownSign", new Object());
         parameter.put("fetchNum", new Object());
-        taskDao.findSpecifiedTasks(parameter);
+        //taskDao.findSpecifiedTasks(parameter);
     }
 	
 	@Test
@@ -39,7 +39,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("keyword2", new Object());
         // parameter.put("startTime", new Object());
         // parameter.put("endTime", new Object());
-        taskDao.findCountTask(parameter);
+        //taskDao.findCountTask(parameter);
     }
 	
 	@Test
@@ -75,7 +75,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("tableName", new Object());
         // parameter.put("type", new Object());
         // parameter.put("ownSign", new Object());
-        taskDao.findFailTasksNumsByType(parameter);
+        //taskDao.findFailTasksNumsByType(parameter);
     }
 	
 	@Test
@@ -91,7 +91,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("endTime", new Object());
         // parameter.put("startIndex", new Object());
         // parameter.put("pageSize", new Object());
-        taskDao.findPageTask(parameter);
+        //taskDao.findPageTask(parameter);
     }
 	
 	@Test
@@ -101,7 +101,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("statuses", new Object());
         // parameter.put("boxCode", new Object());
         // parameter.put("createSiteCode", new Object());
-        taskDao.findTasksStatusByBoxcode(parameter);
+        //taskDao.findTasksStatusByBoxcode(parameter);
     }
 	
 	@Test
@@ -110,7 +110,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("tableName", new Object());
         // parameter.put("type", new Object());
         // parameter.put("ownSign", new Object());
-        taskDao.findTasksNumsByType(parameter);
+        //taskDao.findTasksNumsByType(parameter);
     }
 	
 	@Test
@@ -118,7 +118,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         Map parameter = new HashMap();
         // parameter.put("tableName", new Object());
         // parameter.put("fingerprint", new Object());
-        taskDao.findTasksByFingerprint(parameter);
+        //taskDao.findTasksByFingerprint(parameter);
     }
 	
 	@Test
@@ -127,7 +127,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("tableName", new Object());
         // parameter.put("type", new Object());
         // parameter.put("ownSign", new Object());
-        taskDao.findTasks(parameter);
+        //taskDao.findTasks(parameter);
     }
 	
 	@Test
@@ -170,7 +170,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
     public void testFindReverseSendTask() {
         Map parameter = new HashMap();
         // parameter.put("body", new Object());
-        taskDao.findReverseSendTask(parameter);
+        //taskDao.findReverseSendTask(parameter);
     }
 	
 	@Test
@@ -180,14 +180,14 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("type", new Object());
         // parameter.put("key", new Object());
         // parameter.put("fetchNum", new Object());
-        taskDao.findSendTasks(parameter);
+        //taskDao.findSendTasks(parameter);
     }
 	
 	@Test
     public void testFindTaskTypeByTableName() {
         Map parameter = new HashMap();
         // parameter.put("tableName", new Object());
-        taskDao.findTaskTypeByTableName(parameter);
+        //taskDao.findTaskTypeByTableName(parameter);
     }
 	
 	@Test
@@ -219,6 +219,6 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         // parameter.put("type", new Object());
         // parameter.put("ownSign", new Object());
         // parameter.put("fetchNum", new Object());
-        taskDao.findLimitedTasksByType(parameter);
+        //taskDao.findLimitedTasksByType(parameter);
     }
 }

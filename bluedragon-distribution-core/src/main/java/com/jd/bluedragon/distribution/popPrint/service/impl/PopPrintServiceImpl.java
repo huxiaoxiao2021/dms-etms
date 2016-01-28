@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.popPrint.service.impl;
 
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
@@ -28,6 +30,9 @@ public class PopPrintServiceImpl implements PopPrintService {
 	
 	@Autowired
 	private PopPrintDao popPrintDao;
+	
+	@Autowired
+	private InspectionDao inspectionDao;
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
@@ -88,7 +93,20 @@ public class PopPrintServiceImpl implements PopPrintService {
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
-		return popPrintDao.findLimitListNoReceive(paramMap);
+		 List<PopPrint> popList = popPrintDao.findLimitListNoReceive(paramMap);
+		 if(popList!=null && !popList.isEmpty()){
+			 Inspection inspection = new Inspection();
+			 for(PopPrint popPrint :popList){
+				 inspection.setCreateSiteCode(popPrint.getCreateSiteCode());
+				 inspection.setWaybillCode(popPrint.getWaybillCode());
+				 inspection.setPackageBarcode(popPrint.getPackageBarcode());
+				 inspection.setInspectionType(popPrint.getPopReceiveType());
+				 if(inspectionDao.havePOPInspection(inspection)){
+					 popList.remove(popPrint);
+				 }
+			 }
+		 }
+		return popList;
 	}
 
 }

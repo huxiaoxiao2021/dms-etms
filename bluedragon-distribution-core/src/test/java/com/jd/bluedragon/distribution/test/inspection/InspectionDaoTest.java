@@ -61,8 +61,8 @@ public class InspectionDaoTest {
 		//inspection.setCreateTime(new Date());
 		Inspection bean;
 		try {
-			bean = inspectionDao.queryForObject(inspection);
-			System.out.println("--------"+bean.getPackageBarcode());
+			//bean = inspectionDao.queryForObject(inspection);
+			//System.out.println("--------"+bean.getPackageBarcode());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -128,10 +128,10 @@ public class InspectionDaoTest {
 		inspection.setYn(1);
 		List<Inspection> list;
 		try {
-			list = inspectionDao.selectSelective(inspection);
-			for( Inspection bean:list ){
-				System.out.println(bean.getInspectionId()+"---"+bean.getPackageBarcode()+"---"+bean.getBoxCode());
-			}
+			//list = inspectionDao.selectSelective(inspection);
+			//for( Inspection bean:list ){
+				//System.out.println(bean.getInspectionId()+"---"+bean.getPackageBarcode()+"---"+bean.getBoxCode());
+			//}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -164,8 +164,8 @@ public class InspectionDaoTest {
 		inspections.add(inspection);
 		
 		try {
-			int result = inspectionDao.updateStatusBatchByPrimaryKey(inspections);
-			System.out.println(result);
+			//int result = inspectionDao.updateStatusBatchByPrimaryKey(inspections);
+			//System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -71,7 +71,7 @@
                 FROM departure_car dc
                 INNER JOIN departure_send ds ON dc.departure_car_id = ds.departure_car_id
                 WHERE dc.departure_car_id = #{carCode})
-        WHERE LIMIT 1
+         LIMIT 1
     </select>
 
     <select id="queryArteryBillingInfoByBoxCode" resultMap="arteryBillingMap" parameterType="String">

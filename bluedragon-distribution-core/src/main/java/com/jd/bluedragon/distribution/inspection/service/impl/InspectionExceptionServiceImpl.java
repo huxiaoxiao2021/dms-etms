@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -14,7 +12,9 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.dao.CenConfirmDao;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -23,7 +23,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -55,9 +54,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	private CenConfirmDao cenConfirmDao;
 	
 	@Autowired
-	private BoxService boxService;
-	
-	@Autowired
 	private SortingService sortingService;
 	
 	@Autowired
@@ -71,6 +67,9 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	
 	@Autowired
     private InspectionService  inspectionService;
+	
+	@Autowired
+    private SendMDao sendMDao;
 
 	@Autowired
 	private SiteService siteService;
@@ -105,7 +104,17 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getByThird(InspectionEC inspectionEC) throws Exception{
-		return inspectionECDao.queryByThird(inspectionEC);
+		List<InspectionEC> list =inspectionECDao.queryByThird(inspectionEC);
+		SendM tSendM = new SendM();
+		for(InspectionEC tinspectionEC : list){
+			tSendM.setBoxCode(inspectionEC.getBoxCode());
+			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
+			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
+			tSendM.setSendType(inspectionEC.getInspectionType());
+			if(sendMDao.checkSendByBox(tSendM))
+				list.remove(tinspectionEC);
+		}
+		return list;
 	}
 
 	/**
@@ -334,13 +343,32 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 
 	@Override
 	public int totalThirdByParams(Map<String, Object> paramMap) {
-		
-		return inspectionECDao.totalThirdByParams(paramMap);
+		List<InspectionEC> list =inspectionECDao.queryThirdByParams(paramMap);
+		SendM tSendM = new SendM();
+		for(InspectionEC inspectionEC : list){
+			tSendM.setBoxCode(inspectionEC.getBoxCode());
+			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
+			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
+			tSendM.setSendType(inspectionEC.getInspectionType());
+			if(sendMDao.checkSendByBox(tSendM))
+				list.remove(inspectionEC);
+		}
+		return list.size();
 	}
 
 	@Override
 	public List<InspectionEC> queryThirdByParams(Map<String, Object> paramMap) {
-		return inspectionECDao.queryThirdByParams(paramMap);
+		List<InspectionEC> list =inspectionECDao.queryThirdByParams(paramMap);
+		SendM tSendM = new SendM();
+		for(InspectionEC inspectionEC : list){
+			tSendM.setBoxCode(inspectionEC.getBoxCode());
+			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
+			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
+			tSendM.setSendType(inspectionEC.getInspectionType());
+			if(sendMDao.checkSendByBox(tSendM))
+				list.remove(inspectionEC);
+		}
+		return list;
 	}
 
 	@Override

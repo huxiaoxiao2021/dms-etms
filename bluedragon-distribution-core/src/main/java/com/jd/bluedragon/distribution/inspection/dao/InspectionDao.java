@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 
 public class InspectionDao extends BaseDao<Inspection>{
 
@@ -105,6 +104,16 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 */
 	public boolean haveInspection(Inspection inspection){
 		Object o = this.getSqlSession().selectOne(namespace+".haveInspection", inspection);
+		return  o==null?false:true;
+	}
+	
+	/**
+	 * 根据包裹号查询验货记录pop订单是否收货
+	 * @param haveInspection
+	 * @return
+	 */
+	public boolean havePOPInspection(Inspection inspection){
+		Object o = this.getSqlSession().selectOne(namespace+".havePOPInspection", inspection);
 		return  o==null?false:true;
 	}
 }

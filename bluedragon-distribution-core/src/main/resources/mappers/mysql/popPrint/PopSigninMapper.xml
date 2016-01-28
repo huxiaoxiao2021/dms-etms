@@ -64,7 +64,7 @@
 		SELECT * FROM dms.POP_SIGNIN  t1
 		<include refid="where" />
 		<if test="start!=null">
-		    WHERE LIMIT #{start} ,#{end} 
+		     LIMIT #{start} ,#{end} 
 		</if>
 		
 	</select>

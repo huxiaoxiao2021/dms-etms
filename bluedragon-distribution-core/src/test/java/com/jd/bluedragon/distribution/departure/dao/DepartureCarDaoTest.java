@@ -66,7 +66,7 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
         departureCarDao.queryArteryBillingInfo(carCode);
     }
 	
-	//@Test
+	@Test
     public void testQueryDeliveryInfoByOrderCode() {
         String orderCode = "3333";
         List<DeparturePrintResponse> list = departureCarDao.queryDeliveryInfoByOrderCode(orderCode);

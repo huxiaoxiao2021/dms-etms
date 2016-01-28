@@ -47,23 +47,6 @@ public class InspectionECDaoTest extends AbstractDaoIntegrationTest{
     }
 	
 	@Test
-    public void testTotalThirdByParams() {
-        Map parameter = new HashMap();
-        // parameter.put("boxCode", new Object());
-        // parameter.put("receiveSiteCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("receiveSiteCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("inspectionECType", new Object());
-        // parameter.put("boxCode", new Object());
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("packageBarcode", new Object());
-        // parameter.put("createUserCode", new Object());
-        // parameter.put("updateUserCode", new Object());
-        inspectionECDao.totalThirdByParams(parameter);
-    }
-	
-	@Test
     public void testQueryByThird() {
         InspectionEC parameter = new InspectionEC();
         parameter.setReceiveSiteCode(626);
@@ -102,24 +85,6 @@ public class InspectionECDaoTest extends AbstractDaoIntegrationTest{
         inspectionECDao.inspectionCount(parameter);
     }
 	
-	@Test
-    public void testQueryThirdByParams() {
-        Map parameter = new HashMap();
-        // parameter.put("boxCode", new Object());
-        // parameter.put("receiveSiteCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("receiveSiteCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("inspectionECType", new Object());
-        // parameter.put("boxCode", new Object());
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("packageBarcode", new Object());
-        // parameter.put("createUserCode", new Object());
-        // parameter.put("updateUserCode", new Object());
-        // parameter.put("endIndex", new Object());
-        // parameter.put("startIndex", new Object());
-        inspectionECDao.queryThirdByParams(parameter);
-    }
 	
 	@Test
     public void testQueryExceptionsCore() {

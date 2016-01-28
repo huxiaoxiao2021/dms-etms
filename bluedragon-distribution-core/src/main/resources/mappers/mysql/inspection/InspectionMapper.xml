@@ -44,61 +44,6 @@
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
     pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name
   </sql>
-	<sql id ="where_condition">
-  	<where>
-  	    <if test="thirdWaybillCode!= null">
-			AND third_waybill_code =#{thirdWaybillCode,jdbcType=VARCHAR}
-		</if>
-  		<if test="inspectionId!=null">
-  			AND inspection_id = #{inspectionId,jdbcType=INTEGER}
-  		</if>
-  		<if test="waybillCode!=null">
-  			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
-  		</if>
-  		<if test="boxCode!=null">
-  			AND box_code = #{boxCode,jdbcType=VARCHAR}
-  		</if>
-  		<if test="packageBarcode!=null">
-  			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
-  		</if>
-  		<if test="status!=null">
-  			AND inspection_status = #{status,jdbcType=INTEGER}
-  		</if>
-  		<if test="exceptionType!=null">
-  			AND exception_type = #{exceptionType,jdbcType=VARCHAR}
-  		</if>
-  		<if test="inspectionType!=null">
-  			AND inspection_type = #{inspectionType,jdbcType=INTEGER}
-  		</if>
-  		<if test="createUser!=null">
-  			AND create_user = #{createUser,jdbcType=VARCHAR}
-  		</if>
-  		<if test="createUserCode!=null">
-  			AND create_user_code = #{createUserCode,jdbcType=INTEGER}
-  		</if>
-  		<if test="createTime!=null">
-  			AND create_time=#{createTime,jdbcType=TIMESTAMP}
-  		</if>
-  		<if test="createSiteCode!=null">
-  			AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-  		</if>
-  		<if test="receiveSiteCode!=null">
-  			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-  		</if>
-  		<if test="updateUser!=null">
-  			AND update_user = #{updateUser,jdbcType=VARCHAR}
-  		</if>
-  		<if test="updateUserCode!=null">
-  			AND update_user_code = #{updateUserCode,jdbcType=INTEGER}
-  		</if>
-  		<if test="updateTime!=null">
-  			AND updateTime = #{updateTime,jdbcType=TIMESTAMP}
-  		</if>
-  		<if test="yn!=null">
-  			AND yn = #{yn,jdbcType=INTEGER}
-  		</if>
-  	</where> 
-  </sql>
   
   <sql id="Pop_Join_Where_List">
 	<where>
@@ -405,6 +350,24 @@
 		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 	        </if>
   		
+		 LIMIT 1
+	</select>
+	
+	<select id="havePOPInspection" resultMap="BaseResultMap"
+                   parameterType="Inspection">
+		SELECT 
+		<include refid="Base_Column_List" />
+			FROM Inspection where
+			waybill_code = #{waybillCode,jdbcType=VARCHAR}
+  			and package_barcode = #{packageBarcode,jdbcType=VARCHAR}				
+			<if test="inspectionType != null and inspectionType==4" > 
+  			AND inspection_type = 40
+  			</if>
+  			<if test="inspectionType != null and inspectionType!=4"> 
+  			AND inspection_type = 60
+  			</if>
+		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		     AND YN=1
 		 LIMIT 1
 	</select>
 </mapper>

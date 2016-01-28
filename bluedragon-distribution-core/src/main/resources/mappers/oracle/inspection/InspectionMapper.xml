@@ -491,4 +491,22 @@
   		
 		AND rownum <![CDATA[<=]]> 1
 	</select>
+	
+	<select id="havePOPInspection" resultMap="BaseResultMap"
+                   parameterType="Inspection">
+		SELECT 
+		<include refid="Base_Column_List" />
+			FROM Inspection where
+			waybill_code = #{waybillCode,jdbcType=VARCHAR}
+  			and package_barcode = #{packageBarcode,jdbcType=VARCHAR}				
+			<if test="inspectionType != null and inspectionType==4" > 
+  			AND inspection_type = 40
+  			</if>
+  			<if test="inspectionType != null and inspectionType!=4"> 
+  			AND inspection_type = 60
+  			</if>
+		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		     AND YN=1
+		 LIMIT 1
+	</select>
 </mapper>

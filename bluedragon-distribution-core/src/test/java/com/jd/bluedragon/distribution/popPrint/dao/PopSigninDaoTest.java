@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.popPrint.dao;
 
 import org.junit.Assert;
+
+import java.util.Date;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,14 +52,14 @@ public class PopSigninDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testGetPopSigninList() {
         PopSigninDto parameter = new PopSigninDto();
-        parameter.setQueueNo("Jone");
+        parameter.setQueueNo("Jone1");
         parameter.setCreateSiteCode(749);
-        parameter.setExpressCode("Joe");
-        parameter.setThirdWaybillCode("James");
+        parameter.setExpressCode("Joe1");
+        parameter.setThirdWaybillCode("James1");
         parameter.setCreateUserCode(618);
-        parameter.setCreateUser("Joe");
-        parameter.setSignStartTime("Jone");
-        parameter.setSignEndTime("Stone");
+        parameter.setCreateUser("Joe1");
+        parameter.setSignStartTime("Jone1");
+        parameter.setSignEndTime("Stone1");
         parameter.setEnd(701);
         parameter.setStart(475);
         popSigninDao.getPopSigninList(parameter);
@@ -65,14 +68,14 @@ public class PopSigninDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdate() {
         PopSignin parameter = new PopSignin();
-        parameter.setQueueNo("Joe");
+        parameter.setQueueNo("Joe1");
         parameter.setCreateUserCode(302);
-        parameter.setCreateUser("Stone");
+        parameter.setCreateUser("Stone1");
         parameter.setOperateTime(new Date());
-        parameter.setExpressCode("Stone");
-        parameter.setExpressName("Jax");
-        parameter.setCreateSiteCode(637);
-        parameter.setThirdWaybillCode("Jax");
+        parameter.setExpressCode("Stone1");
+        parameter.setExpressName("Jax1");
+        parameter.setCreateSiteCode(188);
+        parameter.setThirdWaybillCode("Mary");
         popSigninDao.update(parameter);
     }
 }
