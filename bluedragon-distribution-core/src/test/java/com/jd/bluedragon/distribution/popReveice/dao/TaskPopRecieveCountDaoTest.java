@@ -21,11 +21,11 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindLimitedTasksByType() {
-        Map parameter = new HashMap();
-        // parameter.put("tableName", new Object());
-        // parameter.put("type", new Object());
-        // parameter.put("ownSign", new Object());
-        // parameter.put("fetchNum", new Object());
+//        Map parameter = new HashMap();
+//        parameter.put("tableName", new Object());
+//        parameter.put("type", new Object());
+//        parameter.put("ownSign", new Object());
+//        parameter.put("fetchNum", new Object());
 //        taskPopRecieveCountDao.findLimitedTasksByType(parameter);
     }
 	
@@ -43,19 +43,19 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
         parameter.setTaskType(446);
         parameter.setExecuteCount(118);
         parameter.setTaskId((long)7385);
-        taskPopRecieveCountDao.update(parameter);
+        Assert.assertTrue(taskPopRecieveCountDao.update(parameter)>0);
     }
 	
 	@Test
     public void testGetTaskPopRevieveCountById() {
         Long taskId = 883l;
-        taskPopRecieveCountDao.getTaskPopRevieveCountById(taskId);
+        Assert.assertTrue(taskPopRecieveCountDao.getTaskPopRevieveCountById(taskId) != null);
     }
 	
 	@Test
     public void testGetTaskPopRevieveCountByWaybillCode() {
         String waybillCode = "Mary";
-        taskPopRecieveCountDao.getTaskPopRevieveCountByWaybillCode(waybillCode);
+        Assert.assertTrue(taskPopRecieveCountDao.getTaskPopRevieveCountByWaybillCode(waybillCode) != null);
     }
 	
 	@Test
@@ -71,6 +71,6 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
         parameter.setTaskType(1120);
         parameter.setExecuteCount(1);
         parameter.setOwnSign("James");
-        taskPopRecieveCountDao.insert(parameter);
+        Assert.assertTrue(taskPopRecieveCountDao.insert(parameter) > 0);
     }
 }

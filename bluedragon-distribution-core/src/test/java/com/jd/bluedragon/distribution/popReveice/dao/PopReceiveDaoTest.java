@@ -38,41 +38,41 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindPopReceiveList() {
         Map parameter = new HashMap();
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("thirdWaybillCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("createSiteName", new Object());
-        // parameter.put("operatorCode", new Object());
-        // parameter.put("operatorName", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("operateStartTime", new Object());
-        // parameter.put("operateEndTime", new Object());
-        // parameter.put("end", new Object());
-        // parameter.put("start", new Object());
-        popReceiveDao.findPopReceiveList(parameter);
+        parameter.put("waybillCode", "James");
+        parameter.put("thirdWaybillCode", "James");
+        parameter.put("createSiteCode", 910);
+        parameter.put("createSiteName","James");
+        parameter.put("operatorCode", 910);
+        parameter.put("operatorName", "James");
+        parameter.put("startTime", new Date());
+        parameter.put("endTime", new Date());
+        parameter.put("operateStartTime", new Date());
+        parameter.put("operateEndTime", new Date());
+        parameter.put("end",  10);
+        parameter.put("start", 0);
+        Assert.assertTrue(popReceiveDao.findPopReceiveList(parameter).size() > 0);
     }
 	
 	@Test
     public void testFindByFingerPrint() {
-        String fingerPrint = "Jax";
-        popReceiveDao.findByFingerPrint(fingerPrint);
+        String fingerPrint = "James";
+        Assert.assertNotNull(popReceiveDao.findByFingerPrint(fingerPrint));
     }
 	
 	@Test
     public void testCount() {
         Map parameter = new HashMap();
-        // parameter.put("waybillCode", new Object());
-        // parameter.put("thirdWaybillCode", new Object());
-        // parameter.put("createSiteCode", new Object());
-        // parameter.put("createSiteName", new Object());
-        // parameter.put("operatorCode", new Object());
-        // parameter.put("operatorName", new Object());
-        // parameter.put("startTime", new Object());
-        // parameter.put("endTime", new Object());
-        // parameter.put("operateStartTime", new Object());
-        // parameter.put("operateEndTime", new Object());
-        popReceiveDao.count(parameter);
+        parameter.put("waybillCode", "James");
+        parameter.put("thirdWaybillCode", "James");
+        parameter.put("createSiteCode", 910);
+        parameter.put("createSiteName", "James");
+        parameter.put("operatorCode", 910);
+        parameter.put("operatorName", "James");
+        parameter.put("startTime", new Date());
+        parameter.put("endTime", new Date());
+        parameter.put("operateStartTime", new Date());
+        parameter.put("operateEndTime", new Date());
+        Assert.assertTrue(popReceiveDao.count(parameter) > 0);
     }
 	
 	@Test
@@ -90,22 +90,22 @@ public class PopReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.setOperateTime(new Date());
         parameter.setIsReverse(1);
         parameter.setFingerPrint("James");
-        popReceiveDao.add(popReceiveDao.getClass().getName(),parameter);
+        Assert.assertTrue(popReceiveDao.add(popReceiveDao.getClass().getName(), parameter) > 0);
     }
 	
 	@Test
     public void testUpdate() {
         PopReceive parameter = new PopReceive();
         parameter.setThirdWaybillCode("Jim");
-        parameter.setOriginalNum(440);
-        parameter.setActualNum(936);
-        parameter.setCreateSiteCode(940);
-        parameter.setCreateSiteName("Jone");
-        parameter.setOperatorCode(554);
+        parameter.setOriginalNum(1);
+        parameter.setActualNum(1);
+        parameter.setCreateSiteCode(910);
+        parameter.setCreateSiteName("James");
+        parameter.setOperatorCode(910);
         parameter.setOperatorName("James");
         parameter.setOperateTime(new Date());
-        parameter.setWaybillCode("Stone");
-        parameter.setFingerPrint("Jax");
-        popReceiveDao.update(popReceiveDao.getClass().getName(),parameter);
+        parameter.setWaybillCode("James");
+        parameter.setFingerPrint("James");
+        Assert.assertTrue(popReceiveDao.update(popReceiveDao.getClass().getName(), parameter)>0);
     }
 }
