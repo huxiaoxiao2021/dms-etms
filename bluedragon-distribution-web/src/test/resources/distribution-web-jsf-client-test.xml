@@ -37,4 +37,8 @@
      <jsf:consumer id="supportServiceJsf"  interface="com.jd.etms.erp.ws.SupportServiceInterface" 
      				protocol="jsf" alias="erp_test" timeout="10000" retries="0">
     </jsf:consumer>
+
+    <jsf:consumer id="jsfDmsInternalService"  interface="com.jd.bluedragon.distribution.internal.service.DmsInternalService"
+                  protocol="jsf" alias="dms-internal-test" timeout="10000" retries="0">
+    </jsf:consumer>
 </beans>

@@ -1121,6 +1121,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		case 600:
 			orgType = "PW";
 			break;
+		case 709:
+			orgType = "PW";
+			break;
 		case 611:
 			orgType = "PY";
 			break;

@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
         	logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
         	return 0;
         }
-		logger.error("redis switch : " + isRedisSwitchON());
+
 		if (ifCheckTaskMode && isRedisSwitchON()) {
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */
 			if (taskModeAgent.isRedisTaskModeSupported(task)) {

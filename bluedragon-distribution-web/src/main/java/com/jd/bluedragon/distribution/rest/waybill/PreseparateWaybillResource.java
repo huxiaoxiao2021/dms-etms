@@ -27,8 +27,8 @@ public class PreseparateWaybillResource {
 
     @GET
     @Path("/preseparateWaybill/getPreseparateSiteId/{waybillCode}")
-    public InvokeResult<Integer> getPreseparateSiteId(@PathParam("waybillCode") String waybillCode){
-        InvokeResult<Integer> result=new InvokeResult<Integer>();
+    public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer> getPreseparateSiteId(@PathParam("waybillCode") String waybillCode){
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer> result=new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer>();
         if(!SerialRuleUtil.isMatchAllWaybillNo(waybillCode)){
             if(logger.isInfoEnabled()){
                 logger.info("获取预分拣站点，运单号为"+waybillCode);

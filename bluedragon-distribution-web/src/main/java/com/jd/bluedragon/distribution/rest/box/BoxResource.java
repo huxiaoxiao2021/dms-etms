@@ -157,7 +157,7 @@ public class BoxResource {
      */
     @POST
     @Path("/boxes/create")
-    public InvokeResult<AutoSortingBoxResult> create(BoxRequest request) {
+    public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
@@ -167,7 +167,7 @@ public class BoxResource {
 
         List<Box> availableBoxes = this.boxService.batchAdd(this.toBox(request));
 
-        InvokeResult<AutoSortingBoxResult> result=new InvokeResult<AutoSortingBoxResult>();
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result=new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
         AutoSortingBoxResult boxResult=new AutoSortingBoxResult();
         List<String> boxs=new ArrayList<String>(availableBoxes.size());
         for (Box item:availableBoxes){
