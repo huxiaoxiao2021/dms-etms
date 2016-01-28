@@ -241,7 +241,7 @@ DROP TABLE IF EXISTS `db_schedule`;
 
 CREATE TABLE `db_schedule` (
   `TABLE_NAME` varchar(50) NOT NULL,
-  `MAX_ID` double NOT NULL,
+  `MAX_ID` bigint(20) NOT NULL,
   `SCHEDULE_STATUS` double DEFAULT NULL,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL
@@ -252,7 +252,7 @@ CREATE TABLE `db_schedule` (
 DROP TABLE IF EXISTS `dbs_objectid`;
 
 CREATE TABLE `dbs_objectid` (
-  `ID` double NOT NULL,
+  `ID` bigint(20) NOT NULL,
   `OBJECTNAME` varchar(255) DEFAULT NULL,
   `FIRSTID` double DEFAULT NULL,
   PRIMARY KEY (`ID`)
@@ -292,7 +292,7 @@ CREATE TABLE `departure_car` (
 DROP TABLE IF EXISTS `departure_log_bk`;
 
 CREATE TABLE `departure_log_bk` (
-  `DEPARTURE_LOG_ID` double NOT NULL,
+  `DEPARTURE_LOG_ID` bigint(20) NOT NULL,
   `DISTRIBUTE_CODE` double DEFAULT NULL,
   `DISTRIBUTE_NAME` varchar(50) DEFAULT NULL,
   `OPERATOR_CODE` double DEFAULT NULL,
@@ -518,7 +518,7 @@ CREATE TABLE `loss_order` (
 DROP TABLE IF EXISTS `mc_message_task`;
 
 CREATE TABLE `mc_message_task` (
-  `ID` double NOT NULL,
+  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `QUEUE_ID` varchar(100) DEFAULT NULL,
   `OWNSGN` varchar(100) DEFAULT NULL,
   `MESSAGE_NAME` varchar(100) DEFAULT NULL,
@@ -542,9 +542,9 @@ CREATE TABLE `mc_message_task` (
 DROP TABLE IF EXISTS `mc_message_task_part`;
 
 CREATE TABLE `mc_message_task_part` (
-  `ID` double NOT NULL,
+  `ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CONTENT` text,
-  `TASK_ID` double NOT NULL,
+  `TASK_ID` bigint(20) NOT NULL,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`),
@@ -556,7 +556,7 @@ CREATE TABLE `mc_message_task_part` (
 DROP TABLE IF EXISTS `offline_log`;
 
 CREATE TABLE `offline_log` (
-  `OFFLINE_LOG_ID` double NOT NULL,
+  `OFFLINE_LOG_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `WAYBILL_CODE` varchar(32) DEFAULT NULL,
   `PACKAGE_CODE` varchar(32) DEFAULT NULL,
   `BOX_CODE` varchar(32) DEFAULT NULL,
@@ -807,7 +807,7 @@ DROP TABLE IF EXISTS `pop_queue`;
 CREATE TABLE `pop_queue` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `QUEUE_NO` varchar(32) NOT NULL,
-  `CREATE_SITE_CODE` double NOT NULL,
+  `CREATE_SITE_CODE` bigint(20) NOT NULL,
   `CREATE_SITE_NAME` varchar(32) DEFAULT NULL,
   `QUEUE_TYPE` tinyint(4) DEFAULT NULL,
   `EXPRESS_CODE` varchar(32) DEFAULT NULL,
@@ -1339,7 +1339,7 @@ CREATE TABLE `sysconfig` (
 DROP TABLE IF EXISTS `system_log`;
 
 CREATE TABLE `system_log` (
-  `ID` double NOT NULL DEFAULT '0',
+  `ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT DEFAULT '0',
   `KEYWORD1` varchar(32) DEFAULT NULL,
   `KEYWORD2` varchar(32) DEFAULT NULL,
   `KEYWORD3` varchar(64) DEFAULT NULL,
@@ -1356,7 +1356,7 @@ CREATE TABLE `system_log` (
 DROP TABLE IF EXISTS `task_boundary`;
 
 CREATE TABLE `task_boundary` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1380,7 +1380,7 @@ CREATE TABLE `task_boundary` (
 DROP TABLE IF EXISTS `task_failqueue`;
 
 CREATE TABLE `task_failqueue` (
-  `FAILQUEUE_ID` double NOT NULL,
+  `FAILQUEUE_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `BUSI_ID` double DEFAULT NULL,
   `BUSI_TYPE` double DEFAULT NULL,
   `BODY` text,
@@ -1400,7 +1400,7 @@ CREATE TABLE `task_failqueue` (
 DROP TABLE IF EXISTS `task_global_trade`;
 
 CREATE TABLE `task_global_trade` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1423,7 +1423,7 @@ CREATE TABLE `task_global_trade` (
 DROP TABLE IF EXISTS `task_handover`;
 
 CREATE TABLE `task_handover` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1447,7 +1447,7 @@ CREATE TABLE `task_handover` (
 DROP TABLE IF EXISTS `task_inspection`;
 
 CREATE TABLE `task_inspection` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1471,7 +1471,7 @@ CREATE TABLE `task_inspection` (
 DROP TABLE IF EXISTS `task_offline`;
 
 CREATE TABLE `task_offline` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `KEYWORD1` varchar(64) DEFAULT NULL,
   `KEYWORD2` varchar(64) DEFAULT NULL,
   `CREATE_SITE_CODE` double DEFAULT NULL,
@@ -1495,7 +1495,7 @@ CREATE TABLE `task_offline` (
 DROP TABLE IF EXISTS `task_pda`;
 
 CREATE TABLE `task_pda` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1519,7 +1519,7 @@ CREATE TABLE `task_pda` (
 DROP TABLE IF EXISTS `task_pop`;
 
 CREATE TABLE `task_pop` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1543,7 +1543,7 @@ CREATE TABLE `task_pop` (
 DROP TABLE IF EXISTS `task_pop_recieve_count`;
 
 CREATE TABLE `task_pop_recieve_count` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `WAYBILL_CODE` varchar(32) DEFAULT NULL,
   `THIRD_WAYBILL_CODE` varchar(128) DEFAULT NULL,
   `EXPRESS_CODE` varchar(32) DEFAULT NULL,
@@ -1566,7 +1566,7 @@ CREATE TABLE `task_pop_recieve_count` (
 DROP TABLE IF EXISTS `task_receive_exception`;
 
 CREATE TABLE `task_receive_exception` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1590,7 +1590,7 @@ CREATE TABLE `task_receive_exception` (
 DROP TABLE IF EXISTS `task_receive_pickup`;
 
 CREATE TABLE `task_receive_pickup` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1614,7 +1614,7 @@ CREATE TABLE `task_receive_pickup` (
 DROP TABLE IF EXISTS `task_receive_receive`;
 
 CREATE TABLE `task_receive_receive` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1638,7 +1638,7 @@ CREATE TABLE `task_receive_receive` (
 DROP TABLE IF EXISTS `task_reverse`;
 
 CREATE TABLE `task_reverse` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1662,7 +1662,7 @@ CREATE TABLE `task_reverse` (
 DROP TABLE IF EXISTS `task_send`;
 
 CREATE TABLE `task_send` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1686,7 +1686,7 @@ CREATE TABLE `task_send` (
 DROP TABLE IF EXISTS `task_sorting`;
 
 CREATE TABLE `task_sorting` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1710,7 +1710,7 @@ CREATE TABLE `task_sorting` (
 DROP TABLE IF EXISTS `task_sorting_ec`;
 
 CREATE TABLE `task_sorting_ec` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1734,7 +1734,7 @@ CREATE TABLE `task_sorting_ec` (
 DROP TABLE IF EXISTS `task_waybill`;
 
 CREATE TABLE `task_waybill` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1758,7 +1758,7 @@ CREATE TABLE `task_waybill` (
 DROP TABLE IF EXISTS `task_weight`;
 
 CREATE TABLE `task_weight` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
@@ -1782,7 +1782,7 @@ CREATE TABLE `task_weight` (
 DROP TABLE IF EXISTS `task_weight1`;
 
 CREATE TABLE `task_weight1` (
-  `TASK_ID` double NOT NULL,
+  `TASK_ID`  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `KEYWORD1` varchar(64) DEFAULT NULL,
