@@ -175,19 +175,17 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				tWaybillStatus.setOperateTime(reverseReceive.getReceiveTime());
 				tWaybillStatus.setWaybillCode(reverseReceive.getOrderId());
 				tWaybillStatus.setPackageCode(reverseReceive.getOrderId());
-				tWaybillStatus.setCreateSiteCode(tSendM.getCreateSiteCode());
+				tWaybillStatus.setCreateSiteCode(tSendM.getReceiveSiteCode());
 				tWaybillStatus.setOperatorId(-1);
-				
-				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+				tWaybillStatus.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getReceiveSiteCode());
 		        if(bDto!=null ){
 		        	tWaybillStatus.setCreateSiteName(bDto.getSiteName());
-		        }
-				
-				tWaybillStatus.setReceiveSiteCode(tSendM.getReceiveSiteCode());
-				bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getReceiveSiteCode());
-		        if(bDto!=null ){
 		        	tWaybillStatus.setReceiveSiteName(bDto.getSiteName());
+		        	tWaybillStatus.setCreateSiteType(bDto.getSiteType());
+		        	tWaybillStatus.setReceiveSiteType(bDto.getSiteType());
 		        }
+		        
 				tWaybillStatus.setSendCode(xrequest.getSendCode());
 				if (reverseReceive.getCanReceive() == 0){
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
@@ -234,6 +232,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		task.setKeyword1(tWaybillStatus.getWaybillCode());
 		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
 		task.setBody(JsonHelper.toJson(tWaybillStatus));
+		
 		task.setType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		StringBuffer fingerprint = new StringBuffer();
