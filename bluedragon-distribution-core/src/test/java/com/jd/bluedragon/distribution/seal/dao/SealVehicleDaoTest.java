@@ -22,14 +22,14 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdateSealVehicle() {
         SealVehicle parameter = new SealVehicle();
-        parameter.setDriverCode("Jax");
-        parameter.setDriver("Jim");
+        parameter.setDriverCode("James");
+        parameter.setDriver("James");
         parameter.setReceiveSiteCode(114);
         parameter.setUpdateUserCode(270);
-        parameter.setUpdateUser("Jone");
+        parameter.setUpdateUser("James");
         parameter.setUpdateTime(new Date());
-        parameter.setCode("Joe");
-        parameter.setVehicleCode("Mary");
+        parameter.setCode("James");
+        parameter.setVehicleCode("James");
         Assert.assertTrue(sealVehicleDao.updateSealVehicle(parameter) > 0);
     }
 	
@@ -43,11 +43,11 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdateBatch() {
         SealVehicle parameter = new SealVehicle();
-        parameter.setDriverCode("Jax");
-        parameter.setDriver("Stone");
+        parameter.setDriverCode("James");
+        parameter.setDriver("James");
         parameter.setReceiveSiteCode(590);
         parameter.setUpdateUserCode(271);
-        parameter.setUpdateUser("Stone");
+        parameter.setUpdateUser("James");
         parameter.setUpdateTime(new Date());
         parameter.setVehicleCode("James");
         Assert.assertTrue(sealVehicleDao.updateBatch(parameter) > 0);
@@ -56,41 +56,41 @@ public class SealVehicleDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdateSealVehicle2() {
         SealVehicle parameter = new SealVehicle();
-        parameter.setDriverCode("Stone");
-        parameter.setDriver("Jone");
+        parameter.setDriverCode("James");
+        parameter.setDriver("James");
         parameter.setReceiveSiteCode(257);
         parameter.setUpdateUserCode(309);
-        parameter.setUpdateUser("Jone");
+        parameter.setUpdateUser("James");
         parameter.setUpdateTime(new Date());
-        parameter.setSendCode("Jim");
-        parameter.setCode("Joe");
+        parameter.setSendCode("James");
+        parameter.setCode("James");
         parameter.setVehicleCode("James");
        Assert.assertTrue(sealVehicleDao.updateSealVehicle2(parameter) > 0);
     }
 	
 	@Test
     public void testFindBySealCode() {
-        String sealCode = "Jax";
+        String sealCode = "James";
         Assert.assertNotNull(sealVehicleDao.findBySealCode(sealCode));
     }
 	
 	@Test
     public void testAdd2() {
         SealVehicle parameter = new SealVehicle();
-        parameter.setVehicleCode("Joe");
-        parameter.setCode("Jax");
-        parameter.setDriverCode("Mary");
-        parameter.setDriver("Jax");
+        parameter.setVehicleCode("James");
+        parameter.setCode("James");
+        parameter.setDriverCode("James");
+        parameter.setDriver("James");
         parameter.setCreateSiteCode(989);
         parameter.setReceiveSiteCode(817);
         parameter.setCreateUserCode(8);
-        parameter.setCreateUser("Stone");
+        parameter.setCreateUser("James");
         parameter.setUpdateUserCode(273);
-        parameter.setUpdateUser("Jax");
+        parameter.setUpdateUser("James");
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
         parameter.setYn(263);
-        parameter.setSendCode("Jax");
+        parameter.setSendCode("James");
         parameter.setVolume(0.753347065623078);
         parameter.setWeight(0.7062918926343418);
         parameter.setPackageNum(293);

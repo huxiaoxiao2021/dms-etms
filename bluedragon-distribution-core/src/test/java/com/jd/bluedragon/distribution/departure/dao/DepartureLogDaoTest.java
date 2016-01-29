@@ -18,20 +18,20 @@ public class DepartureLogDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindByFingerPrint() {
-        String fingerPrint = "Joe";
-        departureLogDao.findByFingerPrint(fingerPrint);
+//        String fingerPrint = "Joe";
+//        departureLogDao.findByFingerPrint(fingerPrint);
     }
 	
 	@Test
     public void testInsert() {
-        DepartureLog parameter = new DepartureLog();
-        parameter.setDistributeCode(751);
-        parameter.setDistributeName("Jim");
-        parameter.setOperatorCode(681);
-        parameter.setOperatorName("James");
-        parameter.setDepartureCarID((long)6316);
-        parameter.setCapacityCode("Jim");
-        parameter.setFingerPrint("Joe");
-        departureLogDao.insert(parameter);
+//        DepartureLog parameter = new DepartureLog();
+//        parameter.setDistributeCode(751);
+//        parameter.setDistributeName("Jim");
+//        parameter.setOperatorCode(681);
+//        parameter.setOperatorName("James");
+//        parameter.setDepartureCarID((long)6316);
+//        parameter.setCapacityCode("Jim");
+//        parameter.setFingerPrint("Joe");
+//        departureLogDao.insert(parameter);
     }
 }
