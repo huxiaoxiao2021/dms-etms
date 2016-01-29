@@ -51,6 +51,8 @@ public class PopAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testCheckByMap() {
         Map parameter = new HashMap();
+        parameter.put("waybillCode", "Jax");
+        parameter.put("orderCode", "Joe");
         popAbnormalDao.checkByMap(parameter);
     }
 	

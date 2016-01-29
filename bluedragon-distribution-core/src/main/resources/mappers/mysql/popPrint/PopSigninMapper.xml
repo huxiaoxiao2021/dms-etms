@@ -33,7 +33,7 @@
 		1)
 	</insert>
 	<update id="update" parameterType="PopSignin" timeout="8">
-	update POP_SIGNIN　
+	update POP_SIGNIN 
 	<set>
 	<if test="queueNo!=null and queueNo!=''">
 				 QUEUE_NO = #{queueNo,jdbcType=VARCHAR },
@@ -61,7 +61,7 @@
 	<select id="getPopSigninList"
 		parameterType="com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto"
 		resultMap="PopSigninMap">
-		SELECT * FROM dms.POP_SIGNIN  t1
+		SELECT * FROM POP_SIGNIN  t1
 		<include refid="where" />
 		<if test="start!=null">
 		     LIMIT #{start} ,#{end} 

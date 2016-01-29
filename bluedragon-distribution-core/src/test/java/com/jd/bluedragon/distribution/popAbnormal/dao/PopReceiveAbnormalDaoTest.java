@@ -23,6 +23,7 @@ public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testFindByMap() {
         Map parameter = new HashMap();
+        parameter.put("waybillCode", "James");
         popReceiveAbnormalDao.findByMap(parameter);
     }
 	

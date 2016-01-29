@@ -60,8 +60,8 @@ public class PopSigninDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateUser("Joe1");
         parameter.setSignStartTime("Jone1");
         parameter.setSignEndTime("Stone1");
-        parameter.setEnd(701);
-        parameter.setStart(475);
+        parameter.setEnd(2);
+        parameter.setStart(1);
         popSigninDao.getPopSigninList(parameter);
     }
 	

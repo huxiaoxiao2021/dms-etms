@@ -141,7 +141,7 @@
 			p.third_waybill_code, p.queue_no, p.package_barcode, p.operate_type, 
 			p.create_user, p.create_user_code, p.box_code, p.DRIVER_CODE, p.DRIVER_NAME,
 			p.busi_id, p.busi_name
-		FROM DMS.pop_print p 
+		FROM pop_print p 
 		WHERE p.yn = 1 
 			AND p.operate_type = 1
 			AND p.create_time <![CDATA[ <= ]]> timestampadd(minute, -#{limitMin, jdbcType=VARCHAR}, now())

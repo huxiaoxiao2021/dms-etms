@@ -346,7 +346,7 @@
   			AND inspection_type != 20
   			</if>
 
-	        <if test="create_site_code != null">
+	        <if test="createSiteCode != null">
 		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 	        </if>
   		

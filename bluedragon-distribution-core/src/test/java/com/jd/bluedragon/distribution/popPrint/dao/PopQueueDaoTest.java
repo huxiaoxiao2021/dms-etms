@@ -74,7 +74,7 @@ public class PopQueueDaoTest extends AbstractDaoIntegrationTest{
         parameter.setQueueNo("Mary");
         parameter.setCreateSiteCode(507);
         parameter.setCreateSiteName("Stone");
-        parameter.setQueueType(959);
+        parameter.setQueueType(1);
         parameter.setExpressCode("Mary");
         parameter.setExpressName("Mary");
         parameter.setWaitNo(580);
