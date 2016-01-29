@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class PopAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -51,7 +52,7 @@ public class PopAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testCheckByMap() {
         Map parameter = new HashMap();
-        parameter.put("waybillCode", "Jax");
+        parameter.put("waybillCode",String.valueOf(new Random().nextInt()));
         parameter.put("orderCode", "Joe");
         popAbnormalDao.checkByMap(parameter);
     }

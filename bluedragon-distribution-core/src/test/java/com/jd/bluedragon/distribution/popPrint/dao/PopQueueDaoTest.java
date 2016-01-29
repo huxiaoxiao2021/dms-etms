@@ -55,7 +55,7 @@ public class PopQueueDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdatePopQueue() {
         PopQueue parameter = new PopQueue();
-        parameter.setQueueStatus(396);
+        parameter.setQueueStatus(1);
         parameter.setStartTime(new Date());
         parameter.setEndTime(new Date());
         parameter.setQueueNo("Mary");

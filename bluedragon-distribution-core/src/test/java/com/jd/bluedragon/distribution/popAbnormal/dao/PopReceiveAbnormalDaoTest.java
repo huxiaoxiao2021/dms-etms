@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.popAbnormal.domain.PopReceiveAbnormal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -78,7 +79,7 @@ public class PopReceiveAbnormalDaoTest extends AbstractDaoIntegrationTest{
         parameter.setMainTypeName("Stone");
         parameter.setSubType(1);
         parameter.setSubTypeName("Mary");
-        parameter.setWaybillCode("James");
+        parameter.setWaybillCode(String.valueOf(new Random().nextInt()));
         parameter.setPopSupNo("Stone");
         parameter.setPopSupName("Mary");
         parameter.setAbnormalStatus(1);
