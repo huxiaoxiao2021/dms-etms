@@ -51,7 +51,7 @@ public class SysConfigDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAdd() {
         SysConfig parameter = new SysConfig();
-        parameter.setConfigType(450);
+        parameter.setConfigType(10);
         parameter.setConfigName("Jone");
         parameter.setConfigContent("Joe");
         parameter.setConfigOrder(799);

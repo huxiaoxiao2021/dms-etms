@@ -19,6 +19,10 @@
 		id, keyword1, keyword2, keyword3,keyword4, content, type, create_time, yn
     </sql>
 
+	<sql id="Base_Insert_Column_List">
+		 keyword1, keyword2, keyword3,keyword4, content, type, create_time, yn
+	</sql>
+
 	<sql id="Base_Where_List">
 		<where>
 			yn = 1
@@ -48,10 +52,10 @@
 
 	<insert id="add">
 		INSERT INTO system_log(
-		<include refid="Base_Column_List" />
+		<include refid="Base_Insert_Column_List" />
 		)
 		VALUES(
-		SEQ_SYSTEM_LOG.NEXTVAL, #{keyword1,jdbcType=VARCHAR},
+		 #{keyword1,jdbcType=VARCHAR},
 		#{keyword2,jdbcType=VARCHAR},
 		#{keyword3,jdbcType=VARCHAR},
 		#{keyword4,jdbcType=INTEGER},

@@ -24,12 +24,12 @@
 
 	<insert id="add" parameterType="task">
 		INSERT INTO ${tableName} (
-		task_id, task_type, create_site_code, receive_site_code, box_code,
+		 task_type, create_site_code, receive_site_code, box_code,
 		body,
 		keyword1, keyword2, create_time, update_time, execute_count, execute_time,
 		fingerprint, task_status, yn, own_sign)
 		VALUES (
-		${sequenceName}.NEXTVAL, #{type,jdbcType=INTEGER},
+		 #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{receiveSiteCode,jdbcType=INTEGER},
 		#{boxCode,jdbcType=VARCHAR}, #{body,jdbcType=VARCHAR},
@@ -41,12 +41,12 @@
 	<insert id="addWithStatus" parameterType="task">
 		INSERT INTO
 		${tableName} (
-		task_id, task_type, create_site_code, receive_site_code, box_code, body,
+		task_type, create_site_code, receive_site_code, box_code, body,
 		keyword1, keyword2, create_time, update_time, execute_count,
 		execute_time,
 		fingerprint, task_status, yn, own_sign)
 		VALUES (
-		${sequenceName}.NEXTVAL, #{type,jdbcType=INTEGER},
+		 #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
 		#{boxCode,jdbcType=VARCHAR}, #{body,jdbcType=VARCHAR},
 		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
@@ -82,7 +82,7 @@
             FROM ${tableName}
             WHERE yn = 1 AND execute_count < 5 
                 AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3) 
-                AND LIMIT #{fetchNum}
+                 LIMIT #{fetchNum}
         ]]>
 	</select>
 
@@ -102,7 +102,7 @@
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
-			AND LIMIT
+			 LIMIT
 			#{fetchNum}
 		</where>
 	</select>
@@ -122,7 +122,7 @@
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
-			AND LIMIT
+			 LIMIT
 			#{fetchNum}
 		</where>
 	</select>
@@ -134,7 +134,7 @@
 		WHERE yn = 1 AND task_status in (${statuses})
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		AND LIMIT
+		 LIMIT
 		50
 	</select>
 

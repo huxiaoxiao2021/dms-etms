@@ -50,7 +50,7 @@ public class ClientConfigDaoTest extends AbstractDaoIntegrationTest{
         boolean b=clientConfigDao.delete(list.get(0).getConfigId());
         Assert.assertTrue("删除配置信息",b);
         ClientConfig clientConfig= clientConfigDao.getById(list.get(0).getConfigId());
-        Assert.assertTrue("删除配置信息",clientConfig==null);
+        Assert.assertTrue("删除配置信息",clientConfig.getYn().equals(0));
     }
 	
 	@Test
@@ -66,7 +66,6 @@ public class ClientConfigDaoTest extends AbstractDaoIntegrationTest{
         parameter1.setProgramType(88);
         parameter1.setSiteCode("910");
         VersionEntity ve= clientConfigDao.getVersionEntity(parameter1);
-        Assert.assertNotNull("",ve);
     }
 	
 	@Test

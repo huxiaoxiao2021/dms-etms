@@ -54,14 +54,16 @@ public class ClientVersionDaoTest extends AbstractDaoIntegrationTest{
 
         List<ClientVersion> list=clientVersionDao.getAllAvailable();
 
+        Random rd=new Random();
+        String r=Integer.toString(rd.nextInt());
         ClientVersion parameter=new ClientVersion();
-        parameter.setVersionCode("20130323R");
+        parameter.setVersionCode(r);
         parameter.setVersionId(list.get(0).getVersionId());
         boolean b = clientVersionDao.update(parameter);
         Assert.assertTrue("更新版本新信息", b);
         ClientVersion temp = clientVersionDao.get(ClientVersionDao.class.getName(), list.get(0).getVersionId());
         Assert.assertTrue("检查更新结果", temp.getVersionType() != null && temp.getVersionCode() != null && temp.getDownloadUrl() != null && temp.getMemo() != null && temp.getYn() != null
-                && temp.getVersionType().equals(list.get(0).getVersionType()) && temp.getVersionCode().equals("Joe") && temp.getDownloadUrl().equals(list.get(0).getDownloadUrl()) && temp.getYn() .equals(list.get(0).getYn()) && temp.getVersionId().equals(list.get(0).getVersionId()));
+                && temp.getVersionType().equals(list.get(0).getVersionType()) && temp.getVersionCode().equals(r) && temp.getDownloadUrl().equals(list.get(0).getDownloadUrl()) && temp.getYn() .equals(list.get(0).getYn()) && temp.getVersionId().equals(list.get(0).getVersionId()));
     }
 	
 	@Test

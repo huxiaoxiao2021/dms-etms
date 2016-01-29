@@ -83,7 +83,7 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testQuerySendDatail_3PL() {
         List parameter = new ArrayList();
-        // parameter.getItems(new Object());
+        parameter.add("James");
         taskFailQueueDao.querySendDatail_3PL(parameter);
     }
 	
