@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.0.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<jmq:transport id="jmq.BlueDragonDistributionStock.transport" address="${jmq.BlueDragonDistributionStock.address}"
+		user="${jmq.BlueDragonDistributionStock.user}" password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />	
+	
+    <!-- 逆向备件库收货消息消费回传库存中间件 -->
+    <jmq:consumer id="jmq.reverseStockConsumer" transport="jmq.BlueDragonDistributionStock.transport">
+        <jmq:listener topic="bd_dms_reverse_receive" listener="reverseStockConsumer"/>
+    </jmq:consumer>
+
+</beans>
