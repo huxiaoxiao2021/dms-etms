@@ -8,6 +8,8 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
@@ -81,6 +83,8 @@ public class WaybillResource {
 
 	public static final Integer DMSTYPE = 10; // 建包
 
+    @Autowired
+    private WaybillPrintService waybillPrintService;
 
 	/* 运单查询 */
 	@Autowired
@@ -668,7 +672,7 @@ public class WaybillResource {
     		BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
     		if(br!=null) response.setSiteCode(br.getDmsId());
     	}catch(Exception e){
-    		this.logger.error("根据运单号【" + startDmsCode +"-"+ siteCode + "】 获取目的分拣中心信息接口",e);
+    		this.logger.error("根据运单号【" + startDmsCode + "-" + siteCode + "】 获取目的分拣中心信息接口", e);
     	}
     	return response;
     }
@@ -715,7 +719,7 @@ public class WaybillResource {
 		}catch (Exception e){
 			jdResponse.setCode(1000);
 			jdResponse.setMessage("执行订单修改MQ消息失败");
-			logger.error("dms_modify_order_info执行订单修改电话或者地址MQ失败"+modifyOrderInfo.getOrderId()+"，失败原因 " + e);
+			logger.error("dms_modify_order_info执行订单修改电话或者地址MQ失败" + modifyOrderInfo.getOrderId() + "，失败原因 " + e);
 		}
 		return  jdResponse;
 	}
@@ -792,4 +796,13 @@ public class WaybillResource {
 		}
 	}
 
+    @GET
+    @GZIP
+    @Path("/waybill/getPrintWaybill/{dmsCode}/{waybillCode}/{targetSiteCode}")
+    public InvokeResult<PrintWaybill> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
+                                                      @PathParam("waybillCode")String waybillCode,
+                                                      @PathParam("targetSiteCode")Integer targetSiteCode){
+        //return printService.
+        return waybillPrintService.getPrintWaybill(dmsCode,waybillCode,targetSiteCode);
+    }
 }

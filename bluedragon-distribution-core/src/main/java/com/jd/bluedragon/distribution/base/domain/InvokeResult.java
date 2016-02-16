@@ -13,6 +13,10 @@ public class InvokeResult<T> implements Serializable {
 
     private static final Log        logger= LogFactory.getLog(InvokeResult.class);
     private static final String     SERVER_ERROR_MESSAGE="服务器执行异常";
+
+    public static final Integer RESULT_NULL_CODE=Integer.valueOf(0);
+    public static final String  RESULT_NULL_MESSAGE="结果为空！";
+    public static final Integer RESULT_SUCCESS_CODE=Integer.valueOf(200);
     public InvokeResult(){
         this.code=200;
     }
@@ -68,6 +72,17 @@ public class InvokeResult<T> implements Serializable {
     public void error(Throwable ex){
         this.code=500;
         this.message= SERVER_ERROR_MESSAGE;
+        //logger.error(ex);
+    }
+
+
+    /**
+     * 发生异常
+     * @param message
+     */
+    public void error(String message){
+        this.code=500;
+        this.message= message;
         //logger.error(ex);
     }
 

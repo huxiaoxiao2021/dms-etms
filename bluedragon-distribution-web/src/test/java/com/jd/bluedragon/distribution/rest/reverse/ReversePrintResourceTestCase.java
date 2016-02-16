@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.reverse;
 
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +53,7 @@ public class ReversePrintResourceTestCase {
         request.setSiteName("中关村自提点");
         logger.info("【测试换单打印】" + JsonHelper.toJson(request));
 
-        WaybillResponse<Boolean> result= rest.handlePrint(request);
+        InvokeResult<Boolean> result= rest.handlePrint(request);
         logger.info("【测试换单打印】"+JsonHelper.toJson(result));
         Assert.assertEquals(Boolean.TRUE,result.getData());
 

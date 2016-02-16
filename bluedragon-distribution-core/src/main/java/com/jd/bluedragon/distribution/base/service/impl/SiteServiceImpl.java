@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.PageDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;

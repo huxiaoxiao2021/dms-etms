@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Service("AbnormalOrderService")
+@Service("abnormalOrderService")
 public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 	private static final String FXM_MQ_ADDRESS = "pushFXM";

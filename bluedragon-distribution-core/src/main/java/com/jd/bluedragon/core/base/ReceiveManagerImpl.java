@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,4 +26,27 @@ public class ReceiveManagerImpl implements ReceiveManager{
 	public GrossReturnResponse generateGrossReturnWaybill(GrossReturnRequest grossReturnRequest) throws Exception{
 		return receiveExchangeService.generateGrossReturnWaybill(grossReturnRequest);
 	}
+
+    /**
+     * 获取新单号【逆向换单】
+     * @param oldWaybillCode 旧单号
+     * @return
+     */
+    @Override
+    public InvokeResult<String> queryDeliveryIdByOldDeliveryId(String oldWaybillCode){
+        InvokeResult<String> targetResult=new InvokeResult<String>();
+        try {
+            GrossReturnResponse result = receiveExchangeService.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
+            if (null != result) {
+                targetResult.setCode(result.getResultCode());
+                targetResult.setMessage(result.getResultMsg());
+                targetResult.setData(result.getDeliveryId());
+            } else {
+                targetResult.customMessage(InvokeResult.RESULT_NULL_CODE, InvokeResult.RESULT_NULL_MESSAGE);
+            }
+        }catch (Exception ex){
+            targetResult.error(ex);
+        }
+        return targetResult;
+    }
 }

@@ -125,16 +125,7 @@ public class BusinessHelper {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
 		}
-		if (s.startsWith(Box.BOX_TYPE_FORWARD)
-				|| s.startsWith(Box.BOX_TYPE_REVERSE_AFTER_SERVICE)
-				|| s.startsWith(Box.BOX_TYPE_REVERSE_REJECTION)
-				|| s.startsWith(Box.BOX_TYPE_REVERSE_AFTER_PICKUP)
-				|| s.startsWith(Box.BOX_TYPE_FORWARD_RESCHEDULE)
-				|| s.startsWith(Box.BOX_TYPE_DILIVERYMAN__PICKUP)
-				|| s.startsWith(Box.BOX_TYPE_WEARHOUSE)) {
-			return Boolean.TRUE;
-		}
-		return Boolean.FALSE;
+		return SerialRuleUtil.isMatchBoxCode(s);
 	}
 
 	/**
