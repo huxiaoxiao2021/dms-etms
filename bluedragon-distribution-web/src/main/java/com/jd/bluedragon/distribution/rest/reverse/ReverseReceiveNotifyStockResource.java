@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.kuguan.service.KuGuanService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.kuguan.domain.OrderStockInfo;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
+import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 
 @Component
@@ -42,6 +43,9 @@ public class ReverseReceiveNotifyStockResource {
 	@Autowired
 	KuGuanService tKuGuanService;
 
+	@Autowired
+	private ReverseSendPopMessageService reverseSendPopMessageService;
+	
 	/**
 	 * 使用notify方法代替
 	 * 
@@ -58,6 +62,15 @@ public class ReverseReceiveNotifyStockResource {
 		return JdResponse.MESSAGE_OK;
 	}
 
+	@GET
+	@Path("/reverse/pop/nodify/{waybillCode}")
+	@Deprecated
+	public String sendMessageToPop(@PathParam("waybillCode") String waybillCode)
+			throws Exception {
+		boolean result = this.reverseSendPopMessageService.sendPopMessage(waybillCode);
+		return result?JdResponse.MESSAGE_OK:"NOT"+JdResponse.MESSAGE_OK;
+	}
+	
 	@GET
 	@Path("/reverseReceiveNotifyStock/notify/{waybillCode}")
 	public String notify(@PathParam("waybillCode") Long waybillCode)
