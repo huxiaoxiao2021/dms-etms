@@ -210,18 +210,6 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void saveData(Inspection inspection) {//FIXME:private
-		this.insertOrUpdate(inspection);
-		addOperationLog(inspection);
-
-		cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
-				.createCenConfirmByInspection(inspection));
-		// 如果是三方,则插入异常信息inspection_e_c表
-		if (inspection.getInspectionType().equals(Inspection.BUSSINESS_TYPE_THIRD_PARTY)) 
-			this.thirdPartyWorker(inspection);
-	}
-
 	private void thirdPartyWorker(Inspection inspection){
 		InspectionEC inspectionECSel = new InspectionEC.Builder(
 				inspection.getPackageBarcode(),
@@ -258,6 +246,18 @@ public class InspectionServiceImpl implements InspectionService {
 			inspectionECDao.add(InspectionECDao.namespace, inspectionEC);
 		}
 	}
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void saveData(Inspection inspection) {//FIXME:private
+        this.insertOrUpdate(inspection);
+        addOperationLog(inspection);
+
+        cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
+                .createCenConfirmByInspection(inspection));
+        // 如果是三方,则插入异常信息inspection_e_c表
+        if (inspection.getInspectionType().equals(Inspection.BUSSINESS_TYPE_THIRD_PARTY))
+            this.thirdPartyWorker(inspection);
+    }
 
 	public Integer insertOrUpdate(Inspection inspection) {
 		int result = inspectionDao.update(InspectionDao.namespace, inspection);
@@ -354,7 +354,7 @@ public class InspectionServiceImpl implements InspectionService {
 			operationLog.setLogType(OperationLog.LOG_TYPE_INSPECTION);
 		}
 		operationLog
-				.setOperateTime(inspection.getCreateTime() == null ? new Date()
+				.setOperateTime(inspection.getOperateTime() == null ? new Date()
 						: inspection.getCreateTime());
 		operationLog.setPackageCode(inspection.getPackageBarcode());
 		operationLog.setReceiveSiteCode(inspection.getReceiveSiteCode());
