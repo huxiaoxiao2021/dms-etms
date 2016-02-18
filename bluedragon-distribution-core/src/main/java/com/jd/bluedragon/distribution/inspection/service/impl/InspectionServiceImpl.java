@@ -355,7 +355,7 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 		operationLog
 				.setOperateTime(inspection.getOperateTime() == null ? new Date()
-						: inspection.getCreateTime());
+						: inspection.getOperateTime());
 		operationLog.setPackageCode(inspection.getPackageBarcode());
 		operationLog.setReceiveSiteCode(inspection.getReceiveSiteCode());
 		operationLog.setWaybillCode(inspection.getWaybillCode());
