@@ -87,44 +87,6 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
     	return this.reverseReceiveDao.findByPackageCodeAndSendCode(packageCode,sendCode,businessType);
     }
     
-//    @Profiled(tag = "ReverseReceiveService.findByWaybillCodeAndSendCode")
-//    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-//    public ReverseReceive findByWaybillCodeAndSendCode(String waybillCode,String sendCode) {
-//    	return this.reverseReceiveDao.findByWaybillCodeAndSendCode(waybillCode,sendCode);
-//    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void aftersaleReceiveInspect(Task task) {
-        String body = task.getBody().substring(1, task.getBody().length() - 1);
-        ReverseReceiveRequest request = JsonHelper.fromJson(body, ReverseReceiveRequest.class);
-        
-        if (StringHelper.isEmpty(request.getPackageCode())) {
-            this.logger.info("消息不合法.");
-            this.taskService.doError(task);
-            return;
-        }
-        
-        ReverseReceive reverseReceivePO = this.findByPackageCode(request.getPackageCode());
-        if (reverseReceivePO == null) {
-            ReverseReceive reverseReceiveVO = new ReverseReceive();
-            this.setReverseReceive(reverseReceiveVO, request);
-            this.add(reverseReceiveVO);
-        } else {
-            ReverseReceive reverseReceiveVO = new ReverseReceive();
-            this.setReverseReceive(reverseReceiveVO, request);
-            reverseReceiveVO.setId(reverseReceivePO.getId());
-            reverseReceiveVO.setReceiveType(reverseReceivePO.getReceiveType());
-            this.update(reverseReceiveVO);
-        }
-        
-        this.taskService.doDone(task);
-    }
-    
-    private void setReverseReceive(ReverseReceive reverseReceive, ReverseReceiveRequest request) {
-        BeanHelper.copyProperties(reverseReceive, request);
-        
-    }
-    
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void aftersaleReceive(ReverseReceive source) {
         if (StringHelper.isEmpty(source.getPackageCode())) {

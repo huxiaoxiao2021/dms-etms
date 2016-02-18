@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jd.oom.client.clientbean.Order;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +19,12 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
-import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.DateHelper;
@@ -46,6 +44,8 @@ import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import jd.oom.client.clientbean.Order;
 
 /**
  * 备件库收货推出管  
@@ -97,14 +97,14 @@ public class ReverseReceiveNotifyStockService {
 	
 	public Long receive(String message) {
 		
-		if (XmlHelper.isXml(message, ReverseReceiveRequest.class, null)) {
-			ReverseReceiveRequest request = (ReverseReceiveRequest) XmlHelper.toObject(message,
-					ReverseReceiveRequest.class);
+		if (XmlHelper.isXml(message, ReceiveRequest.class, null)) {
+			ReceiveRequest request = (ReceiveRequest) XmlHelper.toObject(message,
+					ReceiveRequest.class);
 
 			if (request == null) {
 				this.logger.warn("消息序列化出现异常, 消息：" + message);
-			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())
-					&& ReverseReceive.RECEIVE.equals(request.getCanReceive())) {
+			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
+					&& ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
 				return new Long(request.getOrderId());
 			} else {
 				this.logger.info("消息来源：" + request.getReceiveType());

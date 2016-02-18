@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
@@ -29,10 +28,10 @@ public class ReversePopConsumer extends MessageBaseConsumer {
     
     public void consume(Message message) {
         String waybillCode = null;
-        ReverseReceiveRequest request = new ReverseReceiveRequest();
-        if (XmlHelper.isXml(message.getContent(), ReverseReceiveRequest.class, null)) {
-        	request = (ReverseReceiveRequest) XmlHelper.toObject(message.getContent(),
-                ReverseReceiveRequest.class);
+        ReceiveRequest request = new ReceiveRequest();
+        if (XmlHelper.isXml(message.getContent(), ReceiveRequest.class, null)) {
+        	request = (ReceiveRequest) XmlHelper.toObject(message.getContent(),
+        			ReceiveRequest.class);
         }else{
         	this.logger.info("非xml的消息格式，直接返回");
         	return ;
@@ -40,8 +39,8 @@ public class ReversePopConsumer extends MessageBaseConsumer {
         if (request == null) {
             this.logger.info("消息序列化出现异常。消息：" + message);
             return ;
-        } else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())
-                && ReverseReceive.RECEIVE.equals(request.getCanReceive())) {
+        } else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
+                && ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
             waybillCode = request.getOrderId();
         } else {
             this.logger.info("消息来源：" + request.getReceiveType());
