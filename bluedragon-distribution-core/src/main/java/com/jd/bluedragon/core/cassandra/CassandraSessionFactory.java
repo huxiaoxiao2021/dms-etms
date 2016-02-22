@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.cassandra;
+package com.jd.bluedragon.core.cassandra;
 
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
