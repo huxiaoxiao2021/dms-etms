@@ -8,8 +8,10 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.dao.CenConfirmDao;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -85,6 +87,9 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	
 	/*异常处理失败*/
 	public static final int CANCEL_FAIL = -1;
+
+    @Autowired
+    private InspectionNotifyService inspectionNotifyService;
 	/**
 	 * get inspection exception by condition
 	 * @param inspectionEC
@@ -556,7 +561,14 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	public void saveData(Inspection inspection) {
 		// TODO Auto-generated method stub
 		inspectionService.saveData(inspection);
-
+        InspectionMQBody inspectionMQBody=new InspectionMQBody();
+        inspectionMQBody.setWaybillCode(inspection.getWaybillCode());
+        inspectionMQBody.setInspectionSiteCode(inspection.getCreateSiteCode());
+        try {
+            inspectionNotifyService.send(inspectionMQBody);
+        }catch (Throwable throwable){
+            logger.error("推送验货MQ异常",throwable);
+        }
 		try {//FIXME:看看龙门架是否能拆出
 			if ((inspection.getLength() != null && inspection.getLength() > 0)
 					|| (inspection.getWidth() != null && inspection.getWidth() > 0)

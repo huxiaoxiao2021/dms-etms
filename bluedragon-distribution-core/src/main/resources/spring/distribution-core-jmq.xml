@@ -11,4 +11,9 @@
         <property name="timeout" value="1000"/>
         <property name="topic" value="ownWaybillTransform"/>
     </bean>
+
+    <bean id="inspectionDataSyncMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="inspection"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>
