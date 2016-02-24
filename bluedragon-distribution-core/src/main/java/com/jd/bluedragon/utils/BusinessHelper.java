@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.Bus;
 import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.Constants;
@@ -17,6 +18,8 @@ public class BusinessHelper {
 	private static final String PACKAGE_IDENTIFIER_NUMBER = "N";
 	private static final String PACKAGE_IDENTIFIER_PICKUP = "W";
 	private static final String PACKAGE_WAIDAN = "V";
+
+    private static final String AO_BATCH_CODE_PREFIX="Y";
 
 	public static String getWaybillCodeByPackageBarcode(String s) {
 		if (!BusinessHelper.isPackageCode(s)) {
@@ -125,7 +128,7 @@ public class BusinessHelper {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
 		}
-		return SerialRuleUtil.isMatchBoxCode(s);
+		return SerialRuleUtil.isMatchBoxCode(s)||s.toUpperCase().startsWith(BusinessHelper.AO_BATCH_CODE_PREFIX);
 	}
 
 	/**
