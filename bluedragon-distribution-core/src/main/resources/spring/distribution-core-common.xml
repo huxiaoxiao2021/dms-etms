@@ -35,16 +35,6 @@
 		<property name="poolPreparedStatements" value="false" />
 	</bean>
 	
-	<bean id="taskDataSource" parent="parentDataSource">
-	    <property name="url" value="${dms.task.db.url}"/>
-	    <property name="username" value="${dms.task.db.username}" />
-		<property name="password" value="${dms.task.db.password}" />
-		<property name="initialSize" value="${dms.task.db.initialSize}"/>
-		<property name="minIdle" value="${dms.task.db.minIdle}"/>
-		<property name="maxIdle" value="${dms.task.db.maxIdle}"/>
-		<property name="maxActive" value="${dms.task.db.maxActive}"/>
-	</bean>
-	
 	<bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="${wss.dataSource.driverClassName}"/>
@@ -113,6 +103,7 @@
 		<property name="dataSourceService" ref="dataSources" />
 		<property name="transactionAlert" ref="transactionAlert" />
 		<property name="transactionTrigger" ref="mesageClient" />
+		<qualifier value="main"></qualifier>
 	</bean>
 	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
@@ -149,12 +140,22 @@
 	
 	<!-- dms读库 数据源  -end-->
 
-    <!-- worker配置 数据源    -start-->
+    <!-- worker配置数据源    -start-->
+    <bean id="mysqlTaskDataSource" parent="parentDataSource">
+	    <property name="url" value="${mysqlTaskDb.url}"/>
+	    <property name="username" value="${mysqlTaskDb.username}" />
+		<property name="password" value="${mysqlTaskDb.password}" />
+	</bean>
+
+	<bean id="mysqlTaskDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="mysqlTaskDataSource" />
+		<qualifier value="worker"></qualifier>
+	</bean>
+	
     <bean id="workerSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="taskDataSource" />
+        <property name="dataSource" ref="mysqlTaskDataSource" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-worker.xml" />
     </bean>
-
 
     <bean id="workerSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="workerSessionFactory" />
