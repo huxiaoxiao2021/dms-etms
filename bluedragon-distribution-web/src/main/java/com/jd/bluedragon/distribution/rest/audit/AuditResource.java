@@ -69,6 +69,7 @@ public class AuditResource {
 	}
 
     private ReverseReceiveResponse toReverseReceiveResponse(ReverseReceive reverseReceive){
+    	if(reverseReceive==null) return null;
         ReverseReceiveResponse response = new ReverseReceiveResponse();
         response.setBusinessDate(reverseReceive.getBusinessDate());
         response.setCanReceive(reverseReceive.getCanReceive());
