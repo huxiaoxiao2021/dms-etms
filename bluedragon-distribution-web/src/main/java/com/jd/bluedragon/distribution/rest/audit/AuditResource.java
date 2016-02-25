@@ -63,6 +63,13 @@ public class AuditResource {
 	
 	@GET
 	@GZIP
+	@Path("/reverseReceive/{waybillCode}/{canReceive}/{businessType}")
+	public ReverseReceive getReverseReceive(@PathParam("waybillCode") String waybillCode, @PathParam("canReceive") Integer canReceive, @PathParam("businessType") Integer businessType) {
+		return this.reverseReceiveDao.findOneReverseReceive(waybillCode, canReceive, businessType, null, null, null);
+	}
+	
+	@GET
+	@GZIP
 	@Path("/reverseReceive/{waybillCode}")
 	public ReverseReceive getReverseReceive(@PathParam("waybillCode") String waybillCode) {
 		return this.reverseReceiveDao.findByPackageCode(waybillCode.toString());

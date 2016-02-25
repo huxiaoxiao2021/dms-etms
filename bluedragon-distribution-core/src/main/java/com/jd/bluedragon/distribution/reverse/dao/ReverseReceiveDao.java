@@ -55,6 +55,6 @@ public class ReverseReceiveDao extends BaseDao<ReverseReceive> {
 		reverseReceive.setOperatorId(operatorId);
 		reverseReceive.setRejectCode(rejectCode);
 		return (ReverseReceive) super.getSqlSession()
-				.selectOne(ReverseReceiveDao.namespace + ".findByPackageCodeAndType", reverseReceive);
+				.selectOne(ReverseReceiveDao.namespace + ".findOneReverseReceive", reverseReceive);
 	}
 }
