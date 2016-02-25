@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.audit;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -19,8 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.StockExportManager;
+import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.distribution.kuguan.service.KuGuanService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
@@ -43,12 +42,16 @@ public class AuditResource {
 
 	@Autowired
 	private SendDatailDao sendDatailDao;
-	
+
 	@Autowired
-	KuGuanService tKuGuanService;
+	private StockExportManager stockExportManager;
 	
 	private final Log logger = LogFactory.getLog(this.getClass());
-
+	
+	public final static String TYPE_WAYBILCODE = "1";
+	
+	public final static String TYPE_lKDANHAO = "0";
+	
 	@GET
 	@GZIP
 	@Path("/reverseSpare/{waybillCode}")
@@ -113,15 +116,17 @@ public class AuditResource {
 	public KuGuanDomain getStockInfo(@PathParam("waybillCode") String waybillCode, @PathParam("ddlType") String ddlType) {
 		KuGuanDomain kuGuanDomain = new KuGuanDomain();
 		
-		kuGuanDomain.setDdlType(ddlType);
-		kuGuanDomain.setWaybillCode(waybillCode);
+		if(TYPE_WAYBILCODE.equals(ddlType))
+			kuGuanDomain.setWaybillCode(waybillCode);
+		else
+			kuGuanDomain.setlKdanhao(waybillCode);
 		
 		Map<String, Object> params = ObjectMapHelper
 				.makeObject2Map(kuGuanDomain);
 
 		try {
 			logger.error("根据订单号获取库管单信息参数错误-queryByParams");
-			kuGuanDomain = tKuGuanService.queryByParams(params);
+			kuGuanDomain = stockExportManager.queryByParams(params);
 		} catch (Exception e) {
 			kuGuanDomain = new KuGuanDomain(); 
 			kuGuanDomain.setDdlType(ddlType);
@@ -129,23 +134,5 @@ public class AuditResource {
 			logger.error("根据订单号获取库管单信息服务异常"+e);
 		}
 		return kuGuanDomain;
-	}
-	
-	@GET
-	@GZIP
-	@Path("/stockDetail/{lKdanhao}")
-	public List<KuGuanDomain> getStockInfoDetail(@PathParam("lKdanhao") String lKdanhao) {
-		
-		List<KuGuanDomain> domains = new ArrayList<KuGuanDomain>();
-		try {
-			logger.error("根据订单号获取库管单信息参数开始-queryByParams");
-			domains = tKuGuanService.queryMingxi(lKdanhao);
-			
-			logger.error("根据订单号获取库管单信息参数错误-1");
-			
-		} catch (Exception e) {
-			logger.error("根据订单号获取库管单信息服务异常"+e);
-		}
-		return domains;
 	}
 }

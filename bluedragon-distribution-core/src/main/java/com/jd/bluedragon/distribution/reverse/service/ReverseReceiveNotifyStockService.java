@@ -18,6 +18,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
+import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
@@ -36,7 +37,6 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.iwmss.stock.client.ArrayOfStock;
 import com.jd.iwmss.stock.client.Stock;
-import com.jd.iwmss.stock.client.StockDetail;
 import com.jd.iwmss.stock.client.StockParamter;
 import com.jd.iwmss.stock.client.StockWebServiceSoap;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -179,14 +179,7 @@ public class ReverseReceiveNotifyStockService {
 				// Long financeCode =
 				// this.financeWebService.getFinancialOrderByOrderId(waybillCode);
 				Integer payType = getPayType(waybillCode);
-				// 判断先款后款时出错，日志记录，后续人工介入
-				if (payType.equals(PAY_TYPE_ERROR)
-						|| payType.equals(PAY_TYPE_UNKNOWN)) {
-					this.logger.error("先款后款不明确" + waybillCode);
-					
-					sysLog.setContent("先款后款不明确");
-					return false;
-				}
+
 				long result = 0;
 				OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
 
@@ -319,6 +312,8 @@ public class ReverseReceiveNotifyStockService {
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
+			
+			throw e;
 		}finally{
 			SystemLogUtil.log(sysLog);
 		}
@@ -386,41 +381,6 @@ public class ReverseReceiveNotifyStockService {
 		return stockDetailVOs;
 	}
 
-	private List<StockDetail> getStockDetail(List<Product> products, Integer paidType) {
-		List<StockDetail> stockDetails = new ArrayList<StockDetail>();
-		for (Product product : products) {
-			StockDetail stockDetail = new StockDetail();
-			stockDetail.setBilv(1);
-			stockDetail.setWareid(new Integer(product.getProductId()));
-			stockDetail.setWare(product.getName());
-			stockDetail.setJiage(product.getPrice());
-			stockDetail.setNum(this.isPrePay(paidType) ? product.getQuantity() : this.negate(product
-					.getQuantity()));
-			stockDetail.setZjine(this.isPrePay(paidType) ? product.getPrice().multiply(
-					new BigDecimal(product.getQuantity())) : product.getPrice()
-					.multiply(new BigDecimal(product.getQuantity())).negate());
-			stockDetails.add(stockDetail);
-		}
-
-		return stockDetails;
-	}
-	
-	private List<StockDetail> getStockDetail(List<Product> products) {
-		List<StockDetail> stockDetails = new ArrayList<StockDetail>();
-		for (Product product : products) {
-			StockDetail stockDetail = new StockDetail();
-			stockDetail.setBilv(1);
-			stockDetail.setWareid(new Integer(product.getProductId()));
-			stockDetail.setWare(product.getName());
-			stockDetail.setJiage(product.getPrice());
-			stockDetail.setNum(product.getQuantity());
-			stockDetail.setZjine(product.getPrice().multiply(new BigDecimal(product.getQuantity())));
-			stockDetails.add(stockDetail);
-		}
-
-		return stockDetails;
-	}
-
 	/**
 	 * 将商品明细转换
 	 * @param products
@@ -453,8 +413,9 @@ public class ReverseReceiveNotifyStockService {
 	 * feilei=‘销售’ 即为先款订单
 	 * 
 	 * @return
+	 * @throws StockCallPayTypeException 
 	 */
-	public Integer getPayType(Long waybillCode) {
+	public Integer getPayType(Long waybillCode) throws StockCallPayTypeException {
 		StockParamter request = new StockParamter();
 		request.setOrderid(waybillCode);
 
@@ -486,13 +447,10 @@ public class ReverseReceiveNotifyStockService {
 			// 异常情况日志记录方便定位问题
 			logger.error("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
 					+ ",qite" + qite);
-			logException(waybillCode);
+			logger.error("不能判断订单是先款还是后款: " + waybillCode);
+			throw new StockCallPayTypeException("不能判断订单是先款还是后款: " + waybillCode);
 		}
 		return result;
-	}
-
-	private void logException(Long waybillCode) {
-		logger.error("不能判断订单是先款还是后款: " + waybillCode);
 	}
 	
 	private boolean isPrePay(Integer payType) {
