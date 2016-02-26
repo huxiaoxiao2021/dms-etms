@@ -235,6 +235,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setPackageCode(domain.getBoxCode());
             sortingCheck.setBusinessType(domain.getSendType());
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
+            sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
             SortingJsfResponse response =null;
