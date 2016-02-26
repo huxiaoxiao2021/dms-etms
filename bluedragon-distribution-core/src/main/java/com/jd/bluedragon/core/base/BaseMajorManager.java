@@ -68,4 +68,6 @@ public interface BaseMajorManager {
 	public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup);
 
 	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid,int num);
+
+    public BaseStaffSiteOrgDto getThirdStaffByJdAccount(final String jdAccount);
 }

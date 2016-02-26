@@ -294,4 +294,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return basicPrimaryWSProxy.getBaseStaffListByOrgId(orgid,2);
 	}
 
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getThirdStaffByJdAccount@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaffSiteOrgDto getThirdStaffByJdAccount(String jdAccount) {
+        return basicPrimaryWS.getThirdStaffByJdAccount(jdAccount);
+    }
 }

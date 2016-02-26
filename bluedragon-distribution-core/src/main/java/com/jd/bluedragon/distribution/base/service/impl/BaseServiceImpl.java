@@ -6,9 +6,9 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
-import com.jd.bluedragon.distribution.base.domain.PdaStaff;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.*;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.struts.interceptor.ws.User;
 import com.jd.etms.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -28,22 +29,30 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.*;
+import com.jd.ql.basic.dto.BasePdaUserDto;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.registry.util.Md5Util;
+import com.sun.deploy.net.HttpUtils;
+import com.sun.tools.jxc.apt.Const;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
 
 @Service("baseService")
 public class BaseServiceImpl implements BaseService {
@@ -89,7 +98,91 @@ public class BaseServiceImpl implements BaseService {
 	@Qualifier("basicSecondaryWSProxy")
 	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
-	@Override
+    @Autowired
+    private UserVerifyService userVerifyService;
+
+    @Override
+    public BasePdaUserDto pdaUserLogin(String userid, String password) {
+        BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
+
+        if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
+            basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
+            basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+            return basePdaUserDto;
+        }
+
+        try {
+            userid = userid.toLowerCase();
+            // 3PL登录
+            if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
+                String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
+                // 京东用户组接口验证
+                if (userVerifyService.passportVerify(thirdUserId,password)) {
+                    // 用户组接口验证通过后，从基础资料获取具体信息
+                    BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccount(thirdUserId);
+                    if (null == baseStaffDto) {
+                        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
+                        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+                    } else {
+                        fillPdaUserDto(basePdaUserDto, baseStaffDto, null);
+                    }
+                } else {
+                    basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
+                    basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+                }
+                // 自营登录
+            } else {
+                // 调用人事接口验证用户
+                User user = userVerifyService.baseVerify(userid, password);
+                if (null == user) {
+                    basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
+                    basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+                // 人事接口验证通过，获取基础资料信息
+                } else {
+                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffId(user.getId());
+                    if (null == basestaffDto) {
+                        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
+                        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+                    } else {
+                        fillPdaUserDto(basePdaUserDto, basestaffDto, user);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
+            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+        }
+        return basePdaUserDto;
+    }
+
+    private void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, User user){
+        if (null == user) {
+            basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
+            basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
+            basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
+            basePdaUserDto.setLoginTime(new Date());
+            basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
+            basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
+            basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
+            basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
+            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
+            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
+        } else {
+            basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
+            basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
+            basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
+            basePdaUserDto.setLoginTime(new Date());
+            basePdaUserDto.setStaffId(user.getId());
+            basePdaUserDto.setPassword(user.getPassword());
+            basePdaUserDto.setStaffName(user.getRealName());
+            basePdaUserDto.setOrganizationId(user.getOrganizationId());
+            basePdaUserDto.setOrganizationName(user.getOrganizationName());
+            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
+            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
+        }
+    }
+
+    @Override
 	public PdaStaff login(String erpcode, String password) {
 		// TODO Auto-generated method stub
 		/** 验证结果 */
@@ -98,7 +191,7 @@ public class BaseServiceImpl implements BaseService {
 		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
 		BasePdaUserDto pdadata = null;
 		try {
-			pdadata = baseMinorManager.pdaUserLogin(erpcode, password);
+			pdadata = pdaUserLogin(erpcode, password);
 		} catch (Exception e) {
 			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
 		}
@@ -434,7 +527,7 @@ public class BaseServiceImpl implements BaseService {
 	/**
 	 * 转换运单基本信息
 	 *
-	 * @param waybillWS
+	 * @param
 	 * @return
 	 */
 	private ReverseSendWms convWaybill(BigWaybillDto bigWaybillDto) {
