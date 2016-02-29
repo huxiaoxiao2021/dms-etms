@@ -441,7 +441,7 @@ public class ReceiveServiceImpl implements ReceiveService {
     public DeparturePrintResponse dellSendMq2ArteryBillingSys(String key, String code,String message) {
         DeparturePrintResponse departureInfo = null;
         DeparturePrintResponse departurePrintResponse = new DeparturePrintResponse();
-        if(CARCODE_MARK.equals(key)){
+        /*if(CARCODE_MARK.equals(key)){
             // 车次号有效性判断
             Long departureCarID = null;
             try{
@@ -493,7 +493,7 @@ public class ReceiveServiceImpl implements ReceiveService {
             departurePrintResponse.setCode(DeparturePrintResponse.CODE_SERVICE_ERROR);
             departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_SERVICE_ERROR);
             return departurePrintResponse;
-        }
+        }*/
 
         departurePrintResponse.setCode(DeparturePrintResponse.CODE_OK);
         departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_OK);

@@ -25,7 +25,7 @@ public class CassandraSessionFactory implements FactoryBean<Session> {
     public Session getObject() throws Exception {
         try {
             return this.baseCassandra.getSession(this.keyspace);
-        } catch (NoHostAvailableException e) {
+        } catch (Exception e) {
             logger.error("cassandra 没有可用的host", e);
             return null;
         }
