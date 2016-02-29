@@ -283,8 +283,10 @@ public class ReverseReceiveNotifyStockService {
 				sysLog.setKeyword4(result);
 				if(result!=0)
 					sysLog.setContent("推出管成功!");
-				else
+				else{
 					sysLog.setContent("推出管失败!");
+					return Boolean.FALSE;
+				}
 			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
 				//Long financeCode = this.financeWebService.getFinancialOrderByOrderId(waybillCode);
 				Integer payType = getPayType(waybillCode);
@@ -312,8 +314,7 @@ public class ReverseReceiveNotifyStockService {
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
-			
-			throw e;
+			return Boolean.FALSE;
 		}finally{
 			SystemLogUtil.log(sysLog);
 		}

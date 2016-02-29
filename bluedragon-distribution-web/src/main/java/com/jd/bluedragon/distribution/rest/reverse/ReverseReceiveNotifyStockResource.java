@@ -79,8 +79,17 @@ public class ReverseReceiveNotifyStockResource {
 	public String notify(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		String resultStr = check(waybillCode);
-		if("OK".equals(resultStr))
-			this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
+		if(JdResponse.MESSAGE_OK.equals(resultStr)){
+			resultStr="CHECK:OK";
+			boolean stockResult = this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
+			boolean popResult = this.reverseSendPopMessageService.sendPopMessage(waybillCode.toString());
+			if(!stockResult){
+				resultStr+=",STOCK:NO";
+			}
+			if(!popResult){
+				resultStr+=",POP:NO";
+			}
+		}
 		return resultStr;
 	}
 
