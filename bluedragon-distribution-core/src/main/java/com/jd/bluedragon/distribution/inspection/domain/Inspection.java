@@ -551,7 +551,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
         Date createTime = new Date();
         inspection.setOperateTime(operateTime);
 		inspection.setCreateTime(createTime);
-		inspection.setUpdateTime(createTime);
+		inspection.setUpdateTime(operateTime);
 		return inspection;
 	}
 
