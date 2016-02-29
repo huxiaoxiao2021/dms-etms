@@ -13,7 +13,7 @@
           class="com.taobao.pamirs.schedule.ScheduleConfigCenterClientByDatabase">
         <property name="dataBaseType" value="mysql"/>
         <property name="dataSource">
-            <ref bean="mysqlTaskDataSource"/>
+            <ref bean="taskDataSource"/>
         </property>
         <property name="tableMap">
             <map>
@@ -45,7 +45,7 @@
 
     <bean id="receiveTask" class="com.jd.bluedragon.distribution.worker.ReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReceiveTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -56,7 +56,7 @@
     <bean id="sortingTask"
           class="com.jd.bluedragon.distribution.worker.sorting.SortingTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SortingTaskN"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1200"/>
@@ -64,7 +64,7 @@
 
     <bean id="inspectionTask" class="com.jd.bluedragon.distribution.worker.InspectionTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="InspectionTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -75,7 +75,7 @@
     <bean id="partnerWaybillTask"
           class="com.jd.bluedragon.distribution.worker.PartnerWaybillTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PartnerWaybillTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -85,7 +85,7 @@
 
     <bean id="popReceiveTask" class="com.jd.bluedragon.distribution.worker.PopReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PopReceiveTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -96,7 +96,7 @@
     <bean id="waybillStatusTask"
           class="com.jd.bluedragon.distribution.worker.waybill.WaybillStatusTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="WaybillStatusTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -105,7 +105,7 @@
     <bean id="shieldsBoxErrorTask"
           class="com.jd.bluedragon.distribution.worker.ShieldsBoxErrorTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ShieldsBoxErrorTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -115,7 +115,7 @@
 
     <bean id="sealBoxTask" class="com.jd.bluedragon.distribution.worker.seal.SealBoxTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SealBoxTask"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1210"/>
@@ -125,7 +125,7 @@
     <bean id="sortingReturnTask"
           class="com.jd.bluedragon.distribution.worker.sorting.SortingReturnTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SortingReturnTask"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1220"/>
@@ -135,7 +135,7 @@
     <bean id="shieldsCarErrorTask"
           class="com.jd.bluedragon.distribution.worker.ShieldsCarErrorTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ShieldsCarErrorTask"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1120"/>
@@ -145,7 +145,7 @@
     <bean id="partnerWaybillSynchroTask"
           class="com.jd.bluedragon.distribution.worker.PartnerWaybillSynchroTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PartnerWaybillSynchroTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -155,7 +155,7 @@
     <!-- Notes: the following 9 workers ownSign attribute must be DMS, do not modify it -->
     <bean id="taskFailQueueTask" class="com.jd.bluedragon.distribution.worker.TaskFailQueueTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="TaskFailQueueTask"/>
         <property name="ownSign" value="DMS"/>
     </bean>
@@ -163,14 +163,14 @@
     <!--  下线该WORKER
     <bean id="toSendwaybillTask" class="com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ToSendwaybillTaskN"/>
         <property name="ownSign" value="DMS"/>
     </bean>
     -->
     <bean id="reverseDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.ReverseDeliveryToTmsTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="taskType" value="ReverseDeliveryTaskN"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -181,7 +181,7 @@
 
     <bean id="transitSendTask" class="com.jd.bluedragon.distribution.worker.delivery.TransitSendTask"
           init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="taskType" value="TransitSendTask"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -192,7 +192,7 @@
 
     <bean id="sendDeliveryTotmsTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTotmsTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SendDeliveryTotmsTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -204,7 +204,7 @@
     <bean id="sendDeliveryTowaybillTask"
           class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTowaybillTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SendDeliveryTowaybillTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -216,7 +216,7 @@
     <bean id="reverseRejectTask"
           class="com.jd.bluedragon.distribution.worker.reverse.ReverseRejectTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReverseRejectTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -227,7 +227,7 @@
     <!-- be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间  -->
     <bean id="popSupplementReceiveTask" class="com.jd.bluedragon.distribution.worker.pop.PopSupplementReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PopSupplementReceiveTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -239,7 +239,7 @@
     <bean id="reverseSendTask"
           class="com.jd.bluedragon.distribution.worker.reverse.ReverseSendTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReverseSendTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -251,7 +251,7 @@
     <!-- 备件库相关work -->
     <bean id="reverseSpareTask" class="com.jd.bluedragon.distribution.worker.reverse.ReverseSpareTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReverseSpareTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -262,7 +262,7 @@
     <bean id="waybillTrackTask"
           class="com.jd.bluedragon.distribution.worker.waybill.WaybillTrackTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="WaybillTrackTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -271,7 +271,7 @@
 
     <bean id="popPickupTask" class="com.jd.bluedragon.distribution.worker.pop.PopPickupTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PopPickupTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -282,7 +282,7 @@
     <!-- POP收货回传消息 -->
     <bean id="popRecieveCountTask" class="com.jd.bluedragon.distribution.worker.PopRecieveTaskCount"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PopRecieveCountTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -292,7 +292,7 @@
     <!-- 离线 -->
     <bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.worker.offline.OfflineCoreTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="OfflineCoreTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -304,7 +304,7 @@
     <!-- 干线发车 -->
     <bean id="thirdDepartureTask" class="com.jd.bluedragon.distribution.worker.departure.ThirdDepartureTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="thirdDepartureTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -316,7 +316,7 @@
     <!-- 发干线计费系统MQ -->
     <bean id="pushMQ2ArteryBillingSysTask" class="com.jd.bluedragon.distribution.worker.receive.ReceivePushArteryMQTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="PushMQ2ArteryBillingSysTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -326,7 +326,7 @@
 
     <bean id="sortingPrepareTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingPrepareTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="sortingPrepareTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -336,7 +336,7 @@
 
     <bean id="inspectionPrepareTask" class="com.jd.bluedragon.distribution.worker.inspection.InspectionPrepareTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="InspectionPrepareTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -346,7 +346,7 @@
 
     <bean id="batchSendCarTask" class="com.jd.bluedragon.distribution.worker.departure.BatchSendCarTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="BatchSendCarTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -356,7 +356,7 @@
 
     <bean id="sortingExceptionTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingExceptionTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SortingExceptionTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -366,7 +366,7 @@
 
     <bean id="qualityControlTask" class="com.jd.bluedragon.distribution.worker.QualityControl.QualityControlTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="mysqlTaskDataSource"/>
+        <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="QualityControlTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
@@ -376,7 +376,7 @@
 
     <bean id="weightTask" class="com.jd.bluedragon.distribution.worker.weight.WeightTask"
 		init-method="init" lazy-init="false" depends-on="managerFactory">
-		<property name="dataSource" ref="mysqlTaskDataSource" />
+		<property name="dataSource" ref="taskDataSource" />
 		<property name="taskType" value="WeightTask" />
 		<property name="managerFactory" ref="managerFactory" />
 		<property name="ownSign" value="${ownSign}" />

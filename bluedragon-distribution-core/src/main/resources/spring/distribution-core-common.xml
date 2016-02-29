@@ -35,6 +35,16 @@
 		<property name="poolPreparedStatements" value="false" />
 	</bean>
 	
+	 <bean id="taskDataSource" parent="parentDataSource">
+	    <property name="url" value="${dms.task.db.url}"/>
+	    <property name="username" value="${dms.task.db.username}" />
+		<property name="password" value="${dms.task.db.password}" />
+		<property name="initialSize" value="${dms.task.db.initialSize}"/>
+		<property name="minIdle" value="${dms.task.db.minIdle}"/>
+		<property name="maxIdle" value="${dms.task.db.maxIdle}"/>
+		<property name="maxActive" value="${dms.task.db.maxActive}"/>
+	</bean>
+	
 	<bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="${wss.dataSource.driverClassName}"/>
@@ -57,7 +67,7 @@
 		<property name="password" value="${db.password}" />
 	</bean>
 	
-	<bean id="dmsMainSequenceDataSource" class="com.jd.ql.framework.ddf.jdbc.sequence.SequenceDataSource">
+	<!-- <bean id="dmsMainSequenceDataSource" class="com.jd.ql.framework.ddf.jdbc.sequence.SequenceDataSource">
 	    <constructor-arg index="0">
 	      <bean class="com.jd.ql.framework.idgenerator.support.DdfSequenceGenerator">
 	        <property name="jsfAlias" value="${sequenceService.alias}"/>
@@ -65,12 +75,13 @@
 	      </bean>
 	    </constructor-arg>
 	    <constructor-arg index="1" ref="dms_main"/>
-  	</bean>
+  	</bean> -->
 	
 	<bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="${dms.read.db.driverClassName}"/>
-		<property name="url" value="${dms.read.db.url}"/>
+		<!-- <property name="url" value="${dms.read.db.url}"/> -->
+		<property name="url" value="${dms.read.db.new.url}"/>
 		<property name="username" value="${dms.read.db.username}"/>
 		<property name="password" value="${dms.read.db.password}"/>
 		<property name="defaultAutoCommit" value="${dms.read.db.defaultAutoCommit}" />
@@ -89,7 +100,8 @@
 			<set>
 				<bean class="com.jd.dbs.datasources.DataSourceDescriptor">
 					<property name="identity" value="dms"/>
-					<property name="mainDataSource" ref="dmsMainSequenceDataSource"/>
+					<!-- <property name="mainDataSource" ref="dmsMainSequenceDataSource"/> -->
+					<property name="mainDataSource" ref="dms_main"/>
 					<property name="threadPoolSize"  value="10"/>
 				</bean>
 			</set>
@@ -109,8 +121,10 @@
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 
 	<bean id="mainWriteSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dmsMainSequenceDataSource" />
-		<property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
+		<!-- <property name="dataSource" ref="dmsMainSequenceDataSource" />
+		<property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" /> -->
+		<property name="dataSource" ref="dms_main" />
+		<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />
 	</bean>
 	
 	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory">
@@ -130,7 +144,8 @@
 	<!-- dms读库 数据源  -start-->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dmsReadDataSource" />
-		<property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml" />
+		<!-- <property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml" /> -->
+		<property name="configLocation" value="classpath:config/oracle/mybatis-config-read.xml" />
 	</bean>
 	
 	
@@ -141,7 +156,8 @@
 	<!-- dms读库 数据源  -end-->
 
     <!-- worker配置数据源    -start-->
-    <bean id="mysqlTaskDataSource" parent="parentDataSource">
+    
+   <!--  <bean id="mysqlTaskDataSource" parent="parentDataSource">
 	    <property name="url" value="${mysqlTaskDb.url}"/>
 	    <property name="username" value="${mysqlTaskDb.username}" />
 		<property name="password" value="${mysqlTaskDb.password}" />
@@ -150,11 +166,13 @@
 	<bean id="mysqlTaskDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="mysqlTaskDataSource" />
 		<qualifier value="worker"></qualifier>
-	</bean>
+	</bean> -->
 	
     <bean id="workerSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="mysqlTaskDataSource" />
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config-worker.xml" />
+        <!-- <property name="dataSource" ref="mysqlTaskDataSource" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-worker.xml" /> -->
+        <property name="dataSource" ref="taskDataSource" />
+       <property name="configLocation" value="classpath:config/oracle/mybatis-config-worker.xml" />
     </bean>
 
     <bean id="workerSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
@@ -163,7 +181,8 @@
     <!-- worker配置 数据源    -end-->
 
 	<bean class="com.jd.dbs.objectId.DbsGenerateObjectId" id="genObjectId">
-		<property name="dataSource" ref="dmsMainSequenceDataSource"/>
+		<!-- <property name="dataSource" ref="dmsMainSequenceDataSource"/> -->
+		<property name="dataSource" ref="dms_main"/>
     </bean>
     
     <bean id="cacheUtils" class="com.jd.common.cached.CacheUtils">

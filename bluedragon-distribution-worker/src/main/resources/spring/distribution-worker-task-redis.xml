@@ -18,7 +18,7 @@
           abstract="true">
         <property name="tbScheduleManagerFactory" value="managerFactory"/>
         <property name="redisClient" ref="redisClient"/>
-        <property name="scheduleDataSource" ref="mysqlTaskDataSource"/>
+        <property name="scheduleDataSource" ref="taskDataSource"/>
         <property name="taskClass"
                   value="com.jd.bluedragon.distribution.task.domain.Task"/>
         <property name="ownSign" value="${ownSign}"/>
