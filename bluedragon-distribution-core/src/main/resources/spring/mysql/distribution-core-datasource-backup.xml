@@ -15,7 +15,7 @@
 
 	<!-- 备份数据源的抽象定义  -->
 	<bean id="abstractBackupDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
-	    <property name="driverClassName" value="${db.backup.mysql.driverClassName}"/>
+	    <property name="driverClassName" value="${db.backup.oralce.driverClassName}"/>
 		<property name="defaultAutoCommit" value="true"/>
 		<property name="initialSize" value="${db.backup.initialSize}"/>
 		<property name="maxIdle" value="${db.backup.maxIdle}"/>
