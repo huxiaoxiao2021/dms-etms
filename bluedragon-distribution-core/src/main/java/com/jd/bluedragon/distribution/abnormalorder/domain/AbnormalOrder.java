@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.abnormalorder.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.jd.bluedragon.distribution.api.request.AbnormalOrderRequest;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
 
 public class AbnormalOrder {
 	public static final Integer NEW = -2;/*仅用来表示新增操作状态，数据库中没有此状态*/
@@ -226,4 +230,6 @@ public class AbnormalOrder {
 	public void setTrackContent(String trackContent) {
 		this.trackContent = trackContent;
 	}
+
+
 }

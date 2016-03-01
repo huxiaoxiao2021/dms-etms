@@ -59,24 +59,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -271,6 +253,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		List<SendDetail> allsendList = null;
 		SendDetail query = this.paramSendDetail(sendM);
 		allsendList = this.sendDatailDao.queryBySiteCodeAndSendCode(query);
+		
+		dealWithWaybillCode(allsendList);
 		for (SendDetail tSendDetail : allsendList) {
 			ReverseSend send = new ReverseSend();
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -335,6 +319,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			Map<String, String> orderpackMapLoss = new ConcurrentHashMap<String, String>();
 			Set<String> packSet = new HashSet<String>();
 			List<SendDetail> allsendList = this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
+			
+			dealWithWaybillCode(allsendList);
 			
 			int allsendListSize = allsendList!=null?allsendList.size():0;
 			this.logger.info("获得发货明细数量:"+allsendListSize);
@@ -474,7 +460,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			Map<String, String> orderpackMap = new ConcurrentHashMap<String, String>();
 			Map<String, String> orderpackMapLoss = new ConcurrentHashMap<String, String>();
 			List<SendDetail> allsendList = this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
-			
+			dealWithWaybillCode(allsendList);
 			int allsendListSize = allsendList!=null?allsendList.size():0;
 			this.logger.info("获得发货明细数量:"+allsendListSize);
 			
@@ -793,11 +779,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 		}
 
 		List<SendDetail> sendDetails = this.sendDatailDao.queryBySiteCodeAndSendCode(this.paramSendDetail(sendM));
+		
 		if (sendDetails == null || sendDetails.size() == 0) {
 			this.logger.error("reverse_spwms:sendD数据为空." + sendM.getSendCode());
 			return true;
 		}
-
+		
 		// 增加判断d表中数据为逆向数据
 		Map<String, SendDetail> sendDetailMap = new ConcurrentHashMap<String, SendDetail>();
 		for (SendDetail aSendDetail : sendDetails) {
@@ -872,7 +859,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 						continue;
 					}
 				}
-
+				dealWithWaybillCode(sendDetails);
 				// 开始包装发货对象
 				InOrder order = new InOrder();
 				order.setSourceId(sendDetail.getCreateSiteCode());
@@ -1072,6 +1059,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	}
 
 	private Waybill getWaybill(String waybillCode) {
+		
+		if(waybillCode.startsWith(Constants.T_WAYBILL))
+			waybillCode = waybillCode.replaceFirst(Constants.T_WAYBILL, "");
+		
 		Waybill waybill = this.waybillCommonService.getWaybillFromOrderService(waybillCode);
 		if (null == waybill) {
 			this.logger.error(waybillCode + "获取订单中间件ooms订单数据失败");
@@ -1119,6 +1110,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			orgType = "PC";
 			break;
 		case 600:
+			orgType = "PW";
+			break;
+		case 709:
 			orgType = "PW";
 			break;
 		case 611:
@@ -1298,4 +1292,21 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         return Boolean.FALSE;
     }
 
+    /**
+     * 
+     *处理T F订单信息
+     * @param 
+     * @return 
+     */
+    private  List<SendDetail> dealWithWaybillCode(List<SendDetail> sendList) {
+    	for(SendDetail sendDetail : sendList){
+    		if(sendDetail.getWaybillCode().startsWith(Constants.T_WAYBILL))
+    			sendDetail.setWaybillCode(sendDetail.getWaybillCode().replaceFirst(Constants.T_WAYBILL, ""));
+    		
+    		if(sendDetail.getPackageBarcode().startsWith(Constants.T_WAYBILL))
+        		sendDetail.setPackageBarcode(sendDetail.getPackageBarcode().replaceFirst(Constants.T_WAYBILL, ""));
+    	}
+    	return sendList;
+    }
+    
 }

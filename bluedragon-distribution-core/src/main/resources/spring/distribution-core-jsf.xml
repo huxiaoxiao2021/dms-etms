@@ -126,7 +126,11 @@
     <jsf:consumer id="waybillExtendApiJsf" interface="com.jd.etms.waybill.api.WaybillExtendApi" protocol="jsf" 
     			   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false"> 
     </jsf:consumer>
-    
+    <jsf:consumer id="josServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.jos.service.JosService" protocol="jsf"
+                  alias="${dms.jsf.alias}"
+                 >
+    </jsf:consumer>
     <!-- 运单系统接口 结束 -->
      <!-- 基础资料系统接口 开始 -->
     <!--获取站点，员工，机构等数据-->	

@@ -117,20 +117,20 @@ public class OrderStockInfo {
 	public Boolean judgeStockInfo(){
 		
 		boolean result = true;
-		String payInfo;
-		
-		String pay_post = "先货";
-		String pay_pre = "先款";
-		String pay_error = "无法判断先款先货";
+//		String payInfo;
+//		
+//		String pay_post = "先货";
+//		String pay_pre = "先款";
+//		String pay_error = "无法判断先款先货";
 
 
 		if ("出库".equals(fangshi) && "放货".equals(fenlei)
 				&& (qita== 0)) {
-			payInfo = pay_post;
+//			payInfo = pay_post;
 		} else if ("出库".equals(fangshi) && "销售".equals(fenlei)) {
-			payInfo = pay_pre;
+//			payInfo = pay_pre;
 		} else {
-			payInfo = pay_error;
+//			payInfo = pay_error;
 			//先货先款不确定只有对普通fbp订单的发送才有影响
 			if(this.ordinaryTypes.contains(type)){
 				result=false;
@@ -148,8 +148,7 @@ public class OrderStockInfo {
 		StringBuffer resultStr = new StringBuffer();
 		if (type == null)
 			resultStr.append("订单信息为空!");
-		if(!this.ordinaryTypes.contains(type)&&!this.otherTypes.contains(type))
-			resultStr.append("订单类型不支持!");
+		
 		if (!judgeStockInfo())
 			resultStr.append("不确定先后款!");
 		

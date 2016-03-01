@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jd.oom.client.clientbean.Order;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +18,14 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
+import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
-import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.DateHelper;
@@ -38,7 +37,6 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.iwmss.stock.client.ArrayOfStock;
 import com.jd.iwmss.stock.client.Stock;
-import com.jd.iwmss.stock.client.StockDetail;
 import com.jd.iwmss.stock.client.StockParamter;
 import com.jd.iwmss.stock.client.StockWebServiceSoap;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -46,6 +44,8 @@ import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import jd.oom.client.clientbean.Order;
 
 /**
  * 备件库收货推出管  
@@ -97,14 +97,14 @@ public class ReverseReceiveNotifyStockService {
 	
 	public Long receive(String message) {
 		
-		if (XmlHelper.isXml(message, ReverseReceiveRequest.class, null)) {
-			ReverseReceiveRequest request = (ReverseReceiveRequest) XmlHelper.toObject(message,
-					ReverseReceiveRequest.class);
+		if (XmlHelper.isXml(message, ReceiveRequest.class, null)) {
+			ReceiveRequest request = (ReceiveRequest) XmlHelper.toObject(message,
+					ReceiveRequest.class);
 
 			if (request == null) {
 				this.logger.warn("消息序列化出现异常, 消息：" + message);
-			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())
-					&& ReverseReceive.RECEIVE.equals(request.getCanReceive())) {
+			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
+					&& ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
 				return new Long(request.getOrderId());
 			} else {
 				this.logger.info("消息来源：" + request.getReceiveType());
@@ -179,14 +179,7 @@ public class ReverseReceiveNotifyStockService {
 				// Long financeCode =
 				// this.financeWebService.getFinancialOrderByOrderId(waybillCode);
 				Integer payType = getPayType(waybillCode);
-				// 判断先款后款时出错，日志记录，后续人工介入
-				if (payType.equals(PAY_TYPE_ERROR)
-						|| payType.equals(PAY_TYPE_UNKNOWN)) {
-					this.logger.error("先款后款不明确" + waybillCode);
-					
-					sysLog.setContent("先款后款不明确");
-					return false;
-				}
+
 				long result = 0;
 				OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
 
@@ -290,8 +283,10 @@ public class ReverseReceiveNotifyStockService {
 				sysLog.setKeyword4(result);
 				if(result!=0)
 					sysLog.setContent("推出管成功!");
-				else
+				else{
 					sysLog.setContent("推出管失败!");
+					return Boolean.FALSE;
+				}
 			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
 				//Long financeCode = this.financeWebService.getFinancialOrderByOrderId(waybillCode);
 				Integer payType = getPayType(waybillCode);
@@ -319,6 +314,7 @@ public class ReverseReceiveNotifyStockService {
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
+			return Boolean.FALSE;
 		}finally{
 			SystemLogUtil.log(sysLog);
 		}
@@ -386,41 +382,6 @@ public class ReverseReceiveNotifyStockService {
 		return stockDetailVOs;
 	}
 
-	private List<StockDetail> getStockDetail(List<Product> products, Integer paidType) {
-		List<StockDetail> stockDetails = new ArrayList<StockDetail>();
-		for (Product product : products) {
-			StockDetail stockDetail = new StockDetail();
-			stockDetail.setBilv(1);
-			stockDetail.setWareid(new Integer(product.getProductId()));
-			stockDetail.setWare(product.getName());
-			stockDetail.setJiage(product.getPrice());
-			stockDetail.setNum(this.isPrePay(paidType) ? product.getQuantity() : this.negate(product
-					.getQuantity()));
-			stockDetail.setZjine(this.isPrePay(paidType) ? product.getPrice().multiply(
-					new BigDecimal(product.getQuantity())) : product.getPrice()
-					.multiply(new BigDecimal(product.getQuantity())).negate());
-			stockDetails.add(stockDetail);
-		}
-
-		return stockDetails;
-	}
-	
-	private List<StockDetail> getStockDetail(List<Product> products) {
-		List<StockDetail> stockDetails = new ArrayList<StockDetail>();
-		for (Product product : products) {
-			StockDetail stockDetail = new StockDetail();
-			stockDetail.setBilv(1);
-			stockDetail.setWareid(new Integer(product.getProductId()));
-			stockDetail.setWare(product.getName());
-			stockDetail.setJiage(product.getPrice());
-			stockDetail.setNum(product.getQuantity());
-			stockDetail.setZjine(product.getPrice().multiply(new BigDecimal(product.getQuantity())));
-			stockDetails.add(stockDetail);
-		}
-
-		return stockDetails;
-	}
-
 	/**
 	 * 将商品明细转换
 	 * @param products
@@ -453,8 +414,9 @@ public class ReverseReceiveNotifyStockService {
 	 * feilei=‘销售’ 即为先款订单
 	 * 
 	 * @return
+	 * @throws StockCallPayTypeException 
 	 */
-	public Integer getPayType(Long waybillCode) {
+	public Integer getPayType(Long waybillCode) throws StockCallPayTypeException {
 		StockParamter request = new StockParamter();
 		request.setOrderid(waybillCode);
 
@@ -486,13 +448,10 @@ public class ReverseReceiveNotifyStockService {
 			// 异常情况日志记录方便定位问题
 			logger.error("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
 					+ ",qite" + qite);
-			logException(waybillCode);
+			logger.error("不能判断订单是先款还是后款: " + waybillCode);
+			throw new StockCallPayTypeException("不能判断订单是先款还是后款: " + waybillCode);
 		}
 		return result;
-	}
-
-	private void logException(Long waybillCode) {
-		logger.error("不能判断订单是先款还是后款: " + waybillCode);
 	}
 	
 	private boolean isPrePay(Integer payType) {

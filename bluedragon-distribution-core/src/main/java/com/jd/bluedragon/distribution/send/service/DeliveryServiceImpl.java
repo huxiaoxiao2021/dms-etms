@@ -208,69 +208,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
 
-    private SendResult packageCrosssSendCheck(SendM domain){
-        Integer targetSortingCenterId=null;
-        Integer targetSiteCode=null;
-        if(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())){
-            com.jd.bluedragon.common.domain.Waybill waybill = this.waybillCommonService.findWaybillAndPack(SerialRuleUtil.getAllWaybillCode(domain.getBoxCode()).getResult());
-            if(null!=waybill&&null!=waybill.getSiteCode()){
-                targetSiteCode=waybill.getSiteCode();
-                if(isZiTiGui(waybill)){
-                    targetSiteCode = tBaseService.getSiteSelfDBySiteCode(waybill.getSiteCode());
-                }
-                BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
-                if(null!=br&&null!=br.getDmsId()){
-                    targetSortingCenterId=br.getDmsId();
-                    logger.info("站点为:"+waybill.getSiteCode()+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-                }
-            }else{
-                return new SendResult(4, JdResponse.SEND_WAYBILL_NOT_FOUND,3900,null);
-            }
-        }else {
-            Box box= boxService.findBoxByCode(domain.getBoxCode());
-            if(null!=box&&box.getReceiveSiteCode()!=null){
-                targetSiteCode=box.getReceiveSiteCode();
-                BaseStaffSiteOrgDto site1=siteService.getSite(box.getReceiveSiteCode());
-                targetSortingCenterId=box.getReceiveSiteCode();
-                if(null!=site1&&null!=site1.getSiteType()&&!site1.getSiteType().equals(64))
-                {
-                    BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(site1.getSiteCode());
-                    if(null!=br&&null!=br.getDmsId()){
-                        targetSortingCenterId=br.getDmsId();
-                    }
-                }
-                logger.info("站点为:"+box.getReceiveSiteCode()+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-            }else{
-                return new SendResult(4,JdResponse.SEND_BOX_NOT_FOUND ,3900,null);
-            }
-        }
-        if(null != targetSortingCenterId
-                && !targetSortingCenterId.equals(domain.getReceiveSiteCode())
-                && !domain.getReceiveSiteCode().equals(targetSiteCode))
-        {
-            CrossDmsBox crossDmsBox = null;
-            try{
-                BaseResult<CrossDmsBox> resData = basicSafInterfaceManager.getCrossDmsBoxByOriAndDes(
-                        domain.getCreateSiteCode(), targetSortingCenterId);
-                crossDmsBox = resData.getData();
-                logger.info("调用基础资料获取跨分拣箱号规则 " + JsonHelper.toJson(crossDmsBox));
-            }catch (Exception e){
-                logger.error("一车一单发货，获取基础资料跨分拣箱号中转规则信息失败，原因", e);
-            }
-            if(null == crossDmsBox || null == crossDmsBox.getTransferOneId() || !domain.getReceiveSiteCode().equals(crossDmsBox.getTransferOneId())){
-                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
-            }
-            //发货规则调用基础资料跨分拣规则表校验
-//            List<CrossSortingDto> list=crossSortingService.getQueryByids(domain.getCreateSiteCode(),domain.getReceiveSiteCode(),targetSortingCenterId,20);
-//            if(list.size()==0&&!domain.getReceiveSiteCode().equals(targetSiteCode)) {
-//                logger.info("targetSiteCode:"+targetSiteCode+"目的分拣中心为："+targetSortingCenterId+"目的站点："+domain.getReceiveSiteCode());
-//                return new SendResult(4, JdResponse.SEND_SITE_NO_MATCH, 3900, targetSiteCode);
-//            }
-
-        }
-        return new SendResult(1,"发货成功",null,null);
-    }
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
@@ -299,7 +236,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(null!=sendMList&&sendMList.size()>0){
             return new SendResult(2, "箱子已经在批次"+sendMList.get(0).getSendCode()+"中发货");
         }
-        if(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())) {//大件分拣拦截验证
+        if(!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
             sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
             sortingCheck.setCreateSiteCode(domain.getCreateSiteCode());
@@ -307,6 +244,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setPackageCode(domain.getBoxCode());
             sortingCheck.setBusinessType(domain.getSendType());
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
+            sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
             SortingJsfResponse response =null;
@@ -369,8 +307,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.info(MessageFormat.format("插入SENDM时长{0}", System.currentTimeMillis() - startTime));
             startTime=System.currentTimeMillis();
         }
-        logger.info(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())+"====="+domain.getBoxCode());
-        if(SerialRuleUtil.isMatchAllPackageNo(domain.getBoxCode())) {
+        if(!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
             pushSorting(domain);//大件写TASK_SORTING
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("写task_sorting时长{0}", System.currentTimeMillis() - startTime));
@@ -435,7 +372,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortDomain.setFeatureType(0);
         sortDomain.setUserName(domain.getCreateUser());
         sortDomain.setBusinessType(10);
-        sortDomain.setWaybillCode(SerialRuleUtil.getAllWaybillCode(domain.getBoxCode()).getResult());
+        sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
@@ -667,7 +604,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		try {
 			return this.dellCreateSendM(sendMList);
 		} catch (Exception e) {
-			this.logger.error("生成发货数据处理" + e);
+			this.logger.error("生成发货数据处理", e);
 			return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR,
 					DeliveryResponse.MESSAGE_Delivery_ERROR);
 		}
@@ -2808,7 +2745,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             int hasDiff=0;
             if(counter!=scanCount){/* 有差异*/
 
-                com.jd.bluedragon.common.domain.Waybill waybill= waybillCommonService.findWaybillAndPack(SerialRuleUtil.getAllWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()).getResult());
+                com.jd.bluedragon.common.domain.Waybill waybill= waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
                 List<String> geneList=null;
                 if(null!=waybill&&null!=waybill.getPackList()&&waybill.getPackList().size()>0){
                     logger.info("运单中包裹数量为"+waybill.getPackList().size());

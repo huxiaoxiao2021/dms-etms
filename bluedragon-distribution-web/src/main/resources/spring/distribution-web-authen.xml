@@ -29,6 +29,10 @@
 					<property name="name" value="${hrm.auth.cookie.name}" />
 					<property name="domain" value="${hrm.auth.cookie.domain}" />
 				</bean>
+				<bean class="com.jd.common.web.cookie.JdCookie">
+					<property name="name" value="${cert.cookie.name}" />
+					<property name="domain" value="${cert.cookie.domain}" />
+				</bean>
 			</util:list>
 		</property>
 	</bean>
@@ -44,6 +48,11 @@
 		<entry key="loginUrl">
 			<bean class="com.jd.common.web.url.UrlBuilder">
 				<constructor-arg value="${login.address}" />
+			</bean>
+		</entry>
+		<entry key="certUrl">
+			<bean class="com.jd.common.web.url.UrlBuilder">
+				<constructor-arg value="${cert.address}" />
 			</bean>
 		</entry>
 	</util:map>
@@ -108,6 +117,21 @@
 		<bean id="_HrmPrivilegeInterceptor" class="com.jd.common.hrm.support.HrmPrivilegeInterceptor">
 			<property name="hrmPrivilegeHelper" ref="hrmPrivilegeHelper" />
 		</bean>
+		
+		<!-- 需要校验数字证书的拦截器配置(如果不需要校验证书,可以不配置) -->
+		<!-- 校验数字证书前需要先校验登录 -->
+		<mvc:interceptor>
+            <mvc:mapping path="${cert.path}"/>
+            <bean id="certificateRequiredInterceptor"
+                class="com.jd.common.springmvc.interceptor.CertificateRequiredInterceptor">
+                  <property name="certCookieName" value="${cert.cookie.name}" />
+                  <property name="cookieUtils" ref="cookieUtils"/>
+                  <property name="dotnetAuthenticationKey" 
+                                    value="${demowebapp.hrm.login.auth.key}"/>
+                  <property name="urlBuilders" ref="urlBuilders"/>
+            </bean>
+        </mvc:interceptor>
+		
 	</mvc:interceptors>
 
 </beans>

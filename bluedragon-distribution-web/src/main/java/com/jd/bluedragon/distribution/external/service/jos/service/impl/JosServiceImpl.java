@@ -14,6 +14,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by yangbo7 on 2015/9/1.
  */
@@ -45,6 +48,8 @@ public class JosServiceImpl implements JosService {
         }
         return response;
     }
+
+
 
     private LoadBillReport resolveLoadBillReport(LoadBillReportRequest request) {
         LoadBillReport report = new LoadBillReport();

@@ -22,7 +22,7 @@
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
 	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
-	
+	<import resource="classpath:spring/distribution-web-jmq.xml" />
 	
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->

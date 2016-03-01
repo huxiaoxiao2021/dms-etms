@@ -68,19 +68,19 @@ public class StockExportManagerImpl implements StockExportManager {
 			
 			if(result!=null){
 				if(!result.isResultFlag()){
-					this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result:"+result.getMessage());
+					this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常：result:"+result.getMessage());
 					Profiler.functionError(info);
 					result = null;
 				}else{
-					this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功: resultMessage:"+result.getMessage());
+					this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo成功: resultMessage:"+result.getMessage());
 				}
 			}else{
-				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
+				this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常: result为空!");
 				Profiler.functionError(info);
 			}
 			
 		}catch(Exception e){
-			logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常", e);
+			logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常", e);
 			Profiler.functionError(info);
 		}finally {
 			Profiler.registerInfoEnd(info);

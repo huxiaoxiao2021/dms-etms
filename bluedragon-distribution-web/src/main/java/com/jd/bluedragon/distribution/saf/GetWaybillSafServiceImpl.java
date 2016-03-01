@@ -16,7 +16,9 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.saf.service.GetWaybillSafService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.distribution.saf.domain.WaybillSafResponse;
+import org.springframework.stereotype.Service;
 
+@Service("getWaybillSafService")
 public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 	
 	private final Log logger = LogFactory.getLog(this.getClass());

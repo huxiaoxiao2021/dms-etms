@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.service;
 
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 
 /**
@@ -63,4 +64,12 @@ public interface WaybillCommonService {
 	Waybill findWaybillAndPack(String waybillCode, boolean isQueryWaybillC,
 			boolean QueryWaybillE, boolean QueryWaybillM,
 			boolean isQueryPackList);
+
+
+    /**
+     * 根据原单号查询新运单信息
+     * @param oldWaybillCode 原运单号
+     * @return
+     */
+    InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode);
 }
