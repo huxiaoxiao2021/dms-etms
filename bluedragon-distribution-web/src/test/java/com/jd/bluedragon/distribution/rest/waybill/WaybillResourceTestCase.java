@@ -10,8 +10,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import jd.oom.client.clientbean.Order;
-
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,9 +17,12 @@ import com.jd.bluedragon.distribution.api.response.Product;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.kuguan.domain.OrderStockInfo;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.BlueDragonWebServiceService;
+
+import jd.oom.client.clientbean.Order;
 
 public class WaybillResourceTestCase {
 
@@ -83,7 +84,47 @@ public class WaybillResourceTestCase {
 			System.out.println(waybillCode + "," + response);
 		}
 	}
+	
+	@Test
+	public void test_get_NotifyPop() {
+		String urlReverseReceive = "http://dms1.etms.360buy.com/services/audit/reverseReceive/";
+		String urlStock = "http://dms1.etms.360buy.com/services/reverse/stock/nodify/";
+		String urlPop = "http://dms1.etms.360buy.com/services/reverse/pop/nodify/";
+		//导入处理订单
+		ArrayList<String> waybillCodeArr = FileUtil.getFileContent(new File("d:/waybillCodes.txt"));
 
+		for (String waybillCode : waybillCodeArr) {
+			ReverseReceive responseReceive = this.template.getForObject(urlReverseReceive + waybillCode,
+					ReverseReceive.class);
+			if(responseReceive==null||responseReceive.getReceiveType()!=3) {//responseReceive.getCanReceive()<1||
+				if(responseReceive!=null){
+					System.out.println(waybillCode + ",check:" + false+":"+responseReceive.getCanReceive()+":"+responseReceive.getReceiveType());
+				}else{
+					System.out.println(waybillCode + ",check:" + false+":null");
+				}
+				continue;
+			}
+			
+			String responseStock = this.template.getForObject(urlStock + waybillCode,
+					String.class);
+			String responsePop = this.template.getForObject(urlPop + waybillCode,
+					String.class);
+			System.out.println(waybillCode + ",stock:" + responseStock + ",pop:" + responsePop);
+		}
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	@Test
 	public void test_get_kuguaninfo() {
