@@ -595,7 +595,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		try {
 			return this.dellCreateSendM(sendMList);
 		} catch (Exception e) {
-			this.logger.error("生成发货数据处理" + e);
+			this.logger.error("生成发货数据处理", e);
 			return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR,
 					DeliveryResponse.MESSAGE_Delivery_ERROR);
 		}
