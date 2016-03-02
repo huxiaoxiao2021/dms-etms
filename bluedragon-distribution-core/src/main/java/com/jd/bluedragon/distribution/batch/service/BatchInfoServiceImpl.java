@@ -2,12 +2,12 @@ package com.jd.bluedragon.distribution.batch.service;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.batch.dao.BatchInfoDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dbs.objectId.IGenerateObjectId;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -29,10 +29,6 @@ import java.util.List;
 class BatchInfoServiceImpl implements BatchInfoService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
-
-    private static final String separator = "$";
-
-    private static final String siteType = "1024";
 
     private static final int timeout = 172800;
 

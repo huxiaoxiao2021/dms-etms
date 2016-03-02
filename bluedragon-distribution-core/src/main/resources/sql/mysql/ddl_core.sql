@@ -1822,6 +1822,17 @@ CREATE TABLE `turnoverbox` (
   PRIMARY KEY (`TURNOVERBOX_ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8;
 
+/*Table structure for table `dbs_objectid` */
+
+DROP TABLE IF EXISTS `dbs_objectid`;
+CREATE TABLE `dbs_objectid` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `objectName` varchar(255) NOT NULL,
+   `firstId` bigint(11) NOT NULL,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `dbs_objectId_index` (`objectName`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

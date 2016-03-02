@@ -3,13 +3,13 @@ package com.jd.bluedragon.distribution.customerservice.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dbs.objectId.IGenerateObjectId;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
