@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -562,7 +563,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 		// TODO Auto-generated method stub
 		inspectionService.saveData(inspection);
         InspectionMQBody inspectionMQBody=new InspectionMQBody();
-        inspectionMQBody.setWaybillCode(inspection.getWaybillCode());
+        inspectionMQBody.setWaybillCode(null!=inspection.getWaybillCode()?inspection.getWaybillCode(): SerialRuleUtil.getWaybillCode(inspection.getPackageBarcode()));
         inspectionMQBody.setInspectionSiteCode(inspection.getCreateSiteCode());
         try {
             inspectionNotifyService.send(inspectionMQBody);
