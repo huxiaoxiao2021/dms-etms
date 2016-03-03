@@ -135,11 +135,15 @@
 				and confirm_id=#{confirmId,jdbcType=BIGINT}
 			</when>
 			<otherwise>
-				and package_barcode=#{packageBarcode,jdbcType=VARCHAR} and
+                <if test="operateTime!= null">
+                  and operate_time = to_date(to_char(#{operateTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
+                </if>
+                and package_barcode=#{packageBarcode,jdbcType=VARCHAR} and
 				waybill_code=#{waybillCode,jdbcType=VARCHAR} and
 				confirm_type=#{type,jdbcType=SMALLINT} and
 				create_site_code=#{createSiteCode,jdbcType=INTEGER}  and    
 				operate_type=#{operateType,jdbcType=INTEGER}
+
 			</otherwise>
 		</choose>
 	</update>
