@@ -238,6 +238,9 @@ public class SerialRuleUtil
     */
     public static boolean isMatchReceiveWaybillNo(String input)
     {
+        if(null==input){
+            return false;
+        }
         Matcher match = RULE_WAYBILL_OUTER_REGEX.matcher(input.trim());
         if (match.matches())
         {

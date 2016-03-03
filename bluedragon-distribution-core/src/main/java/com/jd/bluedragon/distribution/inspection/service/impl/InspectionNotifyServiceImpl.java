@@ -27,7 +27,7 @@ public class InspectionNotifyServiceImpl implements InspectionNotifyService {
 
     @Override
     public void send(InspectionMQBody body) throws Throwable{
-        if(SerialRuleUtil.isMatchReceiveWaybillNo(body.getWaybillCode())){
+        if(!SerialRuleUtil.isMatchReceiveWaybillNo(body.getWaybillCode())){
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("推送验货MQ至本地分拣机，运单{0}被过滤",body.getWaybillCode()));
             }
