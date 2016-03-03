@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -57,14 +58,20 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				.parseWaybillSyncParameter(tasks));
 
 		if (results == null || results.isEmpty()) {
+            if(logger.isInfoEnabled()){
+                logger.info(MessageFormat.format("回传运单状态数据转换为空:{0}",JsonHelper.toJson(tasks)));
+            }
 			return;
 		}
 
 		for (Map.Entry<Long, Result> mResult : results.entrySet()) {
+
 			if (mResult != null) {
 				Long taskId = mResult.getKey();
 				Result result = mResult.getValue();
-
+                if(logger.isInfoEnabled()){
+                    logger.info(MessageFormat.format("回传运单状态taskId:{0}->resultCode:{1}->resultMessage{2}",taskId,result.getCode(),result.getMessage()));
+                }
 				if (true == result.isFlag()) {
 					this.taskService.doDone(this.findTask(tasks, taskId, Task.TASK_TYPE_WAYBILL));
 				} else if (WaybillStatus.RESULT_CODE_PARAM_IS_NULL == result.getCode()
@@ -162,10 +169,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 		for (Task task : tasks) {
 			if (StringHelper.isEmpty(task.getBody())) {
-				break;
+				continue;
 			}
 			if (task.getYn()!=null && task.getYn().equals(0)) {
-				break;
+                continue;
 			}
             /**
              * 作者：wnagtingwei@jd.com
@@ -219,7 +226,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 		}
-
+        if(logger.isInfoEnabled()){
+            logger.info(MessageFormat.format("回传运单消息体：{0}",JsonHelper.toJson(params)));
+        }
 		return params;
 	}
 
