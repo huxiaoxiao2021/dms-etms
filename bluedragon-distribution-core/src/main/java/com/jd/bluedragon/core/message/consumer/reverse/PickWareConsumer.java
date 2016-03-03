@@ -80,7 +80,7 @@ public class PickWareConsumer extends MessageBaseConsumer {
 			taskService.add(this.toTask(tWaybillStatus));
 		}
 		else{
-			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AMS_SHREVERSE);
+			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 			taskService.add(this.toTaskStatus(tWaybillStatus));
 		}
 		
