@@ -38,7 +38,7 @@ public class DefaultJMQProducer {
      */
     public void send(String businessId,String body) throws JMQException{
         if(logger.isInfoEnabled()){
-            logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{0}",this.topic,body));
+            logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{1}",this.topic,body));
         }
         Message message = new Message(this.topic, body, businessId);
         jmqProducer.send(message,this.timeout);
