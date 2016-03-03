@@ -50,23 +50,29 @@ public class PickWareConsumer extends MessageBaseConsumer {
 		tWaybillStatus.setOperator(pickWare.getOperator());
 		tWaybillStatus.setOperateTime(pickWare.getPickwareTime());
 		tWaybillStatus.setWaybillCode(pickWare.getPackageCode());
+		tWaybillStatus.setPackageCode(pickWare.getPackageCode());
 		
 		//备件库售后取件单-交接/拆包 不经过分拣中心操作, 所以起始站点未知
+		tWaybillStatus.setOperatorId(-1);
 		tWaybillStatus.setCreateSiteCode(0);
-		tWaybillStatus.setCreateSiteName("0");
+		tWaybillStatus.setCreateSiteName("【备件库售后交接拆包】");
+		tWaybillStatus.setCreateSiteType(-1);
 		 
 		//获得备件库操作单位
 		Integer cky2 = pickWare.getCky2();
 		Integer orgId = pickWare.getOrgId();
 		Integer storeId = pickWare.getStoreId();
+		tWaybillStatus.setOrgId(orgId);
 		
 		BaseResult<BaseDmsStoreDto> dtoResult = basicSafInterfaceManager.getDmsInfoByStoreInfo(cky2, orgId, storeId);
 		 if(dtoResult.getData()!=null){
 			 tWaybillStatus.setReceiveSiteCode(dtoResult.getData().getDmsId());
 			 tWaybillStatus.setReceiveSiteName(dtoResult.getData().getDmsName());
+			 tWaybillStatus.setReceiveSiteType(-1);
 		 }else{
 			 tWaybillStatus.setReceiveSiteCode(0);
 			 tWaybillStatus.setReceiveSiteName("0");
+			 tWaybillStatus.setReceiveSiteType(-1);
 		 }
 
 		if (pickWare.getCanReceive() == 0){
