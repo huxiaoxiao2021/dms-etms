@@ -1,0 +1,8 @@
+{  
+	"tp99" : "50",
+	"max": "1000",
+	"returnValueConfig" :{
+		"username":"hello",
+		"age": 223
+	}
+}
