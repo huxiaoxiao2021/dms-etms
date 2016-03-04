@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.etms.WaybillQueryWSImpl;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -267,8 +269,13 @@ public class SortingServiceImpl implements SortingService {
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
-			BaseEntity<BigWaybillDto> waybill = this.waybillQueryApi.getWaybillAndPackByWaybillCode(sorting
+			WaybillQueryWSImpl wabillWSImpl = new WaybillQueryWSImpl();
+			BaseEntity<BigWaybillDto> waybill = wabillWSImpl.getWaybillAndPackByWaybillCode(sorting
 					.getWaybillCode());
+			
+			RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "WaybillQuery.getWaybillAndPackByWaybillCode",sorting
+					.getWaybillCode());
+			
 			if (waybill != null && waybill.getData() != null) {
 				List<DeliveryPackageD> packages = waybill.getData().getPackageList();
 				if (BusinessHelper.checkIntNumRange(packages.size())) {

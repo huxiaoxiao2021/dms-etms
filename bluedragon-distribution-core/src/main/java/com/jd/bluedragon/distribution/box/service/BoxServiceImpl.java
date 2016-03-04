@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.box.service;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
@@ -93,26 +94,20 @@ public class BoxServiceImpl implements BoxService {
 		// 对于始发站点和商家相同的ID特殊处理
 		if (box.getStatuses() != null && siteType.equals(box.getStatuses())) {
 			this.logger.info("商家站点打印箱号始发站");
-			BaseTradeInfoDto dto = baseMinorManager.getBaseTraderById(box
-					.getCreateSiteCode());
-			if (dto == null || dto.getTraderCode() == null) {
+			BaseStaffSiteOrgDto dto = RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", box.getCreateSiteCode());
+			if (dto != null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站商家接口"
 						+ box.getCreateSiteCode());
-				BaseStaffSiteOrgDto createSite = this.baseMajorManager
-						.getBaseSiteBySiteId(box.getCreateSiteCode());
+				BaseStaffSiteOrgDto createSite = RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", box.getCreateSiteCode());
 				if (createSite == null || createSite.getDmsSiteCode() == null) {
 					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 							+ box.getCreateSiteCode());
 					return null;
 				} else
 					createSiteDms = createSite.getDmsSiteCode();
-			} else {
-
-				createSiteDms = dto.getTraderCode();
 			}
 		} else {
-			BaseStaffSiteOrgDto createSite = this.baseMajorManager
-					.getBaseSiteBySiteId(box.getCreateSiteCode());
+			BaseStaffSiteOrgDto createSite = RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", box.getCreateSiteCode());
 			if (createSite == null || createSite.getDmsSiteCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 						+ box.getCreateSiteCode());
@@ -121,35 +116,6 @@ public class BoxServiceImpl implements BoxService {
 				createSiteDms = createSite.getDmsSiteCode();
 		}
 
-		// 对于目的站点和商家相同的ID特殊处理
-		if (box.getUpdateUser() != null && siteType.equals(box.getUpdateUser())) {
-			this.logger.info("商家站点打印箱号目的站");
-			BaseTradeInfoDto dto = baseMinorManager.getBaseTraderById(box
-					.getReceiveSiteCode());
-			if (dto == null || dto.getTraderCode() == null) {
-				this.logger.error("创建站点或接收站点信息为空.-目的站商家接口"
-						+ box.getReceiveSiteCode());
-				BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
-						.getBaseSiteBySiteId(box.getReceiveSiteCode());
-				if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
-					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
-							+ box.getReceiveSiteCode());
-					return null;
-				} else
-					receiveSiteDms = receiveSite.getDmsSiteCode();
-			} else {
-				receiveSiteDms = dto.getTraderCode();
-			}
-		} else {
-			BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
-					.getBaseSiteBySiteId(box.getReceiveSiteCode());
-			if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
-				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
-						+ box.getReceiveSiteCode());
-				return null;
-			} else
-				receiveSiteDms = receiveSite.getDmsSiteCode();
-		}
 		box.setUpdateUser(null);
 		box.setStatuses(null);
 		if (createSiteDms == null || receiveSiteDms == null) {

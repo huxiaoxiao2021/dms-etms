@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
 import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
@@ -15,6 +16,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossDmsBox;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,15 +136,7 @@ public class BoxResource {
 		if(request.getTransportType()!=null&&request.getTransportType()==2){//只有公路运输的支持路由信息查询2014.3.10
 			//获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪		
 			try{
-				BaseResult<String> routInfoRes = this.basicSafInterfaceManager.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
-				this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
-				if(logger.isInfoEnabled()){
-                    this.logger.info("调用基础资料获取箱号路由"+ JsonHelper.toJson(routInfoRes));
-                }
-				if(StringHelper.isNotEmpty(routInfoRes.getData())){
-					response.setRouterInfo(routInfoRes.getData().split("\\-\\-"));
-				}
-				
+				RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", request.getCreateSiteCode());
 			}catch(Exception e){
 				this.logger.error("获得站点路由信息失败： " , e);
 			}

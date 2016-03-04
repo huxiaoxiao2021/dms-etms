@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
+import com.jd.bluedragon.common.rpc.mock.TestBean;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -300,10 +302,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             sortingCheck.setOperateType(1);
-            SortingJsfResponse response =null;
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
             try {
-            	response = jsfSortingResourceService.check(sortingCheck);
+            	RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "JsfSortingResourceService.check","check");
+            	
             }catch (Exception ex){
                 logger.error("调用VER",ex);
                 return new SendResult(4,"调用分拣验证异常",100,0);
@@ -315,25 +317,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             Integer preSortingSiteCode=null;
             try{
-                CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
-                com.jd.bluedragon.common.domain.Waybill waybill=waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
-                Profiler.registerInfoEnd(infoSendfindByWaybillCode);
-                if(null!=waybill){
-                    preSortingSiteCode=waybill.getSiteCode();
-                }}catch (Throwable e){
+            	RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "JsfSortingResourceService.check","check");
+                    preSortingSiteCode=52;
+                }catch (Throwable e){
                 logger.error("一车一单获取预分拣站点异常",e);
                 if(logger.isInfoEnabled()){
                     logger.info(MessageFormat.format("findByWaybillCode时长{0}", System.currentTimeMillis() - startTime));
                     startTime=System.currentTimeMillis();
                 }
-            }
-            if (response.getCode().equals(200)) {
-
-            } else if (response.getCode() >= 39000) {
-                if (!isForceSend)
-                    return new SendResult(4, response.getMessage(),response.getCode(),preSortingSiteCode);
-            } else {
-                return new SendResult(2, response.getMessage(),response.getCode(), preSortingSiteCode);
             }
 
         }
@@ -395,9 +386,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
     private void pushSorting(SendM domain){
-        BaseStaffSiteOrgDto create= siteService.getSite(domain.getCreateSiteCode());
+        BaseStaffSiteOrgDto create= RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "WaybillQuery.getWaybillAndPackByWaybillCode",domain.getCreateSiteCode());
         String createSiteName=null!=create?create.getSiteName():null;
-        BaseStaffSiteOrgDto receive=siteService.getSite(domain.getReceiveSiteCode());
+        BaseStaffSiteOrgDto receive=RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "WaybillQuery.getWaybillAndPackByWaybillCode",domain.getCreateSiteCode());
         String receiveSiteName=null!=receive?receive.getSiteName():null;
         Task task=new Task();
         task.setBoxCode(domain.getBoxCode());
@@ -1262,11 +1253,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 			
 			// 增加获取订单类型判断是否是LBP订单s
 			Set<String> waybillset = new HashSet<String>();
-			Map<String, Integer> sendDatailMap = new HashMap<String, Integer>();
+			//Map<String, Integer> sendDatailMap = new HashMap<String, Integer>();
 			for (SendDetail dSendDatail : sendDetails) {
 				waybillset.add(dSendDatail.getWaybillCode());
 			}
-			List<String> waybillList = new CollectionHelper<String>().toList(waybillset);
+			/*List<String> waybillList = new CollectionHelper<String>().toList(waybillset);
 			WChoice queryWChoice = new WChoice();
 			queryWChoice.setQueryWaybillC(true);
 			List<BigWaybillDto> tWaybillList = getWaillCodeListMessge(queryWChoice, waybillList);
@@ -1277,7 +1268,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 						sendDatailMap.put(tWaybill.getWaybill().getWaybillCode(), tWaybill.getWaybill().getWaybillType());
 					}
 				}
-			}
+			}*/
 			// 增加获取订单类型判断是否是LBP订单e
 			
 			for (SendDetail tSendDatail : sendDetails) {
@@ -1288,17 +1279,18 @@ public class DeliveryServiceImpl implements DeliveryService {
 					BaseStaffSiteOrgDto rbDto = null;
 					
 					try {
-						rbDto = this.baseMajorManager.getBaseSiteBySiteId(tSendDatail.getReceiveSiteCode());
-						cbDto = this.baseMajorManager.getBaseSiteBySiteId(tSendDatail.getCreateSiteCode());
+						//替换为模拟调用。
+						rbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getReceiveSiteCode());
+						cbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getCreateSiteCode());
 					} catch (Exception e) {
 						this.logger.error("发货全程跟踪调用站点信息异常",e);
 					}
 					
 					if (cbDto == null)
-						cbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(tSendDatail.getCreateSiteCode()));
+						cbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getCreateSiteCode());
 					
 					if (rbDto == null)
-						rbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(tSendDatail.getReceiveSiteCode()));
+						rbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getReceiveSiteCode());
 					
 					if (rbDto != null && rbDto.getSiteType() != null && cbDto != null && cbDto.getSiteType() != null) {
 						WaybillStatus tWaybillStatus = new WaybillStatus();
@@ -1334,7 +1326,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 											.setOperateType(OPERATE_TYPE_FORWARD_SEND);
 								}
 								canSuccess(tWaybillStatus, tSendDatail);
-								sendInspection(tSendDatail,sendDatailMap);
+								//sendInspection(tSendDatail,sendDatailMap);
 							} else if (tSendDatail.getYn().equals(0) && tSendDatail.getIsCancel().equals(2)) {
 								tSendDatail.setSendCode(null);
 								if (businessTypeTWO.equals(tSendDatail
