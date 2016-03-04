@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
-import com.jd.bluedragon.common.rpc.mock.TestBean;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
