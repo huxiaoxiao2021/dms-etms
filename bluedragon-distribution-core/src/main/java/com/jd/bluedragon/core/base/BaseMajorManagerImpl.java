@@ -91,7 +91,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseStaffByStaffId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer paramInteger) {
-		return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
+		return getBaseStaffByStaffIdNoCache(paramInteger);
 	}
 
 	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000,
@@ -295,9 +295,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	}
 
     @Override
-    @Cache(key = "baseMajorManagerImpl.getThirdStaffByJdAccount@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-    public BaseStaffSiteOrgDto getThirdStaffByJdAccount(String jdAccount) {
+    public BaseStaffSiteOrgDto getThirdStaffByJdAccountNoCache(String jdAccount) {
         return basicPrimaryWS.getThirdStaffByJdAccount(jdAccount);
+    }
+
+    @Override
+    public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger) {
+       return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
     }
 }

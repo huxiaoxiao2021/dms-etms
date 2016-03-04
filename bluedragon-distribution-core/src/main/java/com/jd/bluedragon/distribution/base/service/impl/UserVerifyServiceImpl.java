@@ -10,7 +10,13 @@ import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 
 import javax.ws.rs.core.MediaType;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * @author dudong
@@ -47,7 +53,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
 
             ClientRequest request = new ClientRequest(passportUrl);
             request.accept(MediaType.WILDCARD);
-            request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, param);
+            request.body(javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED, param);
             ClientResponse<String> response = request.post(String.class);
 
             String result = response.getEntity();
@@ -62,7 +68,6 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             return Boolean.FALSE;
         }
     }
-
 
     public String getPassportUrl() {
         return passportUrl;

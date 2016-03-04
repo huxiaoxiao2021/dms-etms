@@ -69,5 +69,8 @@ public interface BaseMajorManager {
 
 	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid,int num);
 
-    public BaseStaffSiteOrgDto getThirdStaffByJdAccount(final String jdAccount);
+    public BaseStaffSiteOrgDto getThirdStaffByJdAccountNoCache(final String jdAccount);
+
+    public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger);
+
 }

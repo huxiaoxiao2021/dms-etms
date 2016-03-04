@@ -6,7 +6,8 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
-import com.jd.bluedragon.distribution.base.domain.*;
+import com.jd.bluedragon.distribution.base.domain.PdaStaff;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
@@ -29,29 +30,18 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.*;
-import com.jd.ql.basic.dto.BasePdaUserDto;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-import com.jd.registry.util.Md5Util;
-import com.sun.deploy.net.HttpUtils;
-import com.sun.tools.jxc.apt.Const;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 
 @Service("baseService")
@@ -104,6 +94,9 @@ public class BaseServiceImpl implements BaseService {
     @Override
     public BasePdaUserDto pdaUserLogin(String userid, String password) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
+        if (log.isInfoEnabled()){
+            log.info("用户登录新接口，用户名 " + userid);
+        }
 
         if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
             basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
@@ -119,7 +112,7 @@ public class BaseServiceImpl implements BaseService {
                 // 京东用户组接口验证
                 if (userVerifyService.passportVerify(thirdUserId,password)) {
                     // 用户组接口验证通过后，从基础资料获取具体信息
-                    BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccount(thirdUserId);
+                    BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
                     if (null == baseStaffDto) {
                         basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
                         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
@@ -139,7 +132,7 @@ public class BaseServiceImpl implements BaseService {
                     basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
                 // 人事接口验证通过，获取基础资料信息
                 } else {
-                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffId(user.getId());
+                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(user.getId());
                     if (null == basestaffDto) {
                         basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
                         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
@@ -149,6 +142,7 @@ public class BaseServiceImpl implements BaseService {
                 }
             }
         } catch (Exception e) {
+            log.error("user login error " + userid, e);
             basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
             basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
         }
