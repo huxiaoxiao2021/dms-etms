@@ -2,7 +2,7 @@
 	"tp99" : "50",
 	"max": "1000",
 	"returnValueConfig" :{
-		"username":"hello",
+		"username":"#jexl#args0",
 		"age": 223
 	}
 }
