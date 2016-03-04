@@ -231,6 +231,9 @@ public class RpcMockProxy {
 			else if(clazz.equals(double.class)){
 				return random.nextDouble();
 			}
+			else if(clazz.equals(boolean.class)){
+				return random.nextBoolean();
+			}
 		}
 		else if(clazz.equals(Date.class)){
 			return new Date();
@@ -243,6 +246,9 @@ public class RpcMockProxy {
 		}
 		else if(clazz.equals(Float.class)){
 			return random.nextFloat();
+		}
+		else if(clazz.equals(Boolean.class)){
+			return random.nextBoolean();
 		}
 		else if(clazz.equals(Double.class)){
 			return random.nextDouble();
@@ -264,7 +270,7 @@ public class RpcMockProxy {
 	 */
 	private static JexlContext buildJexlContext(Object... args){
 		JexlContext context = new MapContext();
-
+		
 		//将参数设置到上下文中。
 		if(args!=null && args.length>0){
 			int i=0;
@@ -274,7 +280,8 @@ public class RpcMockProxy {
 			}
 		}
 		
-		//将
+		//将随机器写入上下文。
+		context.set("random", random);
 		
 		return context;
 	}

@@ -3,6 +3,7 @@
 	"max": "1000",
 	"returnValueConfig" :{
 		"username":"#jexl#args0",
+		"orgId":"#jexl#random.nextInt()",
 		"age": 223
 	}
 }

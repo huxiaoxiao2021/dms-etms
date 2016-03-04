@@ -19,10 +19,10 @@ public class TestBean {
 	private String address;
 
 	/** 是否打印包裹 */
-	private int isPrintPack;
+	private Boolean isPrintPack;
 
 	/** 是否打印发票 */
-	private int isPrintInvoice;
+	private boolean isPrintInvoice;
 
 	/** 机构ID */
 	private Integer orgId;
@@ -78,19 +78,20 @@ public class TestBean {
 		this.address = address;
 	}
 
-	public int getIsPrintPack() {
+
+	public Boolean getIsPrintPack() {
 		return isPrintPack;
 	}
 
-	public void setIsPrintPack(int isPrintPack) {
+	public void setIsPrintPack(Boolean isPrintPack) {
 		this.isPrintPack = isPrintPack;
 	}
 
-	public int getIsPrintInvoice() {
+	public boolean isPrintInvoice() {
 		return isPrintInvoice;
 	}
 
-	public void setIsPrintInvoice(int isPrintInvoice) {
+	public void setPrintInvoice(boolean isPrintInvoice) {
 		this.isPrintInvoice = isPrintInvoice;
 	}
 
