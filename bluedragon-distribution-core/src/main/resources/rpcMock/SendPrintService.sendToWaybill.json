@@ -1,0 +1,8 @@
+{
+  "tp99": "50",
+  "max": "300",
+  "returnValueConfig": {
+    "waybillCode": "123456789",
+    "codMoney": 0
+  }
+}

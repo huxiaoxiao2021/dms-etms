@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.common.domain.SiteEntity;
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -61,20 +62,22 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-		BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-		BaseTradeInfoDto dtoTrade = null;
-		if (dtoStaff != null)
-			return dtoStaff;
-		else
-			dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-
-		if (dtoStaff != null)
-			return dtoStaff;
-		else
-			dtoTrade = basicSecondaryWS.getBaseTraderById(paramInteger);
-
-		if (dtoTrade != null)
-			dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+//		BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+//		BaseTradeInfoDto dtoTrade = null;
+//		if (dtoStaff != null)
+//			return dtoStaff;
+//		else
+//			dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+//
+//		if (dtoStaff != null)
+//			return dtoStaff;
+//		else
+//			dtoTrade = basicSecondaryWS.getBaseTraderById(paramInteger);
+//
+//		if (dtoTrade != null)
+//			dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+		Integer siteType=16;
+		BaseStaffSiteOrgDto dtoStaff =RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class,"SendPrintService.site",siteType);
 		return dtoStaff;
 	}
 

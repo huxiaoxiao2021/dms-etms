@@ -1,0 +1,11 @@
+{
+  "tp99": "50",
+  "max": "300",
+  "returnValueConfig": {
+    "siteType":16,
+    "siteName": "马桥",
+    "orgId": 6,
+    "dmsSiteCode" :910,
+    "orgName": "华北区"
+  }
+}

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -551,28 +552,38 @@ public class SendPrintServiceImpl implements SendPrintService{
     
     private HashMap<String, BigWaybillDto> sendToWaybill(HashMap<String, BigWaybillDto> deliveryPackageMap,List<String> waybillCodes){
     	
-    	WChoice queryWChoice = new WChoice();
-    	queryWChoice.setQueryWaybillC(true);
-    	queryWChoice.setQueryWaybillE(true);
-    	queryWChoice.setQueryWaybillM(true);
-    	queryWChoice.setQueryPackList(true);
-    	
-    	Date startDate1 = new Date();
-		logger.info("打印交接清单-调用运单接口开始"+DateHelper.formatDate(startDate1));
-		BaseEntity<List<BigWaybillDto>> results = this.waybillQueryApi.getDatasByChoice(waybillCodes, queryWChoice);
-        Date endDate1 = new Date();
-		logger.info("打印交接清单-调用运单接口结束-"+(startDate1.getTime() - endDate1.getTime()));
-        if(results!=null && results.getResultCode()>0){
-        	logger.info("打印交接清单-调用运单接口返回信息"+results.getResultCode()+"-----"+results.getMessage());
-        	List<BigWaybillDto> datas = results.getData();
-        	if(datas!=null && !datas.isEmpty()){
-        		for(BigWaybillDto data : datas){
-                	if(data.getWaybill()!=null){
-                		deliveryPackageMap.put(data.getWaybill().getWaybillCode(), data);
-                	}
-                }
-        	}
-        }
+//    	WChoice queryWChoice = new WChoice();
+//    	queryWChoice.setQueryWaybillC(true);
+//    	queryWChoice.setQueryWaybillE(true);
+//    	queryWChoice.setQueryWaybillM(true);
+//    	queryWChoice.setQueryPackList(true);
+
+//    	Date startDate1 = new Date();
+//		logger.info("打印交接清单-调用运单接口开始"+DateHelper.formatDate(startDate1));
+//		BaseEntity<List<BigWaybillDto>> results = this.waybillQueryApi.getDatasByChoice(waybillCodes, queryWChoice);
+//        Date endDate1 = new Date();
+//		logger.info("打印交接清单-调用运单接口结束-"+(startDate1.getTime() - endDate1.getTime()));
+//        if(results!=null && results.getResultCode()>0){
+//        	logger.info("打印交接清单-调用运单接口返回信息"+results.getResultCode()+"-----"+results.getMessage());
+//        	List<BigWaybillDto> datas = results.getData();
+//        	if(datas!=null && !datas.isEmpty()){
+//        		for(BigWaybillDto data : datas){
+//                	if(data.getWaybill()!=null){
+//                		deliveryPackageMap.put(data.getWaybill().getWaybillCode(), data);
+//                	}
+//                }
+//        	}
+//        }
+		BigWaybillDto bigWaybillDto=null;
+		for (String waybill :waybillCodes) {
+			bigWaybillDto=new BigWaybillDto();
+			String waybillCode=waybill;
+			String codMoney="100";
+			Waybill waybill1=RpcMockProxy.invokeRpc(Waybill.class, "SendPrintService.sendToWaybill"
+					, waybillCode,codMoney);
+			bigWaybillDto.setWaybill(waybill1);
+			deliveryPackageMap.put(waybill,bigWaybillDto );
+		}
         return deliveryPackageMap;
     }
 
