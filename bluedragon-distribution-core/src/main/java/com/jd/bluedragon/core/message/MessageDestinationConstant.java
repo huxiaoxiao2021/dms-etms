@@ -17,7 +17,9 @@ public enum MessageDestinationConstant {
 	ReceiveAbnormal("rec_abnormal_deal", "B商家订单差异审核结果处理分发地址"),
     ReceiveToArteryMQ("receive_artery_info", "收货发送给财务计费系统运输信息"),
     QualityControlMQ("bd_exception_to_qc","异常页面、备件库分拣发送给质控MQ"),
-    QualityControlFXMMQ("bd_dms_abnormal_order_to_qc","配送外呼发送给质控MQ");
+    QualityControlFXMMQ("bd_dms_abnormal_order_to_qc","配送外呼发送给质控MQ"),
+
+    SendDetailMQ("dmsWorkSendDetail", "发货明细消息");
 
     private String name;
 

@@ -26,7 +26,7 @@ public class ReversePopConsumer extends MessageBaseConsumer {
 	@Autowired
 	private ReverseSendPopMessageService reverseSendPopMessageService;
     
-    public void consume(Message message) {
+    public void consume(Message message) throws Exception {
         String waybillCode = null;
         ReceiveRequest request = new ReceiveRequest();
         if (XmlHelper.isXml(message.getContent(), ReceiveRequest.class, null)) {
@@ -53,9 +53,7 @@ public class ReversePopConsumer extends MessageBaseConsumer {
         }
         boolean result = this.reverseSendPopMessageService.sendPopMessage(waybillCode);
         this.logger.info("逆向收货回传POP消息【" + message + "】" + result);
-    
-    	
-    	
+        if(!result) throw new Exception("逆向收货回传POP消息失败"+waybillCode);
     }
     
 }

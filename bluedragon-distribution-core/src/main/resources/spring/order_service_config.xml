@@ -14,7 +14,7 @@
 
     <!-- 注意：cxf2.2.4及以下版本，不能通过properties注入${oom.connectTimeout}和${oom.receiveTimeout} -->
 	<http-conf:conduit name="http://ioms.360buy.com/.*">
-		<http-conf:client ConnectionTimeout="${oom.connectTimeout}" ReceiveTimeout="${oom.receiveTimeout}" />
+		<http-conf:client ConnectionTimeout="${oom.connectTimeout}" ReceiveTimeout="${oom.receiveTimeout}" ></http-conf:client>
 	</http-conf:conduit>
 	
 	<http-conf:conduit name="http://orderfile.360buy.com/.*">
