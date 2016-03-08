@@ -8,8 +8,10 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.dao.CenConfirmDao;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -85,6 +88,9 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	
 	/*异常处理失败*/
 	public static final int CANCEL_FAIL = -1;
+
+    @Autowired
+    private InspectionNotifyService inspectionNotifyService;
 	/**
 	 * get inspection exception by condition
 	 * @param inspectionEC

@@ -191,6 +191,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private JsfSortingResourceService jsfSortingResourceService;
 
     @Resource
+    @Qualifier("workerProducer")
     private MessageProducer workerProducer;
 
     //自营

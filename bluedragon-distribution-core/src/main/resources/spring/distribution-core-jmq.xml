@@ -5,10 +5,25 @@
        xmlns:jmq="http://code.jd.com/schema/jmq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="http://www.springframework.org/schema/beans">
-    <jmq:transport channelMaxIdleTime="10000" epoll="false" app="${jmq.dms.producer.app}" password="${jmq.dms.password}" user="${jmq.dms.user}" address="${jmq.dms.address}"/>
-    <jmq:producer id="jmqProducer" transport="jmq.transport" retryTimes="3" />
+    <jmq:transport id="jmq.BlueDragonDistribution.transport" channelMaxIdleTime="10000" epoll="false"
+                   app="${jmq.BlueDragonDistribution.producer.app}"
+                   password="${jmq.BlueDragonDistribution.password}"
+                   user="${jmq.BlueDragonDistribution.user}"
+                   address="${jmq.BlueDragonDistribution.address}" />
+    <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3" />
+
     <bean id="ownWaybillTransformMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
         <property name="topic" value="ownWaybillTransform"/>
     </bean>
+
+    <bean id="inspectionDataSyncMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="inspection"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
+                   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
+
+    <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
 </beans>
