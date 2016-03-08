@@ -275,4 +275,19 @@ public class Constants {
 
     public static final String T_WAYBILL = "T"; // 正向物流发货
     //endregion
+
+    // PDA登录信息
+    public static final int PDA_USER_GETINFO_SUCCESS = 1; //获取信息成功
+    public static final int PDA_USER_LOGIN_FAILUE = -1; //验证失败
+    public static final int PDA_USER_GETINFO_FAILUE = 0; //获取信息失败
+    public static final String PDA_USER_GETINFO_SUCCESS_MSG = "获取信息成功"; //成功信息
+    public static final String PDA_USER_LOGIN_FAILUE_MSG = "验证失败"; //验证失败信息
+    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取信息失败"; //获取信息失败
+
+    public static final String PDA_THIRDPL_TYPE = "3pl_"; //小第三方
+    public static final String PDA_BIG_THIRDPL_TYPE = "third_"; //大第三方（申通、圆通）
+    public static final int PDA_THIRDPL_ID = 3000000;
+    public static final int PDA_BIG_THIRDPL_ID = 6000000;
+    public static final String BASIC_STAFF_COL = "staffId";	//员工标识
+
 }
