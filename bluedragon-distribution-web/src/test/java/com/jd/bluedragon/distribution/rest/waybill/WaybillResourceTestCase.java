@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -115,15 +116,28 @@ public class WaybillResourceTestCase {
 
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	@Test
+	public void test_get_NotifyStock_With_Check() {
+
+		String url = "http://dms1.etms.360buy.com/services/reverseReceiveNotifyStock/notify/";
+		//导入处理订单
+		ArrayList<String> waybillCodeArr = FileUtil.getFileContent(new File("d:/waybillCodes.txt"));
+
+		for (String waybillCode : waybillCodeArr) {
+			String response = this.template.getForObject(url + waybillCode,
+					String.class);
+				
+				try {
+					response = java.net.URLDecoder.decode(response, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					
+				}finally{
+					System.out.println(waybillCode + "," + response);
+				}
+		}
+	}
 	
 	
 	@Test

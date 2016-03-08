@@ -7,6 +7,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.text.MessageFormat;
+
 /**
  * Created by wangtingwei on 2015/12/22.
  * JMQ消息发送
@@ -35,6 +37,9 @@ public class DefaultJMQProducer {
      * @throws JMQException
      */
     public void send(String businessId,String body) throws JMQException{
+        if(logger.isInfoEnabled()){
+            logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{1}",this.topic,body));
+        }
         Message message = new Message(this.topic, body, businessId);
         jmqProducer.send(message,this.timeout);
     }
