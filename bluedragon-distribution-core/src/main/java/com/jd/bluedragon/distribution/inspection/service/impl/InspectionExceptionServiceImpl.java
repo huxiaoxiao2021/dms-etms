@@ -562,14 +562,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	public void saveData(Inspection inspection) {
 		// TODO Auto-generated method stub
 		inspectionService.saveData(inspection);
-        InspectionMQBody inspectionMQBody=new InspectionMQBody();
-        inspectionMQBody.setWaybillCode(null!=inspection.getWaybillCode()?inspection.getWaybillCode(): SerialRuleUtil.getWaybillCode(inspection.getPackageBarcode()));
-        inspectionMQBody.setInspectionSiteCode(inspection.getCreateSiteCode());
-        try {
-            inspectionNotifyService.send(inspectionMQBody);
-        }catch (Throwable throwable){
-            logger.error("推送验货MQ异常",throwable);
-        }
+
 		try {//FIXME:看看龙门架是否能拆出
 			if ((inspection.getLength() != null && inspection.getLength() > 0)
 					|| (inspection.getWidth() != null && inspection.getWidth() > 0)
