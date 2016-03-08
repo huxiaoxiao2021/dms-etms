@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
+import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -175,11 +176,27 @@ public class ReverseReceiveNotifyStockService {
 			
 			sysLog.setKeyword2(String.valueOf(order.getOrderType()));//设置订单的类型
 			
+			
+			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
+			KuGuanDomain kuguanDomain = null;
+			Integer payType = PAY_TYPE_UNKNOWN;
+			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))){
+				kuguanDomain = stockExportManager.queryByWaybillCode(String.valueOf(waybillCode));
+				if(kuguanDomain==null) {
+					return Boolean.FALSE;
+				}else if("逆向物流".equals(kuguanDomain.getLblOtherWay())){
+					return Boolean.TRUE;
+				}else{
+					payType = getPayType(kuguanDomain);
+				}
+			} else {
+				sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
+				this.logger.info("运单号：" + waybillCode + ", 不需要回传库存中间件。");
+				return Boolean.TRUE;
+			}
+			
+			//开始根据类型的不同推送
 			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-				// Long financeCode =
-				// this.financeWebService.getFinancialOrderByOrderId(waybillCode);
-				Integer payType = getPayType(waybillCode);
-
 				long result = 0;
 				OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
 
@@ -288,9 +305,6 @@ public class ReverseReceiveNotifyStockService {
 					return Boolean.FALSE;
 				}
 			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
-				//Long financeCode = this.financeWebService.getFinancialOrderByOrderId(waybillCode);
-				Integer payType = getPayType(waybillCode);
-
 				if (isPrePay(payType)) {
 					this.messageProducer.send(MQ_KEY_STOCK,
 							this.stockMessage(order, products, STOCK_TYPE_1602, payType), String.valueOf(waybillCode));
@@ -305,10 +319,8 @@ public class ReverseReceiveNotifyStockService {
 				
 				sysLog.setKeyword3("MQ");
 				sysLog.setContent("推出管成功!");
-			} else {
-				sysLog.setContent("订单类型不需要回传库存中间件");
-				this.logger.info("运单号：" + waybillCode + ", 不需要回传库存中间件。");
 			}
+			
 		}catch(Exception e){
 			this.logger.error("运单号：" + waybillCode + ", 推出管失败。", e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
@@ -408,7 +420,7 @@ public class ReverseReceiveNotifyStockService {
 	}
 	
 	/**
-	 * 根据出管判断先款还是后款 public List<Stock> GetStocks(StockParamter stock) 使用方法：
+	 * 根据出管判断先款还是后款使用方法：
 	 * 入参StockParamter 对象的Orderid 属性赋值要查询的订单号 该方法会返回这个订单号的所有出管记录，然后请在返回的出管记录中匹配：
 	 * 如果 churu=‘出库’ 且 feilei=‘放货’ 且 qite=0 即为后款订单（先货后款）， 如果 churu=‘出库’ 且
 	 * feilei=‘销售’ 即为先款订单
@@ -416,35 +428,29 @@ public class ReverseReceiveNotifyStockService {
 	 * @return
 	 * @throws StockCallPayTypeException 
 	 */
-	public Integer getPayType(Long waybillCode) throws StockCallPayTypeException {
-		StockParamter request = new StockParamter();
-		request.setOrderid(waybillCode);
-
+	public Integer getPayType(KuGuanDomain domain) throws StockCallPayTypeException {
 		Integer result = PAY_TYPE_UNKNOWN;
+		String waybillCode = null;
 		String churu = null;
 		String feifei = null;
 		BigDecimal qite = null;
-		try {
-			ArrayOfStock arrayOfStock = stockWebService.getStocks(request);
-			List<Stock> stocks = arrayOfStock.getStock();
-			Stock stock = stocks.get(0);
-			churu = stock.getChuru();
-			feifei = stock.getFeilei();
-			qite = stock.getQite();
-			if (churu.equals("出库") && feifei.equals("放货")
-					&& (qite.compareTo(new BigDecimal(0)) == 0)) {
+		
+		if (domain != null) {// 校验参数,如果为空则不能判断是什么类型的
+			waybillCode = domain.getWaybillCode();
+			churu = domain.getLblWay();
+			feifei = domain.getLblType();
+			qite = new BigDecimal(domain.getLblOther());
+			if ("出库".equals(churu) && "放货".equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
 				result = PAY_TYPE_POST;
-			} else if (churu.equals("出库") && feifei.equals("销售")) {
+			} else if ("出库".equals(churu) && "销售".equals(feifei)) {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题
 			logger.info("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
 					+ ",qite" + qite);
-		} catch (Exception e) {
-			result = PAY_TYPE_ERROR;
-			logger.error("isPrePaid error: " + waybillCode, e);
 		}
-		if (result.equals(PAY_TYPE_UNKNOWN) || result.equals(PAY_TYPE_ERROR)) {
+		
+		if (result.equals(PAY_TYPE_UNKNOWN)) {
 			// 异常情况日志记录方便定位问题
 			logger.error("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
 					+ ",qite" + qite);

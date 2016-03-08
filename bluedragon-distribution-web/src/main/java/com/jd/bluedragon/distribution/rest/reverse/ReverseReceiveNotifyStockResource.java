@@ -140,36 +140,18 @@ public class ReverseReceiveNotifyStockResource {
 		}
 
 		// 2.查询页面上的值，用于判断先后款
-		KuGuanDomain stockPageResp = getStockInfo(String.valueOf(waybillCode));
+		KuGuanDomain stockPageResp = stockExportManager.queryByWaybillCode(String.valueOf(waybillCode));
 
 		if (stockPageResp != null) {
 			fangshi = stockPageResp.getLblWay();
 			fenlei = stockPageResp.getLblType();
 			qita = stockPageResp.getLblOther();
-			qitafangshi = stockPageResp.getLblOther();
+			qitafangshi = stockPageResp.getLblOtherWay();
 		}
 
 		// 3. 生成订单对象自行判断
 		OrderStockInfo osi = new OrderStockInfo(String.valueOf(waybillCode),
 				orderType, fangshi, fenlei, qita, qitafangshi);
 		return osi;
-	}
-
-	private KuGuanDomain getStockInfo(@PathParam("waybillCode") String waybillCode) {
-		KuGuanDomain kuGuanDomain = new KuGuanDomain();
-		kuGuanDomain.setWaybillCode(waybillCode);
-
-		Map<String, Object> params = ObjectMapHelper
-				.makeObject2Map(kuGuanDomain);
-
-		try {
-			logger.info("根据订单号获取库管单信息参数错误-queryByParams");
-			kuGuanDomain = stockExportManager.queryByParams(params);
-		} catch (Exception e) {
-			kuGuanDomain = new KuGuanDomain();
-			kuGuanDomain.setWaybillCode(null);
-			logger.info("根据订单号获取库管单信息服务异常" + e);
-		}
-		return kuGuanDomain;
 	}
 }
