@@ -11,11 +11,29 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BasePdaUserDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public interface BaseService {
 
-	/**
+    /**
+     * 用户登录包括自营和3PL
+     * <pre>
+     *    如果是自营
+     *    1. 先调人事接口验证用户名和密码
+     *    2. 验证通过后，根据员工id调基础资料接口获取员工信息
+     *    如果是三方的
+     *    1. 先调用户组接口验证京东账号和密码
+     *    2. 验证通过后，根据京东账号调基础资料接口获取员工信息
+     * </pre>
+     *
+     * @param userid
+     * @param password
+     * @return
+     */
+    BasePdaUserDto pdaUserLogin(String userid, String password);
+
+    /**
 	 * 账号密码是否存在
 	 *
 	 * @param String

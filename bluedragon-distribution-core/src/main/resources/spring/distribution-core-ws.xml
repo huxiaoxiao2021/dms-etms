@@ -278,5 +278,35 @@
 	<bean id="jdSOAPHeaderSmsWebService" class="com.jd.bk.common.ws.SOAPHeaderIntercepter">
 		<property name="authHeader" ref="authHeaderSmsWebService" />
 	</bean>
-	
+
+    <!-- hrm 三方登录 -->
+    <bean id="soapHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader">
+            <bean class="com.jd.common.ws.AuthHeader">
+                <property name="content" value="${hrm.dept.ws.content}" />
+                <property name="seed" value="${hrm.dept.ws.seed}" />
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="jcClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass"
+                  value="com.jd.common.struts.interceptor.ws.DeptWebService" />
+        <property name="address" value="${hrm.dept.ws.address}" />
+        <property name="outInterceptors">
+            <list>
+                <ref local="soapHeaderIntercepter" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="deptWebService" class="com.jd.common.struts.interceptor.ws.DeptWebService"
+          factory-bean="jcClientFactory" factory-method="create" />
+
+    <bean id="userVerifyService" class="com.jd.bluedragon.distribution.base.service.impl.UserVerifyServiceImpl">
+        <property name="deptWebService" ref="deptWebService" />
+        <property name="appPlatform" value="${login.passport.appplatform}" />
+        <property name="passportUrl" value="${login.passport.passporturl}" />
+        <property name="token" value="${login.passport.token}" />
+    </bean>
 </beans>
