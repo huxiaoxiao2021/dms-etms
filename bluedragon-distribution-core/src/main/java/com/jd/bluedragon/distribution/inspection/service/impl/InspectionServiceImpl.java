@@ -2,8 +2,10 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.common.rpc.mock.RpcMockProxy;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
+import com.jd.bluedragon.distribution.etms.WaybillQueryWSImpl;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -27,6 +29,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import jd.oom.client.clientbean.Order;
 import org.apache.commons.lang.StringUtils;
@@ -277,8 +280,11 @@ public class InspectionServiceImpl implements InspectionService {
 		Set<Inspection> inspections = new HashSet<Inspection>();
 		if (StringUtils.isNotBlank(requestBean.getWaybillCode())) {
 			String waybillCode = requestBean.getWaybillCode();
-			List<DeliveryPackageD> packages = waybillPackageBarcodeService
-					.getPackageBarcodeByWaybillCode(waybillCode);
+			
+			WaybillQueryWSImpl wabillWSImpl = new WaybillQueryWSImpl();
+			List<DeliveryPackageD> packages = wabillWSImpl.getPackageBarcodeByWaybillCode(waybillCode);
+			
+			RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "WaybillQuery.getWaybillAndPackByWaybillCode",waybillCode);
 			requestBean = getStoreIdByWaybillCode(requestBean, waybillCode);
 			if (null == packages) {
 				return null;

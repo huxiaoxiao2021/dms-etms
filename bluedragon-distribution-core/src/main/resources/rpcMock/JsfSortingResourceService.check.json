@@ -1,0 +1,11 @@
+{
+	tp99："100",
+	max : "300",
+	returnValueConfig:{
+		"siteType":1,
+		"siteName": "北京站",
+		"orgId": 1,
+		"dmsSiteCode" :101
+		"orgName": "北京市"
+	}
+}
