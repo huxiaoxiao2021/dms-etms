@@ -1492,6 +1492,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             // MQ包含的信息:包裹号,发货站点,发货时间
             newSendDetail.setPackageBarcode(sendDatail.getPackageBarcode());
             newSendDetail.setCreateSiteCode(sendDatail.getCreateSiteCode());
+            newSendDetail.setReceiveSiteCode(sendDatail.getReceiveSiteCode());
             newSendDetail.setOperateTime(sendDatail.getOperateTime());
             message.setTopic(MessageDestinationConstant.SendDetailMQ.getName());
             message.setText(JSON.toJSONString(newSendDetail));
