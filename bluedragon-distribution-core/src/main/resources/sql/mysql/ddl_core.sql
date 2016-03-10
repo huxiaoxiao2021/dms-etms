@@ -1415,7 +1415,8 @@ CREATE TABLE `task_global_trade` (
   `YN` double DEFAULT NULL,
   `OWN_SIGN` varchar(50) DEFAULT NULL,
   `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL
+  `EXECUTE_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `task_handover` */
