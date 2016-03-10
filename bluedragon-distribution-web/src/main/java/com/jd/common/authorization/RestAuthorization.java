@@ -58,4 +58,11 @@ public interface RestAuthorization {
      * @return
      */
     boolean authorizeDateTime(String requestTime);
+
+    /**
+     * 生成授权码
+     * @param key 序列号
+     * @return
+     */
+    String generateAuthorizationCode(String key);
 }

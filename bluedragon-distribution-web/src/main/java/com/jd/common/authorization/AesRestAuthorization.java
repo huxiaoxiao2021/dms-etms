@@ -35,13 +35,28 @@ public class AesRestAuthorization implements RestAuthorization {
     }
 
     /**
+     * 生成授权码
+     * @param key 序列号
+     * @return
+     */
+    @Override
+    public String generateAuthorizationCode(String key) {
+        if(StringHelper.isEmpty(key)){
+            return null;
+        }
+        byte[] sourceArr=encrypt(key,RestAuthorization.PASSWORD_PREFIX);
+        String middleAuthorization=parseByte2HexStr(sourceArr);
+        return middleAuthorization;
+    }
+
+    /**
      * 加密
      *
      * @param content 需要加密的内容
      * @param password  加密密码
      * @return
      */
-    public static byte[] encrypt(String content, String password) {
+    private static byte[] encrypt(String content, String password) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
             kgen.init(128, new SecureRandom(password.getBytes()));
@@ -64,7 +79,7 @@ public class AesRestAuthorization implements RestAuthorization {
      * @param password 解密密钥
      * @return
      */
-    public static byte[] decrypt(byte[] content, String password) {
+    private static byte[] decrypt(byte[] content, String password) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
             kgen.init(128, new SecureRandom(password.getBytes()));
@@ -85,7 +100,7 @@ public class AesRestAuthorization implements RestAuthorization {
      * @param buf
      * @return
      */
-    public static String parseByte2HexStr(byte buf[]) {
+    private static String parseByte2HexStr(byte buf[]) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < buf.length; i++) {
             String hex = Integer.toHexString(buf[i] & 0xFF);
@@ -101,7 +116,7 @@ public class AesRestAuthorization implements RestAuthorization {
      * @param hexStr
      * @return
      */
-    public static byte[] parseHexStr2Byte(String hexStr) {
+    private static byte[] parseHexStr2Byte(String hexStr) {
         if (hexStr.length() < 1)
             return null;
         byte[] result = new byte[hexStr.length()/2];
