@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -93,7 +90,7 @@ public class RpcMockProxy {
 				logger.error("配置文件不存在"+configFile);
 				return null;
 			}
-			String json = IOUtils.toString(inputStream);
+			String json = IOUtils.toString(inputStream, "utf-8");
 			RpcMockConfig config = JSON.parseObject(json, RpcMockConfig.class);
 			configCache.put(configFile, config);
 			return config;
