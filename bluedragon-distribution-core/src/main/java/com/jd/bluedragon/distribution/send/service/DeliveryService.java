@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -18,6 +16,13 @@ public interface DeliveryService {
      * @return Map.Entiry<code,message> 改到SendResult
      */
     SendResult packageSend(SendM domain,boolean isForceSend);
+    
+    /**
+     * 龙门架自动发货原包发货，去掉原有的分拣发货拦截验证
+     * @param domain 发货对象
+     * @return Map.Entiry<code,message> 改到SendResult
+     */
+    SendResult atuoPackageSend(SendM domain,boolean isForceSend);
 
     /**
      * 推送发货状态数据至运单系统[写WORKER]
