@@ -26,8 +26,12 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     @Autowired
     private GantryDeviceConfigService gantryDeviceConfigService;
 
-    @Qualifier("scannerFrameConsumeMap")
-    @Resource
+    /**
+     * 此处只能使用@Resource注解，使用@Autowired会报错
+     * Key type [class java.lang.Integer] of map [java.util.Map]
+     * must be assignable to [java.lang.String]
+     */
+    @Resource(name = "scannerFrameConsumeMap")
     private Map<Integer,ScannerFrameConsume> scannerFrameConsumeMap;
 
     @Override
