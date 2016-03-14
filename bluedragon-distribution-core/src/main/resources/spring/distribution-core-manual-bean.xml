@@ -29,8 +29,8 @@
             </list>
         </property>
     </bean>
-    <bean id="scannerFrameConsumeMap" class="java.util.HashMap">
-        <constructor-arg>
+    <bean id="scannerFrameConsumeMap" class="java.util.HashMap" >
+        <constructor-arg type="java.util.Map">
             <map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.auto.service.ScannerFrameConsume">
                 <!--验货消费-->
                 <entry key="1"  value-ref="scannerFrameInspectionConsume"/>

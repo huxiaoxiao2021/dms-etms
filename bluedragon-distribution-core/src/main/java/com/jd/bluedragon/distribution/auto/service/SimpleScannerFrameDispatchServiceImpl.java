@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     private GantryDeviceConfigService gantryDeviceConfigService;
 
     @Qualifier("scannerFrameConsumeMap")
-    @Autowired
+    @Resource
     private Map<Integer,ScannerFrameConsume> scannerFrameConsumeMap;
 
     @Override
