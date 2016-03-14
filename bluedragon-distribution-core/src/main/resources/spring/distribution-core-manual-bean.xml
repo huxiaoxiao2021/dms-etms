@@ -30,13 +30,16 @@
         </property>
     </bean>
     <bean id="scannerFrameConsumeMap" class="java.util.HashMap">
-        <util:map>
-            <!--验货消费-->
-            <entry key="1" value-ref="ScannerFrameInspectionConsume"/>
-            <!--发货消费-->
-            <entry key="2" value-ref="scannerFrameSendConsume"/>
-            <!--量方消费-->
-            <entry key="4" value-ref="scannerFrameMeasureConsume"/>
-        </util:map>
+        <constructor-arg>
+            <map>
+                <!--验货消费-->
+                <entry key="1" value-ref="scannerFrameInspectionConsume"/>
+                <!--发货消费-->
+                <entry key="2" value-ref="scannerFrameSendConsume"/>
+                <!--量方消费-->
+                <entry key="4" value-ref="scannerFrameMeasureConsume"/>
+            </map>
+        </constructor-arg>
+
     </bean>
 </beans>
