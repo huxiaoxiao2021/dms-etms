@@ -31,9 +31,9 @@
     </bean>
     <bean id="scannerFrameConsumeMap" class="java.util.HashMap">
         <constructor-arg>
-            <map>
+            <map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.auto.service.ScannerFrameConsume">
                 <!--验货消费-->
-                <entry key="1" value-ref="scannerFrameInspectionConsume"/>
+                <entry key="1"  value-ref="scannerFrameInspectionConsume"/>
                 <!--发货消费-->
                 <entry key="2" value-ref="scannerFrameSendConsume"/>
                 <!--量方消费-->
