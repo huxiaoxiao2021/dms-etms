@@ -3,8 +3,8 @@
 	max : "100",
 	returnValueConfig:{
 		"siteType":1,
-		"siteName": "北京站",
+		"siteName": "2",
 		"orgId": 1,
-		"orgName": "北京市"
+		"orgName": "2"
 	}
 }

@@ -3,6 +3,8 @@ package com.jd.bluedragon.common.rpc.mock;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 public class RpcTestServiceTest {
 	
 	private RpcTestService rpcTestService;
@@ -14,11 +16,7 @@ public class RpcTestServiceTest {
 
 	@Test
 	public void test(){
-		for(int i=0; i<=5; i++){
-			long s = System.currentTimeMillis();
-			System.out.println(rpcTestService.test("hello"));
-			System.out.println("执行耗时："+(System.currentTimeMillis()-s));
-		}	
+		RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "JsfSortingResourceService.check","check");
 	}
 	
 	@Test
