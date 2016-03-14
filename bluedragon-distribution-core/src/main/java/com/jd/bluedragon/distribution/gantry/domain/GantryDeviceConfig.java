@@ -24,7 +24,7 @@ public class GantryDeviceConfig {
     /*
     *操作人erp帐户
      */
-    private String operteUser;
+    private String operteUserErp;
 
     /*
     *操作人姓名
@@ -95,11 +95,11 @@ public class GantryDeviceConfig {
     }
 
     public String getOperteUser() {
-        return operteUser;
+        return operteUserErp;
     }
 
-    public void setOperteUser(String operteUser) {
-        this.operteUser = operteUser;
+    public void setOperteUser(String operteUserErp) {
+        this.operteUserErp = operteUserErp;
     }
 
     public String getOperteUserName() {
