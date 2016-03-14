@@ -8,9 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.Date;
-import java.util.logging.Logger;
 
 /**
  * Created by yanghongqiang on 2016/3/11.
