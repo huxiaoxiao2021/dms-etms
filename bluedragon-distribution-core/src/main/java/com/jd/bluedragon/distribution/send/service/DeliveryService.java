@@ -22,7 +22,7 @@ public interface DeliveryService {
      * @param domain 发货对象
      * @return Map.Entiry<code,message> 改到SendResult
      */
-    SendResult AtuopackageSend(SendM domain,boolean isForceSend);
+    SendResult atuoPackageSend(SendM domain,boolean isForceSend);
 
     /**
      * 推送发货状态数据至运单系统[写WORKER]
