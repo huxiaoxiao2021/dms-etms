@@ -13,4 +13,6 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     public boolean dispatch(UploadData domain) {
         return false;
     }
+
+    
 }
