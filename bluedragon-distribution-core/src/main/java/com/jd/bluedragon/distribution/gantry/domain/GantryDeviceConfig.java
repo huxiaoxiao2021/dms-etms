@@ -11,6 +11,20 @@ import java.util.Date;
  */
 public class GantryDeviceConfig {
 
+    /**
+     * 自动发货
+     */
+    public static final int AUTO_INSPECTION=1;
+
+    /**
+     * 自动发货
+     */
+    public static final int AUTO_SEND=2;
+    /**
+     * 测量体积
+     */
+    public static final int AUTO_MEASURE=4;
+
     /*
     龙门架编号
      */
