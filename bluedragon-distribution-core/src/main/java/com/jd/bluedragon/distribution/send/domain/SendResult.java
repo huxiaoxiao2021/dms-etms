@@ -7,6 +7,15 @@ import java.io.Serializable;
  */
 public class SendResult implements Serializable {
     private static final long serialVersionUID = -5706252377345301775L;
+    
+    public static final Integer CODE_OK = 1;
+    public static final String MESSAGE_OK = "发货成功";
+    
+    public static final Integer CODE_SERVICE_ERROR = 3;
+    public static final String MESSAGE_SERVICE_ERROR = "服务异常";
+    
+    public static final Integer CODE_SENDED = 2;
+    public static final String MESSAGE_SENDED = "箱子已经在该批次中发货";
 
     public SendResult(){
 
