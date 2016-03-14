@@ -7,6 +7,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -24,8 +25,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     @Autowired
     private GantryDeviceConfigService gantryDeviceConfigService;
 
+    @Qualifier("scannerFrameConsumeMap")
     @Autowired
-    private Map<Integer,ScannerFrameConsume> comsumeMap;
+    private Map<Integer,ScannerFrameConsume> scannerFrameConsumeMap;
 
     @Override
     public boolean dispatch(UploadData domain) {
@@ -39,7 +41,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             }
             return true;
         }
-        Iterator<Map.Entry<Integer,ScannerFrameConsume>> item=comsumeMap.entrySet().iterator();
+        Iterator<Map.Entry<Integer,ScannerFrameConsume>> item= scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()){
             Map.Entry<Integer,ScannerFrameConsume> comsume=item.next();
             if(comsume.getKey()==(config.getOperateType()&comsume.getKey())){
