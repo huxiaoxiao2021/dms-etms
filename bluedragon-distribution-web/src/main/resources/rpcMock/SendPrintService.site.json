@@ -1,0 +1,11 @@
+{
+  "tp99" : 30,
+  "max" : 100,
+  "returnValueConfig" : {
+    "siteType" : "16",
+    "orgId" : "6",
+    "siteName" : "16",
+    "dmsSiteCode" : "910",
+    "orgName" : "分拣中心"
+  }
+}
