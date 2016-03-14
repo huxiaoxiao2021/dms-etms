@@ -41,6 +41,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             }
             return true;
         }
+        boolean result=false;
         Iterator<Map.Entry<Integer,ScannerFrameConsume>> item= scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()){
             Map.Entry<Integer,ScannerFrameConsume> comsume=item.next();
@@ -48,11 +49,11 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 if(logger.isInfoEnabled()){
                     logger.info(MessageFormat.format("龙门架分发消息registerNo={0},operateTime={1},comsume={2},barcode={3}",domain.getRegisterNo(),domain.getScannerTime(),comsume.getKey(),domain.getBarCode()));
                 }
-                comsume.getValue().onMessage(domain,config);
+                result= comsume.getValue().onMessage(domain,config);
             }
 
         }
-        return false;
+        return result;
     }
 
 
