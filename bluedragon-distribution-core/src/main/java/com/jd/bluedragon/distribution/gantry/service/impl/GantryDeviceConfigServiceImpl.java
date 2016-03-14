@@ -9,8 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.sql.Date;
+import java.util.Date;
 import java.util.logging.Logger;
 
 /**

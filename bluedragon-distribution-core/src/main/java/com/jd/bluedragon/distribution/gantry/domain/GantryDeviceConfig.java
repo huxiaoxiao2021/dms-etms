@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.gantry.domain;
 
 import com.jd.bluedragon.utils.BooleanHelper;
 
-import java.sql.Date;
+import java.util.Date;
 
 /**
  * Created by yanghongqiang on 2016/3/11.
@@ -53,7 +53,7 @@ public class GantryDeviceConfig {
     private String siteName;
 
     /*
-    操作类型,按位求于,如数字7二进制为111，倒数第一位代表验货，倒数第二位代表发货，倒数第三位量方。
+    操作类型,按位求于,1验货，2发货，4量方。5验货+量方。6发货+量方
      */
     private Integer operateType;
 

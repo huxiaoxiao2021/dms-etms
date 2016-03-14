@@ -1,8 +1,7 @@
 package com.jd.bluedragon.distribution.gantry.service;
 
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
-
-import java.sql.Date;
+import java.util.Date;
 
 /**
  * Created by yanghongqiang on 2016/3/11.
