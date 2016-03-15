@@ -39,13 +39,13 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
         opeEntity.setOpeDetails(new ArrayList<OpeObject>());
 
         OpeObject obj = new OpeObject();
-        obj.setOpeSiteId(config.getSiteCode());
-        obj.setOpeSiteName(config.getSiteName());
+        obj.setOpeSiteId(config.getCreateSiteCode());
+        obj.setOpeSiteName(config.getCreateSiteName());
         obj.setpWidth(uploadData.getWidth());
         obj.setpLength(uploadData.getLength());
         obj.setpHigh(uploadData.getHeight());
         obj.setPackageCode(uploadData.getBarCode());
-        obj.setOpeUserId(config.getOperteUserId());
+        obj.setOpeUserId(config.getOperateUserId());
         obj.setOpeUserName(config.getUpdateUserName());
         obj.setOpeTime(DateHelper.formatDateTime(uploadData.getScannerTime()));
 

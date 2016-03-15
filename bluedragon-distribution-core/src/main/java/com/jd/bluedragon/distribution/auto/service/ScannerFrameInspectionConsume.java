@@ -31,24 +31,24 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
 
         InspectionRequest inspection=new InspectionRequest();
-        inspection.setUserCode(config.getOperteUserId());
-        inspection.setUserName(config.getOperteUserName());
-        inspection.setSiteCode(config.getSiteCode());
-        inspection.setSiteName(config.getSiteName());
+        inspection.setUserCode(config.getOperateUserId());
+        inspection.setUserName(config.getOperateUserName());
+        inspection.setSiteCode(config.getCreateSiteCode());
+        inspection.setSiteName(config.getCreateSiteName());
         inspection.setOperateTime(DateHelper.formatDateTime(uploadData.getScannerTime()));
         inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         inspection.setPackageBarOrWaybillCode(uploadData.getBarCode());
 
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-        request.setKeyword1(String.valueOf(config.getSiteCode()));
+        request.setKeyword1(String.valueOf(config.getCreateSiteCode()));
         request.setKeyword2(uploadData.getBarCode());
         request.setType(Task.TASK_TYPE_INSPECTION);
         request.setOperateTime(DateHelper.formatDateTime(uploadData.getScannerTime()));
-        request.setSiteCode(config.getSiteCode());
-        request.setSiteName(config.getSiteName());
-        request.setUserCode(config.getOperteUserId());
-        request.setUserName(config.getOperteUserName());
+        request.setSiteCode(config.getCreateSiteCode());
+        request.setSiteName(config.getCreateSiteName());
+        request.setUserCode(config.getOperateUserId());
+        request.setUserName(config.getOperateUserName());
         //request.setBody();
         String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                 + JsonHelper.toJson(JsonHelper.toJson(inspection))

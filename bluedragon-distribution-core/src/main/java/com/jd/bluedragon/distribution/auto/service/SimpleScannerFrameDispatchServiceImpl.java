@@ -36,7 +36,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Override
     public boolean dispatch(UploadData domain) {
-        GantryDeviceConfig config= gantryDeviceConfigService.getGantryDeviceOperateType(domain.getRegisterNo(), domain.getScannerTime());
+        GantryDeviceConfig config= gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
         if(logger.isInfoEnabled()){
             logger.info(MessageFormat.format("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}",domain.getRegisterNo(),domain.getScannerTime(), JsonHelper.toJson(config)));
         }
@@ -50,7 +50,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         Iterator<Map.Entry<Integer,ScannerFrameConsume>> item= scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()){
             Map.Entry<Integer,ScannerFrameConsume> comsume=item.next();
-            if(comsume.getKey()==(config.getOperateType()&comsume.getKey())){
+            if(comsume.getKey()==(config.getBusinessType()&comsume.getKey())){
                 if(logger.isInfoEnabled()){
                     logger.info(MessageFormat.format("龙门架分发消息registerNo={0},operateTime={1},comsume={2},barcode={3}",domain.getRegisterNo(),domain.getScannerTime(),comsume.getKey(),domain.getBarCode()));
                 }

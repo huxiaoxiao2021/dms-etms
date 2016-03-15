@@ -31,10 +31,10 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
         SendM domain = new SendM();
         domain.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()));
         domain.setSendCode(config.getSendCode());
-        domain.setCreateSiteCode(config.getSiteCode());
+        domain.setCreateSiteCode(config.getCreateSiteCode());
         domain.setBoxCode(uploadData.getBarCode());
-        domain.setCreateUser(config.getOperteUserName());
-        domain.setCreateUserCode(config.getOperteUserId());
+        domain.setCreateUser(config.getOperateUserName());
+        domain.setCreateUserCode(config.getOperateUserId());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + 30000));

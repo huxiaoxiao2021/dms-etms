@@ -25,25 +25,32 @@ public class GantryDeviceConfig {
      */
     public static final int AUTO_MEASURE=4;
 
+    public Long id;
+
     /*
-    龙门架编号
+    龙门架编号全国维一编号
      */
-    private String gantryNum;
+    private Integer machineId;
+
+    /*
+    龙门架序列号,
+     */
+    private String gantrySerialNumber;
 
     /**
      * 操作人id
      */
-    private int operteUserId;
+    private int operateUserId;
 
     /*
     *操作人erp帐户
      */
-    private String operteUserErp;
+    private String operateUserErp;
 
     /*
     *操作人姓名
     */
-    private String operteUserName;
+    private String operateUserName;
 
 
     /*
@@ -59,22 +66,22 @@ public class GantryDeviceConfig {
     /*
     操作人所属站点
      */
-    private Integer siteCode;
+    private Integer createSiteCode;
 
     /*
     操作人所属分拣中心
      */
-    private String siteName;
+    private String createSiteName;
 
     /*
     操作类型,按位求于,1验货，2发货，4量方。5验货+量方。6发货+量方
      */
-    private Integer operateType;
+    private Integer businessType;
 
     /*
     用文字表达的操作类型如：验货+量方,对应二进制101，10进至5.
      */
-    private String operateTypeRmark;
+    private String operateTypeRemark;
 
     /*
     批次号
@@ -91,69 +98,101 @@ public class GantryDeviceConfig {
      */
     private Date endTime;
 
+    /*
+    q锁定状态
+     */
+    private Integer lockStatus;
 
-    public String getGantryNum() {
-        return gantryNum;
+    /*
+    锁定人ERP帐户
+     */
+    private  String lockUserErp;
+
+    /*
+    锁定人姓名
+     */
+    private String lockUserName;
+
+    private Integer yn;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setGantryNum(String gantryNum) {
-        this.gantryNum = gantryNum;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public int getOperteUserId() {
-        return operteUserId;
+    public Integer getMachineId() {
+        return machineId;
     }
 
-    public void setOperteUserId(int operteUserId) {
-        this.operteUserId = operteUserId;
+    public void setMachineId(Integer machineId) {
+        this.machineId = machineId;
     }
 
-    public String getOperteUser() {
-        return operteUserErp;
+    public String getGantrySerialNumber() {
+        return gantrySerialNumber;
     }
 
-    public void setOperteUser(String operteUserErp) {
-        this.operteUserErp = operteUserErp;
+    public void setGantrySerialNumber(String gantrySerialNumber) {
+        this.gantrySerialNumber = gantrySerialNumber;
     }
 
-    public String getOperteUserName() {
-        return operteUserName;
+    public int getOperateUserId() {
+        return operateUserId;
     }
 
-    public void setOperteUserName(String operteUserName) {
-        this.operteUserName = operteUserName;
+    public void setOperateUserId(int operateUserId) {
+        this.operateUserId = operateUserId;
     }
 
-    public Integer getSiteCode() {
-        return siteCode;
+    public String getOperateUserErp() {
+        return operateUserErp;
     }
 
-    public void setSiteCode(Integer siteCode) {
-        this.siteCode = siteCode;
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
     }
 
-    public String getSiteName() {
-        return siteName;
+    public String getOperateUserName() {
+        return operateUserName;
     }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
+    public void setOperateUserName(String operateUserName) {
+        this.operateUserName = operateUserName;
     }
 
-    public Integer getOperateType() {
-        return operateType;
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
     }
 
-    public void setOperateType(Integer operateType) {
-        this.operateType = operateType;
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 
-    public String getOperateTypeRmark() {
-        return operateTypeRmark;
+    public String getCreateSiteName() {
+        return createSiteName;
     }
 
-    public void setOperateTypeRmark(String operateTypeRmark) {
-        this.operateTypeRmark = operateTypeRmark;
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
+    }
+
+    public Integer getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(Integer businessType) {
+        this.businessType = businessType;
+    }
+
+    public String getOperateTypeRemark() {
+        return operateTypeRemark;
+    }
+
+    public void setOperateTypeRemark(String operateTypeRmark) {
+        this.operateTypeRemark = operateTypeRmark;
     }
 
     public String getSendCode() {
@@ -194,5 +233,37 @@ public class GantryDeviceConfig {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public Integer getLockStatus() {
+        return lockStatus;
+    }
+
+    public void setLockStatus(Integer lockStatus) {
+        this.lockStatus = lockStatus;
+    }
+
+    public String getLockUserErp() {
+        return lockUserErp;
+    }
+
+    public void setLockUserErp(String lockUserErp) {
+        this.lockUserErp = lockUserErp;
+    }
+
+    public String getLockUserName() {
+        return lockUserName;
+    }
+
+    public void setLockUserName(String lockUserName) {
+        this.lockUserName = lockUserName;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }
