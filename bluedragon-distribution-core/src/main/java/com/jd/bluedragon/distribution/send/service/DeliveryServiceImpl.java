@@ -1279,17 +1279,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 					
 					try {
 						//替换为模拟调用。
-						rbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getReceiveSiteCode());
-						cbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getCreateSiteCode());
+						rbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", "123");
+						cbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", "123");
 					} catch (Exception e) {
 						this.logger.error("发货全程跟踪调用站点信息异常",e);
 					}
 					
 					if (cbDto == null)
-						cbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getCreateSiteCode());
+						cbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", "123");
 					
 					if (rbDto == null)
-						rbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", tSendDatail.getReceiveSiteCode());
+						rbDto =  RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", "123");
 					
 					if (rbDto != null && rbDto.getSiteType() != null && cbDto != null && cbDto.getSiteType() != null) {
 						WaybillStatus tWaybillStatus = new WaybillStatus();

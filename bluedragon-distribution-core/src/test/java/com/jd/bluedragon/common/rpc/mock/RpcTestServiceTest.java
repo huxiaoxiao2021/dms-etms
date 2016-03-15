@@ -16,7 +16,7 @@ public class RpcTestServiceTest {
 
 	@Test
 	public void test(){
-		RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "JsfSortingResourceService.check","check");
+		RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", "123");
 	}
 	
 	@Test
