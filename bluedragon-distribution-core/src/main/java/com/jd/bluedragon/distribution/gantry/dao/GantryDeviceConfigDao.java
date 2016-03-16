@@ -30,7 +30,7 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
     public List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode) {
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("createSiteCode",createSiteCode);
-        return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findMaxStartTimeGantryDeviceConfigByMachineId", hashMap);
+        return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findAllGantryDeviceCurrentConfig", hashMap);
     }
 
     public Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig) {

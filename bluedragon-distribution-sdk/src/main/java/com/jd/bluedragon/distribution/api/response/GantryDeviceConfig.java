@@ -1,14 +1,13 @@
-package com.jd.bluedragon.distribution.gantry.domain;
+package com.jd.bluedragon.distribution.api.response;
+
+import com.jd.bluedragon.distribution.api.JdObject;
 
 import java.util.Date;
 
 /**
- * Created by yanghongqiang on 2016/3/11.
- * 龙门架编号，操作时间，返回操作类型，操作人ID、姓名、操作站点ID，名称、批次号（可选）等其它信息
- * "siteCode":2015,"siteName":"北京双树分拣中心","staffName":"杨宏强","orgId":6,"dmsCode":"010F005"
+ * Created by yanghongqiang on 2016/3/15.
  */
-public class GantryDeviceConfig {
-
+public class GantryDeviceConfig extends JdObject {
     /**
      * 自动发货
      */
@@ -79,7 +78,7 @@ public class GantryDeviceConfig {
     /*
     用文字表达的操作类型如：验货+量方,对应二进制101，10进至5.
      */
-    private String businessTypeRemark;
+    private String operateTypeRemark;
 
     /*
     批次号
@@ -185,12 +184,12 @@ public class GantryDeviceConfig {
         this.businessType = businessType;
     }
 
-    public String getBusinessTypeRemark() {
-        return businessTypeRemark;
+    public String getOperateTypeRemark() {
+        return operateTypeRemark;
     }
 
-    public void setBusinessTypeRemark(String businessTypeRmark) {
-        this.businessTypeRemark = businessTypeRmark;
+    public void setOperateTypeRemark(String operateTypeRmark) {
+        this.operateTypeRemark = operateTypeRmark;
     }
 
     public String getSendCode() {

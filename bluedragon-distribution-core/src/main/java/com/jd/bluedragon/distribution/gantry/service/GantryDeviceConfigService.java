@@ -31,4 +31,6 @@ public interface GantryDeviceConfigService {
     更新龙门架状态
      */
     Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig);
+
+    int add(GantryDeviceConfig gantryDeviceConfig);
 }

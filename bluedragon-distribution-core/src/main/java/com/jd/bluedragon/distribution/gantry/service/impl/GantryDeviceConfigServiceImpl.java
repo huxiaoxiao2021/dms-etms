@@ -63,5 +63,10 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
         return gantryDeviceConfigDao.updateGantryDeviceConfigStatus(gantryDeviceConfig);
     }
 
+    @Override
+    public int add(GantryDeviceConfig gantryDeviceConfig) {
+        return  gantryDeviceConfigDao.add(GantryDeviceConfigDao.namespace,gantryDeviceConfig);
+    }
+
 
 }

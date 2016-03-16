@@ -1,30 +1,13 @@
-package com.jd.bluedragon.distribution.gantry.domain;
+package com.jd.bluedragon.distribution.api.request;
+
+import com.jd.bluedragon.distribution.api.JdRequest;
 
 import java.util.Date;
 
 /**
- * Created by yanghongqiang on 2016/3/11.
- * 龙门架编号，操作时间，返回操作类型，操作人ID、姓名、操作站点ID，名称、批次号（可选）等其它信息
- * "siteCode":2015,"siteName":"北京双树分拣中心","staffName":"杨宏强","orgId":6,"dmsCode":"010F005"
+ * Created by yanghongqiang on 2016/3/15.
  */
-public class GantryDeviceConfig {
-
-    /**
-     * 自动发货
-     */
-    public static final int AUTO_INSPECTION=1;
-
-    /**
-     * 自动发货
-     */
-    public static final int AUTO_SEND=2;
-    /**
-     * 测量体积
-     */
-    public static final int AUTO_MEASURE=4;
-
-    public Long id;
-
+public class GantryDeviceConfigRequest extends JdRequest {
     /*
     龙门架编号全国维一编号
      */
@@ -54,7 +37,7 @@ public class GantryDeviceConfig {
     /*
     *结束批次人erp帐户
      */
-    private String updateUser;
+    private String updateUserErp;
 
     /*
     *结束批次人姓名
@@ -79,7 +62,7 @@ public class GantryDeviceConfig {
     /*
     用文字表达的操作类型如：验货+量方,对应二进制101，10进至5.
      */
-    private String businessTypeRemark;
+    private String operateTypeRemark;
 
     /*
     批次号
@@ -112,14 +95,6 @@ public class GantryDeviceConfig {
     private String lockUserName;
 
     private Integer yn;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Integer getMachineId() {
         return machineId;
@@ -161,6 +136,22 @@ public class GantryDeviceConfig {
         this.operateUserName = operateUserName;
     }
 
+    public String getUpdateUserErp() {
+        return updateUserErp;
+    }
+
+    public void setUpdateUserErp(String updateUserErp) {
+        this.updateUserErp = updateUserErp;
+    }
+
+    public String getUpdateUserName() {
+        return updateUserName;
+    }
+
+    public void setUpdateUserName(String updateUserName) {
+        this.updateUserName = updateUserName;
+    }
+
     public Integer getCreateSiteCode() {
         return createSiteCode;
     }
@@ -177,20 +168,22 @@ public class GantryDeviceConfig {
         this.createSiteName = createSiteName;
     }
 
+    @Override
     public Integer getBusinessType() {
         return businessType;
     }
 
+    @Override
     public void setBusinessType(Integer businessType) {
         this.businessType = businessType;
     }
 
-    public String getBusinessTypeRemark() {
-        return businessTypeRemark;
+    public String getOperateTypeRemark() {
+        return operateTypeRemark;
     }
 
-    public void setBusinessTypeRemark(String businessTypeRmark) {
-        this.businessTypeRemark = businessTypeRmark;
+    public void setOperateTypeRemark(String operateTypeRemark) {
+        this.operateTypeRemark = operateTypeRemark;
     }
 
     public String getSendCode() {
@@ -199,22 +192,6 @@ public class GantryDeviceConfig {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
-    }
-
-    public String getUpdateUser() {
-        return updateUser;
-    }
-
-    public void setUpdateUser(String updateUser) {
-        this.updateUser = updateUser;
-    }
-
-    public String getUpdateUserName() {
-        return updateUserName;
-    }
-
-    public void setUpdateUserName(String updateUserName) {
-        this.updateUserName = updateUserName;
     }
 
     public Date getStartTime() {
