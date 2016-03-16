@@ -162,6 +162,8 @@
         <mapper resource="mappers/crossSorting/CrossSortingMapper.xml"/>
         <mapper resource="mappers/globaltrade/LoadBillMapper.xml"/>
         <mapper resource="mappers/globaltrade/LoadBillReportMapper.xml"/>
+
+        <mapper resource="mappers/gantry/GantryDeviceMapper.xml"/>
 	</mappers>
 	
 </configuration>

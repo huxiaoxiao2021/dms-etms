@@ -275,4 +275,8 @@
     <bean id="tbTaskQueueDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskQueueDao">
         <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>
     </bean>
+
+    <bean id="gantryDeviceDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
 </beans>
