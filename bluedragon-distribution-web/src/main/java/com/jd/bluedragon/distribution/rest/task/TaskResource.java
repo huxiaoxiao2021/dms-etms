@@ -6,22 +6,28 @@ import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.common.authorization.RestAuthorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jboss.resteasy.annotations.Body;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +44,8 @@ public class TaskResource {
 	@Autowired
 	private TaskService taskService;
 
+    @Autowired
+    private RestAuthorization restAuthorization;
 	@GET
 	@Path("/tasks/{taskId}")
 	public TaskResponse get(@PathParam("taskId") Long taskId) {
@@ -199,6 +207,62 @@ public class TaskResource {
         }
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
+    }
+
+    /**
+     * 龙门加任务插入
+     * @param request   请求对象
+     * @param domain    数据对象
+     * @return
+     */
+    @POST
+    @Path("/task/saveTask")
+    public InvokeResult saveTask(@Context HttpServletRequest request,UploadData domain){
+        InvokeResult result=new InvokeResult();
+        String registerNo = request.getHeader(RestAuthorization.REGISTER_NO);
+        String authorization = request.getHeader(RestAuthorization.AUTHORIZATION);
+        String date = request.getHeader(RestAuthorization.DATE);
+        if (!restAuthorization.authorizeDateTime(date)) {
+            result.customMessage(RestAuthorization.DATE_DIFF_NOT_MATCH, RestAuthorization.DATE_DIFF_NOT_MATCH_MESSAGE);
+            return result;
+        }
+        if (!restAuthorization.authorize(registerNo, authorization, date)) {
+            result.customMessage(RestAuthorization.NO_AUTHORIZE, RestAuthorization.NO_AUTHORIZE_MESSAGE);
+            return result;
+        }
+        try {
+            domain.setRegisterNo(registerNo);
+            if(StringHelper.isEmpty(domain.getBarCode())){
+                result.customMessage(UploadData.BARCODE_NULL_OR_EMPTY_CODE,UploadData.BARCODE_NULL_OR_EMPTY_MESSAGE);
+                return result;
+            }
+            if(domain.getBarCode().trim().length()>UploadData.MAX_BARCODE_LENGTH){
+                result.customMessage(UploadData.MAX_BARCODE_LENGTH_CODE,UploadData.MAX_BARCODE_LENGTH_MESSAGE);
+                return result;
+            }
+            Task task=new Task();
+            task.setBody(JsonHelper.toJson(domain));
+            task.setCreateSiteCode(0);
+            task.setType(Task.TASK_TYPE_SCANNER_FRAME);
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setBusinessType(10);
+            task.setKeyword1(domain.getBarCode());
+            task.setFingerprint(Md5Helper.encode(task.getBody()));
+            task.setOperateTime(domain.getScannerTime());
+            task.setBoxCode(domain.getBarCode());
+            task.setKeyword2(domain.getRegisterNo());
+            task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            Integer count= taskService.add(task, true);
+            if(count<=0){
+                result.customMessage(0,"保存数据失败");
+            }
+
+        }catch (Throwable throwable){
+            logger.error("龙门架自动发货任务上传",throwable);
+            result.error(throwable);
+        }
+        return result;
     }
 
 }

@@ -83,7 +83,8 @@
         <typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting"/>
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
-	</typeAliases>  
+		<typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
+	</typeAliases>
 	
 	<mappers>
 		<mapper resource="mappers/box/BoxMapper.xml"/>
@@ -164,6 +165,7 @@
         <mapper resource="mappers/globaltrade/LoadBillReportMapper.xml"/>
 
         <mapper resource="mappers/gantry/GantryDeviceMapper.xml"/>
+		<mapper resource="mappers/gantry/GantryDeviceConfigMapper.xml"/>
 	</mappers>
 	
 </configuration>

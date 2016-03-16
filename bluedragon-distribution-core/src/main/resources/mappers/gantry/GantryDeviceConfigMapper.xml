@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.gantry.dao.GantryDeviceConfigDao">
+
+    <resultMap id="gantryDeviceConfig" type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig">
+        <result column="id" property="id"/>
+        <result column="machine_id" property="machineId"/>
+        <result column="operate_user_id" property="operateUserId"/>
+        <result column="operate_user_erp" property="operateUserErp"/>
+        <result column="operate_user_name" property="operateUserName"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="update_user_name" property="updateUserName"/>
+        <result column="create_site_code" property="createSiteCode"/>
+        <result column="create_site_name" property="createSiteName"/>
+        <result column="business_type" property="businessType"/>
+        <result column="business_type_remark" property="businessTypeRemark"/>
+        <result column="send_Code" property="sendCode"/>
+        <result column="star_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="lock_status" property="lockStatus"/>
+        <result column="lock_user_erp" property="lockUserErp"/>
+        <result column="lock_user_name" property="lockUserName"/>
+        <result column="yn" property="yn"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="gantryDeviceConfig">
+        INSERT INTO gantry_device_config (
+        machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
+        update_user_name, create_site_code, create_site_name, business_type,
+        business_type_remark, sendCode, startTime,lock_status,lock_user_erp,lock_user_name,
+        yn)
+        VALUES (
+        #{machine_id,jdbcType=INTEGER}, #{operateUserId,jdbcType=INTEGER}, #{operateUserErp,jdbcType=VARCHAR},
+        #{updateUser,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
+        #{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
+        #{businessType,jdbcType=INTEGER}, #{businessTypeRemark,jdbcType=VARCHAR},
+        #{sendCode,jdbcType=INTEGER}, #{star_time,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
+        SYSDATE ,#{lockStatus,jdbcType =INTEGER}, #{lock_user_erp,jdbcType=VARCHAR}, #{lock_user_name,jdbcType=VARCHAR},
+        ,1)
+    </insert>
+
+    <select id="findMaxStartTimeGantryDeviceConfigByMachineId" resultMap="gantryDeviceConfig"
+            parameterType="gantryDeviceConfig">
+        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
+        update_user_name, create_site_code, create_site_name, business_type,
+        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        yn
+        FROM gantry_device_config WHERE machine_id = #{machineId,jdbcType=INTEGER}
+        AND ROWNUM <![CDATA[<=]]> 1
+        AND yn = 1
+        AND startTime = (SELECT MAX (startTime)
+        FROM gantry_device_config
+        WHERE  machine_id = #{machineId,jdbcType=INTEGER}
+        AND yn = 1)
+    </select>
+
+    <select id="findGantryDeviceConfig" resultMap="gantryDeviceConfig" parameterType="gantryDeviceConfig">
+        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
+        update_user_name, create_site_code, create_site_name, business_type,
+        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        yn
+        FROM gantry_device_config
+        WHERE  machine_id = #{machineId,jdbcType=INTEGER}
+        AND ROWNUM <![CDATA[<=]]> 1
+        and end_time is null
+        AND yn = 1
+    </select>
+
+    <select id="findGantryDeviceConfigByOperateTime" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
+        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
+        update_user_name, create_site_code, create_site_name, business_type,
+        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        yn
+        FROM gantry_device_config
+        WHERE  machine_id = #{machineId,jdbcType=INTEGER}
+        AND ROWNUM <![CDATA[<=]]> 1
+        AND yn = 1
+        AND start_time<![CDATA[<=]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        AND (
+        endTime<![CDATA[>]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        OR
+        endTime=to_date(to_char(#{minTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        )
+    </select>
+    <select id="findAllGantryDeviceCurrentConfig" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
+        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user_erp,
+        update_user_name, create_site_code, create_site_name, business_type,
+        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        yn
+        FROM gantry_device_config
+        WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        and end_time is null
+        AND yn = 1
+    </select>
+
+    <update id="updateLockStatus" parameterType="gantryDeviceConfig">
+        UPDATE gantry_device_config
+        SET lock_status = #{endTime, jdbcType=INTEGER},lock_user_erp = #{lockUserErp,jdbcType=VARCHAR},lock_user_name=#{lockUserName,jdbcType=VARCHAR}
+        WHERE  machine_id =  #{machineId,jdbcType=INTEGER}
+    </update>
+
+    <update id="update" parameterType="gantryDeviceConfig">
+        UPDATE gantry_device_config
+        SET
+        <if test="operateUserId!=null">
+            set operate_user_id=#{operateUserId,jdbcType=INTEGER},
+        </if>
+        <if test="operateUserErp!=null">
+            set operate_user_erp=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set operate_user_name=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set update_user=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set update_user_name=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set create_site_code=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set create_site_name=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set business_type=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set business_type_remark=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set sendCode=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set startTime=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set end_time=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set lock_status=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set lock_user_erp=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateUserErp!=null">
+            set lock_user_name=#{operateUserErp,jdbcType=VARCHAR},
+        </if>
+        WHERE machine_id = #{machineId,jdbcType=INTEGER}
+    </update>
+</mapper>

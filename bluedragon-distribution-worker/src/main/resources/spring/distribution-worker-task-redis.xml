@@ -205,5 +205,11 @@
         <property name="taskType" value="WeightRedisTask"/>
         <property name="desc" value="将称重信息回传到运单中心Resis任务"/>
     </bean>
+    <bean id="scannerFrameRedisTask"
+          class="com.jd.bluedragon.distribution.worker.ScannerFrameRedisTask"
+          parent="parentRedisTask">
+        <property name="taskType" value="ScannerFrameRedisTask"/>
+        <property name="desc" value="将称重信息回传到运单中心Resis任务"/>
+    </bean>
 </beans>
 
