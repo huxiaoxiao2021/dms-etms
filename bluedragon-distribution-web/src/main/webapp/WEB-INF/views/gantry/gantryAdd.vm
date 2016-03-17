@@ -23,12 +23,10 @@
     <script type="text/javascript" src="#springUrl("/static/js/gantry/gantry-add.js")"></script>
     <style type="text/css">
         #content {
-            width: 90%;
             margin: 0 auto;
         }
 
         #gantry_add_column_list {
-            width: 50%;
             float: left;
         }
 

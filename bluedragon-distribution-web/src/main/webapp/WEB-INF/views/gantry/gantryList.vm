@@ -23,7 +23,6 @@
 	<script type="text/javascript" src="#springUrl("/static/js/gantry/gantry-index.js")"></script>
     <style type="text/css">
         #content {
-            width: 90%;
             margin: 0 auto;
         }
 
@@ -85,18 +84,16 @@
 				<input type="text" id="gantry_device_supplier" class="gantry_query_text"/>
 			</span>
         </div>
-        <div id="gantry_query_operate" style="margin-top: 10px;height: 30px;">
-            <div id="gantry_query_btn" style="margin-left: 560px;">
-                <span class="gantry_query_span" style="width: 150px;">
-					<input id="gantry_add_sub" value="增加" type="button" class="btn_c" style="margin-left: 52px;">
-				</span>
-				<span class="gantry_query_span" style="width: 150px;">
-					<input id="gantry_query_sub" value="查询" type="button" class="btn_c" style="margin-left: 52px;">
+        <div id="gantry_query_operate" style="height: 30px;">
+            <div id="gantry_query_btn" style="margin-left: 655px;">
+                <span class="gantry_query_span" style="width: 250px;">
+					<input id="gantry_add_sub" value="增加" type="button" class="btn_c">
+                	<input id="gantry_query_sub" value="查询" type="button" class="btn_c">
 				</span>
             </div>
         </div>
     </div>
-    <div id="gantry_list_div">
+    <div id="gantry_list_div" style="margin-top: 10px;">
         <div id="gantry_list_table">
             <div class="tbl-list">
                 <div class="tbl-bg">
