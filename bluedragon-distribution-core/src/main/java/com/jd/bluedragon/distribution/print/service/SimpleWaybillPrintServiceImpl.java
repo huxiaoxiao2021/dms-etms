@@ -86,6 +86,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         wChoice.setQueryWaybillE(true);
         wChoice.setQueryWaybillM(true);
         wChoice.setQueryPackList(true);
+        wChoice.setQueryPickupTask(true);
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
         if (baseEntity != null
                 && baseEntity.getData() != null
@@ -132,6 +133,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                     }
                 }
                 commonWaybill.setPackList(packageList);
+            }
+            if(null!=baseEntity.getData().getPickupTask()){
+                commonWaybill.setServiceCode(baseEntity.getData().getPickupTask().getServiceCode());
             }
         }
     }
