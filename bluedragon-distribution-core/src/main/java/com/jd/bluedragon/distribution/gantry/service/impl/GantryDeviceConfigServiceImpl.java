@@ -68,5 +68,15 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
         return  gantryDeviceConfigDao.add(GantryDeviceConfigDao.namespace,gantryDeviceConfig);
     }
 
+    @Override
+    public int updateLockStatus(GantryDeviceConfig gantryDeviceConfig) {
+        return gantryDeviceConfigDao.updateLockStatus(gantryDeviceConfig);
+    }
+
+    @Override
+    public int updateBusinessType(GantryDeviceConfig gantryDeviceConfig) {
+        return gantryDeviceConfigDao.updateBusinessType(gantryDeviceConfig);
+    }
+
 
 }
