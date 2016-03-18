@@ -149,6 +149,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             BaseEntity<PickupTask> result= waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
             if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
                 targetResult.setData(result.getData().getSurfaceCode());
+                targetResult.setMessage(result.getData().getServiceCode());
             }else{
                 targetResult.customMessage(-1,"没有获取到新的取件单");
             }
