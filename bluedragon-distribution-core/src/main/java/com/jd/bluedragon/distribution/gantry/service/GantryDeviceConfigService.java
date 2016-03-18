@@ -33,4 +33,8 @@ public interface GantryDeviceConfigService {
     Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig);
 
     int add(GantryDeviceConfig gantryDeviceConfig);
+
+    int updateLockStatus(GantryDeviceConfig gantryDeviceConfig);
+
+    int updateBusinessType(GantryDeviceConfig gantryDeviceConfig);
 }

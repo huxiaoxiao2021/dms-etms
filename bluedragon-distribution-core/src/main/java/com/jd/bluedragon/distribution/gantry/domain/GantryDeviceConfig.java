@@ -54,7 +54,7 @@ public class GantryDeviceConfig {
     /*
     *结束批次人erp帐户
      */
-    private String updateUser;
+    private String updateUserErp;
 
     /*
     *结束批次人姓名
@@ -189,8 +189,8 @@ public class GantryDeviceConfig {
         return businessTypeRemark;
     }
 
-    public void setBusinessTypeRemark(String businessTypeRmark) {
-        this.businessTypeRemark = businessTypeRmark;
+    public void setBusinessTypeRemark(String operateTypeRmark) {
+        this.businessTypeRemark = operateTypeRmark;
     }
 
     public String getSendCode() {
@@ -201,12 +201,12 @@ public class GantryDeviceConfig {
         this.sendCode = sendCode;
     }
 
-    public String getUpdateUser() {
-        return updateUser;
+    public String getUpdateUserErp() {
+        return updateUserErp;
     }
 
-    public void setUpdateUser(String updateUser) {
-        this.updateUser = updateUser;
+    public void setUpdateUserErp(String updateUserErp) {
+        this.updateUserErp = updateUserErp;
     }
 
     public String getUpdateUserName() {

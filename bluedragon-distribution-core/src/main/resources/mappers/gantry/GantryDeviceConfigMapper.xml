@@ -26,39 +26,36 @@
 
     <insert id="add" parameterType="gantryDeviceConfig">
         INSERT INTO gantry_device_config (
-        machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
-        update_user_name, create_site_code, create_site_name, business_type,
-        business_type_remark, sendCode, startTime,lock_status,lock_user_erp,lock_user_name,
+        machine_id,operate_user_id,operate_user_erp,operate_user_name,
+        update_user_erp,update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,lock_status,lock_user_erp,lock_user_name,
         yn)
         VALUES (
-        #{machine_id,jdbcType=INTEGER}, #{operateUserId,jdbcType=INTEGER}, #{operateUserErp,jdbcType=VARCHAR},
-        #{updateUser,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
-        #{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
-        #{businessType,jdbcType=INTEGER}, #{businessTypeRemark,jdbcType=VARCHAR},
-        #{sendCode,jdbcType=INTEGER}, #{star_time,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
-        SYSDATE ,#{lockStatus,jdbcType =INTEGER}, #{lock_user_erp,jdbcType=VARCHAR}, #{lock_user_name,jdbcType=VARCHAR},
-        ,1)
+        #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
+        #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
+        #{businessTypeRemark,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},SYSDATE ,1,#{lockUserErp,jdbcType=VARCHAR},#{lockUserName,jdbcType=VARCHAR},
+        1)
     </insert>
 
     <select id="findMaxStartTimeGantryDeviceConfigByMachineId" resultMap="gantryDeviceConfig"
             parameterType="gantryDeviceConfig">
-        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
-        update_user_name, create_site_code, create_site_name, business_type,
-        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
+        update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
         yn
         FROM gantry_device_config WHERE machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
         AND yn = 1
-        AND startTime = (SELECT MAX (startTime)
+        AND start_time = (SELECT MAX (start_time)
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND yn = 1)
     </select>
 
     <select id="findGantryDeviceConfig" resultMap="gantryDeviceConfig" parameterType="gantryDeviceConfig">
-        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
-        update_user_name, create_site_code, create_site_name, business_type,
-        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
+        update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
         yn
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
@@ -68,25 +65,25 @@
     </select>
 
     <select id="findGantryDeviceConfigByOperateTime" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
-        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user,
-        update_user_name, create_site_code, create_site_name, business_type,
-        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
+        update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
         yn
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
         AND yn = 1
-        AND start_time<![CDATA[<=]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+        AND start_time <![CDATA[<=]]> to_date(to_char(#{operateTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
         AND (
-        endTime<![CDATA[>]]>to_date(to_char(#{operateTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+            end_time <![CDATA[>]]>to_date(to_char(#{operateTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
         OR
-        endTime=to_date(to_char(#{minTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+            end_time=to_date(to_char(#{operateTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
         )
     </select>
     <select id="findAllGantryDeviceCurrentConfig" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
-        SELECT id, machine_id, operate_user_id, operate_user_erp, operate_user_name, update_user_erp,
-        update_user_name, create_site_code, create_site_name, business_type,
-        business_type_remark, send_code, start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
+        update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
         yn
         FROM gantry_device_config
         WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -96,8 +93,14 @@
 
     <update id="updateLockStatus" parameterType="gantryDeviceConfig">
         UPDATE gantry_device_config
-        SET lock_status = #{endTime, jdbcType=INTEGER},lock_user_erp = #{lockUserErp,jdbcType=VARCHAR},lock_user_name=#{lockUserName,jdbcType=VARCHAR}
-        WHERE  machine_id =  #{machineId,jdbcType=INTEGER}
+        SET lock_status = #{lockStatus,jdbcType=INTEGER},lock_user_erp = #{lockUserErp,jdbcType=VARCHAR},lock_user_name=#{lockUserName,jdbcType=VARCHAR}
+        WHERE  id =  #{id,jdbcType=INTEGER} and end_time is NULL
+    </update>
+
+    <update id="updateBusinessType" parameterType="gantryDeviceConfig">
+        UPDATE gantry_device_config
+        SET business_type = #{businessType,jdbcType=INTEGER}
+        WHERE  id =  #{id,jdbcType=INTEGER} and end_time is NULL
     </update>
 
     <update id="update" parameterType="gantryDeviceConfig">
@@ -109,45 +112,45 @@
         <if test="operateUserErp!=null">
             set operate_user_erp=#{operateUserErp,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set operate_user_name=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="operateUserName!=null">
+            set operate_user_name=#{operateUserName,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set update_user=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="updateUserErp!=null">
+            set update_user_erp=#{updateUserErp,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set update_user_name=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="updateUserErp!=null">
+            set update_user_name=#{updateUserErp,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set create_site_code=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="createSiteCode!=null">
+            set create_site_code=#{createSiteCode,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set create_site_name=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="createSiteName!=null">
+            set create_site_name=#{createSiteName,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set business_type=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="businessType!=null">
+            set business_type=#{businessType,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set business_type_remark=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="businessTypeRemark!=null">
+            set business_type_remark=#{businessTypeRemark,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set sendCode=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="sendCode!=null">
+            set send_code=#{sendCode,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set startTime=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="startTime!=null">
+            set start_time=#{startTime,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set end_time=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="endTime!=null">
+            set end_time=#{endTime,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set lock_status=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="lockStatus!=null">
+            set lock_status=#{lockStatus,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set lock_user_erp=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="lockUserErp!=null">
+            set lock_user_erp=#{lockUserErp,jdbcType=VARCHAR},
         </if>
-        <if test="operateUserErp!=null">
-            set lock_user_name=#{operateUserErp,jdbcType=VARCHAR},
+        <if test="lockUserName!=null">
+            set lock_user_name=#{lockUserName,jdbcType=VARCHAR},
         </if>
-        WHERE machine_id = #{machineId,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER} and end_time IS NULL
     </update>
 </mapper>

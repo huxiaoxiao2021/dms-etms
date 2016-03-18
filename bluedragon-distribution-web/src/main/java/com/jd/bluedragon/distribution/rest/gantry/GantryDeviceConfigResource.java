@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.response.GantryDeviceConfigResponse;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.utils.BeanHelper;
@@ -35,7 +36,7 @@ public class GantryDeviceConfigResource {
     GantryDeviceConfigService gantryDeviceConfigService;
 
     @POST
-    @Path("/findAllGantryDeviceCurrentConfig")
+    @Path("/gantryDeviceConfig/findAllGantryDeviceCurrentConfig")
     public GantryDeviceConfigResponse findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
         logger.debug(request.toString());
         GantryDeviceConfigResponse response=new GantryDeviceConfigResponse();
@@ -65,7 +66,7 @@ public class GantryDeviceConfigResource {
     }
 
     @POST
-    @Path("/updateGantryDeviceConfigStatus")
+    @Path("/gantryDeviceConfig/updateGantryDeviceConfigStatus")
     public GantryDeviceConfigResponse updateGantryDeviceConfigStatus(GantryDeviceConfigRequest request) {
         logger.debug(request.toString());
         GantryDeviceConfigResponse response=new GantryDeviceConfigResponse();
@@ -75,6 +76,64 @@ public class GantryDeviceConfigResource {
             int count=gantryDeviceConfigService.updateGantryDeviceConfigStatus(toGantryDeviceConfig(request));
             if(count==1) {
                 gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
+            }
+        }catch (Exception ex){
+            String message="更新龙门架状态失败"+request.toString()+ex.toString();
+            logger.error(message);
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(message);
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/gantryDeviceConfig/updateLockStatus")
+    public GantryDeviceConfigResponse updateLockStatus(GantryDeviceConfigRequest request) {
+        logger.debug(request.toString());
+        GantryDeviceConfigResponse response=new GantryDeviceConfigResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+        try {
+            GantryDeviceConfig gantryDeviceConfig=new GantryDeviceConfig();
+            gantryDeviceConfig.setId(Long.parseLong(request.getId().toString()));
+            gantryDeviceConfig.setLockStatus(request.getLockStatus());
+            gantryDeviceConfig.setLockUserName(request.getLockUserName());
+            gantryDeviceConfig.setLockUserErp(request.getLockUserErp());
+            int count=gantryDeviceConfigService.updateLockStatus(gantryDeviceConfig);
+            if(count==1) {
+                com.jd.bluedragon.distribution.api.response.GantryDeviceConfig config = new com.jd.bluedragon.distribution.api.response.GantryDeviceConfig();
+                GantryDeviceConfig temp = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getId());
+                BeanHelper.copyProperties(config, temp);
+                response.setData(new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>());
+                response.getData().add(config);
+            }
+        }catch (Exception ex){
+            String message="更新龙门架状态失败"+request.toString()+ex.toString();
+            logger.error(message);
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(message);
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/gantryDeviceConfig/updateBusinessType")
+    public GantryDeviceConfigResponse updateBusinessType(GantryDeviceConfigRequest request) {
+        logger.debug(request.toString());
+        GantryDeviceConfigResponse response=new GantryDeviceConfigResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+        try {
+            GantryDeviceConfig gantryDeviceConfig=new GantryDeviceConfig();
+            gantryDeviceConfig.setId(Long.parseLong(request.getId().toString()));
+            gantryDeviceConfig.setBusinessType(request.getBusinessType());
+            int count=gantryDeviceConfigService.updateBusinessType(gantryDeviceConfig);
+            if(count==1) {
+                com.jd.bluedragon.distribution.api.response.GantryDeviceConfig config = new com.jd.bluedragon.distribution.api.response.GantryDeviceConfig();
+                GantryDeviceConfig temp = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getId());
+                BeanHelper.copyProperties(config, temp);
+                response.setData(new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>());
+                response.getData().add(config);
             }
         }catch (Exception ex){
             String message="更新龙门架状态失败"+request.toString()+ex.toString();
@@ -102,7 +161,7 @@ public class GantryDeviceConfigResource {
         gantryDeviceConfig.setOperateUserName(request.getOperateUserName());
         gantryDeviceConfig.setSendCode(request.getSendCode());
         gantryDeviceConfig.setStartTime(request.getStartTime());
-        gantryDeviceConfig.setUpdateUser(request.getUpdateUserErp());
+        gantryDeviceConfig.setUpdateUserErp(request.getUpdateUserErp());
         gantryDeviceConfig.setUpdateUserName(request.getUpdateUserName());
         return gantryDeviceConfig;
     }
@@ -114,11 +173,19 @@ public class GantryDeviceConfigResource {
         GantryDeviceConfigResponse response=new GantryDeviceConfigResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
+        com.jd.bluedragon.distribution.api.response.GantryDeviceConfig config=new com.jd.bluedragon.distribution.api.response.GantryDeviceConfig();
         try {
-            int count=gantryDeviceConfigService.add(toGantryDeviceConfig(request));
+            GantryDeviceConfig oldRecord=toGantryDeviceConfig(request);
+            int count=gantryDeviceConfigService.add(oldRecord);
             if(count==1) {
-                gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
+               BeanHelper.copyProperties(config,gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId()));
             }
+            oldRecord.setEndTime(config.getStartTime());
+            oldRecord.setUpdateUserErp(config.getOperateUserErp());
+            oldRecord.setUpdateUserName(config.getOperateUserName());
+            gantryDeviceConfigService.updateGantryDeviceConfigStatus(oldRecord);
+            response.setData(new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>());
+            response.getData().add(config);
         }catch (Exception ex){
             String message="更新龙门架状态失败"+request.toString()+ex.toString();
             logger.error(message);
