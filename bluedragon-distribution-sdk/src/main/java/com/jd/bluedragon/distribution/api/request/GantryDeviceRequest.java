@@ -34,7 +34,7 @@ public class GantryDeviceRequest implements Serializable{
     private String modelNumber;
 
     /**龙门架类型*/
-    private Integer type;
+    private String type;
 
     /**备注*/
     private String mark;
@@ -115,11 +115,11 @@ public class GantryDeviceRequest implements Serializable{
         this.modelNumber = modelNumber;
     }
 
-    public Integer getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(String type) {
         this.type = type;
     }
 

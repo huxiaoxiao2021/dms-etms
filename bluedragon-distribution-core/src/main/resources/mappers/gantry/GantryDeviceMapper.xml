@@ -11,7 +11,7 @@
         <result column="SITE_NAME" property="siteName" jdbcType="VARCHAR"/>
         <result column="SUPPLIER" property="supplier" jdbcType="VARCHAR"/>
         <result column="MODEL_NUMBER" property="modelNumber" jdbcType="VARCHAR"/>
-        <result column="MODEL_TYPE" property="type" jdbcType="INTEGER"/>
+        <result column="MODEL_TYPE" property="type" jdbcType="VARCHAR"/>
         <result column="MARK" property="mark" jdbcType="VARCHAR"/>
         <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
         <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
@@ -45,7 +45,7 @@
                 MODEL_NUMBER = #{modelNumber, jdbcType=VARCHAR},
             </if>
             <if test="type != null">
-                MODEL_TYPE = #{type, jdbcType=INTEGER},
+                MODEL_TYPE = #{type, jdbcType=VARCHAR},
             </if>
             <if test="mark != null">
                 MARK = #{mark, jdbcType=VARCHAR},
@@ -90,15 +90,15 @@
         VALUES (
           SEQ_GANTRY_DEVICE.NEXTVAL,#{serialNumber, jdbcType=VARCHAR}, #{orgCode, jdbcType=INTEGER},
           #{orgName, jdbcType=VARCHAR}, #{siteCode, jdbcType=INTEGER}, #{siteName, jdbcType=VARCHAR},
-          #{supplier, jdbcType=VARCHAR}, #{modelNumber, jdbcType=VARCHAR}, #{type, jdbcType=INTEGER},
+          #{supplier, jdbcType=VARCHAR}, #{modelNumber, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR},
           #{mark, jdbcType=VARCHAR}, sysdate, sysdate, #{operateName, jdbcType=VARCHAR}, 1
         )
     </insert>
 
-    <delete id="delGantry" parameterType="java.util.Map">
-        DELETE FROM GANTRY_DEVICE_INFO
+    <update id="delGantry" parameterType="java.util.Map">
+        UPDATE GANTRY_DEVICE_INFO SET YN = 0
         <include refid="gantryQueryParam"/>
-    </delete>
+    </update>
     
     <select id="queryGantry" parameterType="java.util.Map" resultMap="gantryDeviceMap">
         SELECT 
