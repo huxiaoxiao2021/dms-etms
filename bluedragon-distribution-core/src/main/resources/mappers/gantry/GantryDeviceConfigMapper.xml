@@ -8,14 +8,14 @@
         <result column="operate_user_id" property="operateUserId"/>
         <result column="operate_user_erp" property="operateUserErp"/>
         <result column="operate_user_name" property="operateUserName"/>
-        <result column="update_user" property="updateUser"/>
+        <result column="update_user_erp" property="updateUserErp"/>
         <result column="update_user_name" property="updateUserName"/>
         <result column="create_site_code" property="createSiteCode"/>
         <result column="create_site_name" property="createSiteName"/>
         <result column="business_type" property="businessType"/>
         <result column="business_type_remark" property="businessTypeRemark"/>
         <result column="send_Code" property="sendCode"/>
-        <result column="star_time" property="startTime"/>
+        <result column="start_time" property="startTime"/>
         <result column="end_time" property="endTime"/>
         <result column="lock_status" property="lockStatus"/>
         <result column="lock_user_erp" property="lockUserErp"/>
@@ -25,12 +25,12 @@
 
 
     <insert id="add" parameterType="gantryDeviceConfig">
-        INSERT INTO gantry_device_config (
+        INSERT INTO gantry_device_config (id,
         machine_id,operate_user_id,operate_user_erp,operate_user_name,
         update_user_erp,update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,lock_status,lock_user_erp,lock_user_name,
         yn)
-        VALUES (
+        VALUES (SEQ_GANTRY_DEVICE_CONFIG.NEXTVAL,
         #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
         #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
         #{businessTypeRemark,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},SYSDATE ,1,#{lockUserErp,jdbcType=VARCHAR},#{lockUserName,jdbcType=VARCHAR},
@@ -105,52 +105,7 @@
 
     <update id="update" parameterType="gantryDeviceConfig">
         UPDATE gantry_device_config
-        SET
-        <if test="operateUserId!=null">
-            set operate_user_id=#{operateUserId,jdbcType=INTEGER},
-        </if>
-        <if test="operateUserErp!=null">
-            set operate_user_erp=#{operateUserErp,jdbcType=VARCHAR},
-        </if>
-        <if test="operateUserName!=null">
-            set operate_user_name=#{operateUserName,jdbcType=VARCHAR},
-        </if>
-        <if test="updateUserErp!=null">
-            set update_user_erp=#{updateUserErp,jdbcType=VARCHAR},
-        </if>
-        <if test="updateUserErp!=null">
-            set update_user_name=#{updateUserErp,jdbcType=VARCHAR},
-        </if>
-        <if test="createSiteCode!=null">
-            set create_site_code=#{createSiteCode,jdbcType=VARCHAR},
-        </if>
-        <if test="createSiteName!=null">
-            set create_site_name=#{createSiteName,jdbcType=VARCHAR},
-        </if>
-        <if test="businessType!=null">
-            set business_type=#{businessType,jdbcType=VARCHAR},
-        </if>
-        <if test="businessTypeRemark!=null">
-            set business_type_remark=#{businessTypeRemark,jdbcType=VARCHAR},
-        </if>
-        <if test="sendCode!=null">
-            set send_code=#{sendCode,jdbcType=VARCHAR},
-        </if>
-        <if test="startTime!=null">
-            set start_time=#{startTime,jdbcType=VARCHAR},
-        </if>
-        <if test="endTime!=null">
-            set end_time=#{endTime,jdbcType=VARCHAR},
-        </if>
-        <if test="lockStatus!=null">
-            set lock_status=#{lockStatus,jdbcType=VARCHAR},
-        </if>
-        <if test="lockUserErp!=null">
-            set lock_user_erp=#{lockUserErp,jdbcType=VARCHAR},
-        </if>
-        <if test="lockUserName!=null">
-            set lock_user_name=#{lockUserName,jdbcType=VARCHAR},
-        </if>
+        SET update_user_erp=#{updateUserErp,jdbcType=VARCHAR}, update_user_name=#{updateUserName,jdbcType=VARCHAR}, end_time=#{endTime,jdbcType=TIMESTAMP}
         WHERE id = #{id,jdbcType=INTEGER} and end_time IS NULL
     </update>
 </mapper>

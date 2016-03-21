@@ -53,7 +53,7 @@ public class GantryDeviceConfig extends JdObject {
     /*
     *结束批次人erp帐户
      */
-    private String updateUser;
+    private String updateUserErp;
 
     /*
     *结束批次人姓名
@@ -188,8 +188,8 @@ public class GantryDeviceConfig extends JdObject {
         return operateTypeRemark;
     }
 
-    public void setOperateTypeRemark(String operateTypeRmark) {
-        this.operateTypeRemark = operateTypeRmark;
+    public void setOperateTypeRemark(String operateTypeRemark) {
+        this.operateTypeRemark = operateTypeRemark;
     }
 
     public String getSendCode() {
@@ -200,12 +200,12 @@ public class GantryDeviceConfig extends JdObject {
         this.sendCode = sendCode;
     }
 
-    public String getUpdateUser() {
-        return updateUser;
+    public String getUpdateUserErp() {
+        return updateUserErp;
     }
 
-    public void setUpdateUser(String updateUser) {
-        this.updateUser = updateUser;
+    public void setUpdateUserErp(String updateUserErp) {
+        this.updateUserErp = updateUserErp;
     }
 
     public String getUpdateUserName() {
