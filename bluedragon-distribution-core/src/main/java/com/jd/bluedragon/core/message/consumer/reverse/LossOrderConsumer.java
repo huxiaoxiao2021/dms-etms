@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.jmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,6 @@ import com.jd.bluedragon.distribution.reverse.service.LossOrderService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.message.Message;
 
 @Service("lossOrderConsumer")
 public class LossOrderConsumer extends MessageBaseConsumer {
@@ -32,13 +32,13 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 
 	@SuppressWarnings({ "unchecked" })
 	public List<LossOrder> getLossOrders(Message message) {
-		if (message == null || message.getContent() == null) {
+		if (message == null || message.getText() == null) {
 			return Collections.emptyList();
 		}
 
 		List<LossOrder> lossOrders = new ArrayList<LossOrder>();
 
-		Object[] array = JsonHelper.jsonToArray(message.getContent(), Object[].class);
+		Object[] array = JsonHelper.jsonToArray(message.getText(), Object[].class);
 		for (Object element : array) {
 			Map<String, Object> lossOrderMap = (Map<String, Object>) element;
 			if (lossOrderMap == null) {

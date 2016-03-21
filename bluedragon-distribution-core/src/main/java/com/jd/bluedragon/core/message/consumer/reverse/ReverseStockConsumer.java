@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
-import com.jd.etms.message.Message;
 
 /**
  * 逆向备件库收货推出管0, 21类型通过接口调用推送
@@ -24,10 +24,10 @@ public class ReverseStockConsumer extends MessageBaseConsumer {
 	private ReverseReceiveNotifyStockService reverseReceiveNotifyStockService;
 	
 	public void consume(Message message) throws Exception {
-		Long waybillCode = this.reverseReceiveNotifyStockService.receive(message.getContent());
+		Long waybillCode = this.reverseReceiveNotifyStockService.receive(message.getText());
 		Boolean result = this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
 		
-		this.logger.info("Id:" + message.getId() + ", 处理结果：" + result);
+		this.logger.info("Id:" + message.getBusinessId() + ", 处理结果：" + result);
 		if(!result) throw new Exception(waybillCode+"推出管失败");
 	}
 }

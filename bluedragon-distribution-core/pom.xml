@@ -146,12 +146,12 @@
 			<artifactId>ojdbc6</artifactId>
 			<version>11.2</version>
 		</dependency>
-
+<!--
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>dbs</artifactId>
 		</dependency>
-
+-->
 		<!-- ws -->
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -362,7 +362,7 @@
 			<artifactId>preseparate-saf-client</artifactId>
 		    <version>1.2.8-SNAPSHOT</version>
 		</dependency>
-
+<!--
 		<dependency>
 			<groupId>com.jd.etms.message</groupId>
 			<artifactId>message-service</artifactId>
@@ -390,7 +390,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+		-->
 		<!--jsf  -->
 		<dependency>
 			<groupId>com.jd</groupId>
