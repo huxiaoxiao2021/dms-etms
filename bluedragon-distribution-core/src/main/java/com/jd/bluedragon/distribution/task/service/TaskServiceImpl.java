@@ -79,8 +79,10 @@ public class TaskServiceImpl implements TaskService {
         }
 
 		if (ifCheckTaskMode && isRedisSwitchON()) {
+			logger.info("isRedisSwitchON 写入redis队列1");
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */
 			if (taskModeAgent.isRedisTaskModeSupported(task)) {
+				logger.info("isRedisSwitchON 写入redis队列2");
 				boolean isRedisSucc = false;
 				try {
 					//在插入redis前给executetime赋值，防止Task.getExecuteTime()给赋系统时间造成，redis中重复任务json串不同问题

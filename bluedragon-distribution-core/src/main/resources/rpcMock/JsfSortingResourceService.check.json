@@ -1,6 +1,6 @@
 {  
-	"tp99" : "50",
-	"max": "1000",
+	"tp99" : "10",
+	"max": "50",
 	"returnValueConfig" :{
 		"siteType":1,
 		"siteName":"1",
