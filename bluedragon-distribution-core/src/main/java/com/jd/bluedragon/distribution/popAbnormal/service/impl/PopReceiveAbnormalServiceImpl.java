@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popAbnormal.dao.PopReceiveAbnormalDao;
@@ -18,7 +19,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +51,13 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
 
-	@Autowired
-	private MessageClient messageClient;
+    @Autowired
+    @Qualifier("dmsAbnormalSendMQ")
+    private DefaultJMQProducer dmsAbnormalSendMQ;
+
+    @Qualifier("receiveBdAbnormalSendMQ")
+    @Autowired
+    private DefaultJMQProducer receiveBdAbnormalSendMQ;
 
 	@Autowired
 	private PopReceiveAbnormalDao popReceiveAbnormalDao;
@@ -311,10 +317,10 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		
 		this.logger.info("pushMqToPop" + JsonHelper.toJson(popAbnormalSend));
 
-		this.messageClient.sendMessage("dms_abnormal_send", JsonHelper
-				.toJson(popAbnormalSend), String.valueOf(popAbnormalSend
-				.getSerialNumber())
-				+ "_" + String.valueOf(popAbnormalSend.getRetType()));
+		this.dmsAbnormalSendMQ.send(String.valueOf(popAbnormalSend
+                .getSerialNumber())
+                + "_" + String.valueOf(popAbnormalSend.getRetType()),JsonHelper
+                .toJson(popAbnormalSend));
 	}
 
 	private void pushMqToReceive(PopReceiveAbnormal popReceiveAbnormal,
@@ -338,10 +344,10 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		
 		this.logger.info("pushMqToReceive" + JsonHelper.toJson(popAbnormalSend));
 		
-		this.messageClient.sendMessage("receive_bd_abnormal_send", JsonHelper
-				.toJson(popAbnormalSend), String.valueOf(popAbnormalSend
-						.getSerialNumber())
-						+ "_" + String.valueOf(popAbnormalSend.getRetType()));
+		this.receiveBdAbnormalSendMQ.send(String.valueOf(popAbnormalSend
+                .getSerialNumber())
+                + "_" + String.valueOf(popAbnormalSend.getRetType()), JsonHelper
+                .toJson(popAbnormalSend));
 	}
 	
 	/**

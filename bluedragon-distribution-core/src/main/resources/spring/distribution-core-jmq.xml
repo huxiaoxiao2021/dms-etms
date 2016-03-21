@@ -22,6 +22,43 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <bean id="receiveArteryInfoMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="receive_artery_info"/>
+        <property name="timeout" value="1000"/>
+        <!--receive_artery_info", "收货发送给财务计费系统运输信息-->
+    </bean>
+    <bean id="wmsStockChuGuanMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="wms_stock_chuguanmsg"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="bdBlockerCompleteMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_blocker_complete"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="bdToJoslRejMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_to_josl_rej"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+
+    <bean id="bdPopReceivecountMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_pop_receivecount"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="dmsAbnormalSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dms_abnormal_send"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="receiveBdAbnormalSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="receive_bd_abnormal_send"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 

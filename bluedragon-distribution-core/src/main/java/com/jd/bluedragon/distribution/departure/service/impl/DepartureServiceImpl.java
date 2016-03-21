@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.departure.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
@@ -34,7 +35,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -43,6 +43,7 @@ import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,7 +95,9 @@ public class DepartureServiceImpl implements DepartureService {
 	private DepartureTmpDao departureTmpDao;
 
     @Autowired
-    private MessageClient messageClient;
+    @Qualifier("receiveArteryInfoMQ")
+    private DefaultJMQProducer receiveArteryInfoMQ;
+
 
 	public static final String CARCODE_MARK = "0";  // 按车次号查询
 
@@ -1135,7 +1138,7 @@ public class DepartureServiceImpl implements DepartureService {
 
             logger.info("推送干线计费信息 MQ 开始 " + ArteryInfoTask.getBody());
             try{
-                messageClient.sendMessage(MessageDestinationConstant.ReceiveToArteryMQ.getName(),ArteryInfoTask.getBody(),"" + dpr.getDepartureCarID());
+                receiveArteryInfoMQ.send("" + dpr.getDepartureCarID(),ArteryInfoTask.getBody());
             }catch(Exception e){
                 logger.error("执行干线计费信息任务发送MQ失败，失败原因 " + e);
                 taskService.doError(ArteryInfoTask);

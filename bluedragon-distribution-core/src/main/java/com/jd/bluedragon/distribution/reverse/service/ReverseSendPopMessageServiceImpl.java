@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.OrderItem;
 import com.jd.bluedragon.distribution.reverse.domain.PopMessage;
-import com.jd.etms.message.produce.client.MessageClient;
 
 /**
  * 
@@ -33,8 +32,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 	private WaybillCommonService waybillCommonService;
 	@Autowired
 	private ProductService productService;
-	@Autowired
-	private MessageClient messageClient;
+
 	private String SEND_KEY1 = "20_20";
 	private String SEND_KEY2 = "20_50";
 	private String sendKey;

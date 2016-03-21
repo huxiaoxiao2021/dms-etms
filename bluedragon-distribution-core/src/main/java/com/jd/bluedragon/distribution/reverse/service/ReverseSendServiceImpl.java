@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -22,6 +23,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -30,7 +32,6 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
-import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.product.domain.Product;
@@ -102,8 +103,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	@Autowired
 	private BlueDragonWebService lossWebService;
 
+    @Qualifier("bdToJoslRejMQ")
     @Autowired
-    private MessageProducer messageProducer;
+    private DefaultJMQProducer bdToJoslRejMQ;
 
 	// 自营
 	public static final Integer businessTypeONE = 10;
@@ -1277,7 +1279,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 sLogDetail.setContent(jsonStr);
         		
                 try {
-                    messageProducer.send("bd_to_josl_rej", jsonStr, wayBillCode);
+                    bdToJoslRejMQ.send(wayBillCode,jsonStr);
                     sLogDetail.setKeyword4(Long.valueOf(1));//表示发送成功
 				} catch (Exception e) {
                     logger.error("推送ECLP MQ 发生异常.", e);

@@ -137,7 +137,7 @@
     </bean>
     <!-- worker配置 数据源    -end-->
 
-	<bean class="com.jd.dbs.objectId.DbsGenerateObjectId" id="genObjectId">
+	<bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">
 		<property name="dataSource" ref="dms_main"/>
     </bean>
     
