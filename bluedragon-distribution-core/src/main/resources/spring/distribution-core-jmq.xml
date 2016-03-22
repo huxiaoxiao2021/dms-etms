@@ -128,6 +128,11 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <bean id="dmsModifyOrderInfoMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dms_modify_order_info"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
 
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>

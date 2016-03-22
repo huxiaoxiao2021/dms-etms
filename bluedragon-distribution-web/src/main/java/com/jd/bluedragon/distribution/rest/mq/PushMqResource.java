@@ -17,9 +17,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.UmpAlertRequest;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackagesRequest;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
-import com.jd.bluedragon.utils.SpringHelper;
-import com.jd.etms.message.Consumer;
-import com.jd.etms.message.Message;
 
 @Component
 @Path(Constants.REST_URL)

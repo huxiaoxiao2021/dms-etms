@@ -5,6 +5,7 @@ import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
@@ -18,7 +19,6 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.LableType;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
@@ -71,9 +72,9 @@ public class WaybillResource {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-
-	@Autowired
-	private MessageClient messageClient;
+    @Autowired
+    @Qualifier("dmsModifyOrderInfoMQ")
+    private DefaultJMQProducer dmsModifyOrderInfoMQ;
 
 	@Autowired
 	private TaskService taskService;
@@ -712,7 +713,8 @@ public class WaybillResource {
 		JdResponse jdResponse=new JdResponse();
 		try {
 			String json = JsonHelper.toJson(modifyOrderInfo);
-			messageClient.sendMessage("dms_modify_order_info", json, modifyOrderInfo.getOrderId());
+			//messageClient.sendMessage("dms_modify_order_info", json, modifyOrderInfo.getOrderId());
+            dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
 			jdResponse.setCode(200);
 			jdResponse.setMessage("成功");
 			logger.info("dms_modify_order_info执行订单修改电话或者地址发MQ成功 " + modifyOrderInfo.getOrderId());
