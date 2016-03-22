@@ -167,7 +167,7 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<util:properties id="mqsenderProperties" location="classpath:configured/mqsender.properties"></util:properties>
 	
 	<bean id="mesageClient" class="com.jd.etms.message.produce.client.factory.SingleClientFactory">
