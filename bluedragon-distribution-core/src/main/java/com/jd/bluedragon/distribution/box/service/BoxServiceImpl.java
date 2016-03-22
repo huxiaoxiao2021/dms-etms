@@ -96,15 +96,14 @@ public class BoxServiceImpl implements BoxService {
 			this.logger.info("商家站点打印箱号始发站");
 			BaseStaffSiteOrgDto dto = RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", box.getCreateSiteCode());
 			if (dto != null) {
-				this.logger.error("创建站点或接收站点信息为空.-始发站商家接口"
-						+ box.getCreateSiteCode());
 				BaseStaffSiteOrgDto createSite = RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", box.getCreateSiteCode());
 				if (createSite == null || createSite.getDmsSiteCode() == null) {
 					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
 							+ box.getCreateSiteCode());
 					return null;
 				} else
-					createSiteDms = createSite.getDmsSiteCode();
+					createSiteDms = "GS010F0";
+				receiveSiteDms="DC010F0";
 			}
 		} else {
 			BaseStaffSiteOrgDto createSite = RpcMockProxy.invokeRpc(BaseStaffSiteOrgDto.class, "BaseMajorManager.getBaseSiteBySiteId", box.getCreateSiteCode());
@@ -113,7 +112,8 @@ public class BoxServiceImpl implements BoxService {
 						+ box.getCreateSiteCode());
 				return null;
 			} else
-				createSiteDms = createSite.getDmsSiteCode();
+				createSiteDms = "GS010F0";
+			receiveSiteDms="DC010F0";
 		}
 
 		box.setUpdateUser(null);

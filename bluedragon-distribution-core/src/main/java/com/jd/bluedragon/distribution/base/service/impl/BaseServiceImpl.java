@@ -612,14 +612,7 @@ public class BaseServiceImpl implements BaseService {
 			}
 
 			//2.根据标识ID从基础资料中查询源类型
-			List<BaseDataDict> list = basicPrimaryWS
-					.getBaseDataDictList(taskModeNum, 2, taskModeNum);
-			for (BaseDataDict item : list) {
-				if (item.getTypeName().equalsIgnoreCase("redis")) {
-					mode = item.getTypeCode();
-					break;
-				}
-			}
+			mode = 1;
 
 		} catch (Exception e) {
 			log.error("getWorkerTaskMode 失败 ", e);
