@@ -6,7 +6,8 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+        default-autowire="byName">
 
     <!-- 调度服务器配置 -->
     <bean id="scheduleConfigCenter"
@@ -242,7 +243,7 @@
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReverseSendTask"/>
         <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
+        <property name="ownSign" value="DMS"/>
         <property name="type" value="1300"/>
         <property name="keyType" value="4"/>
         <property name="desc" value="逆向发货回传任务"/>

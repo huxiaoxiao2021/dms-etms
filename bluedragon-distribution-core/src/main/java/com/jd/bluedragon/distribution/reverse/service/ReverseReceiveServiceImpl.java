@@ -168,7 +168,25 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                      }
                 }
             }
-         }
+        } else if (source.getReceiveType() == 4) { //维修外单售后
+            ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getPackageCode(), source.getSendCode(),source.getReceiveType());
+            if (reverseReceivePO == null) {
+                this.logger.info("reverseReceivePO is null");
+                this.appentPickwareInfo(source, source.getPackageCode());
+                this.add(source);
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+            } else {
+                this.logger.info("reverseReceivePO is not null");
+                ReverseReceive reverseReceiveVO = new ReverseReceive();
+                BeanHelper.copyProperties(reverseReceiveVO, source);
+                reverseReceiveVO.setId(reverseReceivePO.getId());
+                reverseReceiveVO.setReceiveType(source.getReceiveType());
+                reverseReceiveVO.setReceiveTime(source.getReceiveTime());
+                this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
+                this.update(reverseReceiveVO);
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+            }
+        }
 
     	sendReportLoss(source);
     }
