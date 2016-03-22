@@ -268,9 +268,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			send.setPickWareCode(tSendDetail.getPickupCode());
 
 			try {
-				this.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
+				/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
 						"java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
-								+ tSendDetail.getPackageBarcode());
+								+ tSendDetail.getPackageBarcode());*/
 				try{
 					//业务流程监控, 售后埋点
 					Map<String, String> data = new HashMap<String, String>();

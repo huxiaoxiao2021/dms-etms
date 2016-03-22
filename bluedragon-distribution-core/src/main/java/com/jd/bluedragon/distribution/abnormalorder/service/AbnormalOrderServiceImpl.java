@@ -17,6 +17,7 @@ import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
@@ -152,8 +153,12 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		qualityControl.setReturnState("null");
 		log.warn("分拣中心外呼申请发质控消息为" + JsonHelper.toJson(qualityControl));
 		//messageClient.sendMessage(MessageDestinationConstant.QualityControlFXMMQ.getName(), JsonHelper.toJson(qualityControl),abnormalOrder.getOrderId());
-        bdDmsAbnormalOrderToQcMQ.send(abnormalOrder.getOrderId(),JsonHelper.toJson(qualityControl));
-	}
+        try {
+            bdDmsAbnormalOrderToQcMQ.send(abnormalOrder.getOrderId(),JsonHelper.toJson(qualityControl));
+        } catch (JMQException e) {
+            //wangtingweiDEBUG
+        }
+    }
 
 	public void toWaybillTraceWS(AbnormalOrder abnormalOrder){
 		BdTraceDto bdTraceDto = new BdTraceDto();
@@ -189,8 +194,12 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 			String body = JsonHelper.toJson(mq);
 			String busiId = mq.getOrderId();
 			//pushMqService.pubshMq(FXM_MQ_ADDRESS, body, busiId);
-            pushFXMMQ.send(busiId,body);
-		}
+            try {
+                pushFXMMQ.send(busiId, body);
+            } catch (JMQException e) {
+                //wangtingweiDEBUG
+            }
+        }
 	}
 	
 	private void pushWaybill(List<WaybillSyncParameter> waybillList){

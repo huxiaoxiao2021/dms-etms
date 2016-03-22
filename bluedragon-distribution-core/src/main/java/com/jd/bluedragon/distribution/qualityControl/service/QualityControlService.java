@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +118,11 @@ public class QualityControlService {
             logger.warn("分拣中心异常页面发质控和全程跟踪开始。运单号" + qualityControl.getWaybillCode());
             waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
             //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
-            bdExceptionToQcMQ.send(request.getQcValue(),JsonHelper.toJson(qualityControl));
+            try {
+                bdExceptionToQcMQ.send(request.getQcValue(), JsonHelper.toJson(qualityControl));
+            } catch (JMQException e) {
+                //wangtingweiDEBUG
+            }
         }
     }
 

@@ -18,6 +18,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -122,7 +123,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         taskService.add(tTask);
         this.logger.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
-        bdBlockerCompleteMQ.send(domain.getOldCode(),createMqBody(domain.getOldCode()));
+        try {
+            bdBlockerCompleteMQ.send(domain.getOldCode(),createMqBody(domain.getOldCode()));
+        } catch (JMQException e) {
+            //wangtingweiDEBUG
+        }
 
         OperationLog operationLog=new OperationLog();
         operationLog.setCreateTime(new Date());

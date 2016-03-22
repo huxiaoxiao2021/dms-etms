@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -166,7 +167,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 			result.append(waybillCode).append("逆向回传POP发送的消息体：【 " + xmlMessage + "】,send_key:" + sendKey+".\r\n");
 			//messageClient.sendMessage(sendKey, xmlMessage, waybillCode);
             pushMessage(sendKey,waybillCode,xmlMessage);
-		    result.append(waybillCode).append("逆向回传POP发送的消息体：【 " + xmlMessage + "】,发送成功\r\n" );
+		    result.append(waybillCode).append("逆向回传POP发送的消息体：【 " + xmlMessage + "】,发送成功\r\n");
 			return result.toString();
 		} catch (Exception e) {
 			result.append(e).append("\r\n");
@@ -178,10 +179,18 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 
     private final void pushMessage(String popMqType,String businessId,String text){
         if(this.SEND_KEY1.equals(popMqType)){
-            this.q20_20MQ.send(businessId,text);
+            try {
+                this.q20_20MQ.send(businessId,text);
+            } catch (JMQException e) {
+                //wangtingweiDEBUGe.printStackTrace();
+            }
         }
         if(this.SEND_KEY2.equals(popMqType)){
-            this.q20_50MQ.send(businessId,text);
+            try {
+                this.q20_50MQ.send(businessId,text);
+            } catch (JMQException e) {
+                //wangtingweiDEBUG
+            }
         }
     }
 	

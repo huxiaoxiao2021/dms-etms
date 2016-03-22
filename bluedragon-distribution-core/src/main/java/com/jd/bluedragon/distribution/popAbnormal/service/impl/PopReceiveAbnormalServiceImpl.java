@@ -23,6 +23,7 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -316,11 +317,14 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		popAbnormalSend.setRetType(retType);
 		
 		this.logger.info("pushMqToPop" + JsonHelper.toJson(popAbnormalSend));
-
+        try{
 		this.dmsAbnormalSendMQ.send(String.valueOf(popAbnormalSend
                 .getSerialNumber())
                 + "_" + String.valueOf(popAbnormalSend.getRetType()),JsonHelper
-                .toJson(popAbnormalSend));
+                .toJson(popAbnormalSend));}
+        catch (Throwable throwable){
+            //wangtingweiDEBUG
+        }
 	}
 
 	private void pushMqToReceive(PopReceiveAbnormal popReceiveAbnormal,
@@ -343,12 +347,16 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		
 		
 		this.logger.info("pushMqToReceive" + JsonHelper.toJson(popAbnormalSend));
-		
-		this.receiveBdAbnormalSendMQ.send(String.valueOf(popAbnormalSend
-                .getSerialNumber())
-                + "_" + String.valueOf(popAbnormalSend.getRetType()), JsonHelper
-                .toJson(popAbnormalSend));
-	}
+
+        try {
+            this.receiveBdAbnormalSendMQ.send(String.valueOf(popAbnormalSend
+.getSerialNumber())
++ "_" + String.valueOf(popAbnormalSend.getRetType()), JsonHelper
+.toJson(popAbnormalSend));
+        } catch (JMQException e) {
+            //wangtingweiDEBUG
+        }
+    }
 	
 	/**
 	 * 转换运单基本信息
