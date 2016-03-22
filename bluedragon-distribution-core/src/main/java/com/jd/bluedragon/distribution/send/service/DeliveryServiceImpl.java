@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -43,7 +44,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -103,9 +103,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ReverseSpareDao reverseSpareDao;
-
-    @Autowired
-    private MessageClient messageClient;
 
     @Autowired
     private BoxService boxService;
@@ -179,6 +176,14 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Resource
     @Qualifier("workerProducer")
     private MessageProducer workerProducer;
+
+    @Qualifier("pop1MQ")
+    @Autowired
+    private DefaultJMQProducer pop1MQ;
+
+    @Autowired
+    @Qualifier("turnoverBoxMQ")
+    private DefaultJMQProducer turnoverBoxMQ;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -1365,7 +1370,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 		sb.append("</OrderSendDetail>");
 
 		this.logger.info("snedMQpop----snedMQpop----" + sb.toString());
-		messageClient.sendMessage("pop1", sb.toString(), tSendDatail.getWaybillCode());
+		//messageClient.sendMessage("pop1", sb.toString(), tSendDatail.getWaybillCode());
+        pop1MQ.send(tSendDatail.getWaybillCode(),sb.toString());
 	}
 
     private boolean canSuccess(WaybillStatus tWaybillStatus ,SendDetail tSendDatail) {
@@ -1519,7 +1525,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 					tTurnoverBoxInfo.setSendCode(newSendM.getSendCode());
 					tTurnoverBoxInfo.setTurnoverBoxCode(newSendM.getTurnoverBoxCode());
 					String body = JsonHelper.toJson(tTurnoverBoxInfo);
-					messageClient.sendMessage("turnover_box", body, newSendM.getSendCode());
+					//messageClient.sendMessage("turnover_box", body, newSendM.getSendCode());
+                    turnoverBoxMQ.send(newSendM.getSendCode(),body);
 				}
 			}
 		}

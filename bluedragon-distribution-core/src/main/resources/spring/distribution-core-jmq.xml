@@ -58,6 +58,76 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <bean id="pop1MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="pop1"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="turnoverBoxMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="turnover_box"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="pickwarePushMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="pickware_push"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="bdExceptionToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_exception_to_qc"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="dmsRouterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dms_router"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="logisticsCompensationMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="logisticsCompensation"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="dmsSendLossMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dms_send_loss"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="pushFXMMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="pushFXM"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="orbrefundRqMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="orbrefundRq"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="packageMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="package"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="dmsPopPickupMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dms_pop_pickup"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="bdDmsAbnormalOrderToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_dms_abnormal_order_to_qc"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="q20_50MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="20_50"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
+    <bean id="q20_20MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="20_20"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
 
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>

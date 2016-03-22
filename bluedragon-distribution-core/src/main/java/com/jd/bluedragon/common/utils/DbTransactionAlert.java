@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.utils;
 
-import com.jd.dbs.transaction.TransactionManagerAlert;
+
+import com.jd.bluedragon.core.dbs.transaction.TransactionManagerAlert;
 
 public class DbTransactionAlert implements TransactionManagerAlert {
 

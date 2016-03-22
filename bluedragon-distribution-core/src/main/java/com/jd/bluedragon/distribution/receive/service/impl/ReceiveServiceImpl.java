@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
 import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
@@ -30,7 +31,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -40,6 +40,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +71,12 @@ public class ReceiveServiceImpl implements ReceiveService {
 	private CenConfirmService cenConfirmService;
 
 	@Autowired
-	private MessageClient messageClient;
+    @Qualifier("turnoverBoxMQ")
+    private DefaultJMQProducer turnoverBoxMQ;
+
+    @Autowired
+    @Qualifier("pickwarePushMQ")
+    private DefaultJMQProducer pickwarePushMQ;
 
 	@Autowired
 	private TurnoverBoxDao turnoverBoxDao;
@@ -248,8 +254,8 @@ public class ReceiveServiceImpl implements ReceiveService {
 				.getCreateTime()));
 		turnoverBoxInfo.setFlowFlag(receive.getReceiveType().toString());
 		try {
-			messageClient.sendMessage("turnover_box",
-					JsonHelper.toJson(turnoverBoxInfo), receive.getBoxCode());
+			//messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo), receive.getBoxCode());
+            turnoverBoxMQ.send(receive.getBoxCode(),JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
 			log.error("分拣中心收货推送MQ[周转箱]信息失败：" + e.getMessage(), e);
 		}
@@ -271,8 +277,8 @@ public class ReceiveServiceImpl implements ReceiveService {
 		try {
 		    String json=JsonHelper.toJson(pickWare);
 		    log.info("分拣中心收货推送MQ[备件库-取件单]json:["+json+"]");
-			messageClient.sendMessage("pickware_push",
-					json, receive.getBoxCode());
+			//messageClient.sendMessage("pickware_push",json, receive.getBoxCode());
+            pickwarePushMQ.send(receive.getBoxCode(),json);
 		} catch (Exception e) {
 			log.error("分拣中心收货推送MQ[备件库-取件单]信息失败["+receive.getBoxCode()+"]:" + e.getMessage(), e);
 		}
@@ -413,9 +419,8 @@ public class ReceiveServiceImpl implements ReceiveService {
 		}
 		try {
 		    log.info("分拣中心推送监控MQ[空周转箱]信息："+JsonHelper.toJson(turnoverBoxInfo));
-			messageClient.sendMessage("turnover_box",
-					JsonHelper.toJson(turnoverBoxInfo),
-					turnoverBoxInfo.getTurnoverBoxCode());
+			//messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo),turnoverBoxInfo.getTurnoverBoxCode());
+            turnoverBoxMQ.send(turnoverBoxInfo.getTurnoverBoxCode(),JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
 			log.error("分拣中心推送监控MQ[空周转箱]信息失败：" + e.getMessage(), e);
 		}

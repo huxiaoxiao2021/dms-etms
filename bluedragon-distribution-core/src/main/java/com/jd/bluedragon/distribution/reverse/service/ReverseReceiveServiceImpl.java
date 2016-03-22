@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -20,11 +21,11 @@ import com.jd.bluedragon.distribution.waybill.service.PickwareService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,10 +48,15 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
     
     @Autowired
     private OperationLogService operationLogService;
-    
+
     @Autowired
-	private MessageClient messageClient;
-    
+    @Qualifier("logisticsCompensationMQ")
+    private DefaultJMQProducer logisticsCompensationMQ;
+
+    @Autowired
+    @Qualifier("dmsSendLossMQ")
+    private  DefaultJMQProducer dmsSendLossMQ;
+
     @Autowired
     private BaseMajorManager baseMajorManager;
     
@@ -160,7 +166,8 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                          sendVo.setBusinessDate(source.getReceiveTime());
                          sendVo.setWaybillCode(source.getOrderId());
                          try{
-                     		messageClient.sendMessage("logisticsCompensation", JsonHelper.toJson(sendVo),sendVo.getWaybillCode());
+                     		    //messageClient.sendMessage("logisticsCompensation", JsonHelper.toJson(sendVo),sendVo.getWaybillCode());
+                                logisticsCompensationMQ.send(sendVo.getWaybillCode(),JsonHelper.toJson(sendVo));
                      		}catch (Exception e) {
                      			this.logger.error("分拣中心逆向收货:备件库收货[三方七折]推送财务mq信息失败：" + e.getMessage(),e);
                      		}
@@ -230,7 +237,8 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	    	logger.error("青龙逆向发货后回传报损系统MQ orderid为" + orderId);
 	    	logger.error("青龙逆向发货后回传报损系统MQ json为"+jsonStr);
     	
-			this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+			//this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+            dmsSendLossMQ.send(orderId,jsonStr);
 			logger.info("青龙逆向发货后回传报损系统MQ消息成功，订单号为" + orderId);
 		} catch (Exception e) {
 			logger.error("青龙逆向发货后回传报损系统MQ消息失败，订单号为" + orderId, e);

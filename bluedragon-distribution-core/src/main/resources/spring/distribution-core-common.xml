@@ -81,10 +81,10 @@
 		<property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
 	</bean>
 
-	<bean id="dataSources" class="com.jd.dbs.datasources.DefaultDataSourceService">
+	<bean id="dataSources" class="com.jd.bluedragon.core.dbs.datasources.DefaultDataSourceService">
 		<property name="dataSourceDescriptors">
 			<set>
-				<bean class="com.jd.dbs.datasources.DataSourceDescriptor">
+				<bean class="com.jd.bluedragon.core.dbs.datasources.DataSourceDescriptor">
 					<property name="identity" value="dms"/>
 					<property name="mainDataSource" ref="dms_main"/>
 					<property name="threadPoolSize"  value="10"/>
@@ -96,7 +96,7 @@
 	<bean id="transactionAlert" class="com.jd.bluedragon.common.utils.DbTransactionAlert" />
 	
 	<bean id="transactionManager"
-		class="com.jd.dbs.transaction.MultiDataSourcesTransactionManager">
+		class="com.jd.bluedragon.core.dbs.transaction.MultiDataSourcesTransactionManager">
 		<property name="dataSourceService" ref="dataSources" />
 		<property name="transactionAlert" ref="transactionAlert" />
 		<property name="transactionTrigger" ref="mesageClient" />
@@ -104,7 +104,7 @@
 	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 
-	<bean id="sessionTemplate" class="com.jd.dbs.DBSqlSessionTemplate">
+	<bean id="sessionTemplate" class="com.jd.bluedragon.core.dbs.DBSqlSessionTemplate">
 		<constructor-arg index="0" ref="dataSources" />		
 		<constructor-arg index="1" value="dms" />		
 		<property name="configLocation" value="classpath:mybatis-config.xml"/>	

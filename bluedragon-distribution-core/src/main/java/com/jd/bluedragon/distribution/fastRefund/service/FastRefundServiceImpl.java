@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.fastRefund.service;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
 import com.jd.bluedragon.distribution.fastRefund.domain.OrderCancelReq;
@@ -23,6 +24,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,10 @@ import java.util.Date;
 
 @Service
 public class FastRefundServiceImpl implements FastRefundService{
+
+    @Autowired
+    @Qualifier("orbrefundRqMQ")
+    private DefaultJMQProducer orbrefundRqMQ;
 
 	@Autowired
 	WaybillService waybillService;
@@ -86,7 +92,8 @@ public class FastRefundServiceImpl implements FastRefundService{
 
     	String json = JsonHelper.toJson(fastRefund);
     	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM接口 body:" + json);
-    	mqService.pubshMq(MQ_KEY, json, waybillCode);
+    	//mqService.pubshMq(MQ_KEY, json, waybillCode);
+        orbrefundRqMQ.send(waybillCode,json);
     	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM FINISH");
     	return FastRefundService.SUCCESS;
 	}

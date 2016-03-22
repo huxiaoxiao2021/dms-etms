@@ -51,7 +51,6 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.loss.client.BlueDragonWebService;
@@ -66,8 +65,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 	private final Logger logger = Logger.getLogger(ReverseSendServiceImpl.class);
 
-	@Autowired
-	private MessageClient messageClient;
 
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
@@ -85,6 +82,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	@Autowired
 	SpareService spareService;
 
+    @Autowired
+    @Qualifier("dmsSendLossMQ")
+    private DefaultJMQProducer dmsSendLossMQ;
 	@Autowired
 	private SendMDao sendMDao;
 
@@ -1219,7 +1219,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 	    	logger.error("青龙逆向发货后回传报损系统锁定MQ json为"+jsonStr);
     	
     	
-			this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+			//this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+            dmsSendLossMQ.send(orderId,jsonStr);
 			logger.info("青龙逆向发货后回传报损系统锁定MQ消息成功，订单号为" + orderId);
 		} catch (Exception e) {
 			logger.error("青龙逆向发货后回传报损系统锁定MQ消息失败，订单号为" + orderId, e);
