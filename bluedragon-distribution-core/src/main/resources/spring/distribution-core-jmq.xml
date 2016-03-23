@@ -133,6 +133,11 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <bean id="bdDmsReverseSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_dms_reverse_send"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
 
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>

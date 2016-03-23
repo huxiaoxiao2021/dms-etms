@@ -65,6 +65,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 	private final Logger logger = Logger.getLogger(ReverseSendServiceImpl.class);
 
+    @Autowired
+    @Qualifier("bdDmsReverseSendMQ")
+    private DefaultJMQProducer bdDmsReverseSendMQ;
 
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
@@ -271,6 +274,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 				/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
 						"java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
 								+ tSendDetail.getPackageBarcode());*/
+
+                bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
+                        + tSendDetail.getPackageBarcode(),JsonHelper.toJson(send));
 				try{
 					//业务流程监控, 售后埋点
 					Map<String, String> data = new HashMap<String, String>();
