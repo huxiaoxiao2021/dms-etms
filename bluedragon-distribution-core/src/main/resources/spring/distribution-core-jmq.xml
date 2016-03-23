@@ -40,38 +40,38 @@
     <bean id="bdToJoslRejMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_to_josl_rej"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已认证worker配置文件-->
     </bean>
 
     <bean id="bdPopReceivecountMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_pop_receivecount"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--未找到-->
     </bean>
     <bean id="dmsAbnormalSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_abnormal_send"/>
+        <property name="topic" value="bd_abnormal_send"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改topic-->
     </bean>
     <bean id="receiveBdAbnormalSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="receive_bd_abnormal_send"/>
+        <property name="topic" value="dms_abnormal_send"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="pop1MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="pop1"/>
+        <property name="topic" value="20_90"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="turnoverBoxMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="turnover_box"/>
+        <property name="topic" value="bd_monitor_turnover_report"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="pickwarePushMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="pickware_push"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--未找到-->
     </bean>
     <bean id="bdExceptionToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_exception_to_qc"/>
@@ -81,22 +81,22 @@
     <bean id="dmsRouterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="dms_router"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--未找到-->
     </bean>
     <bean id="logisticsCompensationMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="logisticsCompensation"/>
+        <property name="topic" value="bd_return_stock"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="dmsSendLossMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_send_loss"/>
+        <property name="topic" value="bd_dms_reverse_loss"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="pushFXMMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="pushFXM"/>
+        <property name="topic" value="bd_dms_abnormal_order"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="orbrefundRqMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="orbrefundRq"/>
@@ -104,9 +104,9 @@
         <!---->
     </bean>
     <bean id="packageMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="package"/>
+        <property name="topic" value="bd_order_package"/>
         <property name="timeout" value="1000"/>
-        <!---->
+        <!--已修改主题-->
     </bean>
     <bean id="dmsPopPickupMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="dms_pop_pickup"/>
