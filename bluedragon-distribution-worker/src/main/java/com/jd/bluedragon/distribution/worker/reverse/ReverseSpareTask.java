@@ -3,11 +3,11 @@ package com.jd.bluedragon.distribution.worker.reverse;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author zhaohc
@@ -39,8 +40,9 @@ public class ReverseSpareTask extends DBSingleScheduler {
 	@Autowired
 	private ReverseSpareService reverseSpareService;
 
-	@Autowired
-	private MessageClient messageClient;
+    @Autowired
+    @Qualifier("bdExceptionToQcMQ")
+    private DefaultJMQProducer bdExceptionToQcMQ;
 
 	@Autowired
 	private WaybillTraceApi waybillTraceApi;
@@ -107,8 +109,13 @@ public class ReverseSpareTask extends DBSingleScheduler {
 		QualityControl qualityControl = convert2QualityControl(request);
 		logger.warn("分拣中心备件库分拣发质控和全程跟踪开始。运单号 " + request.getWaybillCode());
 		waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
-		messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
-	}
+		//messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
+        try {
+            bdExceptionToQcMQ.send(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), JsonHelper.toJson(qualityControl));
+        }catch (Throwable throwable){
+            //wangtingweiDEBUG
+        }
+    }
 
 
 	public BdTraceDto convert2WaybillTrace(SendDetail sendDetail, ReverseSpareRequest request){

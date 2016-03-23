@@ -92,7 +92,7 @@
 			</set>
 		</property>	
 	</bean>
-	
+	<!--
 	<bean id="transactionAlert" class="com.jd.bluedragon.common.utils.DbTransactionAlert" />
 	
 	<bean id="transactionManager"
@@ -101,8 +101,9 @@
 		<property name="transactionAlert" ref="transactionAlert" />
 		<property name="transactionTrigger" ref="mesageClient" />
 	</bean>
-	
-	<tx:annotation-driven transaction-manager="transactionManager"/>
+	-->
+	<!--
+	<tx:annotation-driven transaction-manager="transactionManager"/>-->
 
 	<bean id="sessionTemplate" class="com.jd.bluedragon.core.dbs.DBSqlSessionTemplate">
 		<constructor-arg index="0" ref="dataSources" />		
@@ -167,16 +168,16 @@
 			</list>
 		</property>
 	</bean>
-
+    <!--
 	<util:properties id="mqsenderProperties" location="classpath:configured/mqsender.properties"></util:properties>
 	
-	<bean id="mesageClient" class="com.jd.etms.message.produce.client.factory.SingleClientFactory">
+	<bean id="mesageClient" class="com.jd.bluedragon.core.message.produce.client.factory.SingleClientFactory">
 		<property name="appName" value="dms-distribution"/>
 		<property name="properties" ref="mqsenderProperties" />
 		<property name="dataSource" ref="centerDataSource"/>
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
-
+    -->
 	<!-- ump monitor begin common-->
 	<!-- aop动态代理 --> 
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
