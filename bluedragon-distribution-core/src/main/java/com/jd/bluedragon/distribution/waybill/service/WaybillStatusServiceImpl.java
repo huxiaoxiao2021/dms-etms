@@ -270,6 +270,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.taskService.doDone(task);
 				task.setYn(0);
 			}
+            //驻场验货 发全程跟踪  新增节点 1150
+            if(tWaybillStatus.getOperateType().equals(1150)){
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getCreateSiteName()+ "已验货");
+                if(null==tWaybillStatus.getCreateSiteCode()){
+                    tWaybillStatus.setCreateSiteCode(task.getCreateSiteCode());
+                    tWaybillStatus.setCreateSiteName(siteService.getSite(task.getCreateSiteCode()).getSiteName());
+                }
+                this.logger.info("向运单系统回传全程跟踪，驻场 验货：" );
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                this.taskService.doDone(task);
+                task.setYn(0);
+            }
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_SHREVERSE))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				//操作单位更改为收货单位

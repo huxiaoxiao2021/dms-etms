@@ -70,7 +70,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			}
 		}else if(Constants.BUSSINESS_TYPE_SITE==cenConfirm.getType()){
 			cenConfirm.setOperateType(Constants.OPERATE_TYPE_PSY);
-		}
+		}else if(Constants.BUSSINESS_TYPE_InFactory==cenConfirm.getType()){
+            cenConfirm.setOperateType(Constants.OPERATE_TYPE_In);
+        }
 		if (Constants.NO_MATCH_DATA == cenConfirmDao
 				.updateFillField(cenConfirm)) {
 			cenConfirmDao.add(CenConfirmDao.namespace, cenConfirm);// 不存在添加
@@ -107,7 +109,12 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
 			if (Constants.BUSSINESS_TYPE_POP == cenConfirm.getType().intValue()) {
 				cenConfirm.setOperateType(Constants.POP_HANDOVER_OPERATE_TYPE);
-			} else if (Constants.BUSSINESS_TYPE_SITE == cenConfirm
+			}
+            else if (Constants.BUSSINESS_TYPE_InFactory == cenConfirm.getType().intValue())
+            {
+                cenConfirm.setOperateType(Constants.OPERATE_TYPE_In);
+            }
+            else if (Constants.BUSSINESS_TYPE_SITE == cenConfirm
 					.getType().intValue()) {
 				cenConfirm.setOperateType(Constants.OPERATE_TYPE_PSY);
 			} else if (Constants.BUSSINESS_TYPE_TRANSFER == cenConfirm
@@ -135,11 +142,11 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			// 收货表中只抽取大件包裹数据
 			cenConfirm
 					.setWaybillCode(((receive.getWaybillCode() == null) ? "-1"
-							: receive.getWaybillCode()));
+                            : receive.getWaybillCode()));
 			cenConfirm.setBoxCode(receive.getBoxCode());
 			cenConfirm
 					.setPackageBarcode(((receive.getPackageBarcode() == null) ? "-1"
-							: receive.getPackageBarcode()));
+                            : receive.getPackageBarcode()));
 			cenConfirm.setType(receive.getReceiveType());
 			cenConfirm.setCreateTime(receive.getCreateTime());
 			cenConfirm.setUpdateTime(receive.getUpdateTime());
@@ -248,9 +255,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return cenConfirm;
 	}
 	public void syncWaybillStatusTask(CenConfirm cenConfirm) {
-		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
-				.getCreateSiteCode());
+		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm.getCreateSiteCode());
 		BaseStaffSiteOrgDto rDto = null;
+        //cenConfirm.setReceiveSiteCode(39);
 		String message = getTipsMessage(cenConfirm);
 		if (cenConfirm.getReceiveSiteCode() != null&&Constants.BUSSINESS_TYPE_FC!=cenConfirm.getType().intValue()) {
 			rDto = baseService.getSiteBySiteID(cenConfirm.getReceiveSiteCode());
@@ -289,7 +296,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				bDto, rDto);
 		tWaybillStatus=setOperateType(cenConfirm, tWaybillStatus);
 		// 设置POP包裹号为运单号
-		if (Constants.BUSSINESS_TYPE_POP == cenConfirm.getType() || Constants.BUSSINESS_TYPE_SITE == cenConfirm.getType()) {
+		if (Constants.BUSSINESS_TYPE_POP == cenConfirm.getType() || Constants.BUSSINESS_TYPE_SITE == cenConfirm.getType()|| Constants.BUSSINESS_TYPE_InFactory == cenConfirm.getType()) {
 			if (StringUtils.isBlank(tWaybillStatus.getPackageCode()) || "-1".equals(tWaybillStatus.getPackageCode())) {
 				tWaybillStatus.setPackageCode(tWaybillStatus.getWaybillCode());
 			} else {
@@ -350,7 +357,11 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				.getType().intValue()){
 			tWaybillStatus
 			.setOperateType(WaybillStatus.WAYBILL_TRACK_RCD);
-		}
+		}else if(Constants.BUSSINESS_TYPE_InFactory == cenConfirm
+                .getType().intValue()){
+            tWaybillStatus
+                    .setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_POP_InFactory);
+        }
 		return tWaybillStatus;
 	}
 
@@ -454,7 +465,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	}
 
 	private Integer separateType(WaybillStatus tWaybillStatus, Integer smallType) {
-		 if(Constants.OPERATE_TYPE_FC==smallType.intValue()||Constants.OPERATE_TYPE_RCD==smallType.intValue()||Constants.OPERATE_TYPE_SH==smallType.intValue()){
+		 if(Constants.OPERATE_TYPE_FC==smallType.intValue()||Constants.OPERATE_TYPE_RCD==smallType.intValue()||Constants.OPERATE_TYPE_SH==smallType.intValue() ||Constants.OPERATE_TYPE_In==smallType.intValue() ){
 			return Task.TASK_TYPE_WAYBILL_TRACK;
 		 }else{
 			return tWaybillStatus.getOperateType();
@@ -462,7 +473,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	}
 
 	private String getTableByType(Integer smallType) {
-		if(Constants.OPERATE_TYPE_FC==smallType.intValue()||Constants.OPERATE_TYPE_RCD==smallType.intValue()||Constants.OPERATE_TYPE_SH==smallType.intValue()){
+		if(Constants.OPERATE_TYPE_FC==smallType.intValue()||Constants.OPERATE_TYPE_RCD==smallType.intValue()||Constants.OPERATE_TYPE_SH==smallType.intValue() ||Constants.OPERATE_TYPE_In==smallType.intValue()){
 			return Task.TABLE_NAME_POP;
 		}else{
 		 return	Task.TABLE_NAME_WAYBILL;
