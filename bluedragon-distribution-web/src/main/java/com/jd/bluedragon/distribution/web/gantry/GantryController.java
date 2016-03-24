@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.authorization.RestAuthorization;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import org.apache.commons.logging.Log;
@@ -43,6 +44,9 @@ public class GantryController {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    private RestAuthorization restAuthorization;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String gantryPageList(Model model) {
@@ -193,7 +197,7 @@ public class GantryController {
             }
             params.putAll(ObjectMapHelper.makeObject2Map(pager));
 
-            List<GantryDevice> deviceList = gantryDeviceService.getGantryPage(params);
+            List<GantryDevice> deviceList = buildToken(gantryDeviceService.getGantryPage(params));
             Integer totalSize = gantryDeviceService.getGantryCount(params);
             pager.setTotalSize(totalSize);
             pager.setData(deviceList);
@@ -222,5 +226,12 @@ public class GantryController {
             param.put("supplier", request.getSupplier());
         }
         return param;
+    }
+
+    private List<GantryDevice> buildToken(List<GantryDevice> gantryDevices){
+        for(GantryDevice gantryDevice : gantryDevices){
+            gantryDevice.setToken(restAuthorization.generateAuthorizationCode(String.valueOf(gantryDevice.getMachineId())));
+        }
+        return gantryDevices;
     }
 }

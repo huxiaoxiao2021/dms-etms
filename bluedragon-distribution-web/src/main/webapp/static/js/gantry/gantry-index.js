@@ -154,6 +154,7 @@ function doQuery(params) {
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
                 temp += "<td>" + (dataList[i].machineId) + "</td>";
+                temp += "<td>" + (dataList[i].token) + "</td>";
                 temp += "<td>" + (null == dataList[i].serialNumber ? "" : dataList[i].serialNumber) + "</td>";
                 temp += "<td>" + (dataList[i].orgName) + "</td>";
                 temp += "<td>" + (dataList[i].siteName) + "</td>";

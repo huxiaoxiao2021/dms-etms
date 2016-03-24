@@ -14,6 +14,9 @@ public class GantryDevice {
     /**龙门架设备编号*/
     private Long machineId;
 
+    /**龙门架授权码*/
+    private String token;
+
     /**龙门架设备序列号*/
     private String serialNumber;
 
@@ -163,6 +166,14 @@ public class GantryDevice {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public static GantryDevice fromGantryRequest(GantryDeviceRequest request){

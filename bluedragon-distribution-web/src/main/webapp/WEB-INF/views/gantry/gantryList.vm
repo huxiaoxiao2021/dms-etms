@@ -101,6 +101,7 @@
                         <thead>
                         <tr>
                             <th style="width:40px;">龙门架编号</th>
+                            <th style="width:40px;">授权码（Token）</th>
                             <th style="width:50px;">序列号</th>
                             <th style="width:50px;">区域</th>
                             <th style="width:50px;">分拣中心</th>
