@@ -111,6 +111,11 @@ public class GantryDeviceConfig {
      */
     private String lockUserName;
 
+    /*
+    数据库时间
+     */
+    private Date dbTime;
+
     private Integer yn;
 
     public Long getId() {
@@ -255,6 +260,14 @@ public class GantryDeviceConfig {
 
     public void setLockUserName(String lockUserName) {
         this.lockUserName = lockUserName;
+    }
+
+    public Date getDbTime() {
+        return dbTime;
+    }
+
+    public void setDbTime(Date dbTime) {
+        this.dbTime = dbTime;
     }
 
     public Integer getYn() {

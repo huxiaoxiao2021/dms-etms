@@ -33,6 +33,12 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
         return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findAllGantryDeviceCurrentConfig", hashMap);
     }
 
+    public GantryDeviceConfig checkSendCode(String sendCode) {
+        HashMap<String,Object> hashMap=new HashMap<String, Object>();
+        hashMap.put("sendCode",sendCode);
+        return (GantryDeviceConfig) super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".checkSendCode", hashMap);
+    }
+
     public Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig) {
         return super.getSqlSession().update(namespace + ".update", gantryDeviceConfig);
     }
@@ -44,4 +50,5 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
     public int updateBusinessType(GantryDeviceConfig gantryDeviceConfig) {
         return super.getSqlSession().update(namespace + ".updateBusinessType", gantryDeviceConfig);
     }
+
 }

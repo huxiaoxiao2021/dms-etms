@@ -37,4 +37,6 @@ public interface GantryDeviceConfigService {
     int updateLockStatus(GantryDeviceConfig gantryDeviceConfig);
 
     int updateBusinessType(GantryDeviceConfig gantryDeviceConfig);
+
+    GantryDeviceConfig checkSendCode(String sendCode);
 }

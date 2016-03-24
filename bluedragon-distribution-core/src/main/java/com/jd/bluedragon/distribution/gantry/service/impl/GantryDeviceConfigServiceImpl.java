@@ -59,6 +59,11 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
     }
 
     @Override
+    public GantryDeviceConfig checkSendCode(String sendCode) {
+        return gantryDeviceConfigDao.checkSendCode(sendCode);
+    }
+
+    @Override
     public Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig) {
         return gantryDeviceConfigDao.updateGantryDeviceConfigStatus(gantryDeviceConfig);
     }

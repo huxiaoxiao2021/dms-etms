@@ -20,6 +20,7 @@
         <result column="lock_status" property="lockStatus"/>
         <result column="lock_user_erp" property="lockUserErp"/>
         <result column="lock_user_name" property="lockUserName"/>
+        <result column="SYSDATE" property="dbTime"/>
         <result column="yn" property="yn"/>
     </resultMap>
 
@@ -38,11 +39,11 @@
     </insert>
 
     <select id="findMaxStartTimeGantryDeviceConfigByMachineId" resultMap="gantryDeviceConfig"
-            parameterType="gantryDeviceConfig">
+            parameterType="java.util.Map">
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn
+        yn,SYSDATE
         FROM gantry_device_config WHERE machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
         AND yn = 1
@@ -52,11 +53,11 @@
         AND yn = 1)
     </select>
 
-    <select id="findGantryDeviceConfig" resultMap="gantryDeviceConfig" parameterType="gantryDeviceConfig">
+    <select id="findGantryDeviceConfig" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn
+        yn,SYSDATE
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
@@ -84,11 +85,17 @@
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn
+        yn,SYSDATE
         FROM gantry_device_config
         WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and end_time is null
         AND yn = 1
+    </select>
+    <select id="checkSendCode" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
+        SELECT id
+        FROM gantry_device_config
+        WHERE send_code = #{sendCode,jdbcType=VARCHAR}
+        AND yn = 1 ROWNUM <![CDATA[<=]]> 1
     </select>
 
     <update id="updateLockStatus" parameterType="gantryDeviceConfig">

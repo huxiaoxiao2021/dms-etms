@@ -110,6 +110,8 @@ public class GantryDeviceConfig extends JdObject {
      */
     private String lockUserName;
 
+    private Date dbTime;
+
     private Integer yn;
 
     public Long getId() {
@@ -254,6 +256,14 @@ public class GantryDeviceConfig extends JdObject {
 
     public void setLockUserName(String lockUserName) {
         this.lockUserName = lockUserName;
+    }
+
+    public Date getDbTime() {
+        return dbTime;
+    }
+
+    public void setDbTime(Date dbTime) {
+        this.dbTime = dbTime;
     }
 
     public Integer getYn() {

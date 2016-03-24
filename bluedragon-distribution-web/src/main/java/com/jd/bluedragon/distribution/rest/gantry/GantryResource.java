@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.gantry;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.response.GantryDeviceResponse;
@@ -9,9 +10,13 @@ import com.jd.bluedragon.utils.BeanHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +25,10 @@ import java.util.List;
  * @version 1.0
  * @date 2016/3/10
  */
+@Component
+@Path(Constants.REST_URL)
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
 public class GantryResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -31,8 +40,7 @@ public class GantryResource {
     @Path("/gantryDevice/findAllGantryDevice")
     public GantryDeviceResponse findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
         GantryDeviceResponse response=new GantryDeviceResponse();
-        List<GantryDevice> lst=gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode());
-        logger.debug(request.toString());
+        logger.info(request.toString());
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
         try {
