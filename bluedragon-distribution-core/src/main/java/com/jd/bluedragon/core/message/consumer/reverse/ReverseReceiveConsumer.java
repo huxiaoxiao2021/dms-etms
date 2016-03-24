@@ -134,9 +134,6 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		
 		this.reverseReceiveService.aftersaleReceive(reverseReceive);
 
-		//维修外单:没有0值表示拒收,除了维持1值表示接收,还增加了2值表示交接
-
-
 		// 对于备件库系统,接受拒收消息后自动处理驳回接口
 		if (reverseReceive.getReceiveType() == 3 && reverseReceive.getCanReceive() == 0) {
 			ReverseReject reverseReject = new ReverseReject();
@@ -144,17 +141,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			reverseReject.setPackageCode(reverseReceive.getPackageCode());
 			reverseReject.setOrderId(reverseReceive.getPackageCode());
 
-			if (reverseReceive.getReceiveType() == 3) {
-				if(null != xrequest.getOrgId()){
-					reverseReject.setOrgId(Integer.parseInt(xrequest.getOrgId()));
-				}
-				if(null != xrequest.getStoreId()){
-					reverseReject.setStoreId(Integer.parseInt(xrequest.getStoreId()));
-				}
-			} else if (reverseReceive.getReceiveType() == 4) {
-				if(null != jrequest.getOrgId()){
-					reverseReject.setOrgId(jrequest.getOrgId());
-				}
+			if(null != xrequest.getOrgId()){
+				reverseReject.setOrgId(Integer.parseInt(xrequest.getOrgId()));
+			}
+			if(null != xrequest.getStoreId()){
+				reverseReject.setStoreId(Integer.parseInt(xrequest.getStoreId()));
 			}
 
 			reverseReject.setOperateTime(reverseReceive.getReceiveTime());
@@ -173,6 +164,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			} else if (reverseReceive.getReceiveType() == 4) {
 				this.logger.error("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
+				reverseReceive.setOrderId(reverseReceive.getPackageCode());
 			}
 			if (reverseReceive.getReceiveType() == 3) {
 				List<ReverseSpare> tReverseSpareList = sparedao.queryBySpareTranCode(sendCode);
@@ -208,9 +200,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				if (reverseReceive.getCanReceive() == 0){
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
 					taskService.add(this.toTask(tWaybillStatus));
-				}
-				else{
+				} else if (reverseReceive.getCanReceive() == 1) {
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+					taskService.add(this.toTaskStatus(tWaybillStatus));
+				} else if (reverseReceive.getCanReceive() == 2) {
+					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
 					taskService.add(this.toTaskStatus(tWaybillStatus));
 				}
 			}
@@ -250,8 +244,16 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		task.setKeyword1(tWaybillStatus.getWaybillCode());
 		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
 		task.setBody(JsonHelper.toJson(tWaybillStatus));
-		
-		task.setType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+
+		Integer operateType = tWaybillStatus.getOperateType();
+		if (operateType != null) {
+			if (operateType.intValue() ==  WaybillStatus.WAYBILL_STATUS_SHREVERSE) {
+				task.setType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+			} else if (operateType.intValue() ==  WaybillStatus.WAYBILL_STATUS_JJREVERSE) {
+				task.setType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
+			}
+		}
+
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		StringBuffer fingerprint = new StringBuffer();
 		fingerprint

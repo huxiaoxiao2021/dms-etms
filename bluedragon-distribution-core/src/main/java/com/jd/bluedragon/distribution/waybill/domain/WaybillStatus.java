@@ -36,6 +36,8 @@ public class WaybillStatus {
     
     /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/ 
     public static final Integer WAYBILL_STATUS_SHREVERSE = 4300;
+    /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/
+    public static final Integer WAYBILL_STATUS_JJREVERSE = 4400;
     
     /**备件库售后取件交接拆包--驳回**/ 
     public static final Integer WAYBILL_TRACK_AMS_BH = 901;
