@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -64,6 +65,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import javax.annotation.Resource;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -110,7 +113,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     private MessageProducer messageProducer;
 
-    @Autowired
+    @Resource
+    @Qualifier("workerProducer")
     private com.jd.jmq.client.producer.MessageProducer workerProducer;
 
     // 自营
