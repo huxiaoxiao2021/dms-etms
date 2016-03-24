@@ -24,9 +24,9 @@ public class AesRestAuthorization implements RestAuthorization {
         }
         byte[] sourceArr=encrypt(key,RestAuthorization.PASSWORD_PREFIX);
         String middleAuthorization=parseByte2HexStr(sourceArr);
-        byte[] targetArr=encrypt(middleAuthorization,requestTime);
-        String targetAuthorization=parseByte2HexStr(targetArr);
-        return targetAuthorization.equals(token);
+        //byte[] targetArr=encrypt(middleAuthorization,requestTime);
+        //String targetAuthorization=parseByte2HexStr(targetArr);
+        return middleAuthorization.equals(token);
     }
 
     @Override
