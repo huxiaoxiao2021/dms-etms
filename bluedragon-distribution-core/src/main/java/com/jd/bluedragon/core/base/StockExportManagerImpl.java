@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.PathParam;
+
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.stock.iwms.export.StockExportService;
 import com.jd.stock.iwms.export.param.StockVOParam;
@@ -41,7 +44,7 @@ public class StockExportManagerImpl implements StockExportManager {
 					return 0;
 				}else{
 					this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功：resultCode:"+result.getResultCode()+" resultMessage:"+result.getMessage());
-					return result.getKdanHao();
+					return 1;//表示推送成功
 				}
 			}else{
 				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
@@ -68,19 +71,19 @@ public class StockExportManagerImpl implements StockExportManager {
 			
 			if(result!=null){
 				if(!result.isResultFlag()){
-					this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result:"+result.getMessage());
+					this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常：result:"+result.getMessage());
 					Profiler.functionError(info);
 					result = null;
 				}else{
-					this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功: resultMessage:"+result.getMessage());
+					this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo成功: resultMessage:"+result.getMessage());
 				}
 			}else{
-				this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
+				this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常: result为空!");
 				Profiler.functionError(info);
 			}
 			
 		}catch(Exception e){
-			logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常", e);
+			logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常", e);
 			Profiler.functionError(info);
 		}finally {
 			Profiler.registerInfoEnd(info);
@@ -125,10 +128,30 @@ public class StockExportManagerImpl implements StockExportManager {
 				}
 			}
 
-			domain.setLblKdanhao(buf.toString());
+			if(domain!=null) 
+				domain.setLblKdanhao(buf.toString());
 		}
 
 		return domain;
+	}
+	
+	@Override
+	public KuGuanDomain queryByWaybillCode(String waybillCode) {
+		KuGuanDomain kuGuanDomain = new KuGuanDomain();
+		kuGuanDomain.setWaybillCode(waybillCode);
+
+		KuGuanDomain result = null;
+		
+		Map<String, Object> params = ObjectMapHelper
+				.makeObject2Map(kuGuanDomain);
+
+		try {
+			logger.info("根据订单号获取库管单信息参数错误-queryByParams");
+			result = this.queryByParams(params);
+		} catch (Exception e) {
+			logger.info("根据订单号获取库管单信息服务异常", e);
+		}
+		return result;
 	}
 	
 	/**

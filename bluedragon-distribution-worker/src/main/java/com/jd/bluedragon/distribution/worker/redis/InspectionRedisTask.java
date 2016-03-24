@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
  * @author wangzichen
  * 
  */
-@Service
 public class InspectionRedisTask extends RedisSingleScheduler {
 
 	private final static Logger logger = Logger.getLogger(InspectionRedisTask.class);

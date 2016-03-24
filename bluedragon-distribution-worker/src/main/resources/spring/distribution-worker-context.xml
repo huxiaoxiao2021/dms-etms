@@ -12,7 +12,7 @@
 	<import resource="classpath:spring/distribution-worker-task.xml" />
 	<import resource="classpath:spring/distribution-worker-task-redis.xml" />
 	<import resource="classpath:spring/distribution-worker-wss.xml"/>
-	
+
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->
 	<bean class="com.jd.ump.annotation.JAnnotation">

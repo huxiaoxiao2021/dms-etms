@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
+import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.receive.dao.CenConfirmDao;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
@@ -15,6 +17,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -47,6 +50,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
 	@Autowired
 	private TaskService taskService;
+
+    @Autowired
+    private InspectionNotifyService inspectionNotifyService;
 	
 	@Override
 	public CenConfirm createCenConfirmByReceive(Receive receive) {
@@ -60,6 +66,15 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public synchronized void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {//FIXME:PRIVATE 取消事务
+
+        InspectionMQBody inspectionMQBody=new InspectionMQBody();
+        inspectionMQBody.setWaybillCode(null!=cenConfirm.getWaybillCode()?cenConfirm.getWaybillCode(): SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
+        inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
+        try {
+            inspectionNotifyService.send(inspectionMQBody);
+        }catch (Throwable throwable){
+            log.error("推送验货MQ异常",throwable);
+        }
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
 				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
 			if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {

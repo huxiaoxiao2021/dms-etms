@@ -9,22 +9,24 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import jd.oom.client.clientbean.Order;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.distribution.kuguan.service.KuGuanService;
-import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.kuguan.domain.OrderStockInfo;
+import com.jd.bluedragon.distribution.order.ws.OrderWebService;
+import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+
+import jd.oom.client.clientbean.Order;
 
 @Component
 @Path(Constants.REST_URL)
@@ -41,11 +43,14 @@ public class ReverseReceiveNotifyStockResource {
 	private OrderWebService orderWebService;
 
 	@Autowired
-	KuGuanService tKuGuanService;
-
-	@Autowired
 	private ReverseSendPopMessageService reverseSendPopMessageService;
 	
+	@Autowired
+	private StockExportManager stockExportManager;
+	
+    @Autowired
+    private ReverseReceiveDao reverseReceiveDao;
+    
 	/**
 	 * 使用notify方法代替
 	 * 
@@ -55,7 +60,6 @@ public class ReverseReceiveNotifyStockResource {
 	 */
 	@GET
 	@Path("/reverse/stock/nodify/{waybillCode}")
-	@Deprecated
 	public String sendMessage(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
@@ -64,7 +68,6 @@ public class ReverseReceiveNotifyStockResource {
 
 	@GET
 	@Path("/reverse/pop/nodify/{waybillCode}")
-	@Deprecated
 	public String sendMessageToPop(@PathParam("waybillCode") String waybillCode)
 			throws Exception {
 		boolean result = this.reverseSendPopMessageService.sendPopMessage(waybillCode);
@@ -76,8 +79,17 @@ public class ReverseReceiveNotifyStockResource {
 	public String notify(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		String resultStr = check(waybillCode);
-		if("OK".equals(resultStr))
-			this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
+		if(JdResponse.MESSAGE_OK.equals(resultStr)){
+			resultStr="CHECK:OK";
+			boolean stockResult = this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
+			boolean popResult = this.reverseSendPopMessageService.sendPopMessage(waybillCode.toString());
+			if(!stockResult){
+				resultStr+=",STOCK:NO";
+			}
+			if(!popResult){
+				resultStr+=",POP:NO";
+			}
+		}
 		return resultStr;
 	}
 
@@ -87,16 +99,21 @@ public class ReverseReceiveNotifyStockResource {
 			throws Exception {
 		OrderStockInfo osi = null;
 		String resultStr = null;
-		try{
-			osi = getKeyKuguanInfo(waybillCode);
-		}catch(Exception e){
-			logger.error("获得库管判断信息失败:"+waybillCode, e);
-		}
-		if (osi == null)
-			resultStr =  "获得库管判断信息失败";
-		else
-			resultStr = osi.judge();
 		
+		ReverseReceive reverseReceive = reverseReceiveDao.findOneReverseReceive(String.valueOf(waybillCode), ReverseReceive.RECEIVE, ReverseReceive.RECEIVE_TYPE_SPWMS, null, null, null);
+		if(reverseReceive==null){
+			resultStr = "订单备件库未收货:"+waybillCode;
+		}else{
+			try{
+				osi = getKeyKuguanInfo(waybillCode);
+			}catch(Exception e){
+				logger.error("获得库管判断信息失败:"+waybillCode, e);
+			}
+			if (osi == null)
+				resultStr =  "获得库管判断信息失败";
+			else
+				resultStr = osi.judge();
+		}
 		return java.net.URLEncoder.encode(resultStr, "UTF-8");
 	}
 
@@ -123,42 +140,18 @@ public class ReverseReceiveNotifyStockResource {
 		}
 
 		// 2.查询页面上的值，用于判断先后款
-		KuGuanDomain stockPageResp = getStockInfo(String.valueOf(waybillCode),
-				"1");
+		KuGuanDomain stockPageResp = stockExportManager.queryByWaybillCode(String.valueOf(waybillCode));
 
 		if (stockPageResp != null) {
 			fangshi = stockPageResp.getLblWay();
 			fenlei = stockPageResp.getLblType();
 			qita = stockPageResp.getLblOther();
-			qitafangshi = stockPageResp.getLblOther();
+			qitafangshi = stockPageResp.getLblOtherWay();
 		}
 
 		// 3. 生成订单对象自行判断
 		OrderStockInfo osi = new OrderStockInfo(String.valueOf(waybillCode),
 				orderType, fangshi, fenlei, qita, qitafangshi);
 		return osi;
-	}
-
-	private KuGuanDomain getStockInfo(
-			@PathParam("waybillCode") String waybillCode,
-			@PathParam("ddlType") String ddlType) {
-		KuGuanDomain kuGuanDomain = new KuGuanDomain();
-
-		kuGuanDomain.setDdlType(ddlType);
-		kuGuanDomain.setWaybillCode(waybillCode);
-
-		Map<String, Object> params = ObjectMapHelper
-				.makeObject2Map(kuGuanDomain);
-
-		try {
-			logger.info("根据订单号获取库管单信息参数错误-queryByParams");
-			kuGuanDomain = tKuGuanService.queryByParams(params);
-		} catch (Exception e) {
-			kuGuanDomain = new KuGuanDomain();
-			kuGuanDomain.setDdlType(ddlType);
-			kuGuanDomain.setWaybillCode(null);
-			logger.info("根据订单号获取库管单信息服务异常" + e);
-		}
-		return kuGuanDomain;
 	}
 }
