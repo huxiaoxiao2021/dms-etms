@@ -8,11 +8,13 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.MessageFormat;
 import java.util.Date;
 
 /**
@@ -29,7 +31,16 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
     @Override
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
         SendM domain = new SendM();
+        if(StringHelper.isEmpty(config.getSendCode())){
+            logger.error(MessageFormat.format("龙门架发货批次号为空机器号：{0},发货站点：{1},操作号：{2}",config.getMachineId(),config.getCreateSiteName(),config.getId()));
+            return false;
+        }
+
         domain.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()));
+        if(null==domain.getReceiveSiteCode()){
+            logger.error(MessageFormat.format("从批次号{0}获取目的站点为空", config.getSendCode()));
+            return false;
+        }
         domain.setSendCode(config.getSendCode());
         domain.setCreateSiteCode(config.getCreateSiteCode());
         domain.setBoxCode(uploadData.getBarCode());

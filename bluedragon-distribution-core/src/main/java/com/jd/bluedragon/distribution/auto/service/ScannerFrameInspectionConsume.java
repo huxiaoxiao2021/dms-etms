@@ -51,7 +51,7 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
         request.setUserName(config.getOperateUserName());
         //request.setBody();
         String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
-                + JsonHelper.toJson(JsonHelper.toJson(inspection))
+                + JsonHelper.toJson(inspection)
                 + Constants.PUNCTUATION_CLOSE_BRACKET;
         Task task=this.taskService.toTask(request, eachJson);
         if(logger.isDebugEnabled()){
