@@ -78,7 +78,7 @@
         AND (
             end_time <![CDATA[>]]>to_date(to_char(#{operateTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
         OR
-            end_time=to_date(to_char(#{operateTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
+            end_time IS NULL
         )
     </select>
     <select id="findAllGantryDeviceCurrentConfig" resultMap="gantryDeviceConfig" parameterType="java.util.Map">

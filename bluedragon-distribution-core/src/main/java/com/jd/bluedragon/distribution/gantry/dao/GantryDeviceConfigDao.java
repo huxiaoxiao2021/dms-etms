@@ -17,7 +17,7 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
     public GantryDeviceConfig findGantryDeviceConfigByOperateTime(Integer machineId,Date packageOperateTime){
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("machineId",machineId);
-        hashMap.put("",packageOperateTime);
+        hashMap.put("operateTime",packageOperateTime);
         return (GantryDeviceConfig) super.getSqlSession().selectOne(GantryDeviceConfigDao.namespace + ".findGantryDeviceConfigByOperateTime", hashMap);
     }
 
