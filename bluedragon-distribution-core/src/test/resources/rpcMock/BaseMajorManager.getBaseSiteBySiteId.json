@@ -1,0 +1,11 @@
+{  
+	"tp99" : "50",
+	"max": "1000",
+	"returnValueConfig" :{
+		"siteType":1,
+		"siteName":"1",
+		"orgId": 223,
+		"dmsSiteCode" :101,
+		"orgName": "2"
+	}
+}
