@@ -59,7 +59,9 @@ public class AesRestAuthorization implements RestAuthorization {
     private static byte[] encrypt(String content, String password) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
-            kgen.init(128, new SecureRandom(password.getBytes()));
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.setSeed(password.getBytes());
+            kgen.init(128, random);
             SecretKey secretKey = kgen.generateKey();
             byte[] enCodeFormat = secretKey.getEncoded();
             SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
@@ -82,7 +84,9 @@ public class AesRestAuthorization implements RestAuthorization {
     private static byte[] decrypt(byte[] content, String password) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
-            kgen.init(128, new SecureRandom(password.getBytes()));
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.setSeed(password.getBytes());
+            kgen.init(128, random);
             SecretKey secretKey = kgen.generateKey();
             byte[] enCodeFormat = secretKey.getEncoded();
             SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
