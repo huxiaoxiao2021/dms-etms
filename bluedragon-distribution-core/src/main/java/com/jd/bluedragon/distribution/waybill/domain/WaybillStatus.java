@@ -9,6 +9,7 @@ public class WaybillStatus {
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0;
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;
+    public static final Integer WAYBILL_STATUS_CODE_POP_InFactory = 1150; //驻场验货
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_DELIVERY = 2;
 
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
