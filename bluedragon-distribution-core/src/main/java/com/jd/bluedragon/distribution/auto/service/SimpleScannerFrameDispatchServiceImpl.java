@@ -50,7 +50,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         Iterator<Map.Entry<Integer,ScannerFrameConsume>> item= scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()){
             Map.Entry<Integer,ScannerFrameConsume> comsume=item.next();
-            if(comsume.getKey()==(config.getBusinessType()&comsume.getKey())){
+            if(comsume.getKey().intValue()==(config.getBusinessType().intValue()&comsume.getKey().intValue())){
                 if(logger.isInfoEnabled()){
                     logger.info(MessageFormat.format("龙门架分发消息registerNo={0},operateTime={1},comsume={2},barcode={3}",domain.getRegisterNo(),domain.getScannerTime(),comsume.getKey(),domain.getBarCode()));
                 }
