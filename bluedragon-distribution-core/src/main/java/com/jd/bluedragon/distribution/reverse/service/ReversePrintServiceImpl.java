@@ -123,11 +123,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         taskService.add(tTask);
         this.logger.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
-        try {
-            bdBlockerCompleteMQ.send(domain.getOldCode(),createMqBody(domain.getOldCode()));
-        } catch (JMQException e) {
-            //wangtingweiDEBUG
-        }
+        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
 
         OperationLog operationLog=new OperationLog();
         operationLog.setCreateTime(new Date());

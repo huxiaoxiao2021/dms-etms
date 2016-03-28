@@ -118,11 +118,8 @@ public class QualityControlService {
             logger.warn("分拣中心异常页面发质控和全程跟踪开始。运单号" + qualityControl.getWaybillCode());
             waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
             //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
-            try {
-                bdExceptionToQcMQ.send(request.getQcValue(), JsonHelper.toJson(qualityControl));
-            } catch (JMQException e) {
-                //wangtingweiDEBUG
-            }
+            bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
+
         }
     }
 

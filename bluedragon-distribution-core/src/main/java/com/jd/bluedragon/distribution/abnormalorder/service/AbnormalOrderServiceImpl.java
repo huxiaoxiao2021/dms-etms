@@ -153,11 +153,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		qualityControl.setReturnState("null");
 		log.warn("分拣中心外呼申请发质控消息为" + JsonHelper.toJson(qualityControl));
 		//messageClient.sendMessage(MessageDestinationConstant.QualityControlFXMMQ.getName(), JsonHelper.toJson(qualityControl),abnormalOrder.getOrderId());
-        try {
-            bdDmsAbnormalOrderToQcMQ.send(abnormalOrder.getOrderId(),JsonHelper.toJson(qualityControl));
-        } catch (JMQException e) {
-            //wangtingweiDEBUG
-        }
+        bdDmsAbnormalOrderToQcMQ.sendOnFailPersistent(abnormalOrder.getOrderId(),JsonHelper.toJson(qualityControl));
     }
 
 	public void toWaybillTraceWS(AbnormalOrder abnormalOrder){
@@ -194,11 +190,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 			String body = JsonHelper.toJson(mq);
 			String busiId = mq.getOrderId();
 			//pushMqService.pubshMq(FXM_MQ_ADDRESS, body, busiId);
-            try {
-                pushFXMMQ.send(busiId, body);
-            } catch (JMQException e) {
-                //wangtingweiDEBUG
-            }
+            pushFXMMQ.sendOnFailPersistent(busiId, body);
         }
 	}
 	

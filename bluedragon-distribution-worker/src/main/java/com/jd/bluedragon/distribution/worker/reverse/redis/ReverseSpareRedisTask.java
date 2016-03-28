@@ -111,11 +111,8 @@ public class ReverseSpareRedisTask extends RedisSingleScheduler {
 		logger.warn("分拣中心备件库分拣发质控和全程跟踪开始。运单号 " + request.getWaybillCode());
 		waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
 		//messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
-        try {
-            bdExceptionToQcMQ.send(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), JsonHelper.toJson(qualityControl));
-        }catch (Throwable throwable){
-            //wangtingweiDEBUG
-        }
+        bdExceptionToQcMQ.sendOnFailPersistent(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), JsonHelper.toJson(qualityControl));
+
     }
 
 

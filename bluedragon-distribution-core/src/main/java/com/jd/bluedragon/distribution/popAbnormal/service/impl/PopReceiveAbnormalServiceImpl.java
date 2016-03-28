@@ -317,14 +317,10 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		popAbnormalSend.setRetType(retType);
 		
 		this.logger.info("pushMqToPop" + JsonHelper.toJson(popAbnormalSend));
-        try{
-		this.dmsAbnormalSendMQ.send(String.valueOf(popAbnormalSend
+		this.dmsAbnormalSendMQ.sendOnFailPersistent(String.valueOf(popAbnormalSend
                 .getSerialNumber())
                 + "_" + String.valueOf(popAbnormalSend.getRetType()),JsonHelper
-                .toJson(popAbnormalSend));}
-        catch (Throwable throwable){
-            //wangtingweiDEBUG
-        }
+                .toJson(popAbnormalSend));
 	}
 
 	private void pushMqToReceive(PopReceiveAbnormal popReceiveAbnormal,
@@ -348,14 +344,11 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		
 		this.logger.info("pushMqToReceive" + JsonHelper.toJson(popAbnormalSend));
 
-        try {
-            this.receiveBdAbnormalSendMQ.send(String.valueOf(popAbnormalSend
+        this.receiveBdAbnormalSendMQ.sendOnFailPersistent(String.valueOf(popAbnormalSend
 .getSerialNumber())
 + "_" + String.valueOf(popAbnormalSend.getRetType()), JsonHelper
 .toJson(popAbnormalSend));
-        } catch (JMQException e) {
-            //wangtingweiDEBUG
-        }
+
     }
 	
 	/**

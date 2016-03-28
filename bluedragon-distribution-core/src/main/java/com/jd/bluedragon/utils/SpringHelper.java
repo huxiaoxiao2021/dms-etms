@@ -4,6 +4,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.util.Map;
+
 public class SpringHelper implements ApplicationContextAware {
 
 	private static ApplicationContext applicationContext = null;
@@ -22,4 +24,13 @@ public class SpringHelper implements ApplicationContextAware {
 		return SpringHelper.applicationContext.getBean(beanName);
     }
 
+    /**
+     * 获取BEAN列表
+     * @param tClass
+     * @param <T>
+     * @return
+     */
+    public static <T> Map<String, T> getBeans(Class<T> tClass){
+        return SpringHelper.applicationContext.getBeansOfType(tClass);
+    }
 }

@@ -1371,11 +1371,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 		this.logger.info("snedMQpop----snedMQpop----" + sb.toString());
 		//messageClient.sendMessage("pop1", sb.toString(), tSendDatail.getWaybillCode());
-        try {
-            pop1MQ.send(tSendDatail.getWaybillCode(),sb.toString());
-        } catch (JMQException e) {
-            //wangtingweiDEBUGe.printStackTrace();
-        }
+        pop1MQ.sendOnFailPersistent(tSendDatail.getWaybillCode(),sb.toString());
     }
 
     private boolean canSuccess(WaybillStatus tWaybillStatus ,SendDetail tSendDatail) {

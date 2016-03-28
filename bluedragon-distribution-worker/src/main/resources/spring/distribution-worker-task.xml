@@ -384,6 +384,15 @@
 		<property name="desc" value="将称重信息回传到运单中心" />
 	</bean>
 
+    <bean id="messageTask" class="com.jd.bluedragon.distribution.worker.MessageTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="MessageTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="8000" />
+        <property name="desc" value="将称重信息回传到运单中心" />
+    </bean>
 </beans>
 	
 	

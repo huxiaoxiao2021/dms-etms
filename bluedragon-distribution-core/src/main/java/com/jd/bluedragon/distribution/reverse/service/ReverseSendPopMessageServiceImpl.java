@@ -179,18 +179,10 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 
     private final void pushMessage(String popMqType,String businessId,String text){
         if(this.SEND_KEY1.equals(popMqType)){
-            try {
-                this.q20_20MQ.send(businessId,text);
-            } catch (JMQException e) {
-                //wangtingweiDEBUGe.printStackTrace();
-            }
+            this.q20_20MQ.sendOnFailPersistent(businessId, text);
         }
         if(this.SEND_KEY2.equals(popMqType)){
-            try {
-                this.q20_50MQ.send(businessId,text);
-            } catch (JMQException e) {
-                //wangtingweiDEBUG
-            }
+            this.q20_50MQ.sendOnFailPersistent(businessId,text);
         }
     }
 	
