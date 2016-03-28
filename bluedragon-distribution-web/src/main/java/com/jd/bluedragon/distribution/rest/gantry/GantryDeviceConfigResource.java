@@ -49,9 +49,9 @@ public class GantryDeviceConfigResource {
         try {
             List<GantryDeviceConfig> list = gantryDeviceConfigService.findAllGantryDeviceCurrentConfig(request.getCreateSiteCode());
             response.setData(this.ok(list));
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             String message = "获取龙门架" + request.toString() + ex.toString();
-            logger.error(message);
+            logger.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -108,9 +108,9 @@ public class GantryDeviceConfigResource {
             if (count == 1) {
                 gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message);
+            logger.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -138,9 +138,9 @@ public class GantryDeviceConfigResource {
                 response.setData(new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>());
                 response.getData().add(config);
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message);
+            logger.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -166,9 +166,9 @@ public class GantryDeviceConfigResource {
                 response.setData(new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>());
                 response.getData().add(config);
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message);
+            logger.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -219,9 +219,9 @@ public class GantryDeviceConfigResource {
                 config=getGantryDeviceConfig(gantryDeviceConfig);
                 response.getData().add(config);
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message);
+            logger.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -233,13 +233,20 @@ public class GantryDeviceConfigResource {
     public JdResponse checkSendCode(GantryDeviceConfigRequest request) {
         logger.debug(request.toString());
         JdResponse response = new JdResponse();
-        GantryDeviceConfig gantryDeviceConfig = gantryDeviceConfigService.checkSendCode(request.getSendCode());
-        if(gantryDeviceConfig!=null){
-            response.setCode(JdResponse.CODE_OK);
-            response.setMessage(JdResponse.MESSAGE_OK);
-        }else {
-            response.setCode(10000);
-            response.setMessage("不存在");
+        try {
+            GantryDeviceConfig gantryDeviceConfig = gantryDeviceConfigService.checkSendCode(request.getSendCode());
+            if(gantryDeviceConfig!=null){
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage(JdResponse.MESSAGE_OK);
+            }else {
+                response.setCode(10000);
+                response.setMessage("不存在");
+            }
+        }catch (Throwable ex){
+            String message = "更新龙门架状态失败" + request.toString() + ex.toString();
+            logger.error(message,ex);
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(message);
         }
 
         return response;
