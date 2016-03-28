@@ -46,7 +46,7 @@ public class GantryResource {
         try {
             List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode());
             response.setData(this.ok(list));
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             String message = "获取龙门架" + request.toString() + ex.toString();
             logger.error(message);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
