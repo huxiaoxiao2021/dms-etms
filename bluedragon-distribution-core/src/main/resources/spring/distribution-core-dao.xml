@@ -228,6 +228,10 @@
     <bean id="fBarCodeDao" class="com.jd.bluedragon.distribution.fBarCode.dao.FBarCodeDao">
         <property name="sqlSession" ref="sessionTemplate" />
     </bean>
+
+	<bean id="gantryDeviceConfigDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryDeviceConfigDao">
+		<property name="sqlSession" ref="sessionTemplate" />
+	</bean>
     <bean id="batchInfoDao" class="com.jd.bluedragon.distribution.batch.dao.BatchInfoDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
@@ -274,5 +278,9 @@
     </bean>
     <bean id="tbTaskQueueDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskQueueDao">
         <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>
+    </bean>
+
+    <bean id="gantryDeviceDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 </beans>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>龙门架配置中心</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+	<script type="text/javascript" src="#springUrl("/static/js/gantry/gantry-index.js")"></script>
+    <style type="text/css">
+        #content {
+            margin: 0 auto;
+        }
+
+        .gantry_query_span {
+            display: block;
+            float: left;
+            width: 220px;
+            margin-left: 5px;;
+        }
+
+        .gantry_query_text {
+            width: 150px;
+        }
+
+        .gantry_query_select {
+            width: 150px;;
+        }
+
+        #pager table {
+            width: 80%;
+		}
+    </style>
+</head>
+<script type="text/javascript">
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">龙门架配置中心</a>
+    </p>
+</div>
+<div id="content">
+    <div id="gantry_query_param">
+        <div id="gantry_query_param_div" style="height: 30px;">
+            <span class="gantry_query_span">
+				机器编号：
+				<input type="text" id="gantry_device_id" class="gantry_query_text"/>
+			</span>
+			<span class="gantry_query_span">
+				所在机构：
+				<select id="gantry_device_org" class="gantry_query_select">
+                    <option value="">所有机构</option>
+					#if(!$null.isNull($!allOrgs))
+						#foreach($org in $allOrgs)
+                            <option value="$org.orgId">$org.orgName</option>
+						#end
+					#end
+                </select>
+			</span>
+			<span class="gantry_query_span">
+				所在分拣：
+				<select id="gantry_device_site" class="gantry_query_select">
+                    <option value="">所有分拣中心</option>
+                </select>
+			</span>
+			<span class="gantry_query_span">
+				供应商：
+				<input type="text" id="gantry_device_supplier" class="gantry_query_text"/>
+			</span>
+        </div>
+        <div id="gantry_query_operate" style="height: 30px;">
+            <div id="gantry_query_btn" style="margin-left: 655px;">
+                <span class="gantry_query_span" style="width: 250px;">
+					<input id="gantry_add_sub" value="增加" type="button" class="btn_c">
+                	<input id="gantry_query_sub" value="查询" type="button" class="btn_c">
+				</span>
+            </div>
+        </div>
+    </div>
+    <div id="gantry_list_div" style="margin-top: 10px;">
+        <div id="gantry_list_table">
+            <div class="tbl-list">
+                <div class="tbl-bg">
+                    <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
+                        <thead>
+                        <tr>
+                            <th style="width:40px;">龙门架编号</th>
+                            <th style="width:40px;">授权码（Token）</th>
+                            <th style="width:50px;">序列号</th>
+                            <th style="width:50px;">区域</th>
+                            <th style="width:50px;">分拣中心</th>
+                            <th style="width:50px;">设备供应商</th>
+                            <th style="width:50px;">设备型号</th>
+                            <th style="width:40px;">类型</th>
+                            <th style="width:30px;">备注</th>
+                            <th style="width:50px;">创建时间</th>
+                            <th style="width:50px;">修改时间</th>
+                            <th style="width:50px;">操作人</th>
+                            <th style="width:50px;">处理</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="pager" class="tbl-n">
+
+            </div>
+        </div>
+    </div>
+    <div id="pager" class="tbl-n">
+    </div>
+</div>
+</div>
+</body>
+</html>
