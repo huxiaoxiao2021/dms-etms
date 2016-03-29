@@ -156,7 +156,7 @@ CREATE TABLE `cen_confirm` (
   `INSPECTION_USER_CODE` bigint(20) unsigned DEFAULT NULL,
   `INSPECTION_TIME` datetime DEFAULT NULL,
   `PICKUP_CODE` varchar(32) DEFAULT NULL,
-  `OPERATE_TYPE` tinyint(3) unsigned DEFAULT NULL,
+  `OPERATE_TYPE` tinyint(3) DEFAULT NULL,
   `EXCUTE_COUNT` int(10) unsigned DEFAULT NULL,
   `EXCUTE_TIME` datetime DEFAULT NULL,
   `OPERATE_TIME` datetime DEFAULT NULL,
@@ -1416,7 +1416,7 @@ CREATE TABLE `task_global_trade` (
   `OWN_SIGN` varchar(50) DEFAULT NULL,
   `FINGERPRINT` varchar(64) DEFAULT NULL,
   `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`)
+   PRIMARY KEY (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `task_handover` */
