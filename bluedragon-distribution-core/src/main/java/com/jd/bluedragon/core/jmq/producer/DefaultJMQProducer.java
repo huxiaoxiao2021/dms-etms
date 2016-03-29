@@ -49,17 +49,13 @@ public class DefaultJMQProducer {
             logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{1}",this.topic,body));
         }
         Message message = new Message(this.topic, body, businessId);
-        jmqProducer.send(message,this.timeout);
+        jmqProducer.send(message, this.timeout);
     }
 
 
     public void sendOnFailPersistent(String businessId,String body){
-        if(logger.isInfoEnabled()){
-            logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{1}",this.topic,body));
-        }
-        Message message = new Message(this.topic, body, businessId);
         try {
-            jmqProducer.send(message, this.timeout);
+            send(businessId,body);
         }catch (Throwable ex){
             logger.error("换单失败",ex);
             persistent(businessId,body);

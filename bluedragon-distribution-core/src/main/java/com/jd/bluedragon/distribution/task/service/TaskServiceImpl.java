@@ -38,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskDao taskDao;
     
     private TaskDao mysqlTaskDao;
-    
+
     private Set mysqlTableSet;
     
     private RedisTaskService redisTaskService;
