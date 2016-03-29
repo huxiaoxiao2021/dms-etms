@@ -6,6 +6,8 @@ import java.util.Date;
  */
 public class TBTaskQueue implements Serializable {
 
+    private static final long serialVersionUID=1L;
+
     private int id;
     private String taskType;
     private int queueId;

@@ -22,7 +22,7 @@ public class WeightServiceImpl implements WeightService {
 				return false;
 			}
 			response = WeightClient.weightTrack(body.substring(1, body.length() - 1));
-			if (WeightResponse.WEIGHT_TRACK_OK == response.getCode()) {
+			if (WeightResponse.WEIGHT_TRACK_OK.equals(response.getCode())) {
 				this.logger.info("向运单系统回传包裹称重信息成功");
 				return true;
 			} else {

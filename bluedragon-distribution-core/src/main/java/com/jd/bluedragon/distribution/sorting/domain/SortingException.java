@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class SortingException implements Serializable{
 
+    private static final long serialVersionUID=1L;
     /**
      * 记录ID
      */

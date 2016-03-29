@@ -1193,7 +1193,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private void sendReportLoss(String orderId, Integer receiveType, Integer createSiteCode, Integer receiveSiteCode) {
     	
     	//判断收货类型，非大库、备件库直接返回
-    	if(receiveType!=RECEIVE_TYPE_WMS && receiveType!=RECEIVE_TYPE_SPARE) return;
+    	if((!RECEIVE_TYPE_WMS.equals(receiveType)) && (!RECEIVE_TYPE_SPARE.equals(receiveType))) return;
     	
     	ReverseReceiveLoss reverseReceiveLoss = new ReverseReceiveLoss();
     	try {

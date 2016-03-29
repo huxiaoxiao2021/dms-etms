@@ -950,8 +950,7 @@ public class DepartureServiceImpl implements DepartureService {
 			for (DepartureSend send : sendList) {
 				operator = send.getCreateUser();
 				if (task.getBoxCode().equals(send.getSendCode())
-						&& send.getCapacityCode() != null
-						&& send.getCapacityCode().trim() != "") {
+						&&StringHelper.isNotEmpty(send.getCapacityCode())) {
 					RouteTypeResponse response = siteService
 							.getCapacityCodeInfo(send.getCapacityCode());
 					if (response != null) {

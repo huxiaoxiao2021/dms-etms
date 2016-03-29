@@ -53,7 +53,7 @@ public class ElectronResource {
 		electronSite = electronSiteService.getElecSiteInfo(dmsID, aWaybillCode);
 		if (electronSite == null) {
 			return this.NotFound();
-		} else if (electronSite.getCode() == JdResponse.CODE_OK) {
+		} else if (JdResponse.CODE_OK.equals(electronSite.getCode())) {
 			return this.OK(electronSite);
 		} else {
 			return Fail(electronSite);
@@ -80,7 +80,7 @@ public class ElectronResource {
 		electronSite = electronSiteService.getTaskAreaNo(dmsID, taskAreaNo);
 		if (electronSite == null) {
 			return this.NotFound();
-		} else if (electronSite.getCode() == JdResponse.CODE_OK) {
+		} else if (JdResponse.CODE_OK.equals(electronSite.getCode())) {
 			return this.OK(electronSite);
 		} else {
 			return Fail(electronSite);
