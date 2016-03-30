@@ -19,6 +19,11 @@ public class PrintWaybill implements Serializable {
     private Integer cky2;
 
     /**
+     * 商家订单号
+     */
+    private String busiOrderCode;
+
+    /**
      * 库房号
      */
     private String storeName;
@@ -615,5 +620,13 @@ public class PrintWaybill implements Serializable {
 
     public void setIsSelfService(Boolean isSelfService) {
         this.isSelfService = isSelfService;
+    }
+
+    public String getBusiOrderCode() {
+        return busiOrderCode;
+    }
+
+    public void setBusiOrderCode(String busiOrderCode) {
+        this.busiOrderCode = busiOrderCode;
     }
 }
