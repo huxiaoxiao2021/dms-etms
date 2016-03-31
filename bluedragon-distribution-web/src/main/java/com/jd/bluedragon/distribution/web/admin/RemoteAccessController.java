@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.admin.service.RemoteAccessService;
 import com.jd.bluedragon.distribution.api.domain.YtWaybillSync;
 import com.jd.bluedragon.distribution.api.request.RemoteAccessRequest;
 import com.jd.bluedragon.distribution.api.response.RemoteAccessResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.StringHelper;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +57,7 @@ public class RemoteAccessController {
                 response.setMessage("参数[运单或包裹号,分拣机代码]不能为空！");
                 return response;
             }
+            logger.info(MessageFormat.format("RemoteAccessController.doQueryWaybill请求参数为{0}", JsonHelper.toJson(request)));
             RemoteAccessResponse<List<YtWaybillSync>> remoteResponse = remoteAccessService.findListByWaybillCode(request);
             if (remoteResponse == null || remoteResponse.getCode() == null || remoteResponse.getCode().intValue() != RemoteAccessResponse.CODE_OK) {
                 response.setCode(RemoteAccessResponse.CODE_SERVICE_ERROR);
@@ -65,7 +68,7 @@ public class RemoteAccessController {
             response.setCode(RemoteAccessResponse.CODE_OK);
             response.setMessage(RemoteAccessResponse.MESSAGE_OK);
         } catch (Exception e) {
-            logger.error("doQueryWorker-error!", e);
+            logger.error("RemoteAccessController.doQueryWaybill-error", e);
             response.setCode(CommonDto.CODE_EXCEPTION);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -73,5 +76,11 @@ public class RemoteAccessController {
         return response;
     }
 
+    public static void main(String[] args) {
+        RemoteAccessRequest request = new RemoteAccessRequest();
+        request.setLocalDmsUrl("123123");
+        String s = MessageFormat.format("RemoteAccessController.doQueryWaybill-error, 请求参数为{0}", JsonHelper.toJson(request));
+        System.out.println(s);
+    }
 
 }
