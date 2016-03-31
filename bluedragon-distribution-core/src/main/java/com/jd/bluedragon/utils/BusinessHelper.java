@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.Bus;
 import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.Constants;
@@ -17,6 +18,9 @@ public class BusinessHelper {
 	private static final String PACKAGE_IDENTIFIER_NUMBER = "N";
 	private static final String PACKAGE_IDENTIFIER_PICKUP = "W";
 	private static final String PACKAGE_WAIDAN = "V";
+
+    private static final String AO_BATCH_CODE_PREFIX="Y";
+	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
 
 	public static String getWaybillCodeByPackageBarcode(String s) {
 		if (!BusinessHelper.isPackageCode(s)) {
@@ -125,16 +129,7 @@ public class BusinessHelper {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
 		}
-		if (s.startsWith(Box.BOX_TYPE_FORWARD)
-				|| s.startsWith(Box.BOX_TYPE_REVERSE_AFTER_SERVICE)
-				|| s.startsWith(Box.BOX_TYPE_REVERSE_REJECTION)
-				|| s.startsWith(Box.BOX_TYPE_REVERSE_AFTER_PICKUP)
-				|| s.startsWith(Box.BOX_TYPE_FORWARD_RESCHEDULE)
-				|| s.startsWith(Box.BOX_TYPE_DILIVERYMAN__PICKUP)
-				|| s.startsWith(Box.BOX_TYPE_WEARHOUSE)) {
-			return Boolean.TRUE;
-		}
-		return Boolean.FALSE;
+		return SerialRuleUtil.isMatchBoxCode(s)||s.toUpperCase().startsWith(BusinessHelper.AO_BATCH_CODE_PREFIX);
 	}
 
 	/**
@@ -256,6 +251,25 @@ public class BusinessHelper {
 
         return Boolean.FALSE;
     }
+
+	/**
+	 * 判断是否是维修外单
+	 * MCS : 维修外单缩写,备件库定义的
+	 * @param s
+	 * @return
+	 */
+	public static Boolean isMCSCode(String s) {
+		if (StringHelper.isEmpty(s)) {
+			return Boolean.FALSE;
+		}
+
+		if (PACKAGE_IDENTIFIER_REPAIR.equals(s.substring(0, 2))) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
 
 	public static boolean isNumeric(String str) {
 		Pattern pattern = Pattern.compile("[0-9]*");

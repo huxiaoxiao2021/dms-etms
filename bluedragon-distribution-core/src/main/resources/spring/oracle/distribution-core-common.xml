@@ -109,19 +109,21 @@
 	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 
+
 	<bean id="mainWriteSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dms_main" />
 		<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />
 	</bean>
 	
+
 	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory">
 		<constructor-arg index="0" ref="mainWriteSessionFactory"/>
-		<property name="enable" value="true" />
+		<property name="enable" value="${db.backup.replicate.enable}" />
 		<property name="statementDecider">
 			<bean class="com.jd.bluedragon.common.dao.migration.DmsBackupDataSourceStatementDecider" />
 		</property>
 		<property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
-		<property name="ignoreExceptionWhenReplication" value="true" />
+		<property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
 	</bean>
 	
 	<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
@@ -140,6 +142,7 @@
 	</bean>
 	
 	<!-- dms读库 数据源  -end-->
+
 
     <!-- worker配置数据源    -start-->
     
@@ -206,12 +209,5 @@
 	</bean-->
 	<!-- ump monitor end common-->
 
-    <bean id="requestFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
-        <property name="readTimeout" value="${rest.readtimeout}"/>
-        <property name="connectTimeout" value="${rest.connecttimeout}"/>
-    </bean>
 
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-        <constructor-arg ref="requestFactory"/>
-    </bean>
 </beans>

@@ -74,9 +74,9 @@ public class TaskServiceImpl implements TaskService {
 		TaskDao routerDao = taskDao;    	
     	
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
-        	logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
-        	return 0;
-        }
+			logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
+			return 0;
+		}
 
 		if (ifCheckTaskMode && isRedisSwitchON()) {
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */

@@ -29,4 +29,11 @@ public interface StockExportManager{
 	
     /*******************方法扩展区*********************/
 	KuGuanDomain queryByParams(Map<String, Object> paramMap);
+	
+	/**
+	 * 已经做了异常处理,只以运单号做库查询条件
+	 * @param waybillCode
+	 * @return 返回一个KuGuanDomain对象,如果查不到对应运单的库管对象,则返回null
+	 */
+	public KuGuanDomain queryByWaybillCode(String waybillCode);
 }

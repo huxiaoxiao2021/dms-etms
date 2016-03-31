@@ -90,7 +90,20 @@ public class Box {
 	 */
 	private Integer mixBoxType;
 
-	public Integer getMixBoxType() {
+    /**
+     * 站点类型
+     */
+    private Integer siteType;
+
+    public Integer getSiteType() {
+        return siteType;
+    }
+
+    public void setSiteType(Integer siteType) {
+        this.siteType = siteType;
+    }
+
+    public Integer getMixBoxType() {
 		return mixBoxType;
 	}
 
@@ -257,6 +270,8 @@ public class Box {
 	public void setCodes(String codes) {
 		this.codes = codes;
 	}
+
+
 
 	@Override
 	public boolean equals(Object obj) {

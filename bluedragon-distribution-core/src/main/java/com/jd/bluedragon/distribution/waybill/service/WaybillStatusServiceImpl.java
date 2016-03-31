@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -57,14 +58,20 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				.parseWaybillSyncParameter(tasks));
 
 		if (results == null || results.isEmpty()) {
+            if(logger.isInfoEnabled()){
+                logger.info(MessageFormat.format("回传运单状态数据转换为空:{0}",JsonHelper.toJson(tasks)));
+            }
 			return;
 		}
 
 		for (Map.Entry<Long, Result> mResult : results.entrySet()) {
+
 			if (mResult != null) {
 				Long taskId = mResult.getKey();
 				Result result = mResult.getValue();
-
+                if(logger.isInfoEnabled()){
+                    logger.info(MessageFormat.format("回传运单状态taskId:{0}->resultCode:{1}->resultMessage{2}",taskId,result.getCode(),result.getMessage()));
+                }
 				if (true == result.isFlag()) {
 					this.taskService.doDone(this.findTask(tasks, taskId, Task.TASK_TYPE_WAYBILL));
 				} else if (WaybillStatus.RESULT_CODE_PARAM_IS_NULL == result.getCode()
@@ -162,10 +169,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 		for (Task task : tasks) {
 			if (StringHelper.isEmpty(task.getBody())) {
-				break;
+				continue;
 			}
 			if (task.getYn()!=null && task.getYn().equals(0)) {
-				break;
+                continue;
 			}
             /**
              * 作者：wnagtingwei@jd.com
@@ -219,7 +226,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 		}
-
+        if(logger.isInfoEnabled()){
+            logger.info(MessageFormat.format("回传运单消息体：{0}",JsonHelper.toJson(params)));
+        }
 		return params;
 	}
 
@@ -270,6 +279,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.taskService.doDone(task);
 				task.setYn(0);
 			}
+            //驻场验货 发全程跟踪  新增节点 1150
+            if(tWaybillStatus.getOperateType().equals(1150)){
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getCreateSiteName()+ "已验货");
+                if(null==tWaybillStatus.getCreateSiteCode()){
+                    tWaybillStatus.setCreateSiteCode(task.getCreateSiteCode());
+                    tWaybillStatus.setCreateSiteName(siteService.getSite(task.getCreateSiteCode()).getSiteName());
+                }
+                this.logger.info("向运单系统回传全程跟踪，驻场 验货：" );
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                this.taskService.doDone(task);
+                task.setYn(0);
+            }
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_SHREVERSE))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				//操作单位更改为收货单位
@@ -325,7 +347,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
              */
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_REVERSE_PRINT).equals(task.getKeyword2())){
                 if(BusinessHelper.isPackageCode(tWaybillStatus.getWaybillCode())){
+                    tWaybillStatus.setPackageCode(tWaybillStatus.getWaybillCode());
                     tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(tWaybillStatus.getWaybillCode()));
+
                 }
                 tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_REVERSE_PRINT);
 

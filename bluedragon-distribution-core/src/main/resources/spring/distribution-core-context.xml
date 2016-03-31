@@ -22,12 +22,15 @@
 	<import resource="classpath:spring/distribution-core-redis.xml" />
 	<import resource="classpath:spring/distribution-core-jsf.xml" />
 	<import resource="classpath:spring/distribution-core-cassandra.xml" />
+    <import resource="classpath:spring/distribution-core-jmq.xml" />
+    <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
-	<context:component-scan base-package="com.jd.bluedragon.distribution.*.service" />
+	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.ws" />
-	<context:component-scan base-package="com.jd.bluedragon.*.service" />
+    <context:component-scan base-package="com.jd.bluedragon" />
+	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.core.message.producer" />
 	<context:component-scan base-package="com.jd.bluedragon.core.message.consumer.*" />
 	<context:component-scan base-package="com.jd.bluedragon.core.redis" />

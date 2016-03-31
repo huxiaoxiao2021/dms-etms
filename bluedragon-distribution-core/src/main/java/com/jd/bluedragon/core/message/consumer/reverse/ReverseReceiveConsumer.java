@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
@@ -21,7 +22,9 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseReject;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -52,6 +55,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
 	@Autowired
     private SendMDao sendMDao;
+	
+	@Autowired
+    private SendDatailDao sendDatailDao;
 	
 	@Autowired
     private ReverseSpareDao sparedao;
@@ -116,6 +122,16 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		} catch (Exception e) {
 			this.logger.error("推送UMP发生异常.", e);
 		}
+		
+		//添加订单处理，判断是否是T单 2016-1-8
+		SendDetail tsendDatail = new SendDetail();
+		tsendDatail.setSendCode(reverseReceive.getSendCode());
+		tsendDatail.setWaybillCode(Constants.T_WAYBILL + reverseReceive.getOrderId());
+		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+		if (sendDatailist != null && !sendDatailist.isEmpty()){
+			reverseReceive.setOrderId(Constants.T_WAYBILL + reverseReceive.getOrderId());
+		}
+		
 		this.reverseReceiveService.aftersaleReceive(reverseReceive);
 
 		// 对于备件库系统,接受拒收消息后自动处理驳回接口
@@ -124,11 +140,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			reverseReject.setBusinessType(reverseReceive.getReceiveType());
 			reverseReject.setPackageCode(reverseReceive.getPackageCode());
 			reverseReject.setOrderId(reverseReceive.getPackageCode());
-			if(null!=xrequest.getOrgId()){
+
+			if(null != xrequest.getOrgId()){
 				reverseReject.setOrgId(Integer.parseInt(xrequest.getOrgId()));
 			}
-
-			if(null!=xrequest.getStoreId()){
+			if(null != xrequest.getStoreId()){
 				reverseReject.setStoreId(Integer.parseInt(xrequest.getStoreId()));
 			}
 
@@ -140,10 +156,16 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3
-				|| reverseReceive.getReceiveType() == 1) {
-			this.logger.error("逆向添加全称跟踪sendCode" +xrequest.getSendCode());
-			String sendCode = xrequest.getSendCode();
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 4) {
+			String sendCode = "";
+			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1) {
+				this.logger.error("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
+				sendCode = xrequest.getSendCode();
+			} else if (reverseReceive.getReceiveType() == 4) {
+				this.logger.error("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
+				sendCode = jrequest.getSendCode();
+				reverseReceive.setOrderId(reverseReceive.getPackageCode());
+			}
 			if (reverseReceive.getReceiveType() == 3) {
 				List<ReverseSpare> tReverseSpareList = sparedao.queryBySpareTranCode(sendCode);
 				if (tReverseSpareList != null && tReverseSpareList.size()>0) {
@@ -158,24 +180,33 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				tWaybillStatus.setOperator(reverseReceive.getOperatorName());
 				tWaybillStatus.setOperateTime(reverseReceive.getReceiveTime());
 				tWaybillStatus.setWaybillCode(reverseReceive.getOrderId());
-				tWaybillStatus.setCreateSiteCode(tSendM.getCreateSiteCode());
-				
-				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+				tWaybillStatus.setPackageCode(reverseReceive.getOrderId());
+				tWaybillStatus.setCreateSiteCode(tSendM.getReceiveSiteCode());
+				tWaybillStatus.setOperatorId(-1);
+				tWaybillStatus.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getReceiveSiteCode());
 		        if(bDto!=null ){
 		        	tWaybillStatus.setCreateSiteName(bDto.getSiteName());
-		        }
-				
-				tWaybillStatus.setReceiveSiteCode(tSendM.getReceiveSiteCode());
-				bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getReceiveSiteCode());
-		        if(bDto!=null ){
 		        	tWaybillStatus.setReceiveSiteName(bDto.getSiteName());
+		        	tWaybillStatus.setCreateSiteType(bDto.getSiteType());
+		        	tWaybillStatus.setReceiveSiteType(bDto.getSiteType());
 		        }
-				tWaybillStatus.setSendCode(xrequest.getSendCode());
-				if (reverseReceive.getCanReceive() == 0)
+
+				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1) {
+					tWaybillStatus.setSendCode(xrequest.getSendCode());
+				} else if (reverseReceive.getReceiveType() == 4) {
+					tWaybillStatus.setSendCode(jrequest.getSendCode());
+				}
+				if (reverseReceive.getCanReceive() == 0){
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
-				else
-					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SHREVERSE);
-				taskService.add(this.toTask(tWaybillStatus));
+					taskService.add(this.toTask(tWaybillStatus));
+				} else if (reverseReceive.getCanReceive() == 1) {
+					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+					taskService.add(this.toTaskStatus(tWaybillStatus));
+				} else if (reverseReceive.getCanReceive() == 2) {
+					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
+					taskService.add(this.toTaskStatus(tWaybillStatus));
+				}
 			}
 		}
 
@@ -190,6 +221,39 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
 		task.setBody(JsonHelper.toJson(tWaybillStatus));
 		task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+		task.setOwnSign(BusinessHelper.getOwnSign());
+		StringBuffer fingerprint = new StringBuffer();
+		fingerprint
+				.append(tWaybillStatus.getCreateSiteCode())
+				.append("__")
+				.append((tWaybillStatus.getReceiveSiteCode() == null ? "-1"
+						: tWaybillStatus.getReceiveSiteCode())).append("_")
+				.append(tWaybillStatus.getOperateType()).append("_")
+				.append(tWaybillStatus.getWaybillCode()).append("_")
+				.append(tWaybillStatus.getOperateTime()).append("_")
+				.append(tWaybillStatus.getSendCode());
+        task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
+		return task;
+	}
+	
+	private Task toTaskStatus(WaybillStatus tWaybillStatus) {
+		Task task = new Task();
+		task.setTableName(Task.TABLE_NAME_WAYBILL);
+		task.setSequenceName(Task.getSequenceName(task.getTableName()));
+		task.setKeyword2(String.valueOf(tWaybillStatus.getWaybillCode()));
+		task.setKeyword1(tWaybillStatus.getWaybillCode());
+		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
+		task.setBody(JsonHelper.toJson(tWaybillStatus));
+
+		Integer operateType = tWaybillStatus.getOperateType();
+		if (operateType != null) {
+			if (operateType.intValue() ==  WaybillStatus.WAYBILL_STATUS_SHREVERSE) {
+				task.setType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+			} else if (operateType.intValue() ==  WaybillStatus.WAYBILL_STATUS_JJREVERSE) {
+				task.setType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
+			}
+		}
+
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		StringBuffer fingerprint = new StringBuffer();
 		fingerprint

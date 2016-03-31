@@ -139,6 +139,9 @@
 				and confirm_id=#{confirmId,jdbcType=BIGINT}
 			</when>
 			<otherwise>
+				<if test="operateTime!= null">
+                  and operate_time = str_to_date(date_format(#{operateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s'),'%Y-%m-%d %H:%i:%s')
+                </if>
 				and package_barcode=#{packageBarcode,jdbcType=VARCHAR} and
 				waybill_code=#{waybillCode,jdbcType=VARCHAR} and
 				confirm_type=#{type,jdbcType=SMALLINT} and

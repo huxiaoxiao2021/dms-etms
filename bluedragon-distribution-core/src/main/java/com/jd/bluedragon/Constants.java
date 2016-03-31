@@ -1,9 +1,7 @@
 package com.jd.bluedragon;
 
-import oracle.sql.CHAR;
-
 public class Constants {
-    
+    public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
     public static final String REST_KEY = "REST_KEY";
     
@@ -59,6 +57,7 @@ public class Constants {
     public static final int BUSSINESS_TYPE_REVERSE = 20;
     public static final int BUSSINESS_TYPE_THIRD_PARTY = 30;
     public static final int BUSSINESS_TYPE_POP = 40;
+    public static final int BUSSINESS_TYPE_InFactory = 41;
     public static final int BUSSINESS_TYPE_TRANSFER = 50;
     public static final int BUSSINESS_TYPE_SITE = 60;//配送员上门接货
     public static final int BUSSINESS_TYPE_BDB = 51;//夺宝岛
@@ -101,6 +100,7 @@ public class Constants {
     public static final int OPERATE_TYPE_RCD = 12;
     public static final int OPERATE_TYPE_SH = 26;//收货回传全程跟踪
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
+    public static final int OPERATE_TYPE_In = 1150;//驻场
     /** 大件包裹标识 **/
     public static final String BOXING_TYPE = "2";
     /* 基础资料SiteType: 16为三方，4为自营 */
@@ -137,7 +137,6 @@ public class Constants {
     public static final Integer POP_LBP = 23;
     public static final Integer POP_SOPL = 25;
     public static final Integer ORDER_TYPE_B = 10000;
-    public static final char WAYBILL_SIGN_B='3';
     
     public static final Integer POP_SOP_EMS_CODE = 999999999;
     public static final String POP_SOP_EMS_NAME = "EMS全国直发";
@@ -274,5 +273,21 @@ public class Constants {
     //运力编码京东自营 -1
     public static final String JDZY = "-1";
 
+    public static final String T_WAYBILL = "T"; // 正向物流发货
     //endregion
+
+    // PDA登录信息
+    public static final int PDA_USER_GETINFO_SUCCESS = 1; //获取信息成功
+    public static final int PDA_USER_LOGIN_FAILUE = -1; //验证失败
+    public static final int PDA_USER_GETINFO_FAILUE = 0; //获取信息失败
+    public static final String PDA_USER_GETINFO_SUCCESS_MSG = "获取信息成功"; //成功信息
+    public static final String PDA_USER_LOGIN_FAILUE_MSG = "验证失败"; //验证失败信息
+    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取信息失败"; //获取信息失败
+
+    public static final String PDA_THIRDPL_TYPE = "3pl_"; //小第三方
+    public static final String PDA_BIG_THIRDPL_TYPE = "third_"; //大第三方（申通、圆通）
+    public static final int PDA_THIRDPL_ID = 3000000;
+    public static final int PDA_BIG_THIRDPL_ID = 6000000;
+    public static final String BASIC_STAFF_COL = "staffId";	//员工标识
+
 }

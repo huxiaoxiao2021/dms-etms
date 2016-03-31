@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.framework.RedisSingleScheduler;
 import com.jd.bluedragon.distribution.receive.service.ReceiveService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
-@Service
 public class ReceiveRedisTask extends RedisSingleScheduler {
 	private Logger logger = Logger.getLogger(ReceiveRedisTask.class);
 	@Autowired

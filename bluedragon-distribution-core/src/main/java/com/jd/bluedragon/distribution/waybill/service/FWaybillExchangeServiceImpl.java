@@ -35,8 +35,6 @@ public class FWaybillExchangeServiceImpl implements FWaybillExchangeService {
     @Override
     public InvokeResult<FWaybillResult> exchange(FWaybillArgs fWaybillArgs){
         InvokeResult<FWaybillResult> result=new InvokeResult<FWaybillResult>();
-        result.setCode(200);
-        result.setMessage("OK");
         result.setData(new FWaybillResult());
         GrossReturnRequest request=new GrossReturnRequest();
         request.setCustomerId(fWaybillArgs.getBusinessId());
@@ -58,7 +56,7 @@ public class FWaybillExchangeServiceImpl implements FWaybillExchangeService {
                 result.getData().setReceiveName(response.getReceiveName());
             }
         }catch (Exception ex){
-            this.logger.error(ex);
+            this.logger.error("返单换单",ex);
             result.setCode(522);
             result.setMessage("调用其它系统接口出现异常");
             result.setData(null);

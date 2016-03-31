@@ -28,5 +28,6 @@ public class ReverseStockConsumer extends MessageBaseConsumer {
 		Boolean result = this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
 		
 		this.logger.info("Id:" + message.getId() + ", 处理结果：" + result);
+		if(!result) throw new Exception(waybillCode+"推出管失败");
 	}
 }

@@ -56,6 +56,11 @@ public class SerialRuleUtil
     private static final Pattern RULE_PACKAGE_OWN_REGEX = Pattern.compile("^([1-9]{1}\\d{8,})(?:-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(?:-(?=\\d{1,3}-)|S(?=\\d{1,3}H))(\\d{1,3})[-|H]([A-Za-z0-9]*)?$");
 
     /**
+     * 运单简易正则
+     */
+    private static final Pattern RULE_GENERATE_WAYBILL_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,32})$");
+
+    /**
      * 生成包裹列表专用正则
      * 【分组一：运单号】
      * 【分组二：-或N】
@@ -65,6 +70,7 @@ public class SerialRuleUtil
      * 【分组六：（-或H）与道口号组合】
      */
     private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
+
     /**
     * 京东外单运单号正则表达式
     * ("^((([A-Z][A-Z0])|90|00)[0-9]{1,}[0-6])$")
@@ -119,6 +125,11 @@ public class SerialRuleUtil
     public static final boolean isMatchFWaybillCode(String input)
     {
         return RULE_F_WAYBILL_CODE_REGEX.matcher(input).matches();
+    }
+
+
+    public static final boolean isMatchAllWaybillCode(String input){
+        return RULE_GENERATE_WAYBILL_ALL_REGEX.matcher(input).matches();
     }
 
     /**
@@ -227,6 +238,9 @@ public class SerialRuleUtil
     */
     public static boolean isMatchReceiveWaybillNo(String input)
     {
+        if(null==input){
+            return false;
+        }
         Matcher match = RULE_WAYBILL_OUTER_REGEX.matcher(input.trim());
         if (match.matches())
         {
@@ -289,17 +303,14 @@ public class SerialRuleUtil
     public static int getPackageCounter(String packageCode)
     {
         packageCode = packageCode.toUpperCase().trim();
-        String waybillCode;
         Matcher match =RULE_PACKAGE_OWN_REGEX.matcher(packageCode);
         if (match.matches())
         {
-            waybillCode = match.group(1).trim();
             return Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)) ? Integer.valueOf(match.group(3)) : -1;
         }
         match =RULE_PACKAGE_OUTER_REGEX.matcher(packageCode);
         if (match.matches())
         {
-            waybillCode = match.group(1).trim();
             return Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)) ? Integer.valueOf(match.group(3)) : -1;
         }
         return -1;
@@ -340,6 +351,24 @@ public class SerialRuleUtil
         return list;
     }
 
+    /**
+     * 获取运单号
+     * 当输入为包裹号时，返回对应的运单号，否则返回自身
+     * @param input 包裹号或运单号
+     * @return
+     */
+    public static String getWaybillCode(String input){
+        if(null==input){
+            return input;
+        }
+        Matcher match =RULE_GENERATE_PACKAGE_ALL_REGEX.matcher(input.toUpperCase().trim());
+        if(match.matches()){
+            return match.group(1);
+        }else{
+            return input.toUpperCase();
+        }
+
+    }
     /*
     public static void main(String[] args) {
         List<String> list= generateAllPackageCodes("VA05328419025-1-200-");

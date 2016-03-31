@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jd.oom.client.clientbean.Order;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +18,15 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
+import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.message.producer.MessageProducer;
-import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
+import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.DateHelper;
@@ -38,7 +38,6 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.iwmss.stock.client.ArrayOfStock;
 import com.jd.iwmss.stock.client.Stock;
-import com.jd.iwmss.stock.client.StockDetail;
 import com.jd.iwmss.stock.client.StockParamter;
 import com.jd.iwmss.stock.client.StockWebServiceSoap;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -46,6 +45,8 @@ import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import jd.oom.client.clientbean.Order;
 
 /**
  * 备件库收货推出管  
@@ -97,14 +98,14 @@ public class ReverseReceiveNotifyStockService {
 	
 	public Long receive(String message) {
 		
-		if (XmlHelper.isXml(message, ReverseReceiveRequest.class, null)) {
-			ReverseReceiveRequest request = (ReverseReceiveRequest) XmlHelper.toObject(message,
-					ReverseReceiveRequest.class);
+		if (XmlHelper.isXml(message, ReceiveRequest.class, null)) {
+			ReceiveRequest request = (ReceiveRequest) XmlHelper.toObject(message,
+					ReceiveRequest.class);
 
 			if (request == null) {
 				this.logger.warn("消息序列化出现异常, 消息：" + message);
-			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())
-					&& ReverseReceive.RECEIVE.equals(request.getCanReceive())) {
+			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
+					&& ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
 				return new Long(request.getOrderId());
 			} else {
 				this.logger.info("消息来源：" + request.getReceiveType());
@@ -175,18 +176,27 @@ public class ReverseReceiveNotifyStockService {
 			
 			sysLog.setKeyword2(String.valueOf(order.getOrderType()));//设置订单的类型
 			
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-				// Long financeCode =
-				// this.financeWebService.getFinancialOrderByOrderId(waybillCode);
-				Integer payType = getPayType(waybillCode);
-				// 判断先款后款时出错，日志记录，后续人工介入
-				if (payType.equals(PAY_TYPE_ERROR)
-						|| payType.equals(PAY_TYPE_UNKNOWN)) {
-					this.logger.error("先款后款不明确" + waybillCode);
-					
-					sysLog.setContent("先款后款不明确");
-					return false;
+			
+			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
+			KuGuanDomain kuguanDomain = null;
+			Integer payType = PAY_TYPE_UNKNOWN;
+			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))){
+				kuguanDomain = stockExportManager.queryByWaybillCode(String.valueOf(waybillCode));
+				if(kuguanDomain==null) {
+					return Boolean.FALSE;
+				}else if("逆向物流".equals(kuguanDomain.getLblOtherWay())){
+					return Boolean.TRUE;
+				}else{
+					payType = getPayType(kuguanDomain);
 				}
+			} else {
+				sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
+				this.logger.info("运单号：" + waybillCode + ", 不需要回传库存中间件。");
+				return Boolean.TRUE;
+			}
+			
+			//开始根据类型的不同推送
+			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
 				long result = 0;
 				OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
 
@@ -290,12 +300,11 @@ public class ReverseReceiveNotifyStockService {
 				sysLog.setKeyword4(result);
 				if(result!=0)
 					sysLog.setContent("推出管成功!");
-				else
+				else{
 					sysLog.setContent("推出管失败!");
+					return Boolean.FALSE;
+				}
 			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
-				//Long financeCode = this.financeWebService.getFinancialOrderByOrderId(waybillCode);
-				Integer payType = getPayType(waybillCode);
-
 				if (isPrePay(payType)) {
 					this.messageProducer.send(MQ_KEY_STOCK,
 							this.stockMessage(order, products, STOCK_TYPE_1602, payType), String.valueOf(waybillCode));
@@ -310,15 +319,14 @@ public class ReverseReceiveNotifyStockService {
 				
 				sysLog.setKeyword3("MQ");
 				sysLog.setContent("推出管成功!");
-			} else {
-				sysLog.setContent("订单类型不需要回传库存中间件");
-				this.logger.info("运单号：" + waybillCode + ", 不需要回传库存中间件。");
 			}
+			
 		}catch(Exception e){
 			this.logger.error("运单号：" + waybillCode + ", 推出管失败。", e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
+			return Boolean.FALSE;
 		}finally{
 			SystemLogUtil.log(sysLog);
 		}
@@ -386,41 +394,6 @@ public class ReverseReceiveNotifyStockService {
 		return stockDetailVOs;
 	}
 
-	private List<StockDetail> getStockDetail(List<Product> products, Integer paidType) {
-		List<StockDetail> stockDetails = new ArrayList<StockDetail>();
-		for (Product product : products) {
-			StockDetail stockDetail = new StockDetail();
-			stockDetail.setBilv(1);
-			stockDetail.setWareid(new Integer(product.getProductId()));
-			stockDetail.setWare(product.getName());
-			stockDetail.setJiage(product.getPrice());
-			stockDetail.setNum(this.isPrePay(paidType) ? product.getQuantity() : this.negate(product
-					.getQuantity()));
-			stockDetail.setZjine(this.isPrePay(paidType) ? product.getPrice().multiply(
-					new BigDecimal(product.getQuantity())) : product.getPrice()
-					.multiply(new BigDecimal(product.getQuantity())).negate());
-			stockDetails.add(stockDetail);
-		}
-
-		return stockDetails;
-	}
-	
-	private List<StockDetail> getStockDetail(List<Product> products) {
-		List<StockDetail> stockDetails = new ArrayList<StockDetail>();
-		for (Product product : products) {
-			StockDetail stockDetail = new StockDetail();
-			stockDetail.setBilv(1);
-			stockDetail.setWareid(new Integer(product.getProductId()));
-			stockDetail.setWare(product.getName());
-			stockDetail.setJiage(product.getPrice());
-			stockDetail.setNum(product.getQuantity());
-			stockDetail.setZjine(product.getPrice().multiply(new BigDecimal(product.getQuantity())));
-			stockDetails.add(stockDetail);
-		}
-
-		return stockDetails;
-	}
-
 	/**
 	 * 将商品明细转换
 	 * @param products
@@ -447,52 +420,44 @@ public class ReverseReceiveNotifyStockService {
 	}
 	
 	/**
-	 * 根据出管判断先款还是后款 public List<Stock> GetStocks(StockParamter stock) 使用方法：
+	 * 根据出管判断先款还是后款使用方法：
 	 * 入参StockParamter 对象的Orderid 属性赋值要查询的订单号 该方法会返回这个订单号的所有出管记录，然后请在返回的出管记录中匹配：
 	 * 如果 churu=‘出库’ 且 feilei=‘放货’ 且 qite=0 即为后款订单（先货后款）， 如果 churu=‘出库’ 且
 	 * feilei=‘销售’ 即为先款订单
 	 * 
 	 * @return
+	 * @throws StockCallPayTypeException 
 	 */
-	public Integer getPayType(Long waybillCode) {
-		StockParamter request = new StockParamter();
-		request.setOrderid(waybillCode);
-
+	public Integer getPayType(KuGuanDomain domain) throws StockCallPayTypeException {
 		Integer result = PAY_TYPE_UNKNOWN;
+		String waybillCode = null;
 		String churu = null;
 		String feifei = null;
 		BigDecimal qite = null;
-		try {
-			ArrayOfStock arrayOfStock = stockWebService.getStocks(request);
-			List<Stock> stocks = arrayOfStock.getStock();
-			Stock stock = stocks.get(0);
-			churu = stock.getChuru();
-			feifei = stock.getFeilei();
-			qite = stock.getQite();
-			if (churu.equals("出库") && feifei.equals("放货")
-					&& (qite.compareTo(new BigDecimal(0)) == 0)) {
+		
+		if (domain != null) {// 校验参数,如果为空则不能判断是什么类型的
+			waybillCode = domain.getWaybillCode();
+			churu = domain.getLblWay();
+			feifei = domain.getLblType();
+			qite = new BigDecimal(domain.getLblOther());
+			if ("出库".equals(churu) && "放货".equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
 				result = PAY_TYPE_POST;
-			} else if (churu.equals("出库") && feifei.equals("销售")) {
+			} else if ("出库".equals(churu) && "销售".equals(feifei)) {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题
 			logger.info("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
 					+ ",qite" + qite);
-		} catch (Exception e) {
-			result = PAY_TYPE_ERROR;
-			logger.error("isPrePaid error: " + waybillCode, e);
 		}
-		if (result.equals(PAY_TYPE_UNKNOWN) || result.equals(PAY_TYPE_ERROR)) {
+		
+		if (result.equals(PAY_TYPE_UNKNOWN)) {
 			// 异常情况日志记录方便定位问题
 			logger.error("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
 					+ ",qite" + qite);
-			logException(waybillCode);
+			logger.error("不能判断订单是先款还是后款: " + waybillCode);
+			throw new StockCallPayTypeException("不能判断订单是先款还是后款: " + waybillCode);
 		}
 		return result;
-	}
-
-	private void logException(Long waybillCode) {
-		logger.error("不能判断订单是先款还是后款: " + waybillCode);
 	}
 	
 	private boolean isPrePay(Integer payType) {

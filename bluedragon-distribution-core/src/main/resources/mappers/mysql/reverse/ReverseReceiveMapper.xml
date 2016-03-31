@@ -99,5 +99,42 @@
         </set>
 		WHERE system_id = #{id}
 	</update>
+	<select id="findOneReverseReceive" resultMap="reverseReceive" parameterType="reverseReceive" >
+		select system_id,operator_code,operator,operate_time,
+			send_code,package_barcode,can_receive,reject_code,reject_message,business_type 
+		FROM Reverse_Receive
+		WHERE yn = 1
 	
+          <if test="packageCode != null">
+               AND package_barcode = #{packageCode}
+          </if>
+          <if test="canReceive != null">
+               AND can_receive = #{canReceive}
+          </if>
+          <if test="receiveType != null">
+               AND business_type = #{receiveType}
+          </if>
+          <if test="sendCode != null">
+               AND send_code = #{sendCode}
+          </if>
+          <if test="operatorId != null">
+               AND operator_code = #{operatorId}
+          </if>
+          <if test="rejectCode != null">
+               AND reject_code = #{rejectCode}
+          </if>
+		LIMIT 1
+	</select>
+	
+	<select id="findMCS" resultMap="reverseReceive" parameterType="reverseReceive" >
+		select system_id,operator_code,operator,operate_time,
+		send_code,package_barcode,can_receive,reject_code,reject_message,business_type
+		FROM Reverse_Receive
+		WHERE yn = 1
+			AND package_barcode = #{packageCode}
+			AND send_code = #{sendCode}
+			AND business_type = #{receiveType}
+			AND can_receive = #{canReceive}
+			LIMIT 1
+	</select>
 </mapper>
