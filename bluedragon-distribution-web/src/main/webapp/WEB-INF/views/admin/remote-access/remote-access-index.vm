@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>全球购</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/admin/remote-access/remote-access-index.js')"></script>
+    <style type="text/css">
+    </style>
+</head>
+<script type="text/javascript">
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣机</a>
+    </p>
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <div id="queryForm" name="queryForm">
+                <div id="condition_top" style="height: 30px;">
+                    <span style="display: inline-block;margin-left: 20px;">运单号/包裹号：</span>
+                    <input id="waybillOrPackageCode" name="waybillOrPackageCode" value="" type="text" style="width:180px">
+                    <span style="display: inline-block;margin-left: 20px;">分拣机代码：</span>
+                    <input id="machineCode" name="machineCode" value="" type="text" style="width:180px">
+                    <input id="queryBtn" value="查询" type="button" class="btn_c"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table id="paperTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th style="width:40px;">运单号</th>
+                        <th style="width:50px;">预分拣ID</th>
+                        <th style="width:50px;">推送的目的地代码</th>
+                        <th style="width:50px;">写入时间</th>
+                        <th style="width:50px;">读取时间</th>
+                        <th style="width:40px;">是否读取</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="pager" class="tbl-n">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
