@@ -22,6 +22,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,12 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCodeAndSendCode(String packageCode,String sendCode,Integer businessType) {
-    	return this.reverseReceiveDao.findByPackageCodeAndSendCode(packageCode,sendCode,businessType);
+    	return this.reverseReceiveDao.findByPackageCodeAndSendCode(packageCode, sendCode, businessType);
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public ReverseReceive findMCS(String packageCode,String sendCode,Integer businessType, Integer canReceive) {
+        return this.reverseReceiveDao.findMCS(packageCode, sendCode, businessType, canReceive);
     }
     
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -168,7 +174,30 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                      }
                 }
             }
-         }
+        } else if (source.getReceiveType() == 4) { //维修外单售后
+            //维修外单:没有0值表示拒收,除了维持1值表示接收,还增加了2值表示交接
+            //0和1是平级,要么0,要么1,数据库只会有一条数据;但是3是交接,发生了在0/1之前,所以数据库会存在两条数据
+            //方案:另外声明一个查询方法,加入新的过滤条件,canReceive,可以确定唯一数据
+            ReverseReceive reverseReceivePO = this.findMCS(source.getPackageCode(), source.getSendCode(), source.getReceiveType(), source.getCanReceive());
+            if (reverseReceivePO == null) {
+                this.logger.info("reverseReceivePO is null");
+                if (StringUtils.isBlank(source.getPickWareCode())) {
+                    this.appentPickwareInfo(source, source.getPackageCode());
+                }
+                this.add(source);
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+            } else {
+                this.logger.info("reverseReceivePO is not null");
+                ReverseReceive reverseReceiveVO = new ReverseReceive();
+                BeanHelper.copyProperties(reverseReceiveVO, source);
+                reverseReceiveVO.setId(reverseReceivePO.getId());
+                reverseReceiveVO.setReceiveType(source.getReceiveType());
+                reverseReceiveVO.setReceiveTime(source.getReceiveTime());
+                this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
+                this.update(reverseReceiveVO);
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE, "update");
+            }
+        }
 
     	sendReportLoss(source);
     }

@@ -16,6 +16,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,20 +136,21 @@ public class QualityControlService {
 
 
     public QualityControl convert2QualityControl(SendDetail sendDetail, QualityControlRequest request, String boxCode){
+        BaseDataDict baseDataDict = baseMajorManager.getBaseDataDictById(request.getQcCode());
         QualityControl qualityControl = new QualityControl();
         qualityControl.setBlameDept(request.getDistCenterID());
         qualityControl.setBlameDeptName(request.getDistCenterName());
         qualityControl.setCreateTime(request.getOperateTime());
         qualityControl.setCreateUserId(request.getUserID());
         qualityControl.setCreateUserName(request.getUserName());
-        qualityControl.setMessageType(QualityControl.QC_REVERSE);
+        qualityControl.setMessageType(baseDataDict.getTypeGroup());
         if(null != boxCode){
             qualityControl.setBoxCode(boxCode);
         }else{
             qualityControl.setBoxCode("null");
         }
         qualityControl.setWaybillCode(sendDetail.getWaybillCode());
-        qualityControl.setTypeCode(baseMajorManager.getBaseDataDictById(request.getQcCode()).getTypeCode() + "");
+        qualityControl.setTypeCode(baseDataDict.getTypeCode() + "");
         qualityControl.setExtraCode("null");
         qualityControl.setSystemName(QualityControl.SYSTEM_NAME);
         qualityControl.setReturnState("null");

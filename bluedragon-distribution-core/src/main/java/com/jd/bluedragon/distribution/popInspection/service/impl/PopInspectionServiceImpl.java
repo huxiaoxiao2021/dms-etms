@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.popInspection.service.impl;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -96,8 +97,7 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 							ip.setInspectionType(popRequest.getBusinessType());
 							ip.setCreateUserCode(popRequest.getUserCode());
 							ip.setCreateUser(popRequest.getUserName());
-							ip.setCreateTime(DateHelper.getSeverTime(popRequest
-									.getOperateTime()));
+							ip.setCreateTime(new Date()); //修改为创建时间 2016年3月16日10:42:53
 							ip.setCreateSiteCode(popRequest.getSiteCode());
 
 							ip.setUpdateTime(ip.getCreateTime());
@@ -111,6 +111,8 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 							ip.setWaybillType(popRequest.getType());
 							ip.setQueueNo(popRequest.getQueueNo());
 							ip.setPopReceiveType(popRequest.getQueueType());
+                            //新增 opTime  2016年3月16日10:43:10
+                            ip.setOperateTime(DateHelper.getSeverTime(popRequest.getOperateTime()));
 							if (Constants.POP_QUEUE_DRIVER.equals(popRequest
 									.getQueueType())) {
 								if (StringUtils.isNotBlank(popRequest

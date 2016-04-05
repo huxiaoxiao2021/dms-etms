@@ -7,13 +7,11 @@ import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -34,7 +32,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
@@ -60,8 +57,6 @@ import com.jd.fastjson.JSON;
 import com.jd.jmq.client.producer.MessageProducer;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.CrossDmsBox;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -101,9 +96,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SendMDao sendMDao;
 
     @Autowired
-    private SendMReadDao sendMReadDao;
-
-    @Autowired
     private SendDatailDao sendDatailDao;
 
     @Autowired
@@ -123,9 +115,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SortingService tSortingService;
-
-    @Autowired
-    private BaseService tBaseService;
 
     @Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -183,9 +172,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
-
-    @Autowired
-    private BasicSafInterfaceManager basicSafInterfaceManager;
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
@@ -2810,4 +2796,47 @@ public class DeliveryServiceImpl implements DeliveryService {
     public  BaseStaffSiteOrgDto getParentSiteBySiteCode(Integer siteCode){
         return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
     }
+
+    /**
+     * 原包发货[前提条件]1：箱号、原包没有发货;
+     * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
+     * （2）写SEND_M表
+     * （3）推送运单状态及回传周转箱
+     * （4）对中转发货写入补全SEND_D任务
+     * @param domain 发货对象
+     * @return 1：发货成功  2：发货失败  4：需要用户确认
+     */
+	@Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError })
+	public SendResult atuoPackageSend(SendM domain, boolean isForceSend) {
+
+        SendM queryPara=new SendM();
+        queryPara.setBoxCode(domain.getBoxCode());
+        queryPara.setCreateSiteCode(domain.getCreateSiteCode());
+        queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
+        List<SendM> sendMList= this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
+
+        if(null!=sendMList&&sendMList.size()>0){
+        	new SendResult(SendResult.CODE_SENDED,SendResult.MESSAGE_SENDED);
+        }
+        try {
+			//插入SEND_M
+			this.sendMDao.insertSendM(domain);
+			if(!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+			    pushSorting(domain);//大件写TASK_SORTING
+			}else{
+			    SendDetail tSendDatail = new SendDetail();
+			    tSendDatail.setBoxCode(domain.getBoxCode());
+			    tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+			    tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+			    this.updateCancel(tSendDatail);//更新SEND_D状态
+			}
+			this.transitSend(domain);//中转任务
+			this.pushStatusTask(domain);//全程跟踪任务
+		} catch (Exception e) {
+			logger.error("一车一单自动发货异常",e);
+			new SendResult(SendResult.CODE_SERVICE_ERROR,SendResult.MESSAGE_SERVICE_ERROR);
+		}
+        return new SendResult(SendResult.CODE_OK,SendResult.MESSAGE_OK);
+	}
 }

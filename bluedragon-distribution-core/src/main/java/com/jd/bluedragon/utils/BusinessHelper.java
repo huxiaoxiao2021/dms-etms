@@ -20,6 +20,7 @@ public class BusinessHelper {
 	private static final String PACKAGE_WAIDAN = "V";
 
     private static final String AO_BATCH_CODE_PREFIX="Y";
+	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
 
 	public static String getWaybillCodeByPackageBarcode(String s) {
 		if (!BusinessHelper.isPackageCode(s)) {
@@ -250,6 +251,25 @@ public class BusinessHelper {
 
         return Boolean.FALSE;
     }
+
+	/**
+	 * 判断是否是维修外单
+	 * MCS : 维修外单缩写,备件库定义的
+	 * @param s
+	 * @return
+	 */
+	public static Boolean isMCSCode(String s) {
+		if (StringHelper.isEmpty(s)) {
+			return Boolean.FALSE;
+		}
+
+		if (PACKAGE_IDENTIFIER_REPAIR.equals(s.substring(0, 2))) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
 
 	public static boolean isNumeric(String str) {
 		Pattern pattern = Pattern.compile("[0-9]*");

@@ -9,6 +9,7 @@ public class WaybillStatus {
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0;
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;
+    public static final Integer WAYBILL_STATUS_CODE_POP_InFactory = 1150; //驻场验货
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_DELIVERY = 2;
 
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
@@ -36,6 +37,8 @@ public class WaybillStatus {
     
     /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/ 
     public static final Integer WAYBILL_STATUS_SHREVERSE = 4300;
+    /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/
+    public static final Integer WAYBILL_STATUS_JJREVERSE = 4400;
     
     /**备件库售后取件交接拆包--驳回**/ 
     public static final Integer WAYBILL_TRACK_AMS_BH = 901;
