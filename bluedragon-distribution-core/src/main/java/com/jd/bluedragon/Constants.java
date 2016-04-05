@@ -59,6 +59,7 @@ public class Constants {
     public static final int BUSSINESS_TYPE_REVERSE = 20;
     public static final int BUSSINESS_TYPE_THIRD_PARTY = 30;
     public static final int BUSSINESS_TYPE_POP = 40;
+    public static final int BUSSINESS_TYPE_InFactory = 41;
     public static final int BUSSINESS_TYPE_TRANSFER = 50;
     public static final int BUSSINESS_TYPE_SITE = 60;//配送员上门接货
     public static final int BUSSINESS_TYPE_BDB = 51;//夺宝岛
@@ -101,6 +102,7 @@ public class Constants {
     public static final int OPERATE_TYPE_RCD = 12;
     public static final int OPERATE_TYPE_SH = 26;//收货回传全程跟踪
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
+    public static final int OPERATE_TYPE_In = 1150;//驻场
     /** 大件包裹标识 **/
     public static final String BOXING_TYPE = "2";
     /* 基础资料SiteType: 16为三方，4为自营 */

@@ -81,6 +81,18 @@
 		WHERE yn = 1 AND package_barcode = #{packageCode} AND send_code = #{sendCode} AND business_type = #{receiveType}
 			AND ROWNUM <![CDATA[<=]]> 1
 	</select>
+
+	<select id="findMCS" resultMap="reverseReceive" parameterType="reverseReceive" >
+		select system_id,operator_code,operator,operate_time,
+		send_code,package_barcode,can_receive,reject_code,reject_message,business_type
+		FROM Reverse_Receive
+		WHERE yn = 1
+			AND package_barcode = #{packageCode}
+			AND send_code = #{sendCode}
+			AND business_type = #{receiveType}
+			AND can_receive = #{canReceive}
+			AND ROWNUM <![CDATA[<=]]> 1
+	</select>
 	
 	
 	<select id="findByWaybillCodeAndSendCode" resultMap="reverseReceive" parameterType="reverseReceive" >

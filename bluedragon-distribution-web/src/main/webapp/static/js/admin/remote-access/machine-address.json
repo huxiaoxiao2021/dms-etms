@@ -1,0 +1,26 @@
+[
+  {
+    "machine_code": "GN-SHYT-JD",
+    "local_dms_url": "http://10.46.0.181/ytWaybillSync/list"
+  },
+  {
+    "machine_code": "1534",
+    "local_dms_url": "http://10.12.4.9/ytWaybillSync/list"
+  },
+  {
+    "machine_code": "TYJD",
+    "local_dms_url": "http://10.47.112.115/ytWaybillSync/list"
+  },
+  {
+    "machine_code": "MC-SZXSJ-JD",
+    "local_dms_url": "http://10.79.192.53/ytWaybillSync/list"
+  },
+  {
+    "machine_code": "boboyang",
+    "local_dms_url": "http://localhost:9003/ytWaybillSync/list"
+  },
+  {
+    "machine_code": "test",
+    "local_dms_url": "http://dmsvertest.360buy.com/ytWaybillSync/list"
+  }
+]
