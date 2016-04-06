@@ -83,7 +83,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         }
 
         //现场调度标识
-        if(request.getLocalSchedule()!=null && request.getLocalSchedule()==LabelPrintingService.LOCAL_SCHEDULE){
+        if(LabelPrintingService.LOCAL_SCHEDULE.equals(request.getLocalSchedule())){
             //特殊标识 追加"调"字
             if (!StringHelper.isEmpty(labelPrinting.getSpecialMark())) {
                 StringBuffer sb = new StringBuffer(labelPrinting.getSpecialMark());
@@ -136,11 +136,11 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
         StringBuilder specialMark = new StringBuilder(StringHelper.isEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
         //航空标识
-        if(crossPackageTag.getIsAirTransport()!=null && crossPackageTag.getIsAirTransport()==LabelPrintingService.AIR_TRANSPORT && request.isAirTransport()){
+        if(LabelPrintingService.AIR_TRANSPORT.equals(crossPackageTag.getIsAirTransport()) && request.isAirTransport()){
             specialMark.append(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
         }
         //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
-        if(crossPackageTag.getIsZiTi().equals(LabelPrintingService.ARAYACAK_CABINET)){
+        if(LabelPrintingService.ARAYACAK_CABINET.equals(crossPackageTag.getIsZiTi())){
             specialMark.append(LabelPrintingService.SPECIAL_MARK_ARAYACAK_CABINET);
             labelPrinting.setPrintAddress(crossPackageTag.getPrintAddress());
         }
