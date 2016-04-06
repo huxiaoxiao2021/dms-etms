@@ -118,7 +118,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			cenConfirm.setInspectionTime(inspection.getCreateTime());
 			cenConfirm.setCreateSiteCode(inspection.getCreateSiteCode());
 			// 操作人/ID/时间 每次都更新
-			cenConfirm.setOperateTime(inspection.getUpdateTime());
+			cenConfirm.setOperateTime(inspection.getOperateTime());
 			cenConfirm.setOperateUser(inspection.getUpdateUser());
 			cenConfirm.setOperateUserCode(inspection.getUpdateUserCode());
 

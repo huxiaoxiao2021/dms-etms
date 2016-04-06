@@ -78,7 +78,8 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
 
         }
         log.info("自动分拣sendPay"+waybill.getSendPay());
-        if(waybill.getSendPay().substring(21,22).equals("5")){
+        char zitiSign = waybill.getSendPay().charAt(21);    //自提柜、合作代收，便民自提
+        if('5' == zitiSign || '6' == zitiSign || '7' == zitiSign){
             Integer destinctSiteCode = baseService.getSiteSelfDBySiteCode(entity.getReceiveSiteCode());
             log.info("自动分拣：自提订单获取目的站点为【"+destinctSiteCode+"】");
             if(null!=destinctSiteCode&&destinctSiteCode>0){
