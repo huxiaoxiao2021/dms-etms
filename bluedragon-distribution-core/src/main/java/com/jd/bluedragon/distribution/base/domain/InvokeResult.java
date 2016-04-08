@@ -14,11 +14,14 @@ public class InvokeResult<T> implements Serializable {
     private static final Log        logger= LogFactory.getLog(InvokeResult.class);
     private static final String     SERVER_ERROR_MESSAGE="服务器执行异常";
 
-    public static final Integer RESULT_NULL_CODE=Integer.valueOf(0);
+    public static final int RESULT_NULL_CODE=0;
     public static final String  RESULT_NULL_MESSAGE="结果为空！";
-    public static final Integer RESULT_SUCCESS_CODE=Integer.valueOf(200);
+    public static final int RESULT_SUCCESS_CODE=200;
+    public static final String RESULT_SUCCESS_MESSAGE="OK";
+    public static final int SERVER_ERROR_CODE=500;
+    public static final int RESULT_PARAMETER_ERROR_CODE=400;
     public InvokeResult(){
-        this.code=200;
+        this.code=RESULT_SUCCESS_CODE;
     }
     /**
      * 状态码
@@ -61,8 +64,8 @@ public class InvokeResult<T> implements Serializable {
     }
 
     public void success(){
-        this.code=200;
-        this.message="OK";
+        this.code=RESULT_SUCCESS_CODE;
+        this.message=RESULT_SUCCESS_MESSAGE;
     }
 
     /**
@@ -70,7 +73,7 @@ public class InvokeResult<T> implements Serializable {
      * @param ex
      */
     public void error(Throwable ex){
-        this.code=500;
+        this.code=SERVER_ERROR_CODE;
         this.message= SERVER_ERROR_MESSAGE;
         //logger.error(ex);
     }
@@ -81,7 +84,7 @@ public class InvokeResult<T> implements Serializable {
      * @param message
      */
     public void error(String message){
-        this.code=500;
+        this.code=SERVER_ERROR_CODE;
         this.message= message;
         //logger.error(ex);
     }
@@ -91,7 +94,7 @@ public class InvokeResult<T> implements Serializable {
      * @param message
      */
     public void parameterError(String message){
-        this.code=400;
+        this.code=RESULT_PARAMETER_ERROR_CODE;
         this.message=message;
     }
 
