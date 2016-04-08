@@ -41,7 +41,7 @@ public class SendCodeResource {
 	public static final String MESSAGE_CARRIER_NOT_FOUND = "承运人不存在.";
 	
 	private static final String TASK_REVERSE_SEND_BUSINESS = "30";
-	private static final String TASK_REVERSE_SEND_NODIFY = "5";
+	private static final String TASK_REVERSE_SEND_NODIFY = "3";
 	private static final String OWN_SIGN_DMS = "DMS";
 
 	@Autowired
