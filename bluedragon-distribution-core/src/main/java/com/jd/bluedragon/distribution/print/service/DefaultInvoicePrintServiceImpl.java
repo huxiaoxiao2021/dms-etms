@@ -38,7 +38,6 @@ public class DefaultInvoicePrintServiceImpl implements InvoicePrintService {
             }
             if(INVOICE_SUCCESS.equals(templte.getResultCode())){
                 result.success();
-                result.setMessage(templte.getResultMessage());
                 result.setData(templte.getHtmlTemplate());
             }else{
                 result.customMessage(InvokeResult.RESULT_NULL_CODE,templte.getResultMessage());
