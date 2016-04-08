@@ -124,6 +124,12 @@
 		</property>
 		<property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
 		<property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
+		<property name="excludedStatements">
+			<list>
+				<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
+				<value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
+			</list>
+		</property>
 	</bean>
 	
 	<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">

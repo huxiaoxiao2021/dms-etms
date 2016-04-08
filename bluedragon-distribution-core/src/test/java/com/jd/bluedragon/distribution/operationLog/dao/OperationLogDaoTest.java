@@ -5,6 +5,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,6 +62,21 @@ public class OperationLogDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testAdd() {
-        //operationLogDao.add();
+		OperationLog parameter = new OperationLog();
+        parameter.setLogId((long)2589);
+        parameter.setBoxCode("Jax");
+        parameter.setWaybillCode("Mary");
+        parameter.setPickupCode("Stone");
+        parameter.setPackageCode("James");
+        parameter.setLogType(207);
+        parameter.setSendCode("Jim");
+        parameter.setCreateUserCode(69);
+        parameter.setCreateUser("Jax");
+        parameter.setCreateSiteCode(838);
+        parameter.setCreateSiteName("Jim");
+        parameter.setReceiveSiteCode(721);
+        parameter.setReceiveSiteName("James");
+        parameter.setRemark("Mary");
+        operationLogDao.add(OperationLogDao.namespace,parameter);
     }
 }
