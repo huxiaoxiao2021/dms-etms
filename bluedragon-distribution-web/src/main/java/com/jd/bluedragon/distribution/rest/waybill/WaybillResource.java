@@ -83,8 +83,7 @@ public class WaybillResource {
 
 	public static final Integer DMSTYPE = 10; // 建包
 
-    @Autowired
-    private WaybillPrintService waybillPrintService;
+
 
 	/* 运单查询 */
 	@Autowired
@@ -796,13 +795,5 @@ public class WaybillResource {
 		}
 	}
 
-    @GET
-    @GZIP
-    @Path("/waybill/getPrintWaybill/{dmsCode}/{waybillCode}/{targetSiteCode}")
-    public InvokeResult<PrintWaybill> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
-                                                      @PathParam("waybillCode")String waybillCode,
-                                                      @PathParam("targetSiteCode")Integer targetSiteCode){
-        //return printService.
-        return waybillPrintService.getPrintWaybill(dmsCode,waybillCode,targetSiteCode);
-    }
+
 }
