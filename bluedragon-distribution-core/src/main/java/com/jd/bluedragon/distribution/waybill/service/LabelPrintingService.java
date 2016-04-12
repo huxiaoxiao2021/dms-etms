@@ -27,9 +27,9 @@ public interface LabelPrintingService {
     String SPECIAL_MARK_ARAYACAK_SITE = "提";
     String SPECIAL_MARK_CROWD_SOURCING = "众";
 
-    int AIR_TRANSPORT = 1;
-    int ARAYACAK_CABINET = 1;
-    int LOCAL_SCHEDULE = 1;
+    Integer AIR_TRANSPORT = 1;
+    Integer ARAYACAK_CABINET = 1;
+    Integer LOCAL_SCHEDULE = 1;
 
     static String ONLINE_PAYMENT="在线支付";
     static int ONLINE_PAYMENT_SIGN = 4;

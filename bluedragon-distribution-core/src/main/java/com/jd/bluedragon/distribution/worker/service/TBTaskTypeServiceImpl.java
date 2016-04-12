@@ -57,12 +57,12 @@ public class TBTaskTypeServiceImpl implements TBTaskTypeService{
         int result= tbTaskTypeDao.insertSingle(domain);
         if(1==result){
             List<TBTaskQueue> list=new ArrayList<TBTaskQueue>(domain.getTaskQueueNumber());
-            for (int i=domain.getTaskQueueNumber();i>0;--i){
+            for (int i=domain.getTaskQueueNumber();i>0;){
                 TBTaskQueue queue=new TBTaskQueue();
                 queue.setId(Integer.valueOf(String.valueOf(domain.getId())+String.valueOf(i)));
                 queue.setTaskType(domain.getBaseTaskType());
                 queue.setOwnSign("DMS");
-                queue.setQueueId(i);
+                queue.setQueueId(--i);
                 list.add(queue);
             }
             result+= tbTaskQueueService.createQueues(list);
