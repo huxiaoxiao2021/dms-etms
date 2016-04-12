@@ -8,11 +8,11 @@ import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendRequest;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

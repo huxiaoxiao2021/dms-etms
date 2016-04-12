@@ -59,7 +59,7 @@ public class RedisTaskResource {
         if (redisQueueMap != null) {
             Collection<ScheduleQueue> redisQueues = redisQueueMap.values();
             for (ScheduleQueue queue : redisQueues) {
-                taskCount += redisTaskHelper.getRedisClient().llen(
+                taskCount += redisTaskHelper.getRedisClient().lLen(
                         queue.getCacheKey());
             }
         }
@@ -174,8 +174,8 @@ public class RedisTaskResource {
                         + "> value <" + JsonHelper.toJson(sendM) + "> success");
                 if (!isExist) {
                     // 如果是列表key是第一次插入的，则设置整体的超时时间
-                    Long expireResult = redisManager.expire(cachedKey, 5);
-                    if (expireResult <= 0) {
+                    Boolean expireResult = redisManager.expire(cachedKey, 5);
+                    if (!expireResult) {
                         logger.warn("set expire of key <" + cachedKey
                                 + "> second <" + 5 + "> fail, expireResult = " + expireResult);
                     } else {

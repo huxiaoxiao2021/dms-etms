@@ -38,11 +38,11 @@
 	<context:component-scan base-package="com.jd.bluedragon.core.base" />
 
 	<bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>
-	<bean id="cacheAspect" class="com.jd.etms.utils.cache.spring.CacheAspect">
-		<property name="shardedXCommands" ref="redisClientCache"></property>
+	<bean id="cacheAspect" class="com.jd.etms.framework.utils.cache.spring.CacheAspect">
+		<property name="cluster" ref="redisClientCache"></property>
 		<property name="keyGenerator" ref="keyGenerator"></property>
 	</bean>
-	<bean id="cacheMonitor" class="com.jd.etms.utils.cache.monitor.DefaultCacheMonitor"></bean>
+	<bean id="cacheMonitor" class="com.jd.etms.framework.utils.cache.monitor.DefaultCacheMonitor"></bean>
 	<bean id="cacheKeyGeneratorScaner" class="com.jd.bluedragon.utils.CacheKeyGeneratorScaner">
 		<property name="keyGenerator" ref="keyGenerator"></property>
 	</bean>

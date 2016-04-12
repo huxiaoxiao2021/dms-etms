@@ -5,7 +5,7 @@ import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.cachecloud.driver.jedis.ShardedXCommands;
+import com.jd.jim.cli.Cluster;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.utils.JsonUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service("redisManager")
 public class RedisManagerImpl implements RedisManager {
@@ -24,11 +25,11 @@ public class RedisManagerImpl implements RedisManager {
 	
 	@Autowired
 	@Qualifier("redisClient")
-	private ShardedXCommands redisClient;
+	private Cluster redisClient;
 	
 	@Autowired
 	@Qualifier("redisClientCache")
-	private ShardedXCommands redisClientCache;
+	private Cluster redisClientCache;
 	
 	@Autowired
 	private TaskService taskService;
@@ -43,33 +44,33 @@ public class RedisManagerImpl implements RedisManager {
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.lpush", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	public Long lpush(String key, String body) {
-		return redisClient.lpush(key, body);
+		return redisClient.lPush(key, body);
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.rpush", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	public Long rpush(String key, String body) {
-		return redisClient.rpush(key, body);
+		return redisClient.rPush(key, body);
 	}
 	
-	public Long hset(String name, String key, String value) {
-		return redisClient.hset(name, key, value);
+	public Boolean hset(String name, String key, String value) {
+		return redisClient.hSet(name, key, value);
 	}
 
 	public String hget(String name, String key) {
-		return this.redisClient.hget(name, key);
+		return this.redisClient.hGet(name, key);
 	}
 
 	public Set<String> hkeys(String name) {
-		return this.redisClient.hkeys(name);
+		return this.redisClient.hKeys(name);
 	}
 
 	public List<String> hvals(String name) {
-		return this.redisClient.hvals(name);
+		return this.redisClient.hVals(name);
 	}
 
 	public Map<String, String> hgetall(String name) {
-		return this.redisClient.hgetAll(name);
+		return this.redisClient.hGetAll(name);
 	}
 
 	@JProfiler(jKey = "erp.RedisClientProxy.llen", mState = { JProEnum.TP,
@@ -79,7 +80,7 @@ public class RedisManagerImpl implements RedisManager {
 			logger.warn("llen: parameter is empty,return 0!");
 			return 0;
 		}
-		Long count = redisClient.llen(key);
+		Long count = redisClient.lLen(key);
 		logger.info("llen: key["+key+"],count["+count+"]");
 		return count==null ? 0 : count.longValue();
 	}
@@ -91,7 +92,7 @@ public class RedisManagerImpl implements RedisManager {
 			logger.warn("llen: parameter is empty,return 0!");
 			return null;
 		}
-		List<String> list = redisClient.lrange(key, start, end);
+		List<String> list = redisClient.lRange(key, start, end);
 		return list;
 	}
 	
@@ -102,7 +103,7 @@ public class RedisManagerImpl implements RedisManager {
 			logger.warn("lpop: parameter is empty,return null!");
 			return null;
 		}
-		String result = redisClient.lpop(key);
+		String result = redisClient.lPop(key);
 		return result;
 	}
 	
@@ -169,8 +170,8 @@ public class RedisManagerImpl implements RedisManager {
 	 * @return
 	 * 
 	 */
-	public String setex(String key, int timeout ,String body) {
-		return this.redisClientCache.setex(key, timeout, body);
+	public void setex(String key, int timeout ,String body) {
+		this.redisClientCache.setEx(key,body,timeout, TimeUnit.SECONDS);
 	}
 	
 	/**
@@ -209,15 +210,15 @@ public class RedisManagerImpl implements RedisManager {
 	 * @param key key
 	 * @param seconds expire seconds
 	 * */
-	public Long expire(String key, Integer seconds){
-		return redisClientCache.expire(key,seconds);
+	public Boolean expire(String key, Integer seconds){
+		return redisClientCache.expire(key,seconds,TimeUnit.SECONDS);
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.lpushCache", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	@Override
 	public Long lpushCache(String key, String body) {
-		return redisClientCache.lpush(key, body);
+		return redisClientCache.lPush(key, body);
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.lrangeCache", mState = {
@@ -228,7 +229,7 @@ public class RedisManagerImpl implements RedisManager {
 			logger.warn("lrangeCache: parameter is empty,return 0!");
 			return null;
 		}
-		List<String> list = redisClientCache.lrange(key, start, end);
+		List<String> list = redisClientCache.lRange(key, start, end);
 		return list;
 	}
 }

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.core.redis;
 
-import com.jd.cachecloud.driver.jedis.ShardedXCommands;
+import com.jd.jim.cli.Cluster;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.CacheEntry;
 import com.jd.tbschedule.redis.QueueCacheEntry;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RedisTaskHelper {
 	
 	private static Log log = LogFactory.getLog(RedisTaskHelper.class);
-	private ShardedXCommands redisClient;
+	private Cluster redisClient;
 	private String queuePrefix;//任务列表key前缀，用于如：WORKER_QUEUE_JSONSealBoxRedisTask， WORKER_QUEUE_JSON就是任务列表key前缀
 	private static ConcurrentHashMap<String, Map<String, ScheduleQueue>> taskListMap = new ConcurrentHashMap<String, Map<String, ScheduleQueue>>();//用于记录所有的任务列表与任务类型的对应关系
 
@@ -57,15 +57,15 @@ public class RedisTaskHelper {
 		return result;
 	}
 
-	public ShardedXCommands getRedisClient() {
-		return redisClient;
-	}
+    public Cluster getRedisClient() {
+        return redisClient;
+    }
 
-	public void setRedisClient(ShardedXCommands redisClient) {
-		this.redisClient = redisClient;
-	}
+    public void setRedisClient(Cluster redisClient) {
+        this.redisClient = redisClient;
+    }
 
-	public String getQueuePrefix() {
+    public String getQueuePrefix() {
 		return queuePrefix;
 	}
 
