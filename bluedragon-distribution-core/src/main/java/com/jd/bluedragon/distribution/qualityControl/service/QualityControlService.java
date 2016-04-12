@@ -113,7 +113,7 @@ public class QualityControlService {
         for(SendDetail sendDetail : sendDetails){
             BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
             QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
-            logger.warn("分拣中心异常页面发质控和全程跟踪开始。运单号" + qualityControl.getWaybillCode());
+            logger.error("分拣中心异常页面发质控和全程跟踪开始。运单号" + JsonHelper.toJson(qualityControl));
             waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
             messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
         }
