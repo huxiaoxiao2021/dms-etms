@@ -103,6 +103,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
+            commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
             commonWaybill.setOriginalDmsCode(dmsCode);
             commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
             commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
@@ -111,6 +112,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
+            commonWaybill.setType(tmsWaybill.getWaybillType());
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
