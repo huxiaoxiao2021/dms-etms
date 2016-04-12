@@ -363,8 +363,8 @@ public class SortingServiceImpl implements SortingService {
 					+ "> value <" + JsonHelper.toJson(sendM) + "> success");
 			if(!isExist){
 				// 如果是列表key是第一次插入的，则设置整体的超时时间
-				Long expireResult = redisManager.expire(cachedKey, DELIVERY_INFO_EXPIRE_SCONDS);
-				if(expireResult <= 0){
+				Boolean expireResult = redisManager.expire(cachedKey, DELIVERY_INFO_EXPIRE_SCONDS);
+				if(!expireResult){
 					logger.warn("set expire of key <" + cachedKey
 							+ "> second <" + DELIVERY_INFO_EXPIRE_SCONDS
 							+ "> fail. result " + expireResult);

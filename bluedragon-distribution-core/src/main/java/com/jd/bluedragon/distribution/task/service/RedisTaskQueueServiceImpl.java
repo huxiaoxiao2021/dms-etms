@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.task.service;
 
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

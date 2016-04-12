@@ -126,6 +126,14 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		//添加订单处理，判断是否是T单 2016-1-8
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setSendCode(reverseReceive.getSendCode());
+		if (reverseReceive.getReceiveType() == 3) {//如果是备件库的,则找到其真正的send_code
+			List<ReverseSpare> tReverseSpareList = sparedao.queryBySpareTranCode(xrequest.getSendCode());
+			if (tReverseSpareList != null && tReverseSpareList.size()>0) {
+				String sendCode = tReverseSpareList.get(0).getSendCode();
+				tsendDatail.setSendCode(sendCode);
+			}
+		}
+		
 		tsendDatail.setWaybillCode(Constants.T_WAYBILL + reverseReceive.getOrderId());
 		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
 		if (sendDatailist != null && !sendDatailist.isEmpty()){
