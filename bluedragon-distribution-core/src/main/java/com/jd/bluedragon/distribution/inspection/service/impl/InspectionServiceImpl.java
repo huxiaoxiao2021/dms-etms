@@ -112,7 +112,7 @@ public class InspectionServiceImpl implements InspectionService {
                 BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill()!=null) {
 
-                    logger.error("包裹交接50 订单号: " + requestBean.getPackageBarOrWaybillCode() +
+                    logger.info("包裹交接50 订单号: " + requestBean.getPackageBarOrWaybillCode() +
                             "  waybillType:" + bigWaybillDto.getWaybill().getWaybillType() +
                             "  StoreID:" + bigWaybillDto.getWaybillState().getStoreId() +
                             " task id: " + task.getId());

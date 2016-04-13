@@ -507,6 +507,6 @@
   			</if>
 		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 		     AND YN=1
-		 LIMIT 1
+		AND rownum <![CDATA[<=]]> 1
 	</select>
 </mapper>
