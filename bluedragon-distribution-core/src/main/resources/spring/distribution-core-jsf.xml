@@ -163,4 +163,7 @@
 		<jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
 	 </jsf:consumer>
 	<!-- 基础资料系统接口 结束 -->
+
+    <jsf:consumer id="invoiceJsfService" interface="com.jd.invoice.service.jsf.PrintTableJsfService" protocol="jsf"
+                  alias="${fms.invoice.alias}" timeout="${fms.invoice.timeout}" retries="0" check="false"/>
 </beans>
