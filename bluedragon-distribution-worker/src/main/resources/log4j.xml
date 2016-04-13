@@ -231,13 +231,15 @@
 	</logger>
 
 	<logger name="com.jd.bluedragon.distribution">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon"/>
+        <appender-ref ref="console"/>
 	</logger>
 
 	<root>
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon" />
+        <appender-ref ref="console"/>
 	</root>
 
 </log4j:configuration>
