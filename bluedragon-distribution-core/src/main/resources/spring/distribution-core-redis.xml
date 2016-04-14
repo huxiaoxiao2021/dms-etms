@@ -13,16 +13,16 @@
 		default-autowire="byName">
     
     <!-- 连接到配置服务器,注意配置 hosts "192.168.150.61   cfs.cache.jd.local"  -->
-    <bean id="configClient" class="com.jd.cachecloud.cfs.client.ConfigRESTClientFactoryBean"/>
+    <!--<bean id="configClient" class="com.jd.cachecloud.cfs.client.ConfigRESTClientFactoryBean"/>-->
     <bean id="redisClient"  class="com.jd.jim.cli.ReloadableJimClientFactoryBean">
-       <property name="configClient" ref="configClient"/>
-       <property name="configId" value="${redis.config.id}"/>
-       <property name="token" value="${redis.config.token}"/>
+       <!--<property name="configClient" ref="configClient"/>-->
+       <!--<property name="configId" value="${redis.config.id}"/>-->
+       <property name="jimUrl" value="${redis.config.url}"/>
     </bean>
     <bean id="redisClientCache"  class="com.jd.jim.cli.ReloadableJimClientFactoryBean">
-       <property name="configClient" ref="configClient"/>
-       <property name="configId" value="${redis.cache.config.id}"/>
-       <property name="token" value="${redis.cache.config.token}"/>
+       <!--<property name="configClient" ref="configClient"/>-->
+       <!--<property name="configId" value="${redis.cache.config.id}"/>-->
+       <property name="jimUrl" value="${redis.cache.config.url}"/>
     </bean>
 	
 	<!-- 静态配置 -->

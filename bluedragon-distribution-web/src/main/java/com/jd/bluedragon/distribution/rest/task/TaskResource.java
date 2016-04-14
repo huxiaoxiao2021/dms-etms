@@ -63,6 +63,9 @@ public class TaskResource {
 		CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
 		
 		Assert.notNull(request, "request must not be null");
+        if(logger.isInfoEnabled()){
+            logger.info("TaskRequest [" + JsonHelper.toJson(request) + "]");
+        }
 
 		TaskResponse response = null;
 		if (StringUtils.isBlank(request.getBody())) {
