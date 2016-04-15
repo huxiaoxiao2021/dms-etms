@@ -81,36 +81,20 @@
 		<property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
 	</bean>
 
-	<bean id="dataSources" class="com.jd.bluedragon.core.dbs.datasources.DefaultDataSourceService">
-		<property name="dataSourceDescriptors">
-			<set>
-				<bean class="com.jd.bluedragon.core.dbs.datasources.DataSourceDescriptor">
-					<property name="identity" value="dms"/>
-					<property name="mainDataSource" ref="dms_main"/>
-					<property name="threadPoolSize"  value="10"/>
-				</bean>
-			</set>
-		</property>	
-	</bean>
-	<!--
-	<bean id="transactionAlert" class="com.jd.bluedragon.common.utils.DbTransactionAlert" />
-	
-	<bean id="transactionManager"
-		class="com.jd.bluedragon.core.dbs.transaction.MultiDataSourcesTransactionManager">
-		<property name="dataSourceService" ref="dataSources" />
-		<property name="transactionAlert" ref="transactionAlert" />
-		<property name="transactionTrigger" ref="mesageClient" />
-	</bean>
-	-->
-	<!--
-	<tx:annotation-driven transaction-manager="transactionManager"/>-->
 
-	<bean id="sessionTemplate" class="com.jd.bluedragon.core.dbs.DBSqlSessionTemplate">
-		<constructor-arg index="0" ref="dataSources" />		
-		<constructor-arg index="1" value="dms" />		
-		<property name="configLocation" value="classpath:mybatis-config.xml"/>	
+    <bean id="writeSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main" />
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+    </bean>
+
+	<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="writeSqlSessionFactory" />
 	</bean>
-	
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_main" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
 	<!-- dms读库 数据源  -start-->
 	
 	
