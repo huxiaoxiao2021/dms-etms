@@ -85,7 +85,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
 		<typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
 	</typeAliases>
-	
+
     <plugins>
         <!--
         mq消息发送说明：
