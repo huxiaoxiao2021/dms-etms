@@ -48,13 +48,8 @@ public class OperationLogServiceImpl implements OperationLogService {
 			for(SysConfig sys : configs){
 				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_ON")){
 					logCassandra.batchInsert(operationLog);
+				}else if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OFF")){
 					operationLogDao.add(OperationLogDao.namespace, operationLog);
-				}
-				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OFF")){
-					operationLogDao.add(OperationLogDao.namespace, operationLog);
-				}
-				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OL")){
-					logCassandra.batchInsert(operationLog);
 				}
 			}
 			
