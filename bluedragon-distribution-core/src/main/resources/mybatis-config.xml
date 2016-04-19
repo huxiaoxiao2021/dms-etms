@@ -86,7 +86,6 @@
 		<typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
 	</typeAliases>
 	
-	</typeAliases>
     <plugins>
         <!--
         mq消息发送说明：
