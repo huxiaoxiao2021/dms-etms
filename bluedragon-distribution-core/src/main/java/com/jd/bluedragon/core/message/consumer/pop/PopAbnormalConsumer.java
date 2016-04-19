@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.message.consumer.pop;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,7 +16,6 @@ import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalTransferConv
 import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.message.Message;
 
 @Service("popAbnormalConsumer")
 public class PopAbnormalConsumer extends MessageBaseConsumer {
@@ -27,7 +27,7 @@ public class PopAbnormalConsumer extends MessageBaseConsumer {
 
 	public void consume(Message message) {
 
-		String popAbnormalXml = message.getContent();
+		String popAbnormalXml = message.getText();
 
 		Boolean isCommit = Boolean.FALSE;
 		PopAbnormal popAbnormal = null;
@@ -109,6 +109,6 @@ public class PopAbnormalConsumer extends MessageBaseConsumer {
 			}
 		}
 
-		this.logger.info("Id:" + message.getId() + ", 处理结果：" + isCommit);
+		this.logger.info("Id:" + message.getBusinessId() + ", 处理结果：" + isCommit);
 	}
 }

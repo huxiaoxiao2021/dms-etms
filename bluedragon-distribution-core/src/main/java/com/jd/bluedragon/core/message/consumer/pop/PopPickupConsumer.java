@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.message.consumer.pop;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.PopPickupRequest;
 import com.jd.bluedragon.distribution.popPickup.service.PopPickupService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.message.Message;
 
 @Service("popPickupConsumer")
 public class PopPickupConsumer  extends MessageBaseConsumer {
@@ -22,8 +22,8 @@ public class PopPickupConsumer  extends MessageBaseConsumer {
 	public void consume(Message message) {
 		// 处理消息体
 		this.logger.info("PopPickupMessageConsumer consume --> 消息Body为【"
-											+ message.getContent() + "】");
-		PopPickupRequest popPickup = JsonHelper.fromJson(message.getContent(),PopPickupRequest.class);
+											+ message.getText() + "】");
+		PopPickupRequest popPickup = JsonHelper.fromJson(message.getText(),PopPickupRequest.class);
 		
 		if(popPickup.getPackageBarcode() != null){
 			popPickupService.doPickup(popPickup);

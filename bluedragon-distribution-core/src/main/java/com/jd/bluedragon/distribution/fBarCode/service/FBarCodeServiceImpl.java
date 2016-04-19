@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.fBarCode.service;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -9,7 +10,6 @@ import com.jd.bluedragon.distribution.fBarCode.dao.FBarCodeDao;
 import com.jd.bluedragon.distribution.fBarCode.domain.FBarCode;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dbs.objectId.IGenerateObjectId;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;

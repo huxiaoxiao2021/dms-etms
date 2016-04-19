@@ -1,5 +1,9 @@
 package com.jd.bluedragon.core.jmq.producer;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
@@ -8,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.MessageFormat;
+import java.util.Date;
 
 /**
  * Created by wangtingwei on 2015/12/22.
@@ -19,6 +24,9 @@ public class DefaultJMQProducer {
     @Autowired
     @Qualifier("jmqProducer")
     private com.jd.jmq.client.producer.MessageProducer jmqProducer;
+
+    @Autowired
+    private TaskService taskService;
 
     /**
      * 消息主题
@@ -41,7 +49,37 @@ public class DefaultJMQProducer {
             logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{1}",this.topic,body));
         }
         Message message = new Message(this.topic, body, businessId);
-        jmqProducer.send(message,this.timeout);
+        jmqProducer.send(message, this.timeout);
+    }
+
+
+    public void sendOnFailPersistent(String businessId,String body){
+        try {
+            send(businessId,body);
+        }catch (Throwable ex){
+            logger.error("换单失败",ex);
+            persistent(businessId,body);
+        }
+    }
+
+    private void persistent(String businessId,String body) {
+        try {
+        Task task = new Task();
+        task.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        task.setOperateTime(new Date());
+        task.setBoxCode(businessId);
+        task.setKeyword1(this.topic);
+        task.setType(Task.TASK_TYPE_MESSAGE);
+        task.setBody(body);
+        task.setTableName(Task.getTableName(task.getType()));
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setCreateSiteCode(Integer.valueOf(0));
+        taskService.add(task, true);
+        }catch (Throwable throwable){
+            logger.error("消息队列持久化",throwable);
+        }
+
     }
 
     public String getTopic() {

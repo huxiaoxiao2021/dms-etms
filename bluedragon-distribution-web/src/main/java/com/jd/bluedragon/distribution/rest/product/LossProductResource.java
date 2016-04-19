@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.rest.product;
 
+import com.jd.bluedragon.core.message.MessageDto;
 import com.jd.bluedragon.core.message.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.etms.message.Message;
-import com.jd.etms.message.consumer.MessageDto;
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +38,7 @@ public class LossProductResource {
 	@Path("/order/loss")
 	public JdResponse add(MessageDto message) {
 		Message newMessage = new Message();
-		newMessage.setContent(message.getContent());
+		newMessage.setText(message.getContent());
 		this.lossOrderConsumer.consume(newMessage);
 
 		return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);

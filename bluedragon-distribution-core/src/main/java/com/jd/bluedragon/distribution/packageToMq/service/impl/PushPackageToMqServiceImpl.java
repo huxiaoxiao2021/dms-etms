@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.packageToMq.service.impl;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackageRequest;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackagesRequest;
@@ -8,12 +9,12 @@ import com.jd.bluedragon.distribution.packageToMq.domain.WaybillMqMsg;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -25,7 +26,8 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 	private final Logger logger = Logger.getLogger(PushPackageToMqServiceImpl.class);
 
     @Autowired
-    private MessageClient messageClient;
+    @Qualifier("packageMQ")
+    private DefaultJMQProducer packageMQ;
 
     private static final String STATEMENTID = "com.jd.orderpackage.pack";
 
@@ -72,9 +74,9 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
         try {
         	for(WaybillMqMsg waybillmq:waybillmqs){
         		/*按照运单进行分组，businessId 是  'ORDER_PACKAGE_' + waybillno*/
-        		pubshMq("package",JsonHelper.toJson(waybillmq),
-        				MessageConstant.OrderPacke.getName() + waybillmq.getMsgObj().getWaybillCode());
-        		logger.info("PushPackageToMqServiceImpl.execPush 运单号[" + waybillmq.getMsgObj().getWaybillCode() + "] 包裹数量[" + waybillmq.getMsgObj().getPackList().size() + "] 推送完毕");
+        		//pubshMq("package",JsonHelper.toJson(waybillmq),MessageConstant.OrderPacke.getName() + waybillmq.getMsgObj().getWaybillCode());
+                packageMQ.send(MessageConstant.OrderPacke.getName() + waybillmq.getMsgObj().getWaybillCode(),JsonHelper.toJson(waybillmq));
+                logger.info("PushPackageToMqServiceImpl.execPush 运单号[" + waybillmq.getMsgObj().getWaybillCode() + "] 包裹数量[" + waybillmq.getMsgObj().getPackList().size() + "] 推送完毕");
         	}
         }catch(Exception e){
         	logger.error("PushPackageToMqServiceImpl.execPush 推送MQ异常",e);
@@ -86,7 +88,7 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 	public void pubshMq(String key,String body,String busiId){
 		/*开始时间*/
 		long beign = System.currentTimeMillis();
-		this.messageClient.sendMessage(key,body,busiId);
+		//this.messageClient.sendMessage(key,body,busiId);
 		/*结束时间*/
 		long end = System.currentTimeMillis()-beign;
 		/*如果超过1500ms这启用UMP预警*/

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.popReveice.service.impl;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popPrint.dao.PopSigninDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopSignin;
@@ -12,10 +13,10 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.message.produce.client.MessageClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +40,12 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	private TaskPopRecieveCountDao taskPopRecieveCountDao;
 	@Autowired
 	PopSigninDao popSigninDao;
-	@Autowired
-	private MessageClient messageClient;
+
 	private String sendKey = "bd_pop_receivecount";
+
+    @Autowired
+    @Qualifier("bdPopReceivecountMQ")
+    private DefaultJMQProducer bdPopReceivecountMQ;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
@@ -176,7 +180,7 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 		return dataList;
 	}
 
-	public void sendMessage(List<TaskPopRecieveCount> data) {
+	public void sendMessage(List<TaskPopRecieveCount> data) throws Exception{
 		if (data == null) {
 			return;
 		}
@@ -219,7 +223,9 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 		}
 		String jsonStr = JsonHelper.toJson(messageList);
 		messageLog.info("向POP回传收货信息【" + jsonStr + "】,key：" + this.sendKey);
-		messageClient.sendMessage(this.sendKey, jsonStr, null);
+		//messageClient.sendMessage(this.sendKey, jsonStr, null);
+
+        bdPopReceivecountMQ.send(String.valueOf(System.currentTimeMillis()),jsonStr);
 		messageLog.info("向POP回传收货信息【" + jsonStr + "】成功");
 
 	}

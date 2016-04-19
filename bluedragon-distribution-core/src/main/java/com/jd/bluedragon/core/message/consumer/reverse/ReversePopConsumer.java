@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.etms.message.Message;
 /**
  * 
 * 类描述： 逆向POP消息回传
@@ -29,8 +29,8 @@ public class ReversePopConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
         String waybillCode = null;
         ReceiveRequest request = new ReceiveRequest();
-        if (XmlHelper.isXml(message.getContent(), ReceiveRequest.class, null)) {
-        	request = (ReceiveRequest) XmlHelper.toObject(message.getContent(),
+        if (XmlHelper.isXml(message.getText(), ReceiveRequest.class, null)) {
+        	request = (ReceiveRequest) XmlHelper.toObject(message.getText(),
         			ReceiveRequest.class);
         }else{
         	this.logger.info("非xml的消息格式，直接返回");

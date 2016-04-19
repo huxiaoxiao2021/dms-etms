@@ -43,7 +43,7 @@ public class WorkerSettingController {
      * @return
      */
     @RequestMapping(value = "/index")
-    public String Index(Pager<String> splitPager,Model model) throws Exception{
+    public String index(Pager<String> splitPager, Model model) throws Exception{
         splitPager.init();
         try {
             model.addAttribute("model",tbTaskTypeService.readByName(splitPager));

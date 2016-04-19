@@ -20,14 +20,14 @@
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c %M:%L - %m%n" />
 		</layout>
 	</appender>
-
+	
 	<appender name="bluedragon.error" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-error.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
-                <param name="MaxFileSize" value="20MB" />
-                <param name="MaxBackupIndex" value="100"/>
-                <param name="Encoding" value="UTF-8"/>
+        <param name="MaxFileSize" value="20MB" />
+        <param name="MaxBackupIndex" value="100"/>
+        <param name="Encoding" value="UTF-8"/>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c %M:%L - %m%n" />
 		</layout>
@@ -35,7 +35,7 @@
 	
 	<appender name="bluedragon.sorting" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-sorting.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -47,7 +47,7 @@
 	
 	<appender name="bluedragon.inspection" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-inspection.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -56,22 +56,22 @@
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c %M:%L - %m%n" />
 		</layout>
 	</appender>
-
-<appender name="bluedragon.popAbnormal" class="org.apache.log4j.RollingFileAppender">
-	<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-popAbnormal.log" />
-	<param name="Threshold" value="INFO"/>
-	<param name="Append" value="true" />
-	<param name="MaxFileSize" value="20MB" />
-	<param name="MaxBackupIndex" value="100"/>
-	<param name="Encoding" value="UTF-8"/>
-	<layout class="org.apache.log4j.PatternLayout">
-		<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c %M:%L - %m%n" />
-	</layout>
-</appender>
+	
+	<appender name="bluedragon.popAbnormal" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-popAbnormal.log" />
+		<param name="Threshold" value="ERROR"/>
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="20MB" />
+		<param name="MaxBackupIndex" value="100"/>
+		<param name="Encoding" value="UTF-8"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c %M:%L - %m%n" />
+		</layout>
+	</appender>
 	
 	<appender name="bluedragon.base" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-base.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -83,7 +83,7 @@
 	
 	<appender name="bluedragon.box" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-box.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -95,7 +95,7 @@
 	
 	<appender name="bluedragon.send" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-send.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -107,7 +107,7 @@
 
 	<appender name="bluedragon.sortingReturn" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-sortingReturnReturnStatus.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -119,7 +119,7 @@
 	
 	<appender name="bluedragon.receive" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-receive.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -131,7 +131,7 @@
 	
 	<appender name="bluedragon.partnerWaybill" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-partnerWaybill.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -140,10 +140,10 @@
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c %M:%L - %m%n" />
 		</layout>
 	</appender>
-
+	
 	<appender name="bluedragon.reverseservice" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-reverseservice.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -155,7 +155,7 @@
 	
 	<appender name="bluedragon.etms.mq.sender" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-mq-sender.log" />
-		<param name="Threshold" value="INFO"/>
+		<param name="Threshold" value="ERROR"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -165,42 +165,125 @@
 		</layout>
 	</appender>
 	
-
-	<!-- mybatis -->
+	<appender name="fileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="${log.path.prefix}/perfStats.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n" />
+        </layout>
+    </appender>
+	
+	<!-- mybatis debug -->
 	<category name="org.apache.ibatis"
 		additivity="true">
-		<priority value="INFO" />
+		<priority value="ERROR" />
+		<appender-ref ref="console" />
 	</category>
 	
 	<category name="java.sql" additivity="true">
-		<priority value="INFO" />
+		<priority value="ERROR" />
+		<appender-ref ref="console" />
 	</category>
 	
-	
 	<logger name="com.jd.dbs.transaction" >
-		<level value="INFO" />
+		<level value="ERROR" />
 	</logger>
 
 	<logger name="com.jd.etms.basic.cache" >
-		<level value="INFO" />
+		<level value="ERROR" />
 	</logger>
 
+	<logger name="com.jd.bluedragon.distribution">
+		<level value="ERROR"/>
+		<appender-ref ref="console"/>
+		<appender-ref ref="bluedragon"/>
+	</logger>
+	
+	<logger name="com.jd.bluedragon.distribution.sorting">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.sorting"/>
+		<appender-ref ref="console"/>
+	</logger>
+		
+	<logger name="com.jd.bluedragon.distribution.inspection" >
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.inspection"/>
+		<appender-ref ref="console"/>
+	</logger>
+	
 	<logger name="com.jd.bluedragon.distribution.worker.PopAbnormalTask" >
-	    <level value="INFO"/>
-	    <appender-ref ref="bluedragon.popAbnormal"/>
-        </logger>
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.popAbnormal"/>
+		<appender-ref ref="console"/>
+	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.base">
-		<level value="INFO"/>
+		<level value="ERROR"/>
 		<appender-ref ref="bluedragon.base"/>
+		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.box">
-		<level value="INFO"/>
+		<level value="ERROR"/>
 		<appender-ref ref="bluedragon.box"/>
+		<appender-ref ref="console"/>
 	</logger>
 	
-  	<appender name="dbArchive" class="org.apache.log4j.DailyRollingFileAppender">
+	<logger name="com.jd.bluedragon.distribution.send">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.send"/>
+		<appender-ref ref="console"/>
+	</logger>
+ 
+	<logger name="com.jd.bluedragon.distribution.sendprint">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.send"/>
+		<appender-ref ref="console"/>
+	</logger>
+	
+	<logger name="com.jd.bluedragon.distribution.sorting.service.SortingReturnServiceImple">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.sortingReturn"/>
+		<appender-ref ref="console"/>
+	</logger>
+		
+	<logger name="com.jd.bluedragon.distribution.receive">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.receive"/>
+		<appender-ref ref="console"/>
+	</logger>
+	
+	<logger name="com.jd.bluedragon.distribution.receiveInspectionExc">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.receive"/>
+		<appender-ref ref="console"/>
+	</logger>
+	
+	<logger name="com.jd.bluedragon.distribution.partnerWaybill">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.partnerWaybill"/>
+		<appender-ref ref="console"/>
+	</logger>
+	
+	<logger name="com.jd.bluedragon.distribution.reverse.service">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.reverseservice"/>
+	</logger>
+	
+	<logger name="com.jd.etms.message">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.etms.mq.sender"/>
+	</logger>
+	
+	<logger name="com.jd.bluedragon">
+		<level value="ERROR"/>
+		<appender-ref ref="bluedragon.error"/>
+		<appender-ref ref="console"/>
+	</logger>
+    <logger name="com.jd.coo.sa.mybatis.plugins">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+	<appender name="dbArchive" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="File" value="${log.path.prefix}/dbArchive.log" />
 		<param name="DatePattern" value="'.'yyyyMMdd" />
 		<param name="Append" value="true" />
@@ -210,33 +293,13 @@
 	</appender>
 
 	<logger name="com.jd.bluedragon.dbArchive" additivity="true">
-		<level value="DEBUG" />
+		<level value="ERROR" />
 		<appender-ref ref="dbArchive" />
 	</logger>
 	
-	<logger name="com.jd.etms.message">
-		<level value="INFO"/>
-		<appender-ref ref="bluedragon.etms.mq.sender"/>
-	</logger>
-  
-	<logger name="com.jd.bluedragon.distribution.waybill.service">
-		<level value="INFO"/>
-		<appender-ref ref="bluedragon.base"/>
-	</logger>
-  
-	<logger name="com.jd.bluedragon">
-		<level value="INFO"/>
-		<appender-ref ref="bluedragon.error"/>
-		<appender-ref ref="console"/>
-	</logger>
-
-	<logger name="com.jd.bluedragon.distribution">
-		<level value="INFO"/>
-		<appender-ref ref="bluedragon"/>
-	</logger>
-
 	<root>
-		<level value="INFO"/>
+		<level value="ERROR"/>
+		<appender-ref ref="console" />
 		<appender-ref ref="bluedragon" />
 	</root>
 

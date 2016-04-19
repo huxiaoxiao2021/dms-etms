@@ -48,7 +48,7 @@ public class SysConfigServiceImpl implements SysConfigService {
             if(null!=list&&list.size()>0){
                 SysConfig config=list.get(0);
                 //NumberHelper.isNumber()
-                size=Long.valueOf(config.getConfigContent());
+                size=Long.parseLong(config.getConfigContent());
             }
         }catch (Exception ex){
             logger.error("重新加载redisTaskQueueSize",ex);

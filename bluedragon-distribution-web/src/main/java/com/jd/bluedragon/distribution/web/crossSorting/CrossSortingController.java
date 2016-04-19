@@ -252,7 +252,7 @@ public class CrossSortingController {
             cs.setDeleteUserCode(null);
             cs.setDeleteUserName(null);
             cs.setDeleteTime(null);
-            cs.setYn(new Integer(1));
+            cs.setYn(Integer.valueOf(1));
         }
         return csrList;
     }

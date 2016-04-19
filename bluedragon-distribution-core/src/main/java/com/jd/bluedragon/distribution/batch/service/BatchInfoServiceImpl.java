@@ -2,12 +2,12 @@ package com.jd.bluedragon.distribution.batch.service;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.batch.dao.BatchInfoDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dbs.objectId.IGenerateObjectId;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -111,7 +111,7 @@ class BatchInfoServiceImpl implements BatchInfoService {
                 if (batchCache != null) {
                     this.logger.info("findMaxCreateTimeBatchInfo缓存命中波次为" + maxbatchinfocode);
                     //如果箱号 目的地 始发地不为空的时候
-                    if (batchCache.getBatchCode() != null && batchCache.getCreateSiteCode() != null&& batchCache != null) {
+                    if (batchCache != null&&batchCache.getBatchCode() != null && batchCache.getCreateSiteCode() != null) {
                         lst.add(batchCache);
                         return lst;
                     }

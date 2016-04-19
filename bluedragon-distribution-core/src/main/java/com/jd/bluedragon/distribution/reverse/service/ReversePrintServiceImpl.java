@@ -18,6 +18,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +56,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private ReceiveManager receiveManager;
 
+    @Autowired
+    @Qualifier("bdBlockerCompleteMQ")
+    private DefaultJMQProducer bdBlockerCompleteMQ;
 
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -118,7 +122,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          */
         taskService.add(tTask);
         this.logger.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
-        pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
+        //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
+        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
+
         OperationLog operationLog=new OperationLog();
         operationLog.setCreateTime(new Date());
         operationLog.setRemark("【外单逆向换单打印】原单号："+domain.getOldCode()+"新单号："+domain.getNewCode());

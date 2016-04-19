@@ -52,7 +52,7 @@ public class BatchSendServiceImpl implements BatchSendService {
         send.setCreateUserCode(batchInfo.getCreateUserCode());
         Date current=new Date(System.currentTimeMillis());
         logger.info("时间格式为"+DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
-        send.setSendCode(Integer.valueOf(batchInfo.getCreateSiteCode())+"-"+Integer.valueOf(siteCode)+"-"+ DateHelper.formatDate(current, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS));
+        send.setSendCode(String.valueOf(batchInfo.getCreateSiteCode())+"-"+String.valueOf(siteCode)+"-"+ DateHelper.formatDate(current, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS));
         send.setYn(1);
         send.setSendStatus(0);
         boolean result=false;
@@ -161,12 +161,14 @@ public class BatchSendServiceImpl implements BatchSendService {
     }
     private boolean alterSendCarState(String sendCode,Date operateTime,Integer state){
         BatchSend last=readBySendCode(sendCode);
-        if(null!=last&&state!=last.getSendCarState()&&(null==last.getSendCarOperateTime()||operateTime.compareTo(last.getSendCarOperateTime())>0)){
+        if(null!=last&&(!state.equals(last.getSendCarState()))&&(null==last.getSendCarOperateTime()||operateTime.compareTo(last.getSendCarOperateTime())>0)){
             BatchSend send=new BatchSend();
             send.setSendCode(sendCode);
             send.setSendCarState(state);
             send.setSendCarOperateTime(operateTime);
-            logger.info("发车批次状态修改参数"+JsonHelper.toJson(send));
+            if(logger.isInfoEnabled()) {
+                logger.info("发车批次状态修改参数" + JsonHelper.toJson(send));
+            }
             batchSendDao.updateSendCarState(send);
             redisManager.del("BatchSend.readBySendCode"+sendCode);
         }

@@ -99,7 +99,7 @@ public class ReverseRepairResource {
 			return 0;
 		}
 
-		return new Integer(sendCodeArray[0]);
+		return Integer.valueOf(sendCodeArray[0]);
 	}
 
 	private Integer getReceiveSiteCode(String sendCode) {
@@ -109,7 +109,7 @@ public class ReverseRepairResource {
 			return 0;
 		}
 
-		return new Integer(sendCodeArray[1]);
+		return  Integer.valueOf(sendCodeArray[1]);
 	}
 
 }

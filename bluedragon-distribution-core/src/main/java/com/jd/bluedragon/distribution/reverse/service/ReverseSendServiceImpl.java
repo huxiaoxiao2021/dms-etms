@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.message.Message;
@@ -36,7 +37,6 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
-import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.product.domain.Product;
@@ -56,7 +56,6 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.loss.client.BlueDragonWebService;
@@ -74,7 +73,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private final Logger logger = Logger.getLogger(ReverseSendServiceImpl.class);
 
     @Autowired
-    private MessageClient messageClient;
+    @Qualifier("bdDmsReverseSendMQ")
+    private DefaultJMQProducer bdDmsReverseSendMQ;
 
     @Autowired
     WaybillQueryApi waybillQueryApi;
@@ -93,6 +93,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     SpareService spareService;
 
     @Autowired
+    @Qualifier("dmsSendLossMQ")
+    private DefaultJMQProducer dmsSendLossMQ;
+	@Autowired
     private SendMDao sendMDao;
 
     @Autowired
@@ -110,8 +113,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     private BlueDragonWebService lossWebService;
 
+    @Qualifier("bdToJoslRejMQ")
     @Autowired
-    private MessageProducer messageProducer;
+    private DefaultJMQProducer bdToJoslRejMQ;
 
     @Resource
     @Qualifier("workerProducer")
@@ -278,9 +282,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setPickWareCode(tSendDetail.getPickupCode());
 
             try {
-                this.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
+				/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
-                                + tSendDetail.getPackageBarcode());
+								+ tSendDetail.getPackageBarcode());*/
+
+                bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
+                        + tSendDetail.getPackageBarcode(),JsonHelper.toJson(send));
                 try {
                     //业务流程监控, 售后埋点
                     Map<String, String> data = new HashMap<String, String>();
@@ -1239,7 +1246,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             logger.error("青龙逆向发货后回传报损系统锁定MQ json为" + jsonStr);
 
 
-            this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+			//this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+            dmsSendLossMQ.send(orderId,jsonStr);
             logger.info("青龙逆向发货后回传报损系统锁定MQ消息成功，订单号为" + orderId);
         } catch (Exception e) {
             logger.error("青龙逆向发货后回传报损系统锁定MQ消息失败，订单号为" + orderId, e);
@@ -1299,7 +1307,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 sLogDetail.setContent(jsonStr);
 
                 try {
-                    messageProducer.send("bd_to_josl_rej", jsonStr, wayBillCode);
+                    bdToJoslRejMQ.send(wayBillCode,jsonStr);
                     sLogDetail.setKeyword4(Long.valueOf(1));//表示发送成功
                 } catch (Exception e) {
                     logger.error("推送ECLP MQ 发生异常.", e);

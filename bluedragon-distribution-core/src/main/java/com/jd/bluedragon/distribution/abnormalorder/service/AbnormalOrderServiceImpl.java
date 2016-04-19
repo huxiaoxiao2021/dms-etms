@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormalorder.service;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.abnormalorder.dao.AbnormalOrderDao;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
@@ -11,16 +12,17 @@ import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +44,14 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 	@Autowired
 	IPushPackageToMqService pushMqService;
-	
+
+    @Autowired
+    @Qualifier("pushFXMMQ")
+    private DefaultJMQProducer pushFXMMQ;
+
+    @Autowired
+    @Qualifier("bdDmsAbnormalOrderToQcMQ")
+    private DefaultJMQProducer bdDmsAbnormalOrderToQcMQ;
 	@Autowired
 	AbnormalOrderDao abnormalOrderDao;
 	
@@ -52,8 +61,6 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
     @Autowired
     BaseService baseService;
 
-	@Autowired
-	private MessageClient messageClient;
 
 	@Autowired
 	private WaybillTraceApi waybillTraceApi;
@@ -145,9 +152,9 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		qualityControl.setExtraCode(abnormalOrder.getFingerprint());
 		qualityControl.setReturnState("null");
 		log.warn("分拣中心外呼申请发质控消息为" + JsonHelper.toJson(qualityControl));
-		messageClient.sendMessage(MessageDestinationConstant.QualityControlFXMMQ.getName(), JsonHelper.toJson(qualityControl),abnormalOrder.getOrderId());
-
-	}
+		//messageClient.sendMessage(MessageDestinationConstant.QualityControlFXMMQ.getName(), JsonHelper.toJson(qualityControl),abnormalOrder.getOrderId());
+        bdDmsAbnormalOrderToQcMQ.sendOnFailPersistent(abnormalOrder.getOrderId(),JsonHelper.toJson(qualityControl));
+    }
 
 	public void toWaybillTraceWS(AbnormalOrder abnormalOrder){
 		BdTraceDto bdTraceDto = new BdTraceDto();
@@ -182,8 +189,9 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		for(AbnormalOrderMq mq :mqList){
 			String body = JsonHelper.toJson(mq);
 			String busiId = mq.getOrderId();
-			pushMqService.pubshMq(FXM_MQ_ADDRESS, body, busiId);
-		}
+			//pushMqService.pubshMq(FXM_MQ_ADDRESS, body, busiId);
+            pushFXMMQ.sendOnFailPersistent(busiId, body);
+        }
 	}
 	
 	private void pushWaybill(List<WaybillSyncParameter> waybillList){

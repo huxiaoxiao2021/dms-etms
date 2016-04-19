@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.qualityControl.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
@@ -13,13 +14,13 @@ import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public class QualityControlService {
     private SendDatailDao sendDatailDao;
 
     @Autowired
-    private MessageClient messageClient;
+    @Qualifier("bdExceptionToQcMQ")
+    private DefaultJMQProducer bdExceptionToQcMQ;
 
     @Autowired
 	private WaybillTraceApi waybillTraceApi;
@@ -115,7 +117,9 @@ public class QualityControlService {
             QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
             logger.error("分拣中心异常页面发质控和全程跟踪开始。运单号" + JsonHelper.toJson(qualityControl));
             waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
-            messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
+            //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
+            bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
+
         }
     }
 

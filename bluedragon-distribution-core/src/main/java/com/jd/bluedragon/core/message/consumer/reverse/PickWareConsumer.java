@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.message.Message;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.BaseDmsStoreDto;
 
@@ -35,10 +35,10 @@ public class PickWareConsumer extends MessageBaseConsumer {
 	private BasicSafInterfaceManager basicSafInterfaceManager;
 	
 	public void consume(Message message) throws Exception {
-		if (message == null || message.getContent() == null) {
+		if (message == null || message.getText() == null) {
 			return;
 		}
-		String messageContent = message.getContent();
+		String messageContent = message.getText();
         this.logger.info("[备件库售后取件单-交接/拆包]messageContent：" + messageContent);
         PickWare pickWare = JsonHelper.fromJson(messageContent, PickWare.class);
         pickWare.setPickwareTime(DateHelper.parseDateTime(pickWare.getOperateTime()));

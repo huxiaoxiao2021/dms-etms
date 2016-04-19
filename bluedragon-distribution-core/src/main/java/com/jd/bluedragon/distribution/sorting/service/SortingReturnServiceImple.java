@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -21,6 +22,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +69,10 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	
 	@Autowired
 	private TaskService taskService;
+
+    @Autowired
+    @Qualifier("bdBlockerCompleteMQ")
+    private DefaultJMQProducer bdBlockerCompleteMQ;
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -430,7 +436,8 @@ public class SortingReturnServiceImple implements SortingReturnService {
                     String mqbody = ret.getBusinessType() == null ?
                             createMqBody(orderId, operateTime, 0) :
                             createMqBody(orderId, operateTime, ret.getBusinessType());
-                    pushMqService.pubshMq(SortingReturnServiceImple.SORTINGRET_MQ_KEY, mqbody, orderId);
+                    //pushMqService.pubshMq(SortingReturnServiceImple.SORTINGRET_MQ_KEY, mqbody, orderId);
+                    bdBlockerCompleteMQ.send(orderId,mqbody);
                     logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
                             + "] 推送MQ操作完成 orderId:" + orderId);
                 }

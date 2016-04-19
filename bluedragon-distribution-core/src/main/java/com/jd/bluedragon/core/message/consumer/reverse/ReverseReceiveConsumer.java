@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -68,7 +68,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	@Override
 	public void consume(Message message) {
 
-		String messageContent = message.getContent();
+		String messageContent = message.getText();
 		this.logger.info("逆向收货消息messageContent：" + messageContent);
 
 		ReverseReceiveRequest jrequest = null;

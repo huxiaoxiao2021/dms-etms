@@ -4,7 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.message.producer.MessageProducer;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,8 +79,10 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
 
-	@Autowired
-	private MessageProducer messageProducer;
+	@Qualifier("bdBlockerCompleteMQ")
+    @Autowired
+    private DefaultJMQProducer bdBlockerCompleteMQ;
+
 
 	@Autowired
 	private WaybillCancelService waybillCancelService;
@@ -755,7 +758,7 @@ public class SortingServiceImpl implements SortingService {
 					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
                 String refundMessage = this.refundMessage(sorting.getWaybillCode(),
 						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
-				this.messageProducer.send(MQ_KEY_REFUND, refundMessage, sorting.getWaybillCode());
+				this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
