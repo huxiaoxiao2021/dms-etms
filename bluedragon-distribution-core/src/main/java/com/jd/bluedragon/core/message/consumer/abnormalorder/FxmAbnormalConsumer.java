@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.message.consumer.abnormalorder;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrderMq;
 import com.jd.bluedragon.distribution.abnormalorder.service.AbnormalOrderService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.message.Message;
 
 @Service("fxmAbnormalConsumer")
 public class FxmAbnormalConsumer  extends MessageBaseConsumer {
@@ -24,9 +24,9 @@ public class FxmAbnormalConsumer  extends MessageBaseConsumer {
 	public void consume(Message message) {
 		// 处理消息体
 		this.logger.info("FxmAbnormalMessageConsumer consume --> 消息Body为【"
-									+ message.getContent() + "】");
+									+ message.getText() + "】");
 		
-		AbnormalOrderMq abnormalOrderMq = JsonHelper.fromJson(message.getContent(),AbnormalOrderMq.class);
+		AbnormalOrderMq abnormalOrderMq = JsonHelper.fromJson(message.getText(),AbnormalOrderMq.class);
 		if(abnormalOrderMq.getOrderId()!=null && abnormalOrderMq.getSystemFlag().equals("DMS")){
 			// 更新数据库		
 			AbnormalOrder abnormalOrder = new AbnormalOrder();

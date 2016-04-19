@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -21,7 +22,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.message.produce.client.MessageClient;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,8 +67,9 @@ public class InspectionServiceImpl implements InspectionService {
 	@Autowired
 	private CenConfirmService cenConfirmService;
 
-	@Autowired
-	private MessageClient messageClient;
+    @Qualifier("dmsRouterMQ")
+    @Autowired
+    private DefaultJMQProducer dmsRouterMQ;
 
 	@Autowired
 	private OrderWebService orderWebService;
@@ -449,8 +451,8 @@ public class InspectionServiceImpl implements InspectionService {
 
 		this.logger.info("分拣中心OEM收货推送WMS:MQ[" + json + "]");
 		try {
-			messageClient.sendMessage("dms_router", json,
-					inspection.getWaybillCode());
+			//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
+            dmsRouterMQ.send(inspection.getWaybillCode(),json);
 		} catch (Exception e) {
 			this.logger.error(
 					"分拣中心OEM收货推送WMS失败[" + json + "]:" + e.getMessage(), e);

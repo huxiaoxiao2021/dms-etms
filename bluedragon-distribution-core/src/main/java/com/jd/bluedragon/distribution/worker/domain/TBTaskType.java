@@ -2,8 +2,7 @@ package com.jd.bluedragon.distribution.worker.domain;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import java.sql.Date;
-
+import java.util.*;
 /**
  * 淘宝调度任务
  * Created by wangtingwei on 2015/10/8.
@@ -194,7 +193,6 @@ public class TBTaskType {
     }
 
     public void setPermitRunEndTime(String permitRunEndTime) {
-        this.permitRunEndTime = permitRunEndTime;
         this.permitRunEndTime = permitRunEndTime;
         if(this.permitRunEndTime != null && this.permitRunEndTime.trim().length() == 0) {
             this.permitRunEndTime = null;

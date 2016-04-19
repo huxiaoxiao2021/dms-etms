@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.message.consumer.reverse;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.message.Message;
 
 @Service("dmsRouterConsumer")
 public class DmsRouterConsumer extends MessageBaseConsumer {
@@ -28,11 +28,11 @@ public class DmsRouterConsumer extends MessageBaseConsumer {
 
 	@SuppressWarnings("rawtypes")
 	public void consume(Message message) throws Exception {
-		if (message == null || message.getContent() == null) {
+		if (message == null || message.getText() == null) {
 			return;
 		}
 
-		DmsRouter dmsRouter = JsonHelper.fromJson(message.getContent(), DmsRouter.class);
+		DmsRouter dmsRouter = JsonHelper.fromJson(message.getText(), DmsRouter.class);
 		if (dmsRouter.getType() == 80) {
 			this.logger.info("[分拣中心OEM推送WMS]messageContent:" + dmsRouter.getBody());
 

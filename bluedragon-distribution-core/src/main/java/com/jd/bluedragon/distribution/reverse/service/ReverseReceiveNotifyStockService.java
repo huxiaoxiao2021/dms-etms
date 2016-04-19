@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,7 +21,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
-import com.jd.bluedragon.core.message.producer.MessageProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
@@ -87,8 +88,9 @@ public class ReverseReceiveNotifyStockService {
 	@Autowired
 	private OrderBankService orderBankService;
 
-	@Autowired
-	private MessageProducer messageProducer;
+	@Qualifier("wmsStockChuGuanMQ")
+    @Autowired
+    private DefaultJMQProducer wmsStockChuGuanMQ;
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -306,15 +308,12 @@ public class ReverseReceiveNotifyStockService {
 				}
 			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
 				if (isPrePay(payType)) {
-					this.messageProducer.send(MQ_KEY_STOCK,
-							this.stockMessage(order, products, STOCK_TYPE_1602, payType), String.valueOf(waybillCode));
-					this.messageProducer.send(MQ_KEY_STOCK,
-							this.stockMessage(order, products, STOCK_TYPE_1603, payType), String.valueOf(waybillCode));
+
+					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
+					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1603, payType));
 				} else {
-					this.messageProducer.send(MQ_KEY_STOCK,
-							this.stockMessage(order, products, STOCK_TYPE_1601, payType), String.valueOf(waybillCode));
-					this.messageProducer.send(MQ_KEY_STOCK,
-							this.stockMessage(order, products, STOCK_TYPE_1602, payType), String.valueOf(waybillCode));
+					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1601, payType));
+					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
 				}
 				
 				sysLog.setKeyword3("MQ");
