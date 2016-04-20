@@ -4,7 +4,7 @@ import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;

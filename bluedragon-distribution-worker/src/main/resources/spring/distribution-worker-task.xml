@@ -384,6 +384,7 @@
 		<property name="type" value="1160" />
 		<property name="desc" value="将称重信息回传到运单中心" />
 	</bean>
+
     <bean id="scannerFrameTask" class="com.jd.bluedragon.distribution.worker.ScannerFrameTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource" />

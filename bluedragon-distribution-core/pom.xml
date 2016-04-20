@@ -25,7 +25,7 @@
 
 	<dependencies>
         <dependency>
-<groupId>mysql</groupId>
+			<groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.18</version>
             <optional>false</optional>
@@ -34,6 +34,9 @@
             <groupId>mybatis-plugins</groupId>
             <artifactId>mybatis-plugins</artifactId>
             <version>1.0.2</version>
+		</dependency>
+		<dependency>
+            <!--发票打印调用财务接口-->
         </dependency>
         <dependency>
             <groupId>com.jd.fms.ivc</groupId>
@@ -476,6 +479,35 @@
 			<groupId>com.jd.etms</groupId>
 			<artifactId>tbschedule-redis</artifactId>
 			<version>1.4-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+    	<dependency>
+        	<groupId>com.jd.packExchange</groupId>
+			<artifactId>wms-packExchange-domain</artifactId>
+       		<version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jd.jim.cli</groupId>
+            <artifactId>jim-cli-jedis</artifactId>
+            <version>1.4.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jd.jim.cli</groupId>
+            <artifactId>jim-cli-api</artifactId>
+            <version>1.4.5-SNAPSHOT</version>
+        </dependency>
+    	
+		<dependency>
+			<groupId>com.jd.etms</groupId>
+            <artifactId>tbschedule-redis</artifactId>
+            <version>1.5.2-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>spring</artifactId>

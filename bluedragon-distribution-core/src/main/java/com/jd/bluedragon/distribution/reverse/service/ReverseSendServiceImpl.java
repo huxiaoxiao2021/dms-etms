@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.httpclient.HttpClient;

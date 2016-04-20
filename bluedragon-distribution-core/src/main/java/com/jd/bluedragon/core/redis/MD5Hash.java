@@ -1,10 +1,10 @@
 package com.jd.bluedragon.core.redis;
 
+import com.jd.jim.cli.redis.util.Hashing;
+import com.jd.jim.cli.redis.util.SafeEncoder;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import redis.clients.util.Hashing;
-import redis.clients.util.SafeEncoder;
 
 public class MD5Hash implements Hashing {
 	

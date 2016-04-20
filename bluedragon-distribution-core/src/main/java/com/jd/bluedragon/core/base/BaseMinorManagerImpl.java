@@ -1,24 +1,20 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.List;
-
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import com.jd.etms.utils.cache.annotation.Cache;
-import com.jd.ql.basic.domain.AirTransport;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BasePdaUserDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicAirConfigWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service("baseMinorManager")
 public class BaseMinorManagerImpl implements BaseMinorManager {
@@ -42,7 +38,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	
 	
 	
-	@Cache(key = "baseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderById", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseTradeInfoDto getBaseTraderById(Integer paramInteger) {

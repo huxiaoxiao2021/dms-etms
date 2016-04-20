@@ -14,10 +14,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -420,30 +417,38 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				&& (tWaybillStatus.getPackageCode() == null
 						|| "".equals(tWaybillStatus.getPackageCode()) || "-1"
 							.equals(tWaybillStatus.getPackageCode()))) {
-			log.error("CenConfirmServiceImpl.checkFormat[PackageCode]return false");
+            LogHelper.errorUseCurrentStackTrace(log,"CenConfirmServiceImpl.checkFormat[PackageCode]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getCreateSiteCode() == null) {
-			log.error("CenConfirmServiceImpl.checkFormat[CreateSiteCode]return false");
+            log.error("CenConfirmServiceImpl.checkFormat[CreateSiteCode]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getCreateSiteName() == null
 				|| "".equals(tWaybillStatus.getCreateSiteName())) {
 			log.error("CenConfirmServiceImpl.checkFormat[CreateSiteName]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getCreateSiteType() == null) {
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			log.error("CenConfirmServiceImpl.checkFormat[CreateSiteType]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOperatorId() == null) {
 			log.error("CenConfirmServiceImpl.checkFormat[OperatorId]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOperator() == null
 				|| "".equals(tWaybillStatus.getOperator())) {
 			log.error("CenConfirmServiceImpl.checkFormat[Operator]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOperateTime() == null) {
 			log.error("CenConfirmServiceImpl.checkFormat[OperateTime]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOrgId() == null) {
 			log.error("CenConfirmServiceImpl.checkFormat[OrgId]return false");
+            LogHelper.errorUseCurrentStackTrace(log, "");
 			return Boolean.FALSE;
 		} else {
 			return Boolean.TRUE;

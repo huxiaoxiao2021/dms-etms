@@ -26,7 +26,7 @@ public abstract class LimitRedisSingleScheduler extends RedisSingleScheduler {
 			List<TaskEntry<Task>> tasks, String queueKey,
 			Map<String, ScheduleQueue> queueNumberMap) {
 
-		long totalNum = redisClient.llen(queueKey);
+		long totalNum = jimClient.lLen(queueKey);
 		if (totalNum > limitNum && tasks.size() > keepRedisNum) {
 			List<TaskEntry<Task>> redisTasks = tasks.subList(0, keepRedisNum);
 			List<TaskEntry<Task>> jdbcTasks = tasks.subList(keepRedisNum,

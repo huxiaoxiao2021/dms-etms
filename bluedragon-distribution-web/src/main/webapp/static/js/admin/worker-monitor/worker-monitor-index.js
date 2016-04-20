@@ -22,7 +22,7 @@ function main() {
 }
 
 function initTaskTableList() {
-	var url = $("#contextPath").val() + "/static/js/admin/worker-monitor/machine-address.json";
+	var url = $("#contextPath").val() + "/static/js/admin/worker-monitor/worker-queue.json";
 	$.getJSON(url, function(data) {
 		taskTableList = data;
 		var tableObj = $('#table_list');
