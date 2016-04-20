@@ -149,7 +149,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     public static final String TABLE_NAME_SCANNER_FRAME="TASK_SCANNER_FRAME";
     public static final String TABLE_NAME_SCANNER_FRAME_SEQ ="SEQ_TASK_SCANNER_FRAME";
-/
+
 
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
@@ -455,7 +455,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_GLOBAL_TRADE;
         }else if(Task.TASK_TYPE_MESSAGE.equals(type)){
             return Task.TABLE_NAME_MESSAGE;
-            return Task.TABLE_NAME_SCANNER_FRAME;
         }
         else if(Task.TASK_TYPE_SCANNER_FRAME.equals(type)){
             return Task.TABLE_NAME_SCANNER_FRAME;
@@ -499,7 +498,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_WEIGHT_SEQ;
         }else if(Task.TABLE_NAME_GLOBAL_TRADE.equals(tableName)){
             return Task.TABLE_NAME_GLOBAL_TRADE_SEQ;
-}else if(Task.TABLE_NAME_MESSAGE.equals(tableName)){
+        }else if(Task.TABLE_NAME_MESSAGE.equals(tableName)){
             return Task.TABLE_NAME_MESSAGE_SEQ;
         }else if(Task.TABLE_NAME_SCANNER_FRAME.equals(tableName)){
             return Task.TABLE_NAME_SCANNER_FRAME_SEQ;
@@ -543,7 +542,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				|| Task.TASK_TYPE_REVERSE_RECEIVE.equals(type)
 				|| Task.TASK_TYPE_WEIGHT.equals(type)
                 || Task.TASK_TYPE_PUSH_MQ.equals(type)
-||Task.TASK_TYPE_MESSAGE.equals(type)
+                ||Task.TASK_TYPE_MESSAGE.equals(type)
                 ||Task.TASK_TYPE_SCANNER_FRAME.equals(type)) {  // 增加干线计费系统任务
 			return TaskMode.REDIS;
 		}
