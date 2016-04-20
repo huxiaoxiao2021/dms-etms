@@ -1,6 +1,10 @@
 package com.jd.bluedragon;
 
+import com.jd.bluedragon.utils.LogHelper;
 import oracle.sql.CHAR;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.SimpleLog;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -292,4 +296,9 @@ public class Constants {
     public static final int PDA_BIG_THIRDPL_ID = 6000000;
     public static final String BASIC_STAFF_COL = "staffId";	//员工标识
 
+    private static final Log logger= new SimpleLog("test");
+    public static void main(String[] args) {
+
+        LogHelper.errorUseCurrentStackTrace(logger,"test");
+    }
 }
