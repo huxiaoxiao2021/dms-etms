@@ -288,6 +288,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 String body=generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
                                 + tSendDetail.getPackageBarcode());
+                logger.error("推送售后MQ"+body);
                 bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
                         + tSendDetail.getPackageBarcode(),body);
                 try {
