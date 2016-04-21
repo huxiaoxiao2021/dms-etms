@@ -285,9 +285,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 				/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
 								+ tSendDetail.getPackageBarcode());*/
-
+                String body=generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                        "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
+                                + tSendDetail.getPackageBarcode());
                 bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
-                        + tSendDetail.getPackageBarcode(),JsonHelper.toJson(send));
+                        + tSendDetail.getPackageBarcode(),body);
                 try {
                     //业务流程监控, 售后埋点
                     Map<String, String> data = new HashMap<String, String>();
@@ -314,10 +316,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         triggerMessage.setParameter(data);
         triggerMessage.setStatement(statementId);
         triggerMessage.setParamClassName(dataType);
-        List<TriggerMessage> dataList = new ArrayList<TriggerMessage>();
+        List<TriggerMessage> dataList = new ArrayList<TriggerMessage>(1);
         dataList.add(triggerMessage);
-        Map<String, List<TriggerMessage>> dataMap = new HashMap<String, List<TriggerMessage>>();
-        return String.valueOf("");
+        return JsonHelper.toJson(dataList);
     }
 
     private class TriggerMessage {
