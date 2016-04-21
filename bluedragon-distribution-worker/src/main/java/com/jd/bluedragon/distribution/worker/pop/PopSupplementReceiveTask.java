@@ -153,7 +153,10 @@ public class PopSupplementReceiveTask implements
 			inspection.setDriverName(popPrint.getDriverName());
 			inspection.setBusiId(popPrint.getBusiId());
 			inspection.setBusiName(popPrint.getBusiName());
-			
+			inspection.setOperateTime(popPrint.getPrintPackTime());
+            if(null==inspection.getOperateTime()){
+                inspection.setOperateTime(popPrint.getCreateTime());
+            }
 			if (Waybill.isPopWaybillType(inspection.getWaybillType())) {
 				inspection.setBusiId(popPrint.getPopSupId());
 				inspection.setBusiName(popPrint.getPopSupName());
