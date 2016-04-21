@@ -1,11 +1,13 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.jd.etms.waybill.api.WaybillSyncApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.WaybillParameter;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
 	@Autowired
     private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	WaybillSyncApi waybillSyncApi;
 
 	@Override
 	public void consume(Message message) {
@@ -201,8 +206,13 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
 					taskService.add(this.toTask(tWaybillStatus));
 				} else if (reverseReceive.getCanReceive() == 1) {
-					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-					taskService.add(this.toTaskStatus(tWaybillStatus));
+					// 维修外单的逆向收货,需要调妥投的接口(接口不仅妥投,且附带全程跟踪的功能)
+					if (BusinessHelper.isMCSCode(reverseReceive.getPackageCode())) {
+						this.confirmReceive(reverseReceive);
+					} else { //正常的逆向收货,只发全程跟踪
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
+					}
 				} else if (reverseReceive.getCanReceive() == 2) {
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
 					taskService.add(this.toTaskStatus(tWaybillStatus));
@@ -211,7 +221,24 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 	}
-	
+
+	/**
+	 * 调运单接口,妥投运单
+	 * @param reverseReceive
+	 */
+	private void confirmReceive(ReverseReceive reverseReceive) {
+		List<WaybillSyncParameter> waybillSyncParameterList = new ArrayList<WaybillSyncParameter>();
+		WaybillSyncParameter waybillSyncParameter = new WaybillSyncParameter();
+		waybillSyncParameter.setOperatorCode(reverseReceive.getWaybillCode());
+		waybillSyncParameter.setOperatorId(reverseReceive.getOperatorId() == null ? -1 : Integer.parseInt(reverseReceive.getOperatorId()));
+		waybillSyncParameter.setOperatorName(reverseReceive.getOperatorName());
+		waybillSyncParameter.setOperateTime(reverseReceive.getReceiveTime());
+		waybillSyncParameter.setOrgId(reverseReceive.getOrgId());
+		waybillSyncParameterList.add(waybillSyncParameter);
+		BaseEntity<List<String>> result = waybillSyncApi.batchUpdateWaybillByOperatorCode(waybillSyncParameterList, WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+		logger.info(MessageFormat.format("维修外单妥投成功:{0}", JsonHelper.toJson(waybillSyncParameterList)));
+	}
+
 	private Task toTask(WaybillStatus tWaybillStatus) {
 		Task task = new Task();
 		task.setTableName(Task.TABLE_NAME_POP);
