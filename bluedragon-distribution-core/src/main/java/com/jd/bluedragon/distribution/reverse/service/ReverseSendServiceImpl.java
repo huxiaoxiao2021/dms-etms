@@ -285,9 +285,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 				/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
 								+ tSendDetail.getPackageBarcode());*/
-
+                String body=generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                        "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
+                                + tSendDetail.getPackageBarcode());
                 bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
-                        + tSendDetail.getPackageBarcode(),JsonHelper.toJson(send));
+                        + tSendDetail.getPackageBarcode(),body);
                 try {
                     //业务流程监控, 售后埋点
                     Map<String, String> data = new HashMap<String, String>();
@@ -305,6 +307,61 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         return true;
     }
 
+    private String generateCustomerBody(String executorKey,
+                                        String statementId,
+                                        String dataType,
+                                        String data,
+                                        String businessId){
+        TriggerMessage triggerMessage = new TriggerMessage();
+        triggerMessage.setParameter(data);
+        triggerMessage.setStatement(statementId);
+        triggerMessage.setParamClassName(dataType);
+        List<TriggerMessage> dataList = new ArrayList<TriggerMessage>(1);
+        dataList.add(triggerMessage);
+        return JsonHelper.toJson(dataList);
+    }
+
+    private class TriggerMessage {
+        private String crud;
+        private String statement;
+        private Object parameter;
+        private String paramClassName;
+
+        public TriggerMessage() {
+        }
+
+        public String getParamClassName() {
+            return this.paramClassName;
+        }
+
+        public void setParamClassName(String paramClassName) {
+            this.paramClassName = paramClassName;
+        }
+
+        public String getStatement() {
+            return this.statement;
+        }
+
+        public void setStatement(String statement) {
+            this.statement = statement;
+        }
+
+        public Object getParameter() {
+            return this.parameter;
+        }
+
+        public void setParameter(Object parameter) {
+            this.parameter = parameter;
+        }
+
+        public String getCrud() {
+            return this.crud;
+        }
+
+        public void setCrud(String crud) {
+            this.crud = crud;
+        }
+    }
     private void removeDuplicatedProduct(ReverseSendAsiaWms send) {
         List<com.jd.bluedragon.distribution.reverse.domain.Product> products = send
                 .getProList();

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -78,6 +79,80 @@ public class TestCase {
 		t.setDeliverys(tt);
 		
 		System.out.println(JsonHelper.toJson(t));
-	}
-	
+        TestCase testCase=new TestCase();
+        System.out.printf("======================================================================\n");
+        System.out.printf("======================================================================\n");
+        System.out.printf("======================================================================\n");
+        System.out.printf("======================================================================\n");
+
+
+
+        String body=testCase.generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                "java.util.String", "{\n" +
+                        "  \"operatorId\" : \"14640\",\n" +
+                        "  \"operatorName\" : \"蔡飞\",\n" +
+                        "  \"packageCode\" : \"W0383739160\",\n" +
+                        "  \"pickWareCode\" : \"Q222809677\",\n" +
+                        "  \"dispatchTime\" : \"2016-04-20 11:18:04\",\n" +
+                        "  \"sendCode\" : \"121674-21633-201604201118030\"\n" +
+                        "}", MessageConstant.ReverseSend.getName()
+                        + "packageCode");
+
+        System.out.printf(body);
+    }
+    private  String generateCustomerBody(String executorKey,
+                                        String statementId,
+                                        String dataType,
+                                        String data,
+                                        String businessId){
+        TriggerMessage triggerMessage = new TriggerMessage();
+        triggerMessage.setParameter(data);
+        triggerMessage.setStatement(statementId);
+        triggerMessage.setParamClassName(dataType);
+        List<TriggerMessage> dataList = new ArrayList<TriggerMessage>(1);
+        dataList.add(triggerMessage);
+        return com.jd.bluedragon.utils.JsonHelper.toJson(dataList);
+    }
+
+    private class TriggerMessage {
+        private String crud;
+        private String statement;
+        private Object parameter;
+        private String paramClassName;
+
+        public TriggerMessage() {
+        }
+
+        public String getParamClassName() {
+            return this.paramClassName;
+        }
+
+        public void setParamClassName(String paramClassName) {
+            this.paramClassName = paramClassName;
+        }
+
+        public String getStatement() {
+            return this.statement;
+        }
+
+        public void setStatement(String statement) {
+            this.statement = statement;
+        }
+
+        public Object getParameter() {
+            return this.parameter;
+        }
+
+        public void setParameter(Object parameter) {
+            this.parameter = parameter;
+        }
+
+        public String getCrud() {
+            return this.crud;
+        }
+
+        public void setCrud(String crud) {
+            this.crud = crud;
+        }
+    }
 }
