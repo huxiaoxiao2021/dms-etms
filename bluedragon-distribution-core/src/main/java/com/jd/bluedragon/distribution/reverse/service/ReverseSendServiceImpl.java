@@ -305,6 +305,62 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         return true;
     }
 
+    private String generateCustomerBody(String executorKey,
+                                        String statementId,
+                                        String dataType,
+                                        String data,
+                                        String businessId){
+        TriggerMessage triggerMessage = new TriggerMessage();
+        triggerMessage.setParameter(data);
+        triggerMessage.setStatement(statementId);
+        triggerMessage.setParamClassName(dataType);
+        List<TriggerMessage> dataList = new ArrayList<TriggerMessage>();
+        dataList.add(triggerMessage);
+        Map<String, List<TriggerMessage>> dataMap = new HashMap<String, List<TriggerMessage>>();
+        return String.valueOf("");
+    }
+
+    private class TriggerMessage {
+        private String crud;
+        private String statement;
+        private Object parameter;
+        private String paramClassName;
+
+        public TriggerMessage() {
+        }
+
+        public String getParamClassName() {
+            return this.paramClassName;
+        }
+
+        public void setParamClassName(String paramClassName) {
+            this.paramClassName = paramClassName;
+        }
+
+        public String getStatement() {
+            return this.statement;
+        }
+
+        public void setStatement(String statement) {
+            this.statement = statement;
+        }
+
+        public Object getParameter() {
+            return this.parameter;
+        }
+
+        public void setParameter(Object parameter) {
+            this.parameter = parameter;
+        }
+
+        public String getCrud() {
+            return this.crud;
+        }
+
+        public void setCrud(String crud) {
+            this.crud = crud;
+        }
+    }
     private void removeDuplicatedProduct(ReverseSendAsiaWms send) {
         List<com.jd.bluedragon.distribution.reverse.domain.Product> products = send
                 .getProList();
