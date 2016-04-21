@@ -1,15 +1,15 @@
 package com.jd.bluedragon.utils;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jd.bluedragon.core.base.BaseMajorManagerImpl;
 import com.jd.bluedragon.core.base.BaseMinorManagerImpl;
 import com.jd.bluedragon.distribution.base.service.impl.BaseServiceImpl;
 import com.jd.bluedragon.distribution.base.service.impl.SiteServiceImpl;
-import com.jd.etms.utils.cache.annotation.Cache;
-import com.jd.etms.utils.cache.keygenerator.CacheKeyGenerator;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.keygenerator.CacheKeyGenerator;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DmsArgsMatchCacheKeyGenerator implements CacheKeyGenerator {
 

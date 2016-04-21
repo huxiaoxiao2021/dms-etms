@@ -13,7 +13,7 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -38,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskDao taskDao;
     
     private TaskDao mysqlTaskDao;
-    
+
     private Set mysqlTableSet;
     
     private RedisTaskService redisTaskService;

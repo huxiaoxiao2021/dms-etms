@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.message.consumer.reverse;
 
 import java.util.List;
 
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.message.Message;
 
 @Service("reverseRejectConsumer")
 public class ReverseRejectConsumer extends MessageBaseConsumer {
@@ -32,9 +32,9 @@ public class ReverseRejectConsumer extends MessageBaseConsumer {
 
 	@Override
 	public void consume(Message message) throws Exception {
-		this.logger.info("逆向驳回消息：" + message.getContent());
+		this.logger.info("逆向驳回消息：" + message.getText());
 
-		RejectRequest request = (RejectRequest) XmlHelper.toObject(message.getContent(),
+		RejectRequest request = (RejectRequest) XmlHelper.toObject(message.getText(),
 				RejectRequest.class);
 
 		if (request == null) {
@@ -64,7 +64,7 @@ public class ReverseRejectConsumer extends MessageBaseConsumer {
 		
 		ReverseRejectConsumer consumer = new ReverseRejectConsumer();
 		try {
-			message.setContent("<?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest><businessType>1</businessType><orgId>6</orgId><cky2>6</cky2><storeId>5</storeId><operateTime>2015-07-06 15:43:50</operateTime><orderId>ASN20150706011</orderId><actualPackageQuantity>1</actualPackageQuantity><operator>linlingyue</operator><operatorCode>linlingyue</operatorCode><rejectReason>7</rejectReason><sorceCode>PRIME</sorceCode></RejectRequest>");
+			message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest><businessType>1</businessType><orgId>6</orgId><cky2>6</cky2><storeId>5</storeId><operateTime>2015-07-06 15:43:50</operateTime><orderId>ASN20150706011</orderId><actualPackageQuantity>1</actualPackageQuantity><operator>linlingyue</operator><operatorCode>linlingyue</operatorCode><rejectReason>7</rejectReason><sorceCode>PRIME</sorceCode></RejectRequest>");
 			consumer.consume(message);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

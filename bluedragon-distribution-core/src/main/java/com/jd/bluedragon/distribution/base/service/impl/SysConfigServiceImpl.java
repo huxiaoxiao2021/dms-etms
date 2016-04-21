@@ -1,17 +1,15 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.List;
-
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import java.util.List;
 @Service("sysConfigService")
 public class SysConfigServiceImpl implements SysConfigService {
     private static final Log logger= LogFactory.getLog(SysConfigServiceImpl.class);
@@ -64,7 +62,7 @@ public class SysConfigServiceImpl implements SysConfigService {
             if(null!=list&&list.size()>0){
                 SysConfig config=list.get(0);
                 //NumberHelper.isNumber()
-                size=Long.valueOf(config.getConfigContent());
+                size=Long.parseLong(config.getConfigContent());
             }
         }catch (Exception ex){
             logger.error("重新加载redisTaskQueueSize",ex);

@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
@@ -19,7 +20,9 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,6 +46,8 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     @Autowired
     private BaseMinorManager baseMinorManager;
 
+    @Autowired
+    private BasicSecondaryWS basicSecondaryWS;
 
     /**
      * 初始化基础资料对象
@@ -78,7 +83,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         }
 
         //现场调度标识
-        if(request.getLocalSchedule()!=null && request.getLocalSchedule()==LabelPrintingService.LOCAL_SCHEDULE){
+        if(LabelPrintingService.LOCAL_SCHEDULE.equals(request.getLocalSchedule())){
             //特殊标识 追加"调"字
             if (!StringHelper.isEmpty(labelPrinting.getSpecialMark())) {
                 StringBuffer sb = new StringBuffer(labelPrinting.getSpecialMark());
@@ -131,11 +136,11 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
         StringBuilder specialMark = new StringBuilder(StringHelper.isEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
         //航空标识
-        if(crossPackageTag.getIsAirTransport()!=null && crossPackageTag.getIsAirTransport()==LabelPrintingService.AIR_TRANSPORT && request.isAirTransport()){
+        if(LabelPrintingService.AIR_TRANSPORT.equals(crossPackageTag.getIsAirTransport()) && request.isAirTransport()){
             specialMark.append(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
         }
         //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
-        if(crossPackageTag.getIsZiTi().equals(LabelPrintingService.ARAYACAK_CABINET)){
+        if(LabelPrintingService.ARAYACAK_CABINET.equals(crossPackageTag.getIsZiTi())){
             specialMark.append(LabelPrintingService.SPECIAL_MARK_ARAYACAK_CABINET);
             labelPrinting.setPrintAddress(crossPackageTag.getPrintAddress());
         }
@@ -180,19 +185,30 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     * @return
     */
     public CrossPackageTagNew getCrossPackageTagByPara(BaseDmsStore baseDmsStore,Integer prepareSiteCode,Integer dmsCode){
-        BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, prepareSiteCode, dmsCode);
-        if(! (BaseResult.SUCCESS==baseResult.getResultCode()) ){
-            log.error(" 获取基础资料包裹信息失败[getCrossPackageTagByPara],返回码 "+baseResult.getResultCode());
-            return null;
-        }
 
-        CrossPackageTagNew crossPackageTag = baseResult.getData();
-        if(crossPackageTag == null){
-            log.error(" 获取基础资料包裹信息失败[getCrossPackageTagByPara],crossPackageTag为空");
-            return null;
-        }
-
-        return crossPackageTag;
+        CrossPackageTagNew tag = null;
+            BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, prepareSiteCode, dmsCode);
+            if(BaseResult.SUCCESS==baseResult.getResultCode()&&null!=baseResult.getData()) {
+                tag=baseResult.getData();
+            }else{
+                com.jd.ql.basic.domain.BaseResult<ReverseCrossPackageTag> reverseResult= basicSecondaryWS.getReverseCrossPackageTag(dmsCode,prepareSiteCode);
+                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()){
+                    tag=new CrossPackageTagNew();
+                    tag.setTargetSiteName(reverseResult.getData().getTargetStoreName());
+                    tag.setTargetSiteId(reverseResult.getData().getTargetStoreId());
+                    tag.setOriginalCrossCode(reverseResult.getData().getOriginalCrossCode());
+                    tag.setOriginalDmsName(reverseResult.getData().getOriginalDmsName());
+                    tag.setOriginalTabletrolleyCode(reverseResult.getData().getOriginalTabletrolleyCode());
+                    tag.setOriginalDmsId(reverseResult.getData().getOriginalDmsId());
+                    tag.setDestinationCrossCode(reverseResult.getData().getDestinationCrossCode());
+                    tag.setDestinationDmsName(reverseResult.getData().getDestinationDmsName());
+                    tag.setDestinationTabletrolleyCode(reverseResult.getData().getDestinationTabletrolleyCode());
+                    tag.setDestinationDmsId(reverseResult.getData().getDestinationDmsId());
+                }else {
+                    log.warn("获取基础资料正向及逆向道口信息为失败");
+                }
+            }
+        return tag;
     }
 
     /**

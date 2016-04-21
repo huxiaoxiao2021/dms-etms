@@ -28,7 +28,7 @@ public interface RedisManager {
 	 * @return
 	 * 
 	 */
-	public String setex(String key,int timeout, String body);
+	public void setex(String key,int timeout, String body);
 	
 	/**
 	 * 删除key
@@ -39,8 +39,8 @@ public interface RedisManager {
 	public Long del(String key);
 	
 	public String getCache(String key);
-	
-	Long hset(String name, String key, String value);
+
+    Boolean hset(String name, String key, String value);
 
 	String hget(String name, String key);
 
@@ -82,7 +82,7 @@ public interface RedisManager {
 	 * @param key key
 	 * @param seconds expire seconds
 	 * */
-	public Long expire(String key, Integer seconds);
+	public Boolean expire(String key, Integer seconds);
 
 	/**
 	 * 向缓存redis集群列表增加

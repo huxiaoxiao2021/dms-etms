@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.spare.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.spare.dao.SpareDao;
 import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dbs.objectId.IGenerateObjectId;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

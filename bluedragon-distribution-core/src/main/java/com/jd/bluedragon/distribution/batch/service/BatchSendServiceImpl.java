@@ -8,11 +8,11 @@ import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendRequest;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.etms.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +52,7 @@ public class BatchSendServiceImpl implements BatchSendService {
         send.setCreateUserCode(batchInfo.getCreateUserCode());
         Date current=new Date(System.currentTimeMillis());
         logger.info("时间格式为"+DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
-        send.setSendCode(Integer.valueOf(batchInfo.getCreateSiteCode())+"-"+Integer.valueOf(siteCode)+"-"+ DateHelper.formatDate(current, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS));
+        send.setSendCode(String.valueOf(batchInfo.getCreateSiteCode())+"-"+String.valueOf(siteCode)+"-"+ DateHelper.formatDate(current, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS));
         send.setYn(1);
         send.setSendStatus(0);
         boolean result=false;
@@ -161,12 +161,14 @@ public class BatchSendServiceImpl implements BatchSendService {
     }
     private boolean alterSendCarState(String sendCode,Date operateTime,Integer state){
         BatchSend last=readBySendCode(sendCode);
-        if(null!=last&&state!=last.getSendCarState()&&(null==last.getSendCarOperateTime()||operateTime.compareTo(last.getSendCarOperateTime())>0)){
+        if(null!=last&&(!state.equals(last.getSendCarState()))&&(null==last.getSendCarOperateTime()||operateTime.compareTo(last.getSendCarOperateTime())>0)){
             BatchSend send=new BatchSend();
             send.setSendCode(sendCode);
             send.setSendCarState(state);
             send.setSendCarOperateTime(operateTime);
-            logger.info("发车批次状态修改参数"+JsonHelper.toJson(send));
+            if(logger.isInfoEnabled()) {
+                logger.info("发车批次状态修改参数" + JsonHelper.toJson(send));
+            }
             batchSendDao.updateSendCarState(send);
             redisManager.del("BatchSend.readBySendCode"+sendCode);
         }

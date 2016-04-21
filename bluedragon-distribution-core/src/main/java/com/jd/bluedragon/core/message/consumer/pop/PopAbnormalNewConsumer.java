@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.popAbnormal.service.PopReceiveAbnormalServ
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.message.Message;
+import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +28,7 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 
     @JProfiler(jKey = "popAbnormalNewMessageConsumer.popMqFromPop", mState = {JProEnum.TP})
 	public void consume(Message message) {
-		String popAbnormalReceiveJson = message.getContent();
+		String popAbnormalReceiveJson = message.getText();
 		Integer resultCode = Constants.YN_YES;
 		
 		this.logger.error("popAbnormalReceiveJson:" + popAbnormalReceiveJson);
@@ -45,7 +45,7 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 					|| StringUtils.isBlank(popAbnormalReceiveVO
 							.getOperateTime())) {
 				this.logger.error("popAbnormalReceiveVO -- 参数有误！Id ["
-						+ message.getId() + "]， message ["
+						+ message.getBusinessId() + "]， message ["
 						+ popAbnormalReceiveJson + "]");
 				resultCode = Constants.YN_NO;
 			}
@@ -121,13 +121,13 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 					popReceiveAbnormal, popAbnormalDetail, Boolean.FALSE);
 		}
 
-		this.logger.info("Id [" + message.getId() + "] , 处理结果：" + resultCode);
+		this.logger.info("Id [" + message.getBusinessId() + "] , 处理结果：" + resultCode);
 	}
 	
 	public static void main(String args[]){
 		PopAbnormalNewConsumer consumer = new PopAbnormalNewConsumer();
 		Message message = new Message();
-		message.setContent("{\"serialNumber\":79026,\"orderCode\":8339149425,\"mainType\":5,\"subType\":null,\"comment\":\"处理方式:\",\"operateTime\":\"2015-02-06 18:02:29\",\"attr1\":3,\"isEnd\":1}");
+		message.setText("{\"serialNumber\":79026,\"orderCode\":8339149425,\"mainType\":5,\"subType\":null,\"comment\":\"处理方式:\",\"operateTime\":\"2015-02-06 18:02:29\",\"attr1\":3,\"isEnd\":1}");
 		consumer.consume(message);
 	}
 }

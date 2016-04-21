@@ -33,7 +33,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_POP = 1030; // pop收货
     public static final Integer TASK_TYPE_RECEIVE_COUNT = 1040; // 运单通知
     public static final Integer TASK_TYPE_BOUNDARY = 1050; // pop上门取货
-    
+    public static final Integer TASK_TYPE_MESSAGE=8000;//消息队列
     /** 收货相关　 */
     public static final Integer TASK_TYPE_RECEIVE = 1110; // 分拣中心收货
     public static final Integer TASK_TYPE_SHIELDS_CAR_ERROR = 1120; // 分拣中心收货封车号封签异常
@@ -125,6 +125,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_AUTOSORTING_HANDOVER = "task_handover";
     public static final String TABLE_NAME_WEIGHT = "task_weight";
     public static final String TABLE_NAME_GLOBAL_TRADE = "task_global_trade";
+    public static final String TABLE_NAME_MESSAGE="task_message";
+
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
     public static final String TABLE_NAME_REVERSE_SEQ = "SEQ_TASK_REVERSE";
@@ -143,6 +145,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_HANDOVER_SEQ = "SEQ_TASK_HANDOVER";
     public static final String TABLE_NAME_WEIGHT_SEQ = "SEQ_TASK_WEIGHT";
     public static final String TABLE_NAME_GLOBAL_TRADE_SEQ = "SEQ_TASK_GLOBAL_TRADE";
+public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
     public static final String TABLE_NAME_SCANNER_FRAME="TASK_SCANNER_FRAME";
     public static final String TABLE_NAME_SCANNER_FRAME_SEQ ="SEQ_TASK_SCANNER_FRAME";
 
@@ -448,7 +451,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_WEIGHT;
         }else if(Task.TASK_TYPE_GLOBAL_TRADE.equals(type)){
             return Task.TABLE_NAME_GLOBAL_TRADE;
-        }else if(Task.TASK_TYPE_SCANNER_FRAME.equals(type)){
+        }else if(Task.TASK_TYPE_MESSAGE.equals(type)){
+            return Task.TABLE_NAME_MESSAGE;
+        }
+        else if(Task.TASK_TYPE_SCANNER_FRAME.equals(type)){
             return Task.TABLE_NAME_SCANNER_FRAME;
         }
         
@@ -490,6 +496,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_WEIGHT_SEQ;
         }else if(Task.TABLE_NAME_GLOBAL_TRADE.equals(tableName)){
             return Task.TABLE_NAME_GLOBAL_TRADE_SEQ;
+}else if(Task.TABLE_NAME_MESSAGE.equals(tableName)){
+            return Task.TABLE_NAME_MESSAGE_SEQ;
         }else if(Task.TABLE_NAME_SCANNER_FRAME.equals(tableName)){
             return Task.TABLE_NAME_SCANNER_FRAME_SEQ;
         }
@@ -532,6 +540,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				|| Task.TASK_TYPE_REVERSE_RECEIVE.equals(type)
 				|| Task.TASK_TYPE_WEIGHT.equals(type)
                 || Task.TASK_TYPE_PUSH_MQ.equals(type)
+||Task.TASK_TYPE_MESSAGE.equals(type)
                 ||Task.TASK_TYPE_SCANNER_FRAME.equals(type)) {  // 增加干线计费系统任务
 			return TaskMode.REDIS;
 		}
@@ -591,6 +600,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             taskType="SortingExceptionRedisTask";
         }else if(Task.TASK_TYPE_WEIGHT.equals(type)){
             taskType="WeightRedisTask";
+        }else if(Task.TASK_TYPE_MESSAGE.equals(type)){
+            taskType="MessageRedisTask";
         }else if(Task.TASK_TYPE_SCANNER_FRAME.equals(type)){
             taskType="ScannerFrameRedisTask";
         }

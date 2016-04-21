@@ -8,6 +8,7 @@ import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -73,7 +73,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	@Override
 	public void consume(Message message) {
 
-		String messageContent = message.getContent();
+		String messageContent = message.getText();
 		this.logger.info("逆向收货消息messageContent：" + messageContent);
 
 		ReverseReceiveRequest jrequest = null;
@@ -131,6 +131,14 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		//添加订单处理，判断是否是T单 2016-1-8
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setSendCode(reverseReceive.getSendCode());
+		if (reverseReceive.getReceiveType() == 3) {//如果是备件库的,则找到其真正的send_code
+			List<ReverseSpare> tReverseSpareList = sparedao.queryBySpareTranCode(xrequest.getSendCode());
+			if (tReverseSpareList != null && tReverseSpareList.size()>0) {
+				String sendCode = tReverseSpareList.get(0).getSendCode();
+				tsendDatail.setSendCode(sendCode);
+			}
+		}
+		
 		tsendDatail.setWaybillCode(Constants.T_WAYBILL + reverseReceive.getOrderId());
 		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
 		if (sendDatailist != null && !sendDatailist.isEmpty()){

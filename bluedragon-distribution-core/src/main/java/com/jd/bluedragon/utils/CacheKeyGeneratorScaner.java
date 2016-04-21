@@ -1,18 +1,17 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.core.base.BaseMajorManagerImpl;
+import com.jd.bluedragon.core.base.BaseMinorManagerImpl;
+import com.jd.bluedragon.distribution.base.service.impl.BaseServiceImpl;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.etms.framework.utils.cache.keygenerator.CacheKeyGenerator;
+import org.springframework.beans.factory.InitializingBean;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import com.jd.bluedragon.core.base.BaseMajorManagerImpl;
-import com.jd.bluedragon.core.base.BaseMinorManagerImpl;
-import com.jd.bluedragon.distribution.base.service.impl.BaseServiceImpl;
-import com.jd.etms.utils.cache.annotation.Cache;
-import com.jd.etms.utils.cache.keygenerator.CacheKeyGenerator;
 
 public class CacheKeyGeneratorScaner implements InitializingBean {
 

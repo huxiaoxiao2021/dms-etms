@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.admin.service;
 
+import com.jd.jim.cli.driver.types.DataType;
+
 /**
  * 系统Redis缓存管理
  * @author yangbo7
@@ -25,6 +27,6 @@ public interface RedisMonitorService {
 	 * @param key
 	 * @return
 	 */
-	String getTypeByKey(String key);
+    DataType getTypeByKey(String key);
 	
 }

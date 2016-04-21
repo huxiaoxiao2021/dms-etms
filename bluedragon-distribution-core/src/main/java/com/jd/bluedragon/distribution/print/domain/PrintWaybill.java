@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class PrintWaybill implements Serializable {
 
+    private static final long serialVersionUID=1L;
 
     private transient Boolean isAir;
 
@@ -17,6 +18,11 @@ public class PrintWaybill implements Serializable {
     private Integer orgId;
 
     private Integer cky2;
+
+    /**
+     * 商家订单号
+     */
+    private String busiOrderCode;
 
     /**
      * 库房号
@@ -615,5 +621,13 @@ public class PrintWaybill implements Serializable {
 
     public void setIsSelfService(Boolean isSelfService) {
         this.isSelfService = isSelfService;
+    }
+
+    public String getBusiOrderCode() {
+        return busiOrderCode;
+    }
+
+    public void setBusiOrderCode(String busiOrderCode) {
+        this.busiOrderCode = busiOrderCode;
     }
 }
