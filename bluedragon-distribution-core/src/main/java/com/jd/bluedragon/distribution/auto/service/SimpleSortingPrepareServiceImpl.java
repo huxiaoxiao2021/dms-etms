@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingException;
 import com.jd.bluedragon.distribution.sorting.service.SortingExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -195,6 +196,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         request.setUserCode(entity.getCreateUserCode());
         request.setUserName(entity.getCreateUser());
         list.add(request);
+        task.setOwnSign(BusinessHelper.getOwnSign()); //fix 增加ownsign避免直接写库没有ownsign问题
         task.setBody(JsonHelper.toJson(list));
         log.info("插入分拣任务为："+task.toString());
         return taskService.add(task,true)>0?true:false;
