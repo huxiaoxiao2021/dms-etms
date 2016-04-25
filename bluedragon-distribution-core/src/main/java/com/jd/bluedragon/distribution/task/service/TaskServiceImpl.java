@@ -130,12 +130,9 @@ public class TaskServiceImpl implements TaskService {
 
 	}
 
-	@Cache(key = "TaskServiceImpl.getSwitchForRedis@args0", memoryEnable = true, memoryExpiredTime = 5 * 1000)
 	public SysConfig getSwitchForRedis(String conName){
 		try {
-			SysConfig sysConfig = new SysConfig();
-			sysConfig.setConfigName(conName);
-			List<SysConfig> sysConfigs = sysConfigService.getList(sysConfig);
+			List<SysConfig> sysConfigs = sysConfigService.getRedisSwitchList(conName);
 			if (null == sysConfigs || sysConfigs.size() <= 0) {
 				return null;
 			} else {
