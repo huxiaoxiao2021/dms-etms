@@ -263,6 +263,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		waybill.setCrossCode(waybillWS.getSlideCode());
 		waybill.setDistributeStoreId(waybillWS.getDistributeStoreId());
         waybill.setWaybillSign(waybillWS.getWaybillSign());
+        waybill.setImportantHint(waybillWS.getImportantHint());
 
 //        PickupTask pick = bigWaybillDto.getPickupTask();
 //        if (pick != null) {

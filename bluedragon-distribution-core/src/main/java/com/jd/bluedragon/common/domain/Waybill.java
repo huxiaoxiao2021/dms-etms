@@ -201,6 +201,11 @@ public class Waybill implements Serializable {
 	 */
 	private  String CountryName;
 
+	/**
+	 * 发票数量
+	 */
+	private String importantHint;
+
 	public String getWaybillCode() {
 		return this.waybillCode;
 	}
@@ -628,6 +633,14 @@ public class Waybill implements Serializable {
 
 	public void setCountryName(String countryName) {
 		CountryName = countryName;
+	}
+
+	public String getImportantHint() {
+		return importantHint;
+	}
+
+	public void setImportantHint(String importantHint) {
+		this.importantHint = importantHint;
 	}
 
 	/**
