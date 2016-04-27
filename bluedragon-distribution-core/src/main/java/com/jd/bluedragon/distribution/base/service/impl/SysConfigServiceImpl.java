@@ -36,7 +36,6 @@ public class SysConfigServiceImpl implements SysConfigService {
 	@Override
 	@Cache(key = "SysConfigServiceImpl.getRedisSwitchList@args0", memoryEnable = true, memoryExpiredTime = 5 * 1000, redisEnable = false)
 	public List<SysConfig> getRedisSwitchList(String conName) {
-		logger.warn("查询数据库获取redis开关");
 		SysConfig config = new SysConfig();
 		config.setConfigName(conName);
 		return this.sysConfigDao.getList(config);
