@@ -24,6 +24,9 @@
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
 	
+	<import resource="classpath:spring/distribution-web-asynBuffer-producer.xml"/>
+	<import resource="classpath:spring/distribution-core-dcam.xml"/>
+	
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->
 	<bean class="com.jd.ump.annotation.JAnnotation">

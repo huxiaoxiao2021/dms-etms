@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.authorization.RestAuthorization;
+import com.jd.ql.framework.asynBuffer.producer.Producer;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -43,6 +44,9 @@ public class TaskResource {
 
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private Producer<Task> dynamicProducer;
 
     @Autowired
     private RestAuthorization restAuthorization;
@@ -99,16 +103,18 @@ public class TaskResource {
 							+ JsonHelper.toJson(reverseSpareMap)
 							+ Constants.PUNCTUATION_CLOSE_BRACKET;
 					logger.warn("[" + request.getType() + "]" + eachJson);
-					this.taskService.add(
-							this.taskService.toTask(request, eachJson), true);
+					dynamicProducer.send(this.taskService.toTask(request, eachJson));
+					//this.taskService.add(
+							//this.taskService.toTask(request, eachJson), true);
 				}
 			} else {
 				String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
 						+ JsonHelper.toJson(element)
 						+ Constants.PUNCTUATION_CLOSE_BRACKET;
 				logger.warn("[" + request.getType() + "]" + eachJson);
-				this.taskService.add(
-						this.taskService.toTask(request, eachJson), true);
+				dynamicProducer.send(this.taskService.toTask(request, eachJson));
+				//this.taskService.add(
+					//	this.taskService.toTask(request, eachJson), true);
 			}
 		}
 		

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.0.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    
+	    <!-- 多级异步缓冲组件配置，集成了消息中间件JMQ和定时调度器tbschedule -->
+	    
+	    <!-- task任务处理器转为消费jmq消息配置 -->
+	    <bean id="simpleTaskProcessorJMQRouter" class="com.jd.ql.framework.asynBuffer.comsumer.SimpleTaskProcessorJMQRouter">
+	    	<constructor-arg name="mapping">
+	    		<map>
+	    			<entry key="${jmq.task.topic.sorting}">
+	    				<bean class="com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor">
+	    					<constructor-arg name="target" ref="sortingService"></constructor-arg>
+	    					<constructor-arg name="methodName" value="doSorting"></constructor-arg>
+	    				</bean>
+	    			</entry>
+	    		</map>
+	    	</constructor-arg>
+	    </bean>
+	    
+	    
+	    <bean id="dynamicJmqComsumer" class="com.jd.ql.framework.asynBuffer.comsumer.DynamicJmqComsumer" init-method="start">
+	    	<property name="transportConfig">
+	    		<bean class="com.jd.jmq.client.connection.TransportConfig">
+	    			<property name="address" value="${dms.task.jmq.address}"></property>
+	    			<property name="user" value="${dms.task.jmq.user}"></property>
+	    			<property name="password" value="${dms.task.jmq.password}"></property>
+	    			<property name="app" value="${dms.task.jmq.app}"></property>
+	    		</bean>
+	    	</property>
+	    	<property name="router" ref="simpleTaskProcessorJMQRouter"/>
+	    	<property name="coder">
+	    		<bean class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqMessageJsonCoder"></bean>
+	    	</property>
+	    	<property name="ownSign" value="${ownSign}"/>
+	    </bean>
+</beans>
