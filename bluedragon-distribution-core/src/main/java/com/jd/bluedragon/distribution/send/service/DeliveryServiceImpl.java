@@ -2908,7 +2908,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	
 	//根据发货明细发送用户报警短信
 	public boolean sendSms(List<SendDetail> sendDetails) {
-		logger.info(JsonHelper.toJson(sendDetails));
+		logger.debug("=========批量发送预警短信开始==========");
 		if (sendDetails != null && !sendDetails.isEmpty()) {
 
 			// 10.获得所有的运单号
@@ -2933,13 +2933,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 						
 						//逐一发送短信
 						String customerMobile = tWaybill.getWaybill().getReceiverMobile();
-						Boolean result = SendSMSUtil.sendNotice(customerMobile, SMS_MESSAGE, customerMobile);
+						Boolean result = false;
+						if(StringHelper.isNotEmpty(customerMobile)){
+							result = SendSMSUtil.sendNotice(customerMobile, SMS_MESSAGE, customerMobile);
+						}
 						SendDetail sendDetail = sendMap.get(tWaybill.getWaybill().getWaybillCode());
 						SystemLogUtil.log(tWaybill.getWaybill().getWaybillCode(), sendDetail.getSendCode(), null, null, result.toString(), Long.valueOf(12004));
 					}
 				}
 			}
 		}
+		logger.debug("=========批量发送预警短信结束==========");
 		return true;
 	}
 }
