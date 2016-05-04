@@ -92,6 +92,7 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -102,6 +103,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.client.producer.MessageProducer;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -1530,9 +1532,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         } catch (JMQException e) {
             logger.error("发货明细发送JMQ失败: ", e);
         }
-        
-
-		
         return true;
 	}
 
@@ -2906,7 +2905,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new SendResult(SendResult.CODE_OK,SendResult.MESSAGE_OK);
 	}
 	
-	//根据发货明细发送用户报警短信
+	/**
+	 * 根据发货明细发送用户报警短信
+	 * @param sendDetails
+	 * @return
+	 */
 	public boolean sendSms(List<SendDetail> sendDetails) {
 		logger.debug("=========批量发送预警短信开始==========");
 		if (sendDetails != null && !sendDetails.isEmpty()) {
@@ -2933,12 +2936,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 						
 						//逐一发送短信
 						String customerMobile = tWaybill.getWaybill().getReceiverMobile();
-						Boolean result = false;
-						if(StringHelper.isNotEmpty(customerMobile)){
-							result = SendSMSUtil.sendNotice(customerMobile, SMS_MESSAGE, customerMobile);
+						String redisKey = "SendSMSUtil.sendNotice@"+tWaybill.getWaybill().getWaybillCode();
+						if(redisManager.getCache(redisKey)==null){
+							Boolean result = false;
+							if(StringHelper.isNotEmpty(customerMobile)){
+								result = SendSMSUtil.sendNotice(tWaybill.getWaybill().getWaybillCode(), SMS_MESSAGE, customerMobile);
+							}
+							SendDetail sendDetail = sendMap.get(tWaybill.getWaybill().getWaybillCode());
+							SystemLogUtil.log(tWaybill.getWaybill().getWaybillCode(), sendDetail.getSendCode(), null, null, result.toString(), Long.valueOf(120011));
+							if (result)
+								redisManager.setex(redisKey, 8 * 3600, result.toString());
 						}
-						SendDetail sendDetail = sendMap.get(tWaybill.getWaybill().getWaybillCode());
-						SystemLogUtil.log(tWaybill.getWaybill().getWaybillCode(), sendDetail.getSendCode(), null, null, result.toString(), Long.valueOf(12004));
 					}
 				}
 			}

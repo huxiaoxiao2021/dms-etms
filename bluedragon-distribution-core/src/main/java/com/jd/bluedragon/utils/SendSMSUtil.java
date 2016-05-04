@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillExtendApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 
@@ -15,7 +16,7 @@ public class SendSMSUtil {
             return false;
         }
 
-        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("WaybillExtendApi");
+        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("waybillExtendApiJsf");
         BaseEntity<Boolean> result = null;
         Long currentTime = System.currentTimeMillis();
         try {
