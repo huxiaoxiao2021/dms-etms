@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>生鲜温度录入</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 提交查询
+        $("#bt_search").click(function () {
+            $("#fm_query_fresh").attr("action", '#springUrl("/fresh/query")');
+            $("#fm_query_fresh").attr("method", "GET");
+            $("#fm_query_fresh").submit();
+        });
+
+		$("#bt_add").click(function(){
+            window.location.href= $("#contextPath").val() + "/fresh/toAddPage";
+		});
+
+		$(".fresh_modify").click(function(){
+            window.location.href= $("#contextPath").val() + "/fresh/toModifyPage?id=" + $(this).attr("name");
+		});
+
+    });
+</script>
+
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">生鲜温度录入</a>
+    </p>
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="fm_query_fresh" name="queryForm" action="#springUrl('/fresh/query')" method="GET">
+                <input type="hidden" id="pageNo" name="pageNo"/>
+                <input type="hidden" id="pageSize" name="pageSize"/>
+                <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+                    <tbody>
+                    <tr>
+                        <th align="right">包裹号：</th>
+                        <td>
+                            <input id="txt_package_code" name="packageCode" value="$!freshWaybillDto.packageCode"
+                                   type="text" class="textField28"/>
+                            <input id="bt_search" type="button" value="查询" class="btn_c"/>
+                            <input id="bt_add" type="button" value="增加" class="btn_c"/>
+						</td>
+                        <td>
+						</td>
+                        <td>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th>包裹号</th>
+                        <th>保温箱型号</th>
+                        <th>冰板种类</th>
+                        <th>冰板数量</th>
+                        <th>商品温度</th>
+                        <th>冰板温度</th>
+                        <th>创建时间</th>
+                        <th>操作人</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+						#foreach($freshWaybill in $!freshWaybills)
+                        <tr class="a2" style="">
+                            <td>$!freshWaybill.packageCode</td>
+                            <td>
+								#if($freshWaybill.boxType == 1)
+                                    XPS材质24L
+								#elseif($freshWaybill.boxType == 2)
+                                    折叠VIP材质15L
+								#elseif($freshWaybill.boxType == 3)
+                                    折叠VIP材质25L
+								#elseif($freshWaybill.boxType == 4)
+                                    折叠VIP材质55L
+								#end
+							</td>
+                            <td>
+								#if($freshWaybill.slabType == 1)
+                                    10℃冷藏冰板
+								#elseif($freshWaybill.slabType == 2)
+                                    -12℃冷冻冰板
+								#end
+							</td>
+                            <td>$!freshWaybill.slabNum</td>
+                            <td>$!freshWaybill.packageTemp ℃ </td>
+                            <td>$!freshWaybill.slabTemp ℃ </td>
+                            <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!freshWaybill.createTime)</td>
+                            <td>$!freshWaybill.userName</td>
+                            <td><a href="javascript:void(0)" class="fresh_modify" name="$freshWaybill.id">修改</a></td>
+                        </tr>
+						#end
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tbl-n">
+			#pageBar("#springUrl('')/fresh/query?packageCode=$!freshWaybillDto.packageCode"$pager.totalSize $pager.pageNo $pager.totalNo)
+        </div>
+    </div>
+</div>
+</body>
+</html>

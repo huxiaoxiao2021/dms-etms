@@ -12,14 +12,22 @@ import java.io.Serializable;
 public class InvokeResult<T> implements Serializable {
 
     private static final Log        logger= LogFactory.getLog(InvokeResult.class);
-    private static final String     SERVER_ERROR_MESSAGE="服务器执行异常";
-
     public static final int RESULT_NULL_CODE=0;
     public static final String  RESULT_NULL_MESSAGE="结果为空！";
+
     public static final int RESULT_SUCCESS_CODE=200;
     public static final String RESULT_SUCCESS_MESSAGE="OK";
+
     public static final int SERVER_ERROR_CODE=500;
+    public static final String SERVER_ERROR_MESSAGE="服务器执行异常";
+
     public static final int RESULT_PARAMETER_ERROR_CODE=400;
+    public static final String PARAM_ERROR = "参数错误";
+
+    public static final int RESULT_MULTI_ERROR=600;
+    public static final String MULTI_ERROR = "数据已存在";
+
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

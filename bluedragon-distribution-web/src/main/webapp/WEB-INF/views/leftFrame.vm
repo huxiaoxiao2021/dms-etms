@@ -19,12 +19,13 @@
 	<dd><a href="http://waybill.jd.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
     <dd><a href="#springUrl('/crossSorting')" target="mainFrame">跨分拣校验规则配置</a></dd>
     <dd><a href="#springUrl('/globalTrade')" target="mainFrame">全球购</a></dd>
-	  <dd><a href="#springUrl('/gantry/index')" target="mainFrame">龙门架注册</a></dd>
-    <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
-	<dd><a href="#springUrl('/operateLog/goListPage1')" target="mainFrame">分拣中心操作日志</a></dd>
+      <dd><a href="#springUrl('/gantry/index')" target="mainFrame">龙门架注册</a></dd>
+      <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
+      <dd><a href="#springUrl('/operateLog/goListPage1')" target="mainFrame">分拣中心操作日志</a></dd>
 	<dd><a href="#springUrl('/operateLog/goListPage2')" target="mainFrame">分拣中心操作日志(新)</a></dd>
 	<dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
-	<dt><a href="#" class="curr">工具</a></dt>
+      <dd><a href="#springUrl('/fresh/index')" target="mainFrame">生鲜温度录入</a></dd>
+      <dt><a href="#" class="curr">工具</a></dt>
 	<dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
 	<dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>
 	<dd><a href="/tips/waybill" target="mainFrame">运单判断</a></dd>
