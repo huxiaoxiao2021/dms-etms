@@ -16,7 +16,7 @@
 	    	<constructor-arg name="mapping">
 	    		<map>
 	    			<entry key="${jmq.task.topic.sorting}">
-	    				<bean class="com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor">
+	    				<bean class="com.jd.bluedragon.distribution.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">
 	    					<constructor-arg name="target" ref="sortingService"></constructor-arg>
 	    					<constructor-arg name="methodName" value="doSorting"></constructor-arg>
 	    				</bean>
