@@ -18,7 +18,7 @@ public class SendMailUtil {
             return;
         }
 
-        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("WaybillExtendApi");
+        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("waybillExtendApiJsf");
 
         for (String user : users) {
             if (StringHelper.isEmpty(user)) {
