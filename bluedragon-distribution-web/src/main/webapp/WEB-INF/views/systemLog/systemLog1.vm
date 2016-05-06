@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>分拣操作日志查询新</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	</head>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if ("$!systemLogQueryDto" != "") {
+				$("#keyword1").val("$!systemLogQueryDto.keyword1");
+
+				if ("$!pager" != "") {
+					$("#pageNo").val($!pager.pageNo);
+					$("#pageSize").val($!pager.pageSize);
+				}
+			}
+	
+			// 提交查询
+			$("#search").click(function() {
+				var keyword1 = $('#keyword1').val();
+			
+				if ((keyword1 == null || keyword1.length <= 0)) {
+					alert('请输入一个关键字查询条件!');
+					return;
+				}
+		
+				$("#queryForm").attr("action", '#springUrl("/systemLog/list1")');
+				$("#queryForm").attr("method", "GET");
+				$("#queryForm").submit();
+			});
+		});
+	</script>
+
+	<body>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">系统日志管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">系统日志查询</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="queryForm" name="queryForm" action="#springUrl('/systemLog/list1')" method="GET">
+						<input type="hidden" id="pageNo" name="pageNo" />
+						<input type="hidden" id="pageSize" name="pageSize" />
+						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+							<tbody>
+								
+								<tr>
+									<th align="right">关键字1：</th>
+									<td >
+										<input id="keyword1" name="keyword1" type="text" class="textField28"/>
+									</td>
+									
+									<td >
+										<input id="search" type="button" value="查询" class="btn_c"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div id="opening">
+				<div class="tbl-list">
+					<div class="tbl-bg">
+						<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+							<thead>
+								<tr>
+								    <th>序号</th>
+									<th>关键字1</th>
+									<th>关键字2</th>
+									<th>关键字3</th>
+									<th>关键字4</th>
+									<th>内容</th>
+									<th>日志类型</th>
+									<th>创建时间</th>
+								</tr>
+							</thead>
+							<tbody>
+								#foreach($systemlog in $!systemlogs)
+									<tr class="a2" style="">
+										<td>$velocityCount</td>
+										<td>$!systemlog.keyword1</td>
+										<td>$!systemlog.keyword2</td>
+										<td>$!systemlog.keyword3</td>
+										<td>$!systemlog.keyword4</td>
+										<td>$!systemlog.content</td>
+										<td>$!systemLogQueryDto.getLogTypeMap().get($!systemlog.logType)</td>
+										<td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!systemlog.createTime)</td>
+									</tr>
+								#end
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="tbl-n">
+					#pageBar("#springUrl('')/systemLog/list1?keyword1=$!systemLogQueryDto.keyword1&keyword2=$!systemLogQueryDto.keyword2&keyword3=$!systemLogQueryDto.keyword3&keyword4=$!systemLogQueryDto.keyword4&type=$!systemLogQueryDto.type" $pager.totalSize $pager.pageNo $pager.totalNo)
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

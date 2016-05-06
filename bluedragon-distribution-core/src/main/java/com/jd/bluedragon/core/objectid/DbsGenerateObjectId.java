@@ -1,3 +1,4 @@
+
 package com.jd.bluedragon.core.objectid;
 
 import java.util.Collections;

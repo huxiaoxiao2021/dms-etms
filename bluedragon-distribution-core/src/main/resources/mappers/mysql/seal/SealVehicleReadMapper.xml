@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.seal.dao.SealVehicleReadDao">
+
+	<resultMap id="sealVehicle"
+		type="com.jd.bluedragon.distribution.seal.domain.SealVehicle">
+		<result column="system_id" property="id" />
+		<result column="receiving_site_code" property="receiveSiteCode" />
+		<result column="create_site_code" property="createSiteCode" />
+		<result column="vehicle_code" property="vehicleCode" />
+		<result column="seal_code" property="code" />
+		<result column="driver_code" property="driverCode" />
+		<result column="driver" property="driver" />
+		<result column="send_code" property="sendCode" />
+		<result column="volume" property="volume" />
+		<result column="weight" property="weight" />
+		<result column="package_num" property="packageNum" />								
+		<result column="create_user_code" property="createUserCode" />
+		<result column="create_user" property="createUser" />
+		<result column="create_time" property="createTime" />
+		<result column="update_user_code" property="updateUserCode" />
+		<result column="update_user" property="updateUser" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+	</resultMap>
+
+	<select id="findBySealCode" resultMap="sealVehicle" parameterType="map">
+		SELECT system_id, vehicle_code, seal_code, driver_code, driver,
+			   send_code,volume,weight,package_num,
+			   create_site_code, receive_site_code, create_user_code, create_user,
+			   update_user_code, update_user, create_time, update_time
+		FROM DMS.seal_vehicle
+		WHERE seal_code = #{sealCode} and yn = 1
+			  and LIMIT 1
+	</select>
+	
+	<select id="findBySendCode" resultMap="sealVehicle" parameterType="map">
+		SELECT system_id, vehicle_code, seal_code, driver_code, driver,
+			   send_code,volume,weight,package_num,
+			   create_site_code, receive_site_code, create_user_code, create_user,
+			   update_user_code, update_user, create_time, update_time
+		FROM DMS.seal_vehicle
+		WHERE send_code = #{sendCode} and yn = 1
+	</select>
+
+	<select id="findBySealCodes" resultMap="sealVehicle" parameterType="list">
+		SELECT system_id, seal_code
+		FROM DMS.seal_vehicle
+		WHERE yn = 1 AND seal_code in
+		<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+			#{item,jdbcType=VARCHAR} 
+		</foreach>
+	</select>
+	
+	<select id="findByVehicleCode" resultMap="sealVehicle" parameterType="map">
+		SELECT seal_code,send_code,vehicle_code
+		FROM DMS.seal_vehicle
+		WHERE yn = 1 
+		      AND create_site_code is not null 
+		      AND receive_site_code is null 
+		      AND vehicle_code = #{vehicleCode} 
+	</select>
+</mapper>

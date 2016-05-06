@@ -27,7 +27,7 @@ public class PopSigninDao extends BaseDao<PopSignin>{
 	}
 	
 	public List<PopSignin> getPopSigninList(PopSigninDto popSigninDto){
-		List<PopSignin> list = (List<PopSignin>)this.getSqlSessionRead().selectList(namespace+".getPopSigninList", popSigninDto);
+		List<PopSignin> list = (List<PopSignin>)this.getSqlSession().selectList(namespace+".getPopSigninList", popSigninDto);
 		return list;
 	}
 	public int getCount(PopSigninDto popSigninDto){

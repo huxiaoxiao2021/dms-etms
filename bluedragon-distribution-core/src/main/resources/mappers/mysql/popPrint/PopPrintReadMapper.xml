@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao">
+
+	<resultMap id="popPrint"
+		type="com.jd.bluedragon.distribution.popPrint.domain.PopPrint">
+		<result column="id" property="popPrintId" />
+		<result column="waybill_code" property="waybillCode" />
+		<result column="create_site_code" property="createSiteCode" />
+		<result column="print_pack_code" property="printPackCode" />
+		<result column="print_pack_time" property="printPackTime" />
+		<result column="print_invoice_code" property="printInvoiceCode" />
+		<result column="print_invoice_time" property="printInvoiceTime" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+		<result column="print_pack_user" property="printPackUser" />
+		<result column="print_invoice_user" property="printInvoiceUser" />
+		<result column="pop_sup_id" property="popSupId" jdbcType="INTEGER" />
+	    <result column="pop_sup_name" property="popSupName" jdbcType="VARCHAR" />
+	    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+	    <result column="cross_code" property="crossCode" jdbcType="VARCHAR" />
+	    <result column="waybill_type" property="waybillType" jdbcType="INTEGER" />
+	    <result column="pop_receive_type" property="popReceiveType" jdbcType="INTEGER" />
+	    <result column="print_count" property="printCount" jdbcType="INTEGER" />
+	    <result column="third_waybill_code" property="thirdWaybillCode" jdbcType="VARCHAR" />
+	    <result column="queue_no" property="queueNo" jdbcType="VARCHAR" />
+	    <result column="package_barcode"  property="packageBarcode" jdbcType="VARCHAR" />
+	    <result column="operate_type" property="operateType" jdbcType="INTEGER" />
+	    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    	<result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+    	<result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    	<result column="DRIVER_CODE" property="driverCode" jdbcType="VARCHAR" />
+    	<result column="DRIVER_NAME" property="driverName" jdbcType="VARCHAR" />
+    	<result column="busi_id" property="busiId" jdbcType="INTEGER" />
+    	<result column="busi_name" property="busiName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="findLimitListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
+		SELECT 
+			p.id, p.waybill_code, p.create_site_code, p.print_pack_code, 
+			p.print_pack_time, p.print_invoice_code, p.print_invoice_time,
+			p.print_pack_user, p.print_invoice_user, p.pop_sup_id, p.pop_sup_name, 
+			p.quantity, p.cross_code, p.waybill_type, p.pop_receive_type,
+			p.third_waybill_code, p.queue_no, p.package_barcode, p.operate_type, 
+			p.create_user, p.create_user_code, p.box_code, p.DRIVER_CODE, p.DRIVER_NAME,
+			p.busi_id, p.busi_name
+		FROM DMS.pop_print p 
+		WHERE p.yn = 1 
+			AND p.operate_type = 1
+			AND p.create_time <![CDATA[ <= ]]> timestampadd(minute, -#{limitMin, jdbcType=VARCHAR}, now())
+			AND p.create_time <![CDATA[ >= ]]> timestampadd(hour, -#{limitHour, jdbcType=VARCHAR}, now())
+			<choose>
+				<when test="ownSign == 'PRE'">
+					AND p.pop_receive_type = 4
+					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode = i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
+				</when>
+				<otherwise>
+					AND p.pop_receive_type <![CDATA[ < ]]> 4
+					AND NOT EXISTS (SELECT 1 FROM DMS.inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode = i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
+				</otherwise>
+			</choose>
+			AND LIMIT #{fetchNum, jdbcType=INTEGER}
+	</select>
+
+</mapper>

@@ -172,7 +172,14 @@ public class SendDetailDaoTest {
                 "6929";
 
         for(String dr : departures.split("\n")){
-            List<SendDetail> sendDetails = sendDatailDao.queryWaybillsByDepartID(Long.parseLong(dr));
+            List<String> sendCodess = sendDatailDao.querySendCodesByDepartID(Long.parseLong(dr));
+            List<SendDetail> sendDetails=null;
+            if (sendCodess != null && sendCodess.size() > 0) {
+                List<SendDetail> temp = sendDatailDao.queryWaybillsBySendCode(sendCodess.get(0));
+                if(temp!=null&&temp.size()>0){
+                    sendDetails.addAll(temp);
+                }
+            }
             log.error(StringHelper.join(sendDetails,"getWaybillCode",","));
         }
     }

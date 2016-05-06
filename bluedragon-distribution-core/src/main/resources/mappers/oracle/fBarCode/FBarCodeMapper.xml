@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.fBarCode.dao.FBarCodeDao" >
+
+	<resultMap id="fBarCode" type="com.jd.bluedragon.distribution.fBarCode.domain.FBarCode" >
+		<result column="fbarcode_id" property="id" />
+		<result column="fbarcode_code" property="code" />
+        <result column="create_site_code" property="createSiteCode" />
+        <result column="create_site_name" property="createSiteName" />
+        <result column="create_time" property="createTime" />
+		<result column="create_user_code" property="createUserCode" />
+		<result column="create_user" property="createUser" />
+		<result column="update_user_code" property="updateUserCode" />
+		<result column="update_user" property="updateUser" />
+		<result column="update_time" property="updateTime" />
+		<result column="fbarcode_status" property="status" />
+		<result column="times" property="times" />
+		<result column="yn" property="yn" />
+	</resultMap>
+	
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.fBarCode.domain.FBarCode" >
+		INSERT INTO FBarCode (
+			fbarcode_id, fbarcode_code, create_site_code, create_site_name,
+			create_user_code, create_user,
+			update_user_code, update_user,
+			create_time,update_time,
+			fbarcode_status, times,  yn)
+		VALUES (
+			SEQ_FBARCODE.NEXTVAL, #{code,jdbcType=VARCHAR},
+			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
+			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
+			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
+			 SYSDATE, SYSDATE, 1, 1, 1)
+	</insert>
+</mapper>

@@ -298,7 +298,7 @@
 	</logger>
 	
 	<root>
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="console" />
 		<appender-ref ref="bluedragon" />
 	</root>

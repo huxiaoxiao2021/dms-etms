@@ -22,12 +22,15 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.*;
 
+@Service("taskService")
 public class TaskServiceImpl implements TaskService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
@@ -35,18 +38,19 @@ public class TaskServiceImpl implements TaskService {
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
 
+	@Autowired
     private TaskDao taskDao;
     
-    private TaskDao mysqlTaskDao;
-
-    private Set mysqlTableSet;
-    
+	@Autowired
     private RedisTaskService redisTaskService;
     
+	@Autowired
     private TaskModeAgent taskModeAgent;
-
+	
+	@Autowired
 	private SysConfigService sysConfigService;
-
+	
+	@Autowired
     private BaseService baseService;
 
     @Override
@@ -68,10 +72,6 @@ public class TaskServiceImpl implements TaskService {
         Assert.notNull(task, "task must not be null");
 
 		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
     	
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
 			logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
@@ -153,10 +153,6 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findTasks(Integer type) {
         Assert.notNull(type, "type must not be null");
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
         return routerDao.findTasks(type);
     }
 
@@ -164,10 +160,6 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findTasks(Integer type, String ownSign) {
         Assert.notNull(type, "type must not be null");
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
         return routerDao.findTasks(type, ownSign);
     }
 
@@ -175,10 +167,6 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findLimitedTasks(Integer fetchNum) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTaskWaybillTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-       
         return routerDao.findLimitedTasks(fetchNum);
     }
 
@@ -187,10 +175,6 @@ public class TaskServiceImpl implements TaskService {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-       
         return routerDao.findLimitedTasks(type, fetchNum);
     }
 
@@ -199,10 +183,6 @@ public class TaskServiceImpl implements TaskService {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-       
         return routerDao.findLimitedTasks(type, fetchNum, ownSign);
     }
 
@@ -211,10 +191,6 @@ public class TaskServiceImpl implements TaskService {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
 		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
 	}
 
@@ -222,10 +198,6 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findTasksByFingerprint(Task task) {
         Assert.notNull(task.getFingerprint(), "fingerprint must not be null");
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
         return routerDao.findTasksByFingerprint(task);
     }
 
@@ -233,10 +205,6 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean updateBySelective(Task task) {
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
         routerDao.updateBySelective(task);
         return Boolean.TRUE;
     }
@@ -267,10 +235,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddWithStatus(Task task) {
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
         return routerDao.addWithStatus(task);
     }
 
@@ -306,10 +270,6 @@ public class TaskServiceImpl implements TaskService {
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findTasks(Task task) {
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
 		return routerDao.findTasks(task);
 	}
 
@@ -318,33 +278,21 @@ public class TaskServiceImpl implements TaskService {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
 		return routerDao.findSendTasks(type, fetchNum, key);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findReverseSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains("task_send")){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
 		return routerDao.findReverseSendTask(sendCode);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains("task_send")){
-    		routerDao = mysqlTaskDao;
+		return routerDao.findWaybillSendTask(sendCode);
     	}
     	
-		return this.taskDao.findWaybillSendTask(sendCode);
-	}
-	
 	private Boolean isWaybillTask(Task task) {
 		if (Task.TABLE_NAME_WAYBILL.equalsIgnoreCase(task.getTableName())) {
 			return Boolean.TRUE;
@@ -482,20 +430,12 @@ public class TaskServiceImpl implements TaskService {
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
 		return routerDao.findTasksNumsByType(type, ownSign);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
 		return routerDao.findFailTasksNumsByType(type, ownSign);
 	}
 
@@ -654,22 +594,6 @@ public class TaskServiceImpl implements TaskService {
 		this.taskDao = taskDao;
 	}
 
-	public TaskDao getMysqlTaskDao() {
-		return mysqlTaskDao;
-	}
-
-	public void setMysqlTaskDao(TaskDao mysqlTaskDao) {
-		this.mysqlTaskDao = mysqlTaskDao;
-	}
-
-	public Set getMysqlTableSet() {
-		return mysqlTableSet;
-	}
-
-	public void setMysqlTableSet(Set mysqlTableSet) {
-		this.mysqlTableSet = mysqlTableSet;
-	}
-
 	public RedisTaskService getRedisTaskService() {
 		return redisTaskService;
 	}
@@ -701,8 +625,5 @@ public class TaskServiceImpl implements TaskService {
 	public void setBaseService(BaseService baseService) {
 		this.baseService = baseService;
 	}
-
-
-
 
     }

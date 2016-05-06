@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popPrint.dao.PopQueueDao">
+	<resultMap id="popQueueMap" type="popQueue">
+		<result column="id" property="id" />
+		<result column="QUEUE_NO" property="queueNo" />
+		<result column="CREATE_SITE_CODE" property="createSiteCode" />
+		<result column="CREATE_SITE_NAME" property="createSiteName" />
+		<result column="QUEUE_TYPE" property="queueType" />
+		<result column="EXPRESS_CODE" property="expressCode" />
+		<result column="EXPRESS_NAME" property="expressName" />
+		<result column="CREATE_USER_CODE" property="createUserCode" />
+		<result column="CREATE_USER" property="createUser" />
+		<result column="OPERATE_TIME" property="operateTime" />
+		<result column="QUEUE_STATUS" property="queueStatus" />
+		<result column="START_TIME" property="startTime" />
+		<result column="END_TIME" property="endTime" />
+		<result column="WAIT_NO" property="waitNo" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_TIME" property="updateTime" />
+	</resultMap>
+	<select id="getCurrentWaitNo" resultType="int" parameterType="int">
+		select max(WAIT_NO) from POP_QUEUE where date_format(CREATE_TIME,'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d') and create_site_code = #{createSiteCode}
+	</select>
+
+	<insert id="insertPopQueue" parameterType="popQueue">
+		insert into
+		POP_QUEUE(QUEUE_NO,CREATE_SITE_CODE,CREATE_SITE_NAME,QUEUE_TYPE,EXPRESS_CODE,EXPRESS_NAME,QUEUE_STATUS,WAIT_NO,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,CREATE_TIME,UPDATE_TIME,YN)
+		VALUES(
+		#{queueNo,jdbcType=VARCHAR},
+		#{createSiteCode,jdbcType=INTEGER},
+		#{createSiteName,jdbcType=VARCHAR},
+		#{queueType,jdbcType=INTEGER},
+		#{expressCode,jdbcType=VARCHAR},
+		#{expressName,jdbcType=VARCHAR},
+		1,
+		#{waitNo,jdbcType=INTEGER},
+		#{createUserCode,jdbcType=INTEGER},
+		#{createUser,jdbcType=VARCHAR},
+		#{operateTime},
+		NOW(),
+		NOW(),
+		1
+		)
+	</insert>
+
+	<update id="updatePopQueue" parameterType="popQueue" timeout="8">
+		update POP_QUEUE
+		<set>
+			<if test="queueStatus != null">
+				QUEUE_STATUS=#{queueStatus},
+			</if>
+			<if test="startTime != null">
+				START_TIME=#{startTime},
+			</if>
+			<if test="endTime != null">
+				END_TIME=#{endTime},
+			</if>
+			update_time=NOW()
+		</set>
+		where QUEUE_NO=#{queueNo,jdbcType=VARCHAR}
+	</update>
+
+	<select id="getPopQueueByQueueNo" parameterType="string"
+		resultMap="popQueueMap">
+		select * from POP_QUEUE where
+		QUEUE_NO=#{queueNo,jdbcType=VARCHAR}
+	</select>
+	<select id="getPopQueueList"
+		parameterType="com.jd.bluedragon.distribution.api.request.PopQueueQuery"
+		resultMap="popQueueMap">
+		SELECT * FROM POP_QUEUE t1
+		<include refid="where"/>
+		 LIMIT #{start} ,#{end}
+	</select>
+	<select id="getCount"
+		parameterType="com.jd.bluedragon.distribution.api.request.PopQueueQuery" resultType="int">
+		select count(1) from POP_QUEUE t1
+		<include refid="where"/>
+	</select>
+	
+<sql id="where">
+		<where>
+			<if test="queueNo!=null and queueNo!=''">
+				and t1.QUEUE_NO = #{queueNo,jdbcType=VARCHAR }
+			</if>
+			<if test="createSiteCode!=null and createSiteCode!=''">
+				and t1.CREATE_SITE_CODE = #{createSiteCode,jdbcType=VARCHAR }
+			</if>
+			<if test="queueStatus!=null and queueStatus!=''">
+				and t1.QUEUE_STATUS = #{queueStatus,jdbcType=INTEGER }
+			</if>
+			<if test="expressCode!=null and expressCode!=''">
+				and t1.EXPRESS_CODE = #{expressCode,jdbcType=VARCHAR }
+			</if>
+			<if test="printStartTime != null and printStartTime!=''">
+				AND <![CDATA[ t1.OPERATE_TIME>=str_to_date(#{printStartTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
+			</if>
+			<if test="printEndTime != null and printEndTime!='' ">
+				AND <![CDATA[ t1.OPERATE_TIME<=str_to_date(#{printEndTime,jdbcType=TIMESTAMP },'%Y-%m-%d %H:%i:%s')]]>
+			</if>
+		</where>
+</sql>
+
+</mapper>

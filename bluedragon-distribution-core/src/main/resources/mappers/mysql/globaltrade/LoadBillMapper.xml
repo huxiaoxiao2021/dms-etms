@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
+
+	<resultMap id="loadBill"
+		type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill">
+		<result column="id" property="id" />
+		<result column="load_id" property="loadId" />
+		<result column="warehouse_id" property="warehouseId" />
+		<result column="waybill_code" property="waybillCode" />
+		<result column="package_barcode" property="packageBarcode" />
+		<result column="package_amount" property="packageAmount" />
+		<result column="order_id" property="orderId" />
+		<result column="box_code" property="boxCode" />
+		<result column="dms_code" property="dmsCode" />
+		<result column="dms_name" property="dmsName" />
+		<result column="send_time" property="sendTime" />
+		<result column="send_code" property="sendCode" />
+		<result column="truck_no" property="truckNo" />
+		<result column="approval_code" property="approvalCode" />
+		<result column="approval_time" property="approvalTime" />
+		<result column="ctno" property="ctno" />
+		<result column="gjno" property="gjno" />
+		<result column="tpl" property="tpl" />
+		<result column="weight" property="weight" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="gen_time" property="genTime" />
+		<result column="create_user_code" property="createUserCode" />
+		<result column="create_user" property="createUser" />
+		<result column="package_user_code" property="packageUserCode" />
+		<result column="package_user" property="packageUser" />
+		<result column="package_time" property="packageTime" />
+		<result column="remark" property="remark" />
+		<result column="yn" property="yn" />
+	</resultMap>
+	
+	<insert id="add" parameterType="LoadBill">
+		INSERT INTO load_bill ( 
+			load_id, warehouse_id, waybill_code, package_barcode,
+		    package_amount, order_id, box_code, dms_code, dms_name,
+			send_time, send_code, truck_no, approval_code, approval_time,
+			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
+			create_user_code, create_user, package_user_code, package_user,
+			package_time, remark, yn
+		) VALUES (
+			#{loadId,jdbcType=VARCHAR}, #{warehouseId,jdbcType=VARCHAR}, 
+			#{waybillCode,jdbcType=VARCHAR}, #{packageBarcode,jdbcType=VARCHAR},
+			#{packageAmount,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR},
+			#{boxCode,jdbcType=VARCHAR}, #{dmsCode,jdbcType=INTEGER},
+			#{dmsName,jdbcType=VARCHAR}, #{sendTime,jdbcType=TIMESTAMP},
+			#{sendCode,jdbcType=VARCHAR}, #{truckNo,jdbcType=VARCHAR},
+			#{approvalCode,jdbcType=VARCHAR}, NOW(),
+			#{ctno,jdbcType=VARCHAR}, #{gjno,jdbcType=VARCHAR}, 
+			#{tpl,jdbcType=VARCHAR}, #{weight,jdbcType=DOUBLE},
+			NOW(), NOW(), NOW(),
+			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
+			#{packageUserCode,jdbcType=INTEGER}, #{packageUser,jdbcType=VARCHAR},
+			#{packageTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, 1
+		)
+	</insert>
+	
+	<update id="update" parameterType="LoadBill">
+		UPDATE 
+			load_bill
+		SET 
+			load_id = #{loadId,jdbcType=VARCHAR}, 
+			warehouse_id = #{warehouseId,jdbcType=VARCHAR}, 
+			waybill_code = #{waybillCode,jdbcType=VARCHAR}, 
+			package_barcode = #{packageBarcode,jdbcType=VARCHAR},
+			package_amount = #{packageAmount,jdbcType=INTEGER},
+			order_id = #{orderId,jdbcType=VARCHAR},           
+			box_code = #{boxCode,jdbcType=VARCHAR},           
+			dms_code = #{dmsCode,jdbcType=INTEGER},           
+			dms_name = #{dmsName,jdbcType=VARCHAR},           
+			send_time = #{sendTime,jdbcType=TIMESTAMP},        
+			send_code = #{sendCode,jdbcType=VARCHAR},          
+			truck_no = #{truckNo,jdbcType=VARCHAR},           
+			approval_code = #{approvalCode,jdbcType=VARCHAR},      
+			approval_time = #{approvalTime,jdbcType=TIMESTAMP},    
+			ctno = #{ctno,jdbcType=VARCHAR},              
+			gjno = #{gjno,jdbcType=VARCHAR},              
+			tpl = #{tpl,jdbcType=VARCHAR},               
+			weight = #{weight,jdbcType=DOUBLE},             
+			create_time = #{createTime,jdbcType=TIMESTAMP},                               
+			update_time = #{updateTime,jdbcType=TIMESTAMP},                               
+			gen_time = #{genTime,jdbcType=TIMESTAMP},                               
+			create_user_code = #{createUserCode,jdbcType=INTEGER},    
+			create_user = #{createUser,jdbcType=VARCHAR},        
+			package_user_code = #{packageUserCode,jdbcType=INTEGER},   
+			package_user = #{packageUser,jdbcType=VARCHAR},       
+			package_time = #{packageTime,jdbcType=TIMESTAMP},     
+			remark = #{remark,jdbcType=VARCHAR}
+		WHERE 
+			yn = 1 AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+	</update>
+
+	<select id="findByPackageBarcode" parameterType="String" resultMap="loadBill">
+		SELECT id
+		FROM load_bill
+		WHERE yn = 1 AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}  LIMIT 1
+	</select>
+
+    <update id="updateLoadBillById" parameterType="java.util.Map">
+        UPDATE load_bill
+          SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode},approval_time = NOW()
+        WHERE yn = 1 AND id IN
+        <foreach collection="data" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="selectLoadBillById" parameterType="java.util.List" resultMap="loadBill">
+        SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,approval_code,
+        tpl,weight,gen_time,package_time,package_user,package_user_code
+        FROM load_bill WHERE yn = 1 AND id IN
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectPreLoadBillId" resultType="java.lang.Long">
+       select dms_core_box.nextval
+    </select>
+
+	<update id="updateLoadBillStatus" parameterType="map">
+		UPDATE load_bill
+		SET approval_code = #{approvalCode,jdbcType=INTEGER}
+		WHERE yn = 1 AND warehouse_id = #{warehouseId,jdbcType=VARCHAR}
+		      <if test="orderIdList != null">
+				  AND (
+					  <foreach collection="orderIdList" item="item" index="index" open="" close="" separator="">
+						  <if test="index == 0">
+							  order_id IN (${item})
+						  </if>
+						  <if test="index != 0">
+							  OR order_id IN (${item})
+						  </if>
+					  </foreach>
+				  )
+			  </if>
+			  AND load_id IN
+		      <foreach collection="loadIdList" item="item" index="index" open="(" close=")" separator=",">
+				  #{item}
+			  </foreach>
+	</update>
+
+	<update id="updateCancelLoadBillStatus" parameterType="loadBill">
+		UPDATE load_bill
+		SET approval_code = #{approvalCode,jdbcType=INTEGER},
+		update_time = NOW()
+		WHERE yn = 1 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		AND id = #{id}
+	</update>
+	
+	<select id="findLoadbillByID" resultMap="loadBill" parameterType="Long" >
+		SELECT id,waybill_code, package_barcode, dms_code, dms_name, approval_code
+		FROM load_bill
+		WHERE yn = 1 AND approval_code = 40
+		AND id = #{id}
+	</select>
+	
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="sendCodeList != null">
+				AND send_code IN
+				<foreach collection="sendCodeList" item="item" index="index" open="(" close=")" separator=",">
+					#{item}  
+				</foreach>
+			</if>
+			<if test="dmsCode != null">
+				AND dms_code = #{dmsCode,jdbcType=INTEGER}
+			</if>
+			<if test="approvalCode != null">
+				AND approval_code = #{approvalCode,jdbcType=INTEGER}
+			</if>
+			<if test="sendTimeFrom != null">
+				AND send_time >= #{sendTimeFrom,jdbcType=TIMESTAMP}
+			</if>
+			<if test="sendTimeTo != null">
+				AND send_time <![CDATA[<=]]> #{sendTimeTo,jdbcType=TIMESTAMP}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</sql>
+	
+	<select id="findPage" resultMap="loadBill" parameterType="map">
+		SELECT
+		id, load_id, waybill_code, package_barcode, order_id, dms_name,
+		send_time, send_code, truck_no, approval_code, 
+		approval_time, remark
+		FROM DMS.load_bill
+		<include refid="Base_Where_List" />
+		ORDER BY CREATE_TIME
+		<if test="startIndex != null">
+			LIMIT #{startIndex},#{endIndex}
+		</if>
+	</select>
+	
+	<select id="findCount" resultType="Integer" parameterType="map">
+		SELECT count(1)
+		FROM DMS.load_bill
+		<include refid="Base_Where_List" />
+	</select>
+
+
+
+    <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
+        SELECT waybill_code,box_code,approval_code,dms_code
+        FROM DMS.load_bill
+        WHERE
+          yn=1
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="boxCode != null">
+            AND box_code = #{boxCode,jdbcType=VARCHAR}
+        </if>
+    </select>
+</mapper>

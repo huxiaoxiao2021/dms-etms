@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
+
 public interface TaskService {
 
     void initFingerPrint(Task task);

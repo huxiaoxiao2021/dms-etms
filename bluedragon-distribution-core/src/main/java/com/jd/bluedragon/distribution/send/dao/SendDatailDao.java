@@ -25,11 +25,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 				SendDatailDao.namespace + ".querySendDatailsByPackageCode", tSendDatail);
 	}
 
-	public SendDetail queryOneSendDatailBySendM(SendDetail tSendDatail) {
-		return (SendDetail) this.getSqlSession().selectOne(
-				SendDatailDao.namespace + ".queryOneSendDatailBySendM", tSendDatail);
-	}
-	
 	public SendDetail querySendDatailBySendStatus(SendDetail tSendDatail) {
 		return (SendDetail) this.getSqlSession().selectOne(
 				SendDatailDao.namespace + ".querySendDatailBySendStatus", tSendDatail);
@@ -76,12 +71,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 				SendDatailDao.namespace + ".findUpdatewaybillCodeMessage", paramMap);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<SendDetail> findSendwaybillMessage() {
-		return this.getSqlSession().selectList(SendDatailDao.namespace + ".findSendwaybillMessage",
-				1);
-	}
-	
 	public boolean updatewaybillCodeStatus(SendDetail sendDetial) {
 		sendDetial.setCreateTime(sendDetial.getOperateTime());
 		return this.getSqlSession().update(SendDatailDao.namespace + ".UpdatewaybillCodeStatus",
@@ -92,26 +81,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 		sendDetial.setCreateTime(sendDetial.getOperateTime());
 		return this.getSqlSession().update(SendDatailDao.namespace + ".updateSendStatusByPackage",
 				sendDetial) > 0;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<SendDetail> findsendDeliveryMessageTotms() {
-		return this.getSqlSession().selectList(
-				SendDatailDao.namespace + ".findsendDeliveryMessageTotms", 1);
-	}
-	
-	public boolean updateMessageTotmsStatus(SendDetail sendDetial) {
-		return this.getSqlSession().update(SendDatailDao.namespace + ".UpdateMessageTotmsStatus",
-				sendDetial) > 0;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<SendDetail> getSendDatailsWithoutMeasures(Integer fetchNum) {
-		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put("siteCode", 0);// query all
-		map.put("fetchNum", fetchNum);
-		return this.getSqlSession().selectList(
-				SendDatailDao.namespace + ".getSendDatailsWithoutMeasures", map);
 	}
 	
 	public boolean updateWeight(SendDetail sendDetail) {
@@ -242,4 +211,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryWaybillsByDepartID", departureID);
     }
+
+
+	public List<String> querySendCodesByDepartID(Long departureID){
+		return this.getSqlSession().selectList(
+				SendDatailDao.namespace + ".querySendCodesByDepartID", departureID);
+	}
 }

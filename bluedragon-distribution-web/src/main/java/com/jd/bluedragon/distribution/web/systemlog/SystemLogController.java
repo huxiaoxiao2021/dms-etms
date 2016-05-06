@@ -65,4 +65,38 @@ public class SystemLogController {
 
 		return "systemLog/systemLog";
 	}
+	
+	@RequestMapping(value = "/goListPage1", method = RequestMethod.GET)
+	public String goListpage1(Model model) {
+		return "systemLog/systemLog1";
+	}
+	
+	@RequestMapping(value = "/list1", method = RequestMethod.GET)
+	public String queryOperateLog1(SystemLog systemLog, Pager<SystemLog> pager, Model model) {
+		try{
+		// 设置分页对象
+		if (pager == null) {
+			pager = new Pager<SystemLog>(Pager.DEFAULT_PAGE_NO);
+		} else {
+			pager = new Pager<SystemLog>(pager.getPageNo(), pager.getPageSize());
+		}
+		
+		// 获取总数量
+		int totalsize =systemLogService.totalSize(systemLog.getKeyword1());
+		pager.setTotalSize(totalsize);
+
+		logger.info("查询符合条件的规则数量：" + totalsize);
+		
+		List<SystemLog> logList = systemLogService.queryByCassandra(systemLog.getKeyword1() ,pager);
+		for(SystemLog log:logList){
+			log.setContent(StringHelper.html(log.getContent()));
+		}
+		model.addAttribute("systemlogs", logList);
+		model.addAttribute("systemLogQueryDto", systemLog);
+		model.addAttribute("pager", pager);
+		}catch(Exception e){
+			logger.error("查询SystemLog出错", e);
+		}
+		return "systemLog/systemLog1";
+	}
 }

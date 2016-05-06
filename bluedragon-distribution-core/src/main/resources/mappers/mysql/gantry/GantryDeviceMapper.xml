@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao">
+
+    <resultMap id="gantryDeviceMap" type="com.jd.bluedragon.distribution.gantry.domain.GantryDevice">
+        <id column="MACHINE_ID" property="machineId" jdbcType="BIGINT"/>
+        <result column="SERIAL_NUMBER" property="serialNumber" jdbcType="VARCHAR"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="INTEGER"/>
+        <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR"/>
+        <result column="SITE_CODE" property="siteCode" jdbcType="INTEGER"/>
+        <result column="SITE_NAME" property="siteName" jdbcType="VARCHAR"/>
+        <result column="SUPPLIER" property="supplier" jdbcType="VARCHAR"/>
+        <result column="MODEL_NUMBER" property="modelNumber" jdbcType="VARCHAR"/>
+        <result column="MODEL_TYPE" property="type" jdbcType="VARCHAR"/>
+        <result column="MARK" property="mark" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="OPERATE_NAME" property="operateName" jdbcType="VARCHAR"/>
+        <result column="YN" property="yn" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <update id="updateGantryById" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryDevice">
+        UPDATE GANTRY_DEVICE_INFO
+        <set>
+            <if test="serialNumber != null">
+                SERIAL_NUMBER = #{serialNumber, jdbcType=VARCHAR},
+            </if>
+            <if test="orgCode != null">
+                ORG_CODE = #{orgCode, jdbcType=INTEGER},
+            </if>
+            <if test="orgName != null">
+                ORG_NAME = #{orgName, jdbcType=VARCHAR},
+            </if>
+            <if test="siteCode != null">
+                SITE_CODE = #{siteCode, jdbcType=INTEGER},
+            </if>
+            <if test="siteName != null">
+                SITE_NAME = #{siteName, jdbcType=VARCHAR},
+            </if>
+            <if test="supplier != null">
+                SUPPLIER = #{supplier, jdbcType=VARCHAR},
+            </if>
+            <if test="modelNumber != null">
+                MODEL_NUMBER = #{modelNumber, jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                MODEL_TYPE = #{type, jdbcType=VARCHAR},
+            </if>
+            <if test="mark != null">
+                MARK = #{mark, jdbcType=VARCHAR},
+            </if>
+            <if test="operateName != null">
+                OPERATE_NAME = #{operateName, jdbcType=VARCHAR},
+            </if>
+            UPDATE_TIME = NOW()
+        </set>
+        WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}
+    </update>
+
+    <sql id="gantryDeviceColumn" >
+        MACHINE_ID, SERIAL_NUMBER, ORG_CODE,
+        ORG_NAME, SITE_CODE, SITE_NAME,
+        SUPPLIER, MODEL_NUMBER, MODEL_TYPE,
+        MARK, CREATE_TIME,UPDATE_TIME,
+        OPERATE_NAME ,YN
+    </sql>
+    
+    <sql id="gantryDeviceColumnNoID" >
+        MSERIAL_NUMBER, ORG_CODE,
+        ORG_NAME, SITE_CODE, SITE_NAME,
+        SUPPLIER, MODEL_NUMBER, MODEL_TYPE,
+        MARK, CREATE_TIME,UPDATE_TIME,
+        OPERATE_NAME ,YN
+    </sql>
+
+    <sql id="gantryQueryParam" >
+      <where>
+          YN = 1
+          <if test="machineId != null">
+              AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+          </if>
+          <if test="orgCode != null">
+              AND ORG_CODE = #{orgCode, jdbcType=INTEGER}
+          </if>
+          <if test="siteCode != null">
+              AND SITE_CODE = #{siteCode, jdbcType=INTEGER}
+          </if>
+          <if test="supplier != null">
+              AND (SUPPLIER like   concat('%',#{supplier,jdbcType=VARCHAR})
+			  or SUPPLIER like   concat(#{supplier,jdbcType=VARCHAR},'%'))
+          </if>
+      </where>
+    </sql>
+
+    <insert id="addGantry" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryDevice">
+        INSERT INTO GANTRY_DEVICE_INFO
+          (<include refid="gantryDeviceColumnNoID" />)
+        VALUES (
+          #{serialNumber, jdbcType=VARCHAR}, #{orgCode, jdbcType=INTEGER},
+          #{orgName, jdbcType=VARCHAR}, #{siteCode, jdbcType=INTEGER}, #{siteName, jdbcType=VARCHAR},
+          #{supplier, jdbcType=VARCHAR}, #{modelNumber, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR},
+          #{mark, jdbcType=VARCHAR}, now(), now(), #{operateName, jdbcType=VARCHAR}, 1
+        )
+    </insert>
+
+    <update id="delGantry" parameterType="java.util.Map">
+        UPDATE GANTRY_DEVICE_INFO SET YN = 0
+        <include refid="gantryQueryParam"/>
+    </update>
+    
+    <select id="queryGantry" parameterType="java.util.Map" resultMap="gantryDeviceMap">
+        SELECT 
+        <include refid="gantryDeviceColumn"/>
+        FROM GANTRY_DEVICE_INFO
+        <include refid="gantryQueryParam"/>
+    </select>
+
+    <select id="queryGantryPage" resultMap="gantryDeviceMap" parameterType="java.util.Map">
+       
+        SELECT
+          <include refid="gantryDeviceColumn"/>
+        FROM GANTRY_DEVICE_INFO
+          <include refid="gantryQueryParam" />
+        ORDER BY CREATE_TIME
+        <if test="startIndex != null">
+			LIMIT #{startIndex},#{endIndex}
+		</if>
+        
+    </select>
+
+    <select id="queryGantryCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT
+          COUNT (1)
+        FROM GANTRY_DEVICE_INFO
+        <include refid="gantryQueryParam"/>
+    </select>
+</mapper>

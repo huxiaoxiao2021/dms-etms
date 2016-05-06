@@ -11,8 +11,6 @@ public interface BoxService {
     /** 批量生成箱子信息 */
     List<Box> batchAdd(Box box);
     
-    /** 支持箱号打印，每打印一次， 打印次数加1. */
-    Integer print(Box box);
     /**重打*/
     Integer reprint(Box box);
     

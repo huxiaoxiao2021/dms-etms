@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao">
+	<resultMap id="TaskFailQueue"
+		type="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue">
+		<id column="failqueue_id" property="failqueueId" jdbcType="BIGINT" />
+		<result column="busi_id" property="busiId" jdbcType="INTEGER" />
+		<result column="busi_type" property="busiType" jdbcType="INTEGER" />
+		<result column="body" property="body" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" jdbcType="INTEGER" />
+		<result column="fail_status" property="failStatus" jdbcType="INTEGER" />
+		<result column="excute_count" property="excuteCount" jdbcType="INTEGER" />
+		<result column="excute_time" property="excuteTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<resultMap id="SendDatail_TaskFailQueue" type="com.jd.bluedragon.distribution.send.domain.SendDetail">
+		<id column="send_d_id"  property="sendDId" />
+		<result column="send_code"  property="sendCode" />
+		<result column="box_code"  property="boxCode" />
+		<result column="package_barcode"  property="packageBarcode" />
+		<result column="waybill_code"  property="waybillCode" />
+		<result column="pickup_code"  property="pickupCode" />
+		<result column="create_site_code"  property="createSiteCode" />
+		<result column="receive_site_code"  property="receiveSiteCode" />
+		<result column="send_type" property="sendType" />
+		<result column="create_time"  property="createTime" />
+		<result column="create_user"  property="createUser" />
+		<result column="create_user_code"  property="createUserCode" />
+		<result column="sendd_status"  property="status" />
+		<result column="weight"  property="weight" />
+		<result column="is_cancel"  property="isCancel" />
+		<result column="update_time"  property="updateTime" />
+		<result column="excute_count" property="excuteCount" />
+		<result column="excute_time" property="excuteTime" />
+		<result column="yn"  property="yn" />
+	</resultMap>
+	<insert id="add"
+		parameterType="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue">
+		insert into task_failqueue (
+			failqueue_id,
+			busi_id,busi_type,body,create_time,update_time,
+			yn,fail_status,excute_count,excute_time
+		)
+		values
+		(
+			SEQ_TASK_FAILQUEUE.NEXTVAL,
+			#{busiId,jdbcType=INTEGER},
+			#{busiType,jdbcType=INTEGER},
+			#{body,jdbcType=VARCHAR},
+			sysdate,
+			sysdate,
+			1,
+			0,
+			0,
+			<choose>
+				<when test="busiType != null and busiType == 4">
+					(sysdate+ 60/(24*60))
+				</when>
+				<otherwise>
+					sysdate
+				</otherwise>
+			</choose>
+		)
+	</insert>
+	<update id="update" parameterType="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue">
+		update task_failqueue
+			set 
+				busi_type = #{busiType,jdbcType=INTEGER},
+				body = #{body,jdbcType=VARCHAR}
+		where YN=1 and busi_id = #{busiId,jdbcType=INTEGER}
+	</update>
+	<update id="updateFail"
+		parameterType="java.lang.Long">
+		update task_failqueue
+			set 
+				update_time=SYSDATE,
+				excute_count = (excute_count + 1),
+				excute_time = (excute_time + 15/(24*60)),
+				fail_status = (case when excute_count = 5 then 4 else 3 end)
+		where YN=1 and failqueue_id = #{id}
+	</update>
+	<update id="updateLock"
+		parameterType="java.lang.Long">
+		update task_failqueue
+			set 
+				update_time=SYSDATE,
+				fail_status = 1
+		where YN=1 and failqueue_id = #{id}
+	</update>
+	<update id="updateSuccess"
+		parameterType="java.lang.Long">
+		update task_failqueue
+			set 
+				update_time=SYSDATE,
+				fail_status = 2
+		where YN=1 and failqueue_id = #{id}
+	</update>
+	<select id="query" resultMap="TaskFailQueue"  parameterType="java.util.Map">		
+		select
+			failqueue_id,
+			busi_id,busi_type,body,create_time,update_time,
+			yn,fail_status,excute_count,excute_time
+		from task_failqueue
+		where YN=1 AND excute_count <![CDATA[<=]]> 5 
+			AND excute_time <![CDATA[<=]]> SYSDATE
+			AND fail_status in (0,3)
+		<if test="fetchNum != null">
+			AND ROWNUM <![CDATA[<=]]> #{fetchNum}
+		</if>
+		<if test="busiType != null">
+			AND busi_type = #{busiType}
+		</if>
+		order by failqueue_id
+	</select>
+	
+	<select id="queryBatch" resultType="long"  parameterType="list">		
+		select
+			busi_id
+		from task_failqueue
+		where yn = 1 and busi_id in 
+		<foreach collection="list" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items,jdbcType=BIGINT}
+		</foreach> 
+	</select>
+	<select id="querySendCodeByBusiId" resultType="long"  parameterType="list">		
+		select
+			busi_id
+		from task_failqueue
+		where yn = 1 and busi_id in 
+		<foreach collection="list" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items,jdbcType=BIGINT}
+		</foreach> 	
+	</select>
+	<select id="querySendDatail_SELF" parameterType="list" resultMap="SendDatail_TaskFailQueue">
+		select
+			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code, 
+    		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
+		from send_d
+		where send_code in 
+		<foreach collection="list" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items,jdbcType=VARCHAR}
+		</foreach> and yn = 1 and send_type = 10
+	</select>
+	
+	<select id="querySendDatail_3PL" parameterType="list" resultMap="SendDatail_TaskFailQueue">
+		select
+			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code, 
+    		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
+		from send_d
+		where send_code in 
+		<foreach collection="list" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items,jdbcType=VARCHAR}
+		</foreach> and yn = 1 and send_type = 30
+	</select>
+	
+	<insert id="batchInsert" parameterType="list">
+         insert into task_failqueue
+         (
+			failqueue_id,
+			busi_id,busi_type,body,create_time,update_time,
+			yn,fail_status,excute_count,excute_time
+         ) select  SEQ_TASK_FAILQUEUE.NEXTVAL,A.*  from(
+	        <foreach collection="list" item="item" index="index"  separator="UNION ALL" >
+				SELECT
+				#{item.busiId,jdbcType=BIGINT javaType=long} as busi_id,
+				#{item.busiType,jdbcType=INTEGER javaType=int} as busi_type,
+				#{item.body,jdbcType=VARCHAR javaType=string} as body,
+				sysdate as create_time,
+				sysdate as update_time,
+				1 as yn,
+				0 as fail_status,
+				0 as excute_count,
+				(sysdate+ 60/(24*60)) as excute_time
+	            from dual
+	        </foreach>
+        ) A 
+	</insert>
+</mapper>

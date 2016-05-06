@@ -39,11 +39,6 @@ public class TaskFailQueueDao extends BaseDao<TaskFailQueue> {
 	}
 	
 	@SuppressWarnings("unchecked")
-    public Integer add(List<TaskFailQueue> param) {
-        return this.getSqlSession().insert(TaskFailQueueDao.namespace + ".batchInsert", param);
-    }
-	
-	@SuppressWarnings("unchecked")
 	public void updateLock(Long id){
 		super.getSqlSession().update(TaskFailQueueDao.namespace + ".updateLock", id);
 	}

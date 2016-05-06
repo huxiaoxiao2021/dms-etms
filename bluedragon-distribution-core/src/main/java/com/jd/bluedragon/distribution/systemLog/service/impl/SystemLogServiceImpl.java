@@ -1,8 +1,14 @@
 package com.jd.bluedragon.distribution.systemLog.service.impl;
 
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao;
+import com.jd.bluedragon.distribution.systemLog.dao.SystemlogCassandra;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
+import com.jd.bluedragon.utils.StringHelper;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,13 +30,36 @@ public class SystemLogServiceImpl implements SystemLogService {
 
 	@Autowired
 	private SystemLogDao systemLogDao;
+	
+	@Autowired
+	private SystemlogCassandra logCassandra;
+	
+	@Autowired
+	private BaseService baseService;
+	
+	//cassandra开关
+	public static final String CASSANDRA_SWITCH = "CASSANDRA_SWITCH";
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(SystemLog systemLog) {
 		try {
 			byte[] contentBytes = systemLog.getContent().getBytes();
 			if(contentBytes.length>4000) systemLog.setContent(new String(contentBytes, 0, 4000));
-			return systemLogDao.add(SystemLogDao.namespace, systemLog);
+			
+			List<SysConfig> configs=baseService.queryConfigByKeyWithCache(CASSANDRA_SWITCH);
+			for(SysConfig sys : configs){
+				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_ON")){
+					logCassandra.batchInsert(systemLog);
+					systemLogDao.add(SystemLogDao.namespace, systemLog);
+				}
+				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OFF")){
+					systemLogDao.add(SystemLogDao.namespace, systemLog);
+				}
+				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OL")){
+					logCassandra.batchInsert(systemLog);
+				}
+			}
+			return 1;
 		} catch (Exception e) {
 			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
 			return 0;
@@ -62,4 +91,13 @@ public class SystemLogServiceImpl implements SystemLogService {
 		return systemLogDao.totalSizeByParams(params);
 	}
 
+	public Integer totalSize(String code) {
+		return logCassandra.totalSize(code);
+	}
+
+	@Override
+	public List<SystemLog> queryByCassandra(String code, Pager<SystemLog> pager) {
+		// TODO Auto-generated method stub
+		return logCassandra.getPage(code, pager);
+	}
 }

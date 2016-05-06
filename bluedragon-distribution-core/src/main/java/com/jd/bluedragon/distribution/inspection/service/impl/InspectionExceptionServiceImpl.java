@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -16,7 +14,9 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.dao.CenConfirmDao;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -25,7 +25,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -58,9 +57,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	private CenConfirmDao cenConfirmDao;
 	
 	@Autowired
-	private BoxService boxService;
-	
-	@Autowired
 	private SortingService sortingService;
 	
 	@Autowired
@@ -74,6 +70,9 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	
 	@Autowired
     private InspectionService  inspectionService;
+	
+	@Autowired
+    private SendMDao sendMDao;
 
 	@Autowired
 	private SiteService siteService;
@@ -111,7 +110,17 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getByThird(InspectionEC inspectionEC) throws Exception{
-		return inspectionECDao.queryByThird(inspectionEC);
+		List<InspectionEC> list =inspectionECDao.queryByThird(inspectionEC);
+		SendM tSendM = new SendM();
+		for(InspectionEC tinspectionEC : list){
+			tSendM.setBoxCode(inspectionEC.getBoxCode());
+			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
+			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
+			tSendM.setSendType(inspectionEC.getInspectionType());
+			if(sendMDao.checkSendByBox(tSendM))
+				list.remove(tinspectionEC);
+		}
+		return list;
 	}
 
 	/**
@@ -265,194 +274,12 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	}
 	
 	/**
-	 * 异常对比，差异信息生成
-	 */
-	@JProfiler(jKey= "DMSWEB.InspectionExceptionService.exceptionCompare")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void exceptionCompare(InspectionEC inspectionEC) throws Exception{
-		
-         String boxCode = inspectionEC.getBoxCode();
-         //step 1.调用志澎接口查询Task里的boxCode是否分拣完毕，若未分拣完毕，则不执行下面的操作
-         //并且更新箱子的状态,为
-         Box boxInit = new Box();
-         boxInit.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-         boxInit.setCodes("'"+boxCode+"'");
-         boxInit.setStatus(Box.BOX_STATUS_INSPECT_PROCESSING);
-    	 int boxInitStatus = boxService.updateStatusByCodes(boxInit);
-         if(boxInitStatus!=1){
-        	 InspectionExceptionServiceImpl.logger.info(" Comparative inspection exception , update initial state of box fail, box code: "+boxCode);
-         }
-    	 
-         /*如果当前箱子还有未处理的分拣记录，则都记录为多验*/
-         unhandleSortingByBox(inspectionEC);
-         
-         //调用分拣记录：通过箱号获取包裹集合
-         List<Sorting> distributions = getSortingRecords(inspectionEC);
-         //如果无分拣记录，则为多验
-         if (null == distributions || distributions.isEmpty()) {
- 			inspectionEC.setInspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE);
- 			inspectionECDao.updateInspectionECType(inspectionEC);
- 			return ;
- 		}
-         
-         //step2.进行异常比对，根据箱号查出分拣的包裹集合和验货包裹集合进行比较
-         //生成多验和少验记录
-         Set<String> sortingSet = compareSortingInspection(inspectionEC, distributions);
-         
-         //完验操作，当分拣的正常记录与验货的正常记录相同是，更新箱子状态为4表示完验
-         inspectionFinishByBox(boxCode,inspectionEC, sortingSet);
-	}
-
-	/**
-	 * 以箱子为单位箱子，判断验货中所有正常的，和已经直接配送的包裹，是否等于分拣的记录
-	 * 如果验货与分拣相等，则把箱子的状态改为4，表示完验，可以发货
-	 * @param boxCode
-	 * @param inspectionEC
-	 * @param sortingSet
-	 */
-	private void inspectionFinishByBox(String boxCode, InspectionEC inspectionEC, Set<String> sortingSet) {
-		InspectionEC inspectionECLast = new InspectionEC();
-        inspectionECLast.setBoxCode(boxCode);
-        inspectionECLast.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
-        inspectionECLast.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-        
-        List<InspectionEC> lastList = inspectionECDao.queryLast(inspectionECLast);//查出最后所有正常的，和已经处理的包裹，是否等于分拣的记录
-        
-        int result = 0;
-        for(InspectionEC eachInspectionEC :lastList){
-        	if(sortingSet.contains(getInspectionSetStr(Inspection.toInspectionByEC(eachInspectionEC)))) {
-	            result ++;
-            }
-        }
-        
-        //step3.执行完验操作，检查是否更新box表的状态
-        //需要判断箱子状态是否为2，才可以更新
-        //箱子状态：未使用(0)、打印（1）、分拣（2）、正在三方验货（3）、三方验货完毕(4)、发货完毕(5)、正在发车（6）、发车完毕(7)
-        if(result>0 && result == sortingSet.size() ){
-        	Box box = new Box();
-        	box.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-       	 	box.setCodes("'"+boxCode+"'");
-       	 	box.setStatus(Box.BOX_STATUS_INSPECT);
-       	 	int boxInspectionFinishState =  boxService.updateStatusByCodes(box);
-       	 	if( boxInspectionFinishState!=1 ){
-       	 		InspectionExceptionServiceImpl.logger.info("Comparative inspection exception , update box status in end of inspection fail that box code is "+boxCode);
-       	 	}
-        }
-	}
-
-	/**
 	 * 根据箱号查出分拣的包裹集合和验货包裹集合进行比较
 	 * @param inspectionEC
 	 * @param distributions
 	 * @return
 	 * @throws Exception
 	 */
-	private Set<String> compareSortingInspection(InspectionEC inspectionEC, List<Sorting> distributions) throws Exception{
-		List<Inspection> inspPackages = inspectionDao.queryListByBox(Inspection.toInspectionByEC(inspectionEC));// 异常比对表数据
-
-		// 写入set
-		Set<String> sortingSet = new HashSet<String>();// 分拣记录
-		for (Sorting sortingEach : distributions) {
-			sortingSet.add(getSortingSetStr(sortingEach));
-		}
-		Set<String> inspectionSet = new HashSet<String>();// 验货记录
-		for (Inspection inspectionEach : inspPackages) {
-			inspectionSet.add(getInspectionSetStr(inspectionEach));
-		}
-
-		Set<InspectionEC> more = new HashSet<InspectionEC>();
-		Set<InspectionEC> less = new HashSet<InspectionEC>();
-		Set<InspectionEC> normal = new HashSet<InspectionEC>();
-
-		// compare
-		for (Sorting comSorting : distributions) {
-			InspectionEC sortingEach = new InspectionEC(
-					comSorting.getBoxCode(), comSorting.getPackageCode(),
-					comSorting.getCreateSiteCode(), comSorting.getReceiveSiteCode());
-
-			if (inspectionSet.contains(getSortingSetStr(comSorting))) {
-				sortingEach.setInspectionECType(InspectionEC.INSPECTIONEC_TYPE_NORMAL);
-				normal.add(sortingEach);
-			} else {// 如果在验货表不存在，在装箱表里存在，则为少验
-				sortingEach.setInspectionECType(InspectionEC.INSPECTIONEC_TYPE_LESS);
-				sortingEach.setInspectionType(Inspection.BUSSINESS_TYPE_THIRD_PARTY);
-				sortingEach.setStatus(InspectionEC.INSPECTION_EXCEPTION_STATUS_HANDLED);
-				sortingEach.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(sortingEach.getPackageBarcode()));
-				less.add(sortingEach);
-			}
-		}
-
-		for (Inspection inspectionEach : inspPackages) {
-			InspectionEC inspectionECEach = InspectionEC.toInspectionECByInspection(inspectionEach);
-			if (sortingSet.contains(getInspectionSetStr(inspectionEach))) {
-				inspectionECEach.setInspectionECType(InspectionEC.INSPECTIONEC_TYPE_NORMAL);
-				normal.add(inspectionECEach);
-			} else {// 如果在验货表存在，在装箱表里不存在，则为多验
-				inspectionECEach.setInspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE);
-				more.add(inspectionECEach);
-			}
-		}
-
-		// 多验或者正常的数据直接更改inspection_e_c_type字段和status字段即可
-		inspectionECDao.batchUpdateInspectionECType(normal);
-		inspectionECDao.batchUpdateInspectionECType(more);
-		// 少验需要则标记为少验记录
-		CollectionHelper<InspectionEC> helper = new CollectionHelper<InspectionEC>();
-		this.insertOrUpdateBatch(helper.toList(less));
-
-		return sortingSet;
-	}
-
-	/**
-	 * 获取所有该箱子的分拣记录
-	 * @param boxCode
-	 * @param inspectionEC
-	 * @return
-	 * @throws Exception
-	 */
-	private List<Sorting> getSortingRecords(InspectionEC inspectionEC) throws Exception{
-		List<Sorting> distributions = new ArrayList<Sorting>();
-		Sorting sorting = new Sorting();
-		sorting.setBoxCode(inspectionEC.getBoxCode());
-		sorting.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-		sorting.setType(Inspection.BUSSINESS_TYPE_THIRD_PARTY);
-		try {
-			distributions = sortingService.findByBoxCode(sorting);
-		} catch (Exception e) {
-			InspectionExceptionServiceImpl.logger.error("异常比对Worker，调用 异常，异常信息为："+e.getMessage(),e);
-		}
-
-		 if (null == distributions || distributions.isEmpty()) {
-	 			InspectionExceptionServiceImpl.logger.warn(" Comparative inspection exception , box code : "
-	 					+ inspectionEC.getBoxCode() + " & createSiteCode :"
-	 					+ sorting.getCreateSiteCode()
-	 					+ " from sorting are not exist ");
-		 }
-		return distributions;
-	}
-
-	/**
-	 * 若箱子还有位处理的分拣任务，则验货记录置为多验
-	 * @param inspectionEC
-	 * @throws Exception
-	 */
-	@SuppressWarnings("static-access")
-	private void unhandleSortingByBox(InspectionEC inspectionEC) throws Exception{
-		Task task = new Task();
-        task.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-        task.setType(Task.TASK_TYPE_SORTING);
-        task.setBoxCode(inspectionEC.getBoxCode());
-        task.setTableName(task.getTableName(task.getType()));
-        task.setStatuses(Task.TASK_STATUS_UNHANDLED+","+Task.TASK_STATUS_PROCESSING);
-        List<Task> boxTask =  taskService.findTasks(task);//call task data for check box is distributed, parameter boxCode
-        if( !boxTask.isEmpty() ){//如果任务表里有某箱号未处理的分拣任务,则认为是多验
-        	InspectionExceptionServiceImpl.logger.info(" Comparative inspection exception , box code : "+inspectionEC.getBoxCode()+" from task_sorting is not exist ");
-        	inspectionEC.setInspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE);
-        	inspectionEC.setStatus(0);//需要设置前置条件：where exception_status=0，表示未处理的记录
-        	inspectionECDao.updateInspectionECType(inspectionEC);
-        	return;
-        }
-	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private void insertOrUpdateBatch(List<InspectionEC> list) throws Exception{
@@ -465,28 +292,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 				inspectionECDao.add(InspectionECDao.namespace, inspectionEC);
 			}
 		}
-	}
-
-	/**
-	 * 获得验货记录Inspection的唯一串，由四部分组成：箱号、包裹、创建站点、接收站点
-	 * 由^分隔
-	 * @param inspectionEach
-	 * @return
-	 */
-	private String getInspectionSetStr(Inspection inspectionEach) {
-		return inspectionEach.getBoxCode()+"^"+inspectionEach.getPackageBarcode()
-   			 +"^"+inspectionEach.getCreateSiteCode()+"^"+inspectionEach.getReceiveSiteCode();
-	}
-
-	/**
-	 * 获得分拣记录Sorting的唯一串，由四部分组成：箱号、包裹、创建站点、接收站点
-	 * 由^分隔
-	 * @param sortingEach
-	 * @return
-	 */
-	private String getSortingSetStr(Sorting sortingEach) {
-		return sortingEach.getBoxCode()+"^"+sortingEach.getPackageCode()
-   			 +"^"+sortingEach.getCreateSiteCode()+"^"+sortingEach.getReceiveSiteCode();
 	}
 
 	/**
@@ -544,13 +349,32 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 
 	@Override
 	public int totalThirdByParams(Map<String, Object> paramMap) {
-		
-		return inspectionECDao.totalThirdByParams(paramMap);
+		List<InspectionEC> list =inspectionECDao.queryThirdByParams(paramMap);
+		SendM tSendM = new SendM();
+		for(InspectionEC inspectionEC : list){
+			tSendM.setBoxCode(inspectionEC.getBoxCode());
+			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
+			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
+			tSendM.setSendType(inspectionEC.getInspectionType());
+			if(sendMDao.checkSendByBox(tSendM))
+				list.remove(inspectionEC);
+		}
+		return list.size();
 	}
 
 	@Override
 	public List<InspectionEC> queryThirdByParams(Map<String, Object> paramMap) {
-		return inspectionECDao.queryThirdByParams(paramMap);
+		List<InspectionEC> list =inspectionECDao.queryThirdByParams(paramMap);
+		SendM tSendM = new SendM();
+		for(InspectionEC inspectionEC : list){
+			tSendM.setBoxCode(inspectionEC.getBoxCode());
+			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
+			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
+			tSendM.setSendType(inspectionEC.getInspectionType());
+			if(sendMDao.checkSendByBox(tSendM))
+				list.remove(inspectionEC);
+		}
+		return list;
 	}
 
 	@Override

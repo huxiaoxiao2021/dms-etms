@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popAbnormal.dao.PopReceiveAbnormalDao">
+	<resultMap id="popReceiveAbnormal"
+		type="com.jd.bluedragon.distribution.popAbnormal.domain.PopReceiveAbnormal">
+		<result column="ABNORMAL_ID" property="abnormalId" />
+		<result column="ORG_CODE" property="orgCode" />
+		<result column="ORG_NAME" property="orgName" />
+		<result column="CREATE_SITE_CODE" property="createSiteCode" />
+		<result column="CREATE_SITE_NAME" property="createSiteName" />
+		<result column="MAIN_TYPE" property="mainType" />
+		<result column="MAIN_TYPE_NAME" property="mainTypeName" />
+		<result column="SUB_TYPE" property="subType" />
+		<result column="SUB_TYPE_NAME" property="subTypeName" />
+		<result column="WAYBILL_CODE" property="waybillCode" />
+		<result column="POP_SUP_NO" property="popSupNo" />
+		<result column="POP_SUP_NAME" property="popSupName" />
+		<result column="ABNORMAL_STATUE" property="abnormalStatus" />
+		<result column="ATTR1" property="attr1" />
+		<result column="ATTR2" property="attr2" />
+		<result column="ATTR3" property="attr3" />
+		<result column="ATTR4" property="attr4" />
+		<result column="OPERATOR_NAME" property="operatorName" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_TIME" property="updateTime" />
+		<result column="YN" property="yn" />
+		<result column="waybill_type" property="waybillType" jdbcType="INTEGER" />
+		<result column="order_code" property="orderCode" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ABNORMAL_ID, ORG_CODE, ORG_NAME, CREATE_SITE_CODE, CREATE_SITE_NAME,
+		MAIN_TYPE, MAIN_TYPE_NAME, SUB_TYPE, SUB_TYPE_NAME, WAYBILL_CODE,
+		POP_SUP_NO, POP_SUP_NAME, ABNORMAL_STATUE, ATTR1, ATTR2, ATTR3, ATTR4,
+		OPERATOR_NAME, CREATE_TIME, UPDATE_TIME, YN, waybill_type, order_code
+	</sql>
+
+	<sql id="Base_Insert_Column_List">
+		ORG_CODE, ORG_NAME, CREATE_SITE_CODE, CREATE_SITE_NAME,
+		MAIN_TYPE, MAIN_TYPE_NAME, SUB_TYPE, SUB_TYPE_NAME, WAYBILL_CODE,
+		POP_SUP_NO, POP_SUP_NAME, ABNORMAL_STATUE, ATTR1, ATTR2, ATTR3, ATTR4,
+		OPERATOR_NAME, CREATE_TIME, UPDATE_TIME, YN, waybill_type, order_code
+	</sql>
+	
+	<sql id="Pop_Abnormal_Where_List">
+		<where>
+			YN = 1
+	 		<choose>
+	 			<when test="abnormalId != null">
+	 				and ABNORMAL_ID = #{abnormalId, jdbcType=BIGINT}
+	 			</when>
+	 			<otherwise>
+	 				<if test="dateType == 1">
+						<if test="startTime != null">
+							and CREATE_TIME <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+						</if>
+						<if test="endTime != null">
+							and CREATE_TIME <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+						</if>
+					</if>
+					<if test="dateType == 2">
+						<if test="startTime != null">
+							and UPDATE_TIME <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+						</if>
+						<if test="endTime != null">
+							and UPDATE_TIME <![CDATA[<=]]> str_to_date(date_fromat(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+						</if>
+					</if>
+		 			<if test="orgCode != null and orgCode != 0">
+						and ORG_CODE = #{orgCode, jdbcType=INTEGER}
+					</if>
+		 			<if test="createSiteCode != null and createSiteCode != 0">
+						and CREATE_SITE_CODE = #{createSiteCode, jdbcType=INTEGER}
+					</if>
+		 			<if test="mainType != null and mainType != 0">
+						and MAIN_TYPE = #{mainType, jdbcType=INTEGER}
+					</if>
+		 			<if test="subType != null and subType != 0">
+						and SUB_TYPE = #{subType, jdbcType=INTEGER}
+					</if>
+		 			<if test="abnormalStatus != null and abnormalStatus != 0">
+						and ABNORMAL_STATUE = #{abnormalStatus, jdbcType=INTEGER}
+					</if>
+					<if test="waybillCode != null and waybillCode != ''">
+						and WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
+					</if>
+					<if test="orderCode != null">
+						AND order_code = #{orderCode, jdbcType=VARCHAR}
+					</if>
+					<if test="waybillType != null">
+						AND waybill_type = #{waybillType, jdbcType=INTEGER}
+					</if>
+					<if test="popSupNo != null and popSupNo != ''">
+						and POP_SUP_NO = #{popSupNo, jdbcType=VARCHAR}
+					</if>
+					<if test="popSupName != null and popSupName != ''">
+						and POP_SUP_NAME like concat(#{popSupName, jdbcType=VARCHAR}, '%')
+					</if>
+					<if test="operatorName != null and operatorName != ''">
+						and OPERATOR_NAME like concat(#{operatorName, jdbcType=VARCHAR}, '%')
+					</if>
+	 			</otherwise>
+	 		</choose>
+		</where>
+	</sql>
+	
+	<select id="findTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		SELECT
+			count(ABNORMAL_ID)
+	 	from POP_ABNORMAL
+ 		<include refid="Pop_Abnormal_Where_List" />
+	</select>
+
+	<select id="findList" resultMap="popReceiveAbnormal" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List"/>
+		from POP_ABNORMAL
+		<include refid="Pop_Abnormal_Where_List"/>
+		<if test="orderByString != null">
+			ORDER BY ${orderByString} desc
+		</if>
+		<if test="startIndex != null">
+		 LIMIT #{startIndex},#{endIndex}
+		</if>
+	</select>
+	
+	<select id="findByMap" resultMap="popReceiveAbnormal" parameterType="java.util.Map">
+    	SELECT
+    	<include refid="Base_Column_List" />
+	    FROM POP_ABNORMAL 
+	    <where>
+	    	<if test="waybillCode != null">
+				AND WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
+			</if>
+			<if test="mainType != null and mainType != 0">
+				and MAIN_TYPE = #{mainType, jdbcType=INTEGER}
+			</if>
+ 			<if test="subType != null and subType != 0">
+				and SUB_TYPE = #{subType, jdbcType=INTEGER}
+			</if>
+	    	AND ABNORMAL_STATUE <![CDATA[<>]]> 3
+	    	AND YN = 1
+    	</where>
+    </select>
+    
+    <select id="findByObj" resultMap="popReceiveAbnormal" parameterType="PopReceiveAbnormal">
+    	SELECT
+    	<include refid="Base_Column_List" />
+	    FROM POP_ABNORMAL 
+	    <include refid="Pop_Abnormal_Where_List" />
+    </select>
+	
+	<insert id="add" parameterType="PopReceiveAbnormal">
+		insert into POP_ABNORMAL (
+		<include refid="Base_Insert_Column_List" />
+		)
+		values (
+		#{orgCode, jdbcType=INTEGER}, #{orgName, jdbcType=VARCHAR},
+		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR},
+		#{mainType, jdbcType=INTEGER}, #{mainTypeName, jdbcType=VARCHAR},
+		#{subType, jdbcType=INTEGER}, #{subTypeName, jdbcType=VARCHAR},
+		#{waybillCode, jdbcType=VARCHAR}, #{popSupNo, jdbcType=VARCHAR}, #{popSupName, jdbcType=VARCHAR},
+		#{abnormalStatus, jdbcType=INTEGER}, #{attr1, jdbcType=VARCHAR}, #{attr2, jdbcType=VARCHAR},
+		#{attr3, jdbcType=VARCHAR}, #{attr4, jdbcType=VARCHAR}, #{operatorName, jdbcType=VARCHAR},
+		NOW(), #{updateTime, jdbcType=TIMESTAMP}, 1,
+		#{waybillType, jdbcType=INTEGER}, #{orderCode, jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateById" parameterType="PopReceiveAbnormal">
+		UPDATE POP_ABNORMAL
+		<set>
+			ABNORMAL_STATUE = #{abnormalStatus, jdbcType=INTEGER},
+			<if test="attr1 != null and attr1 != ''">
+				ATTR1 = #{attr1, jdbcType=VARCHAR},
+			</if>
+			<if test="attr2 != null and attr2 != ''">
+				ATTR2 = #{attr2, jdbcType=VARCHAR},
+			</if>
+			<if test="attr3 != null and attr3 != ''">
+				ATTR3 = #{attr3, jdbcType=VARCHAR},
+			</if>
+			<if test="attr4 != null and attr4 != ''">
+				ATTR4 = #{attr4, jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null">
+				UPDATE_TIME = #{updateTime, jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where ABNORMAL_ID = #{abnormalId, jdbcType=BIGINT} and yn = 1
+	</update>
+	
+	<update id="delete" parameterType="long">
+		UPDATE POP_ABNORMAL SET YN = 0 where ABNORMAL_ID = #{abnormalId, jdbcType=BIGINT}
+	</update>
+</mapper>

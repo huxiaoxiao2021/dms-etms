@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.departure.dao.DepartureCarDao">
+	<resultMap id="BaseResultMap" type="DepartureCar">
+		<result column="departure_car_id" jdbcType="BIGINT" property="shieldsCarId" />
+		<result column="car_code" jdbcType="VARCHAR" property="carCode" />
+		<result column="shields_car_code" jdbcType="VARCHAR" property="shieldsCarCode" />
+		<result column="create_site_code" jdbcType="INTEGER" property="createSiteCode" />
+		<result column="send_user_code" jdbcType="INTEGER" property="sendUserCode" />
+		<result column="send_user" jdbcType="VARCHAR" property="sendUser" />
+		<result column="send_user_type" jdbcType="INTEGER" property="sendUserType" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="create_user" jdbcType="VARCHAR" property="createUser" />
+		<result column="create_user_code" jdbcType="INTEGER" property="createUserCode" />
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+		<result column="yn" jdbcType="TINYINT" property="yn" />
+		<result column="weight" jdbcType="DOUBLE" property="weight" />
+		<result column="volume" jdbcType="DOUBLE" property="volume" />
+	   	<result column="fingerprint" property="fingerprint" />
+	   	<result column="run_number" jdbcType="INTEGER" property="runNumber" />
+		<result column="receive_site_codes" jdbcType="VARCHAR" property="receiveSiteCodes" />
+		<result column="capacity_Code" jdbcType="VARCHAR" property="capacityCode" />
+		<result column="print_time" jdbcType="TIMESTAMP" property="printTime" />
+	</resultMap>
+
+    <resultMap id="deliveryInfoMap" type="com.jd.bluedragon.distribution.api.response.DeparturePrintResponse">
+        <result column="departure_car_id" property="carCode" jdbcType="NUMERIC"/>
+        <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR"/>
+        <result column="send_user_code" property="sendUserCode" jdbcType="NUMERIC"/>
+        <result column="send_user" property="sendUser" jdbcType="VARCHAR"/>
+        <result column="send_code" property="sendCode" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <resultMap id="arteryBillingMap" type="com.jd.bluedragon.distribution.api.response.DeparturePrintResponse">
+        <result column="create_site_code" property="createSite" jdbcType="NUMERIC"/>
+        <result column="receive_site_codes" property="receiveSites" jdbcType="VARCHAR"/>
+        <result column="send_user_code" property="sendUserCode" jdbcType="NUMERIC"/>
+        <result column="transport_type" property="transportType" jdbcType="NUMERIC"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="capacity_code" property="capacityCode" jdbcType="VARCHAR"/>
+        <result column="route_type" property="routeType" jdbcType="VARCHAR"/>
+        <result column="departure_car_id" property="departureCarID" jdbcType="NUMERIC"/>
+        <result column="volume" property="volume" jdbcType="NUMERIC"/>
+        <result column="weight" property="weight" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <select id="queryDeliveryInfoByOrderCode" resultMap="deliveryInfoMap" parameterType="String">
+        SELECT DISTINCT (sm.send_code)
+        FROM send_m sm
+        INNER JOIN send_d sd ON sm.send_code = sd.send_code
+        WHERE sd.waybill_code = #{orderCode}
+    </select>
+
+    <select id="queryDepartureInfoBySendCode" resultMap="deliveryInfoMap" parameterType="String">
+        SELECT dc.departure_car_id, dc.send_user_code, dc.send_user, dc.create_time
+        FROM departure_car dc
+        INNER JOIN departure_send ds ON dc.departure_car_id = ds.departure_car_id
+        WHERE ds.send_code IN
+        <foreach item="item" index="index" collection="list" open="("
+                                       separator="," close=")">
+        #{item}
+        </foreach>
+    </select>
+
+    <select id="queryArteryBillingInfo" resultMap="arteryBillingMap" parameterType="Long">
+        SELECT create_site_code,receive_site_codes,send_user_code
+              ,create_time,route_type,capacity_code,departure_car_id,volume,weight
+        FROM (SELECT dc.create_site_code,dc.receive_site_codes,dc.send_user_code
+               ,dc.create_time,dc.capacity_code as route_type,ds.capacity_code,dc.departure_car_id,dc.volume,dc.weight
+                FROM departure_car dc
+                INNER JOIN departure_send ds ON dc.departure_car_id = ds.departure_car_id
+                WHERE dc.departure_car_id = #{carCode})
+         LIMIT 1
+    </select>
+
+    <select id="queryArteryBillingInfoByBoxCode" resultMap="arteryBillingMap" parameterType="String">
+        SELECT create_site_code,receive_site_codes,send_user_code,transport_type
+              ,create_time,route_type,capacity_code,departure_car_id,volume,weight
+        FROM (SELECT dc.create_site_code,dc.receive_site_codes,dc.send_user_code,sm.transport_type
+                ,dc.create_time,dc.capacity_code as route_type,ds.capacity_code,dc.departure_car_id,dc.volume,dc.weight
+                FROM send_m sm
+                INNER JOIN departure_send ds ON sm.send_code = ds.send_code
+                INNER JOIN departure_car dc ON ds.departure_car_id = dc.departure_car_id
+                WHERE sm.box_code = #{boxCode})
+        WHERE LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="DepartureCar" useGeneratedKeys="true" keyProperty="shieldsCarId">
+		insert into departure_car (car_code, shields_car_code,
+		send_user, send_user_code,
+		create_site_code, create_time, create_user,
+		create_user_code, update_time, yn, weight, volume, send_user_type,fingerprint,old_car_code,depart_type,
+		run_number,receive_site_codes,capacity_Code)
+		values ( #{carCode,jdbcType=VARCHAR},
+		#{shieldsCarCode,jdbcType=VARCHAR}, #{sendUser,jdbcType=VARCHAR},
+		#{sendUserCode,jdbcType=INTEGER},
+		#{createSiteCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUser,jdbcType=VARCHAR},
+		#{createUserCode,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP},
+		#{yn,jdbcType=TINYINT}, #{weight,jdbcType=DOUBLE},
+		#{volume,jdbcType=DOUBLE},#{sendUserType,jdbcType=INTEGER},#{fingerprint,jdbcType=VARCHAR},
+		#{oldCarCode,jdbcType=VARCHAR},#{departType,jdbcType=TINYINT},
+		#{runNumber,jdbcType=INTEGER},
+		#{receiveSiteCodes,jdbcType=VARCHAR},
+		#{capacityCode,jdbcType=VARCHAR})
+	</insert>
+
+	<sql id="Base_Column_List">
+		departure_car_id, car_code, shields_car_code, send_user_code,
+		send_user,send_user_code,create_site_code, create_time, create_user,
+		create_user_code, update_time, yn, weight, volume, send_user_type
+	</sql>
+	
+	<select id="getSeqNextVal" resultType="Long">
+		select dms_core_box.nextval
+	</select>
+
+	<select id="findDepartureCarByFingerprint" resultMap="BaseResultMap" parameterType="map" >
+        SELECT departure_car_id
+        FROM departure_car
+        WHERE fingerprint = #{fingerprint}
+    </select>
+
+    <select id="findDepartureList" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.api.request.DeparturePrintRequest">
+    select t.*
+   	from DEPARTURE_CAR t where t.yn=1 and t.DEPART_TYPE=3
+ 	   <if test="startTime != null">
+ 	   and  t.CREATE_TIME between
+       str_to_date(#{startTime} , '%Y-%m-%d %H:%i:%s') and str_to_date(#{endTime}, '%Y-%m-%d %H:%i:%s')
+        </if>
+       <if test="sendUser != null">
+        and t.send_user_code=#{sendUser}
+	   </if>
+	    <if test="carCode != null">
+        and t.car_code=#{carCode, jdbcType=VARCHAR}
+	   </if>
+	   <if test="create_code != null">
+        and t.create_site_code=#{create_code, jdbcType=VARCHAR}
+	   </if>
+	   <if test="print_flage == 1">
+        and t.print_time is not null
+	   </if>
+	   <if test="print_flage == 0">
+        and t.print_time is null
+	   </if>
+	   <if test="thirdWaybillCode != null">
+	   and t.departure_car_id in(select departure_car_id from departure_send t2 where t2.third_waybill_code=#{thirdWaybillCode, jdbcType=VARCHAR})
+	   </if>
+     </select>
+
+     <select id="getDepartureCarObj" parameterType="long" resultMap="BaseResultMap">
+     select * from departure_car where departure_car_id = #{departureCarId}
+     </select>
+
+	<update id="updatePrintTime" parameterType="long">
+		UPDATE DEPARTURE_CAR
+		<set>
+			print_time = NOW()
+		</set>
+		where departure_car_id = #{departureCarId}
+	</update>
+</mapper>

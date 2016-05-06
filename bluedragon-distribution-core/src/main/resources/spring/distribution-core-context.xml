@@ -14,8 +14,7 @@
  
 	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
 	
-	<import resource="classpath:spring/distribution-core-common.xml" />
-	<import resource="classpath:spring/distribution-core-common-mysql.xml" />
+	<import resource="classpath:spring/oracle/distribution-core-common.xml" />
 	<import resource="classpath:spring/distribution-core-dao.xml" />
 	<import resource="classpath:spring/distribution-core-ws.xml" />
 	<import resource="classpath:spring/distribution-core-wss.xml" />

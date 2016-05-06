@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.receiveInspectionExc.dao.ShieldsErrorDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.receiveInspectionExc.domain.ShieldsError" >
+    <id column="error_id" property="errorId" jdbcType="BIGINT" />
+    <result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    <result column="car_code" property="carCode" jdbcType="VARCHAR" />
+    <result column="shields_code" property="shieldsCode" jdbcType="VARCHAR" />
+    <result column="shields_error" property="shieldsError" jdbcType="VARCHAR" />
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
+    <result column="YN" property="yn" jdbcType="TINYINT" />
+    <result column="business_type" property="businessType" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <insert id="add" parameterType="list" >
+    insert into shields_error(box_code,car_code,shields_code,shields_error, 
+    create_site_code, create_time, create_user,create_user_code, yn, business_type, update_time)
+    values 
+   (#{boxCode,jdbcType=VARCHAR}, #{carCode,jdbcType=VARCHAR},#{shieldsCode,jdbcType=VARCHAR},
+      #{shieldsError,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createTime,jdbcType=TIMESTAMP},#{createUser,jdbcType=VARCHAR}, 
+      #{createUserCode,jdbcType=INTEGER}, #{yn,jdbcType=TINYINT},#{businessType,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+</mapper>

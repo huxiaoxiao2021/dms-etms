@@ -41,20 +41,6 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	private PopReceiveDao popReceiveDao;
 	
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<PopPrint> findListNoReceive(Map<String, Object> paramMap) {
-		this.logger.info("根据条件查询POP已打印未收货集合，paramMap:" + paramMap);
-		return popPrintDao.findListNoReceive(paramMap);
-	}
-
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public int findTotalCount(Map<String, Object> paramMap) {
-		this.logger.info("根据条件查询POP已打印未收货总数，paramMap:" + paramMap);
-		return popPrintDao.findTotalCount(paramMap);
-	}
-
-	@Override
 	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int saveRecevie(Inspection inspection) {
 		this.logger.info("补全订单收货信息，inspection:" + inspection);

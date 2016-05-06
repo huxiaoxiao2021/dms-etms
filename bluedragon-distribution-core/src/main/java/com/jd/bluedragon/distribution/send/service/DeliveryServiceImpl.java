@@ -872,17 +872,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
     /**
-     * 发货明细表数据更新
-     *
-     * @param tSendMList 发货相关数据
-     */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean updateSendM(List<SendM> tSendMList) {
-        return this.sendMDao.updateSendM(tSendMList);
-    }
-
-
-    /**
      * 生成取消发货数据处理
      * updated by wangtingwei@jd.com
      * edit:将取消发货分为两类，一类为按箱号，另一类为按包裹（包括按运单、包裹、取件单）
@@ -1137,7 +1126,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		reverseDeliveryService.updateIsCancelByPackageCode(tSendM, tSendDatail);
 		// 写入运单回传状态
 		reverseDeliveryService.updateIsCancelToWaybillByPackageCode(tSendM,
-                tSendDatail);
+				tSendDatail);
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
 				JdResponse.MESSAGE_OK, null);
 	}
@@ -1532,7 +1521,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         } catch (JMQException e) {
             logger.error("发货明细发送JMQ失败: ", e);
         }
-        return true;
+		return true;
 	}
 
     private Message parseSendDetailToMessage(SendDetail sendDatail) {
@@ -1832,7 +1821,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 			    		if(delivery.getPackageBarcode().equals(dSendDatail.getPackageBarcode()) && delivery.getAgainWeight()!=null){
 			    			tPackInfo.setPackWeight(BigDecimal.valueOf(delivery.getAgainWeight()));
 			    		}
-			    	 }
+			       }
 			       }
                 tPackInfo.setExpNo(dSendDatail.getWaybillCode());
                 list.add(tPackInfo);
@@ -2250,7 +2239,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 						}
 		        	}
 		        }
-			}
+		}
 		}
     	return lostList;
 	}

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao">
+
+    <resultMap id="popPrint"
+               type="com.jd.bluedragon.distribution.popPrint.domain.PopPrint">
+        <result column="id" property="popPrintId"/>
+        <result column="waybill_code" property="waybillCode"/>
+        <result column="create_site_code" property="createSiteCode"/>
+        <result column="print_pack_code" property="printPackCode"/>
+        <result column="print_pack_time" property="printPackTime"/>
+        <result column="print_invoice_code" property="printInvoiceCode"/>
+        <result column="print_invoice_time" property="printInvoiceTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="yn" property="yn"/>
+        <result column="print_pack_user" property="printPackUser"/>
+        <result column="print_invoice_user" property="printInvoiceUser"/>
+        <result column="pop_sup_id" property="popSupId" jdbcType="INTEGER"/>
+        <result column="pop_sup_name" property="popSupName" jdbcType="VARCHAR"/>
+        <result column="quantity" property="quantity" jdbcType="INTEGER"/>
+        <result column="cross_code" property="crossCode" jdbcType="VARCHAR"/>
+        <result column="waybill_type" property="waybillType" jdbcType="INTEGER"/>
+        <result column="pop_receive_type" property="popReceiveType" jdbcType="INTEGER"/>
+        <result column="print_count" property="printCount" jdbcType="INTEGER"/>
+        <result column="third_waybill_code" property="thirdWaybillCode" jdbcType="VARCHAR"/>
+        <result column="queue_no" property="queueNo" jdbcType="VARCHAR"/>
+        <result column="package_barcode" property="packageBarcode" jdbcType="VARCHAR"/>
+        <result column="operate_type" property="operateType" jdbcType="INTEGER"/>
+        <result column="create_user" property="createUser" jdbcType="VARCHAR"/>
+        <result column="create_user_code" property="createUserCode" jdbcType="INTEGER"/>
+        <result column="box_code" property="boxCode" jdbcType="VARCHAR"/>
+        <result column="DRIVER_CODE" property="driverCode" jdbcType="VARCHAR"/>
+        <result column="DRIVER_NAME" property="driverName" jdbcType="VARCHAR"/>
+        <result column="busi_id" property="busiId" jdbcType="INTEGER"/>
+        <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+		id, waybill_code, create_site_code, print_pack_code,
+		print_pack_time,print_invoice_code, print_invoice_time, 
+		create_time, update_time, yn, print_pack_user, 
+		print_invoice_user, pop_sup_id, pop_sup_name, quantity,
+		cross_code, waybill_type, pop_receive_type, print_count,
+		third_waybill_code, queue_no, package_barcode, operate_type,
+		create_user_code, create_user, box_code, DRIVER_CODE, DRIVER_NAME, 
+		busi_id, busi_name
+	</sql>
+
+    <sql id="Base_Where_List">
+        <where>
+            p.yn = 1
+            <if test="waybillCode != null">
+                and p.waybill_code = #{waybillCode, jdbcType=VARCHAR}
+            </if>
+            <if test="createSiteCode != null and createSiteCode != 0">
+                and p.create_site_code = #{createSiteCode, jdbcType=INTEGER}
+            </if>
+            <if test="isPackOrInvoice == 1">
+                <if test="startTime != null">
+                    and p.print_pack_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
+                    hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                </if>
+                <if test="endTime != null">
+                    and p.print_pack_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
+                    hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                </if>
+            </if>
+            <if test="isPackOrInvoice == 2">
+                <if test="startTime != null">
+                    and p.print_invoice_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP},
+                    'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                </if>
+                <if test="endTime != null">
+                    and p.print_invoice_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd
+                    hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+                </if>
+            </if>
+            and p.create_time <![CDATA[>=]]> sysdate - interval '7' DAY
+            and p.waybill_code is not null
+            and i.waybill_code is null
+        </where>
+    </sql>
+
+    <select id="findByWaybillCode" resultMap="popPrint"
+            parameterType="String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM pop_print
+        WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
+        AND rownum <![CDATA[ <= ]]> 1
+    </select>
+
+    <select id="findSitePrintDetail" resultMap="popPrint" parameterType="java.util.Map">
+        SELECT * FROM
+           (SELECT rownum num,alldata.* FROM
+              (SELECT
+              <include refid="Base_Column_List"/>
+               FROM pop_print
+              WHERE create_site_code=#{createSiteCode,jdbcType=INTEGER}
+               AND create_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss')
+               AND create_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+               <if test="popReceiveType != null and popReceiveType !=0">
+               AND pop_receive_type = #{popReceiveType,jdbc="INTEGER"}
+               </if>
+               <if test="waybillType!=null and waybillType!=0">
+                AND waybill_type = #{waybillType,jdbc="INTEGER"}
+               </if>
+               <if test="queueNo!=null">
+               AND queue_no = #{queueNo,jdbcType=VARCHAR}
+               </if>
+              ORDER BY id ) alldata
+        WHERE <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]> )
+        WHERE  <![CDATA[num >]]> #{startIndex, jdbcType=INTEGER}
+    </select>
+
+    <select id="findSitePrintDetailCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT count(p.id)
+        FROM pop_print p
+        WHERE create_site_code=#{createSiteCode,jdbcType=INTEGER}
+          AND create_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		AND create_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		<if test="popReceiveType != null and popReceiveType !=0" >
+            AND pop_receive_type = #{popReceiveType,jdbc="INTEGER"}
+        </if>
+        <if test="waybillType!=null and waybillType!=0">
+            AND waybill_type = #{waybillType,jdbc="INTEGER"}
+        </if>
+        <if test="queueNo!=null">
+            AND queue_no = #{queueNo,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="findAllByWaybillCode" resultMap="popPrint"
+            parameterType="String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM pop_print
+        WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
+    </select>
+
+    <select id="findTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT
+        count(p.id)
+        from pop_print p
+        left join inspection i on p.waybill_code = i.waybill_code and i.inspection_type = 40 and i.yn = 1
+        <include refid="Base_Where_List"/>
+    </select>
+
+    <select id="findListNoReceive" resultMap="popPrint"
+            parameterType="java.util.Map">
+        <if test="startIndex != null">
+            select * from ( select t.*, rownum l from (
+        </if>
+        select
+        p.waybill_code, p.create_site_code, p.print_pack_code,
+        p.print_pack_time, p.print_invoice_code, p.print_invoice_time
+        from pop_print p
+        left join inspection i on p.waybill_code = i.waybill_code and i.inspection_type = 40
+        <include refid="Base_Where_List"/>
+        order by p.id desc
+        <if test="startIndex != null">
+            ) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+            ) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="findLimitListNoReceive" resultMap="popPrint" parameterType="java.util.Map">
+        SELECT
+        p.id, p.waybill_code, p.create_site_code, p.print_pack_code,
+        p.print_pack_time, p.print_invoice_code, p.print_invoice_time,
+        p.print_pack_user, p.print_invoice_user, p.pop_sup_id, p.pop_sup_name,
+        p.quantity, p.cross_code, p.waybill_type, p.pop_receive_type,
+        p.third_waybill_code, p.queue_no, p.package_barcode, p.operate_type,
+        p.create_user, p.create_user_code, p.box_code, p.DRIVER_CODE, p.DRIVER_NAME,
+        p.busi_id, p.busi_name
+        FROM pop_print p
+        WHERE p.yn = 1
+        AND p.operate_type = 1
+        AND p.create_time <![CDATA[ <= ]]> sysdate - #{limitMin, jdbcType=VARCHAR}/(24 * 60)
+        AND p.create_time <![CDATA[ >= ]]> sysdate - #{limitHour, jdbcType=VARCHAR}/24
+        <choose>
+            <when test="ownSign == 'PRE'">
+                AND p.pop_receive_type = 4
+                AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
+                i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
+            </when>
+            <otherwise>
+                AND p.pop_receive_type <![CDATA[ < ]]> 4
+                AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
+                i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
+            </otherwise>
+        </choose>
+        AND rownum <![CDATA[ <= ]]> #{fetchNum, jdbcType=INTEGER}
+    </select>
+
+    <insert id="add" parameterType="PopPrint">
+        insert into pop_print (
+        <include refid="Base_Column_List"/>
+        )
+        values (
+        SEQ_POP_PRINT.NEXTVAL, #{waybillCode, jdbcType=VARCHAR},
+        #{createSiteCode, jdbcType=INTEGER}, #{printPackCode, jdbcType=INTEGER},
+        #{printPackTime, jdbcType=TIMESTAMP}, #{printInvoiceCode, jdbcType=INTEGER},
+        #{printInvoiceTime, jdbcType=TIMESTAMP},
+        sysdate, sysdate, 1, #{printPackUser, jdbcType=VARCHAR}, #{printInvoiceUser, jdbcType=VARCHAR},
+        #{popSupId, jdbcType=INTEGER}, #{popSupName, jdbcType=VARCHAR}, #{quantity, jdbcType=INTEGER},
+        #{crossCode, jdbcType=VARCHAR}, #{waybillType, jdbcType=INTEGER}, #{popReceiveType, jdbcType=INTEGER},
+        #{printCount,jdbcType=INTEGER}, #{thirdWaybillCode,jdbcType=VARCHAR},#{queueNo,jdbcType=VARCHAR},
+        #{packageBarcode, jdbcType=VARCHAR}, #{operateType,jdbcType=INTEGER},
+        #{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
+        #{driverCode,jdbcType=VARCHAR}, #{driverName,jdbcType=VARCHAR}, #{busiId,jdbcType=INTEGER},
+        #{busiName,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <update id="updateByWaybillCode" parameterType="PopPrint">
+        update pop_print
+        <set>
+            <if test="printPackCode != null">
+                print_pack_code = #{printPackCode, jdbcType=INTEGER},
+                print_pack_user = #{printPackUser, jdbcType=VARCHAR},
+                print_pack_time = #{printPackTime, jdbcType=TIMESTAMP},
+                <choose>
+                    <when test="printCount != null">
+                        print_count = #{printCount,jdbcType=INTEGER},
+                    </when>
+                    <otherwise>
+                        print_count = NVL(print_count, 0) + 1,
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="printInvoiceCode != null">
+                print_invoice_code = #{printInvoiceCode, jdbcType=INTEGER},
+                print_invoice_user = #{printInvoiceUser, jdbcType=VARCHAR},
+                print_invoice_time = #{printInvoiceTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode, jdbcType=INTEGER},
+            </if>
+            <if test="popSupId != null and popSupId != 0">
+                pop_sup_id = #{popSupId,jdbcType=INTEGER},
+            </if>
+            <if test="popSupName != null">
+                pop_sup_name = #{popSupName,jdbcType=VARCHAR},
+            </if>
+            <if test="quantity != null and quantity != 0">
+                quantity = #{quantity,jdbcType=INTEGER},
+            </if>
+            <if test="crossCode != null">
+                cross_code = #{crossCode,jdbcType=VARCHAR},
+            </if>
+            <if test="waybillType != null and waybillType != 0">
+                waybill_type = #{waybillType,jdbcType=INTEGER},
+            </if>
+            <if test="popReceiveType != null">
+                pop_receive_type = #{popReceiveType,jdbcType=INTEGER},
+            </if>
+            <if test="thirdWaybillCode != null">
+                third_waybill_code = #{thirdWaybillCode,jdbcType=VARCHAR},
+            </if>
+            <if test="queueNo != null">
+                queue_no = #{queueNo,jdbcType=VARCHAR},
+            </if>
+            update_time = sysdate,
+        </set>
+        where waybill_code = #{waybillCode, jdbcType=VARCHAR}
+        and yn = 1
+    </update>
+
+
+    <update id="updateByWaybillOrPack" parameterType="PopPrint">
+        update pop_print
+        <set>
+            <if test="printPackCode != null">
+                print_pack_code = #{printPackCode, jdbcType=INTEGER},
+                print_pack_user = #{printPackUser, jdbcType=VARCHAR},
+                print_pack_time = #{printPackTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="printInvoiceCode != null">
+                print_invoice_code = #{printInvoiceCode, jdbcType=INTEGER},
+                print_invoice_user = #{printInvoiceUser, jdbcType=VARCHAR},
+                print_invoice_time = #{printInvoiceTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode, jdbcType=INTEGER},
+            </if>
+            <if test="createUserCode != null and createUserCode != 0">
+                create_user_code = #{createUserCode,jdbcType=INTEGER},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser, jdbcType=VARCHAR},
+            </if>
+            <if test="popSupId != null and popSupId != 0">
+                pop_sup_id = #{popSupId,jdbcType=INTEGER},
+            </if>
+            <if test="popSupName != null">
+                pop_sup_name = #{popSupName,jdbcType=VARCHAR},
+            </if>
+            <if test="quantity != null and quantity != 0">
+                quantity = #{quantity,jdbcType=INTEGER},
+            </if>
+            <if test="crossCode != null">
+                cross_code = #{crossCode,jdbcType=VARCHAR},
+            </if>
+            <if test="waybillType != null and waybillType != 0">
+                waybill_type = #{waybillType,jdbcType=INTEGER},
+            </if>
+            <if test="popReceiveType != null">
+                pop_receive_type = #{popReceiveType,jdbcType=INTEGER},
+            </if>
+            <if test="thirdWaybillCode != null">
+                third_waybill_code = #{thirdWaybillCode,jdbcType=VARCHAR},
+            </if>
+            <if test="queueNo != null">
+                queue_no = #{queueNo,jdbcType=VARCHAR},
+            </if>
+            <if test="boxCode != null">
+                BOX_CODE = #{boxCode,jdbcType=VARCHAR},
+            </if>
+            <if test="driverCode != null">
+                DRIVER_CODE = #{driverCode,jdbcType=VARCHAR},
+            </if>
+            <if test="driverName != null">
+                DRIVER_NAME = #{driverName,jdbcType=VARCHAR},
+            </if>
+            <if test="busiId != null and busiId != 0">
+                busi_id = #{busiId,jdbcType=INTEGER},
+            </if>
+            <if test="busiName != null">
+                busi_name = #{busiName, jdbcType=VARCHAR},
+            </if>
+            update_time = sysdate,
+        </set>
+        where waybill_code = #{waybillCode, jdbcType=VARCHAR}
+        and package_barcode = #{packageBarcode, jdbcType=VARCHAR}
+        and operate_type = #{operateType,jdbcType=INTEGER}
+        and yn = 1
+    </update>
+</mapper>
