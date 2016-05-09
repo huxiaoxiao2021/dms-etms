@@ -153,7 +153,7 @@
                 <span>商品温度：</span>
             </div>
             <div class="fresh_column_list_div_text">
-                <span class="fresh_column_list_div_span"><input type="text" value="$!freshWaybill.packageTemp" id="fresh_add_column_package_temp" class="fresh_column_list_div_input"/> ℃ </span>
+                <span class="fresh_column_list_div_span"><input type="text" value="$numberTool.format('#0.00',$!freshWaybill.packageTemp)" id="fresh_add_column_package_temp" class="fresh_column_list_div_input"/> ℃ </span>
             </div>
         </div>
         <div id="fresh_model_type_div" class="fresh_column_list_div">
@@ -161,7 +161,7 @@
                 <span>冰板温度：</span>
             </div>
             <div class="fresh_column_list_div_text">
-                <span class="fresh_column_list_div_span"><input type="text" value="$!freshWaybill.slabTemp" id="fresh_add_column_slab_temp" class="fresh_column_list_div_input"/> ℃ </span>
+                <span class="fresh_column_list_div_span"><input type="text" value="$numberTool.format('#0.00',$!freshWaybill.slabTemp)" id="fresh_add_column_slab_temp" class="fresh_column_list_div_input"/> ℃ </span>
             </div>
         </div>
         <div id="fresh_operate_div" class="fresh_column_list_div">

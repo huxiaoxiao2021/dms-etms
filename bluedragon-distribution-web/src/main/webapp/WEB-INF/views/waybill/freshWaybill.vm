@@ -13,6 +13,7 @@
 </head>
 <script type="text/javascript">
     $(document).ready(function () {
+		$("#cache_random").val(Math.random());
         // 提交查询
         $("#bt_search").click(function () {
             $("#fm_query_fresh").attr("action", '#springUrl("/fresh/query")');
@@ -29,8 +30,8 @@
 		});
 
     });
-</script>
 
+</script>
 <body>
 <input type="hidden" id="contextPath" value="#springUrl('')"/>
 <div id="breadcrumb">
@@ -42,8 +43,9 @@
     <div class="m">
         <div class="tbl-n">
             <form id="fm_query_fresh" name="queryForm" action="#springUrl('/fresh/query')" method="GET">
-                <input type="hidden" id="pageNo" name="pageNo"/>
-                <input type="hidden" id="pageSize" name="pageSize"/>
+                <input type="hidden" id="pageNo" name="pageNo" value="$!pager.pageNo"/>
+                <input type="hidden" id="pageSize" name="pageSize" value="$!pager.pageSize"/>
+				<input type="hidden" name="random" id="cache_random"/>
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
                     <tbody>
                     <tr>
@@ -104,8 +106,8 @@
 								#end
 							</td>
                             <td>$!freshWaybill.slabNum</td>
-                            <td>$!freshWaybill.packageTemp ℃ </td>
-                            <td>$!freshWaybill.slabTemp ℃ </td>
+                            <td>$numberTool.format('#0.00',$!freshWaybill.packageTemp) ℃ </td>
+                            <td>$numberTool.format('#0.00',$!freshWaybill.slabTemp) ℃ </td>
                             <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!freshWaybill.createTime)</td>
                             <td>$!freshWaybill.userName</td>
                             <td><a href="javascript:void(0)" class="fresh_modify" name="$freshWaybill.id">修改</a></td>
@@ -116,7 +118,7 @@
             </div>
         </div>
         <div class="tbl-n">
-			#pageBar("#springUrl('')/fresh/query?packageCode=$!freshWaybillDto.packageCode"$pager.totalSize $pager.pageNo $pager.totalNo)
+			#pageBar("#springUrl('')/fresh/query?random=$math.getRandom()&packageCode=$!freshWaybillDto.packageCode" $pager.totalSize $pager.pageNo $pager.totalNo)
         </div>
     </div>
 </div>
