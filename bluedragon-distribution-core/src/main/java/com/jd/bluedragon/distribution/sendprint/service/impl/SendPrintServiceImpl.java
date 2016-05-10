@@ -377,7 +377,8 @@ public class SendPrintServiceImpl implements SendPrintService{
                         	if(waybill.getReceiverMobile()==null && waybill.getReceiverTel()==null){
                         		dBasicQueryEntity.setReceiverMobile("--");
                         	}else{
-                        		dBasicQueryEntity.setReceiverMobile(receiverMobile+"/"+receiverTel);
+                        		//dBasicQueryEntity.setReceiverMobile(receiverMobile+"/"+receiverTel);
+                        		dBasicQueryEntity.setReceiverMobile("");
                         	}
                         }else{
                         	dBasicQueryEntity.setReceiverMobile("--");
@@ -824,7 +825,8 @@ public class SendPrintServiceImpl implements SendPrintService{
 											&& tJoinDetail.getReceiverTel() == null) {
 										tBasicQueryEntity.setReceiverMobile("--");
 									} else {
-										tBasicQueryEntity.setReceiverMobile(receiverMobile + "/" + receiverTel);
+										//tBasicQueryEntity.setReceiverMobile(receiverMobile + "/" + receiverTel);
+										tBasicQueryEntity.setReceiverMobile("");
 									}
 								} else {
 									tBasicQueryEntity.setReceiverMobile("--");
