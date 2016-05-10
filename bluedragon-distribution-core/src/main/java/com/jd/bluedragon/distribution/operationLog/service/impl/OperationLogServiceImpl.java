@@ -39,7 +39,7 @@ public class OperationLogServiceImpl implements OperationLogService {
 	public int add(OperationLog operationLog) {
 		try {
 			String cassandraOn = configManager.getProperty(CASSANDRA_GLOBAL_ON_KEY);
-			if(cassandraOn.equalsIgnoreCase("true")){
+			if(cassandraOn!=null && cassandraOn.equalsIgnoreCase("true")){
 				logCassandra.batchInsert(operationLog);
 			}
 		} catch (Exception e) {
