@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.task.domain.Task;
 
 /**
  * @author zhaohc
@@ -38,5 +39,7 @@ public interface ReverseSpareService {
 	List<ReverseSpare> queryByWayBillCode(String waybillCode,String sendCode);
 	
 	List<ReverseSpare> queryBySpareTranCode(String spareTranCode);
+
+    boolean doReverseSpareTask(Task task) throws Exception;
 
 }

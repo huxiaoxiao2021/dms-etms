@@ -368,7 +368,7 @@
 				and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
 			</if>
 			<if test="sendCode!=null">
-				and package_barcode in (${sendCode})
+				and package_barcode in ${sendCode}
 			</if>
 		</where>
     </update>
