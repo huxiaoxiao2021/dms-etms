@@ -61,7 +61,7 @@ public class TaskResource {
 	public TaskResponse add(TaskRequest request) {
 		//加入监控，开始
 		CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
-		
+
 		Assert.notNull(request, "request must not be null");
         if(logger.isInfoEnabled()){
             logger.info("TaskRequest [" + JsonHelper.toJson(request) + "]");
@@ -83,8 +83,8 @@ public class TaskResource {
 		}
 
 		//加入监控结束
-		Profiler.registerInfoEnd(info); 
-		
+		Profiler.registerInfoEnd(info);
+
 		for (Object element : array) {
 			if (Task.TASK_TYPE_REVERSE_SPWARE.equals(request.getType())) {
 				Map<String, Object> reverseSpareMap = (Map<String, Object>) element;

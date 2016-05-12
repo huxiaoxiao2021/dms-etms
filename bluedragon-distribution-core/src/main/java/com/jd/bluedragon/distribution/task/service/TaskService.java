@@ -87,4 +87,5 @@ public interface TaskService {
     void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception;
 
 
+    Integer doAddTask(Task task, boolean ifCheckTaskMode);
 }

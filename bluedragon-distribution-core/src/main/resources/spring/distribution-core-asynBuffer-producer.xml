@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.0.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    
+	    <!-- 多级异步缓冲组件配置，集成了消息中间件JMQ和定时调度器tbschedule -->
+	    
+	    
+	    <!-- 淘宝调度的任务生产者配置。 -->
+	    <bean id="dmsTbscheduleTaskStore" class="com.jd.bluedragon.distribution.task.asynBuffer.tbschedule.DmsTbscheduleTaskStore" autowire="byType"></bean>
+	    
+	    <bean id="simpleTaskStoreRouter" class="com.jd.ql.framework.asynBuffer.producer.tbchedule.SimpleTbscheduleTaskStoreRouter">
+	    	<constructor-arg name="store" ref="dmsTbscheduleTaskStore"></constructor-arg>
+	    </bean>
+	    
+	    <bean id="tbscheduleProducer" class="com.jd.ql.framework.asynBuffer.producer.tbchedule.TbscheduleProducer">
+	    	<constructor-arg name="router" ref="simpleTaskStoreRouter"></constructor-arg>
+	    </bean>
+
+	    <!-- JMQ的任务生产者配置。 -->
+	    <bean id="jmqTopicRouter" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskOwnSignJmqTopicRouter">
+	    	<constructor-arg>
+	    		<map>
+	    			<!--<entry key="1200_DMS" value="${jmq.task.topic.sorting.dms}"/>-->
+                    <!--<entry key="1200_PRE" value="${jmq.task.topic.sorting.pre}"/>-->
+	    			<entry key="3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>
+                    <entry key="3300_PRE" value="${jmq.task.topic.reverse.spare.pre}"/>
+	    		</map>
+	    	</constructor-arg>
+	    </bean>
+	    
+	    <bean id="jmqBizIdGen" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskBusinessIdGen"></bean>
+	    
+		<jmq:transport id="dmsTaskJmqTransport" address="${dms.task.jmq.address}" user="${dms.task.jmq.user}" password="${dms.task.jmq.password}" app="${dms.task.jmq.app}"/>
+		<jmq:producer id="dmsTaskJmqProducer" retryTimes="2" transport="dmsTaskJmqTransport"/>
+
+	    <bean id="asynBufferJmqProducer" class="com.jd.ql.framework.asynBuffer.producer.jmq.DefaultJmqProducer">
+	    	<constructor-arg name="router" ref="jmqTopicRouter"></constructor-arg>
+	    	<constructor-arg name="gen" ref="jmqBizIdGen"></constructor-arg>
+	    	<constructor-arg name="coder">
+	    		<bean class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqMessageJsonCoder"></bean>
+	    	</constructor-arg>
+	    	<property name="jmqProducer" ref="dmsTaskJmqProducer"></property>
+	    </bean>
+	    
+	    <!-- 自动故障转移的任务生产者配置。 -->
+	    <bean id="asynBufferFailoverProducer" class="com.jd.ql.framework.asynBuffer.producer.failover.FailoverProducer">
+	    	<constructor-arg name="producers">
+	    		<list>
+	    			<ref bean="asynBufferJmqProducer"/>
+	    			<ref bean="tbscheduleProducer"/>
+	    		</list>
+	    	</constructor-arg>	
+	    </bean>
+	    
+	    <!-- 动态可管理任务生产者配置。 -->
+	    <bean id="dynamicProducer" class="com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer">
+	    	<property name="jmqProducer" ref="asynBufferJmqProducer"/>
+	    	<property name="tbscheduleProducer" ref="tbscheduleProducer"/>
+	    	<property name="failoverProducer" ref="asynBufferFailoverProducer"/>
+	    	<property name="producerType" value="FAILOVER"></property>
+	    </bean>
+	    
+</beans>
