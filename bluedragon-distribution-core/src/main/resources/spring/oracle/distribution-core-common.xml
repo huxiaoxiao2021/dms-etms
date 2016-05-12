@@ -96,7 +96,7 @@
     </bean>
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory">
+	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.bluedragon.common.dao.migration.DynamicConfigReplicationSqlSessionFactory">
 		<constructor-arg index="0" ref="writeSqlSessionFactory"/>
 		<property name="enable" value="${db.backup.replicate.enable}" />
 		<property name="statementDecider">
