@@ -56,8 +56,10 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
     private BaseService baseService;
 
+    @Autowired
     private JmqTopicRouter taskJmqTopicRouter;
 
+    @Autowired
     private Producer<Task> dynamicProducer;
 
     @Override
@@ -84,7 +86,6 @@ public class TaskServiceImpl implements TaskService {
         return doAddTask(task, ifCheckTaskMode);
     }
 
-		TaskDao routerDao = taskDao;    	
 
     public Boolean isDynamicProducerOn(Task task) {
         return null != taskJmqTopicRouter.getTopic(task);
@@ -93,10 +94,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
         TaskDao routerDao = taskDao;
-        if(mysqlTableSet.contains(task.getTableName())){
-            routerDao = mysqlTaskDao;
-        }
-
 
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
             logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());

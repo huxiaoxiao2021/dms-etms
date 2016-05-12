@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.cassandra.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
