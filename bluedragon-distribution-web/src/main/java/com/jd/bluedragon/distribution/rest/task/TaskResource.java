@@ -12,7 +12,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.authorization.RestAuthorization;
-import com.jd.ql.framework.asynBuffer.producer.Producer;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -44,9 +43,6 @@ public class TaskResource {
 
 	@Autowired
 	private TaskService taskService;
-	
-	@Autowired
-	private Producer<Task> dynamicProducer;
 
     @Autowired
     private RestAuthorization restAuthorization;
@@ -65,7 +61,7 @@ public class TaskResource {
 	public TaskResponse add(TaskRequest request) {
 		//加入监控，开始
 		CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
-		
+
 		Assert.notNull(request, "request must not be null");
         if(logger.isInfoEnabled()){
             logger.info("TaskRequest [" + JsonHelper.toJson(request) + "]");
@@ -87,8 +83,8 @@ public class TaskResource {
 		}
 
 		//加入监控结束
-		Profiler.registerInfoEnd(info); 
-		
+		Profiler.registerInfoEnd(info);
+
 		for (Object element : array) {
 			if (Task.TASK_TYPE_REVERSE_SPWARE.equals(request.getType())) {
 				Map<String, Object> reverseSpareMap = (Map<String, Object>) element;
@@ -103,18 +99,16 @@ public class TaskResource {
 							+ JsonHelper.toJson(reverseSpareMap)
 							+ Constants.PUNCTUATION_CLOSE_BRACKET;
 					logger.warn("[" + request.getType() + "]" + eachJson);
-					dynamicProducer.send(this.taskService.toTask(request, eachJson));
-					//this.taskService.add(
-							//this.taskService.toTask(request, eachJson), true);
+					this.taskService.add(
+							this.taskService.toTask(request, eachJson), true);
 				}
 			} else {
 				String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
 						+ JsonHelper.toJson(element)
 						+ Constants.PUNCTUATION_CLOSE_BRACKET;
 				logger.warn("[" + request.getType() + "]" + eachJson);
-				dynamicProducer.send(this.taskService.toTask(request, eachJson));
-				//this.taskService.add(
-					//	this.taskService.toTask(request, eachJson), true);
+				this.taskService.add(
+						this.taskService.toTask(request, eachJson), true);
 			}
 		}
 		

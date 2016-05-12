@@ -10,11 +10,14 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqTopicRouter;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.framework.asynBuffer.producer.Producer;
+import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -49,6 +52,10 @@ public class TaskServiceImpl implements TaskService {
 
     private BaseService baseService;
 
+    private JmqTopicRouter taskJmqTopicRouter;
+
+    private Producer<Task> dynamicProducer;
+
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void addBatch(List<Task> tasks) {
@@ -66,55 +73,67 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
+        if (isDynamicProducerOn(task)) {
+            dynamicProducer.send(task);
+            return 1;
+        }
+        return doAddTask(task, ifCheckTaskMode);
+    }
 
-		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
-    	
+    public Boolean isDynamicProducerOn(Task task) {
+        return null != taskJmqTopicRouter.getTopic(task);
+    }
+
+    @Override
+    public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
+        TaskDao routerDao = taskDao;
+        if(mysqlTableSet.contains(task.getTableName())){
+            routerDao = mysqlTaskDao;
+        }
+
+
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
-			logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
-			return 0;
-		}
+            logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
+            return 0;
+        }
 
-		if (ifCheckTaskMode && isRedisSwitchON()) {
+        if (ifCheckTaskMode && isRedisSwitchON()) {
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */
-			if (taskModeAgent.isRedisTaskModeSupported(task)) {
-				boolean isRedisSucc = false;
-				try {
-					//在插入redis前给executetime赋值，防止Task.getExecuteTime()给赋系统时间造成，redis中重复任务json串不同问题
-					task.setExecuteTime(new Date(0));
-					if (redisTaskService.add(task)) {
-						isRedisSucc = true;
-					}
-				} catch (Exception e) {
-					logger.error("保存任务失败：" + task.toString());
-				}
-				if (isRedisSucc) {
-					return 1;
-				}
-			}
-		}
+            if (taskModeAgent.isRedisTaskModeSupported(task)) {
+                boolean isRedisSucc = false;
+                try {
+                    //在插入redis前给executetime赋值，防止Task.getExecuteTime()给赋系统时间造成，redis中重复任务json串不同问题
+                    task.setExecuteTime(new Date(0));
+                    if (redisTaskService.add(task)) {
+                        isRedisSucc = true;
+                    }
+                } catch (Exception e) {
+                    logger.error("保存任务失败：" + task.toString());
+                }
+                if (isRedisSucc) {
+                    return 1;
+                }
+            }
+        }
 
         if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType())
-        		|| Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
-        		|| Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
+                || Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
+                || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
-				|| Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
+                || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
                 || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
-        	if(!this.has(task)){
-        		return routerDao.add(TaskDao.namespace, task);
-        	}else{
-	        	logger.error(" Duplicate task: "+task.getBody());
-	        }
+            if(!this.has(task)){
+                return routerDao.add(TaskDao.namespace, task);
+            }else{
+                logger.error(" Duplicate task: "+task.getBody());
+            }
         }else{
             return routerDao.add(TaskDao.namespace, task);
         }
         return 0;
     }
 
-	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.redisSwitch", mState = {
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.redisSwitch", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	public Boolean isRedisSwitchON(){
 		//加入监控，开始
@@ -703,6 +722,19 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 
-
-
+    public JmqTopicRouter getTaskJmqTopicRouter() {
+        return taskJmqTopicRouter;
     }
+
+    public void setTaskJmqTopicRouter(JmqTopicRouter taskJmqTopicRouter) {
+        this.taskJmqTopicRouter = taskJmqTopicRouter;
+    }
+
+    public Producer<Task> getDynamicProducer() {
+        return dynamicProducer;
+    }
+
+    public void setDynamicProducer(Producer<Task> dynamicProducer) {
+        this.dynamicProducer = dynamicProducer;
+    }
+}

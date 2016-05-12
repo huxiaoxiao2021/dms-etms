@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jmq.asynBuffer;
+package com.jd.bluedragon.core.jmq.asynBuffer;
 
 import java.util.List;
 
@@ -70,7 +70,8 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	
 	protected boolean saveTask(Task task) {
 		task.setStatus(Task.TASK_STATUS_FINISHED);
-		int r = taskService.add(task, false);
+        task.setExecuteCount(0);
+		int r = taskService.doAddWithStatus(task);
 		if(r>0){
 			return true;
 		}

@@ -64,6 +64,8 @@
         <property name="taskModeAgent" ref="taskModeAgent" />
         <property name="sysConfigService" ref="sysConfigService" />
         <property name="baseService" ref="baseService" />
+        <property name="taskJmqTopicRouter" ref="jmqTopicRouter"/>
+        <property name="dynamicProducer" ref="dynamicProducer"/>
 	</bean>
 	
 	<bean id="workerMonitorService" class="com.jd.bluedragon.distribution.admin.service.impl.WorkerMonitorServiceImpl">

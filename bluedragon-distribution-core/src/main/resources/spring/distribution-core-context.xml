@@ -26,6 +26,10 @@
     <import resource="classpath:spring/distribution-core-jmq.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 
+    <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>
+    <import resource="classpath:spring/distribution-core-asynBuffer-comsumer.xml"/>
+    <import resource="classpath:spring/distribution-core-dcam.xml"/>
+
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />

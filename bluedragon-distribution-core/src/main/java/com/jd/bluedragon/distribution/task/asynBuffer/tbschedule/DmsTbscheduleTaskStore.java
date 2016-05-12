@@ -23,7 +23,7 @@ public class DmsTbscheduleTaskStore implements TbscheduleTaskStore<Task> {
 		if(task==null){
 			return;
 		}
-		taskService.add(task, true);
+		taskService.doAddTask(task, true);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class DmsTbscheduleTaskStore implements TbscheduleTaskStore<Task> {
 		}
 		
 		for(Task task:tasks){
-			taskService.add(task, true);
+			taskService.doAddTask(task, true);
 		}
 	}
 

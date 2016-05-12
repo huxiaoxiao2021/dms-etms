@@ -15,12 +15,18 @@
 	    <bean id="simpleTaskProcessorJMQRouter" class="com.jd.ql.framework.asynBuffer.comsumer.SimpleTaskProcessorJMQRouter">
 	    	<constructor-arg name="mapping">
 	    		<map>
-	    			<entry key="${jmq.task.topic.sorting}">
-	    				<bean class="com.jd.bluedragon.distribution.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">
-	    					<constructor-arg name="target" ref="sortingService"></constructor-arg>
-	    					<constructor-arg name="methodName" value="doSorting"></constructor-arg>
+	    			<entry key="${jmq.task.topic.reverse.spare.dms}">
+	    				<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">
+	    					<constructor-arg name="target" ref="reverseSpareService"></constructor-arg>
+	    					<constructor-arg name="methodName" value="doReverseSpareTask"></constructor-arg>
 	    				</bean>
 	    			</entry>
+                    <entry key="${jmq.task.topic.reverse.spare.pre}">
+                        <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">
+                            <constructor-arg name="target" ref="reverseSpareService"></constructor-arg>
+                            <constructor-arg name="methodName" value="doReverseSpareTask"></constructor-arg>
+                        </bean>
+                    </entry>
 	    		</map>
 	    	</constructor-arg>
 	    </bean>
