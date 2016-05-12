@@ -35,6 +35,7 @@
             , CREATE_TIME
             , UPDATE_TIME
             , YN,IP_ADDRESS)
+        VALUES(
         #{sendCode,jdbcType=VARCHAR}
         , #{createSiteCode,jdbcType=INTEGER}
         , #{createUserRealName,jdbcType=VARCHAR}
