@@ -147,6 +147,10 @@ public class BusinessHelper {
 		if (BusinessHelper.isPackageCode(s)) {
 			return Boolean.FALSE;
 		}
+		
+		if (BusinessHelper.isBoxcode(s)) {
+			return Boolean.FALSE;
+		}
 
 		if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) == -1
 				&& s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) == -1
@@ -154,7 +158,7 @@ public class BusinessHelper {
 				&& s.indexOf(Box.BOX_TYPE_FORWARD) == -1
 				&& s.indexOf(Box.BOX_TYPE_REVERSE_AFTER_SERVICE) == -1
 				&& s.indexOf(Box.BOX_TYPE_REVERSE_LUXURY) == -1
-				&& s.indexOf(Box.BOX_TYPE_REVERSE_REJECTION) == -1
+//				&& s.indexOf(Box.BOX_TYPE_REVERSE_REJECTION) == -1 //与箱号T冲突，逆向运单号也有T的情况
 				&& s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_PICKUP) == -1) {
 			return Boolean.TRUE;
 		}
