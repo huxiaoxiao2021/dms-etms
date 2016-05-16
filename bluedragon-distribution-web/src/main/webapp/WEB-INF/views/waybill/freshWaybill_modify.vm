@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>生鲜温度录入</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/waybill/freshWaybill_add.js')"></script>
+
+    <style type="text/css">
+        #content {
+            margin: 0 auto;
+        }
+
+        #fresh_add_column_list {
+            float: left;
+        }
+
+        .fresh_column_list_div {
+            height: 24px;
+            margin-top: 10px;
+        }
+
+        .fresh_column_list_div_title {
+            float: left;
+            width: 30%;
+            text-align: right;
+            font-size: 13px;
+        }
+
+        .fresh_column_list_div_text {
+            float: right;
+            width: 70%;
+            text-align: left;
+        }
+
+        .fresh_column_list_div_input {
+            width: 300px;
+            height: 20px;
+        }
+
+        .fresh_column_list_div_select {
+            width: 300px;
+        }
+
+        .fresh_column_list_div_span {
+            width: 320px;
+            display: block;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#fresh_modify_back").click(backToIndex);
+        $("#fresh_modify_submit").click(freshWaybillModifyCommit);
+    });
+
+    function compareTo(one, other) {
+        if (one == other || one === other) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">生鲜温度录入</a>&nbsp;&gt;&nbsp;<a
+            href="javascript:void(0)">增加</a>
+    </p>
+</div>
+<div id="content">
+    <div id="fresh_add_column_list">
+        <input type="hidden" value="$!freshWaybill.id" id="fresh_add_column_list_id"/>
+        <div id="fresh_serial_num_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span>包裹号：</span>
+            </div>
+            <div class="fresh_column_list_div_text">
+                <span class="fresh_column_list_div_span"><input type="text" value="$!freshWaybill.packageCode" id="fresh_add_column_package_code" disabled="disabled" class="fresh_column_list_div_input"/></span>
+            </div>
+        </div>
+        <div id="fresh_org_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span>保温箱型号：</span>
+            </div>
+            <div class="fresh_column_list_div_text">
+				<span class="fresh_column_list_div_span"><select id="fresh_add_column_box_type" class="fresh_column_list_div_select">
+                    <option value=""  #if($freshWaybill.boxType == '')
+                            SELECTED
+					#end>请选择...</option>
+					<option value="1" #if($freshWaybill.boxType == 1)
+                            SELECTED
+					#end>XPS材质24L</option>
+                    <option value="2" #if($freshWaybill.boxType == 2)
+                            SELECTED
+					#end>折叠VIP材质15L</option>
+                    <option value="3" #if($freshWaybill.boxType == 3)
+                            SELECTED
+					#end>折叠VIP材质25L</option>
+                    <option value="4" #if($freshWaybill.boxType == 4)
+                            SELECTED
+					#end>折叠VIP材质55L</option>
+				</select></span>
+            </div>
+        </div>
+        <div id="fresh_site_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span>冰板类型：</span>
+            </div>
+            <div class="fresh_column_list_div_text">
+				<span class="fresh_column_list_div_span"><select id="fresh_add_column_slab_type" class="fresh_column_list_div_select">
+                    <option value="" #if($freshWaybill.slabType == '')
+                            SELECTED
+					#end>请选择...</option>
+                    <option value="1" #if($freshWaybill.slabType == 1)
+                            SELECTED
+					#end>0℃冷藏冰板</option>
+                    <option value="2" #if($freshWaybill.slabType == 2)
+                            SELECTED
+					#end>-12℃冷冻冰板</option>
+                </select></span>
+            </div>
+        </div>
+        <div id="fresh_supplier_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span>冰板数量：</span>
+            </div>
+            <div class="fresh_column_list_div_text">
+                <span class="fresh_column_list_div_span"><input type="text" value="$!freshWaybill.slabNum" id="fresh_add_column_slab_num" class="fresh_column_list_div_input"/></span>
+            </div>
+        </div>
+        <div id="fresh_model_num_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span>商品温度：</span>
+            </div>
+            <div class="fresh_column_list_div_text">
+                <span class="fresh_column_list_div_span"><input type="text" value="$numberTool.format('#0.00',$!freshWaybill.packageTemp)" id="fresh_add_column_package_temp" class="fresh_column_list_div_input"/> ℃ </span>
+            </div>
+        </div>
+        <div id="fresh_model_type_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span>冰板温度：</span>
+            </div>
+            <div class="fresh_column_list_div_text">
+                <span class="fresh_column_list_div_span"><input type="text" value="$numberTool.format('#0.00',$!freshWaybill.slabTemp)" id="fresh_add_column_slab_temp" class="fresh_column_list_div_input"/> ℃ </span>
+            </div>
+        </div>
+        <div id="fresh_operate_div" class="fresh_column_list_div">
+            <div class="fresh_column_list_div_title">
+                <span></span>
+            </div>
+            <div class="fresh_column_list_div_text" >
+                <span class="fresh_column_list_div_span"><input id="fresh_modify_back" value="返回" type="button" class="btn_c"/>
+					<input id="fresh_modify_submit" value="修改" type="button" class="btn_c"/>
+				</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -84,7 +84,9 @@
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
         <typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
-	</typeAliases>  
+        <typeAlias type="com.jd.bluedragon.distribution.waybill.domain.FreshWaybill" alias="freshWaybill"/>
+
+    </typeAliases>
 	<plugins>
         <!--
         mq消息发送说明：
@@ -204,6 +206,7 @@
         <mapper resource="mappers/oracle/globaltrade/LoadBillReportMapper.xml"/>
         <mapper resource="mappers/oracle/gantry/GantryDeviceMapper.xml"/>
 		<mapper resource="mappers/oracle/gantry/GantryDeviceConfigMapper.xml"/>
+        <mapper resource="mappers/oracle/freshWaybill/freshWaybillMapper.xml"/>
 	</mappers>
 	
 </configuration>
