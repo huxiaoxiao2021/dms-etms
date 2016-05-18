@@ -108,6 +108,7 @@
 			<list>
 				<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
 				<value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
+				<value>com.jd.bluedragon.distribution.box.dao.BaseDao.reprint</value>
 			</list>
 		</property>
 	</bean>
