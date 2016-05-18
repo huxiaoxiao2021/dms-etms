@@ -283,4 +283,8 @@
     <bean id="gantryDeviceDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
+    <bean id="freshWaybillDao" class="com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
 </beans>
