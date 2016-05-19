@@ -38,8 +38,8 @@
   <sql id="Base_Column_List" >
     inspection_id, waybill_code, box_code, 
     package_barcode, inspection_status, exception_type, 
-    inspection_type, operate_type, create_user, 
-    create_user_code, create_time, create_site_code , 
+    inspection_type, operate_type, create_user,
+    create_user_code, create_time,operate_time, create_site_code ,
     receive_site_code, update_user, 
     update_user_code, update_time, yn, third_waybill_code, pop_flag,
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
