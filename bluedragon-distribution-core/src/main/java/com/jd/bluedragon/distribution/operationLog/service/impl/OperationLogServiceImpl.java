@@ -1,23 +1,21 @@
 package com.jd.bluedragon.distribution.operationLog.service.impl;
 
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.cassandra.OperationlogCassandra;
-import com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao;
-import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
-import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ump.annotation.JProfiler;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
+import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
+import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.ql.dcam.config.ConfigManager;
+import com.jd.ump.annotation.JProfiler;
 
 @Service
 public class OperationLogServiceImpl implements OperationLogService {
@@ -25,34 +23,25 @@ public class OperationLogServiceImpl implements OperationLogService {
 	private final static Logger logger = Logger.getLogger(OperationLogServiceImpl.class);
 
 	@Autowired
-	private OperationLogDao operationLogDao;
-	
-	@Autowired
 	private OperationlogCassandra logCassandra;
 	
 	@Autowired
 	private OperationLogReadDao operationLogReadDao;
 	
 	@Autowired
-	private BaseService baseService;
+	private ConfigManager configManager;
 	
 	//cassandra开关
-	public static final String CASSANDRA_SWITCH = "CASSANDRA_SWITCH";
+	public static final String CASSANDRA_GLOBAL_ON_KEY = "cassandra.global.on";
 
 	@JProfiler(jKey= "DMSWEB.OperationLogService.add")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(OperationLog operationLog) {
 		try {
-			
-			List<SysConfig> configs=baseService.queryConfigByKeyWithCache(CASSANDRA_SWITCH);
-			for(SysConfig sys : configs){
-				if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_ON")){
-					logCassandra.batchInsert(operationLog);
-				}else if(StringHelper.matchSiteRule(sys.getConfigContent(), "CASSANDRA_OFF")){
-					operationLogDao.add(OperationLogDao.namespace, operationLog);
-				}
+			String cassandraOn = configManager.getProperty(CASSANDRA_GLOBAL_ON_KEY);
+			if(cassandraOn!=null && cassandraOn.equalsIgnoreCase("true")){
+				logCassandra.batchInsert(operationLog);
 			}
-			
 		} catch (Exception e) {
 			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
 		}

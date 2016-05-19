@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.inspection.dao.InspectionECDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.inspection.domain.InspectionEC" >
+    <id column="check_id" property="checkId" jdbcType="BIGINT" />
+    <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+    <result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    <result column="package_barcode" property="packageBarcode" jdbcType="VARCHAR" />
+    <result column="inspection_e_c_type" property="inspectionECType" jdbcType="INTEGER" />
+    <result column="exception_status" property="status" jdbcType="INTEGER"/>
+    <result column="inspection_type" property="inspectionType" jdbcType="INTEGER" />
+    <result column="exception_type" property="exceptionType" jdbcType="VARCHAR" />
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="VARCHAR" />
+    <result column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER"/>
+	<result column="update_user" property="updateUser" jdbcType="VARCHAR"/>
+	<result column="update_user_code" property="updateUserCode" jdbcType="VARCHAR"/>
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    check_id, waybill_code, 
+    box_code, package_barcode, 
+    inspection_e_c_type, exception_status, inspection_type, 
+    exception_type, create_user, create_user_code, 
+    create_time, create_site_code, receive_site_code,
+    update_user, update_user_code, 
+    update_time, yn
+  </sql>
+  
+  <sql id="Base_Column_ListNoID" >
+    waybill_code, 
+    box_code, package_barcode, 
+    inspection_e_c_type, exception_status, inspection_type, 
+    exception_type, create_user, create_user_code, 
+    create_time, create_site_code, receive_site_code,
+    update_user, update_user_code, 
+    update_time, yn
+  </sql>
+  
+  <sql id="Base_Column_Alias_List" >
+    iec.check_id, iec.waybill_code, 
+    iec.box_code, iec.package_barcode, 
+    iec.inspection_e_c_type, iec.exception_status, iec.inspection_type, 
+    iec.exception_type, iec.create_user, iec.create_user_code, 
+    iec.create_time, iec.create_site_code, iec.receive_site_code,
+    iec.update_user, iec.update_user_code, 
+    iec.update_time, iec.yn
+  </sql>
+  
+  <insert id="add"  parameterType="InspectionEC">
+  	INSERT INTO  inspection_e_c
+  	(  
+	<include refid="Base_Column_ListNoID"/>
+  	)
+  	VALUES(
+  		#{waybillCode,jdbcType=VARCHAR},
+  		#{boxCode,jdbcType=VARCHAR},#{packageBarcode,jdbcType=VARCHAR},
+  		#{inspectionECType,jdbcType=INTEGER},#{status,jdbcType=INTEGER},#{inspectionType,jdbcType=INTEGER},
+  		#{exceptionType,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
+  		#{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},
+  		#{updateUser,jdbcType=VARCHAR}, #{updateUserCode,jdbcType=INTEGER},
+  		#{updateTime,jdbcType=TIMESTAMP}, 1
+  	)
+  </insert>
+  
+  <update id="updateStatus" parameterType="InspectionEC">
+  	UPDATE inspection_e_c
+  	SET exception_status=#{status,jdbcType=INTEGER},
+  	update_user=#{updateUser,jdbcType=VARCHAR}, 
+  	update_user_code=#{updateUserCode,jdbcType=INTEGER}, update_time = #{updateTime,jdbcType=TIMESTAMP} 
+  	WHERE
+  	yn = 1
+  	AND create_site_code = #{createSiteCode,jdbcType=INTEGER} 
+  	<if test="packageBarcode!=null and ''!=packageBarcode">
+  	AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+  	</if>
+  	AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+  	<if test=" null!=boxCode and ''!=boxCode ">
+  	AND box_code = #{boxCode,jdbcType=VARCHAR}
+  	</if>
+  	<if test=" receiveSiteCode!=null">
+  	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+  	</if>
+  	<if test="inspectionECType!=null">
+  	AND inspection_e_c_type = #{inspectionECType,jdbcType=INTEGER}
+  	</if>
+  </update>
+  
+  <update id="updateYnByWaybillCode" parameterType="InspectionEC">
+  	UPDATE inspection_e_c
+  	SET yn=0,
+  	update_user=#{updateUser,jdbcType=VARCHAR}, 
+  	update_user_code=#{updateUserCode,jdbcType=INTEGER}, update_time = #{updateTime,jdbcType=TIMESTAMP} 
+  	WHERE
+  	yn=1
+  	AND inspection_e_c_type in(0,1) AND exception_status in(0,1)
+  	<if test=" null!=boxCode and ''!=boxCode ">
+  	AND box_code = #{boxCode,jdbcType=VARCHAR}
+  	</if>
+  	<if test="packageBarcode!=null and ''!=packageBarcode">
+  	AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+  	</if>
+  	<if test="null!=waybillCode and ''!=waybillCode">
+	AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+  	</if>
+  	AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+  	<if test=" receiveSiteCode!=null">
+  	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+  	</if>
+  </update>
+  
+  <update id="updateForSorting" parameterType="InspectionEC">
+  	UPDATE inspection_e_c
+  	SET exception_status=#{status,jdbcType=INTEGER}, box_code = #{boxCode,jdbcType=VARCHAR}, 
+  	update_user=#{updateUser,jdbcType=VARCHAR}, 
+  	update_user_code=#{updateUserCode,jdbcType=INTEGER}, update_time = NOW()
+  	WHERE
+  	create_site_code = #{createSiteCode,jdbcType=INTEGER}
+  	<if test=" null!=boxCode and ''!=boxCode ">
+  	AND box_code = #{boxCode,jdbcType=VARCHAR}
+  	</if>
+  	AND inspection_e_c_type = #{inspectionECType,jdbcType=INTEGER}
+  	AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+  	AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+  	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateOne" parameterType="InspectionEC">
+  	UPDATE inspection_e_c
+  	SET
+  	update_user = #{updateUser,jdbcType=VARCHAR},
+  	update_user_code = #{updateUserCode,jdbcType=INTEGER},
+  	update_time = #{updateTime,jdbcType=TIMESTAMP},
+  	exception_status=#{status,jdbcType=INTEGER},
+  	inspection_e_c_type = 0
+  	WHERE
+  	waybill_code = #{waybillCode,jdbcType=VARCHAR}
+    AND box_code = #{boxCode,jdbcType=VARCHAR}
+    AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+	AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+	AND inspection_e_c_type = #{inspectionECType,jdbcType=INTEGER}
+	AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+	AND exception_status = 0
+	AND yn=1
+  </update>
+  
+  <update id="updateInspectionECType" parameterType="InspectionEC">
+  	UPDATE inspection_e_c
+  	SET inspection_e_c_type = #{inspectionECType,jdbcType=INTEGER}, exception_status = 1
+  	WHERE  package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+  	AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+  	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+  	<if test="status!=null">
+  		AND exception_status = #{status,jdbcType=INTEGER}
+  	</if>
+  	AND yn=1
+  </update>
+  
+  <sql id="whereCondition">
+	<where>
+		<if test="checkId != null" >
+        AND check_id = #{checkId,jdbcType=BIGINT}
+      </if>
+      <if test="waybillCode != null" >
+        AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+      </if>
+      <if test="boxCode != null" >
+        AND box_code = #{boxCode,jdbcType=VARCHAR}
+      </if>
+      <if test="packageBarcode != null" >
+        AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+      </if>
+      <if test="inspectionECType!=null">
+      	AND inspection_e_c_type= #{inspectionECType,jdbcType=INTEGER}
+      </if>
+      <if test="inspectionType != null" >
+        AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+      </if>
+      <if test="status!=null">
+      	AND exception_status = #{status,jdbcType=INTEGER}
+      </if>
+      <if test="exceptionType != null" >
+        AND exception_type = #{exceptionType,jdbcType=VARCHAR}
+      </if>
+      <if test="createUser != null" >
+        AND create_user = #{createUser,jdbcType=VARCHAR}
+      </if>
+      <if test="createUserCode != null" >
+		AND create_user_code = #{createUserCode,jdbcType=INTEGER}
+      </if>
+      <if test="createTime != null" >
+        AND create_time = #{createTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="createSiteCode != null" >
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+      </if>
+      <if test="receiveSiteCode!=null">
+      	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+      </if>
+      <if test="updateUser != null">
+      	AND update_user = #{updateUser,jdbcType=VARCHAR}
+      </if>
+      <if test="updateUserCode != null">
+      	AND update_user_code = #{updateUserCode,jdbcType=INTEGER}
+      </if>
+      <if test="updateTime != null" >
+        AND update_time = #{updateTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="yn != null" >
+        AND yn = #{yn,jdbcType=INTEGER}
+      </if>
+	</where>
+  </sql>
+  
+  <select id="selectSelective" resultMap="BaseResultMap" parameterType="InspectionEC">
+  	SELECT
+  	<include refid="Base_Column_List"/>
+  	FROM inspection_e_c
+  	<include refid="whereCondition"/>
+  	ORDER BY check_id DESC
+  	
+  	<if test="startNo != null and limitNo != null">
+  	 LIMIT ${startNo} ,${limitNo}
+  	</if>
+  </select>
+  
+  <select id="get" resultMap="BaseResultMap" parameterType="InspectionEC">
+  	SELECT
+  	<include refid="Base_Column_List"/>
+  	FROM inspection_e_c
+  	WHERE  check_id = #{checkId,jdbcType=BIGINT}
+  </select>
+  
+  <select id="inspectionCount" resultType="Integer" parameterType="InspectionEC">
+  	SELECT
+  	COUNT(1)
+  	FROM inspection_e_c
+  	WHERE inspection_e_c_type = #{inspectionECType,jdbcType=INTEGER}
+	AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+	AND yn = #{yn,jdbcType=INTEGER}
+	<if test=" null!=boxCode and ''!=boxCode "> 
+	AND box_code = #{boxCode,jdbcType=VARCHAR}
+   	</if>
+	<if test="waybillCode != null" >
+	AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</if>
+   <if test="packageBarcode != null" >
+	AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+   </if>
+   	AND exception_status > 1
+   <if test="createSiteCode != null" >
+     AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+   </if>
+   <if test="receiveSiteCode!=null">
+   	AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+   </if>
+  </select>
+  
+  <select id="queryByThird" resultMap="BaseResultMap"  parameterType="InspectionEC">
+  	SELECT
+   	<include refid="Base_Column_Alias_List"/>
+   	FROM inspection_e_c iec 
+ 
+   	WHERE iec.yn = 1
+
+	<if test="null!=receiveSiteCode and ''!=receiveSiteCode">
+	AND iec.receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+	</if>
+	<if test="null!=createSiteCode and ''!=createSiteCode">
+	AND iec.create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</if>
+	<if test="inspectionECType!=null">
+	AND iec.inspection_e_c_type= #{inspectionECType,jdbcType=INTEGER}
+	</if>
+	<if test="inspectionECType==null">
+	AND iec.inspection_e_c_type IN (1,2)
+	</if>
+	<if test=" null!=boxCode and ''!=boxCode "> 
+	AND iec.box_code = #{boxCode,jdbcType=VARCHAR}
+	</if>
+	AND iec.exception_status NOT IN( 3,4,5,6 )
+	LIMIT 100
+  </select>
+  
+	<select id="queryExceptionsCore" parameterType="java.util.Map" resultType="Integer">
+		SELECT
+		COUNT(check_id)
+		FROM inspection_e_c
+		WHERE box_code = #{boxCode,jdbcType=VARCHAR}
+		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND yn=1
+		AND inspection_type = 30
+		AND inspection_e_c_type!=0 
+		AND ( ( inspection_e_c_type=1 AND exception_status in(0,4,6) ) OR ( inspection_e_c_type=2 AND exception_status in(0) ) )
+	</select>
+	
+	<select id="boxUnInspection" parameterType="java.util.Map" resultType="Integer">
+		SELECT
+		COUNT(check_id)
+		FROM inspection_e_c
+		WHERE box_code = #{boxCode,jdbcType=VARCHAR}
+		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND yn=1
+		AND inspection_type = 30
+		AND inspection_e_c_type = 1 AND exception_status IN (0,3,5)
+	</select>
+	
+	<select id="exceptionCountByBox" parameterType="java.util.Map" resultType="Integer">
+		SELECT
+		COUNT(check_id)
+		FROM inspection_e_c
+		WHERE box_code = #{boxCode,jdbcType=VARCHAR}
+		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND yn=1
+		AND inspection_type = 30
+	</select>
+	  
+	<select id="checkDispose" resultMap="BaseResultMap" parameterType="InspectionEC">
+		SELECT inspection_e_c_type, exception_status, MAX(check_id) max_id
+	    FROM inspection_e_c
+	    WHERE yn=1
+		<if test=" null!=boxCode and ''!=boxCode "> 
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		</if>
+	    AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	    AND inspection_type = 30
+	    AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+	    GROUP BY inspection_e_c_type, exception_status
+	    ORDER BY max_id DESC
+	</select>
+	
+	<select id="queryThirdByParams" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	SELECT
+	<include refid="Base_Column_Alias_List"/>
+	FROM inspection_e_c iec 
+ 
+	WHERE iec.yn = 1
+	<if test="null!=receiveSiteCode and ''!=receiveSiteCode">
+	AND iec.receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+	</if>
+	<if test="null!=createSiteCode and ''!=createSiteCode">
+	AND iec.create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</if>
+	<if test="inspectionECType!=null">
+	AND iec.inspection_e_c_type= #{inspectionECType,jdbcType=INTEGER}
+	</if>
+	<if test="inspectionECType==null">
+	AND iec.inspection_e_c_type IN (1,2)
+	</if>
+	<if test=" null!=boxCode and ''!=boxCode "> 
+	AND iec.box_code = #{boxCode,jdbcType=VARCHAR}
+	</if>
+	<if test=" null!=waybillCode">
+	AND iec.waybill_code=#{waybillCode,jdbcType=VARCHAR}
+	</if>
+	<if test=" null!=packageBarcode">
+	AND iec.package_barcode=#{packageBarcode,jdbcType=VARCHAR}
+	</if>
+	<if test="null!=createUserCode">
+	AND iec.create_user_code=#{createUserCode,jdbcType=INTEGER}
+	</if>
+	<if test="null!=updateUserCode">
+	AND iec.update_user_code=#{updateUserCode,jdbcType=INTEGER}
+	</if>
+	AND iec.exception_status NOT IN( 3,4,5,6 )
+	<if test="startIndex != null">
+	   LIMIT #{startIndex},#{endIndex}
+	</if>	
+  </select>
+  
+  <select id="totalThirdByParams" resultType="Integer" parameterType="java.util.Map">
+  	SELECT
+	COUNT(check_id)
+	FROM inspection_e_c iec 
+ 
+	WHERE iec.yn = 1
+
+	<if test="null!=receiveSiteCode and ''!=receiveSiteCode">
+	AND iec.receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+	</if>
+	<if test="null!=createSiteCode and ''!=createSiteCode">
+	AND iec.create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</if>
+	<if test="inspectionECType!=null">
+	AND iec.inspection_e_c_type= #{inspectionECType,jdbcType=INTEGER}
+	</if>
+	<if test="inspectionECType==null">
+	AND iec.inspection_e_c_type IN (1,2)
+	</if>
+	<if test=" null!=boxCode and ''!=boxCode "> 
+	AND iec.box_code = #{boxCode,jdbcType=VARCHAR}
+	</if>
+	<if test=" null!=waybillCode">
+	AND iec.waybill_code=#{waybillCode,jdbcType=VARCHAR}
+	</if>
+	<if test=" null!=packageBarcode">
+	AND iec.package_barcode=#{packageBarcode,jdbcType=VARCHAR}
+	</if>
+	<if test="null!=createUserCode">
+	AND iec.create_user_code=#{createUserCode,jdbcType=INTEGER}
+	</if>
+	<if test="null!=updateUserCode">
+	AND iec.update_user_code=#{updateUserCode,jdbcType=INTEGER}
+	</if>
+	AND iec.exception_status NOT IN( 3,4,5,6 )
+  </select>
+</mapper>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao">
+	<resultMap id="BaseResultMap"
+		type="com.jd.bluedragon.distribution.operationLog.domain.OperationLog">
+		<id column="log_id" property="logId" jdbcType="BIGINT" />
+		<id column="box_code" property="boxCode" jdbcType="VARCHAR" />
+		<id column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+		<id column="pickup_code" property="pickupCode" jdbcType="VARCHAR" />
+		<id column="package_code" property="packageCode" jdbcType="VARCHAR" />
+		<id column="log_type" property="logType" jdbcType="INTEGER" />
+		<id column="send_code" property="sendCode" jdbcType="VARCHAR" />
+		<id column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+		<id column="create_user" property="createUser" jdbcType="VARCHAR" />
+		<id column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
+		<id column="create_site_name" property="createSiteName" jdbcType="VARCHAR" />
+		<id column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER" />
+		<id column="receive_site_name" property="receiveSiteName" jdbcType="VARCHAR" />
+		<id column="remark" property="remark" jdbcType="VARCHAR"/>
+		<id column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+		<id column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<id column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<id column="yn" property="yn" jdbcType="INTEGER" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		log_id, box_code, waybill_code,
+		pickup_code, package_code,
+		log_type, send_code,
+		create_user_code, create_user,
+		create_site_code,
+		create_site_name,
+		receive_site_code, receive_site_name,
+		remark, operate_time,
+		create_time, update_time,yn
+    </sql>
+
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="logId != null">
+				AND log_id = #{logId}
+			</if>
+			<if test="boxCode != null">
+				AND box_code = #{boxCode}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode}
+			</if>
+			<if test="pickupCode != null">
+				AND pickup_code = #{pickupCode}
+			</if>
+			<if test="packageCode != null">
+				AND package_code = #{packageCode}
+			</if>
+			<if test="logType != null">
+				AND log_type = #{logType}
+			</if>
+			<if test="sendCode != null">
+				AND send_code = #{sendCode}
+			</if>
+			<if test="createUserCode != null">
+				AND create_user_code = #{createUserCode}
+			</if>
+			<if test="createUser != null">
+				AND create_user = #{createUser}
+			</if>
+			<if test="createSiteCode != null">
+				AND create_site_code = #{createSiteCode}
+			</if>
+			<if test="createSiteName != null">
+				AND create_site_name = #{createSiteName}
+			</if>
+			<if test="receiveSiteCode != null">
+				AND receive_site_code = #{receiveSiteCode}
+			</if>
+			<if test="receiveSiteName != null">
+				AND receive_site_name = #{receiveSiteName}
+			</if>
+			<if test="remark != null">
+				AND remark = #{remark}
+			</if>
+		</where>
+	</sql>
+
+	<insert id="add">
+		<selectKey resultType="long" keyProperty="logId" order="BEFORE"
+			statementType="PREPARED">      
+			<![CDATA[SELECT SEQ_OPERATION_LOG.NEXTVAL FROM DUAL]]>
+		</selectKey>
+		INSERT INTO operation_log_0(
+		<include refid="Base_Column_List" />
+		)
+		VALUES(
+		#{logId,jdbcType=BIGINT}, #{boxCode,jdbcType=VARCHAR},
+		#{waybillCode,jdbcType=VARCHAR},
+		#{pickupCode,jdbcType=VARCHAR},
+		#{packageCode,jdbcType=VARCHAR},
+		#{logType,jdbcType=INTEGER},
+		#{sendCode,jdbcType=VARCHAR},
+		#{createUserCode,jdbcType=INTEGER},
+		#{createUser,jdbcType=VARCHAR},
+		#{createSiteCode,jdbcType=INTEGER},
+		#{createSiteName,jdbcType=VARCHAR},
+		#{receiveSiteCode,jdbcType=INTEGER},
+		#{receiveSiteName,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR},
+		#{operateTime,jdbcType=TIMESTAMP}, sysdate, sysdate, 1
+		)
+	</insert>
+
+	<select id="totalSizeByParams" resultType="Integer"
+		parameterType="OperationLog">
+		SELECT count(log_id)
+		FROM DMS.operation_log_0
+		<include refid="Base_Where_List" />
+	</select>
+
+	<select id="queryByParams" resultMap="BaseResultMap"
+		parameterType="OperationLog">
+		<if test="startIndex != null">
+			select * from ( select t.*, rownum l from (
+		</if>
+		SELECT
+		log_id, box_code, waybill_code,
+		pickup_code, package_code,
+		log_type, send_code,
+		create_user_code, create_user,
+		create_site_code,
+		create_site_name,
+		receive_site_code, receive_site_name,
+		operate_time,
+		create_time, update_time,remark
+		FROM DMS.operation_log_0
+		<include refid="Base_Where_List" />
+		order by operate_time
+		<if test="startIndex != null">
+			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) where <![CDATA[l >]]>
+			#{startIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.jd.bluedragon.distribution.partnerWaybill.dao.PartnerWaybillDao">
+	<resultMap id="BaseResultMap"
+		type="com.jd.bluedragon.distribution.partnerWaybill.domain.PartnerWaybill">
+		<id column="relation_id" property="relationId" jdbcType="BIGINT" />
+		<result column="partner_waybill_code" property="partnerWaybillCode"
+			jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+		<result column="package_barcode" property="packageBarcode"
+			jdbcType="VARCHAR" />
+		<result column="partner_status" property="status" jdbcType="INTEGER" />
+		<result column="partner_site_code" property="partnerSiteCode"
+			jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" jdbcType="VARCHAR" />
+		<result column="create_user_code" property="createUserCode"
+			jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="create_site_code" property="createSiteCode"
+			jdbcType="INTEGER" />
+		<result column="update_user" property="updateUser" jdbcType="VARCHAR" />
+		<result column="update_user_code" property="updateUserCode"
+			jdbcType="INTEGER" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		relation_id,partner_waybill_code, waybill_code,
+		package_barcode, partner_status, partner_site_code,
+		create_user, create_user_code,
+		create_time, create_site_code,
+		update_user, update_user_code,
+		update_time, yn
+	</sql>
+
+	<sql id="Base_Insert_Column_List">
+		partner_waybill_code, waybill_code,
+		package_barcode, partner_status, partner_site_code,
+		create_user, create_user_code,
+		create_time, create_site_code,
+		update_user, update_user_code,
+		update_time, yn
+	</sql>
+
+	<sql id="where_condition">
+		<where>
+			<if test="relationId!=null">
+				and relation_id = #{relationId,jdbcType=INTEGER}
+			</if>
+			<if test="partnerWaybillCode!= null">
+				and partner_waybill_code =
+				#{partnerWaybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="waybillCode!= null">
+				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="packageBarcode!= null">
+				and package_barcode =#{packageBarcode,jdbcType=VARCHAR}
+			</if>
+			<if test="status!= null">
+				and partner_status = #{status,jdbcType=SMALLINT}
+			</if>
+			<if test="partnerSiteCode!=null">
+				and partner_site_code =
+				#{partnerSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="createUser!= null">
+				and create_user =#{createUser,jdbcType=VARCHAR}
+			</if>
+			<if test="createUserCode!= null">
+				and create_user_code = #{createUserCode,jdbcType=VARCHAR}
+			</if>
+			<if test="createTime!= null">
+				and create_time = #{createTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="createSiteCode!= null">
+				and create_site_code = #{createSiteCode,jdbcType=VARCHAR}
+			</if>
+			<if test="yn!= null">
+				and YN = #{yn,jdbcType=TINYINT}
+			</if>
+			<if test="updateUser!=null">
+				and update_user = #{updateUser,jdbcType=VARCHAR}
+			</if>
+			<if test="updateUserCode!=null">
+				and update_user_code = #{updateUserCode,jdbcType=INTEGER}
+			</if>
+			<if test="updateTime!=null">
+				and updateTime = #{updateTime,jdbcType=DATE}
+			</if>
+		</where>
+	</sql>
+	<insert id="add" parameterType="list">
+		insert into partner_waybill
+		(
+		<include refid="Base_Insert_Column_List" />
+		)
+		values
+		(
+		#{partnerWaybillCode,jdbcType=VARCHAR},
+		#{waybillCode,jdbcType=VARCHAR},
+		#{packageBarcode,jdbcType=VARCHAR}, 1, #{partnerSiteCode,jdbcType=INTEGER},
+		#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
+		#{updateUser,jdbcType=VARCHAR}, #{updateUserCode,jdbcType=INTEGER},
+		#{updateTime,jdbcType=TIMESTAMP},1
+		)
+	</insert>
+	<update id="checkHas"
+		parameterType="com.jd.bluedragon.distribution.partnerWaybill.domain.PartnerWaybill">
+		update partner_waybill set update_time=#{updateTime,jdbcType=TIMESTAMP}
+		where YN=1 and package_barcode=#{packageBarcode,jdbcType=VARCHAR} and
+		partner_site_code=#{partnerSiteCode,jdbcType=INTEGER}
+		and waybill_code=#{waybillCode,jdbcType=VARCHAR} and
+		partner_waybill_code=#{partnerWaybillCode,jdbcType=VARCHAR}
+	</update>
+</mapper>

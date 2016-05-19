@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao">
+	<resultMap id="systemLog"
+		type="com.jd.bluedragon.distribution.systemLog.domain.SystemLog">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<id column="keyword1" property="keyword1" jdbcType="VARCHAR" />
+		<id column="keyword2" property="keyword2" jdbcType="VARCHAR" />
+		<id column="keyword3" property="keyword3" jdbcType="VARCHAR" />
+		<id column="keyword4" property="keyword4" jdbcType="INTEGER" />
+		<id column="content" property="content" jdbcType="VARCHAR" />
+		<id column="type" property="type" jdbcType="INTEGER" />
+		<id column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<id column="yn" property="yn" jdbcType="INTEGER" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, keyword1, keyword2, keyword3,keyword4, content, type, create_time, yn
+    </sql>
+
+	<sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="id != null">
+				AND system = #{id}
+			</if>
+			<if test="keyword1 != null">
+				AND keyword1 = #{keyword1}
+			</if>
+			<if test="keyword2 != null">
+				AND keyword2 = #{keyword2}
+			</if>
+			<if test="keyword3 != null">
+				AND keyword3 = #{keyword3}
+			</if>
+			<if test="keyword4 != null">
+				AND keyword4 = #{keyword4}
+			</if>
+			<if test="content != null">
+				AND content = #{content}
+			</if>
+			<if test="type != null">
+				AND type = #{type}
+			</if>
+		</where>
+	</sql>
+
+	<insert id="add">
+		INSERT INTO system_log(
+		<include refid="Base_Column_List" />
+		)
+		VALUES(
+		SEQ_SYSTEM_LOG.NEXTVAL, #{keyword1,jdbcType=VARCHAR},
+		#{keyword2,jdbcType=VARCHAR},
+		#{keyword3,jdbcType=VARCHAR},
+		#{keyword4,jdbcType=INTEGER},
+		#{content,jdbcType=VARCHAR},
+		#{type,jdbcType=INTEGER},
+		sysdate, 1
+		)
+	</insert>
+
+	<select id="totalSizeByParams" resultType="Integer"	parameterType="SystemLog">
+		SELECT count(1)
+		FROM system_log
+		<include refid="Base_Where_List" />
+	</select>
+
+	<select id="queryByParams" resultMap="systemLog" parameterType="SystemLog">
+		<if test="startIndex != null">
+			select * from ( select t.*, rownum l from (
+		</if>
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM system_log
+		<include refid="Base_Where_List" />
+		order by create_time desc
+		<if test="startIndex != null">
+			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) where <![CDATA[l >]]>
+			#{startIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+</mapper>

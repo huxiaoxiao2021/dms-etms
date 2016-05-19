@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.inspection.dao.InspectionDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.inspection.domain.Inspection" >
+    <id column="inspection_id" property="inspectionId" jdbcType="BIGINT" />
+    <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+	<result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    <result column="package_barcode" property="packageBarcode" jdbcType="VARCHAR" />
+    <result column="inspection_status" property="status" jdbcType="INTEGER" />
+    <result column="exception_type" property="exceptionType" jdbcType="VARCHAR" />
+    <result column="inspection_type" property="inspectionType" jdbcType="INTEGER"/>
+    <result column="operate_type" property="operateType" jdbcType="INTEGER"/>
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
+    <result column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER"/>
+    <result column="update_user" property="updateUser" jdbcType="VARCHAR"/>
+    <result column="update_user_code" property="updateUserCode" jdbcType="INTEGER"/>
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="INTEGER" />
+    <result column="third_waybill_code" property="thirdWaybillCode" jdbcType="VARCHAR" />
+    <result column="pop_flag" property="popFlag" jdbcType="INTEGER" />
+    <result column="pop_sup_id" property="popSupId" jdbcType="INTEGER" />
+    <result column="pop_sup_name" property="popSupName" jdbcType="VARCHAR" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="cross_code" property="crossCode" jdbcType="VARCHAR" />
+    <result column="waybill_type" property="waybillType" jdbcType="INTEGER" />
+    <result column="queue_no" property="queueNo" jdbcType="VARCHAR" />
+    <result column="pop_receive_type" property="popReceiveType" jdbcType="INTEGER" />
+    <result column="driver_code" property="driverCode" jdbcType="VARCHAR" />
+    <result column="driver_name" property="driverName" jdbcType="VARCHAR" />
+    <result column="busi_id" property="busiId" jdbcType="INTEGER" />
+   	<result column="busi_name" property="busiName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    inspection_id, waybill_code, box_code, 
+    package_barcode, inspection_status, exception_type, 
+    inspection_type, operate_type, create_user, 
+    create_user_code, create_time, create_site_code , 
+    receive_site_code, update_user, 
+    update_user_code, update_time, yn, third_waybill_code, pop_flag,
+    pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
+    pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name
+  </sql>
+  
+  <sql id="Pop_Join_Where_List">
+	<where>
+ 		yn = 1
+ 		and inspection_type = 40
+		and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		<choose>
+			<when test="popReceiveType == null or popReceiveType == 0">
+				and (pop_receive_type is null or pop_receive_type <![CDATA[<>]]> 2)
+			</when>
+			<otherwise>
+				and pop_receive_type = #{popReceiveType,jdbcType=INTEGER}
+			</otherwise>
+		</choose>
+		<if test="thirdWaybillCode != null and thirdWaybillCode != ''">
+			and third_waybill_code =#{thirdWaybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillType != null and waybillType != 0">
+			and waybill_type = #{waybillType, jdbcType=INTEGER}
+		</if>
+		and create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), %Y-%M-%d %H:%i:%s')
+		and create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+		<if test="popSupId != null and popSupId != 0">
+			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
+		</if>
+		<if test="popSupName != null">
+			and pop_sup_name like concat(#{popSupName, jdbcType=VARCHAR}, '%')
+		</if>
+		<if test="createUserCode != null and createUserCode != 0">
+			and create_user_code = #{createUserCode,jdbcType=INTEGER}
+		</if>
+		<if test="createUser != null">
+			and create_user like concat(#{createUser, jdbcType=VARCHAR} , '%')
+		</if>
+		<if test="queueNo != null and queueNo != ''">
+			and queue_no = #{queueNo, jdbcType=VARCHAR}
+		</if>
+	</where>
+  </sql>
+  
+  <sql id="BPop_Join_Where_List">
+	<where>
+ 		yn = 1
+ 		and (inspection_type = 40 or inspection_type = 60)
+		and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		<choose>
+			<when test="popReceiveType == null or popReceiveType == 0">
+				and (pop_receive_type is null or (pop_receive_type <![CDATA[<>]]> 2 and pop_receive_type <![CDATA[<>]]> 5))
+			</when>
+			<otherwise>
+				and pop_receive_type = #{popReceiveType,jdbcType=INTEGER}
+			</otherwise>
+		</choose>
+		<if test="thirdWaybillCode != null and thirdWaybillCode != ''">
+			and third_waybill_code =#{thirdWaybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillType != null and waybillType != 0">
+			and waybill_type = #{waybillType, jdbcType=INTEGER}
+		</if>
+		and create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+		and create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+		<if test="popSupId != null and popSupId != 0">
+			and pop_sup_id = #{popSupId, jdbcType=INTEGER}
+		</if>
+		<if test="popSupName != null">
+			and pop_sup_name like concat(#{popSupName, jdbcType=VARCHAR}, '%')
+		</if>
+		<if test="busiId != null and busiId != 0">
+			and busi_id = #{busiId, jdbcType=INTEGER}
+		</if>
+		<if test="busiName != null">
+			and busi_name like concat(#{busiName, jdbcType=VARCHAR} , '%')
+		</if>
+		<if test="createUserCode != null and createUserCode != 0">
+			and create_user_code = #{createUserCode,jdbcType=INTEGER}
+		</if>
+		<if test="createUser != null">
+			and create_user like concat(#{createUser, jdbcType=VARCHAR} , '%')
+		</if>
+		<if test="queueNo != null and queueNo != ''">
+			and queue_no = #{queueNo, jdbcType=VARCHAR}
+		</if>
+		<if test="driverCode != null">
+			and driver_code = #{driverCode,jdbcType=VARCHAR},
+		</if>
+   		<if test="driverName != null">
+			and driver_name = #{driverName,jdbcType=VARCHAR},
+		</if>
+	</where>
+  </sql>
+  
+	<select id="findPopJoinTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		SELECT
+			count(inspection_id)
+	 	from DMS.inspection
+ 		<include refid="Pop_Join_Where_List" />
+	</select>
+
+	<select id="findPopJoinList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List"/>
+		from DMS.inspection
+		<include refid="Pop_Join_Where_List"/>
+		order by inspection_id
+		<if test="startIndex != null">
+		 LIMIT #{startIndex} ,#{endIndex}
+		</if>
+	</select>
+	
+	<select id="findBPopJoinTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		SELECT
+			count(inspection_id)
+	 	from DMS.inspection
+ 		<include refid="BPop_Join_Where_List" />
+	</select>
+	
+	<select id="findBPopJoinList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select 
+			<include refid="Base_Column_List" />
+	 	from DMS.inspection
+	 		<include refid="BPop_Join_Where_List" />
+		order by inspection_id
+		<if test="startIndex != null">
+			 LIMIT #{startIndex} ,#{endIndex}
+		</if>
+	</select>
+
+</mapper>

@@ -1,5 +1,32 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.ServiceMessage;
@@ -33,17 +60,39 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.distribution.send.domain.BoxInfo;
+import com.jd.bluedragon.distribution.send.domain.OrderInfo;
+import com.jd.bluedragon.distribution.send.domain.PackInfo;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
+import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SendSMSUtil;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -54,6 +103,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.client.producer.MessageProducer;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -62,21 +112,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.Map.Entry;
 
 @Service("deliveryService")
 public class DeliveryServiceImpl implements DeliveryService {
@@ -199,6 +234,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
+    
+    private static final String SMS_MESSAGE = "亲爱的顾客，京东提示您：京东不会用手机号或官方400电话联系您办理退款转账或推销商品等事宜；京东也不会以被列为经销商用户/订单异常等为由索要银行卡/验证码等支付信息，请您警惕此类诈骗电话！";
 
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
@@ -835,17 +872,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
     /**
-     * 发货明细表数据更新
-     *
-     * @param tSendMList 发货相关数据
-     */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean updateSendM(List<SendM> tSendMList) {
-        return this.sendMDao.updateSendM(tSendMList);
-    }
-
-
-    /**
      * 生成取消发货数据处理
      * updated by wangtingwei@jd.com
      * edit:将取消发货分为两类，一类为按箱号，另一类为按包裹（包括按运单、包裹、取件单）
@@ -1100,7 +1126,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 		reverseDeliveryService.updateIsCancelByPackageCode(tSendM, tSendDatail);
 		// 写入运单回传状态
 		reverseDeliveryService.updateIsCancelToWaybillByPackageCode(tSendM,
-                tSendDatail);
+				tSendDatail);
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
 				JdResponse.MESSAGE_OK, null);
 	}
@@ -1450,12 +1476,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
 		SendDetail tSendDatail = new SendDetail();
         List<Message> sendDetailMessageList = new ArrayList<Message>();
+        List<SendDetail> sendDatailList = new ArrayList<SendDetail>();
 		for (SendM newSendM : tSendM) {
 			tSendDatail.setBoxCode(newSendM.getBoxCode());
 			tSendDatail.setCreateSiteCode(newSendM.getCreateSiteCode());
 			tSendDatail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
 			tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
-			List<SendDetail> sendDatailList = this.sendDatailDao
+			sendDatailList = this.sendDatailDao
                     .querySendDatailsBySelective(tSendDatail);
 			for (SendDetail dSendDatail : sendDatailList) {
 				dSendDatail.setSendCode(newSendM.getSendCode());
@@ -1468,13 +1495,33 @@ public class DeliveryServiceImpl implements DeliveryService {
 			}
             logger.info("SEND_D明细"+JsonHelper.toJson(sendDatailList));
 			updateWaybillStatus(sendDatailList);
+
+			
+			
+			// ============向西北西南区域三方配送用户发送预警短信============
+			try {
+				// 10. 循环所有发货批次
+				// 20.根据发货目的地判断是不是三方运输到西北西南区域
+				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
+				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
+				int subType = rbDto.getSubType().intValue();
+				int orgId = rbDto.getOrgId().intValue();// 获得机构id
+				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
+					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
+					sendSms(sendDatailList);
+				}
+			} catch (Exception e) {
+				logger.error("西北西南机构发送预警短信失败: ", e);
+			}
+			//==================================================================
 		}
         try {
             workerProducer.send(sendDetailMessageList);
         } catch (JMQException e) {
-            logger.info("发货明细发送JMQ失败: ", e);
+            logger.error("发货明细发送JMQ失败: ", e);
         }
-        return true;
+		return true;
 	}
 
     private Message parseSendDetailToMessage(SendDetail sendDatail) {
@@ -1774,7 +1821,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 			    		if(delivery.getPackageBarcode().equals(dSendDatail.getPackageBarcode()) && delivery.getAgainWeight()!=null){
 			    			tPackInfo.setPackWeight(BigDecimal.valueOf(delivery.getAgainWeight()));
 			    		}
-			    	 }
+			       }
 			       }
                 tPackInfo.setExpNo(dSendDatail.getWaybillCode());
                 list.add(tPackInfo);
@@ -2192,7 +2239,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 						}
 		        	}
 		        }
-			}
+		}
 		}
     	return lostList;
 	}
@@ -2845,5 +2892,55 @@ public class DeliveryServiceImpl implements DeliveryService {
 			new SendResult(SendResult.CODE_SERVICE_ERROR,SendResult.MESSAGE_SERVICE_ERROR);
 		}
         return new SendResult(SendResult.CODE_OK,SendResult.MESSAGE_OK);
+	}
+	
+	/**
+	 * 根据发货明细发送用户报警短信
+	 * @param sendDetails
+	 * @return
+	 */
+	public boolean sendSms(List<SendDetail> sendDetails) {
+		logger.debug("=========批量发送预警短信开始==========");
+		if (sendDetails != null && !sendDetails.isEmpty()) {
+
+			// 10.获得所有的运单号
+			Set<String> waybillset = new HashSet<String>();
+			Map<String, SendDetail> sendMap = new HashMap<String, SendDetail>();
+			for (SendDetail dSendDatail : sendDetails) {
+				waybillset.add(dSendDatail.getWaybillCode());
+				sendMap.put(dSendDatail.getWaybillCode(), dSendDatail);
+			}
+			// 20.获得所有的运单信息
+			List<String> waybillList = new CollectionHelper<String>().toList(waybillset);
+			WChoice queryWChoice = new WChoice();
+			queryWChoice.setQueryWaybillC(true);
+			List<BigWaybillDto> tWaybillList = getWaillCodeListMessge(queryWChoice, waybillList);
+			
+			// 30.遍历所有的运单发送短信
+			if (tWaybillList != null && !tWaybillList.isEmpty()) {
+				for (BigWaybillDto tWaybill : tWaybillList) {
+					if (tWaybill != null && tWaybill.getWaybill() != null
+							&& tWaybill.getWaybill().getWaybillCode() != null
+							&& tWaybill.getWaybill().getWaybillType() != null) {
+						
+						//逐一发送短信
+						String customerMobile = tWaybill.getWaybill().getReceiverMobile();
+						String redisKey = "SendSMSUtil.sendNotice@"+tWaybill.getWaybill().getWaybillCode();
+						if(redisManager.getCache(redisKey)==null){
+							Boolean result = false;
+							if(StringHelper.isNotEmpty(customerMobile)){
+								result = SendSMSUtil.sendNotice(tWaybill.getWaybill().getWaybillCode(), SMS_MESSAGE, customerMobile);
+							}
+							SendDetail sendDetail = sendMap.get(tWaybill.getWaybill().getWaybillCode());
+							SystemLogUtil.log(tWaybill.getWaybill().getWaybillCode(), sendDetail.getSendCode(), null, null, result.toString(), Long.valueOf(120011));
+							if (result)
+								redisManager.setex(redisKey, 8 * 3600, result.toString());
+						}
+					}
+				}
+			}
+		}
+		logger.debug("=========批量发送预警短信结束==========");
+		return true;
 	}
 }

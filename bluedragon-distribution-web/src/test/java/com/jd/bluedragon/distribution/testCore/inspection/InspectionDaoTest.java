@@ -44,31 +44,6 @@ public class InspectionDaoTest {
 		}
 	}
 	
-	//@Test
-	public void testQuery(){
-		Inspection inspection = new Inspection();
-		inspection.setInspectionId(1001l);
-		/*inspection.setCreateSiteCode(1111);
-		inspection.setBoxCode("11b");
-		inspection.setCreateUser("11cr");
-		inspection.setCreateUserCode(1111);
-		inspection.setExceptionType("exce");
-		inspection.setInspectionType(1);
-		inspection.setPackageBarcode("113355N34packge");
-		inspection.setReceiveSiteCode(1111);
-		inspection.setSealBoxCode("11Seal");
-		inspection.setUpdateUser("111update");
-		inspection.setUpdateUserCode(1111);*/
-		//inspection.setCreateTime(new Date());
-		Inspection bean;
-		try {
-			bean = inspectionDao.queryForObject(inspection);
-			System.out.println("--------"+bean.getPackageBarcode());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
 	//@TestsortingRet/checkReDispatch
 	public void testUpdate(){
 		Inspection inspection = new Inspection();
@@ -122,55 +97,6 @@ public class InspectionDaoTest {
 			e.printStackTrace();
 		}
 	}*/
-	
-	//@Test
-	public void testSelectSelective(){
-		Inspection inspection = new Inspection();
-		inspection.setYn(1);
-		List<Inspection> list;
-		try {
-			list = inspectionDao.selectSelective(inspection);
-			for( Inspection bean:list ){
-				System.out.println(bean.getInspectionId()+"---"+bean.getPackageBarcode()+"---"+bean.getBoxCode());
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	//@Test
-	public void testBatchStatusUpdateByPrimarykey(){
-		List<Inspection> inspections = new ArrayList<Inspection>();
-		Inspection inspection = null;
-		inspection = new Inspection();
-		inspection.setInspectionId(1l);
-		inspections.add(inspection);
-		
-		inspection = new Inspection();
-		inspection.setInspectionId(2l);
-		inspections.add(inspection);
-		
-		inspection = new Inspection();
-		inspection.setInspectionId(3l);
-		inspections.add(inspection);
-
-		inspection = new Inspection();
-		inspection.setInspectionId(4l);
-		inspections.add(inspection);
-		
-		inspection = new Inspection();
-		inspection.setInspectionId(5l);
-		inspections.add(inspection);
-		
-		try {
-			int result = inspectionDao.updateStatusBatchByPrimaryKey(inspections);
-			System.out.println(result);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	@Test
 	public void testUpdateYnByPackage(){

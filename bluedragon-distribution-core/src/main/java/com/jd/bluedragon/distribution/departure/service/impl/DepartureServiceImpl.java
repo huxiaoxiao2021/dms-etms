@@ -113,7 +113,6 @@ public class DepartureServiceImpl implements DepartureService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public ServiceMessage<String> createDeparture(Departure departure)
 			throws Exception {
-
 		ServiceMessage<String> result = new ServiceMessage<String>();
 		List<SendM> sendMs = departure.getSendMs();
 		// 没有发货批次，无需生成发车表以及封车表
@@ -244,8 +243,7 @@ public class DepartureServiceImpl implements DepartureService {
 		}
 	}
 
-	private Boolean createDepartureCar(Departure departure, List<SendM> sendMs,
-			long shieldsCarId, int type) {
+	private Boolean createDepartureCar(Departure departure, List<SendM> sendMs, long shieldsCarId,int type) {
 		{
 			DepartureCar car = new DepartureCar();
 			car.setShieldsCarId(shieldsCarId); // 封车ID
@@ -726,56 +724,6 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	/**
-	 * 批次根据箱号获得交接单号
-	 * 
-	 * @param
-	 *
-	 * @return
-	 */
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<SendCode> getBoxSendCode(List<SendCode> sendCodes) {
-		if (sendCodes == null) {
-			return null;
-		}
-		List<String> boxCodes = new ArrayList<String>();
-		for (SendCode sendCode : sendCodes) {
-			String boxCode = sendCode.getBoxCode();
-			if (boxCode != null) {
-				boxCodes.add(boxCode);
-			}
-		}
-		if (boxCodes.size() == 0) {
-			return sendCodes;
-		}
-		String boxCodeIn = StringHelper.join(boxCodes, ",", "(", ")", "'");
-		// 根据箱号获得批次号
-		List<SendM> sendMs = sendMDao.querySendCodesByBoxCodes(boxCodeIn);
-
-		List<SendCode> results = new ArrayList<SendCode>();
-		Map<String, String> resultMap = new HashMap<String, String>();
-		if (sendMs != null) {
-			for (SendM sendM : sendMs) {
-				resultMap.put(sendM.getBoxCode(), sendM.getSendCode());
-			}
-		}
-		for (SendCode sendCode : sendCodes) {
-			String boxCode = sendCode.getBoxCode();
-			if ((sendMs != null) && (resultMap.containsKey(boxCode))) {
-				SendCode result = new SendCode();
-				result.setBoxCode(boxCode);
-				result.setSendCode(resultMap.get(boxCode));
-				results.add(result);
-			} else {
-				SendCode result = new SendCode();
-				result.setBoxCode(boxCode);
-				result.setSendCode(null);
-				results.add(result);
-			}
-		}
-		return results;
-	}
-
-	/**
 	 * 批次根据运单号获得交接单号
 	 * 
 	 * @param
@@ -826,16 +774,6 @@ public class DepartureServiceImpl implements DepartureService {
 			}
 		}
 		return results;
-	}
-
-	/**
-	 * 获得没有重量的箱子列表
-	 * 
-	 * @return
-	 */
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<SendDetail> getSendDatailsWithoutMeasures(Integer fetchNum) {
-		return sendDatailDao.getSendDatailsWithoutMeasures(fetchNum);
 	}
 
 	/**
@@ -1046,12 +984,6 @@ public class DepartureServiceImpl implements DepartureService {
 		return this.departureCarDao.findDepartureList(departurPrintRequest);
 	}
 	
-	public DepartureCar getDepartureCarObj(long departureCarId){
-		return this.departureCarDao.getDepartureCarObj(departureCarId);
-		
-		
-	}
-
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SendDetail> getWaybillsByDeparture(String code, Integer type) {
 

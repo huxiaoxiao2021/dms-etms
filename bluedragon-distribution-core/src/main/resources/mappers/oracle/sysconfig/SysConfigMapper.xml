@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.base.dao.SysConfigDao" >
+
+	<resultMap id="sysconfig" type="com.jd.bluedragon.distribution.base.domain.SysConfig" >
+		<result column="config_id" property="configId" />
+		<result column="config_type" property="configType" />
+		<result column="config_name" property="configName" />
+		<result column="config_content" property="configContent" />
+		<result column="config_order" property="configOrder" />
+		<result column="memo" property="memo" />
+		<result column="yn" property="yn" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />	
+	</resultMap>
+	
+	<insert id="add" parameterType="sysconfig" >
+		INSERT INTO sysconfig(
+			config_id,config_type,config_name,
+			config_content,config_order,memo,yn,
+			create_time,update_time)
+		VALUES(
+			SEQ_SYSCONFIG.NEXTVAL,#{configType,jdbcType=VARCHAR},#{configName,jdbcType=VARCHAR},
+			#{configContent,jdbcType=VARCHAR},#{configOrder,jdbcType=INTEGER},#{memo,jdbcType=VARCHAR},1,
+			SYSDATE,SYSDATE
+		)
+	</insert>
+	
+	<select id="get" resultMap="sysconfig" parameterType="java.lang.Long">
+		SELECT
+			config_id,config_type,config_name,
+			config_content,config_order,memo,yn,
+			create_time,update_time
+		FROM sysconfig
+		WHERE config_id = #{config_id} 
+	</select>
+	
+	<select id="queryByKey" resultMap="sysconfig" parameterType="sysconfig">
+		<if test="startIndex != null">
+			select * from ( select t.*, rownum l from (
+		</if>
+			SELECT
+				config_id,config_type,config_name,
+				config_content,config_order,memo,yn,
+				create_time,update_time
+			FROM sysconfig
+			WHERE config_name like #{configName} and yn = 1 and  config_type not in(-1,-100)
+			ORDER BY config_name,config_order
+		<if test="startIndex != null">
+			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+			) where <![CDATA[l >]]>
+			#{startIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<select id="totalSysconfigSizeByParams" resultType="Integer" parameterType="java.lang.String">
+		SELECT
+			count(config_id)
+		FROM sysconfig
+		WHERE config_name like #{config_name} and yn = 1
+		ORDER BY config_name,config_order
+	</select>
+	
+	<update id="update" parameterType="sysconfig" >
+		UPDATE sysconfig SET 
+        <if test="configType != null">
+            config_type=#{configType,jdbcType=INTEGER},
+        </if>
+        <if test="configName != null">
+            config_name=#{configName,jdbcType=VARCHAR},
+        </if>
+        <if test="configContent != null">
+            config_content=#{configContent,jdbcType=VARCHAR},
+        </if>
+        <if test="configOrder != null">
+            config_order=#{configOrder,jdbcType=INTEGER},
+        </if>
+        <if test="memo != null">
+            memo=#{memo,jdbcType=VARCHAR},
+        </if>
+        update_time=SYSDATE
+		WHERE yn = 1
+		<if test="configId != null">
+            AND config_id = #{configId}
+        </if>
+        <if test="configId == null and configName != null">
+            AND config_name = #{configName}
+        </if>
+	</update>
+	
+	<delete id="del" parameterType="java.lang.Long">
+		DELETE FROM sysconfig WHERE config_id = #{config_id}
+	</delete>
+	<!-- 获取开关列表 -->
+	<select id="getSwitchList" resultMap="sysconfig">
+	select * from sysconfig where CONFIG_TYPE=-1
+	</select>
+	
+	<select id="getList" resultMap="sysconfig" parameterType="sysconfig">
+	select * from sysconfig where yn=1 
+	 <if test="configType != null">
+	and CONFIG_TYPE=#{configType}
+	 </if>
+	  <if test="configName != null">
+	 and config_name=#{configName}
+	 </if>
+	</select>
+
+	<select id="getListByConName" resultMap="sysconfig" parameterType="java.lang.String">
+		select * from sysconfig where yn=1
+			and config_name=#{conName}
+	</select>
+</mapper>	

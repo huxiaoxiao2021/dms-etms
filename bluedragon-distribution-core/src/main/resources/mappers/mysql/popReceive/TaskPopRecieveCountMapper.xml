@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popReveice.dao.TaskPopRecieveCountDao">
+	<resultMap id="TaskPopRecieveCountMap" type="TaskPopRecieveCount">
+		<result column="TASK_ID" property="taskId" />
+		<result column="WAYBILL_CODE" property="waybillCode" />
+		<result column="THIRD_WAYBILL_CODE" property="thirdWaybillCode" />
+		<result column="EXPRESS_CODE" property="expressCode" />
+		<result column="EXPRESS_NAME" property="expressName" />
+		<result column="ACTUAL_NUM" property="actualNum" />
+		<result column="OPERATE_TIME" property="operateTime" />
+		<result column="EXECUTE_TIME" property="executeTime" />
+		<result column="TASK_STATUS" property="taskStatus" />
+		<result column="TASK_TYPE" property="taskType" />
+		<result column="EXECUTE_COUNT" property="executeCount" />
+		<result column="OWN_SIGN" property="ownSign" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_TIME" property="updateTime" />
+	</resultMap>
+	<insert id="insert" parameterType="TaskPopRecieveCount">
+		insert into TASK_POP_RECIEVE_COUNT(
+		WAYBILL_CODE,
+		THIRD_WAYBILL_CODE,
+		EXPRESS_CODE,
+		EXPRESS_NAME,
+		ACTUAL_NUM,
+		OPERATE_TIME,
+		TASK_STATUS,
+		TASK_TYPE,
+		EXECUTE_COUNT,
+		OWN_SIGN,
+		CREATE_TIME,
+		UPDATE_TIME,
+		YN)
+		VALUES(
+		#{waybillCode,jdbcType=VARCHAR},
+		#{thirdWaybillCode,jdbcType=VARCHAR},
+		#{expressCode,jdbcType=VARCHAR},
+		#{expressName,jdbcType=VARCHAR},
+		#{actualNum,jdbcType=INTEGER},
+		#{operateTime},
+		#{taskStatus,jdbcType=INTEGER},
+		#{taskType,jdbcType=INTEGER},
+		#{executeCount,jdbcType=INTEGER},
+		#{ownSign,jdbcType=VARCHAR},
+		NOW(),
+		NOW(),
+		1
+		)
+	</insert>
+	<update id="update" parameterType="TaskPopRecieveCount">
+		update TASK_POP_RECIEVE_COUNT
+		<set>
+			<if test="waybillCode != null">
+				waybill_code=#{waybillCode},
+			</if>
+			<if test="thirdWaybillCode != null">
+				third_waybill_code=#{thirdWaybillCode},
+			</if>
+			<if test="expressCode != null">
+				express_code=#{expressCode},
+			</if>
+			<if test="expressName != null">
+				express_name=#{expressName},
+			</if>
+			<if test="actualNum != null">
+				ACTUAL_NUM=#{actualNum},
+			</if>
+			<if test="operateTime != null">
+				OPERATE_TIME=#{operateTime},
+			</if>
+			<if test="executeTime != null">
+				EXECUTE_TIME=#{executeTime},
+			</if>
+			<if test="taskStatus != null">
+				task_status=#{taskStatus},
+			</if>
+			<if test="taskType != null">
+				task_type=#{taskType},
+			</if>
+			<if test="executeCount != null">
+				EXECUTE_COUNT=#{executeCount},
+			</if>
+			update_time=NOW()
+		</set>
+		where task_id=#{taskId} 
+	</update>
+	
+	<select id="getTaskPopRevieveCountById" parameterType="int" resultMap="TaskPopRecieveCountMap">
+	select * from TASK_POP_RECIEVE_COUNT where task_id=#{taskId} and YN=1
+	</select>
+	
+	<select id="getTaskPopRevieveCountByWaybillCode" parameterType="string" resultMap="TaskPopRecieveCountMap">
+	select * from TASK_POP_RECIEVE_COUNT where waybill_code=#{waybillCode} AND task_status=0 and YN=1
+	</select>
+	<select id="findLimitedTasksByType" resultMap="TaskPopRecieveCountMap" parameterType="map" >
+		SELECT task_id, task_type, WAYBILL_CODE,THIRD_WAYBILL_CODE,EXPRESS_CODE,EXPRESS_NAME,ACTUAL_NUM,OPERATE_TIME,EXECUTE_TIME,
+			 execute_count, task_status, create_time
+	    FROM ${tableName}
+       	<where>
+		   	yn = 1 AND execute_count <![CDATA[<]]> 5
+		   	AND (execute_time <![CDATA[<]]> NOW() OR execute_time IS NULL)
+		    AND task_status IN (0, 3) AND task_type = #{type} 
+			<if test="ownSign != null">
+				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			LIMIT #{fetchNum}
+		</where>
+    </select>	
+</mapper>

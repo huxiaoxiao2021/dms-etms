@@ -224,14 +224,6 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public Integer print(Box box) {
-        Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");
-        Assert.notNull(box.getUpdateUser(), "box updateUser must not be null");
-        Assert.notNull(box.getCode(), "box code must not be null");
-        return this.boxDao.print(box);
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer reprint(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");
         Assert.notNull(box.getUpdateUser(), "box updateUser must not be null");

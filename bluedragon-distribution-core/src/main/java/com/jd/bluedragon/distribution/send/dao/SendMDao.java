@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 
 public class SendMDao extends BaseDao<SendM>  {
 	
-	private static final String namespace = SendMDao.class.getName();
+	public static final String namespace = SendMDao.class.getName();
 	
 	public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
@@ -51,21 +51,12 @@ public class SendMDao extends BaseDao<SendM>  {
 	public int updateBySendCodeSelective(SendM record){
 		return getSqlSession().update(SendMDao.namespace + ".updateBySendCodeSelective", record);
 	}
-    public SendM selectByPrimaryKey(Long sendDId) throws Exception {
-        return (SendM) this.getSqlSession().selectOne(
-        		SendMDao.namespace + ".selectByPrimaryKey", sendDId);
-    }
 
     public boolean insertSendM(SendM dSendM) {
     	return this.getSqlSession().insert(SendMDao.namespace + ".insertSendM",
     	        dSendM)>0;
     }
     
-    public boolean updateSendM(List<SendM> tSendMList) {
-        return this
-                .getSqlSession()
-                .update(SendMDao.namespace + ".updateSendM",tSendMList) > 0;
-    }
     
     @SuppressWarnings("unchecked")
     public List<SendM> findSendMByBoxCode(SendM sendM) {
@@ -78,35 +69,10 @@ public class SendMDao extends BaseDao<SendM>  {
                 .update(SendMDao.namespace + ".cancelSendM",tSendM) > 0;
     }
     
-	@SuppressWarnings("unchecked")
-	public List<SendM> querySendCodesByBoxCodes(String boxCodeIn) {
-		SendM sendM = new SendM();
-		sendM.setBoxCode(boxCodeIn);
-		return (List<SendM>) this.getSqlSession().selectList(
-				SendMDao.namespace + ".querySendCodesByBoxCodes", sendM);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<SendM> findCancel(SendM sendM){
-		return (List<SendM>) getSqlSession().selectList(SendMDao.namespace + ".findCancel", sendM);
-    }
-	
-	public boolean updatetmstBySendCode(SendM tSendM) {
-        return this
-                .getSqlSession()
-                .update(SendMDao.namespace + ".updatetmstBySendCode",tSendM) > 0;
-    }
-
 	public boolean checkSendByBox(SendM sendM) {
 		Integer count = (Integer)this.getSqlSession().selectOne(namespace+".checkSendByBox", sendM);
 		return count>0;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public List<SendM> findsendMToReverse(){
-        return (List<SendM>)  this.getSqlSession().selectList(
-                SendMDao.namespace + ".findsendMToReverse");
-    }
 	
 	@SuppressWarnings("unchecked")
 	public List<SendM> querySendCodesByDepartue(Long shieldsCarId) {

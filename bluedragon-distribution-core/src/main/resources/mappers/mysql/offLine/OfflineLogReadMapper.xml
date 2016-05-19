@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.offline.dao.OfflineDao">
+	<resultMap id="BaseResultMap"
+		type="com.jd.bluedragon.distribution.offline.domain.OfflineLog">
+		<id column="offline_log_id" property="offlineLogId" jdbcType="BIGINT" />
+		<id column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+		<id column="package_code" property="packageCode" jdbcType="VARCHAR" />
+		<id column="box_code" property="boxCode" jdbcType="VARCHAR" />
+		<id column="business_type" property="businessType" jdbcType="INTEGER" />
+	    <id column="create_user" property="createUser" jdbcType="VARCHAR" />
+		<id column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+		<id column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<id column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
+		<id column="create_site_name" property="createSiteName" jdbcType="VARCHAR" />
+		<id column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER" />
+		<id column="remark" property="remark" jdbcType="VARCHAR"/>
+		<id column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+		<id column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<id column="yn" property="yn" jdbcType="INTEGER" />
+	    <id column="send_code" property="sendCode" jdbcType="VARCHAR" />
+	    <result column="weight" jdbcType="DOUBLE" property="weight" />
+		<result column="volume" jdbcType="DOUBLE" property="volume" />
+		<result column="vehicle_code" jdbcType="VARCHAR" property="vehicleCode" />
+		<result column="seal_vehicle_code" jdbcType="VARCHAR" property="shieldsCarCode" />
+		<result column="seal_box_code" jdbcType="VARCHAR" property="sealBoxCode" />
+		<result column="send_user_code" jdbcType="INTEGER" property="sendUserCode" />
+		<result column="send_user" jdbcType="VARCHAR" property="sendUser" />
+		<result column="task_type" property="taskType" jdbcType="INTEGER" />
+		<result column="turnoverbox_code" jdbcType="VARCHAR" property="turnoverBoxCode" />
+		<result column="exception_type" property="exceptionType" jdbcType="VARCHAR" />
+		<result column="operate_type" property="operateType" jdbcType="INTEGER"/>
+		<result column="status" property="status" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+    offline_log_id,waybill_code,package_code,box_code,business_type,
+	create_user, create_user_code, create_time, create_site_code,
+	create_site_name,receive_site_code,update_time,
+	operate_time,
+	turnoverbox_code,weight,volume,exception_type,send_code,seal_box_code,seal_vehicle_code,vehicle_code,
+	task_type,send_user,send_user_code, yn,status
+    </sql>
+    
+    <sql id="Base_Where_List">
+		<where>
+			yn = 1
+			<if test="offlineLogId != null">
+				AND offline_log_id = #{offlineLogId}
+			</if>
+			<if test="boxCode != null and boxCode != ''">
+				AND box_code = #{boxCode}
+			</if>
+			<if test="waybillCode != null and waybillCode != ''">
+				AND waybill_code = #{waybillCode}
+			</if>
+			<if test="packageCode != null and packageCode != ''">
+				AND package_code = #{packageCode}
+			</if>
+			<if test="receiveSiteCode != null">
+				AND receive_site_code = #{receiveSiteCode}
+			</if>
+			<if test="status != null">
+				AND status = #{status}
+			</if>
+			<if test="createSiteCode != null">
+				AND create_site_code = #{createSiteCode}
+			</if>
+		</where>
+	</sql>
+
+	<select id="totalSizeByParams" resultType="Integer"
+		parameterType="OfflineLog">
+		SELECT count(offline_log_id)
+		FROM dms.offline_log
+		<include refid="Base_Where_List" />
+	</select>
+
+	<select id="queryByParams" resultMap="BaseResultMap"
+		parameterType="OfflineLog">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM dms.offline_log
+		<include refid="Base_Where_List" />
+		order by update_time desc
+		<if test="startIndex != null">
+			LIMIT #{startIndex},#{endIndex}
+		</if>
+	</select>
+	
+</mapper>

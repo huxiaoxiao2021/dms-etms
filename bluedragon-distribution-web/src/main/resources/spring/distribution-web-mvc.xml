@@ -45,7 +45,7 @@
 		<property name="numberToolAttribute" value="numberTool" />
 		<property name="contentType" value="text/html;charset=UTF-8" />
         <property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml"/>
-	</bean>
+    </bean>
 
 	<bean
 			class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">

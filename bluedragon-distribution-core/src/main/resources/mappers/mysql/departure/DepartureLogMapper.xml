@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.departure.dao.DepartureLogDao">
+       <resultMap id="departureLogMap" type="DepartureLog">
+              <result column="DEPARTURE_LOG_ID" property="departureLogID" jdbcType="NUMERIC"/>
+              <result column="DISTRIBUTE_CODE" property="distributeCode" jdbcType="NUMERIC"/>
+              <result column="DISTRIBUTE_NAME" property="distributeName" jdbcType="VARCHAR"/>
+              <result column="OPERATOR_CODE" property="operatorCode" jdbcType="NUMERIC"/>
+              <result column="OPERATOR_NAME" property="operatorName" jdbcType="VARCHAR"/>
+              <result column="DEPARTURE_TIME" property="departureTime" jdbcType="TIMESTAMP"/>
+              <result column="RECEIVE_TIME" property="receiveTime" jdbcType="TIMESTAMP"/>
+              <result column="DEPARTURE_CAR_ID" property="departureCarID" jdbcType="NUMERIC"/>
+              <result column="CAPACITY_CODE" property="capacityCode" jdbcType="VARCHAR"/>
+              <result column="FINGERPRINT" property="fingerPrint" jdbcType="VARCHAR"/>
+       </resultMap>
+       <insert id="insert" parameterType="DepartureLog">
+              INSERT INTO DEPARTURE_LOG(DISTRIBUTE_CODE,DISTRIBUTE_NAME,OPERATOR_CODE
+                                        ,OPERATOR_NAME,DEPARTURE_TIME,RECEIVE_TIME
+                                        ,DEPARTURE_CAR_ID,CAPACITY_CODE,FINGERPRINT)
+              VALUES(#{distributeCode,jdbcType=NUMERIC}
+                    ,#{distributeName,jdbcType=VARCHAR},#{operatorCode,jdbcType=NUMERIC}
+                    ,#{operatorName,jdbcType=VARCHAR},#{departureTime,jdbcType=TIMESTAMP}
+                    ,#{receiveTime,jdbcType=TIMESTAMP},#{departureCarID,jdbcType=NUMERIC}
+                    ,#{capacityCode,jdbcType=VARCHAR},#{fingerPrint,jdbcType=VARCHAR})
+       </insert>
+
+       <select id="findByFingerPrint" parameterType="java.lang.String" resultType="java.lang.Integer">
+           SELECT COUNT(1)
+           FROM DEPARTURE_LOG
+           WHERE FINGERPRINT = #{fingerPrint}
+       </select>
+</mapper>

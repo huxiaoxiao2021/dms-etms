@@ -45,11 +45,6 @@ public interface InspectionExceptionService {
 	public List<InspectionEC> getByThird(InspectionEC inspectionEC) throws Exception;
 
 	/**
-	 * 
-	 */
-	public void exceptionCompare(InspectionEC inspectionEC) throws Exception;
-
-	/**
 	 * 检查三方是否完验
 	 * @param createSiteCode
 	 * @param receiveSiteCode

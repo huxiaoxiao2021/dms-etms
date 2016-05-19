@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.receive.dao.ReceiveDao">
+	<resultMap id="BaseResultMap" type="Receive">
+		<id column="receive_id" property="receiveId" jdbcType="BIGINT" />
+		<result column="create_user" property="createUser" jdbcType="VARCHAR" />
+		<result column="create_user_code" property="createUserCode"
+			jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="create_site_code" property="createSiteCode"
+			jdbcType="INTEGER" />
+		<result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+		<result column="package_barcode" property="packageBarcode"
+			jdbcType="VARCHAR" />
+		<result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+		<result column="receive_type" property="receiveType" jdbcType="SMALLINT" />
+		<result column="boxing_type" property="boxingType" jdbcType="SMALLINT" />
+		<result column="receive_status" property="status" jdbcType="SMALLINT" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="YN" property="yn" jdbcType="TINYINT" />
+		<result column="shields_car_time" property="shieldsCarTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		receive_id, create_user, create_user_code,
+		create_time,
+		create_site_code, waybill_code,
+		package_barcode, box_code,
+		receive_type,boxing_type,
+		receive_status, update_time, YN,queueNo
+	</sql>
+	<sql id="Receive_Join_Where_List">
+		<where>
+			yn = 1
+			and receive_type = 60
+			and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+			and create_time <![CDATA[>=]]>
+			str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+			and create_time <![CDATA[<=]]>
+			str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+			<if test="createUser != null">
+				and create_user like concat(#{createUser, jdbcType=VARCHAR},'%')
+			</if>
+			<if test="queueNo != null and queueNo != ''">
+				and queueno = #{queueNo, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</sql>
+
+	<insert id="add" parameterType="Receive">
+		insert into receive ( create_user, create_user_code,
+		create_time, create_site_code, waybill_code,
+		package_barcode, box_code, receive_type,boxing_type,
+		receive_status, update_time, YN, turnoverbox_code, 
+		queueNo,departure_car_id, shields_car_time
+		)
+		values
+		( #{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
+		#{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
+		#{waybillCode,jdbcType=VARCHAR},
+		#{packageBarcode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{receiveType,jdbcType=SMALLINT},
+		#{boxingType,jdbcType=SMALLINT},1,
+		#{updateTime,jdbcType=TIMESTAMP},1,#{turnoverBoxCode,jdbcType=VARCHAR},
+		#{queueNo,jdbcType=VARCHAR},#{departureCarId,jdbcType=INTEGER}, #{shieldsCarTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<select id="findReceiveJoinTotalCount" resultType="java.lang.Integer"
+		parameterType="java.util.Map">
+		SELECT
+		count(receive_id)
+		from receive
+		<include refid="Receive_Join_Where_List" />
+	</select>
+
+	<select id="findReceiveJoinList" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from receive
+		<include refid="Receive_Join_Where_List" />
+		order by receive_id
+		<if test="startIndex != null">
+			LIMIT #{startIndex, jdbcType=INTEGER} ,#{endIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+</mapper>

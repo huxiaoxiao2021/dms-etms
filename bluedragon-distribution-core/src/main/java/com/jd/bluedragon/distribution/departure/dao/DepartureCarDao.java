@@ -15,10 +15,6 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
 		return this.getSqlSession().insert(namespace + ".insert", record);
 	}
 	
-	public Long getSeqNextVal() {
-		return (Long) this.getSqlSession().selectOne(namespace + ".getSeqNextVal");
-	}
-	
 	@SuppressWarnings("unchecked")
 	public List<DepartureCar> findDepartureCarByFingerprint(DepartureCar departureCar) {
 	   return this.getSqlSession().selectList(namespace + ".findDepartureCarByFingerprint",
@@ -28,10 +24,6 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
 	@SuppressWarnings("unchecked")
 	public List<DepartureCar> findDepartureList(DeparturePrintRequest departurPrintRequest){
 		return this.getSqlSession().selectList(namespace + ".findDepartureList", departurPrintRequest);
-	}
-	
-	public DepartureCar getDepartureCarObj(long departureCarId){
-		return (DepartureCar)this.getSqlSession().selectOne(namespace + ".getDepartureCarObj", departureCarId);
 	}
 	
 	public boolean updatePrintTime(long departureCarId){
@@ -53,4 +45,8 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
     public DeparturePrintResponse queryArteryBillingInfoByBoxCode(String boxCode){
         return (DeparturePrintResponse) this.getSqlSession().selectOne(namespace + ".queryArteryBillingInfoByBoxCode", boxCode);
     }
+    
+    public Long getSeqNextVal() {
+		return (Long) this.getSqlSession().selectOne(namespace + ".getSeqNextVal");
+	}
 }

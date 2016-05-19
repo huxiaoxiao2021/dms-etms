@@ -13,7 +13,7 @@
 </head>
 <script type="text/javascript">
     $(document).ready(function () {
-		$("#cache_random").val(Math.random());
+        $("#cache_random").val(Math.random());
         // 提交查询
         $("#bt_search").click(function () {
             $("#fm_query_fresh").attr("action", '#springUrl("/fresh/query")');
@@ -21,13 +21,13 @@
             $("#fm_query_fresh").submit();
         });
 
-		$("#bt_add").click(function(){
+        $("#bt_add").click(function(){
             window.location.href= $("#contextPath").val() + "/fresh/toAddPage";
-		});
+        });
 
-		$(".fresh_modify").click(function(){
+        $(".fresh_modify").click(function(){
             window.location.href= $("#contextPath").val() + "/fresh/toModifyPage?id=" + $(this).attr("name");
-		});
+        });
 
     });
 
@@ -45,7 +45,7 @@
             <form id="fm_query_fresh" name="queryForm" action="#springUrl('/fresh/query')" method="GET">
                 <input type="hidden" id="pageNo" name="pageNo" value="$!pager.pageNo"/>
                 <input type="hidden" id="pageSize" name="pageSize" value="$!pager.pageSize"/>
-				<input type="hidden" name="random" id="cache_random"/>
+                <input type="hidden" name="random" id="cache_random"/>
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
                     <tbody>
                     <tr>
@@ -55,9 +55,9 @@
                                    type="text" class="textField28"/>
                             <input id="bt_search" type="button" value="查询" class="btn_c"/>
                             <input id="bt_add" type="button" value="增加" class="btn_c"/>
-						</td>
+                        </td>
                         <td>
-						</td>
+                        </td>
                         <td>
                         </td>
                     </tr>
@@ -97,14 +97,14 @@
 								#elseif($freshWaybill.boxType == 4)
                                     折叠VIP材质55L
 								#end
-							</td>
+                            </td>
                             <td>
 								#if($freshWaybill.slabType == 1)
                                     10℃冷藏冰板
 								#elseif($freshWaybill.slabType == 2)
                                     -12℃冷冻冰板
 								#end
-							</td>
+                            </td>
                             <td>$!freshWaybill.slabNum</td>
                             <td>$numberTool.format('#0.00',$!freshWaybill.packageTemp) ℃ </td>
                             <td>$numberTool.format('#0.00',$!freshWaybill.slabTemp) ℃ </td>

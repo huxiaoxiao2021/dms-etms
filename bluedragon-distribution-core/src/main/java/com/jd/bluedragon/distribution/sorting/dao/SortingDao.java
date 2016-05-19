@@ -27,11 +27,6 @@ public class SortingDao extends BaseDao<Sorting> {
         return this.getSqlSession().selectList(namespace + ".findByBoxCode", sorting);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Sorting> findByStatus(Integer facthNumber) {
-        return this.getSqlSession().selectList(namespace + ".findByStatus", facthNumber);
-    }
-
     public Boolean canCancel(Sorting sorting) {
         Integer count = this.getSqlSession().update(namespace + ".canCancel", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
@@ -42,13 +37,6 @@ public class SortingDao extends BaseDao<Sorting> {
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
 	}
     
-    public Integer updateStatus(String ids, Integer status) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("ids", ids);
-        params.put("status", status);
-
-        return this.getSqlSession().update(namespace + ".updateStatus", params);
-    }
     @SuppressWarnings("unchecked")
     public List<Sorting> findOrderDetail(Sorting sorting) {
         return this.getSqlSession().selectList(namespace + ".findOrderDetail", sorting);

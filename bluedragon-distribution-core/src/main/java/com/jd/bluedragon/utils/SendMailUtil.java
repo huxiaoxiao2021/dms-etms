@@ -18,7 +18,7 @@ public class SendMailUtil {
             return;
         }
 
-        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("WaybillExtendApi");
+        WaybillExtendApi waybillAddWS = (WaybillExtendApi) SpringHelper.getBean("waybillExtendApiJsf");
 
         for (String user : users) {
             if (StringHelper.isEmpty(user)) {
@@ -32,7 +32,7 @@ public class SendMailUtil {
                         String.valueOf(currentTime).substring(1));
             } catch (Exception e) {
                 logger.error("邮件接口在 [" + currentTime + "], 发送邮件 [" + subject + "], 内容 [" + content
-                        + "], 到收件人 [" + user + "] 失败。" + e.getMessage());
+                        + "], 到收件人 [" + user + "] 失败。", e);
             }
         }
 

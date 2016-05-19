@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popReveice.dao.PopReceiveDao">
+
+	<resultMap id="popReceive"
+		type="com.jd.bluedragon.distribution.popReveice.domain.PopReceive">
+		<result column="SYSTEM_ID" property="systemId" />
+		<result column="RECEIVE_TYPE" property="receiveType" />
+		<result column="WAYBILL_CODE" property="waybillCode" />
+		<result column="THIRD_WAYBILL_CODE" property="thirdWaybillCode" />
+		<result column="ORIGINAL_NUM" property="originalNum" />
+		<result column="ACTUAL_NUM" property="actualNum" />
+		<result column="CREATE_SITE_CODE" property="createSiteCode" />
+		<result column="CREATE_SITE_NAME" property="createSiteName" />
+		<result column="OPERATOR_CODE" property="operatorCode" />
+		<result column="OPERATOR_NAME" property="operatorName" />
+		<result column="OPERATE_TIME" property="operateTime" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_TIME" property="updateTime" />
+		<result column="IS_REVERSE" property="isReverse" />
+		<result column="FINGERPRINT" property="fingerPrint" />
+		<result column="YN" property="yn" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		SYSTEM_ID, RECEIVE_TYPE, WAYBILL_CODE, THIRD_WAYBILL_CODE, ORIGINAL_NUM, ACTUAL_NUM, 
+		CREATE_SITE_CODE, CREATE_SITE_NAME, OPERATOR_CODE, OPERATOR_NAME, OPERATE_TIME, 
+		CREATE_TIME, UPDATE_TIME, IS_REVERSE, FINGERPRINT, YN
+	</sql>
+	
+	<sql id="Base_Column_ListNo">
+		RECEIVE_TYPE, WAYBILL_CODE, THIRD_WAYBILL_CODE, ORIGINAL_NUM, ACTUAL_NUM, 
+		CREATE_SITE_CODE, CREATE_SITE_NAME, OPERATOR_CODE, OPERATOR_NAME, OPERATE_TIME, 
+		CREATE_TIME, UPDATE_TIME, IS_REVERSE, FINGERPRINT, YN
+	</sql>
+	
+	<sql id="Base_Where_List">
+		<where>
+  			YN = 1
+			<if test="waybillCode != null">
+				and WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
+			</if>
+			<if test="thirdWaybillCode != null">
+				and THIRD_WAYBILL_CODE = #{thirdWaybillCode, jdbcType=VARCHAR}
+			</if>
+			<if test="createSiteCode != null">
+				and CREATE_SITE_CODE = #{createSiteCode, jdbcType=INTEGER}
+			</if>
+			<if test="createSiteName != null">
+				and CREATE_SITE_NAME = #{createSiteName, jdbcType=VARCHAR}
+			</if>
+			<if test="operatorCode != null">
+				and OPERATOR_CODE = #{operatorCode, jdbcType=INTEGER}
+			</if>
+			<if test="operatorName != null">
+				and OPERATOR_NAME = #{operatorName, jdbcType=VARCHAR}
+			</if>
+			<if test="startTime != null">
+				and CREATE_TIME <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="endTime != null">
+				and CREATE_TIME <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="operateStartTime != null">
+			AND <![CDATA[ OPERATE_TIME>=str_to_date(#{operateStartTime},'%Y-%m-%d %H:%i:%s')]]>
+		</if>
+		<if test="operateEndTime != null">
+			AND <![CDATA[ OPERATE_TIME<=str_to_date(#{operateEndTime},'%Y-%m-%d %H:%i:%s')]]>
+		</if>
+		</where>
+	</sql>
+	
+	<select id="findByFingerPrint" resultMap="popReceive"
+		parameterType="String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM pop_receive
+		WHERE FINGERPRINT = #{fingerPrint, jdbcType=VARCHAR} and yn = 1
+			LIMIT 1
+	</select>
+	
+	<select id="findListByPopReceive" resultMap="popReceive"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM pop_receive
+		<include refid="Base_Where_List" />
+			and CREATE_TIME <![CDATA[>=]]> DATE_FORMAT(CURDATE(),'%Y-%m-%d %H:%i:%s')
+	</select>
+	
+	<select id="findPopReceiveList" resultMap="popReceive"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM pop_receive
+		<include refid="Base_Where_List" />
+		<if test="start!=null">
+		 LIMIT #{start},#{end}
+		</if>
+	</select>
+	<select id="count" resultType="int"
+		parameterType="java.util.Map">
+		SELECT count(system_id) FROM pop_receive
+		<include refid="Base_Where_List" />
+	</select>
+	
+	<insert id="add" parameterType="PopReceive">
+		insert into pop_receive (
+		<include refid="Base_Column_ListNo" />
+		)
+		values (
+		#{receiveType, jdbcType=INTEGER}, #{waybillCode, jdbcType=VARCHAR}, 
+		#{thirdWaybillCode, jdbcType=VARCHAR}, #{originalNum, jdbcType=INTEGER}, #{actualNum, jdbcType=INTEGER}, 
+		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR}, #{operatorCode, jdbcType=INTEGER}, 
+		#{operatorName, jdbcType=VARCHAR}, #{operateTime, jdbcType=TIMESTAMP}, NOW(), NOW(),
+		#{isReverse, jdbcType=INTEGER}, #{fingerPrint, jdbcType=VARCHAR}, 1
+		)
+	</insert>
+
+	<update id="update" parameterType="PopReceive">
+		update pop_receive
+		<set>
+			THIRD_WAYBILL_CODE = #{thirdWaybillCode, jdbcType=VARCHAR},
+			<if test="originalNum != null">
+				ORIGINAL_NUM = #{originalNum, jdbcType=INTEGER},
+			</if>
+			<if test="actualNum != null">
+				ACTUAL_NUM = #{actualNum, jdbcType=INTEGER},
+			</if>
+			<if test="createSiteCode != null">
+				CREATE_SITE_CODE = #{createSiteCode, jdbcType=INTEGER},
+			</if>
+			<if test="createSiteName != null">
+				CREATE_SITE_NAME = #{createSiteName, jdbcType=VARCHAR},
+			</if>
+	   		<if test="operatorCode != null and operatorCode != 0">
+				OPERATOR_CODE = #{operatorCode, jdbcType=INTEGER},
+			</if>
+	   		<if test="operatorName != null">
+				OPERATOR_NAME = #{operatorName, jdbcType=VARCHAR},
+			</if>
+	   		<if test="operateTime != null">
+				OPERATE_TIME = #{operateTime, jdbcType=TIMESTAMP},
+			</if>
+			update_time = NOW(),
+		</set>
+		where WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
+			and FINGERPRINT = #{fingerPrint, jdbcType=VARCHAR}
+			and YN = 1
+	</update>
+</mapper>

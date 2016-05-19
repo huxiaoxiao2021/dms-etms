@@ -10,11 +10,14 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqTopicRouter;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.framework.asynBuffer.producer.Producer;
+import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -22,12 +25,15 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.*;
 
+@Service("taskService")
 public class TaskServiceImpl implements TaskService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
@@ -35,19 +41,26 @@ public class TaskServiceImpl implements TaskService {
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
 
+	@Autowired
     private TaskDao taskDao;
     
-    private TaskDao mysqlTaskDao;
-
-    private Set mysqlTableSet;
-    
+	@Autowired
     private RedisTaskService redisTaskService;
     
+	@Autowired
     private TaskModeAgent taskModeAgent;
 
+	@Autowired
 	private SysConfigService sysConfigService;
 
+	@Autowired
     private BaseService baseService;
+
+    @Autowired
+    private JmqTopicRouter taskJmqTopicRouter;
+
+    @Autowired
+    private Producer<Task> dynamicProducer;
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -66,55 +79,64 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
+        if (isDynamicProducerOn(task)) {
+            dynamicProducer.send(task);
+            return 1;
+        }
+        return doAddTask(task, ifCheckTaskMode);
+    }
 
-		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
-    	
+
+    public Boolean isDynamicProducerOn(Task task) {
+        return null != taskJmqTopicRouter.getTopic(task);
+    }
+
+    @Override
+    public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
+        TaskDao routerDao = taskDao;
+
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
-			logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
-			return 0;
-		}
+            logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
+            return 0;
+        }
 
-		if (ifCheckTaskMode && isRedisSwitchON()) {
+        if (ifCheckTaskMode && isRedisSwitchON()) {
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */
-			if (taskModeAgent.isRedisTaskModeSupported(task)) {
-				boolean isRedisSucc = false;
-				try {
-					//在插入redis前给executetime赋值，防止Task.getExecuteTime()给赋系统时间造成，redis中重复任务json串不同问题
-					task.setExecuteTime(new Date(0));
-					if (redisTaskService.add(task)) {
-						isRedisSucc = true;
-					}
-				} catch (Exception e) {
-					logger.error("保存任务失败：" + task.toString());
-				}
-				if (isRedisSucc) {
-					return 1;
-				}
-			}
-		}
+            if (taskModeAgent.isRedisTaskModeSupported(task)) {
+                boolean isRedisSucc = false;
+                try {
+                    //在插入redis前给executetime赋值，防止Task.getExecuteTime()给赋系统时间造成，redis中重复任务json串不同问题
+                    task.setExecuteTime(new Date(0));
+                    if (redisTaskService.add(task)) {
+                        isRedisSucc = true;
+                    }
+                } catch (Exception e) {
+                    logger.error("保存任务失败：" + task.toString());
+                }
+                if (isRedisSucc) {
+                    return 1;
+                }
+            }
+        }
 
         if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType())
-        		|| Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
-        		|| Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
+                || Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
+                || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
-				|| Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
+                || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
                 || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
-        	if(!this.has(task)){
-        		return routerDao.add(TaskDao.namespace, task);
-        	}else{
-	        	logger.error(" Duplicate task: "+task.getBody());
-	        }
+            if(!this.has(task)){
+                return routerDao.add(TaskDao.namespace, task);
+            }else{
+                logger.error(" Duplicate task: "+task.getBody());
+            }
         }else{
             return routerDao.add(TaskDao.namespace, task);
         }
         return 0;
     }
 
-	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.redisSwitch", mState = {
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.redisSwitch", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	public Boolean isRedisSwitchON(){
 		//加入监控，开始
@@ -152,33 +174,21 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type) {
         Assert.notNull(type, "type must not be null");
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
         return routerDao.findTasks(type);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type, String ownSign) {
         Assert.notNull(type, "type must not be null");
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
         return routerDao.findTasks(type, ownSign);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer fetchNum) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTaskWaybillTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-       
+        TaskDao routerDao = taskDao;
         return routerDao.findLimitedTasks(fetchNum);
     }
 
@@ -186,11 +196,7 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-       
+        TaskDao routerDao = taskDao;
         return routerDao.findLimitedTasks(type, fetchNum);
     }
 
@@ -198,11 +204,7 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-       
+        TaskDao routerDao = taskDao;
         return routerDao.findLimitedTasks(type, fetchNum, ownSign);
     }
 
@@ -210,33 +212,21 @@ public class TaskServiceImpl implements TaskService {
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
-		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+		TaskDao routerDao = taskDao;
 		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
 	}
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasksByFingerprint(Task task) {
         Assert.notNull(task.getFingerprint(), "fingerprint must not be null");
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
         return routerDao.findTasksByFingerprint(task);
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.update",mState = {JProEnum.TP,JProEnum.FunctionError})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean updateBySelective(Task task) {
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
         routerDao.updateBySelective(task);
         return Boolean.TRUE;
     }
@@ -266,11 +256,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
         return routerDao.addWithStatus(task);
     }
 
@@ -305,11 +291,7 @@ public class TaskServiceImpl implements TaskService {
 	 */
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findTasks(Task task) {
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(task.getTableName())){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
 		return routerDao.findTasks(task);
 	}
 
@@ -317,34 +299,22 @@ public class TaskServiceImpl implements TaskService {
 	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
-		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+		TaskDao routerDao = taskDao;
 		return routerDao.findSendTasks(type, fetchNum, key);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findReverseSendTask(String sendCode) {
-        TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains("task_send")){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+        TaskDao routerDao = taskDao;
 		return routerDao.findReverseSendTask(sendCode);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains("task_send")){
-    		routerDao = mysqlTaskDao;
+		return routerDao.findWaybillSendTask(sendCode);
     	}
-    	
-		return this.taskDao.findWaybillSendTask(sendCode);
-	}
-	
+
 	private Boolean isWaybillTask(Task task) {
 		if (Task.TABLE_NAME_WAYBILL.equalsIgnoreCase(task.getTableName())) {
 			return Boolean.TRUE;
@@ -481,21 +451,13 @@ public class TaskServiceImpl implements TaskService {
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
-		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+		TaskDao routerDao = taskDao;
 		return routerDao.findTasksNumsByType(type, ownSign);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
-		TaskDao routerDao = taskDao;    	
-    	if(mysqlTableSet.contains(Task.getTableName(type))){
-    		routerDao = mysqlTaskDao;
-    	}
-    	
+		TaskDao routerDao = taskDao;
 		return routerDao.findFailTasksNumsByType(type, ownSign);
 	}
 
@@ -654,22 +616,6 @@ public class TaskServiceImpl implements TaskService {
 		this.taskDao = taskDao;
 	}
 
-	public TaskDao getMysqlTaskDao() {
-		return mysqlTaskDao;
-	}
-
-	public void setMysqlTaskDao(TaskDao mysqlTaskDao) {
-		this.mysqlTaskDao = mysqlTaskDao;
-	}
-
-	public Set getMysqlTableSet() {
-		return mysqlTableSet;
-	}
-
-	public void setMysqlTableSet(Set mysqlTableSet) {
-		this.mysqlTableSet = mysqlTableSet;
-	}
-
 	public RedisTaskService getRedisTaskService() {
 		return redisTaskService;
 	}
@@ -703,6 +649,19 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 
-
-
+    public JmqTopicRouter getTaskJmqTopicRouter() {
+        return taskJmqTopicRouter;
     }
+
+    public void setTaskJmqTopicRouter(JmqTopicRouter taskJmqTopicRouter) {
+        this.taskJmqTopicRouter = taskJmqTopicRouter;
+    }
+
+    public Producer<Task> getDynamicProducer() {
+        return dynamicProducer;
+    }
+
+    public void setDynamicProducer(Producer<Task> dynamicProducer) {
+        this.dynamicProducer = dynamicProducer;
+    }
+}

@@ -58,10 +58,10 @@
             width: 300px;
         }
 
-		.fresh_column_list_div_span {
-			width: 320px;
+        .fresh_column_list_div_span {
+            width: 320px;
             display: block;
-		}
+        }
     </style>
 </head>
 <script type="text/javascript">

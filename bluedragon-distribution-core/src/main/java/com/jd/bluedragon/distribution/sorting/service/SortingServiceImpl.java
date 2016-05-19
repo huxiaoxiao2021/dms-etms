@@ -113,11 +113,6 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public Integer updateStatus(String ids, Integer status) {
-		return this.sortingDao.updateStatus(ids, status);
-	}
-
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addSortingAndSendDetail(Sorting sorting) {
 		this.addSorting(sorting, null);
 		this.addSendDetail(sorting, null);
@@ -156,11 +151,6 @@ public class SortingServiceImpl implements SortingService {
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findByBoxCode(Sorting sorting) {
 		return this.sortingDao.findByBoxCode(sorting);
-	}
-
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<Sorting> findByStatus(Integer facthNumber) {
-		return this.sortingDao.findByStatus(facthNumber);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)

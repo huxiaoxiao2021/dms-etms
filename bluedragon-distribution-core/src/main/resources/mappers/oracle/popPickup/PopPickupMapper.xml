@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.popPickup.dao.PopPickupDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.popPickup.domain.PopPickup" >
+    <id column="pickup_id" property="pickupId" jdbcType="BIGINT" />
+    <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+	<result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    <result column="package_barcode" property="packageBarcode" jdbcType="VARCHAR" />
+    <result column="pickup_status" property="pickupStatus" jdbcType="INTEGER" />
+    <result column="pickup_type" property="pickupType" jdbcType="INTEGER" />
+    <result column="package_number" property="packageNumber" jdbcType="INTEGER"/>
+    <result column="pop_business_code" property="popBusinessCode" jdbcType="VARCHAR"/>
+    <result column="pop_business_name" property="popBusinessName" jdbcType="VARCHAR" />
+    <result column="car_code" property="carCode" jdbcType="VARCHAR"/>
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
+    <result column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER" />
+    <result column="update_user" property="updateUser" jdbcType="VARCHAR"/>
+    <result column="update_user_code" property="updateUserCode" jdbcType="INTEGER"/>
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="INTEGER" />
+    <result column="waybill_type" property="waybillType" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    pickup_id, waybill_code, box_code, 
+    package_barcode, pickup_status, pickup_type, 
+    package_number, pop_business_code, pop_business_name, car_code,
+    create_user, create_user_code, create_site_code, receive_site_code , 
+    update_user, update_user_code, 
+    create_time, update_time, operate_time,yn, waybill_type
+  </sql>
+  
+  <sql id="Pop_Pickup_Where_List">
+	<where>
+ 		yn = 1
+		and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		<choose>
+			<when test="pickupType == null or pickupType == 0">
+				and (pickup_type is null or pickup_type = 5)
+			</when>
+			<otherwise>
+				and pickup_type = #{pickupType,jdbcType=INTEGER}
+			</otherwise>
+		</choose>
+		<if test="waybillCode != null and waybillCode != ''">
+			and waybill_code =#{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageBarcode != null and packageBarcode != ''">
+			and package_barcode =#{packageBarcode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillType != null and waybillType != 0">
+			and waybill_type = #{waybillType, jdbcType=INTEGER}
+		</if>
+		and operate_time <![CDATA[>=]]> to_date(to_char(#{startTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		and operate_time <![CDATA[<=]]> to_date(to_char(#{endTime, jdbcType=TIMESTAMP}, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss')
+		<if test="popBusinessCode != null and popBusinessCode != 0">
+			and pop_business_code = #{popBusinessCode, jdbcType=INTEGER}
+		</if>
+		<if test="popBusinessName != null">
+			and pop_business_name like #{popBusinessName, jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="createUserCode != null and createUserCode != 0">
+			and create_user_code = #{createUserCode,jdbcType=INTEGER}
+		</if>
+		<if test="createUser != null">
+			and create_user like #{createUser, jdbcType=VARCHAR} || '%'
+		</if>
+	</where>
+  </sql>
+  
+  
+  <insert id="add" parameterType="PopPickup" >
+  	<selectKey resultType="long"  keyProperty="pickupId" order="BEFORE" statementType="PREPARED">      
+		<![CDATA[SELECT SEQ_POP_PICKUP.NEXTVAL FROM DUAL]]>
+    </selectKey>
+    INSERT INTO pop_pickup (
+    <include refid="Base_Column_List"/>
+    )
+    VALUES (
+    	#{pickupId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
+		#{packageBarcode,jdbcType=VARCHAR}, 1, #{pickupType,jdbcType=INTEGER},
+		#{packageNumber,jdbcType=INTEGER}, #{popBusinessCode,jdbcType=VARCHAR}, #{popBusinessName,jdbcType=VARCHAR},#{carCode,jdbcType=VARCHAR},
+      	#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER}, #{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},  
+      	#{updateUser,jdbcType=VARCHAR}, #{updateUserCode,jdbcType=INTEGER},
+      	SYSDATE, SYSDATE, #{operateTime,jdbcType=TIMESTAMP},1, #{waybillType, jdbcType=INTEGER}
+      )
+  </insert>
+  
+  <update id="update" parameterType="Inspection" >
+	UPDATE pop_pickup
+    <set> 
+		box_code = #{boxCode,jdbcType=VARCHAR},
+		pickup_type = #{pickupType,jdbcType=INTEGER},
+		package_number = #{packageNumber,jdbcType=INTEGER},
+		pop_business_name = #{popBusinessName,jdbcType=VARCHAR},
+		car_code = #{carCode,jdbcType=VARCHAR},
+   		receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
+   		update_user =#{updateUser,jdbcType=VARCHAR},
+   		update_user_code = #{updateUserCode,jdbcType=INTEGER},
+   		update_time = SYSDATE,
+   		operate_time = #{operateTime,jdbcType=TIMESTAMP}
+    </set>
+    WHERE yn = 1 
+		AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		AND pop_business_code =  #{popBusinessCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode}
+  </update>
+  
+	<select id="findPopPickupTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		SELECT
+			count(pickup_id)
+	 	from pop_pickup
+			<include refid="Pop_Pickup_Where_List" />
+	</select>
+	
+	<select id="findPopPickupList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		<if test="startIndex != null">
+			select * from ( select t.*, rownum l from (
+		</if>
+		select 
+			<include refid="Base_Column_List" />
+	 	from pop_pickup
+	 		<include refid="Pop_Pickup_Where_List" />
+		order by pickup_id 
+		<if test="startIndex != null">
+			) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
+		) where <![CDATA[l >]]> #{startIndex, jdbcType=INTEGER}
+		</if>
+	</select>
+  
+</mapper>

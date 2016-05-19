@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.reverse.dao.PickWareDao">
+	<insert id="add" parameterType="PickWare">
+		INSERT INTO pick_ware
+		(
+		org_id,package_code, pickware_code,
+		order_id,operate_type,operator,operate_time,
+		can_receive,create_time, update_time, yn,fingerprint)
+		VALUES (
+		#{orgId,jdbcType=INTEGER},
+		#{packageCode,jdbcType=VARCHAR},#{pickwareCode,jdbcType=VARCHAR},
+		#{orderId,jdbcType=BIGINT},#{operateType,jdbcType=INTEGER},#{operator,jdbcType=VARCHAR},#{pickwareTime,jdbcType=TIMESTAMP},
+		#{canReceive,jdbcType=INTEGER},NOW(),NOW(), 1,#{fingerprint,jdbcType=VARCHAR})
+	</insert>
+	<select id="findByFingerprint" resultType="Integer" parameterType="map" >
+        SELECT count(pickware_id)
+        FROM pick_ware
+        WHERE fingerprint = #{fingerprint}
+    </select>
+</mapper>

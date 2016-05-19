@@ -83,8 +83,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseDataDict> getBaseDataDictList(Integer paramInteger1,
 			Integer paramInteger2, Integer paramInteger3) {
-		return basicPrimaryWS.getBaseDataDictList(paramInteger1,
+		List<BaseDataDict> result = basicPrimaryWS.getBaseDataDictList(paramInteger1,
 				paramInteger2, paramInteger3);
+		if(result==null) result = new ArrayList<BaseDataDict>();
+		return result;
 	}
 
 	@Cache(key = "baseMajorManagerImpl.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,

@@ -124,19 +124,4 @@ public class InspectionECDaoTest {
 		}
 	}
 	
-	@Test
-	public void testStatusFuzzy(){
-		try {
-			InspectionEC inspectionEC = new InspectionEC.Builder("179619455N%", 1006)
-				.waybillCode("179619455").receiveSiteCode(10).boxCode("BC010F001000003900004013")
-				.status(1).updateUser("limei").updateUserCode(943).updateTime(new java.util.Date())
-				.build();
-			inspectionEC.setCreateSiteCode(1006);
-			int result = inspectionECDao.updateStatusFuzzy(inspectionEC);
-			System.out.println("==========="+result);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

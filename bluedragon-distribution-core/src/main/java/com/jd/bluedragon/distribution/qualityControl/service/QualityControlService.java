@@ -17,7 +17,6 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

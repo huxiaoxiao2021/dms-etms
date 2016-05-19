@@ -372,13 +372,13 @@ public class SendPrintServiceImpl implements SendPrintService{
                         
                         if(waybill!=null && rSiteType.equals(16)){
                         	dBasicQueryEntity.setReceiverAddress(waybill.getReceiverAddress() == null ? "": waybill.getReceiverAddress());
-                        	//String receiverMobile = waybill.getReceiverMobile()==null? "" : waybill.getReceiverMobile();
-                        	//String receiverTel = waybill.getReceiverTel()==null? "" : waybill.getReceiverTel();
+                        	String receiverMobile = waybill.getReceiverMobile()==null? "" : waybill.getReceiverMobile();
+                        	String receiverTel = waybill.getReceiverTel()==null? "" : waybill.getReceiverTel();
                         	if(waybill.getReceiverMobile()==null && waybill.getReceiverTel()==null){
                         		dBasicQueryEntity.setReceiverMobile("--");
                         	}else{
                         		//dBasicQueryEntity.setReceiverMobile(receiverMobile+"/"+receiverTel);
-                        		dBasicQueryEntity.setReceiverMobile("--");
+                        		dBasicQueryEntity.setReceiverMobile("");
                         	}
                         }else{
                         	dBasicQueryEntity.setReceiverMobile("--");
@@ -826,7 +826,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 										tBasicQueryEntity.setReceiverMobile("--");
 									} else {
 										//tBasicQueryEntity.setReceiverMobile(receiverMobile + "/" + receiverTel);
-										tBasicQueryEntity.setReceiverMobile("--");
+										tBasicQueryEntity.setReceiverMobile("");
 									}
 								} else {
 									tBasicQueryEntity.setReceiverMobile("--");

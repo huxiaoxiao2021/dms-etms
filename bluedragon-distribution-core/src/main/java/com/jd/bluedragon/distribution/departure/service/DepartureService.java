@@ -50,15 +50,6 @@ public interface DepartureService {
 	 */
 	public List<SendBox> getSendBoxInfo(String boxCode, Integer siteCode);
 	
-	/**
-	 * 批量根据箱号获得交接单号
-	 * @param sendCodes 箱号
-	 * @return
-	 */
-	public List<SendCode> getBoxSendCode(List<SendCode> sendCodes);
-	
-	public List<SendDetail> getSendDatailsWithoutMeasures(Integer fetchNum);
-	
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails);
 	
 	public List<SendBox> getSendInfo(String sendCode);
@@ -75,7 +66,6 @@ public interface DepartureService {
 	public List<DepartureSend> getDepartureSendByCarId(Long departureCarId);
 	public List<DepartureCar> findDepartureList(DeparturePrintRequest  departurPrintRequest);
 	
-	public DepartureCar getDepartureCarObj(long departureCarId);
 	public List<SendDetail> getWaybillsByDeparture(String code, Integer type);
 	
 	/**

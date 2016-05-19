@@ -58,25 +58,25 @@
             width: 300px;
         }
 
-		.fresh_column_list_div_span {
-			width: 320px;
+        .fresh_column_list_div_span {
+            width: 320px;
             display: block;
-		}
+        }
     </style>
 </head>
 <script type="text/javascript">
-	$(document).ready(function(){
-		$("#fresh_modify_back").click(backToIndex);
-		$("#fresh_modify_submit").click(freshWaybillModifyCommit);
-	});
+    $(document).ready(function(){
+        $("#fresh_modify_back").click(backToIndex);
+        $("#fresh_modify_submit").click(freshWaybillModifyCommit);
+    });
 
-	function compareTo(one, other) {
-		if (one == other || one === other) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    function compareTo(one, other) {
+        if (one == other || one === other) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 </script>
 <body>
 <input type="hidden" id="contextPath" value="#springUrl('')"/>
@@ -89,7 +89,7 @@
 </div>
 <div id="content">
     <div id="fresh_add_column_list">
-		<input type="hidden" value="$!freshWaybill.id" id="fresh_add_column_list_id"/>
+        <input type="hidden" value="$!freshWaybill.id" id="fresh_add_column_list_id"/>
         <div id="fresh_serial_num_div" class="fresh_column_list_div">
             <div class="fresh_column_list_div_title">
                 <span>包裹号：</span>
@@ -129,7 +129,7 @@
             <div class="fresh_column_list_div_text">
 				<span class="fresh_column_list_div_span"><select id="fresh_add_column_slab_type" class="fresh_column_list_div_select">
                     <option value="" #if($freshWaybill.slabType == '')
-						SELECTED
+                            SELECTED
 					#end>请选择...</option>
                     <option value="1" #if($freshWaybill.slabType == 1)
                             SELECTED

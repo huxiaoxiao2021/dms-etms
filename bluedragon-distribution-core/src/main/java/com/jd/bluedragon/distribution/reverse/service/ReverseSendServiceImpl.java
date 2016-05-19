@@ -24,7 +24,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1272,8 +1272,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private void sendReportLoss(String orderId, Integer receiveType, Integer createSiteCode, Integer receiveSiteCode) {
 
         //判断收货类型，非大库、备件库直接返回
-    	if((!RECEIVE_TYPE_WMS.equals(receiveType)) && (!RECEIVE_TYPE_SPARE.equals(receiveType))) return;
-    	
+        if (receiveType != RECEIVE_TYPE_WMS && receiveType != RECEIVE_TYPE_SPARE) return;
+
         ReverseReceiveLoss reverseReceiveLoss = new ReverseReceiveLoss();
         try {
             String dmsId = null;

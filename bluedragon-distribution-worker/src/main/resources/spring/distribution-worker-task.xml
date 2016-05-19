@@ -384,7 +384,6 @@
 		<property name="type" value="1160" />
 		<property name="desc" value="将称重信息回传到运单中心" />
 	</bean>
-
     <bean id="scannerFrameTask" class="com.jd.bluedragon.distribution.worker.ScannerFrameTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource" />
@@ -394,7 +393,8 @@
         <property name="type" value="7779" />
         <property name="desc" value="龙门架自动发货" />
     </bean>
-    <bean id="messageTask" class="com.jd.bluedragon.distribution.worker.MessageTask"
+
+<bean id="messageTask" class="com.jd.bluedragon.distribution.worker.MessageTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource" />
         <property name="taskType" value="MessageTask" />

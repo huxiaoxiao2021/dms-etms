@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.version.dao.ClientVersionDao">
+
+	<resultMap id="clientVersion" type="com.jd.bluedragon.distribution.version.domain.ClientVersion">
+		<result column="version_id" property="versionId" />
+		<result column="version_code" property="versionCode" />
+		<result column="version_type" property="versionType" />
+		<result column="download_url" property="downloadUrl" />
+		<result column="memo" property="memo" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="yn" property="yn" />
+	</resultMap>
+
+	<sql id="Base_Select_Sql">
+		SELECT version_id,version_code, version_type,download_url,memo, create_time,update_time, yn
+		FROM client_version		
+	</sql>
+
+	<select id="getAll" resultMap="clientVersion">
+		<include refid="Base_Select_Sql" />
+	</select>
+
+	<select id="getAllAvailable" resultMap="clientVersion">
+		<include refid="Base_Select_Sql" />
+		WHERE yn = 1 
+	</select>
+
+	<select id="getByVersionCode" resultMap="clientVersion" parameterType="String">
+		<include refid="Base_Select_Sql" />
+		WHERE yn = 1 AND version_code = #{versionCode, jdbcType=VARCHAR}
+	</select>
+
+	<select id="getByVersionType" resultMap="clientVersion" parameterType="Integer">
+		<include refid="Base_Select_Sql" />
+		WHERE yn = 1 AND version_type = #{versionType, jdbcType=INTEGER}
+	</select>
+
+	<select id="get" resultMap="clientVersion" parameterType="Long">
+		<include refid="Base_Select_Sql" />
+		WHERE version_id = #{versionId, jdbcType=BIGINT}
+	</select>
+	
+	<select id="exists" resultType="Integer" parameterType="clientVersion">
+		SELECT 1 FROM dual
+		WHERE EXISTS (
+	    		SELECT 1 FROM  client_version
+				WHERE yn = 1 
+					AND version_code = #{versionCode, jdbcType=VARCHAR} 
+					AND version_type = #{versionType, jdbcType=INTEGER}
+			)
+	</select>
+
+	<insert id="add" parameterType="clientVersion">
+		INSERT INTO client_version (version_id,version_code, version_type,download_url,memo, create_time,update_time, yn)
+		VALUES (
+		SEQ_CLIENT_VERSION.NEXTVAL, 
+		#{versionCode, jdbcType=VARCHAR},#{versionType, jdbcType=INTEGER}, 
+		#{downloadUrl, jdbcType=VARCHAR}, #{memo, jdbcType=VARCHAR}, 
+		sysdate, sysdate, 1
+		)
+	</insert>
+
+	<update id="update" parameterType="clientVersion">
+		update client_version
+		<set>
+			<if test="versionCode != null">
+				version_code = #{versionCode, jdbcType=VARCHAR},
+			</if>
+			<if test="versionType != null">
+				version_type = #{versionType, jdbcType=INTEGER},
+			</if>
+			<if test="downloadUrl != null">
+				download_url = #{downloadUrl, jdbcType=VARCHAR},
+			</if>
+			<if test="memo != null">
+				memo = #{memo, jdbcType=VARCHAR},
+			</if>
+			<if test="yn != null">
+				yn = #{yn, jdbcType=INTEGER},
+      		</if>
+			update_time = sysdate
+		</set>
+		where version_id = #{versionId, jdbcType=BIGINT}
+	</update>
+	<update id="delete" parameterType="Long">update client_version set yn=0 where version_id = #{versionId, jdbcType=BIGINT} </update>
+</mapper>
