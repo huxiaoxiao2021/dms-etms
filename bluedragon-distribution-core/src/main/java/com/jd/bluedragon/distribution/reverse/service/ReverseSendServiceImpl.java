@@ -865,10 +865,18 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
 
         //------------------------维修外单---start--------------------------
-        if (BusinessHelper.isMCSCode(sendDetails.get(0).getWaybillCode())) {
-            pushMCSMessageToSpwms(sendDetails);
-            return true;
+        List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
+        List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
+        for(SendDetail sd: sendDetails){//剔除维修外单
+        	 if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
+        		 vySendDetails.add(sd);
+             }else{
+            	 nomarlSendDetails.add(sd);
+             }
         }
+        sendDetails = nomarlSendDetails;//非维修外单集合        
+        pushMCSMessageToSpwms(vySendDetails);//维修外单发送
+        
         //------------------------维修外单---end----------------------------
 
         // 增加判断d表中数据为逆向数据
