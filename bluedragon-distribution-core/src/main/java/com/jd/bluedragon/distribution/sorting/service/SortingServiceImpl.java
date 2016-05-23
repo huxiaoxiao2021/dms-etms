@@ -535,6 +535,7 @@ public class SortingServiceImpl implements SortingService {
 
 	private void fillSortingIfPickup(Sorting sorting) {
 		if (BusinessHelper.isPickupCode(sorting.getPackageCode())) {
+            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
             if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
             {
                // sorting.setPickupCode(pickup.getData().getPickupCode());
