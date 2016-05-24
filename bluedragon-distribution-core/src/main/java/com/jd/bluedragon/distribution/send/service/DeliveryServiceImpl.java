@@ -1498,22 +1498,22 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 			
 			
-			// ============向西北西南区域三方配送用户发送预警短信============
-			try {
-				// 10. 循环所有发货批次
-				// 20.根据发货目的地判断是不是三方运输到西北西南区域
-				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
-				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
-				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
-				int subType = rbDto.getSubType().intValue();
-				int orgId = rbDto.getOrgId().intValue();// 获得机构id
-				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
-					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
-					sendSms(sendDatailList);
-				}
-			} catch (Exception e) {
-				logger.error("西北西南机构发送预警短信失败: ", e);
-			}
+			// ============向西北西南区域三方配送用户发送预警短信 只运行在20150509~20150520============
+//			try {
+//				// 10. 循环所有发货批次
+//				// 20.根据发货目的地判断是不是三方运输到西北西南区域
+//				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
+//				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+//				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
+//				int subType = rbDto.getSubType().intValue();
+//				int orgId = rbDto.getOrgId().intValue();// 获得机构id
+//				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
+//					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
+//					sendSms(sendDatailList);
+//				}
+//			} catch (Exception e) {
+//				logger.error("西北西南机构发送预警短信失败: ", e);
+//			}
 			//==================================================================
 		}
         try {
@@ -2897,6 +2897,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	/**
 	 * 根据发货明细发送用户报警短信
 	 * @param sendDetails
+	 * @deprecated
 	 * @return
 	 */
 	public boolean sendSms(List<SendDetail> sendDetails) {

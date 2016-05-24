@@ -29,6 +29,10 @@ public class BusinessHelperTest {
 		isWaybillCode = helper.isWaybillCode(waybillCodeF).booleanValue();
 		assertTrue(isWaybillCode);
 		
+		String packageCode="T18655150305-1-1-1";
+		isWaybillCode = helper.isWaybillCode(packageCode).booleanValue();
+		assertFalse(isWaybillCode);
+		
 		String boxCode="TC010A001010F00500039001";
 		isWaybillCode = helper.isWaybillCode(boxCode).booleanValue();
 		assertFalse(isWaybillCode);
