@@ -86,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     public Boolean isDynamicProducerOn(Task task) {
-        return null != taskJmqTopicRouter.getTopic(task) && !dynamicProducer.getProducerType().equals("TBSCHEDULE");
+        return null != taskJmqTopicRouter.getTopic(task) && !dynamicProducer.getProducerType().name().equals("TBSCHEDULE");
     }
 
     @Override
