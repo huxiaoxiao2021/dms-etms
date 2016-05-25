@@ -10,13 +10,11 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqTopicRouter;
+import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.framework.asynBuffer.producer.Producer;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -60,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
     private JmqTopicRouter taskJmqTopicRouter;
 
     @Autowired
-    private Producer<Task> dynamicProducer;
+    private DmsDynamicProducer dynamicProducer;
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -88,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     public Boolean isDynamicProducerOn(Task task) {
-        return null != taskJmqTopicRouter.getTopic(task);
+        return null != taskJmqTopicRouter.getTopic(task) && !dynamicProducer.getProducerType().equals("TBSCHEDULE");
     }
 
     @Override
@@ -657,11 +655,11 @@ public class TaskServiceImpl implements TaskService {
         this.taskJmqTopicRouter = taskJmqTopicRouter;
     }
 
-    public Producer<Task> getDynamicProducer() {
+    public DmsDynamicProducer getDynamicProducer() {
         return dynamicProducer;
     }
 
-    public void setDynamicProducer(Producer<Task> dynamicProducer) {
+    public void setDynamicProducer(DmsDynamicProducer dynamicProducer) {
         this.dynamicProducer = dynamicProducer;
     }
 }

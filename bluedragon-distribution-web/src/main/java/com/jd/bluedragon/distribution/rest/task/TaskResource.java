@@ -46,6 +46,14 @@ public class TaskResource {
 
     @Autowired
     private RestAuthorization restAuthorization;
+
+    @POST
+    @Path("/tasks/add")
+    public Integer add(Task task) {
+        task.setTableName("task_waybill");
+        return taskService.add(task,false);
+    }
+
 	@GET
 	@Path("/tasks/{taskId}")
 	public TaskResponse get(@PathParam("taskId") Long taskId) {
