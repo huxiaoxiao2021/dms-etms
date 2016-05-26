@@ -71,13 +71,18 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	protected boolean saveTask(Task task) {
 		task.setStatus(Task.TASK_STATUS_FINISHED);
         task.setExecuteCount(0);
+        List<Task> taskList = taskService.findTasksByFingerprint(task);
+        //如果任务表已经存在数据，则去重，直接返回成功
+        if(null != taskList && taskList.size() > 0) {
+            return true;
+        }
 		int r = taskService.doAddWithStatus(task);
 		if(r>0){
 			return true;
 		}
 		return false;
 	}
-	
+
 	protected boolean saveTask(List<Task> tasks) {
 		for(Task task:tasks){
 			this.saveTask(task);
