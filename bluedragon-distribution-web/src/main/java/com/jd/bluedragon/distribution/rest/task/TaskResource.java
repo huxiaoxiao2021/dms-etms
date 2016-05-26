@@ -163,6 +163,44 @@ public class TaskResource {
 		}
 	}
 
+	//----------------改版的任务监控api,重点是忽略sql中的type过滤条件--------start--------------
+
+	@GET
+	@Path("/checktasks/checkPendingTaskStatusIgnoreType")
+	public TaskResponse checkPendingTaskStatusHealthIgnoreType(
+			@QueryParam("type") Integer type,
+			@QueryParam("fetchNum") Integer fetchNum,
+			@QueryParam("ownSign") String ownSign) {
+
+		Integer queryNum = this.taskService.findTasksNumsIgnoreType(type, ownSign);
+		if (queryNum.compareTo(fetchNum) == 1) {
+			return new TaskResponse(JdResponse.CODE_PARAM_ERROR,
+					JdResponse.MESSAGE_PARAM_ERROR);
+		} else {
+			return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		}
+	}
+
+	@GET
+	@Path("/task/findFailTasksNumsIgnoreType")
+	public TaskResponse findFailTasksNumsIgnoreType(
+			@QueryParam("type") Integer type,
+			@QueryParam("fetchNum") Integer fetchNum,
+			@QueryParam("ownSign") String ownSign) {
+
+		Integer queryNum = this.taskService.findFailTasksNumsIgnoreType(type, ownSign);
+		if (queryNum.compareTo(fetchNum) == 1) {
+			return new TaskResponse(JdResponse.CODE_PARAM_ERROR,
+					JdResponse.MESSAGE_PARAM_ERROR);
+		} else {
+			return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		}
+	}
+
+	//----------------改版的任务监控api,重点是忽略sql中的type过滤条件--------end----------------
+
+
+
 	@GET
 	@Path("/systemDate")
 	public TaskResponse getSYSDate() {

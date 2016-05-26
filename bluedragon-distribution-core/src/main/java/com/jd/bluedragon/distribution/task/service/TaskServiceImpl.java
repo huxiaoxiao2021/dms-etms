@@ -459,6 +459,18 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findFailTasksNumsByType(type, ownSign);
 	}
 
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	public Integer findTasksNumsIgnoreType(Integer type, String ownSign) {
+		TaskDao routerDao = taskDao;
+		return routerDao.findTasksNumsIgnoreType(type, ownSign);
+	}
+
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	public Integer findFailTasksNumsIgnoreType(Integer type, String ownSign) {
+		TaskDao routerDao = taskDao;
+		return routerDao.findFailTasksNumsIgnoreType(type, ownSign);
+	}
+
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addInspectSortingTask(TaskRequest request) {
 		UploadedPackage uPackage = JsonHelper.fromJson(request.getBody(),UploadedPackage.class);

@@ -135,6 +135,40 @@ public class TaskDao extends BaseDao<Task> {
 		request.put("ownSign", ownSign);
 		return (Integer) super.getSqlSession().selectOne(TaskDao.namespace + ".findTasksNumsByType", request);
 	}
+
+	/**
+	 * 查询待处理失败的数据
+	 *
+	 * @param type
+	 * @param ownSign
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Integer findFailTasksNumsIgnoreType(Integer type, String ownSign) {
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("ownSign", ownSign);
+		return (Integer) super.getSqlSession().selectOne(TaskDao.namespace + ".findFailTasksNumsIgnoreType", request);
+	}
+
+	/**
+	 * 查询处理的数据
+	 *
+	 * @param type
+	 * @param ownSign
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Integer findTasksNumsIgnoreType(Integer type, String ownSign) {
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("ownSign", ownSign);
+		return (Integer) super.getSqlSession().selectOne(TaskDao.namespace + ".findTasksNumsIgnoreType", request);
+	}
+
+
 	/**
 	 * 增时能带状态值,接收status, execute_count参数
 	 * 
