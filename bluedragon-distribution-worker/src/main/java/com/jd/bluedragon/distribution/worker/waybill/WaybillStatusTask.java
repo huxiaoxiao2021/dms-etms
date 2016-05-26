@@ -36,7 +36,9 @@ public class WaybillStatusTask extends DBSingleScheduler {
     
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
-        return waybillService.doWaybillStatusTask(task);
+        boolean result =  waybillService.doWaybillStatusTask(task);
+        task.setType(Task.TASK_TYPE_WAYBILL);  //无论如何都把类型改变为waybill（9999）
+        return result;
     }
 
     public List<Task> selectTasks(String arg0, int queueNum,
