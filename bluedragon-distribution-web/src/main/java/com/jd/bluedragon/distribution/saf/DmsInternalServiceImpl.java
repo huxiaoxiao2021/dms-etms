@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.saf;
 
+import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
@@ -240,4 +241,20 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         }
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.login", mState = JProEnum.TP)
+    public BaseResponse login(String userName, String passwd) {
+        if(logger.isInfoEnabled()){
+            logger.info("login param " + userName);
+        }
+        try{
+            BaseRequest request = new BaseRequest();
+            request.setErpAccount(userName);
+            request.setPassword(passwd);
+            return baseResource.login(request);
+        }catch (Exception e){
+            logger.error("getPreseparateSiteId error ", e);
+            return null;
+        }
+    }
 }

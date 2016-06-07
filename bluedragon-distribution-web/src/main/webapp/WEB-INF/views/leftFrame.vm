@@ -31,6 +31,8 @@
 	<dd><a href="/tips/waybill" target="mainFrame">运单判断</a></dd>
 	<dd><a href="/turBoxManager/query" target="mainFrame">收发空箱查询</a></dd>
 	<dd><a href="/tips/repail_waybillSend" target="mainFrame">全国邮政数据重新下发</a></dd>
+      <dd><a href="/sysconfig/dafu/index" target="mainFrame">大福线白名单管理</a></dd>
+      <dd><a href="http://dmsver1.etms.jd.com/gantry/index" target="mainFrame">龙门架账号管理</a></dd>
 	<dt><a href="#" class="curr">FAQ</a></dt>
 	<dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
 	<dt><a href="#" class="curr">离线管理</a></dt>
