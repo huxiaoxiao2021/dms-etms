@@ -124,7 +124,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 this.update(reverseReceiveVO);
                 this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
             } 
-        }else if(source.getReceiveType()==1){
+        }else if(source.getReceiveType()==1||source.getReceiveType()==5){
             ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getPackageCode(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {
             	this.logger.info("reverseReceivePO is null");

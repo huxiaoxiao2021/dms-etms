@@ -169,9 +169,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 4) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
 			String sendCode = "";
-			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1) {
+			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 				this.logger.error("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if (reverseReceive.getReceiveType() == 4) {
@@ -205,7 +205,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		        	tWaybillStatus.setReceiveSiteType(bDto.getSiteType());
 		        }
 
-				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1) {
+				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
 				} else if (reverseReceive.getReceiveType() == 4) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
@@ -216,6 +216,8 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				} else if (reverseReceive.getCanReceive() == 1) {
 					// 维修外单的逆向收货,需要调妥投的接口(接口不仅妥投,且附带全程跟踪的功能)
 					if (BusinessHelper.isMCSCode(reverseReceive.getPackageCode())) {
+						this.confirmReceive(reverseReceive);
+					} if(reverseReceive.getReceiveType() == 5){
 						this.confirmReceive(reverseReceive);
 					} else { //正常的逆向收货,只发全程跟踪
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
