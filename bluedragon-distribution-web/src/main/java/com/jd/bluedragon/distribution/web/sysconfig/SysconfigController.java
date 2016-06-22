@@ -258,14 +258,23 @@ public class SysconfigController {
         for(Iterator<String> it = stringSet.iterator(); it.hasNext();) {
             String siteCode = it.next();
             if (StringHelper.isEmpty(siteCode)) {
-                stringSet.remove(siteCode);
                 it.remove();
+                stringSet.remove(siteCode);
             }
         }
         return stringSet;
     }
 
     public static void main(String[] args) {
-
+        String orgiContent = "677,24,1410,316,3417,5212,4386, 4520,5071,5920";
+        String blackContent = "";
+        String whiteContent = "";
+        SysconfigController manager = new SysconfigController();
+        Set<String> newContentSet = new HashSet<String>();
+        Collections.addAll(newContentSet, orgiContent.split(","));
+        System.out.println("before distinct " + newContentSet.size());
+        String result = manager.getWhiteList(manager.getBlackList(orgiContent,blackContent),whiteContent);
+        System.out.println(orgiContent.split(",").length + "   VS   " + result.split(",").length);
+        System.out.println(result);
     }
 }
