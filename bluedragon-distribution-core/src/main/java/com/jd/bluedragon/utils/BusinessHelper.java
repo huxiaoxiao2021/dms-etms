@@ -306,7 +306,7 @@ public class BusinessHelper {
 		} catch (NumberFormatException nfe) {
 			BusinessHelper.logger.error("格式化发生异常！", nfe);
 		}
-		return maxPackNum <= 0 ? 2000 : maxPackNum;
+		return maxPackNum <= 0 ? 5000 : maxPackNum;
 	}
 
 	/**
