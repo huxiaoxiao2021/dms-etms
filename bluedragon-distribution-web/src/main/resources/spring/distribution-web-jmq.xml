@@ -47,7 +47,7 @@
     <!--</jmq:consumer>-->
     
     <!-- 逆向大库收货消息内部系统消费 -->
-    <jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
+    <jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="bd_dms_reverse_receive" listener="reverseReceiveConsumer"/>
     </jmq:consumer>
 
