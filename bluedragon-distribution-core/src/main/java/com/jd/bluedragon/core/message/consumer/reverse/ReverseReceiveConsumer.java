@@ -172,10 +172,10 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
-				this.logger.error("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
+				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if (reverseReceive.getReceiveType() == 4) {
-				this.logger.error("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
+				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				reverseReceive.setOrderId(reverseReceive.getPackageCode());
 			}
