@@ -42,12 +42,11 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
-    <bean id="bdToJoslRejMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+     <!--逆向发ECLP报文TOPIC-->    
+    <!-- bean id="bdToJoslRejMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_to_josl_rej"/>
         <property name="timeout" value="1000"/>
-        <!--已认证worker配置文件-->
-    </bean>
-    
+    </bean> -->
     <bean id="bdDmsReverseSendEclp" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_dms_reverse_send_eclp"/>
         <property name="timeout" value="1000"/>
