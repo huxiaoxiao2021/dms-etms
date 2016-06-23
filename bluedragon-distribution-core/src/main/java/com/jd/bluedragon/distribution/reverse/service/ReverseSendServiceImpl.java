@@ -84,7 +84,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private DtcDataReceiverManager dtcDataReceiverManager;
-//	private Inbound inbound;
 
     @Autowired
     ReverseSpareService reverseSpareService;
@@ -112,10 +111,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private BlueDragonWebService lossWebService;
-
-    @Qualifier("bdToJoslRejMQ")
+    
+    @Qualifier("bdDmsReverseSendEclp")
     @Autowired
-    private DefaultJMQProducer bdToJoslRejMQ;
+    private DefaultJMQProducer bdDmsReverseSendEclp;
 
     @Resource
     @Qualifier("workerProducer")
@@ -1373,7 +1372,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			sLogDetail.setContent(jsonStr);
 
 			try {
-				bdToJoslRejMQ.send(wayBillCode, jsonStr);
+				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
 				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
 			} catch (Exception e) {
 				logger.error("推送ECLP MQ 发生异常.", e);
