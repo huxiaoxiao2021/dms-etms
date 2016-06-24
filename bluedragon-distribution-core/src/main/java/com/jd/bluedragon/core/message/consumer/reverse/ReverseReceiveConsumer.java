@@ -218,7 +218,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					if (BusinessHelper.isMCSCode(reverseReceive.getPackageCode())) {
 						this.confirmReceive(reverseReceive);
 					} if(reverseReceive.getReceiveType() == 5){
-						this.confirmReceive(reverseReceive);
+						this.confirmECLPReceive(reverseReceive, tWaybillStatus);
 					} else { //正常的逆向收货,只发全程跟踪
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 						taskService.add(this.toTaskStatus(tWaybillStatus));
@@ -247,6 +247,23 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		waybillSyncParameterList.add(waybillSyncParameter);
 		BaseEntity<List<String>> result = waybillSyncApi.batchUpdateWaybillByOperatorCode(waybillSyncParameterList, WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 		logger.info(MessageFormat.format("维修外单妥投成功:{0}", JsonHelper.toJson(waybillSyncParameterList)));
+	}
+	
+	/**
+	 * 调运单接口,妥投运单
+	 * @param reverseReceive
+	 */
+	private void confirmECLPReceive(ReverseReceive reverseReceive, WaybillStatus tWaybillStatus) {
+		List<WaybillSyncParameter> waybillSyncParameterList = new ArrayList<WaybillSyncParameter>();
+		WaybillSyncParameter waybillSyncParameter = new WaybillSyncParameter();
+		waybillSyncParameter.setOperatorCode(reverseReceive.getOrderId());
+		waybillSyncParameter.setOperatorId(reverseReceive.getOperatorId() == null ? -1 : Integer.parseInt(reverseReceive.getOperatorId()));
+		waybillSyncParameter.setOperatorName(reverseReceive.getOperatorName());
+		waybillSyncParameter.setOperateTime(reverseReceive.getReceiveTime());
+		waybillSyncParameter.setOrgId(tWaybillStatus.getOrgId());
+		waybillSyncParameterList.add(waybillSyncParameter);
+		BaseEntity<List<String>> result = waybillSyncApi.batchUpdateWaybillByOperatorCode(waybillSyncParameterList, WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+		logger.info(MessageFormat.format("eclp逆向妥投成功:{0}", JsonHelper.toJson(waybillSyncParameterList)));
 	}
 
 	private Task toTask(WaybillStatus tWaybillStatus) {
