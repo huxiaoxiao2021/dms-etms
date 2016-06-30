@@ -2136,20 +2136,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 					Arrays.asList(new String[]{sendDetail.getPackageBarcode()}) );
 			if(waybillWSRs!=null){
 				datas = waybillWSRs.getData();
-				//logger.info("调用运单queryPackageListForParcodes调用返回getMessage()"+waybillWSRs.getMessage());
-				//logger.info("调用运单queryPackageListForParcodes调用返回getResultCode"+waybillWSRs.getResultCode());
 			}
-			//else
-				//logger.info("调用运单queryPackageListForParcodes调用返回为空");
-			/*if(datas==null || datas.isEmpty())
-				logger.error("调用运单queryPackageListForParcodes接口返回为空，包裹号为"
-						+sendDetail.getPackageBarcode());*/
+
 			if( null!=datas && !datas.isEmpty() && null!=datas.get(0) && null!=datas.get(0).getGoodWeight() ){
 				sendDetail.setWeight(datas.get(0).getGoodWeight());
 			}
-			/*else
-				logger.error("调用运单queryPackageListForParcodes接口返回为空，包裹号为"
-						+waybillWSRs.getMessage());*/
 		} catch (Exception e) {
 			//如果重量写入失败不影响分拣的结果
 			logger.error("调用运单queryPackageListForParcodes接口时候失败",e);

@@ -7,6 +7,7 @@ package com.jd.bluedragon.distribution.reverse.domain;
 public class ReverseSendMQToECLP {
 
     private String jdOrderCode;
+    private String sendCode;
     private String sourceCode;
     private String waybillCode;
     private Integer rejType;
@@ -20,7 +21,15 @@ public class ReverseSendMQToECLP {
         this.jdOrderCode = jdOrderCode;
     }
 
-    public String getSourceCode() {
+    public String getSendCode() {
+		return sendCode;
+	}
+
+	public void setSendCode(String sendCode) {
+		this.sendCode = sendCode;
+	}
+
+	public String getSourceCode() {
         return sourceCode;
     }
 
