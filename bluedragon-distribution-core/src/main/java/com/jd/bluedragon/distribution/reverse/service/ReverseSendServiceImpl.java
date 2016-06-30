@@ -579,7 +579,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
                     continue;
                 }
-
+                send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wallBillCode)) {
                     sendWMS(send, wallBillCode, sendM, entry, 0, bDto);
