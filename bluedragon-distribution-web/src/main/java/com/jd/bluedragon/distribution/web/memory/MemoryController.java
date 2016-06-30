@@ -38,8 +38,8 @@ public class MemoryController {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     private final static String PREFIX = "http://";
-    private final static String SUFFIX_COUNT = ":8080/admin/memory/count";
-    private final static String SUFFIX_VALUE = ":8080/admin/memory/value";
+    private final static String SUFFIX_COUNT = ":1601/admin/memory/count";
+    private final static String SUFFIX_VALUE = ":1601/admin/memory/value";
 
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
