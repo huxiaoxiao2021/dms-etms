@@ -169,13 +169,13 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 4) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
 			String sendCode = "";
-			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1) {
-				this.logger.error("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
+			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
+				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if (reverseReceive.getReceiveType() == 4) {
-				this.logger.error("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
+				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				reverseReceive.setOrderId(reverseReceive.getPackageCode());
 			}
@@ -205,7 +205,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		        	tWaybillStatus.setReceiveSiteType(bDto.getSiteType());
 		        }
 
-				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1) {
+				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
 				} else if (reverseReceive.getReceiveType() == 4) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());

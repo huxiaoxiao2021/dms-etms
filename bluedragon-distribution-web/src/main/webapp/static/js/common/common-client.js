@@ -34,7 +34,7 @@ CommonClient.get = function(url,param,successFunction){
 /**
  * Ajax 异步数据请求
  * @author suihonghua
- * @param type	[String] e.g.:"POST" or "GET" 
+ * @param type	[String] e.g.:"POST" or "GET"
  * @param url	[String] 请求url
  * @param param	[Object] 参数
  * @param successFunction [Function] 成功回调函数
@@ -58,3 +58,26 @@ CommonClient.ajax = function(type,url,param,successFunction){
 	});
 };
 
+CommonClient.postJson = function(url,param,successFunction){
+	CommonClient.ajaxJson("POST", url, param, successFunction);
+};
+
+CommonClient.ajaxJson = function(type,url,param,successFunction){
+	jQuery.ajax({
+		type: type,
+		url: CommonClient.contextPath + url,
+		data: JSON.stringify(param),
+		contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		beforeSend: function(jqXHR, settings){
+			$.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
+		},
+		success: successFunction,
+		error: function(jqXHR, textStatus, errorThrown){
+			alert("Error:status["+jqXHR.status+"],statusText["+ jqXHR.statusText +"]");
+		},
+		complete: function(jqXHR, textStatus){
+			$.unblockUI();
+		}
+	});
+};
