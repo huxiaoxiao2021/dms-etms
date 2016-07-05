@@ -42,7 +42,7 @@ public class WaybillCancelService {
 
         try {
             SortingJsfResponse jsfResponse = jsfSortingResourceService.isCancel(waybillCode);
-            LOGGER.info("调用VER接口获取订单退款100分状态 " + JsonHelper.toJson(jsfResponse));
+            LOGGER.error("调用VER接口获取订单退款100分状态 " + JsonHelper.toJson(jsfResponse));
             return jsfResponse.getCode().equals(Integer.valueOf(IS_RERUND_WAYBILL));
         } catch (Exception e) {
             LOGGER.error("调用VER接口获取订单是否是退款100分失败", e);
