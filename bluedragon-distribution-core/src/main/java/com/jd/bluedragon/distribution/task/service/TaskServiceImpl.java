@@ -517,9 +517,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception{
-        if (add(toInspectionTask(packageDtos)) <= 0 || add(toSortingTask(packageDtos)) <= 0) {
-            throw new Exception("智能分拣线生成交接、分拣任务出错，两个之中有一个可能失败");
-        }
+		add(toSortingTask(packageDtos));
+		add(toInspectionTask(packageDtos));
+//        if (add(toInspectionTask(packageDtos)) <= 0 || add(toSortingTask(packageDtos)) <= 0) {
+//            throw new Exception("智能分拣线生成交接、分拣任务出错，两个之中有一个可能失败");
+//        }
     }
 
     private Task toSortingTask(AutoSortingPackageDto dto){
