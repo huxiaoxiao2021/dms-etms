@@ -305,7 +305,7 @@ public class SortingServiceImpl implements SortingService {
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
 				this.addSorting(sorting, null); // 添加分拣记录
-				this.addSendDetail(sorting, null); // 添加发货记录
+				this.addSendDetail(sorting, null); // 添加发货记录 FIXME:非主线任务
 				this.addSortingAdditionalTask(sorting);// 添加回传分拣的运单状态
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
 			} else if (sorting.getIsCancel().equals(SORTING_CANCEL)) {// 离线取消分拣
@@ -423,7 +423,7 @@ public class SortingServiceImpl implements SortingService {
 			createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
 			receiveSite = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
 		} catch (Exception e) {
-			this.logger.error(e.getMessage());
+			this.logger.error(e.getMessage(), e);
 		}
 		if (createSite == null)
 			createSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(createSiteCode));
@@ -470,25 +470,26 @@ public class SortingServiceImpl implements SortingService {
 		return null;
 	}
 
+	private void fillSortingIfPickup(Sorting sorting) {
+		if (BusinessHelper.isPickupCode(sorting.getPackageCode())) {
+            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
+            if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
+            {
+               // sorting.setPickupCode(pickup.getData().getPickupCode());
+                sorting.setWaybillCode(sorting.getPackageCode());
+			} else {
+			BaseEntity<PickupTask> pickup = this.getPickup(sorting.getPackageCode());
+			if (pickup != null) {
+				sorting.setPickupCode(pickup.getData().getPickupCode());
+				sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
+			}}
+		}
+	}
+	
 	private void saveOrUpdate(Sorting sorting) {
 		if (Constants.NO_MATCH_DATA == this.update(sorting).intValue()) {
 			this.add(sorting);
 		}
-	}
-
-	private void addSorting(Sorting sorting, DeliveryPackageD aPackage) {
-		if (aPackage != null) {
-			sorting.setPackageCode(aPackage.getPackageBarcode());
-			if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
-				sorting.setBoxCode(aPackage.getPackageBarcode());
-			}
-		}
-
-		this.fillSortingIfPickup(sorting);
-		this.saveOrUpdate(sorting);
-		this.saveOrUpdateInspectionEC(sorting);
-		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
-		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 	}
 
 	/**
@@ -532,21 +533,20 @@ public class SortingServiceImpl implements SortingService {
 			this.inspectionECDao.add(InspectionECDao.namespace, inspectionEC);
 		}
 	}
-
-	private void fillSortingIfPickup(Sorting sorting) {
-		if (BusinessHelper.isPickupCode(sorting.getPackageCode())) {
-            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
-            if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
-            {
-               // sorting.setPickupCode(pickup.getData().getPickupCode());
-                sorting.setWaybillCode(sorting.getPackageCode());
-			} else {
-			BaseEntity<PickupTask> pickup = this.getPickup(sorting.getPackageCode());
-			if (pickup != null) {
-				sorting.setPickupCode(pickup.getData().getPickupCode());
-				sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
-			}}
+	
+	private void addSorting(Sorting sorting, DeliveryPackageD aPackage) {
+		if (aPackage != null) {
+			sorting.setPackageCode(aPackage.getPackageBarcode());
+			if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
+				sorting.setBoxCode(aPackage.getPackageBarcode());
+			}
 		}
+
+		this.fillSortingIfPickup(sorting);
+		this.saveOrUpdate(sorting);
+		this.saveOrUpdateInspectionEC(sorting);//FIXME:差异处理拿出
+		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
+		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 	}
 
 	@Override
@@ -557,6 +557,8 @@ public class SortingServiceImpl implements SortingService {
 
 	@Override
 	public void addOpetationLog(Sorting sorting, Integer logType, String remark) {
+		OperationLog operationLog = this.parseOperationLog(sorting, logType, remark);
+		this.operationLogService.add(operationLog);
 	}
 
 	private OperationLog parseOperationLog(Sorting sorting, Integer logType, String remark) {

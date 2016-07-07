@@ -5,5 +5,5 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 
 public interface JsfSortingResourceService {
 	public SortingJsfResponse check(SortingCheck sortingCheck);
-
+    public SortingJsfResponse isCancel(String packageCode);
 }
