@@ -27,6 +27,8 @@ public class Constants {
     public static final String IMPORTANT_CONFIGNAME = "important.properties";
     
     public static final String POPABNORMAL_CONFIGNAME = "popabnormal.properties";
+
+    public static final String DMS_IP_MAPPING_CONFIGNAME = "dms_ip_mapper.properties";
     
     public static final String REST_URL = "/services";
     
