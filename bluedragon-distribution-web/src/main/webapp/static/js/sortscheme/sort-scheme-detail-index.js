@@ -10,71 +10,33 @@ function main() {
 	$('#queryBtn').click(function() {
 		onQueryBtnClick(1);
 	});
-
-	// 添加按钮
-	$('#addBtn').click(function() {
-		goAddBtnClick();
-	});
-
-	// 导入按钮
-	$("#loadInBtn").click(function(){
-		importExcel();
-	});
-
-    // 导出按钮
-    $("#loadOutBtn").click(function(){
-       exportExcel();
-    })
-
-    // 下载模版
-    $("#downloadModelBtn").click(function(){
-       goDownModel();
-    })
-    
-	// 初始化任务表下拉框
+	/*
+	// 初始化不可变的组件
 	initOrg();
 
 	// 加载所有的分拣中心
 	initDms();
+	*/
 }
-
-function goDownModel(){
-	location.href = "http://sq.jd.com/ScRG3M";
-}
-
-function importExcel(){
-	var url = $("#contextPath").val() + "/crossSorting/import/";
-	$.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
-	$("#importFileForm").ajaxSubmit({
-		url:url, // 请求的url
-		data:$("#importFileIpt").serialize(),// 请求参数
-		type:"post", // 请求方式
-		dataType:"json", // 响应的数据类型
-		async: true, // 异步
-		success: function(data) {
-			$.unblockUI();
-            var jsonData = eval(data);
-            if(200 == jsonData.code){
-            	jQuery.messager.alert('提示:', "导入配置成功", 'info');
-			}else{
-				jQuery.messager.alert('提示:', jsonData.message, 'info');
+/*
+function initOrg() {
+	var url = $("#contextPath").val() + "/services/bases/allorgs";
+	var param = {};
+	$.getJSON(url, function(data) {
+		// data --> List<BaseResponse>
+		var orgList = data;
+		var tableObj = $('#orgList');
+		var optionList;
+		optionList += "<option value='' selected='selected'></option>";
+		for (var i = 0; i < orgList.length; i++) {
+			if (orgList[i].orgId != -100) {
+				optionList += "<option value='" + orgList[i].orgId + "'>" + orgList[i].orgName + "</option>";
 			}
-		},
-		error: function(){
-            $.unblockUI();
-            jQuery.messager.alert('提示:', "导入配置失败，稍后重试", 'info');
 		}
+		tableObj.append(optionList);
 	});
 }
 
-function exportExcel(){
-    var url = $("#contextPath").val() + "/crossSorting/export?orgId="
-            + $.trim($("#orgList").val()) + "&createDmsCode="
-            + $.trim($("#createDmsList").val()) + "&destinationDmsCode="
-            + $.trim($("#destinationDmsList").val()) + "&createUserName="
-            + $.trim($("#createUserName").val())
-    window.open (url,"_parent");
-}
 
 function initOrg() {
 	var url = $("#contextPath").val() + "/services/bases/allorgs";
@@ -159,61 +121,50 @@ function initDms() {
 		}
 	});
 }
+*/
 
 function onQueryBtnClick(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
-	if (!checkParams(params)) {
-		jQuery.messager.alert('提示:','建包区域, 建包分拣中心, 目的分拣中心, 维护人, 至少选择一个!','info');
-		return false;
-	}
 	doQueryCrossSorting(params);
 }
 
-function checkParams(params) {
-	if (null == params) {
-		return false;
-	}
-	if (params.orgId == "" && params.createDmsCode == "" && params.destinationDmsCode == "" && params.createUserName == "") {
-		return false;
-	}
-	return true;
-}
 
 function getParams() {
 	var params = {};
-	params.orgId = $.trim($("#orgList").val());
-	params.createDmsCode = $.trim($("#createDmsList").val());
-	params.destinationDmsCode = $.trim($("#destinationDmsList").val());
-	params.createUserName = $.trim($("#createUserName").val());
+	params.schemeId = $.trim($("#schemeId").val()); //方案id
+	params.siteNo = $.trim($("#siteNo").val()); //分拣中心
+	params.boxSiteCode = $.trim($("#boxSiteCode").val());	//站点
+	params.chuteCode1 = $.trim($("#chuteCode").val()); //物理滑槽
+	//alert(params.siteNo + "" +params.boxSiteCode + "" +params.chuteCode1);
 	return params;
 }
 
 // 查询请求
 function doQueryCrossSorting(params) {
-	var url = $("#contextPath").val() + "/crossSorting/list";
-	CommonClient.post(url, params, function(data) {
+	var url = $("#contextPath").val() + "/autosorting/sortSchemeDetail/list";
+	CommonClient.postJson(url, params, function(data) {
 		if (data == undefined || data == null) {
 			jQuery.messager.alert('提示:','HTTP请求无数据返回！','info');
 			return;
 		}
-		if (data.code == 1) {
-			// alert(JSON.stringify(data));
+		if (data.code == 200) {
 			var pager = data.data;
 			var dataList = pager.data;
 			var temp = "";
 			for (var i = 0; i < dataList.length; i++) {
 				temp += "<tr class='a2' style=''>";
-				temp += "<td>" + (i + 1) + "</td>";
-				temp += "<td>" + (dataList[i].createDmsCode) + "</td>";
-				temp += "<td>" + (dataList[i].createDmsName) + "</td>";
-				temp += "<td>" + (dataList[i].destinationDmsCode) + "</td>";
-				temp += "<td>" + (dataList[i].destinationDmsName) + "</td>";
-				temp += "<td>" + (dataList[i].mixDmsCode) + "</td>";
-				temp += "<td>" + (dataList[i].mixDmsName) + "</td>";
-				temp += "<td>" + (dataList[i].createUserName) + "</td>";
-				temp += "<td>" + (getDateString(getData(dataList[i].createTime))) + "</td>";
-				temp += "<td>" + "<input type='button' value='删除' onclick='crossSortingDelete(" + dataList[i].id + ")'>" + "</td>";
+
+				temp += "<td>" + (dataList[i].chuteCode1) + "</td>";
+				siteNo = dataList[i].siteNo;
+				temp += "<td>" + (dataList[i].siteCode) + "</td>";
+				temp += "<td>" + (dataList[i].boxSiteCode) + "</td>";
+				temp += "<td>" + (dataList[i].pkgLabelName) + "</td>";
+				temp += "<td>" + (dataList[i].currChuteCode) + "</td>";
+				temp += "<td>" + (dataList[i].yn == 1 ? '激活' : '未激活') + "</td>";
+				temp += "<td>" + (dataList[i].receFlag == 1 ? '接收' : '未接收') + "</td>";
+				temp += "<td>" + (dataList[i].receTime) + "</td>";
+
 				temp += "</tr>";
 			}
 			$("#paperTable tbody").html(temp);
@@ -221,38 +172,10 @@ function doQueryCrossSorting(params) {
 			// 添加分页显示
 			$("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
 		} else {
+			siteNo = null;
 			jQuery.messager.alert('提示:', data.message, 'info');
 		}
 	});
-}
-
-// 将任务的状态和执行次数重置
-function crossSortingDelete(id) {
-	// alert(id);
-	var params = {};
-	params.id = $.trim(id);
-	doCrossSortingDelete(params);
-}
-
-function doCrossSortingDelete(params) {
-	var url = $("#contextPath").val() + "/crossSorting/delete";
-	CommonClient.post(url, params, function(data) {
-		if (data == undefined || data == null) {
-			jQuery.messager.alert('提示:','HTTP请求无数据返回！','info');
-			return;
-		}
-		if (data.code == 1) {// 1:normal
-			//对当前页面做重新查询
-			onQueryBtnClick($.trim($("#pageNo").val()));
-			//jQuery.messager.alert('提示:','删除成功','info');
-		} else {// 0:exception,2:warn
-			jQuery.messager.alert('提示:', data.message, 'info');
-		}
-	});
-}
-
-function goAddBtnClick() {
-	location.href = $("#contextPath").val() + "/crossSorting/goAddBatch";
 }
 
 function getData(value) {
