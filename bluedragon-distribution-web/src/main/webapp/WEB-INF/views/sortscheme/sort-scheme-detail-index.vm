@@ -45,39 +45,44 @@
         <div id="sortscheme_query_param_div" style="height: 30px;">
             <span class="sortscheme_query_span">
 				分拣中心：
-				<select id="dmsCode" class="sortscheme_query_select">
-                    <option value="">所有分拣中心</option>
+				<select id="siteNo" class="sortscheme_query_select">
+                    <option value="$!schemeParam.siteNo">$!schemeParam.siteName</option>
                 </select>
 			</span>
             <span class="sortscheme_query_span">
 				分拣机代码：
-				<input type="text" id="machineCode" class="sortscheme_query_text"/>
+				<input type="text" id="machineCode" class="sortscheme_query_text" value="$!schemeParam.machineCode"/>
+                <input type="hidden" id="schemeId" class="sortscheme_query_text" value="$!schemeParam.schemeId"/>
 			</span>
             <span class="sortscheme_query_span">
 				站点：
-				<input type="text" id="siteNo" class="sortscheme_query_text"/>
+				<input type="text" id="boxSiteCode" class="sortscheme_query_text"/>
 			</span>
 			<span class="sortscheme_query_span">
 				分拣模式：
 				<select id="sortMode" class="sortscheme_query_select">
-                    <option value="1">最近</option>
+                    #if($!schemeParam.sortMode == "1")
+                        <option value="1">最近</option>
+                    #elseif($!schemeParam.sortMode == "2")
+                        <option value="2">瀑布</option>
+                    #else
+                        <option value="3">循环</option>
+                    #end
                 </select>
 			</span>
             <span class="sortscheme_query_span">
 				分拣机方案名称：
-				<input type="text" id="name" class="sortscheme_query_text"/>
+				<input type="text" id="name" class="sortscheme_query_text" value="$!schemeParam.name"/>
 			</span>
             <span class="sortscheme_query_span">
 				物理滑槽：
-				<input type="text" id="siteNo" class="sortscheme_query_text"/>
+				<input type="text" id="chuteCode" class="sortscheme_query_text"/>
 			</span>
         </div>
         <div id="sortscheme_query_operate" style="height: 30px;">
             <div id="sortscheme_query_btn" style="margin-left: 655px;">
                 <span class="sortscheme_query_span" style="width: 250px;">
                     <input id="queryBtn" value="查询" type="button" class="btn_c">
-					<input id="addBtn" value="增加" type="button" class="btn_c">
-                	<input id="activeBtn" value="方案激活" type="button" class="btn_c">
 				</span>
             </div>
         </div>
@@ -89,13 +94,14 @@
                     <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
                         <thead>
                         <tr>
-                            <th style="width:40px;">方案ID</th>
-                            <th style="width:40px;">方案名称</th>
                             <th style="width:40px;">物理滑槽</th>
-                            <th style="width:50px;">目的地代码</th>
-                            <th style="width:50px;">箱号目的地代码</th>
-                            <th style="width:50px;">箱号目的地名称</th>
+                            <th style="width:40px;">目的地代码</th>
+                            <th style="width:40px;">格口箱号目的地代码</th>
+                            <th style="width:50px;">格口箱号目的地名称</th>
                             <th style="width:50px;">当前使用滑槽</th>
+                            <th style="width:50px;">是否激活</th>
+                            <th style="width:50px;">是否接收</th>
+                            <th style="width:50px;">接收时间</th>
                         </tr>
                         </thead>
                         <tbody>
