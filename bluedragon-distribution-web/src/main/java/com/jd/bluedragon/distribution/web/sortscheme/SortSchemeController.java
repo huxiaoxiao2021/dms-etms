@@ -1,14 +1,10 @@
 package com.jd.bluedragon.distribution.web.sortscheme;
 
-import com.google.common.primitives.Ints;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
-import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
-import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
 import com.jd.bluedragon.utils.IntegerHelper;
@@ -209,36 +205,36 @@ public class SortSchemeController {
         return response;
     }
 
-    @RequestMapping(value = "/sortSchemeDetail/list", method = RequestMethod.POST)
-    @ResponseBody
-    public SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(@RequestBody SortSchemeDetailRequest request) {
-
-        SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> response = new SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>>();
-        try {
-            if (request == null || request.getSiteNo() == null) {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage("参数不能为空！");
-                return response;
-            }
-            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
-            if (StringUtils.isBlank(url)) {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
-                return response;
-            }
-            SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = sortSchemeDetailService.pageQuerySortSchemeDetail(request, HTTP + url + "/autosorting/sortSchemeDetail/list");
-            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
-                response.setCode(JdResponse.CODE_OK);
-                response.setData(remoteResponse.getData());
-            }
-        } catch (Exception e) {
-            logger.error("SortSchemeResource.pageQuerySortSchemeDetail-error!", e);
-            response.setCode(JdResponse.CODE_SERVICE_ERROR);
-            response.setData(null);
-            response.setMessage(e.getMessage());
-        }
-        return response;
-    }
+//    @RequestMapping(value = "/sortSchemeDetail/list", method = RequestMethod.POST)
+//    @ResponseBody
+//    public SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(@RequestBody SortSchemeDetailRequest request) {
+//
+//        SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> response = new SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>>();
+//        try {
+//            if (request == null || request.getSiteNo() == null) {
+//                response.setCode(JdResponse.CODE_PARAM_ERROR);
+//                response.setMessage("参数不能为空！");
+//                return response;
+//            }
+//            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+//            if (StringUtils.isBlank(url)) {
+//                response.setCode(JdResponse.CODE_PARAM_ERROR);
+//                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+//                return response;
+//            }
+//            SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = sortSchemeDetailService.pageQuerySortSchemeDetail(request, HTTP + url + "/autosorting/sortSchemeDetail/list");
+//            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+//                response.setCode(JdResponse.CODE_OK);
+//                response.setData(remoteResponse.getData());
+//            }
+//        } catch (Exception e) {
+//            logger.error("SortSchemeResource.pageQuerySortSchemeDetail-error!", e);
+//            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+//            response.setData(null);
+//            response.setMessage(e.getMessage());
+//        }
+//        return response;
+//    }
 
 }
 
