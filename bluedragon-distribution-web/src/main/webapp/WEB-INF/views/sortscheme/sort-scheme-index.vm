@@ -56,6 +56,7 @@
 			<span class="sortscheme_query_span">
 				分拣模式：
 				<select id="sortMode" class="sortscheme_query_select">
+                    <option value="">全部</option>
                     <option value="1">最近</option>
                     <option value="2">瀑布</option>
                     <option value="3">循环</option>
@@ -83,6 +84,8 @@
                     <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
                         <thead>
                         <tr>
+                            <th style="width:10px;">
+                            </th>
                             <th style="width:40px;">方案名称</th>
                             <th style="width:40px;">分拣中心</th>
                             <th style="width:50px;">分拣机代码</th>
