@@ -21,7 +21,7 @@ function main() {
 
     // 激活按钮
     $("#activeBtn").click(function () {
-
+        goActiveBtnClick();
     });
 
     // 加载所有的分拣中心
@@ -30,6 +30,44 @@ function main() {
 
 function goAddBtnClick() {
     location.href = $("#contextPath").val() + "/autosorting/sortScheme/goAdd";
+}
+
+
+//--------------激活方案-----------------
+
+function goActiveBtnClick() {
+    var singleBtns = $("input[name='singleBtn']:checked");
+    if(singleBtns == null || singleBtns.length < 1){
+        jQuery.messager.alert('提示:', "至少选择 1 条数据!", 'info');
+        return;
+    }
+    if(singleBtns.length > 1){
+        jQuery.messager.alert('提示:', "最多选择 1 条数据!", 'info');
+        return;
+    }
+    // 校验状态:如果已经激活,则提示不用激活
+    if (singleBtns[0].value == 1) {
+        jQuery.messager.alert('提示:', "当前分拣计划已经激活!", 'info');
+        return;
+    }
+    var url = $("#contextPath").val() + "/autosorting/sortScheme/update/able/id";
+    var params = {};
+    params.id = singleBtns[0].id;
+    params.siteNo = $.trim($("#siteNo").val());
+    CommonClient.postJson(url, params, function (data) {
+        if (data == undefined || data == null) {
+            jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+            return;
+        }
+        if (data.code == 200) {
+            jQuery.messager.alert('提示:', "当前分拣计划激活成功", 'info');
+            // 对当前页做一次分页查询
+            onQueryBtnClick($("#pageNo").val());
+        } else {
+            jQuery.messager.alert('提示:', data.message, 'info');
+        }
+    });
+
 }
 
 
@@ -143,6 +181,7 @@ function doQueryCrossSorting(params) {
             var temp = "";
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
+                temp += "<td><input id='" + dataList[i].id + "' value='" + dataList[i].yn + "' name='singleBtn' type='checkbox'/></td>";
                 temp += "<td>" + (dataList[i].name) + "</td>";
                 siteNo = dataList[i].siteNo;
                 temp += "<td>" + (dataList[i].siteName) + "</td>";
@@ -170,6 +209,8 @@ function doQueryCrossSorting(params) {
             $("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {
             siteNo = null;
+            $("#paperTable tbody").html("");
+            $("#pager").html("");
             jQuery.messager.alert('提示:', data.message, 'info');
         }
     });
