@@ -13,10 +13,6 @@ function main() {
 
 	// 初始化不可变的组件
 	initComp();
-	/*
-	// 加载所有的分拣中心
-	initDms();
-	*/
 }
 
 function initComp() {
@@ -26,98 +22,11 @@ function initComp() {
 	$("#name").enable(false);
 }
 
-/*
-function initOrg() {
-	var url = $("#contextPath").val() + "/services/bases/allorgs";
-	var param = {};
-	$.getJSON(url, function(data) {
-		// data --> List<BaseResponse>
-		var orgList = data;
-		var tableObj = $('#orgList');
-		var optionList;
-		optionList += "<option value='' selected='selected'></option>";
-		for (var i = 0; i < orgList.length; i++) {
-			if (orgList[i].orgId != -100) {
-				optionList += "<option value='" + orgList[i].orgId + "'>" + orgList[i].orgName + "</option>";
-			}
-		}
-		tableObj.append(optionList);
-	});
-}
-
-// 实现与机构联动
-function initCreateDmsList() {
-	// select DISTINCT task_type from task_weight;
-	var orgId = $.trim($("#orgList").val());
-	var url = $("#contextPath").val() + "/services/bases/dms/" + orgId;
-	if (orgId == "") {
-		return;
-	}
-	$.getJSON(url, function(data) {
-		var dmsList = data;
-		if (data == undefined || data == null) {
-			jQuery.messager.alert('提示:', "HTTP请求无数据返回！", 'info');
-			return;
-		}
-		if (dmsList.length > 0 && dmsList[0].code == 200) {// 200:normal
-			loadDmsList(dmsList, "createDmsList");
-		} else if (dmsList.length > 0 && dmsList[0].code == 404) {// 404:
-			$('#createDmsList').html("");
-			jQuery.messager.alert('提示:', "获取分拣中心列表为空！", 'info');
-		} else if (dmsList.length > 0 && dmsList[0].code == 20000) {// 20000:error
-			$('#createDmsList').html("");
-			jQuery.messager.alert('提示:', "获取分拣中心列表失败！", 'info');
-		} else {
-			$('#createDmsList').html("");
-			jQuery.messager.alert('提示:', "数据异常！", 'info');
-		}
-	});
-}
-
-function loadDmsList(dmsList, selectId) {
-	dmsList.sort(function(a, b) {
-		if(a.siteCode != null && a.siteCode != "" && b.siteCode != null && b.siteCode != ""){
-			return a.siteCode.toString().substring(0, 1) > b.siteCode.toString().substring(0, 1) ? 1 : -1;
-		}
-	});
-	var dmsObj = $('#' + selectId);
-	$('#createDmsList').html("");
-	var optionList = "";
-	optionList += "<option value='' selected='selected'></option>";
-	for (var i = 0; i < dmsList.length; i++) {
-		optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
-	}
-	dmsObj.append(optionList);
-	$("#paperTable tbody").html("");
-}
-
-function initDms() {
-	var url = $("#contextPath").val() + "/services/bases/dms";
-	$.getJSON(url, function(data) {
-		var dmsList = data;
-		if (data == undefined || data == null) {
-			jQuery.messager.alert('提示:', "HTTP请求无数据返回！", 'info');
-			return;
-		}
-		if (dmsList.length > 0 && dmsList[0].code == 200) {// 200:normal
-			loadDmsList(dmsList, "destinationDmsList");
-		} else if (dmsList.length > 0 && dmsList[0].code == 404) {// 404:
-			jQuery.messager.alert('提示:', "获取分拣中心列表为空！", 'info');
-		} else if (dmsList.length > 0 && dmsList[0].code == 20000) {// 20000:error
-			jQuery.messager.alert('提示:', "获取分拣中心列表为空！", 'info');
-		} else {
-			jQuery.messager.alert('提示:', "数据异常！", 'info');
-		}
-	});
-}
-*/
-
 function onQueryBtnClick(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
 	doQueryCrossSorting(params);
 }
-
 
 function getParams() {
 	var params = {};
