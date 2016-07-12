@@ -10,34 +10,24 @@ function main() {
 	$('#queryBtn').click(function() {
 		onQueryBtnClick(1);
 	});
-	/*
+
 	// 初始化不可变的组件
 	initOrg();
-
+	/*
 	// 加载所有的分拣中心
 	initDms();
 	*/
 }
-/*
+
 function initOrg() {
-	var url = $("#contextPath").val() + "/services/bases/allorgs";
-	var param = {};
-	$.getJSON(url, function(data) {
-		// data --> List<BaseResponse>
-		var orgList = data;
-		var tableObj = $('#orgList');
-		var optionList;
-		optionList += "<option value='' selected='selected'></option>";
-		for (var i = 0; i < orgList.length; i++) {
-			if (orgList[i].orgId != -100) {
-				optionList += "<option value='" + orgList[i].orgId + "'>" + orgList[i].orgName + "</option>";
-			}
-		}
-		tableObj.append(optionList);
-	});
+	$("#siteNo").enable(false);
+	$("#machineCode").enable(false);
+	$("#sortMode").enable(false);
+	$("#name").enable(false);
+	
 }
 
-
+/*
 function initOrg() {
 	var url = $("#contextPath").val() + "/services/bases/allorgs";
 	var param = {};
