@@ -20,6 +20,8 @@ public class SortSchemeRequest {
      */
     private String siteNo;
 
+    private String siteName;
+
     /**
      * 分拣机代码
      */
@@ -86,6 +88,14 @@ public class SortSchemeRequest {
 
     public void setSiteNo(String siteNo) {
         this.siteNo = siteNo;
+    }
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
     }
 
     public String getMachineCode() {
