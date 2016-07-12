@@ -12,19 +12,18 @@ function main() {
 	});
 
 	// 初始化不可变的组件
-	initOrg();
+	initComp();
 	/*
 	// 加载所有的分拣中心
 	initDms();
 	*/
 }
 
-function initOrg() {
+function initComp() {
 	$("#siteNo").enable(false);
 	$("#machineCode").enable(false);
 	$("#sortMode").enable(false);
 	$("#name").enable(false);
-	
 }
 
 /*
