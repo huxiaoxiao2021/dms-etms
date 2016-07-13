@@ -7,12 +7,14 @@ import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,6 +46,26 @@ public class SortSchemeController {
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
         return "sortscheme/sort-scheme-index";
+    }
+
+    @RequestMapping(value = "/goDetail", method = RequestMethod.GET)
+    public String goDetail(SortSchemeRequest request, Model model) {
+        try {
+            if (request == null || request.getSiteNo() == null || request.getId() == null) {
+                return "sortscheme/sort-scheme-detail-index";
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                return "sortscheme/sort-scheme-detail-index";
+            }
+            SortSchemeResponse<SortScheme> remoteResponse = sortSchemeService.findById2(request, HTTP + url + "/autosorting/sortScheme/find/id");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                model.addAttribute("sortScheme", remoteResponse.getData());
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeController.goDetail error!", e);
+        }
+        return "sortscheme/sort-scheme-detail-index";
     }
 
     @RequestMapping(value = "/goAdd", method = RequestMethod.GET)
@@ -204,37 +226,6 @@ public class SortSchemeController {
         }
         return response;
     }
-
-//    @RequestMapping(value = "/sortSchemeDetail/list", method = RequestMethod.POST)
-//    @ResponseBody
-//    public SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(@RequestBody SortSchemeDetailRequest request) {
-//
-//        SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> response = new SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>>();
-//        try {
-//            if (request == null || request.getSiteNo() == null) {
-//                response.setCode(JdResponse.CODE_PARAM_ERROR);
-//                response.setMessage("参数不能为空！");
-//                return response;
-//            }
-//            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
-//            if (StringUtils.isBlank(url)) {
-//                response.setCode(JdResponse.CODE_PARAM_ERROR);
-//                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
-//                return response;
-//            }
-//            SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = sortSchemeDetailService.pageQuerySortSchemeDetail(request, HTTP + url + "/autosorting/sortSchemeDetail/list");
-//            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
-//                response.setCode(JdResponse.CODE_OK);
-//                response.setData(remoteResponse.getData());
-//            }
-//        } catch (Exception e) {
-//            logger.error("SortSchemeResource.pageQuerySortSchemeDetail-error!", e);
-//            response.setCode(JdResponse.CODE_SERVICE_ERROR);
-//            response.setData(null);
-//            response.setMessage(e.getMessage());
-//        }
-//        return response;
-//    }
 
 }
 

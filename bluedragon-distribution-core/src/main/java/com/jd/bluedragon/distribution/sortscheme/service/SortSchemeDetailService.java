@@ -13,4 +13,8 @@ import java.util.List;
 public interface SortSchemeDetailService {
 
     SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(SortSchemeDetailRequest request, String url);
+
+    SortSchemeDetailResponse<List<String>> findMixSiteBySchemeId2(SortSchemeDetailRequest request, String url);
+
+    SortSchemeDetailResponse<List<String>> findChuteCodeBySchemeId2(SortSchemeDetailRequest request, String url);
 }

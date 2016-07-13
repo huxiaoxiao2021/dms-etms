@@ -23,4 +23,18 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 });
     }
 
+    @Override
+    public SortSchemeDetailResponse<List<String>> findMixSiteBySchemeId2(SortSchemeDetailRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeDetailResponse<List<String>>>() {
+                });
+    }
+
+    @Override
+    public SortSchemeDetailResponse<List<String>> findChuteCodeBySchemeId2(SortSchemeDetailRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeDetailResponse<List<String>>>() {
+                });
+    }
+
 }

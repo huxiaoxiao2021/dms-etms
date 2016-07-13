@@ -24,4 +24,6 @@ public interface SortSchemeService {
     SortSchemeResponse<String> disableById2(SortSchemeRequest request, String url);
 
     SortSchemeResponse<String> ableById2(SortSchemeRequest request, String url);
+
+    SortSchemeResponse<SortScheme> findById2(SortSchemeRequest request, String url);
 }

@@ -12,7 +12,6 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xpath.operations.Mod;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,6 +71,66 @@ public class SortSchemeDetailController {
                 return response;
             }
             SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = sortSchemeDetailService.pageQuerySortSchemeDetail(request, HTTP + url + "/autosorting/sortSchemeDetail/list");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setData(remoteResponse.getData());
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/list/mixsite", method = RequestMethod.POST)
+    @ResponseBody
+    public SortSchemeDetailResponse<List<String>> mixsite(@RequestBody SortSchemeDetailRequest request) {
+        SortSchemeDetailResponse<List<String>> response = new SortSchemeDetailResponse<List<String>>();
+        try {
+            if (request == null || request.getSiteNo() == null || request.getSchemeId() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣中心ID或分拣计划ID为空,请输入!!");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            SortSchemeDetailResponse<List<String>> remoteResponse = sortSchemeDetailService.findMixSiteBySchemeId2(request, HTTP + url + "/autosorting/sortSchemeDetail/list/mixsite");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setData(remoteResponse.getData());
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/list/chutecode", method = RequestMethod.POST)
+    @ResponseBody
+    public SortSchemeDetailResponse<List<String>> chuteCode(@RequestBody SortSchemeDetailRequest request) {
+        SortSchemeDetailResponse<List<String>> response = new SortSchemeDetailResponse<List<String>>();
+        try {
+            if (request == null || request.getSiteNo() == null || request.getSchemeId() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣中心ID或分拣计划ID为空,请输入!!");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            SortSchemeDetailResponse<List<String>> remoteResponse = sortSchemeDetailService.findChuteCodeBySchemeId2(request, HTTP + url + "/autosorting/sortSchemeDetail/list/chutecode");
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setData(remoteResponse.getData());

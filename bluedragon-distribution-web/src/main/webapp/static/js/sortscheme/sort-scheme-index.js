@@ -32,6 +32,9 @@ function goAddBtnClick() {
     location.href = $("#contextPath").val() + "/autosorting/sortScheme/goAdd";
 }
 
+function goDetailClick(id) {
+    location.href = $("#contextPath").val() + "/autosorting/sortScheme/goDetail?id=" + id + "&siteNo=" + siteNo;
+}
 
 //--------------激活方案-----------------
 
@@ -130,7 +133,7 @@ function loadDmsList(dmsList, selectId) {
     var dmsObj = $('#' + selectId);
     $('#createDmsList').html("");
     var optionList = "";
-    optionList += "<option value='' selected='selected'></option>";
+    //optionList += "<option value='' selected='selected'></option>";
     for (var i = 0; i < dmsList.length; i++) {
         optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
     }
@@ -194,13 +197,13 @@ function doQueryCrossSorting(params) {
                 } else {
                     temp += "<td>循环</td>";
                 }
-                temp += "<td>" + (dataList[i].receFlag) + "</td>";
+                temp += "<td>" + (dataList[i].receFlag == 1 ? '接收' : '未接收') + "</td>";
                 temp += "<td>" + (dataList[i].receTime) + "</td>";
-                temp += "<td>" + (dataList[i].yn == 1 ? '激活' : '未激活') + "</td>";
-                temp += "<td>" + "<input type='button' value='批量导入' onclick='xxxxxxx(" + dataList[i].id + ")' style='margin-right:10px;'>"
-                    + "<input type='button' value='批量导出' onclick='xxxxxxx(" + dataList[i].id + ")' style='margin-right:10px;'>"
+                temp += "<td>" + (dataList[i].yn == 1 ? '<font color="red">激活</font>' : '未激活') + "</td>";
+                temp += "<td>" + "<input type='button' value='批量导入' onclick='importExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"
+                    + "<input type='button' value='批量导出' onclick='exportExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"
                     + "<input type='button' value='删除' onclick='sortSchemeDelete(" + dataList[i].id + ")' style='margin-right:10px;'>"
-                    + "<input type='button' value='查看明细' onclick='xxxxxxx(" + dataList[i].id + ")'>" + "</td>";
+                    + "<input type='button' value='查看明细' onclick='goDetailClick(" + dataList[i].id + ")'>" + "</td>";
                 temp += "</tr>";
             }
             $("#paperTable tbody").html(temp);

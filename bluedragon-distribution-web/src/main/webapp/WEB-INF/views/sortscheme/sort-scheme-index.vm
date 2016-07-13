@@ -25,7 +25,41 @@
         #content {
             margin: 0 auto;
         }
-
+        .query_span_1 {
+            display: block;
+            float: left;
+            width: 210px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .query_span_2 {
+            display: block;
+            float: left;
+            width: 140px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .query_span_3 {
+            display: block;
+            float: left;
+            width: 250px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .query_text {
+            width: 120px;
+        }
+        .query_select_1 {
+            float: left;
+            width: 200px;
+            margin-top: 5px;
+        }
+        .query_select_2 {
+            width: 60px;
+        }
+        .btn_c {
+            margin-left: 5px;
+        }
         #pager table {
             width: 80%;
         }
@@ -41,40 +75,38 @@
     </p>
 </div>
 <div id="content">
-    <div id="sortscheme_query_param">
-        <div id="sortscheme_query_param_div" style="height: 30px;">
-            <span class="sortscheme_query_span">
+    <div id="query_table">
+        <div id="query_param">
+            <span class="query_select_1">
 				分拣中心：
-				<select id="siteNo" class="sortscheme_query_select">
+				<select id="siteNo" class="query_text">
                     <option value="">所有分拣中心</option>
                 </select>
 			</span>
-            <span class="sortscheme_query_span">
-				分拣机代码：
-				<input type="text" id="machineCode" class="sortscheme_query_text"/>
+            <span class="query_span_1">
+				分拣机代码：<input type="text" id="machineCode" class="query_text"/>
 			</span>
-			<span class="sortscheme_query_span">
+            <span class="query_span_2">
 				分拣模式：
-				<select id="sortMode" class="sortscheme_query_select">
+				<select id="sortMode" class="query_select_2">
                     <option value="">全部</option>
                     <option value="1">最近</option>
                     <option value="2">瀑布</option>
                     <option value="3">循环</option>
                 </select>
 			</span>
-            <span class="sortscheme_query_span">
+            <span class="query_span_3">
 				分拣机方案名称：
-				<input type="text" id="name" class="sortscheme_query_text"/>
+				<input type="text" id="name" class="query_text"/>
 			</span>
+
         </div>
-        <div id="sortscheme_query_operate" style="height: 30px;">
-            <div id="sortscheme_query_btn" style="margin-left: 655px;">
-                <span class="sortscheme_query_span" style="width: 250px;">
-                    <input id="queryBtn" value="查询" type="button" class="btn_c">
-					<input id="addBtn" value="增加" type="button" class="btn_c">
-                	<input id="activeBtn" value="方案激活" type="button" class="btn_c">
-				</span>
-            </div>
+        <div id="query_operate" style="height: 30px">
+            <span class="query_spans" style="width: 250px;">
+                <input id="queryBtn" value="查询" type="button" class="btn_c">
+                <input id="addBtn" value="增加" type="button" class="btn_c">
+                <input id="activeBtn" value="方案激活" type="button" class="btn_c">
+            </span>
         </div>
     </div>
     <div id="sortscheme_list_div" style="margin-top: 10px;">

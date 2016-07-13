@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css"
           href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/jquery-plugins/jquery-ui-1.10.4.min.css')">
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
@@ -20,12 +21,19 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery-ui-1.10.4.min.js')"></script>
     <script type="text/javascript" src="#springUrl("/static/js/sortscheme/sort-scheme-detail-index.js")"></script>
     <style type="text/css">
         #content {
             margin: 0 auto;
         }
-
+        .query_text {
+            width: 150px;
+        }
+        .query_param_line {
+            display: block;
+            float: left;
+        }
         #pager table {
             width: 80%;
         }
@@ -41,54 +49,62 @@
     </p>
 </div>
 <div id="content">
-    <div id="sortscheme_query_param">
-        <div id="sortscheme_query_param_div" style="height: 30px;">
-            <span class="sortscheme_query_span">
-				分拣中心：
-				<select id="siteNo" class="sortscheme_query_select">
-                    <option value="$!schemeParam.siteNo">$!schemeParam.siteName</option>
-                </select>
-			</span>
-            <span class="sortscheme_query_span">
-				分拣机代码：
-				<input type="text" id="machineCode" class="sortscheme_query_text" value="$!schemeParam.machineCode"/>
-                <input type="hidden" id="schemeId" class="sortscheme_query_text" value="$!schemeParam.schemeId"/>
-			</span>
-            <span class="sortscheme_query_span">
-				站点：
-				<input type="text" id="boxSiteCode" class="sortscheme_query_text"/>
-			</span>
-			<span class="sortscheme_query_span">
-				分拣模式：
-				<select id="sortMode" class="sortscheme_query_select">
-                    #if($!schemeParam.sortMode == "1")
-                        <option value="1">最近</option>
-                    #elseif($!schemeParam.sortMode == "2")
-                        <option value="2">瀑布</option>
+    <div id="query_table">
+        <div id="query_param" style="height: 30px;">
+            <input type="hidden" id="schemeId" class="query_text" value="$!sortScheme.id"/>
+            <div id="query_param_line">
+                <span class="query_span">
+                    分拣中心：
+                    <input type="text" id="siteName" disabled="disabled" class="query_text" value="$!sortScheme.siteName"/>
+                    <input type="hidden" id="siteNo" class="query_text" value="$!sortScheme.siteNo"/>
+                </span>
+                <span class="query_span">
+                    分拣机代码：
+                    <input type="text" id="machineCode" disabled="disabled" class="query_text" value="$!sortScheme.machineCode"/>
+                </span>
+                <span class="query_span">
+                    <div class="ui-widget">
+                        <label for="tags">站点：</label>
+                        <input id="boxSiteCode">
+                    </div>
+                </span>
+            </div>
+            <div id="query_param_line">
+                <span class="query_span">
+                    分拣模式：
+                    <input type="hidden" id="sortMode" value="$!sortScheme.sortMode"/>
+                    #if($!sortScheme.sortMode == "1")
+                        <input type="text" id="sortModeName" disabled="disabled" class="query_text" value="最近"/>
+                    #elseif($!sortScheme.sortMode == "2")
+                        <input type="text" id="sortModeName" disabled="disabled" class="query_text" value="瀑布"/>
                     #else
-                        <option value="3">循环</option>
+                        <input type="text" id="sortModeName" disabled="disabled" class="query_text" value="循环"/>
                     #end
-                </select>
-			</span>
-            <span class="sortscheme_query_span">
-				分拣机方案名称：
-				<input type="text" id="name" class="sortscheme_query_text" value="$!schemeParam.name"/>
-			</span>
-            <span class="sortscheme_query_span">
-				物理滑槽：
-				<input type="text" id="chuteCode" class="sortscheme_query_text"/>
-			</span>
+                </span>
+                <span class="query_span">
+                    分拣机方案名称：
+                    <input type="text" id="name" disabled="disabled" class="query_text" value="$!sortScheme.name"/>
+                </span>
+                <span class="query_span">
+                    <div class="ui-widget">
+                        <label for="tags">物理滑槽：</label>
+                        <input id="chuteCode">
+                    </div>
+                </span>
+            </div>
+
+
         </div>
-        <div id="sortscheme_query_operate" style="height: 30px;">
-            <div id="sortscheme_query_btn" style="margin-left: 655px;">
-                <span class="sortscheme_query_span" style="width: 250px;">
+        <div id="query_operate" style="height: 30px;">
+            <div id="query_btn" style="margin-left: 655px;">
+                <span class="query_span" style="width: 250px;">
                     <input id="queryBtn" value="查询" type="button" class="btn_c">
 				</span>
             </div>
         </div>
     </div>
-    <div id="sortscheme_list_div" style="margin-top: 10px;">
-        <div id="sortscheme_list_table">
+    <div id="list_div" style="margin-top: 10px;">
+        <div id="list_table">
             <div class="tbl-list">
                 <div class="tbl-bg">
                     <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">

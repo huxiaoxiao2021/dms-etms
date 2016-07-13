@@ -51,6 +51,13 @@ public class SortSchemeServiceImpl implements SortSchemeService {
                 });
     }
 
+    @Override
+    public SortSchemeResponse<SortScheme> findById2(SortSchemeRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeResponse<SortScheme>>() {
+                });
+    }
+
 
 }
 
