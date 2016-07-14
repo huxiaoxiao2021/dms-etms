@@ -997,4 +997,15 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
     	}
     	return list;
     }
+
+    public static void main(String[] args) {
+        List<String> waybillCodes = new ArrayList<String>();
+        waybillCodes.add("42747094316");
+        waybillCodes.add("42747094313");
+        waybillCodes.add("42747094310");
+        waybillCodes.add("42747094265");
+        waybillCodes.add("42747090797");
+        System.out.println(JsonHelper.toJson(waybillCodes));
+
+    }
 }

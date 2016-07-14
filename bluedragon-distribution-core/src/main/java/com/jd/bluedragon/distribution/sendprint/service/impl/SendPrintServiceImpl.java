@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
@@ -57,7 +59,10 @@ public class SendPrintServiceImpl implements SendPrintService{
 	
 	@Autowired
     private QuickProduceService quickProduceService;
-	
+
+    @Autowired
+    private BoxService boxService;
+
 	/**
 	 * 
 	 * 
@@ -177,8 +182,13 @@ public class SendPrintServiceImpl implements SendPrintService{
             detail.setPackageBarNum(packageBarcodeSet.size());
             detail.setPackageBarRecNum(packageBarcodeSet.size());
             detail.setWaybillNum(waybillCodeSet.size());
-            
+            Double boxOrPackVolume = 0.0;
             if(BusinessHelper.isBoxcode(dendM.getBoxCode())){
+                Box box = boxService.findBoxByCode(dendM.getBoxCode());
+                if(null != box.getLength() && null != box.getWidth() && null != box.getHeight()
+                        && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
+                    boxOrPackVolume = Double.valueOf(box.getLength() * box.getWidth() * box.getHeight());
+                }
             	SealBox tSealBox = this.tSealBoxService.findByBoxCode(dendM.getBoxCode());
                 if(tSealBox!=null){
                     detail.setSealNo1(tSealBox.getCode());
@@ -189,9 +199,23 @@ public class SendPrintServiceImpl implements SendPrintService{
                     detail.setSealNo2("");
                 }
             }else{
+                if(BusinessHelper.isPackageCode(dendM.getBoxCode())) {
+                    HashMap<String, BigWaybillDto> deliveryPackageMap = new HashMap<String, BigWaybillDto>();
+                    List<String> waybillCodes = new ArrayList<String>();
+                    String waybillCode = BusinessHelper.getWaybillCode(dendM.getBoxCode());
+                    waybillCodes.add(waybillCode);
+                    sendToWaybill(deliveryPackageMap,waybillCodes);
+                    if(!deliveryPackageMap.isEmpty() && null != deliveryPackageMap.get(waybillCode)
+                            && null != deliveryPackageMap.get(waybillCode).getWaybill()
+                            && null != deliveryPackageMap.get(waybillCode).getWaybill().getGoodVolume()
+                            && deliveryPackageMap.get(waybillCode).getWaybill().getGoodVolume() > 0) {
+                        boxOrPackVolume = deliveryPackageMap.get(waybillCode).getWaybill().getGoodVolume();
+                    }
+                }
                 detail.setSealNo1("");
                 detail.setSealNo2("");
             }
+            detail.setVolume(boxOrPackVolume);
             details.add(detail);
 //		    }
 		    Date endDate1 = new Date();
@@ -357,7 +381,10 @@ public class SendPrintServiceImpl implements SendPrintService{
  	        				}
  	        			}
  	        			dBasicQueryEntity.setFcNo(storeId);
- 	        			dBasicQueryEntity.setGoodWeight(0.0);
+                        dBasicQueryEntity.setGoodVolume(0.0);
+                        if(waybill != null && waybill.getGoodVolume() != null)
+                            dBasicQueryEntity.setGoodVolume(waybill.getGoodVolume());
+                        dBasicQueryEntity.setGoodWeight(0.0);
  	        			if(waybill != null && waybill.getGoodWeight()!=null)
   				        dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight());
  	        			dBasicQueryEntity.setGoodWeight2(0.0);
@@ -521,7 +548,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 		    SendM qSendM = tosendM(criteria);
 	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);// this.sendMDao.selectBySendSiteCode(qSendM);
 	        if(sendMs!=null && !sendMs.isEmpty()){
-	        	tBasicQueryEntityResponse = detailPrintQuery(sendMs,criteria);	            
+	        	tBasicQueryEntityResponse = detailPrintQuery(sendMs,criteria);
 	        }
 	    } catch (Exception e) {
             logger.error("打印明细基本查询异常");

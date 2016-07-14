@@ -34,5 +34,7 @@ public class BoxDao extends BaseDao<Box> {
     public Integer updateStatusByCodes(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".updateStatusByCodes", box);
     }
-
+    public Integer updateVolumeByCode(Box box) {
+        return super.getSqlSession().update(BoxDao.namespace + ".updateVolumeByCode", box);
+    }
 }

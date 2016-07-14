@@ -20,6 +20,9 @@
 		<result column="mix_box_type" property="mixBoxType"/>
 		<result column="box_status" property="status" />
 		<result column="times" property="times" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="height" property="height" />
 		<result column="yn" property="yn" />
 	</resultMap>
 	
@@ -43,7 +46,7 @@
 
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, box_status,
-			transport_type,mix_box_type
+			transport_type,mix_box_type,length,width,height
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code}
 			AND ROWNUM <![CDATA[<=]]> 1
@@ -95,5 +98,13 @@
 		SET box_status = #{status,jdbcType=INTEGER}
 		WHERE box_code in ${code} and create_site_code = #{createSiteCode}
 	</update>
-	
+
+    <update id="updateVolumeByCode" parameterType="box" >
+        UPDATE Box
+        SET length = #{length,jdbcType=NUMERIC},
+        width = #{width,jdbcType=NUMERIC},
+        height = #{height,jdbcType=NUMERIC},
+        update_time = NOW()
+        WHERE box_code = #{code}
+    </update>
 </mapper>
