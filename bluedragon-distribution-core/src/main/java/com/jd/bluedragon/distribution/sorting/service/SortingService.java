@@ -75,6 +75,14 @@ public interface SortingService {
      * @return
      */
 	List<Sorting> queryByCode(Sorting sorting);
+
+    /**
+     * 根据包裹号或者运单号查询箱子、create_site_code、receive_site_code
+     * added by zhanglei 重新加入一个新方法 取消分拣这里需要特殊处理一下
+     * @param sorting
+     * @return
+     */
+    List<Sorting> queryByCode2(Sorting sorting);
     
 	/**
 	 * 加入日志

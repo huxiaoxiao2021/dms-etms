@@ -128,7 +128,7 @@ public class SortingResource {
 			return this.paramIsError();
 		}
 
-		List<Sorting> sortingRecords = sortingService.queryByCode(sorting);
+		List<Sorting> sortingRecords = sortingService.queryByCode2(sorting);
 
 		if (sortingRecords.isEmpty() || sortingRecords.size() == 0) {
 			logger.warn("取消分拣--->包裹已经发货");
