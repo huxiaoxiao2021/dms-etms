@@ -104,7 +104,7 @@
         SET length = #{length,jdbcType=NUMERIC},
         width = #{width,jdbcType=NUMERIC},
         height = #{height,jdbcType=NUMERIC},
-        update_time = NOW()
+        update_time = sysdate
         WHERE box_code = #{code}
     </update>
 </mapper>
