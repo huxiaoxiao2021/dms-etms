@@ -13,9 +13,9 @@ public class NumberHelper {
         return ObjectHelper.isNotEmpty(object) ? Long.valueOf(object.toString()) : 0L;
     }
 
-	public static Integer getIntegerValue(Object object) {
-		return ObjectHelper.isNotEmpty(object) ? Integer.valueOf(object.toString()) : 0;
-	}
+    public static Integer getIntegerValue(Object object) {
+        return ObjectHelper.isNotEmpty(object) ? Integer.valueOf(object.toString()) : 0;
+    }
 
     public static boolean isPositiveNumber(Integer number) {
         if (ObjectHelper.isEmpty(number)) {
@@ -28,16 +28,16 @@ public class NumberHelper {
     public static boolean isStringNumber(String number) {
         Pattern pattern1 = Pattern.compile("[1-9]\\d*\\.?\\d+");
         Matcher matcher1 = pattern1.matcher(number);
-        if (matcher1.matches()){
+        if (matcher1.matches()) {
             return true;
         }
         return false;
     }
-    
+
     public static boolean isNumber(String number) {
         Pattern pattern1 = Pattern.compile("[1-9]\\d*");
         Matcher matcher1 = pattern1.matcher(number);
-        if (matcher1.matches()){
+        if (matcher1.matches()) {
             return true;
         }
         return false;
@@ -48,6 +48,22 @@ public class NumberHelper {
             return true;
         }
 
+        return false;
+    }
+
+    public static boolean isNumberUpZero(String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+        int sz = str.length();
+        for (int i = 0; i < sz; i++) {
+            if (Character.isDigit(str.charAt(i)) == false) {
+                return false;
+            }
+        }
+        if (Integer.parseInt(str) > 0) {
+            return true;
+        }
         return false;
     }
 }

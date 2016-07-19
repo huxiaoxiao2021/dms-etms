@@ -24,6 +24,11 @@ function main() {
         goActiveBtnClick();
     });
 
+    // 下载分拣计划模版
+    $("#downBtn").click(function () {
+        goDownSortSchemeModel();
+    });
+
     // 加载所有的分拣中心
     initDms();
 }
@@ -36,15 +41,19 @@ function goDetailClick(id) {
     location.href = $("#contextPath").val() + "/autosorting/sortScheme/goDetail?id=" + id + "&siteNo=" + siteNo;
 }
 
+function goDownSortSchemeModel() {
+    location.href = "http://sq.jd.com/dXSzs3";
+}
+
 //--------------激活方案-----------------
 
 function goActiveBtnClick() {
     var singleBtns = $("input[name='singleBtn']:checked");
-    if(singleBtns == null || singleBtns.length < 1){
+    if (singleBtns == null || singleBtns.length < 1) {
         jQuery.messager.alert('提示:', "至少选择 1 条数据!", 'info');
         return;
     }
-    if(singleBtns.length > 1){
+    if (singleBtns.length > 1) {
         jQuery.messager.alert('提示:', "最多选择 1 条数据!", 'info');
         return;
     }
@@ -73,9 +82,22 @@ function goActiveBtnClick() {
 
 }
 
+function goImportExcel(id) {
+    $("#dialog").dialog();
+    var html = '';
+    html += '<div class="div_btn" style="float:left;margin-left: 10px; margin-top: 20px;">';
+    html += '<div style="width: 200px;float: right;">';
+    html += '<input id="loadInBtn" value="导入" type="button" onclick="importExcel(' + id + ')" class="btn_c"></input>';
+    html += '</div>';
+    html += '<form action="" method="post" id="importFileForm" name="importFileForm" style="float:left;width:200px;">';
+    html += '<input type="file" id="importFileIpt" name="importExcelFile" style="height: 28px;display: block;margin-top:5px;"/>';
+    html += '</form>';
+    html += '</div>';
+    $("#dialog").html(html);
+}
 
-function importExcel() {
-    var url = $("#contextPath").val() + "/crossSorting/import/";
+function importExcel(id) {
+    var url = $("#contextPath").val() + "/autosorting/sortScheme/import/?id=" + id + "&siteNo=" + siteNo;
     $.blockUI({message: "<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
     $("#importFileForm").ajaxSubmit({
         url: url, // 请求的url
@@ -200,7 +222,7 @@ function doQueryCrossSorting(params) {
                 temp += "<td>" + (dataList[i].receFlag == 1 ? '接收' : '未接收') + "</td>";
                 temp += "<td>" + (dataList[i].receTime) + "</td>";
                 temp += "<td>" + (dataList[i].yn == 1 ? '<font color="red">激活</font>' : '未激活') + "</td>";
-                temp += "<td>" + "<input type='button' value='批量导入' onclick='importExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"
+                temp += "<td>" + "<input type='button' value='批量导入' onclick='goImportExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"
                     + "<input type='button' value='批量导出' onclick='exportExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"
                     + "<input type='button' value='删除' onclick='sortSchemeDelete(" + dataList[i].id + ")' style='margin-right:10px;'>"
                     + "<input type='button' value='查看明细' onclick='goDetailClick(" + dataList[i].id + ")'>" + "</td>";

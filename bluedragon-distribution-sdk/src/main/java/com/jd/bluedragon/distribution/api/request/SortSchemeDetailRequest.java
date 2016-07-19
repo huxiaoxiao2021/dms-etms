@@ -64,6 +64,8 @@ public class SortSchemeDetailRequest implements Serializable {
      */
     private Integer siteNo;
 
+    private String sortSchemeDetailJson;
+
 
     public Long getId() {
         return id;
@@ -161,4 +163,11 @@ public class SortSchemeDetailRequest implements Serializable {
         this.siteNo = siteNo;
     }
 
+    public String getSortSchemeDetailJson() {
+        return sortSchemeDetailJson;
+    }
+
+    public void setSortSchemeDetailJson(String sortSchemeDetailJson) {
+        this.sortSchemeDetailJson = sortSchemeDetailJson;
+    }
 }

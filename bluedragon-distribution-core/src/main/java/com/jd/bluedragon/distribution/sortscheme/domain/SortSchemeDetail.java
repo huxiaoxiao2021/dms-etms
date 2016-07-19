@@ -36,7 +36,7 @@ public class SortSchemeDetail implements Serializable {
     private String boxSiteCode;
 
     /**
-     * 箱号目的地代码
+     * 站点类型
      */
     private String subType;
 
@@ -70,12 +70,23 @@ public class SortSchemeDetail implements Serializable {
      */
     private Integer yn;
 
+    // 目的地代码串,编号从5开始,格式为siteCode:siteType;siteCode:siteType;...
+    String siteCodes;
+
     public SortSchemeDetail() {
     }
 
     public SortSchemeDetail(Integer siteCode, String chuteCode) {
         this.siteCode = siteCode.toString();
         this.currChuteCode = chuteCode;
+    }
+
+    public SortSchemeDetail(String chuteCode1, String currChuteCode, String boxSiteCode, String pkgLabelName, String siteCodes) {
+        this.chuteCode1 = chuteCode1;
+        this.currChuteCode = currChuteCode;
+        this.boxSiteCode = boxSiteCode;
+        this.pkgLabelName = pkgLabelName;
+        this.siteCodes = siteCodes;
     }
 
     public Long getId() {
@@ -174,7 +185,16 @@ public class SortSchemeDetail implements Serializable {
         this.yn = yn;
     }
 
+    public String getSiteCodes() {
+        return siteCodes;
+    }
+
+    public void setSiteCodes(String siteCodes) {
+        this.siteCodes = siteCodes;
+    }
+
     public String toString() {
         return "SortSchemeDetail:" + "getBoxSiteCode" + this.getBoxSiteCode() + ", getSubType=\'" + this.getSubType() + '\'' + ", getPkgLabelName=\'" + this.getPkgLabelName() + '}';
     }
+
 }

@@ -106,6 +106,7 @@
                 <input id="queryBtn" value="查询" type="button" class="btn_c">
                 <input id="addBtn" value="增加" type="button" class="btn_c">
                 <input id="activeBtn" value="方案激活" type="button" class="btn_c">
+                <input id="downBtn" value="模版下载" type="button" class="btn_c">
             </span>
         </div>
     </div>
@@ -140,6 +141,10 @@
     </div>
     <div id="pager" class="tbl-n">
     </div>
+    <div id="dialog" title="导入对话框" style="width: 440px;height: 100px;">
+
+    </div>
+
 </div>
 </div>
 </body>

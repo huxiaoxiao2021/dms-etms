@@ -4,8 +4,11 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
+import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -26,4 +29,8 @@ public interface SortSchemeService {
     SortSchemeResponse<String> ableById2(SortSchemeRequest request, String url);
 
     SortSchemeResponse<SortScheme> findById2(SortSchemeRequest request, String url);
+
+
+    SortSchemeResponse importSortSchemeDetail2(SortSchemeRequest request, String url);
+
 }

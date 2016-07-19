@@ -46,6 +46,15 @@ public class SortSchemeRequest {
 
     private Integer pageSize;
 
+    private String sortSchemeDetailJson;
+
+    public SortSchemeRequest() {
+    }
+
+    public SortSchemeRequest(Long id) {
+        this.id = id;
+    }
+
     public static boolean validateSortMode(String sortMode) {
         if (sortMode == null || sortMode.length() <= 0) {
             return false;
@@ -146,4 +155,11 @@ public class SortSchemeRequest {
         this.pageSize = pageSize;
     }
 
+    public void setSortSchemeDetailJson(String sortSchemeDetailJson) {
+        this.sortSchemeDetailJson = sortSchemeDetailJson;
+    }
+
+    public String getSortSchemeDetailJson() {
+        return sortSchemeDetailJson;
+    }
 }
