@@ -377,13 +377,18 @@ public class SendPrintServiceImpl implements SendPrintService{
  	        					if(delivery.getPackageBarcode().equals(dBasicQueryEntity.getPackageBar())){
  	        						dBasicQueryEntity.setPackageBarWeight(delivery.getGoodWeight());
  	        						dBasicQueryEntity.setPackageBarWeight2(delivery.getAgainWeight());
+                                    try {
+                                        dBasicQueryEntity.setGoodVolume(Double.valueOf(delivery.getGoodVolume()));
+                                    }catch (Throwable throwable){
+                                        logger.error(throwable.getMessage(),throwable);
+                                    }
  	        					}
  	        				}
  	        			}
  	        			dBasicQueryEntity.setFcNo(storeId);
-                        dBasicQueryEntity.setGoodVolume(0.0);
-                        if(waybill != null && waybill.getGoodVolume() != null)
-                            dBasicQueryEntity.setGoodVolume(waybill.getGoodVolume());
+                        //dBasicQueryEntity.setGoodVolume(0.0);
+                        //if(waybill != null && waybill.getGoodVolume() != null)
+                            //dBasicQueryEntity.setGoodVolume(waybill.getGoodVolume());
                         dBasicQueryEntity.setGoodWeight(0.0);
  	        			if(waybill != null && waybill.getGoodWeight()!=null)
   				        dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight());
