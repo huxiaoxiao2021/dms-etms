@@ -23,7 +23,8 @@ public interface BoxService {
     List<Box> findBoxesBySite(Box box);
 
     Integer updateStatusByCodes(Box box);
-    
+
+    Integer updateVolumeByCode(Box box);
     /**  
      * 查询缓存箱号
      */

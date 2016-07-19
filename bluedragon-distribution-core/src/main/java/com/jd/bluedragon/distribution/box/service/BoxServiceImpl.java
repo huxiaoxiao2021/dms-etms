@@ -167,6 +167,11 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public Integer updateVolumeByCode(Box box) {
+        this.delboxCodeCache(box.getCode());
+        return this.boxDao.updateVolumeByCode(box);
+    }
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateStatusByCodes(Box box) {
         return this.boxDao.updateStatusByCodes(box);
     }

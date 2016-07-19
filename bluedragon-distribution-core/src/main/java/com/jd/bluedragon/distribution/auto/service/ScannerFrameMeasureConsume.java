@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.auto.service;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -31,8 +32,9 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
     @Autowired
     private TaskService taskService;
 
+
     @Autowired
-    private BoxDao boxDao;
+    private BoxService boxService;
 
     @Override
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
@@ -70,7 +72,8 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             int result=taskService.add(task);
             return result>0;
         } else if (SerialRuleUtil.isMatchBoxCode(uploadData.getBarCode())) {  //如果是箱号，更新箱号的长宽高信息
-            return boxDao.updateVolumeByCode(toBoxDto(uploadData)) > 0;
+            //return boxDao.updateVolumeByCode(toBoxDto(uploadData)) > 0;
+            return boxService.updateVolumeByCode(toBoxDto(uploadData))>0;
         }
 
         return Boolean.TRUE; //不是箱号，也不是包裹，直接返回成功，不处理
