@@ -85,5 +85,10 @@
 		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE box_code= #{code,jdbcType=VARCHAR}  
 	</update>
-	
+
+    <update id="batchUpdateStatus"  parameterType="box" >
+        UPDATE Box
+        SET box_status = #{status,jdbcType=INTEGER}
+        WHERE box_code in ${code}
+    </update>
 </mapper>

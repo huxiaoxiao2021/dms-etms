@@ -35,4 +35,8 @@ public class BoxDao extends BaseDao<Box> {
         return super.getSqlSession().update(BoxDao.namespace + ".updateStatusByCodes", box);
     }
 
+    public Integer batchUpdateStatus(Box box) {
+        return super.getSqlSession().update(BoxDao.namespace + ".batchUpdateStatus", box);
+    }
+
 }

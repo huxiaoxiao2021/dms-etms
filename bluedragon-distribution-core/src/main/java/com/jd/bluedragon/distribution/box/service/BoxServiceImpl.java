@@ -14,6 +14,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("boxService")
@@ -30,9 +32,9 @@ public class BoxServiceImpl implements BoxService {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     private static final String separator = "$";
-    
+
     private static final String siteType = "1024";
-    
+
     private static final int timeout = 86400;
 
     @Autowired
@@ -43,7 +45,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Autowired
     private IGenerateObjectId genObjectId;
-    
+
 	@Autowired
 	RedisManager redisManager;
 
@@ -81,7 +83,7 @@ public class BoxServiceImpl implements BoxService {
 				this.logger.error("打印箱号写入缓存失败",e);
 			}
         }
-        
+
         return boxes;
     }
 
@@ -258,7 +260,7 @@ public class BoxServiceImpl implements BoxService {
 		}
 
 		return null;
-	
+
 	}
 
 	public Long delboxCodeCache(String boxCode) {
@@ -270,4 +272,55 @@ public class BoxServiceImpl implements BoxService {
 		}
 		return resulte;
 	}
+
+    @Transactional(propagation=Propagation.REQUIRED,readOnly = false)
+    @Override
+    public Integer batchUpdateStatus(List<String> boxCodes, Integer boxStatus) {
+        if (null == boxCodes || boxCodes.size() <= 0) {
+            return 0;
+        }
+        try {
+            return splitPerOneThousand(boxCodes, boxStatus);
+        } catch (Exception ex) {
+            logger.error("更新箱号状态失败", ex);
+            return 0;
+        }
+    }
+
+    private Integer splitPerOneThousand(List<String> boxCodes, Integer boxStatus) {
+        int totalSize = boxCodes.size();
+        int fromIndex = 0;
+        int perSize = 1000;
+        int effectSize = 0;
+        for (;;) {
+            if (fromIndex + perSize >= totalSize) {
+                Box box = new Box();
+                box.setCode("('" + StringHelper.join(boxCodes.subList(fromIndex, totalSize), "','") + "')");
+                box.setStatus(boxStatus);
+                effectSize += boxDao.batchUpdateStatus(box);
+                break;
+            } else {
+                Box box = new Box();
+                box.setCode("('" + StringHelper.join(boxCodes.subList(fromIndex, fromIndex + perSize), "','") + "')");
+                box.setStatus(boxStatus);
+                effectSize += boxDao.batchUpdateStatus(box);
+                fromIndex = fromIndex + perSize;
+            }
+        }
+        return effectSize;
+    }
+
+    public static void main(String[] args) {
+        Box box = new Box();
+        box.setCode("BC010F002010Y04200061078");
+        box.setType("BC");
+        box.setCreateSiteCode(910);
+        box.setCreateSiteName("北京马驹桥分拣中心");
+        box.setCreateUser("dudong");
+        box.setCreateUserCode(11535);
+        box.setReceiveSiteCode(21);
+        box.setReceiveSiteName("潘家园站");
+        box.setStatus(5);
+        System.out.println(com.jd.bluedragon.utils.JsonHelper.toJson(box));
+    }
 }

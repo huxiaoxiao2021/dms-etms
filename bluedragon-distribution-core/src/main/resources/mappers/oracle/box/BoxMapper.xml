@@ -20,9 +20,9 @@
 		<result column="mix_box_type" property="mixBoxType"/>
 		<result column="box_status" property="status" />
 		<result column="times" property="times" />
-		<result column="yn" property="yn" />
-	</resultMap>
-	
+        <result column="yn" property="yn" />
+    </resultMap>
+
 	<insert id="add" parameterType="box" >
 		INSERT INTO Box (
 			box_id, box_code, box_type, create_site_code, create_site_name,
@@ -93,7 +93,7 @@
 	<update id="batchUpdateStatus"  parameterType="box" >
 		UPDATE Box
 		SET box_status = #{status,jdbcType=INTEGER}
-		WHERE box_code in ${code} and create_site_code = #{createSiteCode}
+		WHERE box_code in ${code}
 	</update>
-	
+
 </mapper>
