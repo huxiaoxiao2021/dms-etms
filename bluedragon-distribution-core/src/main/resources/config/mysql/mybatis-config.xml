@@ -85,6 +85,22 @@
 	<typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
 	</typeAliases>
     <plugins>
+
+        <!--
+          数据库访问监控组件
+        -->
+        <plugin interceptor="com.jd.etms.framework.utils.orm.monitor.DbAccessInterceptor">
+            <property name="sqlExceptionEnabled" value="true" />  <!--sql执行异常报警-->
+            <property name="sqlExceptionKey" value="ql.dms.sql.exception" />  <!--sql执行异常报警key-->
+            <property name="slowSqlEnabled" value="true" />   <!--慢sql超时-->
+            <property name="slowSqlKey" value="ql.dms.slowsql.timeout" />  <!--慢sql超时报警key-->
+            <property name="slowSqlTimeout" value="1000" />   <!--慢sql超时时间1秒-->
+            <property name="tooManyActiveConnEnabled" value="true" /> <!--连接数过多报警-->
+            <property name="tooManyActiveConnKey" value="ql.dms.tooMany.active.connection" />  <!--连接数过多报警key-->
+            <property name="maxActiveConRatio" value="0.7f"/> <!--连接数占比max-active-->
+            <property name="isLogDBUrl" value="true"/> <!--是否显示DB连接url-->
+        </plugin>
+
         <!--
         mq消息发送说明：
         拦截更新插件， 在更新时记录更新操作

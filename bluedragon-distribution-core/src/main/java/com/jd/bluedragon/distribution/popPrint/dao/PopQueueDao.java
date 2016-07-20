@@ -51,7 +51,7 @@ public class PopQueueDao extends BaseDao<PopQueue> {
 	
 	public List<PopQueue> getPopQueueList(PopQueueQuery popQueueQuery){
 		@SuppressWarnings("unchecked")
-		List<PopQueue> list =	(List<PopQueue>)this.getSqlSession().selectList(namespace+".getPopQueueList",popQueueQuery);
+		List<PopQueue> list = this.getSqlSession().selectList(namespace+".getPopQueueList",popQueueQuery);
 		return list; 
 	}
 	

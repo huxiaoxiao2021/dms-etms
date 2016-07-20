@@ -20,12 +20,15 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import jd.oom.client.archiveorder.Business;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +48,9 @@ public class SendPrintServiceImpl implements SendPrintService{
 	
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
+
+    @Autowired
+    WaybillPackageApi waybillPackageApi;
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -200,16 +206,10 @@ public class SendPrintServiceImpl implements SendPrintService{
                 }
             }else{
                 if(BusinessHelper.isPackageCode(dendM.getBoxCode())) {
-                    HashMap<String, BigWaybillDto> deliveryPackageMap = new HashMap<String, BigWaybillDto>();
-                    List<String> waybillCodes = new ArrayList<String>();
-                    String waybillCode = BusinessHelper.getWaybillCode(dendM.getBoxCode());
-                    waybillCodes.add(waybillCode);
-                    sendToWaybill(deliveryPackageMap,waybillCodes);
-                    if(!deliveryPackageMap.isEmpty() && null != deliveryPackageMap.get(waybillCode)
-                            && null != deliveryPackageMap.get(waybillCode).getWaybill()
-                            && null != deliveryPackageMap.get(waybillCode).getWaybill().getGoodVolume()
-                            && deliveryPackageMap.get(waybillCode).getWaybill().getGoodVolume() > 0) {
-                        boxOrPackVolume = deliveryPackageMap.get(waybillCode).getWaybill().getGoodVolume();
+                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(dendM.getBoxCode());
+                    if(null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
+                             && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
+                        boxOrPackVolume = packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh();
                     }
                 }
                 detail.setSealNo1("");
@@ -227,6 +227,21 @@ public class SendPrintServiceImpl implements SendPrintService{
 		logger.info("打印交接清单-summaryPrintQuery结束-"+(startDate.getTime() - endDate.getTime()));
 		return result;
 	}
+
+    private PackOpeFlowDto getOpeByPackageCode(String packageCode) {
+        try{
+            String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+            BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+            for(PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
+                if(packOpeFlowDto.getPackageCode().equals(packageCode)) {
+                    return packOpeFlowDto;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("获取包裹量方信息接口失败，原因", e);
+        }
+        return null;
+    }
 
 	/**
 	 * 明细打印

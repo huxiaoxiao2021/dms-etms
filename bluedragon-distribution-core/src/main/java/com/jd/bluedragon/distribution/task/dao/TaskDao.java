@@ -147,7 +147,7 @@ public class TaskDao extends BaseDao<Task> {
 
 	@SuppressWarnings("unchecked")
 	public List<Task> findPageTask(Map<String, Object> params) {
-		return (List<Task>) super.getSqlSession().selectList(TaskDao.namespace + ".findPageTask", params);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findPageTask", params);
 	}
 
 	public Integer findCountTask(Map<String, Object> params) {
@@ -158,7 +158,7 @@ public class TaskDao extends BaseDao<Task> {
 	public List<Integer> findTaskTypeByTableName(String tableName) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("tableName", tableName);
-		return (List<Integer>) super.getSqlSession().selectList(TaskDao.namespace + ".findTaskTypeByTableName", params);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findTaskTypeByTableName", params);
 	}
 
 	public Integer updateTaskById(Map<String, Object> params) {
