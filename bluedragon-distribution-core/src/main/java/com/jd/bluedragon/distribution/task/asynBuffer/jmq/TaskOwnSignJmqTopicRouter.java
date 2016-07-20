@@ -15,7 +15,7 @@ import java.util.Map;
  * 区分OwnSign
  */
 public class TaskOwnSignJmqTopicRouter implements JmqTopicRouter<Task> {
-    private Map<String /** tasktype_ownsign **/, String /** topic **/> routerMap = new HashMap<String, String>();
+    private Map<String /** tablename_tasktype_ownsign **/, String /** topic **/> routerMap = new HashMap<String, String>();
 
     public TaskOwnSignJmqTopicRouter(Map<String, String> routerMap) {
         super();
@@ -28,6 +28,6 @@ public class TaskOwnSignJmqTopicRouter implements JmqTopicRouter<Task> {
         if(task==null || task.getType()==null){
             return null;
         }
-        return routerMap.get(task.getType() + "_" + task.getOwnSign());
+        return routerMap.get(task.getTableName() + "_" + task.getType() + "_" + task.getOwnSign());
     }
 }

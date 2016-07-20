@@ -21,6 +21,7 @@ public class BusinessHelper {
 
     private static final String AO_BATCH_CODE_PREFIX="Y";
 	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
+	private static final String SOURCE_CODE_ECLP = "ECLP";
 
 	public static String getWaybillCodeByPackageBarcode(String s) {
 		if (!BusinessHelper.isPackageCode(s)) {
@@ -274,7 +275,25 @@ public class BusinessHelper {
 		return Boolean.FALSE;
 	}
 
+	/**
+	 * 判断是否是ECLP订单
+	 * ECLP : 仓储开发平台
+	 * @param sourceCode  运单中的sourceCode字段
+	 * @return
+	 */
+	public static Boolean isECLPCode(String sourceCode) {
+		if (StringHelper.isEmpty(sourceCode)) {
+			return Boolean.FALSE;
+		}
 
+		if (SOURCE_CODE_ECLP.equals(sourceCode)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+	
+	
 	public static boolean isNumeric(String str) {
 		Pattern pattern = Pattern.compile("[0-9]*");
 		return pattern.matcher(str).matches();

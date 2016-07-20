@@ -84,7 +84,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private DtcDataReceiverManager dtcDataReceiverManager;
-//	private Inbound inbound;
 
     @Autowired
     ReverseSpareService reverseSpareService;
@@ -112,10 +111,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private BlueDragonWebService lossWebService;
-
-    @Qualifier("bdToJoslRejMQ")
+    
+    @Qualifier("bdDmsReverseSendEclp")
     @Autowired
-    private DefaultJMQProducer bdToJoslRejMQ;
+    private DefaultJMQProducer bdDmsReverseSendEclp;
 
     @Resource
     @Qualifier("workerProducer")
@@ -580,7 +579,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
                     continue;
                 }
-
+                send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wallBillCode)) {
                     sendWMS(send, wallBillCode, sendM, entry, 0, bDto);
@@ -865,10 +864,18 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
 
         //------------------------维修外单---start--------------------------
-        if (BusinessHelper.isMCSCode(sendDetails.get(0).getWaybillCode())) {
-            pushMCSMessageToSpwms(sendDetails);
-            return true;
+        List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
+        List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
+        for(SendDetail sd: sendDetails){//剔除维修外单
+        	 if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
+        		 vySendDetails.add(sd);
+             }else{
+            	 nomarlSendDetails.add(sd);
+             }
         }
+        sendDetails = nomarlSendDetails;//非维修外单集合        
+        pushMCSMessageToSpwms(vySendDetails);//维修外单发送
+        
         //------------------------维修外单---end----------------------------
 
         // 增加判断d表中数据为逆向数据
@@ -1340,42 +1347,41 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
         }
 
-        if (StringHelper.isNotEmpty(send.getSourceCode())) {
-            //ECLP订单 不推送wms ， 发mq
-            if (send.getSourceCode().equals("ECLP")) {
-                //发MQ-->开发平台
-                logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
+		if (BusinessHelper.isECLPCode(send.getSourceCode())) {
+			// ECLP订单 不推送wms ， 发mq
+			// 发MQ-->开发平台
+			logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
 
-                //给eclp发送mq, eclp然后自己组装逆向报文
-                ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
-                sendmodel.setJdOrderCode(send.getOrderId());
-                sendmodel.setSourceCode(send.getSourceCode());
-                sendmodel.setWaybillCode(wayBillCode);
-                sendmodel.setRejType(3);
-                sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
-                String jsonStr = JsonHelper.toJson(sendmodel);
-                logger.info("推送ECLP的 MQ消息体 " + jsonStr);
+			// 给eclp发送mq, eclp然后自己组装逆向报文
+			ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
+			sendmodel.setJdOrderCode(send.getOrderId());
+			sendmodel.setSendCode(send.getSendCode());
+			sendmodel.setSourceCode(send.getSourceCode());
+			sendmodel.setWaybillCode(wayBillCode);
+			sendmodel.setRejType(3);
+			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
+			String jsonStr = JsonHelper.toJson(sendmodel);
+			logger.info("推送ECLP的 MQ消息体 " + jsonStr);
 
-                //增加系统日志
-                SystemLog sLogDetail = new SystemLog();
-                sLogDetail.setKeyword1(wayBillCode);
-                sLogDetail.setKeyword2(send.getSendCode());
-                sLogDetail.setKeyword3("ECLP");
-                sLogDetail.setType(Long.valueOf(12004));
-                sLogDetail.setContent(jsonStr);
+			// 增加系统日志
+			SystemLog sLogDetail = new SystemLog();
+			sLogDetail.setKeyword1(wayBillCode);
+			sLogDetail.setKeyword2(send.getSendCode());
+			sLogDetail.setKeyword3("ECLP");
+			sLogDetail.setType(Long.valueOf(12004));
+			sLogDetail.setContent(jsonStr);
 
-                try {
-                    bdToJoslRejMQ.send(wayBillCode,jsonStr);
-                    sLogDetail.setKeyword4(Long.valueOf(1));//表示发送成功
-                } catch (Exception e) {
-                    logger.error("推送ECLP MQ 发生异常.", e);
-                    sLogDetail.setKeyword4(Long.valueOf(-1));//表示发送失败
-                }
-                SystemLogUtil.log(sLogDetail);
+			try {
+				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
+				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
+			} catch (Exception e) {
+				logger.error("推送ECLP MQ 发生异常.", e);
+				sLogDetail.setKeyword4(Long.valueOf(-1));// 表示发送失败
+			}
+			SystemLogUtil.log(sLogDetail);
 
-                return Boolean.TRUE;
-            }
-        }
+			return Boolean.TRUE;
+		}
 
         return Boolean.FALSE;
     }

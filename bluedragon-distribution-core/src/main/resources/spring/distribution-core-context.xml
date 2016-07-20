@@ -21,12 +21,11 @@
 	<import resource="classpath:spring/order_service_config.xml" />
 	<import resource="classpath:spring/distribution-core-redis.xml" />
 	<import resource="classpath:spring/distribution-core-jsf.xml" />
-	<import resource="classpath:spring/distribution-core-cassandra.xml" />
+    <import resource="classpath:spring/distribution-core-cassandra.xml" />
     <import resource="classpath:spring/distribution-core-jmq.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 
     <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>
-    <import resource="classpath:spring/distribution-core-asynBuffer-comsumer.xml"/>
     <import resource="classpath:spring/distribution-core-dcam.xml"/>
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />

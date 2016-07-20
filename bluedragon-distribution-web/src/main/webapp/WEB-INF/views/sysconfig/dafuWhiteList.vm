@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>大福线白名单管理</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+	var type_black = 0;
+	var type_white = 1;
+    $(document).ready(function () {
+		$("#bt_set_wl").click(function () {
+            white_black_list_commit(type_white)
+        });
+		$("#bt_set_bl").click(function () {
+            white_black_list_commit(type_black)
+        });
+    });
+
+	function white_black_list_commit(type){
+		var param = {};
+		try {
+			param = check_bulid_param(type);
+		} catch (e) {
+			alert(e);
+			return;
+		}
+		do_white_black_list_set(param);
+	}
+
+	function do_white_black_list_set(param) {
+        $.ajax({
+            type: 'POST',
+            url:  $("#contextPath").val() + "/sysconfig/dafu/whiteList",
+            data: param,
+            success: function(data){
+                var json = eval(data);
+				alert(json.message);
+            },
+            dataType: "json"
+        });
+    }
+
+
+	function check_bulid_param(type) {
+		var param = {};
+
+		if(type_black == type) {
+			param.type = type_black;
+			param.content = $.trim($("#black_list").val());
+		} else if (type_white == type) {
+			param.type = type_white;
+			param.content = $.trim($("#white_list").val());
+		}
+
+		var reg = /^([0-9][,]?)+$/;
+		if(reg.test(param.content) == false) {
+			throw "黑白名单内容不符合要求";
+		}
+
+		return param;
+	}
+
+</script>
+<style type="text/css">
+	.span_mark {
+        color: red;
+		font-size : 14px;
+	}
+</style>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">系统管理</a>
+        &nbsp;&gt;&nbsp;<a href="javascript:void(0)">大福线白名单管理</a>
+    </p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="fm_bw_list" action="" method="POST">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <th align="right">白名单(交接和分拣)：</th>
+                        <td>
+                            <textarea id="white_list" name="white_content"
+                                      style="width:580px;height:80px"></textarea>
+                        </td>
+                    </tr>
+					<tr>
+                        <th align="right"></th>
+
+                        <td>
+                            <input id="bt_set_wl" type="button" value="设置" class="btn_c"/>
+							<span class="span_mark">备注：站点编码之间以英文逗号分隔(例如910,2015,909)</span>
+						</td>
+					</tr>
+                    <tr>
+                        <th align="right">黑名单(交接不分拣)：</th>
+                        <td>
+                            <textarea id="black_list" name="black_content"
+                                      style="width:580px;height:80px"></textarea>
+                        </td>
+                    </tr>
+					<tr>
+                        <th align="right"></th>
+                        <td>
+                            <input id="bt_set_bl" type="button" value="设置" class="btn_c"/>
+                            <span class="span_mark">备注：站点编码之间以英文逗号分隔(例如910,2015,909)</span>
+						</td>
+					</tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.internal.service;
 
+import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
@@ -140,4 +141,11 @@ public interface DmsInternalService {
     public PopPrintResponse getPopPrintByWaybillCode(String waybillCode);
 
 
+    /***
+     * 用户登录接口
+     * @see Web BaseResource#login
+     * @param request
+     * @return
+     */
+    public BaseResponse login(String userName, String passwd);
 }

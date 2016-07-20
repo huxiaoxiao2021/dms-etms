@@ -62,7 +62,7 @@ public interface TaskService {
      * @return
      */
     Integer findTasksNumsByType(Integer type, String ownSign);
-    
+
     /**
      * 查询处理的数据
      * @param type
@@ -70,6 +70,22 @@ public interface TaskService {
      * @return
      */
     Integer findFailTasksNumsByType(Integer type, String ownSign);
+
+    /**
+     * 查询待处理的数据, sql不使用type过滤
+     * @param type
+     * @param ownSign
+     * @return
+     */
+    Integer findTasksNumsIgnoreType(Integer type, String ownSign);
+
+    /**
+     * 查询处理的数据, sql不使用type过滤
+     * @param type
+     * @param ownSign
+     * @return
+     */
+    Integer findFailTasksNumsIgnoreType(Integer type, String ownSign);
 
     /**
      * 自动分拣任务同时插入分拣和交接任务

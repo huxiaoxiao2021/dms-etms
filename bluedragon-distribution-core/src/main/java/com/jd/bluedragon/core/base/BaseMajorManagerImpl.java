@@ -97,7 +97,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return getBaseStaffByStaffIdNoCache(paramInteger);
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000,
+	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = false,
 	redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {

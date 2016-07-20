@@ -37,5 +37,23 @@ public class BusinessHelperTest {
 		isWaybillCode = helper.isWaybillCode(boxCode).booleanValue();
 		assertFalse(isWaybillCode);
 	}
+	
+	@Test
+	public void testIsECLPCode() {
+		boolean shoudFalse = false;
+		boolean shoudTrue = true;
+		
+		String sourceCodeNUll=null;
+		shoudFalse = helper.isECLPCode(sourceCodeNUll);
+		assertFalse(shoudFalse);
+		
+		String sourceCodeMMC="mmc";
+		shoudFalse = helper.isECLPCode(sourceCodeMMC);
+		assertFalse(shoudFalse);
+		
+		String sourceCodeECLP="ECLP";
+		shoudTrue = helper.isECLPCode(sourceCodeECLP);
+		assertTrue(shoudTrue);
+	}
 
 }

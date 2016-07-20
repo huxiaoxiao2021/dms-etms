@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.0.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    
+	    <!-- 多级异步缓冲组件配置，集成了消息中间件JMQ和定时调度器tbschedule -->
+	    
+	    
+	    <!-- 淘宝调度的任务生产者配置。 -->
+	    <bean id="dmsTbscheduleTaskStore" class="com.jd.bluedragon.distribution.task.asynBuffer.tbschedule.DmsTbscheduleTaskStore" autowire="byType"></bean>
+	    
+	    <bean id="simpleTaskStoreRouter" class="com.jd.ql.framework.asynBuffer.producer.tbchedule.SimpleTbscheduleTaskStoreRouter">
+	    	<constructor-arg name="store" ref="dmsTbscheduleTaskStore"></constructor-arg>
+	    </bean>
+	    
+	    <bean id="tbscheduleProducer" class="com.jd.ql.framework.asynBuffer.producer.tbchedule.TbscheduleProducer">
+	    	<constructor-arg name="router" ref="simpleTaskStoreRouter"></constructor-arg>
+	    </bean>
+
+	    <!-- JMQ的任务生产者配置。 -->
+	    <bean id="jmqTopicRouter" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskOwnSignJmqTopicRouter">
+	    	<constructor-arg>
+	    		<map>
+                    <!-- 逆向备件库 -->
+	    			<entry key="task_reverse_3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>
+                    <entry key="task_reverse_3300_PRE" value="${jmq.task.topic.reverse.spare.pre}"/>
+
+                    <!-- 运单状态-验货 -->
+                    <entry key="task_waybill_0_DMS" value="${jmq.task.topic.waybill.status.inspection.dms}"/>
+                    <entry key="task_waybill_0_PRE" value="${jmq.task.topic.waybill.status.inspection.pre}"/>
+
+                    <!-- 运单状态-分拣 -->
+                    <entry key="task_waybill_1_DMS" value="${jmq.task.topic.waybill.status.sorting.dms}"/>
+                    <entry key="task_waybill_1_PRE" value="${jmq.task.topic.waybill.status.sorting.pre}"/>
+
+                    <!-- 运单状态-逆向验货 -->
+                    <entry key="task_waybill_30_DMS" value="${jmq.task.topic.waybill.status.reverse.inspection.dms}"/>
+                    <entry key="task_waybill_30_PRE" value="${jmq.task.topic.waybill.status.reverse.inspection.pre}"/>
+
+                    <!-- 运单状态-逆向分拣 -->
+                    <entry key="task_waybill_40_DMS" value="${jmq.task.topic.waybill.status.reverse.sorting.dms}"/>
+                    <entry key="task_waybill_40_PRE" value="${jmq.task.topic.waybill.status.reverse.sorting.pre}"/>
+
+                    <!-- 运单状态-分拣退货 -->
+                    <entry key="task_waybill_60_DMS" value="${jmq.task.topic.waybill.status.sorting.return.dms}"/>
+                    <entry key="task_waybill_60_PRE" value="${jmq.task.topic.waybill.status.sorting.return.pre}"/>
+
+                    <!-- 运单状态-三方验货 -->
+                    <entry key="task_waybill_80_DMS" value="${jmq.task.topic.waybill.status.third.inspection.dms}"/>
+                    <entry key="task_waybill_80_PRE" value="${jmq.task.topic.waybill.status.third.inspection.pre}"/>
+
+                    <!-- 运单状态-发货 -->
+                    <entry key="task_waybill_1300_DMS" value="${jmq.task.topic.waybill.status.delivery.dms}"/>
+                    <entry key="task_waybill_1300_PRE" value="${jmq.task.topic.waybill.status.delivery.pre}"/>
+
+                    <!-- 运单状态-售后备件库 -->
+                    <entry key="task_waybill_4300_DMS" value="${jmq.task.topic.waybill.status.aftersale.spare.dms}"/>
+                    <entry key="task_waybill_4300_PRE" value="${jmq.task.topic.waybill.status.aftersale.spare.pre}"/>
+
+                    <!-- 运单状态-妥投 -->
+                    <entry key="task_waybill_6667_DMS" value="${jmq.task.topic.waybill.status.done.dms}"/>
+                    <entry key="task_waybill_6667_PRE" value="${jmq.task.topic.waybill.status.done.pre}"/>
+
+	    		</map>
+	    	</constructor-arg>
+	    </bean>
+	    
+	    <bean id="jmqBizIdGen" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskBusinessIdGen"></bean>
+	    
+		<jmq:transport id="dmsTaskJmqTransport" address="${dms.task.jmq.address}" user="${dms.task.jmq.user}" password="${dms.task.jmq.password}" app="${dms.task.jmq.app}"/>
+		<jmq:producer id="dmsTaskJmqProducer" retryTimes="2" transport="dmsTaskJmqTransport"/>
+
+	    <bean id="asynBufferJmqProducer" class="com.jd.ql.framework.asynBuffer.producer.jmq.DefaultJmqProducer">
+	    	<constructor-arg name="router" ref="jmqTopicRouter"></constructor-arg>
+	    	<constructor-arg name="gen" ref="jmqBizIdGen"></constructor-arg>
+	    	<constructor-arg name="coder">
+	    		<bean class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqMessageJsonCoder"></bean>
+	    	</constructor-arg>
+	    	<property name="jmqProducer" ref="dmsTaskJmqProducer"></property>
+	    </bean>
+	    
+	    <!-- 自动故障转移的任务生产者配置。 -->
+	    <bean id="asynBufferFailoverProducer" class="com.jd.ql.framework.asynBuffer.producer.failover.FailoverProducer">
+	    	<constructor-arg name="producers">
+	    		<list>
+	    			<ref bean="asynBufferJmqProducer"/>
+	    			<ref bean="tbscheduleProducer"/>
+	    		</list>
+	    	</constructor-arg>	
+	    </bean>
+	    
+	    <!-- 动态可管理任务生产者配置。 -->
+	    <bean id="dynamicProducer" class="com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer">
+	    	<property name="jmqProducer" ref="asynBufferJmqProducer"/>
+	    	<property name="tbscheduleProducer" ref="tbscheduleProducer"/>
+	    	<property name="failoverProducer" ref="asynBufferFailoverProducer"/>
+	    	<property name="producerType" value="FAILOVER"></property>
+	    </bean>
+	    
+</beans>

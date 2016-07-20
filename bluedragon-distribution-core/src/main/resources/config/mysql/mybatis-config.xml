@@ -4,7 +4,7 @@
     "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-	
+
 	<settings>  
 		<setting name="lazyLoadingEnabled" value="false" />
 		<setting name="autoMappingBehavior" value="FULL"/>
@@ -119,6 +119,7 @@
             <!--<property name="mq-com.jd.coo.sa.mybatis.plugins.test.dao.StudentDao.insertWithPrimary-jmqtest" value="id"/>-->
 
             <property name="mq-com.jd.bluedragon.distribution.box.dao.BoxDao.add-bd_dms" value=""/>
+            <property name="mq-com.jd.bluedragon.distribution.box.dao.BoxDao.batchUpdateStatus-bd_dms" value=""/>
             <property name="mq-com.jd.bluedragon.distribution.inspection.dao.InspectionDao.add-bd_monitor" value=""/>
             <property name="mq-com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao.add-bd_monitor" value=""/>
             <property name="mq-com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao.updateByWaybillCode-bd_monitor" value=""/>

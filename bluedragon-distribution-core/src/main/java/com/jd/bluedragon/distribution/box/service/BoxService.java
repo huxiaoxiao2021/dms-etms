@@ -34,4 +34,12 @@ public interface BoxService {
      * 删除缓存箱号
      */
     Long delboxCodeCache(String boxCode);
+
+    /***
+     * 批量更新箱号的状态
+     * @param boxCodes 箱号列表
+     * @param boxStatus 箱号状态
+     * @return
+     */
+    Integer batchUpdateStatus(List<String> boxCodes, Integer boxStatus);
 }

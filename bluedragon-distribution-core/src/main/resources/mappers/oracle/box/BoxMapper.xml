@@ -96,7 +96,7 @@
 	<update id="batchUpdateStatus"  parameterType="box" >
 		UPDATE Box
 		SET box_status = #{status,jdbcType=INTEGER}
-		WHERE box_code in ${code} and create_site_code = #{createSiteCode}
+		WHERE box_code in ${code}
 	</update>
 
     <update id="updateVolumeByCode" parameterType="box" >

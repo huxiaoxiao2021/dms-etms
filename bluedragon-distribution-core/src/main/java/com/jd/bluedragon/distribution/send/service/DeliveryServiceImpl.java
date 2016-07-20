@@ -348,6 +348,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
             this.updateCancel(tSendDatail);//更新SEND_D状态
+
+            //更新箱号状态为已发货
+            List<String> boxCodes = new ArrayList<String>();
+            boxCodes.add(domain.getBoxCode());
+            boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
+
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("更新SEND状态时长{0}", System.currentTimeMillis() - startTime));
                 startTime=System.currentTimeMillis();
@@ -663,15 +669,25 @@ public class DeliveryServiceImpl implements DeliveryService {
 		CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2", false, true);
 		// 写入发货表数据
 		this.insertSendM(sendMList , list);
+
+        List<String> boxCodes = new ArrayList<String>();
+
         for(SendM domain:sendMList) {
             this.transitSend(domain);//插入中转任务
+            if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                boxCodes.add(domain.getBoxCode());
+            }
         }
+        // 更新箱号的状态
+        boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
         // 写入任务
         addTaskSend(sendMList.get(0));
 		Profiler.registerInfoEnd(info2);
 
 		return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 	}
+
+
 
     /**
      * 批量判断箱号是否已经发货，提出公用，减少查询次数
@@ -919,6 +935,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                 {
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     sendMessage(sendDatails,tSendM);
+
+                    // 更新箱子状态为正常
+                    List<String> boxCodes = new ArrayList<String>();
+                    boxCodes.add(tSendM.getBoxCode());
+                    boxService.batchUpdateStatus(boxCodes, Box.STATUS_PRINT);
                 }
 				return threeDeliveryResponse;
 			}
@@ -1498,22 +1519,22 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 			
 			
-			// ============向西北西南区域三方配送用户发送预警短信============
-			try {
-				// 10. 循环所有发货批次
-				// 20.根据发货目的地判断是不是三方运输到西北西南区域
-				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
-				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
-				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
-				int subType = rbDto.getSubType().intValue();
-				int orgId = rbDto.getOrgId().intValue();// 获得机构id
-				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
-					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
-					sendSms(sendDatailList);
-				}
-			} catch (Exception e) {
-				logger.error("西北西南机构发送预警短信失败: ", e);
-			}
+			// ============向西北西南区域三方配送用户发送预警短信 只运行在20150509~20150520============
+//			try {
+//				// 10. 循环所有发货批次
+//				// 20.根据发货目的地判断是不是三方运输到西北西南区域
+//				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
+//				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+//				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
+//				int subType = rbDto.getSubType().intValue();
+//				int orgId = rbDto.getOrgId().intValue();// 获得机构id
+//				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
+//					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
+//					sendSms(sendDatailList);
+//				}
+//			} catch (Exception e) {
+//				logger.error("西北西南机构发送预警短信失败: ", e);
+//			}
 			//==================================================================
 		}
         try {
@@ -2136,20 +2157,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 					Arrays.asList(new String[]{sendDetail.getPackageBarcode()}) );
 			if(waybillWSRs!=null){
 				datas = waybillWSRs.getData();
-				//logger.info("调用运单queryPackageListForParcodes调用返回getMessage()"+waybillWSRs.getMessage());
-				//logger.info("调用运单queryPackageListForParcodes调用返回getResultCode"+waybillWSRs.getResultCode());
 			}
-			//else
-				//logger.info("调用运单queryPackageListForParcodes调用返回为空");
-			/*if(datas==null || datas.isEmpty())
-				logger.error("调用运单queryPackageListForParcodes接口返回为空，包裹号为"
-						+sendDetail.getPackageBarcode());*/
+
 			if( null!=datas && !datas.isEmpty() && null!=datas.get(0) && null!=datas.get(0).getGoodWeight() ){
 				sendDetail.setWeight(datas.get(0).getGoodWeight());
 			}
-			/*else
-				logger.error("调用运单queryPackageListForParcodes接口返回为空，包裹号为"
-						+waybillWSRs.getMessage());*/
 		} catch (Exception e) {
 			//如果重量写入失败不影响分拣的结果
 			logger.error("调用运单queryPackageListForParcodes接口时候失败",e);
@@ -2897,6 +2909,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	/**
 	 * 根据发货明细发送用户报警短信
 	 * @param sendDetails
+	 * @deprecated
 	 * @return
 	 */
 	public boolean sendSms(List<SendDetail> sendDetails) {
