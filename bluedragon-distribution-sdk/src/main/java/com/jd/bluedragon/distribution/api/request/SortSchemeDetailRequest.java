@@ -66,6 +66,12 @@ public class SortSchemeDetailRequest implements Serializable {
 
     private String sortSchemeDetailJson;
 
+    public SortSchemeDetailRequest() {
+    }
+
+    public SortSchemeDetailRequest(String schemeId) {
+        this.schemeId = schemeId;
+    }
 
     public Long getId() {
         return id;

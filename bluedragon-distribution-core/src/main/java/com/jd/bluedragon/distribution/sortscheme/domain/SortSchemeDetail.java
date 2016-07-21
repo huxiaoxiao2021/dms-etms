@@ -1,12 +1,13 @@
 package com.jd.bluedragon.distribution.sortscheme.domain;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
  * Created by yangbo7 on 2016/6/22.
  */
-public class SortSchemeDetail implements Serializable {
+public class SortSchemeDetail implements Serializable, Comparable<SortSchemeDetail> {
 
     private static final long serialVersionUID = 7252192349095624111L;
 
@@ -76,9 +77,8 @@ public class SortSchemeDetail implements Serializable {
     public SortSchemeDetail() {
     }
 
-    public SortSchemeDetail(Integer siteCode, String chuteCode) {
-        this.siteCode = siteCode.toString();
-        this.currChuteCode = chuteCode;
+    public SortSchemeDetail(String siteCode) {
+        this.siteCode = siteCode;
     }
 
     public SortSchemeDetail(String chuteCode1, String currChuteCode, String boxSiteCode, String pkgLabelName, String siteCodes) {
@@ -193,8 +193,15 @@ public class SortSchemeDetail implements Serializable {
         this.siteCodes = siteCodes;
     }
 
+    @Override
     public String toString() {
-        return "SortSchemeDetail:" + "getBoxSiteCode" + this.getBoxSiteCode() + ", getSubType=\'" + this.getSubType() + '\'' + ", getPkgLabelName=\'" + this.getPkgLabelName() + '}';
+        return "SortSchemeDetail{" +
+                "siteCode='" + siteCode + '\'' +
+                '}';
     }
 
+    @Override
+    public int compareTo(SortSchemeDetail o) {
+        return 1;
+    }
 }

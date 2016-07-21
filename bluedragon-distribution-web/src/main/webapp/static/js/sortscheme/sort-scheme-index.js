@@ -121,12 +121,8 @@ function importExcel(id) {
     });
 }
 
-function exportExcel() {
-    var url = $("#contextPath").val() + "/crossSorting/export?orgId="
-        + $.trim($("#orgList").val()) + "&createDmsCode="
-        + $.trim($("#createDmsList").val()) + "&destinationDmsCode="
-        + $.trim($("#destinationDmsList").val()) + "&createUserName="
-        + $.trim($("#createUserName").val())
+function exportExcel(id) {
+    var url = $("#contextPath").val() + "/autosorting/sortScheme/export?id=" + id + "&siteNo=" + siteNo;
     window.open(url, "_parent");
 }
 

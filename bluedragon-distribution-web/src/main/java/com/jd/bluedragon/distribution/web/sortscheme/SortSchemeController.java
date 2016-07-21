@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
@@ -20,6 +21,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.collections4.map.MultiValueMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,9 +29,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
@@ -156,6 +162,42 @@ public class SortSchemeController {
         pw.close();
     }
 
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    @ResponseBody
+    public void doExportExcel(@RequestParam("id")Long id, @RequestParam("siteNo")String siteNo, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            response.setHeader("Content-type", "text/html;charset=UTF-8");
+            if (id == null || siteNo == null) {
+                PrintWriter pw = response.getWriter();
+                writeAndClose(pw, "参数为空,无法导出明细数据!");
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + siteNo);
+            if (StringUtils.isBlank(url)) {
+                PrintWriter pw = response.getWriter();
+                writeAndClose(pw, "根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+            }
+            SortSchemeDetailResponse<List<SortSchemeDetail>> remoteResponse = sortSchemeDetailService.findBySchemeId2(//
+                    new SortSchemeDetailRequest(id.toString()), //
+                    HTTP + url + "/autosorting/sortSchemeDetail/list/schemeId"//
+            );
+            if (remoteResponse == null || !IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK) //
+                    || remoteResponse.getData() == null //
+                    || remoteResponse.getData().size() < 1//
+                    ) {
+                PrintWriter pw = response.getWriter();
+                writeAndClose(pw, MessageFormat.format("分拣计划[{0}]没有明细数据,不能导出!", id));
+            }
+            response.setContentType("application/vnd.ms-excel");
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("分拣计划明细.xls", "UTF-8"));
+            OutputStream ouputStream = response.getOutputStream();
+            HSSFWorkbook wb = sortSchemeDetailService.createWorkbook(remoteResponse.getData());
+            wb.write(ouputStream);
+            ouputStream.flush();
+            ouputStream.close();
+        } catch (Exception ex) {
+            logger.error("导出分拣计划明细异常", ex);
+        }
+    }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody

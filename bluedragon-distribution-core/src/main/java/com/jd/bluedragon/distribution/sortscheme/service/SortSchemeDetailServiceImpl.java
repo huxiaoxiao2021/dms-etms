@@ -1,15 +1,20 @@
 package com.jd.bluedragon.distribution.sortscheme.service;
 
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
+import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.utils.*;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -20,9 +25,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 /**
@@ -55,6 +58,64 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 });
     }
 
+    @Override
+    public SortSchemeDetailResponse<List<SortSchemeDetail>> findBySchemeId2(SortSchemeDetailRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeDetailResponse<List<SortSchemeDetail>>>() {
+                });
+    }
+
+    @Override
+    public HSSFWorkbook createWorkbook(List<SortSchemeDetail> sortSchemeDetailList) {
+        Multimap<String, SortSchemeDetail> sortSchemeDetailTreeMap = TreeMultimap.create();
+        if (sortSchemeDetailList != null) {
+            for (SortSchemeDetail sortSchemeDetail : sortSchemeDetailList) {
+                sortSchemeDetailTreeMap.put(sortSchemeDetail.getChuteCode1(), sortSchemeDetail);
+            }
+        }
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet sheet = wb.createSheet("Sheet1");
+        // 组装第一行
+        HSSFRow firstRow = sheet.createRow(0);
+        ExportByPOIUtil.createHSSFCell(firstRow, 0, "物理滑槽");
+        ExportByPOIUtil.createHSSFCell(firstRow, 1, "格口箱号目的地代码");
+        ExportByPOIUtil.createHSSFCell(firstRow, 2, "格口箱号目的地名称");
+        ExportByPOIUtil.createHSSFCell(firstRow, 3, "当前使用滑槽");
+
+        int rowIndex = 1; // 从第一行开始,每遍历一个Entry,则加1
+        int maxSiteNum = 0;
+        Set<Map.Entry<String, Collection<SortSchemeDetail>>> set = sortSchemeDetailTreeMap.asMap().entrySet();
+        for (Map.Entry entry : set) {
+            HSSFRow currentIndexRow = sheet.createRow(rowIndex);
+            Collection<SortSchemeDetail> sortSchemeDetails = (Collection<SortSchemeDetail>) entry.getValue();
+            // 更新最大的站点数量值
+            int size = sortSchemeDetails.size();
+            maxSiteNum = maxSiteNum > size ? maxSiteNum : size;
+            // 将多条数据组装成Excel中的一条数据
+            int siteIndex = 5;
+            boolean isFirst = true;
+            for (SortSchemeDetail sortSchemeDetail : sortSchemeDetails) {
+                if (isFirst) {
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 0, sortSchemeDetail.getChuteCode1());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 1, sortSchemeDetail.getBoxSiteCode());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 2, sortSchemeDetail.getPkgLabelName());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 3, sortSchemeDetail.getCurrChuteCode());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 4, sortSchemeDetail.getSiteCode());
+                    isFirst = false;
+                } else {
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, siteIndex, sortSchemeDetail.getSiteCode());
+                    siteIndex++;
+                }
+            }
+            rowIndex++;
+        }
+
+        // 补全第一行的站点标题
+        for (int i = 0; i < maxSiteNum; i++) {
+            ExportByPOIUtil.createHSSFCell(firstRow, i + 4, "目的地代码");
+        }
+        return wb;
+    }
 
     @Override
     public List<SortSchemeDetail> parseSortSchemeDetail2(Sheet sheet0) throws Exception {
@@ -125,7 +186,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                                             Row currentRow,// 当前行对象
                                             Map<String, BaseStaffSiteOrgDto> siteMap//
     ) {
-        String chuteCode = "";  // 物理滑槽滑槽
+        String chuteCode1 = "";  // 物理滑槽滑槽
         String boxSiteCode = ""; // 格口箱号目的地代码
         String pkgLabelName = ""; // 格口箱号目的地名称
         String currChuteCode = "";// 当前使用滑槽
@@ -138,7 +199,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
-            } else if(i == 3) {
+            } else if (i == 3) {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
@@ -152,7 +213,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
 
             // 校验目的地代码重复
             if (i == 0) {
-                chuteCode = cellValue;
+                chuteCode1 = cellValue;
             } else if (i == 1) {
                 boxSiteCode = cellValue;
                 validateSite(siteMap, cellValue, notExsitErrorList, rowIndex, i);
@@ -177,7 +238,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         }
         // 均没有错误,才能创建domain对象
         if (repeatChuteErrorList.size() == 0 && repeatSiteErrorList.size() == 0 && emptyErrorList.size() == 0 && notExsitErrorList.size() == 0) {
-            sortSchemeDetailList.add(new SortSchemeDetail(chuteCode, currChuteCode, boxSiteCode, pkgLabelName, siteStrs));
+            sortSchemeDetailList.add(new SortSchemeDetail(chuteCode1, currChuteCode, boxSiteCode, pkgLabelName, siteStrs));
         }
 
     }
@@ -198,76 +259,6 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
 
 
     public static void main(String[] args) throws Exception {
-        File file = new File("E:\\dms_work_file\\项目_20160708_分拣计划2.0\\正式分拣计划批量导入.xls");
-        String fileName = file.getName();
-        Sheet sheet0 = null;
-        if (fileName.toLowerCase().endsWith("xlsx")) {
-            sheet0 = new XSSFWorkbook(new FileInputStream(file)).getSheetAt(0);
-        } else if (fileName.toLowerCase().endsWith("xls")) {
-            sheet0 = new HSSFWorkbook(new FileInputStream(file)).getSheetAt(0);
-        }
-//        System.out.println(sheet0.getLastRowNum());
-//        for (int i = 0, len = sheet0.getLastRowNum(); i < len; i++) {
-//            Row row = sheet0.getRow(i);
-//            int cells = row.getLastCellNum();
-//            for (int j = 0; j < cells; j++) {
-//                System.out.print(row.getCell(j) + " ");
-//            }
-//            System.out.println("\n");
-//        }
-        // 计算最大列数, 确定横向遍历的最大索引值
-        Row firstRow = sheet0.getRow(0);
-        int maxColumns = firstRow.getLastCellNum();
-        int effectiveColumns = 0;
-        for (int i = 0; i < maxColumns; i++) {
-            if (StringUtils.isBlank(firstRow.getCell(i).getStringCellValue())) {
-                break;
-            } else {
-                System.out.print(firstRow.getCell(i).getStringCellValue() + " ");
-                effectiveColumns++;
-            }
-        }
-        System.out.println("\n");
-        System.out.println("effectiveColumns " + effectiveColumns);
-
-        // 确定最大行数,同时统计重复的错误(只做第一列,物理滑槽)
-        int maxRowNum = sheet0.getLastRowNum();
-        int effectiveRowNum = 1;
-        List<String> repeatChuteErrorList = new ArrayList<String>();
-        Map<String, String> chuteCodeMap = new HashedMap<String, String>();
-        for (int i = 1; i < maxRowNum; i++) {
-            String chuteCode = ExportByPOIUtil.getCellValue(sheet0.getRow(i).getCell(0));
-            if (StringUtils.isBlank(chuteCode)) {
-                break;
-            } else {
-                chuteCode = StringHelper.prefixStr(chuteCode, ".");
-                if (StringUtils.isNotBlank(chuteCodeMap.put(chuteCode, chuteCode))) {
-                    repeatChuteErrorList.add(MessageFormat.format("第{0}行的物理格口{1}重复", i, chuteCode));
-                }
-                effectiveRowNum++;
-            }
-        }
-        System.out.println("effectiveRowNum : " + effectiveRowNum);
-        System.out.println("物理滑槽重复" + repeatChuteErrorList);
-        List<SortSchemeDetail> sortSchemeDetailList = new ArrayList<SortSchemeDetail>();
-        List<String> repeatSiteErrorList = new ArrayList<String>();
-        List<String> emptyErrorList = new ArrayList<String>(); //包含某条数据,目的地代码均为空
-        for (int j = 1; j < effectiveRowNum; j++) {
-            //validateAndParseSingleCell(j, effectiveColumns, sortSchemeDetailList, repeatSiteErrorList, emptyErrorList, repeatChuteErrorList, sheet0.getRow(j), siteMap);
-        }
-        if (repeatChuteErrorList.size() == 0 || repeatSiteErrorList.size() == 0 || emptyErrorList.size() == 0) {
-            System.out.println(new StringBuilder()//
-                    .append("物理滑槽重复:")//
-                    .append(repeatChuteErrorList)//
-                    .append("; ")//
-                    .append("同一格口不可维护相同目的地:")//
-                    .append(JsonHelper.toJson(repeatSiteErrorList))//
-                    .append("; ")//
-                    .append("数据为空:")//
-                    .append(JsonHelper.toJson(emptyErrorList)).toString()//
-            );
-        }
-        System.out.println("sortSchemeDetailList" + sortSchemeDetailList);
 
     }
 

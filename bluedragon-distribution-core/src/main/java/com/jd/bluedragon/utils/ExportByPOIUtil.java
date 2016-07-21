@@ -7,11 +7,7 @@ import java.util.zip.DataFormatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFCellUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -41,8 +37,7 @@ public class ExportByPOIUtil {
      * 功能：将HSSFWorkbook写入Excel文件
      *
      * @param wb      HSSFWorkbook
-     * @param absPath 写入文件的相对路径
-     * @param wbName  文件名
+     * @param fileName  文件名
      */
     public static void writeWorkbook(HSSFWorkbook wb, String fileName) {
         FileOutputStream fos = null;
@@ -82,7 +77,6 @@ public class ExportByPOIUtil {
      *
      * @param sheet  HSSFSheet
      * @param rowNum int
-     * @param height int
      * @return HSSFRow
      */
     public static HSSFRow createRow(HSSFSheet sheet, int rowNum) {
@@ -167,7 +161,6 @@ public class ExportByPOIUtil {
      *
      * @param row     HSSFRow
      * @param cellNum int
-     * @param style   HSSFStyle
      * @return HSSFCell
      */
     public static HSSFCell createCell(HSSFRow row, int cellNum) {
@@ -267,6 +260,11 @@ public class ExportByPOIUtil {
         } else {
             return String.valueOf(cell.getStringCellValue());
         }
+    }
+
+    public static void createHSSFCell(HSSFRow row, int colIndex, String cellValue) {
+        HSSFCell cell = row.createCell(colIndex);
+        cell.setCellValue(cellValue);
     }
 
 }
