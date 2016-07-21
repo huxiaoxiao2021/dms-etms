@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weight.service;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.client.WeightClient;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
