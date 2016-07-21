@@ -78,8 +78,6 @@ function getSearchParams() {
     var params = {};
     params.schemeId = $.trim($("#schemeId").val()); //方案id
     params.siteNo = $.trim($("#siteNo").val()); //分拣中心
-    params.schemeId = 1;
-    params.siteNo = 480;
     return params;
 }
 

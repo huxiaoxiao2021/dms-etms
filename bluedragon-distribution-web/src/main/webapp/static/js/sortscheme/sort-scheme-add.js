@@ -45,10 +45,17 @@ function checkParams(params) {
     if (null == params) {
         return false;
     }
-    for (var param in params) {
-        if (param == null || param == "") {
-            return false;
-        }
+    if (params.siteNo == null || params.siteNo == "") {
+        return false;
+    }
+    if (params.machineCode == null || params.machineCode == "") {
+        return false;
+    }
+    if (params.sortMode == null || params.sortMode == "") {
+        return false;
+    }
+    if (params.name == null || params.name == "") {
+        return false;
     }
     return true;
 }
@@ -88,10 +95,9 @@ function loadDmsList(dmsList, selectId) {
     var dmsObj = $('#' + selectId);
     $('#createDmsList').html("");
     var optionList = "";
-    optionList += "<option value='' selected='selected'></option>";
+    //optionList += "<option value='' selected='selected'></option>";
     for (var i = 0; i < dmsList.length; i++) {
         optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
     }
     dmsObj.append(optionList);
-    $("#paperTable tbody").html("");
 }

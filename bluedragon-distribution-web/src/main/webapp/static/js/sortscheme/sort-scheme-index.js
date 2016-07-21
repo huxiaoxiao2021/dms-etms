@@ -29,6 +29,10 @@ function main() {
         goDownSortSchemeModel();
     });
 
+    $("#siteNo").change(function () {
+        clearPager();
+    });
+
     // 加载所有的分拣中心
     initDms();
 }
@@ -87,7 +91,7 @@ function goImportExcel(id) {
     var html = '';
     html += '<div class="div_btn" style="float:left;margin-left: 10px; margin-top: 20px;">';
     html += '<div style="width: 200px;float: right;">';
-    html += '<input id="loadInBtn" value="导入" type="button" onclick="importExcel(' + id + ')" class="btn_c"></input>';
+    html += '<input id="loadInBtn" value="导入" style="margin-left:50px;" type="button" onclick="importExcel(' + id + ')" class="btn_c"></input>';
     html += '</div>';
     html += '<form action="" method="post" id="importFileForm" name="importFileForm" style="float:left;width:200px;">';
     html += '<input type="file" id="importFileIpt" name="importExcelFile" style="height: 28px;display: block;margin-top:5px;"/>';
@@ -235,6 +239,10 @@ function doQueryCrossSorting(params) {
             jQuery.messager.alert('提示:', data.message, 'info');
         }
     });
+}
+
+function clearPager() {
+    $("#paperTable tbody").html("");
 }
 
 // 将任务的状态和执行次数重置

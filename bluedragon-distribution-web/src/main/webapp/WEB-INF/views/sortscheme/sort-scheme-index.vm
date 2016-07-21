@@ -75,7 +75,7 @@
     </p>
 </div>
 <div id="content">
-    <div id="query_table">
+    <div id="query_table" style="margin-top: 10px">
         <div id="query_param">
             <span class="query_select_1">
 				分拣中心：
@@ -117,16 +117,15 @@
                     <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
                         <thead>
                         <tr>
-                            <th style="width:10px;">
-                            </th>
+                            <th style="width:10px;"></th>
                             <th style="width:40px;">方案名称</th>
                             <th style="width:40px;">分拣中心</th>
-                            <th style="width:50px;">分拣机代码</th>
-                            <th style="width:50px;">分拣模式</th>
-                            <th style="width:50px;">接收标识</th>
+                            <th style="width:15px;">分拣机代码</th>
+                            <th style="width:15px;">分拣模式</th>
+                            <th style="width:15px;">接收标识</th>
                             <th style="width:50px;">接收时间</th>
-                            <th style="width:50px;">是否激活</th>
-                            <th style="width:40px;">操作</th>
+                            <th style="width:15px;">是否激活</th>
+                            <th style="width:50px;">操作</th>
                         </tr>
                         </thead>
                         <tbody>
