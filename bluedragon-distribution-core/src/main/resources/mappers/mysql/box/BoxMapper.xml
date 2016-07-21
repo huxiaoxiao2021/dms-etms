@@ -94,4 +94,13 @@
         SET box_status = #{status,jdbcType=INTEGER}
         WHERE box_code in ${code}
     </update>
+
+    <update id="updateVolumeByCode" parameterType="box" >
+        UPDATE Box
+        SET length = #{length,jdbcType=NUMERIC},
+        width = #{width,jdbcType=NUMERIC},
+        height = #{height,jdbcType=NUMERIC},
+        update_time = NOW()
+        WHERE box_code = #{code}
+    </update>
 </mapper>

@@ -317,7 +317,7 @@ public class BoxServiceImpl implements BoxService {
 
     public static void main(String[] args) {
         Box box = new Box();
-        box.setCode("BC010F002010Y04200061078");
+        box.setCode("BC010F002010Y04200062058");
         box.setType("BC");
         box.setCreateSiteCode(910);
         box.setCreateSiteName("北京马驹桥分拣中心");
@@ -326,6 +326,9 @@ public class BoxServiceImpl implements BoxService {
         box.setReceiveSiteCode(21);
         box.setReceiveSiteName("潘家园站");
         box.setStatus(5);
+        box.setLength(11f);
+        box.setWidth(12f);
+        box.setHeight(13f);
         System.out.println(com.jd.bluedragon.utils.JsonHelper.toJson(box));
     }
 }

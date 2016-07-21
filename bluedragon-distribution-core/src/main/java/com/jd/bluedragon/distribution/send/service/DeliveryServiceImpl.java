@@ -350,9 +350,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             this.updateCancel(tSendDatail);//更新SEND_D状态
 
             //更新箱号状态为已发货
-            List<String> boxCodes = new ArrayList<String>();
-            boxCodes.add(domain.getBoxCode());
-            boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
+//            List<String> boxCodes = new ArrayList<String>();
+//            boxCodes.add(domain.getBoxCode());
+//            boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
 
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("更新SEND状态时长{0}", System.currentTimeMillis() - startTime));
@@ -674,12 +674,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         for(SendM domain:sendMList) {
             this.transitSend(domain);//插入中转任务
-            if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                boxCodes.add(domain.getBoxCode());
-            }
+//            if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+//                boxCodes.add(domain.getBoxCode());
+//            }
         }
         // 更新箱号的状态
-        boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
+//        boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
         // 写入任务
         addTaskSend(sendMList.get(0));
 		Profiler.registerInfoEnd(info2);
@@ -937,9 +937,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                     sendMessage(sendDatails,tSendM);
 
                     // 更新箱子状态为正常
-                    List<String> boxCodes = new ArrayList<String>();
-                    boxCodes.add(tSendM.getBoxCode());
-                    boxService.batchUpdateStatus(boxCodes, Box.STATUS_PRINT);
+//                    List<String> boxCodes = new ArrayList<String>();
+//                    boxCodes.add(tSendM.getBoxCode());
+//                    boxService.batchUpdateStatus(boxCodes, Box.STATUS_PRINT);
                 }
 				return threeDeliveryResponse;
 			}

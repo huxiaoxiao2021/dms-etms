@@ -390,13 +390,14 @@ public class SendPrintServiceImpl implements SendPrintService{
  	        					&& BusinessHelper.checkIntNumRange(deliveryPackage.size())){
  	        				for(DeliveryPackageD delivery : deliveryPackage){
  	        					if(delivery.getPackageBarcode().equals(dBasicQueryEntity.getPackageBar())){
+                                    dBasicQueryEntity.setGoodVolume(0.0);
+                                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(delivery.getPackageBarcode());
+                                    if(null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
+                                            && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
+                                        dBasicQueryEntity.setGoodVolume(packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh());
+                                    }
  	        						dBasicQueryEntity.setPackageBarWeight(delivery.getGoodWeight());
  	        						dBasicQueryEntity.setPackageBarWeight2(delivery.getAgainWeight());
-                                    try {
-                                        dBasicQueryEntity.setGoodVolume(Double.valueOf(delivery.getGoodVolume()));
-                                    }catch (Throwable throwable){
-                                        logger.error(throwable.getMessage(),throwable);
-                                    }
  	        					}
  	        				}
  	        			}
