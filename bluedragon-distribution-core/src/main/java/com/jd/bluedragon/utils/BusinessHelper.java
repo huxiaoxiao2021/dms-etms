@@ -279,7 +279,7 @@ public class BusinessHelper {
 	/**
 	 * 判断是否是ECLP订单
 	 * ECLP : 仓储开发平台
-	 * @param sourceCode  运单中的sourceCode字段
+	 * @param sourceCode  运单中的sourceCode字段,判断它是不是ECLP开头单号
 	 * @return
 	 */
 	public static Boolean isECLPCode(String sourceCode) {
@@ -287,7 +287,7 @@ public class BusinessHelper {
 			return Boolean.FALSE;
 		}
 
-		if (sourceCode.startsWith(BUSI_ORDER_CODE_PRE_ECLP)) {
+		if (SOURCE_CODE_ECLP.equals(sourceCode)) {
 			return Boolean.TRUE;
 		}
 
@@ -297,7 +297,7 @@ public class BusinessHelper {
 	/**
 	 * 判断是否是ECLP订单
 	 * ECLP : 仓储开发平台
-	 * @param sourceCode  运单中的sourceCode字段
+	 * @param busiOrderCode  运单中的busiOrderCode字段,判断它是不是esl开头单号
 	 * @return
 	 */
 	public static Boolean isECLPByBusiOrderCode(String busiOrderCode) {
@@ -305,7 +305,7 @@ public class BusinessHelper {
 			return Boolean.FALSE;
 		}
 
-		if (SOURCE_CODE_ECLP.equals(busiOrderCode)) {
+		if (busiOrderCode.startsWith(BUSI_ORDER_CODE_PRE_ECLP)) {
 			return Boolean.TRUE;
 		}
 

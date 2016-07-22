@@ -154,7 +154,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			reverseReceive.setOrderId(Constants.T_WAYBILL + reverseReceive.getOrderId());
 		}
 		
-		if (reverseReceive.getReceiveType() == 4){//备件库系统
+		if (reverseReceive.getReceiveType() == 5){//如果是开放平台订单
 			InvokeResult<String> newWaybilCode = reversePrintService.getNewWaybillCode(reverseReceive.getOrderId());
 			if (StringHelper.isNotEmpty(newWaybilCode.getData())) {
 				tsendDatail.setWaybillCode(newWaybilCode.getData());

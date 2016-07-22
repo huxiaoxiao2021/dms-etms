@@ -36,6 +36,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -78,6 +79,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     WaybillQueryApi waybillQueryApi;
+    
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private WaybillCommonService waybillCommonService;
@@ -1347,17 +1351,24 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
         }
 
-		if (BusinessHelper.isECLPCode(send.getSourceCode())) {
+		if (BusinessHelper.isECLPByBusiOrderCode(send.getBusiOrderCode())) {
 			// ECLP订单 不推送wms ， 发mq
 			// 发MQ-->开发平台
 			logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
- 
+			com.jd.etms.waybill.domain.BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
+			String oldWaybillCode = null;
+			if(oldWaybill!=null&&oldWaybill.getData()!=null){
+				oldWaybillCode = oldWaybill.getData().getWaybillCode();
+			}
+			
+			if(StringHelper.isEmpty(oldWaybillCode)) oldWaybillCode = wayBillCode;
+			
 			// 给eclp发送mq, eclp然后自己组装逆向报文
 			ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
-			sendmodel.setJdOrderCode(send.getOrderId());
+			sendmodel.setJdOrderCode(send.getBusiOrderCode());
 			sendmodel.setSendCode(send.getSendCode());
 			sendmodel.setSourceCode(send.getSourceCode());
-			sendmodel.setWaybillCode(wayBillCode);
+			sendmodel.setWaybillCode(oldWaybillCode);
 			sendmodel.setRejType(3);
 			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
 			String jsonStr = JsonHelper.toJson(sendmodel);
