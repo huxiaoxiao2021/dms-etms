@@ -1351,7 +1351,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			// ECLP订单 不推送wms ， 发mq
 			// 发MQ-->开发平台
 			logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
-
+ 
 			// 给eclp发送mq, eclp然后自己组装逆向报文
 			ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
 			sendmodel.setJdOrderCode(send.getOrderId());
