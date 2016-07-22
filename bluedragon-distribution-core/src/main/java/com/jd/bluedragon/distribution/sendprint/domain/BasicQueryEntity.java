@@ -44,6 +44,9 @@ public class BasicQueryEntity implements Serializable{
 	
 	/** 包裹号 */
 	private String packageBar;
+
+    /** 包裹体积 */
+    private Double goodVolume;
 	
 	/** 订单重量 */
 	private Double goodWeight;
@@ -381,4 +384,11 @@ public class BasicQueryEntity implements Serializable{
 		this.receiveSiteType = receiveSiteType;
 	}
 
+    public Double getGoodVolume() {
+        return goodVolume;
+    }
+
+    public void setGoodVolume(Double goodVolume) {
+        this.goodVolume = goodVolume;
+    }
 }

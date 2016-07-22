@@ -14,12 +14,12 @@ public class InspectionECDao extends BaseDao<InspectionEC>{
 		
 	@SuppressWarnings("unchecked")
 	public List<InspectionEC> selectSelective(  InspectionEC inspectionEC ) {
-		return (List<InspectionEC>)this.getSqlSession().selectList(namespace+".selectSelective",inspectionEC );
+		return this.getSqlSession().selectList(namespace+".selectSelective",inspectionEC );
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<InspectionEC> queryByThird(InspectionEC inspectionEC) {
-		return (List<InspectionEC>)this.getSqlSession().selectList(namespace+".queryByThird",inspectionEC );
+		return this.getSqlSession().selectList(namespace+".queryByThird",inspectionEC );
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class InspectionECDao extends BaseDao<InspectionEC>{
 
 	@SuppressWarnings("unchecked")
 	public List<InspectionEC> queryThirdByParams(Map<String, Object> paramMap) {
-		return (List<InspectionEC>)this.getSqlSession().selectList(namespace+".queryThirdByParams",paramMap );
+		return this.getSqlSession().selectList(namespace+".queryThirdByParams",paramMap );
 	}
 
 	public int totalThirdByParams(Map<String, Object> paramMap) {

@@ -26,8 +26,11 @@ public class SummaryPrintBoxEntity implements Serializable {
 
 	/** 锁时间 */
 	private String lockTime;
-	
-	public String getBoxCode() {
+
+    /** 体积 */
+    private Double volume;
+
+    public String getBoxCode() {
 		return boxCode;
 	}
 	public void setBoxCode(String boxCode) {
@@ -68,5 +71,13 @@ public class SummaryPrintBoxEntity implements Serializable {
     }
     public void setLockTime(String lockTime) {
         this.lockTime = lockTime;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 }

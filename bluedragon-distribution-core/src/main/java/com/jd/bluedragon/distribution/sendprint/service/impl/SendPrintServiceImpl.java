@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
@@ -18,12 +20,15 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import jd.oom.client.archiveorder.Business;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +48,9 @@ public class SendPrintServiceImpl implements SendPrintService{
 	
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
+
+    @Autowired
+    WaybillPackageApi waybillPackageApi;
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -57,7 +65,10 @@ public class SendPrintServiceImpl implements SendPrintService{
 	
 	@Autowired
     private QuickProduceService quickProduceService;
-	
+
+    @Autowired
+    private BoxService boxService;
+
 	/**
 	 * 
 	 * 
@@ -177,8 +188,13 @@ public class SendPrintServiceImpl implements SendPrintService{
             detail.setPackageBarNum(packageBarcodeSet.size());
             detail.setPackageBarRecNum(packageBarcodeSet.size());
             detail.setWaybillNum(waybillCodeSet.size());
-            
+            Double boxOrPackVolume = 0.0;
             if(BusinessHelper.isBoxcode(dendM.getBoxCode())){
+                Box box = boxService.findBoxByCode(dendM.getBoxCode());
+                if(null != box.getLength() && null != box.getWidth() && null != box.getHeight()
+                        && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
+                    boxOrPackVolume = Double.valueOf(box.getLength() * box.getWidth() * box.getHeight());
+                }
             	SealBox tSealBox = this.tSealBoxService.findByBoxCode(dendM.getBoxCode());
                 if(tSealBox!=null){
                     detail.setSealNo1(tSealBox.getCode());
@@ -189,9 +205,17 @@ public class SendPrintServiceImpl implements SendPrintService{
                     detail.setSealNo2("");
                 }
             }else{
+                if(BusinessHelper.isPackageCode(dendM.getBoxCode())) {
+                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(dendM.getBoxCode());
+                    if(null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
+                             && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
+                        boxOrPackVolume = packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh();
+                    }
+                }
                 detail.setSealNo1("");
                 detail.setSealNo2("");
             }
+            detail.setVolume(boxOrPackVolume);
             details.add(detail);
 //		    }
 		    Date endDate1 = new Date();
@@ -203,6 +227,21 @@ public class SendPrintServiceImpl implements SendPrintService{
 		logger.info("打印交接清单-summaryPrintQuery结束-"+(startDate.getTime() - endDate.getTime()));
 		return result;
 	}
+
+    private PackOpeFlowDto getOpeByPackageCode(String packageCode) {
+        try{
+            String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+            BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+            for(PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
+                if(packOpeFlowDto.getPackageCode().equals(packageCode)) {
+                    return packOpeFlowDto;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("获取包裹量方信息接口失败，原因", e);
+        }
+        return null;
+    }
 
 	/**
 	 * 明细打印
@@ -351,13 +390,22 @@ public class SendPrintServiceImpl implements SendPrintService{
  	        					&& BusinessHelper.checkIntNumRange(deliveryPackage.size())){
  	        				for(DeliveryPackageD delivery : deliveryPackage){
  	        					if(delivery.getPackageBarcode().equals(dBasicQueryEntity.getPackageBar())){
+                                    dBasicQueryEntity.setGoodVolume(0.0);
+                                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(delivery.getPackageBarcode());
+                                    if(null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
+                                            && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
+                                        dBasicQueryEntity.setGoodVolume(packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh());
+                                    }
  	        						dBasicQueryEntity.setPackageBarWeight(delivery.getGoodWeight());
  	        						dBasicQueryEntity.setPackageBarWeight2(delivery.getAgainWeight());
  	        					}
  	        				}
  	        			}
  	        			dBasicQueryEntity.setFcNo(storeId);
- 	        			dBasicQueryEntity.setGoodWeight(0.0);
+                        //dBasicQueryEntity.setGoodVolume(0.0);
+                        //if(waybill != null && waybill.getGoodVolume() != null)
+                            //dBasicQueryEntity.setGoodVolume(waybill.getGoodVolume());
+                        dBasicQueryEntity.setGoodWeight(0.0);
  	        			if(waybill != null && waybill.getGoodWeight()!=null)
   				        dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight());
  	        			dBasicQueryEntity.setGoodWeight2(0.0);
@@ -521,7 +569,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 		    SendM qSendM = tosendM(criteria);
 	        List<SendM> sendMs =this.selectUniquesSendMs(qSendM);// this.sendMDao.selectBySendSiteCode(qSendM);
 	        if(sendMs!=null && !sendMs.isEmpty()){
-	        	tBasicQueryEntityResponse = detailPrintQuery(sendMs,criteria);	            
+	        	tBasicQueryEntityResponse = detailPrintQuery(sendMs,criteria);
 	        }
 	    } catch (Exception e) {
             logger.error("打印明细基本查询异常");
