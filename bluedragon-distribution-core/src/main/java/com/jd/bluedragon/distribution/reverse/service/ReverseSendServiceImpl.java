@@ -1383,7 +1383,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			sLogDetail.setContent(jsonStr);
 
 			try {
-				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
+				bdDmsReverseSendEclp.send(oldWaybillCode, jsonStr);
 				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
 			} catch (Exception e) {
 				logger.error("推送ECLP MQ 发生异常.", e);
