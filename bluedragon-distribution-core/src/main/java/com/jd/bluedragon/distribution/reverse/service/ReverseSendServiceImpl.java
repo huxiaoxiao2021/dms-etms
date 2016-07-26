@@ -1367,7 +1367,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
 			sendmodel.setJdOrderCode(send.getBusiOrderCode());
 			sendmodel.setSendCode(send.getSendCode());
-			sendmodel.setSourceCode(send.getSourceCode());
+			sendmodel.setSourceCode("ECLP");
 			sendmodel.setWaybillCode(oldWaybillCode);
 			sendmodel.setRejType(3);
 			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
