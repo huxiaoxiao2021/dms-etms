@@ -21,43 +21,43 @@ function main() {
 }
 
 function addSortScheme() {
-    var params = getParams();
-    if (!checkParams(params)) {
-        jQuery.messager.alert('提示:', '参数均不能为空!', 'info');
-        return false;
-    } else {
-        var url = $("#contextPath").val() + "/autosorting/sortScheme/add";
-        CommonClient.postJson(url, params, function(data) {
-            if (data == undefined || data == null) {
-                alert("提示请求无数据返回");
-                return;
-            }
-            if (data.code == 200) {
-                alert(data.message);
-            } else {
-                alert(data.message);
-            }
-        });
+    try {
+        var params = getParams();
+        checkParams(params);
+    } catch (e) {
+        jQuery.messager.alert('提示:', e.message, 'info');
+        return;
     }
+    var url = $("#contextPath").val() + "/autosorting/sortScheme/add";
+    CommonClient.postJson(url, params, function(data) {
+        if (data == undefined || data == null) {
+            alert("提示请求无数据返回");
+            return;
+        }
+        if (data.code == 200) {
+            alert(data.message);
+        } else {
+            alert("分拣计划添加异常,请正确选择分拣中心!!");
+        }
+    });
 }
 
 function checkParams(params) {
     if (null == params) {
-        return false;
+        throw new Error("参数为空!!");
     }
     if (params.siteNo == null || params.siteNo == "") {
-        return false;
+        throw new Error("站点信息为空!!");
     }
-    if (params.machineCode == null || params.machineCode == "") {
-        return false;
+    if (params.machineCode == null || params.machineCode == "" || params.machineCode.length > 10) {
+        throw new Error("机器码为空,或者长度超过10个字符!!");
     }
     if (params.sortMode == null || params.sortMode == "") {
-        return false;
+        throw new Error("分拣模式为空!!");
     }
-    if (params.name == null || params.name == "") {
-        return false;
+    if (params.name == null || params.name == "" || params.name.length > 20) {
+        throw new Error("分拣机方案名称为空,或者长度超过20个字符!!");
     }
-    return true;
 }
 
 function getParams() {
