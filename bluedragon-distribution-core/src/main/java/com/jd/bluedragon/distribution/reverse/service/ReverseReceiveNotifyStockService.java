@@ -1,26 +1,12 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
@@ -30,24 +16,25 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
-import com.jd.iwmss.stock.client.ArrayOfStock;
-import com.jd.iwmss.stock.client.Stock;
-import com.jd.iwmss.stock.client.StockParamter;
+import com.jd.ioms.export.order.Order;
 import com.jd.iwmss.stock.client.StockWebServiceSoap;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
-import jd.oom.client.clientbean.Order;
+import java.math.BigDecimal;
+import java.util.*;
+
 
 /**
  * 备件库收货推出管  
@@ -343,6 +330,7 @@ public class ReverseReceiveNotifyStockService {
 				+ this.getStockChuRu(stockType) + "</ChuRu><LocalId>" + order.getDeliveryCenterID() + "</LocalId><SId>"
 				+ order.getStoreId() + "</SId></ChuguanInfo><QingdanInfos>");
 
+		//出管信息增加skuid字段
 		for (Product product : products) {
 			message.append("<QingdanInfo><Wid>" + product.getProductId() + "</Wid><Ware>" + product.getName()
 					+ "</Ware><Num>" + this.getQuantity(stockType, payType, product.getQuantity())
@@ -387,6 +375,8 @@ public class ReverseReceiveNotifyStockService {
 			sdVO.setZjine(this.isPrePay(paidType) ? product.getPrice().multiply(
 					new BigDecimal(product.getQuantity())) : product.getPrice()
 					.multiply(new BigDecimal(product.getQuantity())).negate());
+			//added by zhanglei 增加影分skuid
+			sdVO.setCaiguo(product.getSkuId());
 			stockDetailVOs.add(sdVO);
 		}
 
@@ -408,6 +398,9 @@ public class ReverseReceiveNotifyStockService {
 			sdVO.setJiage(product.getPrice());
 			sdVO.setNum(product.getQuantity());
 			sdVO.setZjine(product.getPrice().multiply(new BigDecimal(product.getQuantity())));
+			//added by zhanglei 增加影分skuId
+			sdVO.setCaiguo(product.getSkuId());
+
 			stockDetailVOs.add(sdVO);
 		}
 

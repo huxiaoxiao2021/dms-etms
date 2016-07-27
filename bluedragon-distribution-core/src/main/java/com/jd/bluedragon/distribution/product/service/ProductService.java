@@ -41,7 +41,7 @@ public class ProductService {
 	private WaybillService waybillService;
 	
 	public List<Product> getOrderProducts(Long orderId) {
-		List<OrderDetail> orderDetails = this.orderWebService.getOrderDetailById(orderId);
+		List<com.jd.ioms.jsf.export.domain.OrderDetail> orderDetails = this.orderWebService.getOrderDetailById(orderId);
 		List<Product> products = new ArrayList<Product>();
 		
 		if (orderDetails == null || orderDetails.isEmpty()) {
@@ -52,14 +52,15 @@ public class ProductService {
 			orderDetails = this.getHistoryOrderDetailByOrderMiddleware(orderId);
 		}
 		
-		for (OrderDetail orderDetail : orderDetails) {
+		for (com.jd.ioms.jsf.export.domain.OrderDetail orderDetail : orderDetails) {
 			Product product = new Product();
 			
 			product.setName(StringHelper.getStringValue(orderDetail.getName()));
 			product.setQuantity(orderDetail.getNum());
 			product.setProductId(String.valueOf(orderDetail.getProductId()));
 			product.setPrice(orderDetail.getPrice());
-			
+			product.setSkuId(orderDetail.getSkuId());
+
 			this.logger.info("订单号：" + orderId + ", 商品详情：" + product.toString());
 			
 			products.add(product);
@@ -68,18 +69,22 @@ public class ProductService {
 		return products;
 	}
 	
-	private List<OrderDetail> getOrderDetailByWaybillMiddleware(Long orderId) {
-		List<OrderDetail> orderDetails = new ArrayList<OrderDetail>();
+	private List<com.jd.ioms.jsf.export.domain.OrderDetail> getOrderDetailByWaybillMiddleware(Long orderId) {
+		List<com.jd.ioms.jsf.export.domain.OrderDetail> orderDetails = new ArrayList<com.jd.ioms.jsf.export.domain.OrderDetail>();
 		
 		BigWaybillDto waybillDto = this.waybillService.getWaybillProduct(String.valueOf(orderId));
 		
 		if (waybillDto.getGoodsList() != null) {
 			for (Goods goods : waybillDto.getGoodsList()) {
-				OrderDetail orderDetail = new OrderDetail();
+				com.jd.ioms.jsf.export.domain.OrderDetail orderDetail = new com.jd.ioms.jsf.export.domain.OrderDetail();
 				orderDetail.setName(goods.getGoodName());
 				orderDetail.setProductId(new Integer(goods.getSku()));
 				orderDetail.setNum(goods.getGoodCount());
 				orderDetail.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
+
+				//这里加一个sku的赋值 不确定是不是goods.getSKU
+//				orderDetail.setSkuId(goods.getSku());
+
 				orderDetails.add(orderDetail);
 			}
 		}
@@ -87,14 +92,14 @@ public class ProductService {
 		return orderDetails;
 	}
 	
-	private List<OrderDetail> getHistoryOrderDetailByOrderMiddleware(Long orderId) {
-		List<OrderDetail> orderDetails = new ArrayList<OrderDetail>();
+	private List<com.jd.ioms.jsf.export.domain.OrderDetail> getHistoryOrderDetailByOrderMiddleware(Long orderId) {
+		List<com.jd.ioms.jsf.export.domain.OrderDetail> orderDetails = new ArrayList<com.jd.ioms.jsf.export.domain.OrderDetail>();
 		List<jd.oom.client.orderfile.OrderDetail> orderFileOrderDetails = this.orderWebService
 				.getHistoryOrderDetailById(orderId.intValue());
 		
 		if (orderFileOrderDetails != null) {
 			for (jd.oom.client.orderfile.OrderDetail orderFileOrderDetail : orderFileOrderDetails) {
-				OrderDetail orderDetail = new OrderDetail();
+				com.jd.ioms.jsf.export.domain.OrderDetail orderDetail = new com.jd.ioms.jsf.export.domain.OrderDetail();
 				orderDetail.setName(orderFileOrderDetail.getName());
 				orderDetail.setProductId(orderFileOrderDetail.getProductId());
 				orderDetail.setNum(orderFileOrderDetail.getNum());
