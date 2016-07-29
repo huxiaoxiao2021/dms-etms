@@ -254,11 +254,11 @@ public class ExportByPOIUtil {
             return null;
         }
         if (cell.getCellType() == cell.CELL_TYPE_BOOLEAN) {
-            return String.valueOf(cell.getBooleanCellValue());
+            return String.valueOf(cell.getBooleanCellValue()).trim();
         } else if (cell.getCellType() == cell.CELL_TYPE_NUMERIC) {
-            return String.valueOf(cell.getNumericCellValue());
+            return String.valueOf(cell.getNumericCellValue()).trim();
         } else {
-            return String.valueOf(cell.getStringCellValue());
+            return String.valueOf(cell.getStringCellValue()).trim();
         }
     }
 
