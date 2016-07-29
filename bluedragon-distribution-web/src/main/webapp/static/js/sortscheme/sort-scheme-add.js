@@ -47,7 +47,7 @@ function checkParams(params) {
         throw new Error("参数为空!!");
     }
     if (params.siteNo == null || params.siteNo == "") {
-        throw new Error("站点信息为空!!");
+        throw new Error("分拣中心为空!!");
     }
     if (params.machineCode == null || params.machineCode == "" || params.machineCode.length > 10) {
         throw new Error("机器码为空,或者长度超过10个字符!!");

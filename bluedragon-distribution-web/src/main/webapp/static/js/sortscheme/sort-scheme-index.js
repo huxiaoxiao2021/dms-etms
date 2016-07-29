@@ -66,24 +66,25 @@ function goActiveBtnClick() {
         jQuery.messager.alert('提示:', "当前分拣计划已经激活!", 'info');
         return;
     }
-    var url = $("#contextPath").val() + "/autosorting/sortScheme/update/able/id";
-    var params = {};
-    params.id = singleBtns[0].id;
-    params.siteNo = $.trim($("#siteNo").val());
-    CommonClient.postJson(url, params, function (data) {
-        if (data == undefined || data == null) {
-            jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
-            return;
-        }
-        if (data.code == 200) {
-            jQuery.messager.alert('提示:', "当前分拣计划激活成功", 'info');
-            // 对当前页做一次分页查询
-            onQueryBtnClick($("#pageNo").val());
-        } else {
-            jQuery.messager.alert('提示:', data.message, 'info');
-        }
-    });
-
+    if (confirm("确定要激活此分拣计划 ?")) {
+        var url = $("#contextPath").val() + "/autosorting/sortScheme/update/able/id";
+        var params = {};
+        params.id = singleBtns[0].id;
+        params.siteNo = $.trim($("#siteNo").val());
+        CommonClient.postJson(url, params, function (data) {
+            if (data == undefined || data == null) {
+                jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+                return;
+            }
+            if (data.code == 200) {
+                jQuery.messager.alert('提示:', "当前分拣计划激活成功", 'info');
+                // 对当前页做一次分页查询
+                onQueryBtnClick($("#pageNo").val());
+            } else {
+                jQuery.messager.alert('提示:', data.message, 'info');
+            }
+        });
+    }
 }
 
 function goImportExcel(id) {
@@ -220,7 +221,7 @@ function doQueryCrossSorting(params) {
                     temp += "<td>循环</td>";
                 }
                 temp += "<td>" + (dataList[i].receFlag == 1 ? '接收' : '未接收') + "</td>";
-                temp += "<td>" + (dataList[i].receTime) + "</td>";
+                temp += "<td>" + (dataList[i].receTime == null ? '' : dataList[i].receTime) + "</td>";
                 temp += "<td>" + (dataList[i].yn == 1 ? '<font color="red">激活</font>' : '未激活') + "</td>";
                 temp += "<td>" + "<input type='button' value='批量导入' onclick='goImportExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"
                     + "<input type='button' value='批量导出' onclick='exportExcel(" + dataList[i].id + ")' style='margin-right:10px;'>"

@@ -159,19 +159,23 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
             validateAndParseSingleCell(j, effectiveColumns, sortSchemeDetailList, repeatSiteErrorList, emptyErrorList, repeatChuteErrorList, notExsitErrorList, sheet0.getRow(j), siteMap);
         }
         if (repeatChuteErrorList.size() > 0 || repeatSiteErrorList.size() > 0 || emptyErrorList.size() > 0 || notExsitErrorList.size() > 0) {
-            throw new DataFormatException(new StringBuilder()//
-                    .append("物理滑槽重复:")//
-                    .append(repeatChuteErrorList)//
-                    .append("; ")//
-                    .append("同一格口不可维护相同目的地:")//
-                    .append(JsonHelper.toJson(repeatSiteErrorList))//
-                    .append("; ")//
-                    .append("目的地代码不存在:")//
-                    .append(JsonHelper.toJson(notExsitErrorList))//
-                    .append("; ")//
-                    .append("数据为空:")//
-                    .append(JsonHelper.toJson(emptyErrorList)).toString()//
-            );
+            StringBuilder sb = new StringBuilder();
+            if (repeatChuteErrorList.size() > 0) {
+                sb.append("物理滑槽重复:").append(repeatChuteErrorList).append("; ");
+            }
+            if (repeatSiteErrorList.size() > 0) {
+                sb.append("同一格口不可维护相同目的地:").append(JsonHelper.toJson(repeatSiteErrorList)).append("; ");
+            }
+            if (emptyErrorList.size() > 0) {
+                sb.append("目的地代码不存在:").append(JsonHelper.toJson(emptyErrorList)).append("; ");
+            }
+            if (notExsitErrorList.size() > 0) {
+                sb.append("数据为空:").append(JsonHelper.toJson(notExsitErrorList));
+            }
+            throw new DataFormatException(sb.toString());
+        }
+        if (sortSchemeDetailList.size() < 1) {
+            throw new DataFormatException("Excel数据为空,请检查!!");
         }
         return sortSchemeDetailList;
     }
