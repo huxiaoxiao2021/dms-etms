@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -58,6 +59,9 @@ public class DeliveryResource {
 
     @Autowired
     private LoadBillService loadBillService;
+
+    @Autowired
+    private SendQueryService sendQueryService;
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -607,6 +611,24 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    @GET
+    @Path("/delivery/SendDifference/{sendCode}")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.SendDifference", mState = {JProEnum.TP})
+    public SendDifference sendDifference(@PathParam("sendCode") String sendCode) {
+        SendDifference sendDifference=new SendDifference();
+        if (sendCode == null) {
+            return new SendDifference(JdResponse.CODE_OK_NULL, JdResponse.MESSAGE_OK_NULL);
+        }
+        try {
+            sendDifference= sendQueryService.querySendDifference(sendCode);
+            return sendDifference;
+        } catch (Exception ex) {
+            this.logger.error("调用监控-发货运输差异仓查询异常：", ex);
+            return new SendDifference(JdResponse.CODE_SERVICESEND_ERROR, JdResponse.MESSAGE_SERVICESEND_ERROR);
+        }
+
     }
 
     private SendM toSendDatail(DeliveryRequest deliveryRequest) {

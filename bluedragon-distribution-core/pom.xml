@@ -45,6 +45,12 @@
             <artifactId>confcenter-client</artifactId>
             <version>1.1.2-SNAPSHOT</version>
         </dependency>
+		<dependency>
+			<groupId>com.jd.etms.monitor</groupId>
+			<artifactId>ql-data-saf-api</artifactId>
+			<version>1.2.8-SNAPSHOT</version>
+		</dependency>
+
         <dependency>
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
