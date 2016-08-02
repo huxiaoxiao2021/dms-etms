@@ -30,7 +30,7 @@ function main() {
     $("#downloadModelBtn").click(function(){
        goDownModel();
     })
-    
+
 	// 初始化任务表下拉框
 	initOrg();
 
@@ -351,7 +351,7 @@ function getMaxLen(dmsList){
 		var siteCode = dmsList[i].siteCode;
 		if(siteCode != null && siteCode.toString() != "" && siteCode.toString().length > maxLen){
 			maxLen = siteCode.toString().length;
-		}	
+		}
 	}
 }
 function getBlanks(siteCode, maxLen){
