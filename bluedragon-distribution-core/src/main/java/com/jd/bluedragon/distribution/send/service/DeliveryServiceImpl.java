@@ -2874,7 +2874,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
 	@Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError })
-	public SendResult atuoPackageSend(SendM domain, boolean isForceSend) {
+	public SendResult  atuoPackageSend(SendM domain, boolean isForceSend) {
 
         SendM queryPara=new SendM();
         queryPara.setBoxCode(domain.getBoxCode());

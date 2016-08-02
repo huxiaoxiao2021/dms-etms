@@ -24,6 +24,9 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_SERVICE_ERROR = 20000;
     public static final String MESSAGE_SERVICE_ERROR = "服务异常";
+
+    public static final Integer CODE_SERVICESEND_ERROR = 20011;
+    public static final String MESSAGE_SERVICESEND_ERROR = "调用监控差异接口异常";
     
     public static final Integer CODE_PACKAGE_ERROR = 20001;
     public static final String MESSAGE_PACKAGE_ERROR = "无操作记录,请检查包裹";
