@@ -48,7 +48,7 @@ public class TBTaskTypeDao  {
         if(logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJson(pager));
         }
-        return (List<TBTaskType>)sqlSessionTemplate.selectList(selectByNameUsePagerSQL, pager);
+        return sqlSessionTemplate.selectList(selectByNameUsePagerSQL, pager);
     }
 
     /**

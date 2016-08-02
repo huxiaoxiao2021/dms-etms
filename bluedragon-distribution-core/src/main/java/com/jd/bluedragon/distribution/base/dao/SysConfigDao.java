@@ -22,14 +22,14 @@ public class SysConfigDao extends BaseDao<SysConfig> {
 	 }
 	@SuppressWarnings("unchecked")
 	public List<SysConfig> getSwitchList(){
-		return (List<SysConfig>)getSqlSession().selectList(SysConfigDao.namespace + ".getSwitchList");
+		return getSqlSession().selectList(SysConfigDao.namespace + ".getSwitchList");
 	}
 	public List<SysConfig> getList(SysConfig sysConfig){
-		return (List<SysConfig>)getSqlSession().selectList(SysConfigDao.namespace + ".getList",sysConfig);
+		return getSqlSession().selectList(SysConfigDao.namespace + ".getList",sysConfig);
 	}
 
 	public List<SysConfig> getListByConName(String conName){
-		return (List<SysConfig>)getSqlSession().selectList(SysConfigDao.namespace + ".getListByConName",conName);
+		return getSqlSession().selectList(SysConfigDao.namespace + ".getListByConName",conName);
 	}
 	
 	/**

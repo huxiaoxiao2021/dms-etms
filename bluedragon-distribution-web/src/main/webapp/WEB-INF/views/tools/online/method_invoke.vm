@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>线上方法调用</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#beanName").keyup(function(event){
+			if(event.which == 13) {
+				enter_click_fire();
+			}
+		})
+
+		$("#bt_invoke_bl").click(function () {
+			invoke_button_fire();
+		})
+
+		$("#beanMethod").change(function(){
+            show_param_type();
+		})
+	});
+
+	function show_param_type(){
+        $("#methodResult").html("");
+        var paramMark = $.trim($("#beanMethod option:selected").attr("name"));
+		var returnMark = $.trim($("#beanMethod option:selected").attr("title"));
+        paramMark = paramMark.replace(/ /g,", ");
+		if(paramMark.length <= 0) {
+            paramMark = ("参数 [无]");
+		} else {
+            paramMark = ("参数 [" + paramMark + "]");
+        }
+
+		if(returnMark.length <= 0) {
+            returnMark = "返回 [Void]";
+		} else {
+            returnMark = "返回 [" + returnMark + "]";
+		}
+
+        $("#beanReturnMark").html(returnMark)
+        $("#beanParaMark").html(paramMark);
+	}
+
+	function invoke_button_fire() {
+		if(!confirm("危险操作，确认要继续提交吗？")) {return;}
+        var params = get_params();
+        try {
+            check_bean_name_method(params);
+        } catch (e) {
+            alert(e)
+            return;
+        }
+		get_method_result(params);
+	}
+
+	function enter_click_fire() {
+        $("#beanMethod").html("");
+		$("#methodResult").html("");
+        var params = get_params();
+        try {
+            check_bean_name(params);
+        } catch (e) {
+            alert(e)
+            return;
+        }
+        get_method_list(params);
+	}
+
+
+	function check_bean_name(params) {
+		if(params.beanName.length <= 0) {
+			throw "beanName不能为空";
+		}
+	}
+
+	function check_encp_key(params) {
+        if(params.encpKey.length <= 0) {
+            throw "encpKey不能为空";
+        }
+	}
+
+	function check_bean_method(params) {
+        if(params.beanMethod.length <= 0) {
+            throw "beanMethod不能为空";
+        }
+	}
+
+	function check_bean_name_method(params) {
+		check_bean_name(params);
+		check_bean_method(params);
+		check_encp_key(params);
+	}
+
+	function get_params() {
+        var params = {};
+        params.beanName = $.trim($("#beanName").val());
+        params.beanMethod = $.trim($("#beanMethod").val());
+        params.beanPara = $.trim($("#beanPara").val());
+		params.encpKey = $.trim($("#encyKey").val());
+        return params;
+	}
+
+
+    function get_method_list(params) {
+        $.ajax({
+            type: 'POST',
+            url:  $("#contextPath").val() + "/admin/method-invoke/method/list",
+            data: params,
+            success: function(data){
+				fill_select_list(data);
+            },
+            dataType: "json"
+        });
+    }
+
+
+    function get_method_result(params) {
+        $.ajax({
+            type: 'POST',
+            url:  $("#contextPath").val() + "/admin/method-invoke/method/invoke",
+            data: params,
+            success: function(data){
+                $("#methodResult").html(JSON.stringify(data));
+            },
+            dataType: "json"
+        });
+    }
+
+	function fill_select_list(data) {
+        if(data == null || data === undefined || data.length <= 0){
+            $("#beanMethod").html("");
+        }
+		$.each(data,function(i,item){
+            console.info(JSON.stringify(item));
+			var paramType = "";
+			$.each(item,function(index,type){
+				paramType += " " + type;
+			});
+            console.info(paramType);
+            $("#beanMethod").append("<option value='" + i.split("&")[0] + "'" + " name='" + paramType + "'" + " title='" + i.split("&")[1] +"'>" + i.split("&")[0] + "</select>");
+        });
+
+		$("#beanMethod").trigger("change");
+	}
+
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">系统管理</a>
+        &nbsp;&gt;&nbsp;<a href="javascript:void(0)">线上方法验证</a>
+    </p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <th align="right">bean的名称 ：</th>
+                        <td>
+                            <input id="beanName" name="beanName" type="text" class="textField28" style="width: 400px;"/>
+						</td>
+                    </tr>
+                    <tr>
+                        <th align="right">方法列表 ：</th>
+                        <td>
+							<select id="beanMethod" name="beanMethod">
+
+							</select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">参数（多个参数&分割）：</th>
+                        <td>
+							<div><span style="color: red;" id="beanParaMark"></span></div>
+                            <div><textarea id="beanPara" name="beanPara" style="width:400px;height:40px"></textarea></div>
+						</td>
+                    </tr>
+                    <tr>
+                        <th align="right">方法返回值 ：</th>
+                        <td>
+                            <div style="margin-top: 10px;"><span style="color: red;" id="beanReturnMark"></span></div>
+                            <div><textarea id="methodResult" name="methodResult" style="width:400px;height:80px;"></textarea></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td>
+                            <input id="bt_invoke_bl" type="button" value="调用" class="btn_c"/> <span><input id="encyKey" name="encyKey" type="text" placeholder="请输入秘钥" class="textField28" style="width: 285px;"/></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

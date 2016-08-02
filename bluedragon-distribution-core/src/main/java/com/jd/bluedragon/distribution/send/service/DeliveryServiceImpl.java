@@ -348,6 +348,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
             this.updateCancel(tSendDatail);//更新SEND_D状态
+
+            //更新箱号状态为已发货
+//            List<String> boxCodes = new ArrayList<String>();
+//            boxCodes.add(domain.getBoxCode());
+//            boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
+
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("更新SEND状态时长{0}", System.currentTimeMillis() - startTime));
                 startTime=System.currentTimeMillis();
@@ -663,15 +669,25 @@ public class DeliveryServiceImpl implements DeliveryService {
 		CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2", false, true);
 		// 写入发货表数据
 		this.insertSendM(sendMList , list);
+
+        List<String> boxCodes = new ArrayList<String>();
+
         for(SendM domain:sendMList) {
             this.transitSend(domain);//插入中转任务
+//            if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+//                boxCodes.add(domain.getBoxCode());
+//            }
         }
+        // 更新箱号的状态
+//        boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
         // 写入任务
         addTaskSend(sendMList.get(0));
 		Profiler.registerInfoEnd(info2);
 
 		return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 	}
+
+
 
     /**
      * 批量判断箱号是否已经发货，提出公用，减少查询次数
@@ -919,6 +935,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                 {
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     sendMessage(sendDatails,tSendM);
+
+                    // 更新箱子状态为正常
+//                    List<String> boxCodes = new ArrayList<String>();
+//                    boxCodes.add(tSendM.getBoxCode());
+//                    boxService.batchUpdateStatus(boxCodes, Box.STATUS_PRINT);
                 }
 				return threeDeliveryResponse;
 			}

@@ -15,7 +15,7 @@ public class OfflineDao extends BaseDao<OfflineLog> {
 	
 	@SuppressWarnings("unchecked")
 	public List<OfflineLog> queryByParams(Map<String, Object> params){
-		return (List<OfflineLog>) this.getSqlSessionRead().selectList(namespace + ".queryByParams", params);
+		return this.getSqlSessionRead().selectList(namespace + ".queryByParams", params);
 	}
 	
 	public OfflineLog findByObj(OfflineLog offlineLog) {

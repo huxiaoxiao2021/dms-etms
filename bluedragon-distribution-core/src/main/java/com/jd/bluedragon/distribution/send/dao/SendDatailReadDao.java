@@ -24,7 +24,7 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("queueId", queueId);
 		
-		return (List<SendDetail>) this.getSqlSessionRead().selectList(
+		return this.getSqlSessionRead().selectList(
 				SendDatailReadDao.namespace + ".findUpdatewaybillCodeMessage", paramMap);
 	}
 	
@@ -35,7 +35,7 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 			return null;
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("boxCode", boxCode);
-		return (List<String>) this.getSqlSessionRead().selectList(
+		return this.getSqlSessionRead().selectList(
 				SendDatailReadDao.namespace + ".findWaybillByBoxCode", paramMap);
 	}
 
@@ -46,7 +46,7 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 		}
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("waybillCode", waybillCode);	
-		List<SendDetail> sendDetailList = (List<SendDetail>) this.getSqlSessionRead().selectList(
+		List<SendDetail> sendDetailList = this.getSqlSessionRead().selectList(
 				SendDatailReadDao.namespace + ".findSendBoxByWaybillCode", paramMap);
 		
 		List<SendBoxDetailResponse> sendResponseList = new ArrayList<SendBoxDetailResponse>();
@@ -64,7 +64,7 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> findBySendCodeAndDmsCode(Map<String, Object> params) {
-		return (List<SendDetail>) this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findBySendCode", params);
+		return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findBySendCode", params);
 	}
 
 

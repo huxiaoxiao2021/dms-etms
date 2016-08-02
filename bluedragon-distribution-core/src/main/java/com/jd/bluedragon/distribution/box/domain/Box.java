@@ -95,6 +95,15 @@ public class Box {
      */
     private Integer siteType;
 
+    /**长*/
+    private Float length;
+
+    /**宽*/
+    private Float width;
+
+    /**高*/
+    private Float height;
+
     public Integer getSiteType() {
         return siteType;
     }
@@ -271,9 +280,31 @@ public class Box {
 		this.codes = codes;
 	}
 
+    public Float getLength() {
+        return length;
+    }
 
+    public void setLength(Float length) {
+        this.length = length;
+    }
 
-	@Override
+    public Float getWidth() {
+        return width;
+    }
+
+    public void setWidth(Float width) {
+        this.width = width;
+    }
+
+    public Float getHeight() {
+        return height;
+    }
+
+    public void setHeight(Float height) {
+        this.height = height;
+    }
+
+    @Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
 			return false;

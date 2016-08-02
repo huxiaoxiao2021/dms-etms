@@ -20,7 +20,7 @@ public class SendMDao extends BaseDao<SendM>  {
 	public List<SendM> selectOneBySendCode(String sendCode) {
 		SendM querySendM = new SendM();
 		querySendM.setSendCode(sendCode);
-		return (List<SendM>) getSqlSession().selectList(SendMDao.namespace + ".selectOneBySendCode", querySendM);
+		return getSqlSession().selectList(SendMDao.namespace + ".selectOneBySendCode", querySendM);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -28,7 +28,7 @@ public class SendMDao extends BaseDao<SendM>  {
 		SendM querySendM = new SendM();
 		querySendM.setCreateSiteCode(createSiteCode);
 		querySendM.setSendCode(sendCode);
-		return (List<SendM>) getSqlSession().selectList(SendMDao.namespace + ".selectBySiteAndSendCode", querySendM);
+		return getSqlSession().selectList(SendMDao.namespace + ".selectBySiteAndSendCode", querySendM);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -36,7 +36,7 @@ public class SendMDao extends BaseDao<SendM>  {
 		SendM querySendM = new SendM();
 		querySendM.setCreateSiteCode(createSiteCode);
 		querySendM.setSendCode(sendCode);
-		return (List<SendM>) getSqlSession().selectList(SendMDao.namespace + ".selectBySiteAndSendCodeBYtime", querySendM);
+		return getSqlSession().selectList(SendMDao.namespace + ".selectBySiteAndSendCodeBYtime", querySendM);
 	}
 
 	public SendM selectBySendCode(String sendCode) {
@@ -45,7 +45,7 @@ public class SendMDao extends BaseDao<SendM>  {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySendSiteCode(SendM sendM) {
-		return (List<SendM>) getSqlSession().selectList(SendMDao.namespace + ".selectBySendSiteCode", sendM);
+		return getSqlSession().selectList(SendMDao.namespace + ".selectBySendSiteCode", sendM);
 	}
 
 	public int updateBySendCodeSelective(SendM record){
@@ -60,7 +60,7 @@ public class SendMDao extends BaseDao<SendM>  {
     
     @SuppressWarnings("unchecked")
     public List<SendM> findSendMByBoxCode(SendM sendM) {
-        return (List<SendM>) getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode", sendM);
+        return getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode", sendM);
     }
     
     public boolean cancelSendM(SendM tSendM) {
@@ -78,7 +78,7 @@ public class SendMDao extends BaseDao<SendM>  {
 	public List<SendM> querySendCodesByDepartue(Long shieldsCarId) {
 		SendM sendM = new SendM();
 		sendM.setShieldsCarId(shieldsCarId);
-		return (List<SendM>) this.getSqlSession().selectList(
+		return this.getSqlSession().selectList(
 				SendMDao.namespace + ".querySendCodesByDepartue", sendM);
 	}
 	
@@ -88,7 +88,7 @@ public class SendMDao extends BaseDao<SendM>  {
     
     @SuppressWarnings("unchecked")
 	public List<String> batchQuerySendMList(SendM sendM) {
-		return (List<String>) getSqlSession().selectList(SendMDao.namespace + ".batchQuerySendMList", sendM);
+		return getSqlSession().selectList(SendMDao.namespace + ".batchQuerySendMList", sendM);
 	}
 
     /**
@@ -98,13 +98,13 @@ public class SendMDao extends BaseDao<SendM>  {
      */
     @SuppressWarnings("unchecked")
 	public List<String> batchQueryCancelSendMList(SendM sendM) {
-		return (List<String>) getSqlSession().selectList(SendMDao.namespace + ".batchQueryCancelSendMList", sendM);
+		return getSqlSession().selectList(SendMDao.namespace + ".batchQueryCancelSendMList", sendM);
 	}
 
 	public List<SendM> selectBoxBySendCode(String sendCode) {
 		SendM sendM = new SendM();
 		sendM.setSendCode(sendCode);
-		return	(List<SendM>) this.getSqlSession().selectList(
+		return	this.getSqlSession().selectList(
 				SendMDao.namespace + ".selectBoxBySendCode", sendM);
 
 	}
