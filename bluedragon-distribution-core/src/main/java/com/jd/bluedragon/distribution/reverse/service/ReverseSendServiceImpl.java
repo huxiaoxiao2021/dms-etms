@@ -456,7 +456,19 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 removeDuplicatedProduct(newsend);
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
-                sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
+                
+                //获得send对象,方便下方判断
+                ReverseSendWms send = null;
+                send = tBaseService.getWaybillByOrderCode(wallBillCode);
+                if (send == null) {
+                    this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
+                    continue;
+                }
+                send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
+                //迷你仓、 ECLP单独处理
+                if (!isSpecial(send, wallBillCode)) {
+                	sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
+                }
             }
 
             // 包丢订单发车
