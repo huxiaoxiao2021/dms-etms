@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>分拣计划</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl("/static/js/sortscheme/sort-scheme-index.js")"></script>
+    <style type="text/css">
+        #content {
+            margin: 0 auto;
+        }
+        .query_span_1 {
+            display: block;
+            float: left;
+            width: 210px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .query_span_2 {
+            display: block;
+            float: left;
+            width: 140px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .query_span_3 {
+            display: block;
+            float: left;
+            width: 250px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .query_text {
+            width: 120px;
+        }
+        .query_select_1 {
+            float: left;
+            width: 200px;
+            margin-top: 5px;
+        }
+        .query_select_2 {
+            width: 60px;
+        }
+        .btn_c {
+            margin-left: 5px;
+        }
+        #pager table {
+            width: 80%;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣计划</a>
+    </p>
+</div>
+<div id="content">
+    <div id="query_table" style="margin-top: 10px">
+        <div id="query_param">
+            <span class="query_select_1">
+				分拣中心：
+				<select id="siteNo" class="query_text">
+                    <option value="">所有分拣中心</option>
+                </select>
+			</span>
+            <span class="query_span_1">
+				分拣机代码：<input type="text" id="machineCode" class="query_text"/>
+			</span>
+            <span class="query_span_2">
+				分拣模式：
+				<select id="sortMode" class="query_select_2">
+                    <option value="">全部</option>
+                    <option value="1">最近</option>
+                    <option value="2">瀑布</option>
+                    <option value="3">循环</option>
+                </select>
+			</span>
+            <span class="query_span_3">
+				分拣机方案名称：
+				<input type="text" id="name" class="query_text"/>
+			</span>
+
+        </div>
+        <div id="query_operate" style="height: 30px">
+            <span class="query_spans" style="width: 250px;">
+                <input id="queryBtn" value="查询" type="button" class="btn_c">
+                <input id="addBtn" value="增加" type="button" class="btn_c">
+                <input id="activeBtn" value="方案激活" type="button" class="btn_c">
+                <input id="downBtn" value="模版下载" type="button" class="btn_c">
+            </span>
+        </div>
+    </div>
+    <div id="sortscheme_list_div" style="margin-top: 10px;">
+        <div id="sortscheme_list_table">
+            <div class="tbl-list">
+                <div class="tbl-bg">
+                    <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
+                        <thead>
+                        <tr>
+                            <th style="width:10px;"></th>
+                            <th style="width:40px;">方案名称</th>
+                            <th style="width:40px;">分拣中心</th>
+                            <th style="width:15px;">分拣机代码</th>
+                            <th style="width:15px;">分拣模式</th>
+                            <th style="width:15px;">接收标识</th>
+                            <th style="width:50px;">接收时间</th>
+                            <th style="width:15px;">是否激活</th>
+                            <th style="width:50px;">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="pager" class="tbl-n">
+
+            </div>
+        </div>
+    </div>
+    <div id="pager" class="tbl-n">
+    </div>
+    <div id="dialog" title="导入对话框" style="width: 440px;height: 100px;">
+
+    </div>
+
+</div>
+</div>
+</body>
+</html>

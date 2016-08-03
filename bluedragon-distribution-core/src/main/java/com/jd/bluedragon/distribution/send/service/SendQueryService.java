@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.jd.bluedragon.distribution.send.domain.SendDifference;
 import com.jd.bluedragon.distribution.send.domain.SendQuery;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface SendQueryService {
     public boolean insert(SendQuery domain);
 
     public List<SendQuery> queryBySendCode(String sendCode);
+
+    public SendDifference querySendDifference(String sendCode);
 }
