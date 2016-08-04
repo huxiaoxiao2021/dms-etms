@@ -67,7 +67,7 @@
             <div id="query_param_line" style="height: 30px;margin-top: 10px;">
                 <span class="query_span_1">
                     <label class="query_lable_1">分拣中心：</label>
-                    <input type="text" id="siteName" disabled="disabled" class="query_text" value="$!sortScheme.siteName"/>
+                    <input type="text" id="siteName" disabled="disabled" class="query_text" value="$!sortScheme.siteNo"/>
                     <input type="hidden" id="siteNo" class="query_text" value="$!sortScheme.siteNo"/>
                 </span>
                 <span class="query_span_2">
