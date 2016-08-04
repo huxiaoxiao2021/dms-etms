@@ -25,6 +25,10 @@
         #content {
             margin: 0 auto;
         }
+        .query_param {
+            display: block;
+            float: left;
+        }
         .query_span_1 {
             display: block;
             float: left;
@@ -50,8 +54,7 @@
             display: block;
             float: left;
             width: 500px;
-            margin-left: 620px;
-            margin-top: 5px;
+            margin-left: 310px;
             margin-bottom: 5px;
         }
         .query_text {
@@ -83,7 +86,7 @@
     </p>
 </div>
 <div id="content">
-        <div id="query_param">
+        <div id="query_param" style="height: 35px;">
             <span class="query_select_1">
                 分拣中心：
                 <select id="siteNo" class="query_text">
