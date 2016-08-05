@@ -33,8 +33,8 @@ public class IndexController {
     @Autowired
 	private BaseMajorManager baseMajorManager;
     
-    @Autowired
-    private CookieUtils cookieUtils;
+//    @Autowired
+//    private CookieUtils cookieUtils;
     
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
@@ -83,7 +83,7 @@ public class IndexController {
     
     @RequestMapping("/quit")
     public ModelAndView quit(HttpServletRequest request, HttpServletResponse response, Model model) {
-        this.cookieUtils.invalidate(request, response);
+//        this.cookieUtils.invalidate(request, response);
         ModelAndView mav = new ModelAndView();
         RedirectView view = new RedirectView("/index");
         mav.setView(view);
