@@ -1,22 +1,20 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.common.struts.interceptor.ws.DeptWebService;
-import com.jd.common.struts.interceptor.ws.User;
+import com.jd.ssa.domain.UserInfo;
+import com.jd.ssa.service.SsoService;
+
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * @author dudong
@@ -32,14 +30,18 @@ public class UserVerifyServiceImpl implements UserVerifyService {
 
     private String token;
 
-    private DeptWebService deptWebService;
+//    private DeptWebService deptWebService;
+    @Autowired
+    private NewDeptWebService newDeptWebService;
 
     @Override
-    public User baseVerify(String name, String password) {
+    public UserInfo baseVerify(String name, String password) {
         try {
-            return deptWebService.verify(name, password);
+        	UserInfo userInfo = newDeptWebService.verify(name, password);
+            return userInfo;
         } catch (Exception ex) {
             logger.error("deptWebService verify error");
+            ex.printStackTrace();
             return null;
         }
     }
@@ -93,11 +95,20 @@ public class UserVerifyServiceImpl implements UserVerifyService {
         this.token = token;
     }
 
-    public DeptWebService getDeptWebService() {
-        return deptWebService;
-    }
+//    public DeptWebService getDeptWebService() {
+//        return deptWebService;
+//    }
+//
+//    public void setDeptWebService(DeptWebService deptWebService) {
+//        this.deptWebService = deptWebService;
+//    }
 
-    public void setDeptWebService(DeptWebService deptWebService) {
-        this.deptWebService = deptWebService;
-    }
+//	public NewDeptWebService getNewDeptWebService() {
+//		return newDeptWebService;
+//	}
+//
+//	public void setNewDeptWebService(NewDeptWebService newDeptWebService) {
+//		this.newDeptWebService = newDeptWebService;
+//	}
+    
 }

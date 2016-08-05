@@ -14,7 +14,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.RandomUtils;
 import com.jd.bluedragon.utils.SendMailUtil;
-import com.jd.common.hrm.HrmPrivilege;
+import com.jd.uim.annotation.Authorization;
 
 @Controller
 @RequestMapping("/offlinePwd")
@@ -24,7 +24,7 @@ public class OfflinePasswordController {
 	@Autowired
 	private SysConfigService sysConfigService;
 	@RequestMapping(value = "/list")
-	@HrmPrivilege("bluedragon_offlinePwd_list")
+	@Authorization("bluedragon_offlinePwd_list")
 	public String list( Model model){
 		SysConfig sysConfig= new SysConfig();
 		sysConfig.setConfigType(-100);
