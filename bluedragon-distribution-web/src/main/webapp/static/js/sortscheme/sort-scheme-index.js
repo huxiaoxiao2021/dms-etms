@@ -210,7 +210,7 @@ function doQueryCrossSorting(params) {
                 temp += "<td><input id='" + dataList[i].id + "' value='" + dataList[i].yn + "' name='singleBtn' type='checkbox'/></td>";
                 temp += "<td>" + (dataList[i].name == null ? '' : dataList[i].name) + "</td>";
                 siteNo = dataList[i].siteNo;
-                temp += "<td>" + (dataList[i].siteNo == null ? '' : dataList[i].siteNo == null) + "</td>";
+                temp += "<td>" + (dataList[i].siteNo == null ? '' : dataList[i].siteNo) + "</td>";
                 temp += "<td>" + (dataList[i].machineCode) + "</td>";
                 var sortMode = dataList[i].sortMode;
                 if (sortMode == 1) {
