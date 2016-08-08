@@ -22,6 +22,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.cookie.CookieUtils;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ssa.utils.SSOHelper;
 
 /**
  * @author zhaohc
@@ -97,6 +98,9 @@ public class IndexController {
            String domainValue = pps .getProperty(domainName);
            String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
            
+           if(!domainValue.contains(".jd.com")){
+        	   SSOHelper.logout(response, domainValue);
+           }
            response.sendRedirect( newUrl);
         } catch (IOException e ) {
            // TODO Auto-generated catch block
