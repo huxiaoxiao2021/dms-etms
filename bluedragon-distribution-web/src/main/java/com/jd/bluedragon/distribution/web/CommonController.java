@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.common.cached.CacheUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
@@ -31,8 +30,6 @@ public class CommonController {
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
-	@Autowired
-	private CacheUtils cacheUtils;
 
 	private static final String ALL_SITES_KEY = "Q_ALL_SITES_KEY";
 
@@ -84,12 +81,14 @@ public class CommonController {
 	@ResponseBody
 	@RequestMapping("/getSiteByName")
 	public Object getSiteByName(String name) {
-		List<BaseStaffSiteOrgDto> list = (List<BaseStaffSiteOrgDto>) cacheUtils
+		/*List<BaseStaffSiteOrgDto> list = (List<BaseStaffSiteOrgDto>) cacheUtils
 		        .get(CommonController.ALL_SITES_KEY);
 		if (list == null || list.size() == 0) {
 			list = this.baseMajorManager.getBaseSiteAll();
 			cacheUtils.set(CommonController.ALL_SITES_KEY, 24 * 3600, list);
-		}
+		}*/
+        //TO DO
+        List<BaseStaffSiteOrgDto> list = this.baseMajorManager.getBaseSiteAll();
 		List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
 		for (BaseStaffSiteOrgDto site : list) {
 			if (site.getSiteName().startsWith(name)) {
