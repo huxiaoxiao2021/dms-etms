@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.web;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,11 +85,22 @@ public class IndexController {
     }
     
     @RequestMapping("/quit")
-    public ModelAndView quit(HttpServletRequest request, HttpServletResponse response, Model model) {
+    public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
 //        this.cookieUtils.invalidate(request, response);
-        ModelAndView mav = new ModelAndView();
-        RedirectView view = new RedirectView("/index");
-        mav.setView(view);
-        return mav;// "index";
+        InputStream in = getClass().getResourceAsStream( "/authen.properties");
+        Properties pps = new Properties();
+        try {
+           pps.load( in);
+           String logoutKey = "logout.address" ;
+           String logoutValue = pps .getProperty(logoutKey);
+           String domainName = "webapp.domain.name" ;
+           String domainValue = pps .getProperty(domainName);
+           String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
+           
+           response.sendRedirect( newUrl);
+        } catch (IOException e ) {
+           // TODO Auto-generated catch block
+           e.printStackTrace();
+        }
     }
 }
