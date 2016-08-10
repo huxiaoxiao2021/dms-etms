@@ -10,9 +10,9 @@ import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.utils.*;
-import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -196,6 +196,18 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         String currChuteCode = "";// 当前使用滑槽
         String siteStrs = ""; // 站点字符串
         List<String> siteList = new ArrayList<String>();
+
+
+        //------------如果一行里面有一个目的地代码不为空,就不要校验其他站点为空-------------
+        boolean needValiSiteEmpty = true;
+        for (int k = 4; k < effectiveColumns; k++) {
+            if(StringUtils.isNotBlank(StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(k)), "."))) {
+                needValiSiteEmpty = false;
+                break;
+            }
+        }
+        //------------如果一行里面有一个目的地代码不为空,就不要校验其他站点为空-------------
+
         for (int i = 0; i < effectiveColumns; i++) {
             String cellValue = "";
             if (i == 2) {
@@ -210,8 +222,10 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 }
             } else {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
-                    emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                if (i == 0 || i == 1 || i == 4 || (i > 4 && needValiSiteEmpty)) {
+                    if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
+                        emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                    }
                 }
             }
 
