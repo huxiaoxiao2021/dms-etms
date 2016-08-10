@@ -9,7 +9,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.ioms.export.order.Order;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockS
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 
+import jd.oom.client.clientbean.Order;
 
 @Component
 @Path(Constants.REST_URL)

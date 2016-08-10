@@ -8,6 +8,7 @@ import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.ioms.jsf.export.domain.ExportResult;
 import com.jd.ioms.jsf.export.domain.OrderDetail;
 import com.jd.ql.basic.domain.Assort;
+import jd.oom.client.clientbean.Order;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 import org.apache.commons.logging.Log;
@@ -87,7 +88,7 @@ public class OrderWebService {
 		return null;
 	}
 
-	public com.jd.ioms.export.order.Order getOrder(long orderId) {
+	public Order getOrder(long orderId) {
 		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
 		        .getBean("oomServiceSoap");
 		return oomServiceSoap.getOrderById(orderId, false, OrderLoadFlag.getLoadFlag("全部"));
@@ -110,7 +111,7 @@ public class OrderWebService {
 		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
 		        .getBean("oomServiceSoap");
 
-		com.jd.ioms.export.order.Order order = oomServiceSoap.getOrderById(orderId, false,
+		Order order = oomServiceSoap.getOrderById(orderId, false,
 		        OrderServiceHelper.getFlag1());
 
 		if (order != null) {
@@ -125,7 +126,7 @@ public class OrderWebService {
 				logger.error("快生预分拣接口异常"+orderId,ex);
 			}
 			waybill.setSiteName(order.getIdPickSiteName());
-			waybill.setPaymentType(order.getPaymentType());
+			waybill.setPaymentType(order.getIdPaymentType());
 			waybill.setSendPay(order.getSendPay());
 			if (order.getWeight() != null) {
 				waybill.setWeight(order.getWeight().doubleValue());
@@ -134,7 +135,7 @@ public class OrderWebService {
 			waybill.setOrgId(order.getIdCompanyBranch());
 			waybill.setStoreId(order.getStoreId());
 			waybill.setType(order.getOrderType());
-			waybill.setShipmentType(order.getShipmentType());
+			waybill.setShipmentType(order.getIdShipmentType());
 			waybill.setReceiverTel(order.getPhone());
 			waybill.setReceiverMobile(order.getMobile());
 			waybill.setReceiverName(order.getCustomerName());
