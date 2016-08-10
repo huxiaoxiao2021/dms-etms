@@ -45,6 +45,12 @@
             <artifactId>confcenter-client</artifactId>
             <version>1.1.2-SNAPSHOT</version>
         </dependency>
+		<dependency>
+			<groupId>com.jd.etms.monitor</groupId>
+			<artifactId>ql-data-saf-api</artifactId>
+			<version>1.2.8-SNAPSHOT</version>
+		</dependency>
+
         <dependency>
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
@@ -504,7 +510,7 @@
 		<dependency>
             <groupId>com.jd.etms.framework</groupId>
             <artifactId>framework-utils</artifactId>
-            <version>1.1.3-SNAPSHOT</version>
+            <version>1.1.5-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>mybatis-spring</artifactId>
@@ -519,12 +525,12 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.0.6</version>
+            <version>3.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
-            <version>1.0.2</version>
+            <version>1.1.1</version>
         </dependency>
 
         <dependency>

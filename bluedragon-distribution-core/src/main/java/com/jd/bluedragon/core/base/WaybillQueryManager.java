@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import java.util.Date;
 
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -60,4 +61,11 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	public abstract boolean sendBdTrace(BdTraceDto bdTraceDto);
+
+	/**
+	 * 根据扫描单号获得换单前单号,主要用于逆向
+	 * @param waybillCode
+	 * @return
+	 */
+	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode);
 }

@@ -37,6 +37,7 @@ import java.util.List;
 public class BaseMajorManagerImpl implements BaseMajorManager {
 
 	private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
+    private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
 
 	@Autowired
 	@Qualifier("basicPrimaryWS")
@@ -96,7 +97,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return getBaseStaffByStaffIdNoCache(paramInteger);
 	}
 
-	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = true, memoryExpiredTime = 20 * 60 * 1000,
+	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = false,
 	redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
@@ -243,7 +244,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 		return basicPrimaryWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
 	}
 	
-	private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
 	@Override
 	@Cache(key = "baseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
 		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)

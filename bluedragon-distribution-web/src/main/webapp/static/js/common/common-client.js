@@ -81,3 +81,28 @@ CommonClient.ajaxJson = function(type,url,param,successFunction){
 		}
 	});
 };
+
+CommonClient.syncPostJson = function(url,param,successFunction){
+	CommonClient.syncAjaxJson("POST", url, param, successFunction);
+};
+
+CommonClient.syncAjaxJson = function(type,url,param,successFunction){
+	jQuery.ajax({
+		type: type,
+		url: CommonClient.contextPath + url,
+		data: JSON.stringify(param),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		async : false,
+		beforeSend: function(jqXHR, settings){
+			$.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
+		},
+		success: successFunction,
+		error: function(jqXHR, textStatus, errorThrown){
+			alert("Error:status["+jqXHR.status+"],statusText["+ jqXHR.statusText +"]");
+		},
+		complete: function(jqXHR, textStatus){
+			$.unblockUI();
+		}
+	});
+};

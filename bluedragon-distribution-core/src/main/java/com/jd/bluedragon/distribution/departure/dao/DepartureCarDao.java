@@ -31,11 +31,11 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
 	}
 
     public List<DeparturePrintResponse> queryDeliveryInfoByOrderCode(String orderCode){
-        return (List<DeparturePrintResponse>)this.getSqlSession().selectList(namespace + ".queryDeliveryInfoByOrderCode", orderCode);
+        return this.getSqlSession().selectList(namespace + ".queryDeliveryInfoByOrderCode", orderCode);
     }
 
 	public List<DeparturePrintResponse> queryDepartureInfoBySendCode(List<String> sendCodes){
-		return (List<DeparturePrintResponse>)this.getSqlSession().selectList(namespace + ".queryDepartureInfoBySendCode", sendCodes);
+		return this.getSqlSession().selectList(namespace + ".queryDepartureInfoBySendCode", sendCodes);
 	}
 
     public DeparturePrintResponse queryArteryBillingInfo(long carCode){

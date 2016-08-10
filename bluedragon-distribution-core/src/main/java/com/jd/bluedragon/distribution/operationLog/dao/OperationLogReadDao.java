@@ -12,7 +12,7 @@ public class OperationLogReadDao extends BaseDao<OperationLog> {
 
 	@SuppressWarnings("unchecked")
 	public List<OperationLog> queryByParams(Map<String, Object> params) {
-		return (List<OperationLog>) this.getSqlSessionRead().selectList(namespace + ".queryByParams", params);
+		return this.getSqlSessionRead().selectList(namespace + ".queryByParams", params);
 	}
 
 	public Integer totalSizeByParams(Map<String, Object> params) {

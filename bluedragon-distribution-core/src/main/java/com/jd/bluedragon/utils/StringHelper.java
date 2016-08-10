@@ -245,7 +245,7 @@ public class StringHelper {
 	}
 	
 	public static List<String> parseList(String str, String comma) {
-		if (null == str || str.length() < 1) {
+		if (null == str || str.length() < 1 || comma == null || comma.length() < 1) {
 			return new ArrayList<String>();
 		}
 		List<String> strList = new ArrayList<String>();
@@ -256,5 +256,16 @@ public class StringHelper {
 		}
 		return strList;
 	}
+
+    public static String prefixStr(String str, String comma) {
+        if (null == str || str.length() < 1 || comma == null || comma.length() < 1) {
+            return str;
+        }
+        int index = str.indexOf(comma);
+        if (index > -1) {
+            return str.substring(0, index);
+        }
+        return  str;
+    }
 
 }

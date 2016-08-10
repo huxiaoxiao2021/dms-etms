@@ -48,7 +48,7 @@ public class PopReceiveDao extends BaseDao<PopReceive> {
 	
 	public List<PopReceive> findPopReceiveList(Map<String,Object> map){
 		@SuppressWarnings("unchecked")
-		List<PopReceive> list = (List<PopReceive>)this.getSqlSession().selectList(namespace+".findPopReceiveList", map);
+		List<PopReceive> list = this.getSqlSession().selectList(namespace+".findPopReceiveList", map);
 		return list;
 	}
 	

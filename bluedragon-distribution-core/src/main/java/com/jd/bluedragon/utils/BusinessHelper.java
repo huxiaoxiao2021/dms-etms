@@ -22,6 +22,7 @@ public class BusinessHelper {
     private static final String AO_BATCH_CODE_PREFIX="Y";
 	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
 	private static final String SOURCE_CODE_ECLP = "ECLP";
+	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
 
 	public static String getWaybillCodeByPackageBarcode(String s) {
 		if (!BusinessHelper.isPackageCode(s)) {
@@ -278,7 +279,7 @@ public class BusinessHelper {
 	/**
 	 * 判断是否是ECLP订单
 	 * ECLP : 仓储开发平台
-	 * @param sourceCode  运单中的sourceCode字段
+	 * @param sourceCode  运单中的sourceCode字段,判断它是不是ECLP开头单号
 	 * @return
 	 */
 	public static Boolean isECLPCode(String sourceCode) {
@@ -293,6 +294,23 @@ public class BusinessHelper {
 		return Boolean.FALSE;
 	}
 	
+	/**
+	 * 判断是否是ECLP订单
+	 * ECLP : 仓储开发平台
+	 * @param busiOrderCode  运单中的busiOrderCode字段,判断它是不是esl开头单号
+	 * @return
+	 */
+	public static Boolean isECLPByBusiOrderCode(String busiOrderCode) {
+		if (StringHelper.isEmpty(busiOrderCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (busiOrderCode.startsWith(BUSI_ORDER_CODE_PRE_ECLP)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
 	
 	public static boolean isNumeric(String str) {
 		Pattern pattern = Pattern.compile("[0-9]*");
@@ -325,7 +343,7 @@ public class BusinessHelper {
 		} catch (NumberFormatException nfe) {
 			BusinessHelper.logger.error("格式化发生异常！", nfe);
 		}
-		return maxPackNum <= 0 ? 2000 : maxPackNum;
+		return maxPackNum <= 0 ? 5000 : maxPackNum;
 	}
 
 	/**

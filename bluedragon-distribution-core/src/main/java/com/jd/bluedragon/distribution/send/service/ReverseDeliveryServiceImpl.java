@@ -33,6 +33,7 @@ import com.jd.postal.GetPrintDatasPortType;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -425,13 +426,20 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							+ "</OrderShipList></PlaintextData>";
 					String md5tempstring = encrypt(body + whEmsKey.trim());
 					this.logger.error("数据报文：" + body);
-					String emsstring = whemsClientService
-							.sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-									+ "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-									+ "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-									+ md5tempstring
-									+ "</ValidationData>"
-									+ body + "</Response>");
+					String emsstring = null;
+                    try {
+                       emsstring = whemsClientService
+                                .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                                        + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
+                                        + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
+                                        + md5tempstring
+                                        + "</ValidationData>"
+                                        + body + "</Response>");
+                    } catch (Throwable e) {
+                        this.logger.error("Dms to Wh_ems error", e);
+                        Profiler.businessAlarm("DmsWorker.pushWh_ems_error", "推送Wh_ems数据失败" + e.getMessage());
+                    }
+
 
 					if (null == emsstring || emsstring.trim().equals("")) {
 						this.logger
@@ -727,7 +735,8 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							.printEMSDatas(body);
 				} catch (Exception e) {
 					this.logger.error("全国邮政调用异常,订单号为："+waybillCode,e);
-					errorWaybill.append(waybillCode+"-");
+                    Profiler.businessAlarm("DmsWorker.pushEms_error", "推送Ems数据失败" + e.getMessage());
+                    errorWaybill.append(waybillCode+"-");
 				}
 
 				if (null == emsstring || emsstring.trim().equals("")) {
@@ -996,5 +1005,16 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
     		}
     	}
     	return list;
+    }
+
+    public static void main(String[] args) {
+        List<String> waybillCodes = new ArrayList<String>();
+        waybillCodes.add("42747094316");
+        waybillCodes.add("42747094313");
+        waybillCodes.add("42747094310");
+        waybillCodes.add("42747094265");
+        waybillCodes.add("42747090797");
+        System.out.println(JsonHelper.toJson(waybillCodes));
+
     }
 }
