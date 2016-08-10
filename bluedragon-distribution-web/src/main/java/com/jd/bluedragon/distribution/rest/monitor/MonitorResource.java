@@ -120,9 +120,8 @@ public class MonitorResource {
                 RestTemplate template = new RestTemplate();
                 ((SimpleClientHttpRequestFactory) template.getRequestFactory()).setConnectTimeout(1000 * 60);
                 HttpHeaders headers = new HttpHeaders();
-                //org.springframework.http.MediaType type = org.springframework.http.MediaType.parseMediaType("application/json; charset=UTF-8");
-                //headers.setContentType(type);
-                headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+                headers.setContentType(org.springframework.http.MediaType.parseMediaType("application/json; charset=UTF-8"));
+                headers.add("Accept", org.springframework.http.MediaType.APPLICATION_JSON.toString());
                 HttpEntity<String> formEntity = new HttpEntity<String>(postData, headers);
                 ResponseEntity<Object> response = template.postForEntity(url, formEntity, Object.class);
                 if (null != response && null != response.getBody()) {
