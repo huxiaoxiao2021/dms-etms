@@ -20,6 +20,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -675,5 +676,16 @@ public class TaskServiceImpl implements TaskService {
 
     public void setDynamicProducer(DmsDynamicProducer dynamicProducer) {
         this.dynamicProducer = dynamicProducer;
+    }
+
+    /**
+     * xumei
+     */
+    @Override
+	public List<Task> findTaskTypeByStatus(Integer type, int fetchNum) {
+		return taskDao.findTaskTypeByStatus(type, fetchNum);
+	}
+    public Integer updateTaskStatus(Task task) {
+       return taskDao.updateTaskStatus(task);
     }
 }

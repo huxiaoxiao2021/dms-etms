@@ -104,4 +104,8 @@ public interface TaskService {
 
 
     Integer doAddTask(Task task, boolean ifCheckTaskMode);
+
+	List<Task> findTaskTypeByStatus(Integer type, int fetchNum);
+
+	Integer updateTaskStatus(Task task);
 }
