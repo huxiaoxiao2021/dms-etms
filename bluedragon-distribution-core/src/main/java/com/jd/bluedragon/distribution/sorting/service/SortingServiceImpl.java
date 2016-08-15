@@ -30,9 +30,7 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -84,10 +82,7 @@ public class SortingServiceImpl implements SortingService {
 	@Qualifier("bdBlockerCompleteMQ")
     @Autowired
     private DefaultJMQProducer bdBlockerCompleteMQ;
-	
-	@Qualifier("blockerComOrbrefundRqMQ")
-    @Autowired
-    private DefaultJMQProducer blockerComOrbrefundRqMQ;
+
 
 	@Autowired
 	private WaybillCancelService waybillCancelService;
@@ -552,55 +547,6 @@ public class SortingServiceImpl implements SortingService {
 		this.saveOrUpdateInspectionEC(sorting);//FIXME:差异处理拿出
 		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
 		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
-		this.backwardSendMQ(sorting);//根据waybillsign判断逆向取老运单信息发送新MQ
-	}
-	
-	public void backwardSendMQ(Sorting sorting){
-		String wayBillCode = sorting.getWaybillCode();
-		if(wayBillCode != null){
-			WChoice wChoice = new WChoice();
-			wChoice.setQueryWaybillC(true);
-			wChoice.setQueryWaybillE(true);
-			wChoice.setQueryWaybillM(true);
-			wChoice.setQueryGoodList(true);
-			wChoice.setQueryPackList(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(wayBillCode,
-			        wChoice);
-			if (baseEntity != null && baseEntity.getData() != null) {
-				String waybillsign = baseEntity.getData().getWaybill().getWaybillSign();
-				if(waybillsign != null){
-					//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
-					if("T".equals(waybillsign.charAt(0)) || "6".equals(waybillsign.charAt(14))){
-						//新运单号获取老运单号的所有信息  参数返单号
-						BaseEntity<Waybill> waybill = waybillQueryApi.getWaybillByReturnWaybillCode(waybillsign);
-						//发送MQ
-						StringBuffer jsonBuffer = new StringBuffer();
-						jsonBuffer.append("{\"waybillsign\":").append(waybillsign)
-								.append(",\"packageCode\":\"")
-								.append("\",\"operateTime\":\"")
-								.append("\",\"operator\":\"")
-								.append("\",\"fingerprint\":\"")
-								.append(Md5Helper.encode(waybillsign.toString())).append("\"}");
-
-						String json = JsonHelper.toJson(jsonBuffer);
-
-						this.logger.info("分拣中心逆向订单快退:MQ[" + json + "]");
-						try {
-							//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
-							blockerComOrbrefundRqMQ.send(waybillsign,json);
-						} catch (Exception e) {
-							this.logger.error("分拣中心逆向订单快退MQ失败[" + json + "]:" + e.getMessage(), e);
-						}
-					}
-				}
-				logger.info("BaseServiceImpl 调用运单接口, 运单号为： " + wayBillCode + " 调用运单WSS的waybillsign");
-			}else{
-				logger.info("SortingServiceImpl 调用运单接口, 运单号为： " + wayBillCode + " 调用运单WSS数据为空");
-			}
-			
-			
-		}
-		
 	}
 
 	@Override
@@ -835,5 +781,5 @@ public class SortingServiceImpl implements SortingService {
 		// TODO Auto-generated method stub
 		return this.sortingDao.findByBsendCode(sorting);
 	}
-	
+
 }
