@@ -47,7 +47,7 @@ public class ProductService {
 		if (orderDetails == null || orderDetails.isEmpty()) {
 			orderDetails = this.getOrderDetailByWaybillMiddleware(orderId);
 		}
-		
+
 		if (orderDetails == null || orderDetails.isEmpty()) {
 			orderDetails = this.getHistoryOrderDetailByOrderMiddleware(orderId);
 		}
@@ -59,8 +59,9 @@ public class ProductService {
 			product.setQuantity(orderDetail.getNum());
 			product.setProductId(String.valueOf(orderDetail.getProductId()));
 			product.setPrice(orderDetail.getPrice());
-			product.setSkuId(orderDetail.getSkuId());
-
+			if(orderDetail.getSkuId() != null){
+				product.setSkuId(orderDetail.getSkuId());
+			}
 			this.logger.info("订单号：" + orderId + ", 商品详情：" + product.toString());
 			
 			products.add(product);
