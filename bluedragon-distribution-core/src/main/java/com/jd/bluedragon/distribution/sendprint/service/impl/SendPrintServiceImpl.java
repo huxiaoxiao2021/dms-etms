@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -16,10 +17,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -94,7 +92,7 @@ public class SendPrintServiceImpl implements SendPrintService{
                     }
                 }
             } catch (Exception e) {
-                logger.error("批次汇总&&批次汇总打印异常");
+                logger.error("批次汇总&&批次汇总打印异常", e);
                 tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
                 tSummaryPrintResultResponse.setMessage("批次汇总打印异常");
                 tSummaryPrintResultResponse.setData(results);
@@ -190,8 +188,14 @@ public class SendPrintServiceImpl implements SendPrintService{
             detail.setWaybillNum(waybillCodeSet.size());
             Double boxOrPackVolume = 0.0;
             if(BusinessHelper.isBoxcode(dendM.getBoxCode())){
-                Box box = boxService.findBoxByCode(dendM.getBoxCode());
-                if(null != box.getLength() && null != box.getWidth() && null != box.getHeight()
+                Box box = null;
+                try {
+                    box = boxService.findBoxByCode(dendM.getBoxCode());
+                } catch (Exception e) {
+                    logger.error("打印交接清单获取箱号失败", e);
+                    logger.error(JsonHelper.toJson(dendM));
+                }
+                if(null != box && null != box.getLength() && null != box.getWidth() && null != box.getHeight()
                         && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
                     boxOrPackVolume = Double.valueOf(box.getLength() * box.getWidth() * box.getHeight());
                 }

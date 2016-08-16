@@ -28,6 +28,7 @@ public class PropertiesHelper {
 	private PropertiesHelper() {
 		InputStream mainFileInputStream = null;
 		InputStream importantInputiStream = null;
+		InputStream dmsIpMappingInputiStream = null;
 
 		try {
 			mainFileInputStream = PropertiesHelper.class.getResourceAsStream("/configured/"
@@ -36,9 +37,13 @@ public class PropertiesHelper {
 			importantInputiStream = PropertiesHelper.class.getResourceAsStream("/configured/"
 			        + Constants.IMPORTANT_CONFIGNAME);
 
+			dmsIpMappingInputiStream = PropertiesHelper.class.getResourceAsStream("/configured/"
+					+ Constants.DMS_IP_MAPPING_CONFIGNAME);
+
 			this.properties = new Properties();
 			this.properties.load(mainFileInputStream);
 			this.properties.load(importantInputiStream);
+			this.properties.load(dmsIpMappingInputiStream);
 		} catch (IOException ioe) {
 			this.logger.error("加载配置文件发生异常！", ioe);
 		} finally {
@@ -53,6 +58,14 @@ public class PropertiesHelper {
 			try {
 				if (importantInputiStream != null) {
 					importantInputiStream.close();
+				}
+			} catch (IOException ioe) {
+				this.logger.error("关闭文件流发生异常！", ioe);
+			}
+
+			try {
+				if (dmsIpMappingInputiStream != null) {
+					dmsIpMappingInputiStream.close();
 				}
 			} catch (IOException ioe) {
 				this.logger.error("关闭文件流发生异常！", ioe);
