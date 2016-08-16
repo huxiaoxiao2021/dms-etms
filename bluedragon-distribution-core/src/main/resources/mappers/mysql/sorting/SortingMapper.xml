@@ -253,6 +253,28 @@
 			AND m.yn=1
 		)
 	</select>
+
+	<!--取消分拣正向模块取数  这里因为不知道是不是有别的地方在用 所以新加了一个方法-->
+	<select id="queryByCode2" resultMap="sorting" parameterType="sorting">
+		SELECT
+		box_code, create_site_code, receive_site_code, package_code,
+		waybill_code, sorting_type, update_user_code, update_user, spare_reason
+		FROM sorting
+		WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			AND package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		AND is_cancel = 0
+		AND NOT EXISTS
+		(
+		SELECT box_code FROM SEND_M m
+		WHERE sorting.box_code = m.box_code AND sorting.create_site_code = m.create_site_code
+		AND m.yn=1
+		)
+	</select>
 	
 	<select id="findByBsendCode" resultMap="sorting" parameterType="sorting">
 		<![CDATA[
