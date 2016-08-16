@@ -105,6 +105,7 @@ public class ReverseSendServiceImplTestCase {
 		
 		sendAssert.setReverseCode(10);
 		sendAssert.setReverseReason("打包不全");
+		sendAssert.setBusiOrderCode("45678");
 		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendWms.class);
 		logger.info(messageValue);
 		
@@ -113,6 +114,7 @@ public class ReverseSendServiceImplTestCase {
 
 		Assert.assertEquals(null, send.getReverseCode());
 		Assert.assertEquals(null, send.getReverseReason());
+		Assert.assertEquals(null, send.getBusiOrderCode());
 	}
 	
 	
