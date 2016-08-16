@@ -177,7 +177,11 @@ public class BaseServiceImpl implements BaseService {
             basePdaUserDto.setStaffId(Integer.parseInt(String.valueOf(userInfo.getUserId())));
             basePdaUserDto.setPassword(password);
             basePdaUserDto.setStaffName(userInfo.getFullname());
-            basePdaUserDto.setOrganizationId(Integer.parseInt(userInfo.getOrgId()));
+            try{
+            	basePdaUserDto.setOrganizationId(Integer.parseInt(userInfo.getOrgId()));
+            }catch(Exception e){
+            	basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
+            }
             basePdaUserDto.setOrganizationName(userInfo.getOrgName());
             basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
             basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
