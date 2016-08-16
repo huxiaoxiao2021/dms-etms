@@ -55,7 +55,7 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 
 	public static void main(String args[]){
 		NewDeptWebServiceImpl impl = new NewDeptWebServiceImpl();
-		UserInfo userInfo = impl.verify("bjjdz","xinxibu456");
+		UserInfo userInfo = impl.verify("bjadmin","xinxibu456");
 		System.out.println(userInfo);
 	}
 }

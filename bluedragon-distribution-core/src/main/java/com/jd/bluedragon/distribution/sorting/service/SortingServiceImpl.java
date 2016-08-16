@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -106,6 +109,12 @@ public class SortingServiceImpl implements SortingService {
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	
+//	@Autowired
+//	private WaybillCommonService waybillCommonService;
+	
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -556,51 +565,66 @@ public class SortingServiceImpl implements SortingService {
 	}
 	
 	public void backwardSendMQ(Sorting sorting){
-		String wayBillCode = sorting.getWaybillCode();
+//		String wayBillCode = sorting.getWaybillCode();
+		String wayBillCode = "T42747129215";//VA00080450101
+		// 验证运单号
 		if(wayBillCode != null){
-			WChoice wChoice = new WChoice();
-			wChoice.setQueryWaybillC(true);
-			wChoice.setQueryWaybillE(true);
-			wChoice.setQueryWaybillM(true);
-			wChoice.setQueryGoodList(true);
-			wChoice.setQueryPackList(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(wayBillCode,
-			        wChoice);
-			if (baseEntity != null && baseEntity.getData() != null) {
-				String waybillsign = baseEntity.getData().getWaybill().getWaybillSign();
-				if(waybillsign != null){
-					//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
-					if("T".equals(waybillsign.charAt(0)) || "6".equals(waybillsign.charAt(14))){
-						//新运单号获取老运单号的所有信息  参数返单号
-						BaseEntity<Waybill> waybill = waybillQueryApi.getWaybillByReturnWaybillCode(waybillsign);
-						//发送MQ
-						StringBuffer jsonBuffer = new StringBuffer();
-						jsonBuffer.append("{\"waybillsign\":").append(waybillsign)
-								.append(",\"packageCode\":\"")
-								.append("\",\"operateTime\":\"")
-								.append("\",\"operator\":\"")
-								.append("\",\"fingerprint\":\"")
-								.append(Md5Helper.encode(waybillsign.toString())).append("\"}");
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
+//            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(wayBillCode, wChoice);
+			if(baseEntity != null && baseEntity.getData() != null){
+				Waybill waybill = baseEntity.getData().getWaybill();
+				if(waybill != null){
+					String waybillsign = waybill.getWaybillSign();
+					if(waybillsign != null && waybillsign.length()>0){
+						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
+						String signSecond = waybillsign.substring(15,16);
+						String signFirst = waybillsign.substring(0,1);
+						if("T".equals(signFirst) || "6".equals(signSecond)){
+							//新运单号获取老运单号的所有信息  参数返单号
+							BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(wayBillCode);
+							//发送MQ
+							
+							//orbrefund的json
+							Long applyDate = sorting.getOperateTime().getTime();
+							Integer SystemId = 12;
+							Long orderId = Long.parseLong(waybill.getWaybillCode());
+							String reqErp = String.valueOf(sorting.getCreateUserCode());
+							String reqName = sorting.getCreateUser();
+							String applyReason = "分拣中心快速退款";
+							String wayBillSignFirst = signFirst;
+							
+							//bd_blocker_complete的json
+							Integer orderType = sorting.getType();
+							
+					    	//合并之后的json
+					    	StringBuffer jsonBuffer = new StringBuffer();
+							jsonBuffer.append("{\"waybillsign\":").append(waybillsign)
+									.append(",\"packageCode\":\"")
+									.append("\",\"operateTime\":\"")
+									.append("\",\"operator\":\"")
+									.append("\",\"fingerprint\":\"")
+									.append(Md5Helper.encode(waybillsign.toString())).append("\"}");
 
-						String json = JsonHelper.toJson(jsonBuffer);
+							String json = JsonHelper.toJson(jsonBuffer);
 
-						this.logger.info("分拣中心逆向订单快退:MQ[" + json + "]");
-						try {
-							//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
-							blockerComOrbrefundRqMQ.send(waybillsign,json);
-						} catch (Exception e) {
-							this.logger.error("分拣中心逆向订单快退MQ失败[" + json + "]:" + e.getMessage(), e);
+							this.logger.info("分拣中心逆向订单快退:MQ[" + json + "]");
+							try {
+								//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
+								blockerComOrbrefundRqMQ.send(waybillsign,json);
+							} catch (Exception e) {
+								this.logger.error("分拣中心逆向订单快退MQ失败[" + json + "]:" + e.getMessage(), e);
+							}
 						}
 					}
 				}
 				logger.info("BaseServiceImpl 调用运单接口, 运单号为： " + wayBillCode + " 调用运单WSS的waybillsign");
-			}else{
-				logger.info("SortingServiceImpl 调用运单接口, 运单号为： " + wayBillCode + " 调用运单WSS数据为空");
 			}
 			
-			
 		}
-		
 	}
 
 	@Override
@@ -836,4 +860,17 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.findByBsendCode(sorting);
 	}
 	
+	public static void main(String args[]){
+//		SortingServiceImpl impl = new SortingServiceImpl();
+//		Sorting sorting = new Sorting();
+//		sorting.setWaybillCode("T42747129215");
+//		impl.backwardSendMQ(sorting);
+		String waybillsign = "T0000000000000200000000000000000000000000000000000";
+		String b = waybillsign.substring(15,16);
+		String a = waybillsign.substring(0,1);
+		if("T".equals(a) || "6".equals(b)){
+			System.out.println(a);
+		}
+		
+	}
 }

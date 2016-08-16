@@ -13,7 +13,7 @@
         <property name="taskService" ref="taskService"/>
     </bean>
 
-    <bean id="parentRedisTask" init-method="init" depends-on="managerFactory"
+     <bean id="parentRedisTask" init-method="init" depends-on="managerFactory"
           class="com.jd.bluedragon.distribution.framework.RedisSingleScheduler"
           abstract="true">
         <property name="tbScheduleManagerFactory" value="managerFactory"/>
@@ -24,7 +24,7 @@
         <property name="ownSign" value="${ownSign}"/>
     </bean>
 
-    <bean id="receiveRedisTask"
+    <!-- <bean id="receiveRedisTask"
           class="com.jd.bluedragon.distribution.worker.redis.ReceiveRedisTask"
           parent="parentRedisTask">
         <property name="taskType" value="ReceiveRedisTask"/>
@@ -141,16 +141,16 @@
           parent="parentRedisTask">
         <property name="taskType" value="PopReceiveRedisTask"/>
         <property name="desc" value="POP收货Redis任务"/>
-    </bean>
+    </bean> -->
 
-    <bean id="sortingRedisTask"
+<!--     <bean id="sortingRedisTask"
           class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingRedisTask"
           parent="parentRedisTask">
         <property name="taskType" value="SortingRedisTask"/>
         <property name="desc" value="分拣Redis任务"/>
-    </bean>
+    </bean> -->
 
-    <bean id="offlineCoreRedisTask"
+    <!-- <bean id="offlineCoreRedisTask"
           class="com.jd.bluedragon.distribution.worker.offline.redis.OfflineCoreRedisTask"
           parent="parentRedisTask">
         <property name="taskType" value="OfflineCoreRedisTask"/>
@@ -217,6 +217,6 @@
           parent="parentRedisTask">
         <property name="taskType" value="MessageRedisTask"/>
         <property name="desc" value="异步推送MQ"/>
-    </bean>
+    </bean> -->
 </beans>
 
