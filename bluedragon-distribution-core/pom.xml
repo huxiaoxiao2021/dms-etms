@@ -168,30 +168,13 @@
 			<artifactId>ojdbc6</artifactId>
 			<version>11.2</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>com.jd</groupId>
-			<artifactId>dbs</artifactId>
-		</dependency>
--->
+
 		<!-- ws -->
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-<!-- 		
-		<dependency> 
-    		<groupId>com.jd.etms.3pl</groupId> 
-    		<artifactId>epartner-jobnotrace</artifactId> 
-    		<version>1.2-SNAPSHOT</version> 
-		</dependency>
-
-		<dependency>
-    		<groupId>com.jd.etms.3pl</groupId>
-    		<artifactId>etms-epartner</artifactId>
-    		<version>2.0-SNAPSHOT</version>
-		</dependency> -->
 
 		<dependency>
 			<groupId>com.jd.etms.third</groupId>
@@ -297,21 +280,7 @@
 			<version>2.2.2.GA</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>com.jd.common</groupId>
-			<artifactId>jd-common-cached</artifactId>
-			<version>1.1.2-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-lang</groupId>
-					<artifactId>commons-lang</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 
 		<dependency>
 			<groupId>com.jd.common</groupId>
@@ -361,11 +330,7 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>spy</groupId>
-			<artifactId>memcached</artifactId>
-			<version>2.7.1</version>
-		</dependency>
+
 
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
@@ -384,35 +349,7 @@
 			<artifactId>preseparate-saf-client</artifactId>
 		    <version>1.2.8-SNAPSHOT</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>com.jd.etms.message</groupId>
-			<artifactId>message-service</artifactId>
-			<version>1.0.16-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>validation-api</artifactId>
-					<groupId>javax.validation</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.jd</groupId>
-					<artifactId>saf</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.jd.etms.message</groupId>
-			<artifactId>message-client</artifactId>
-			<version>2.6.6-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.jd</groupId>
-					<artifactId>saf</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		-->
+
 		<!--jsf  -->
 		<dependency>
 			<groupId>com.jd</groupId>
@@ -638,7 +575,7 @@
 			</exclusions>
 		</dependency>
 
-        <dependency>
+        <!-- <dependency>
             <artifactId>jd-common-hrm</artifactId>
             <groupId>com.jd.common</groupId>
             <version>1.1.2</version>
@@ -652,7 +589,7 @@
                     <groupId>org.springframework</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency> -->
         
          <dependency>
         	<groupId>com.jd.ql.framework.AsynBuffer</groupId>
@@ -665,6 +602,13 @@
         	<artifactId>dcam-client-spring</artifactId>
         	<version>1.0.0-SNAPSHOT</version>
         </dependency>
+        
+        <dependency>
+			<groupId>com.jd.common</groupId>
+			<artifactId>sso-uim-spring</artifactId> 
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+        
     </dependencies>
 
 	<build>

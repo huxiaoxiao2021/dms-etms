@@ -155,13 +155,7 @@
 		<property name="dataSource" ref="dmsMainSequenceDataSource"/>
     </bean>
     
-    <bean id="cacheUtils" class="com.jd.common.cached.CacheUtils">
-		<property name="cacheServerAddress">
-			<list>
-				<value>${base.memcached.address}</value>
-			</list>
-		</property>
-	</bean>
+
 	
 	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
 		<property name="erroral">

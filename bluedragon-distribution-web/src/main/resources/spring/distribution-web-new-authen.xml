@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jsf="http://jsf.jd.com/schema/jsf"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
+	
+	<!-- 单点登录JSF服务接口 -->
+	<jsf:consumer id="ssoService"
+	              interface="com.jd.ssa.service.SsoService" protocol="jsf"
+	              alias="v1" timeout="10000"/>
+
+	<!--缓存调用代理类-->
+    <bean id="redisClientHrm" class="com.jd.common.cache.RedisClient">
+        <property name="jimClient" ref="redisClient"/>
+    </bean>
+   	<!--权限判断Bean--> 
+    <bean id="hrmPrivilegeHelper" class="com.jd.common.hrm.HrmPrivilegeHelper">
+        <property name="uimKey" value="${uim.key}"/>
+        <property name="uimToken" value="${uim.token}"/>
+        <property name="uimUrl" value="${uim.url}"/>
+        <property name="redisClient" ref="redisClientHrm"/>
+    </bean>
+    
+	<!-- 单点登录拦截器配置 -->
+	<mvc:interceptors>
+	  <mvc:interceptor>
+	    <mvc:mapping path="/**"/>
+	    <!-- 单点登录springmvc 拦截器bean -->
+		<bean id="springSSOInterceptor" class="com.jd.common.springmvc.interceptor.SpringSSOInterceptor"
+		      init-method="initialize">
+		    <property name="appDomainName" value="${webapp.domain.name}"/>
+		    <property name="appHomeUrl" value="http://${webapp.domain.name}/"/>
+		    <property name="loginUrl" value="${login.address}"/>
+		    <property name="ssoDomainName" value="${sso.auth.cookie.domain}"/>
+		    <property name="excludePath" value="${sso.exclude.path}"/>
+		<property name="ssoService" ref="ssoService"/>
+		</bean>
+	  </mvc:interceptor>
+	   <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+		    <!-- Spring mvc 权限拦截器bean -->
+		    <bean id="springAuthorizationInterceptor"
+		          class="com.jd.common.springmvc.interceptor.SpringAuthorizationInterceptor">
+		        <property name="hrmPrivilegeHelper" ref="hrmPrivilegeHelper"/>
+		    </bean>
+        </mvc:interceptor>
+	  
+	</mvc:interceptors>
+
+
+</beans>
