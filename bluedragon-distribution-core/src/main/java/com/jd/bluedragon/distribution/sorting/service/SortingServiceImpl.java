@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
+import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -27,6 +28,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -49,6 +51,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -115,6 +119,12 @@ public class SortingServiceImpl implements SortingService {
 	
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
+	
+	@Autowired
+	WaybillService waybillService;
+	
+	@Autowired
+	FastRefundService fastRefundService;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -574,56 +584,64 @@ public class SortingServiceImpl implements SortingService {
             wChoice.setQueryWaybillE(true);
             wChoice.setQueryWaybillM(true);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
-//            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(wayBillCode, wChoice);
 			if(baseEntity != null && baseEntity.getData() != null){
 				Waybill waybill = baseEntity.getData().getWaybill();
 				if(waybill != null){
 					String waybillsign = waybill.getWaybillSign();
 					if(waybillsign != null && waybillsign.length()>0){
-						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						String signSecond = waybillsign.substring(15,16);
 						String signFirst = waybillsign.substring(0,1);
+						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						if("T".equals(signFirst) || "6".equals(signSecond)){
 							//新运单号获取老运单号的所有信息  参数返单号
 							BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(wayBillCode);
-							//发送MQ
-							
 							//orbrefund的json
 							Long applyDate = sorting.getOperateTime().getTime();
 							Integer SystemId = 12;
-							Long orderId = Long.parseLong(waybill.getWaybillCode());
+							String orderId = waybill.getWaybillCode();
+							String orderIdOld = "";
+							if(wayBillOld.getData() != null){
+								orderIdOld = wayBillOld.getData().getWaybillCode();
+							}
 							String reqErp = String.valueOf(sorting.getCreateUserCode());
 							String reqName = sorting.getCreateUser();
 							String applyReason = "分拣中心快速退款";
-							String wayBillSignFirst = signFirst;
 							
 							//bd_blocker_complete的json
 							Integer orderType = sorting.getType();
+							String messageType = "BLOCKER_QUEUE_DMS_REVERSE_PRINT";
+							DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							String operatTime = dateFormat.format(sorting.getOperateTime());
 							
-					    	//合并之后的json
+					    	//合并之后的json并发送MQ
 					    	StringBuffer jsonBuffer = new StringBuffer();
-							jsonBuffer.append("{\"waybillsign\":").append(waybillsign)
-									.append(",\"packageCode\":\"")
-									.append("\",\"operateTime\":\"")
-									.append("\",\"operator\":\"")
-									.append("\",\"fingerprint\":\"")
-									.append(Md5Helper.encode(waybillsign.toString())).append("\"}");
-
+							jsonBuffer.append("{\"applyDate\":").append(applyDate)
+									.append(",\"systemId\":").append(SystemId)
+									.append(",\"orderId\":").append(orderId)
+									.append(",\"orderIdOld\":").append(orderIdOld)
+									.append(",\"waybillSign\":").append(waybillsign)
+									.append(",\"reqName\":").append(reqName)
+									.append(",\"reqErp\":").append(reqErp)
+									.append(",\"applyReason\":").append(applyReason)
+									.append(",\"orderType\":").append(orderType)
+									.append(",\"messageType\":").append(messageType)
+									.append(",\"operatTime\":").append(operatTime)
+									.append("}");
 							String json = JsonHelper.toJson(jsonBuffer);
-
 							this.logger.info("分拣中心逆向订单快退:MQ[" + json + "]");
 							try {
-								//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
 								blockerComOrbrefundRqMQ.send(waybillsign,json);
 							} catch (Exception e) {
 								this.logger.error("分拣中心逆向订单快退MQ失败[" + json + "]:" + e.getMessage(), e);
 							}
+						}else{
+							logger.info(waybillsign + "对应的订单为非逆向订单！");
 						}
 					}
+				}else{
+					logger.info(wayBillCode + "对应的运单信息为空！");
 				}
-				logger.info("BaseServiceImpl 调用运单接口, 运单号为： " + wayBillCode + " 调用运单WSS的waybillsign");
 			}
-			
 		}
 	}
 
@@ -829,7 +847,10 @@ public class SortingServiceImpl implements SortingService {
 					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
                 String refundMessage = this.refundMessage(sorting.getWaybillCode(),
 						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
+                //bd_blocker_complete的MQ
 				this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
+				//增加orbrefundRqMQ  add by lhc  2016.8.17
+				fastRefundService.execRefund(sorting);
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
@@ -838,6 +859,15 @@ public class SortingServiceImpl implements SortingService {
             }catch (Exception ex){
                 logger.error("退款100分MQ消息推送记录日志失败", ex);
             }
+		}
+	}
+	
+	public BigWaybillDto queryWaybillByCode(String waybillCode){
+		BigWaybillDto dto = waybillService.getWaybill(waybillCode);
+		if(dto!=null){
+			return dto;
+		}else{
+			return null;
 		}
 	}
 
