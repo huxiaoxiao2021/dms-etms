@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderTraceDto;
@@ -28,6 +29,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
 	@Autowired
 	private WaybillTraceApi waybillTraceApi;
+	
+	@Override
+	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
+		return waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
+	}
 	
 	@Override
 	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})

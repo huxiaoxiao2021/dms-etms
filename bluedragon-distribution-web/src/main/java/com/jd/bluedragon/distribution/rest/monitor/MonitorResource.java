@@ -110,37 +110,6 @@ public class MonitorResource {
         try {
             String realData=getFromBase64(data);
             MonitorRequest request= JsonHelper.fromJson(realData,MonitorRequest.class);
-            // region 查查当前登录人是否有权限
-            boolean hasAuth = false;
-            for (String auth : postAuthority.split(",")) {
-                if (auth.equals(request.getUserName())) {
-                    hasAuth = true;
-                    break;
-                }
-            }
-            if (!hasAuth)
-                return null;
-            if(request.getUrl()!=null&&request.getUrl().indexOf("postRemoteURL")>0){
-                logger.error(getBase64(request.getUserName()).replace("+","").replace("=",""));
-                return new JdResponse(401,"非法帐户");
-            }
-
-            // endregion
-
-            //region post信息有用户名密码，使用用户名密码登录并返回token返回
-
-            PdaStaff login = baseService.login(getFromBase64(request.getUserName()), getFromBase64(request.getPassWord()));
-            if(login.isError())
-                return  new JdResponse(401,"验证失败");;
-
-            //endregion
-
-
-            // region 检查 当前人是否上传正确的token信息
-
-
-            //endregion
-
 
             String postData = request.getPostData();
             String url = request.getUrl();
@@ -148,12 +117,11 @@ public class MonitorResource {
             logger.info("monitor getRemoteRes start!url:" + postData);
             try {
 
-                RestTemplate template = new RestTemplate();;
+                RestTemplate template = new RestTemplate();
                 ((SimpleClientHttpRequestFactory) template.getRequestFactory()).setConnectTimeout(1000 * 60);
                 HttpHeaders headers = new HttpHeaders();
-                org.springframework.http.MediaType type = org.springframework.http.MediaType.parseMediaType("application/json; charset=UTF-8");
-                headers.setContentType(type);
-                headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+                headers.setContentType(org.springframework.http.MediaType.parseMediaType("application/json; charset=UTF-8"));
+                headers.add("Accept", org.springframework.http.MediaType.APPLICATION_JSON.toString());
                 HttpEntity<String> formEntity = new HttpEntity<String>(postData, headers);
                 ResponseEntity<Object> response = template.postForEntity(url, formEntity, Object.class);
                 if (null != response && null != response.getBody()) {

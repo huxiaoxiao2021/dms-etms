@@ -160,8 +160,7 @@ public class BaseServiceImpl implements BaseService {
             basePdaUserDto.setLoginTime(new Date());
             basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
             basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
-            basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
-            basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
+
             basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
             basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
         } else {
@@ -177,11 +176,12 @@ public class BaseServiceImpl implements BaseService {
             basePdaUserDto.setStaffId(Integer.parseInt(String.valueOf(userInfo.getUserId())));
             basePdaUserDto.setPassword(password);
             basePdaUserDto.setStaffName(userInfo.getFullname());
-            basePdaUserDto.setOrganizationId(Integer.parseInt(userInfo.getOrgId()));
-            basePdaUserDto.setOrganizationName(userInfo.getOrgName());
+
             basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
             basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
         }
+        basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
+        basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
     }
 
     @Override
@@ -598,6 +598,7 @@ public class BaseServiceImpl implements BaseService {
 		reverseSendWms.setType(bigWaybillDto.getWaybillState().getWaybillType());
         reverseSendWms.setWaybillSign(bigWaybillDto.getWaybill().getWaybillSign());
         reverseSendWms.setSourceCode(bigWaybillDto.getWaybill().getSourceCode());
+        reverseSendWms.setBusiOrderCode(bigWaybillDto.getWaybill().getBusiOrderCode());
 
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();

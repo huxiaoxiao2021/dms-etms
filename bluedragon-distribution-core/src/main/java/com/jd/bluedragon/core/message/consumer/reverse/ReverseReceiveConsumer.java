@@ -2,13 +2,12 @@ package com.jd.bluedragon.core.message.consumer.reverse;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.jd.etms.waybill.api.WaybillSyncApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.WaybillParameter;
-import com.jd.etms.waybill.handler.WaybillSyncParameter;
-import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +17,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReject;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -37,7 +38,12 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.etms.waybill.api.WaybillSyncApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -69,6 +75,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	@Autowired
 	WaybillSyncApi waybillSyncApi;
+	
+    @Autowired
+    private ReversePrintService reversePrintService;
 
 	@Override
 	public void consume(Message message) {
@@ -145,6 +154,16 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			reverseReceive.setOrderId(Constants.T_WAYBILL + reverseReceive.getOrderId());
 		}
 		
+		if (reverseReceive.getReceiveType() == 5){//如果是开放平台订单
+			InvokeResult<String> newWaybilCode = reversePrintService.getNewWaybillCode(reverseReceive.getOrderId());
+			if (StringHelper.isNotEmpty(newWaybilCode.getData())) {
+				tsendDatail.setWaybillCode(newWaybilCode.getData());
+				List<SendDetail> sendDatailistMcs = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+				if (sendDatailistMcs != null && !sendDatailistMcs.isEmpty()) {
+					reverseReceive.setOrderId(sendDatailistMcs.get(0).getWaybillCode());
+				}
+			}
+		}
 		this.reverseReceiveService.aftersaleReceive(reverseReceive);
 
 		// 对于备件库系统,接受拒收消息后自动处理驳回接口
