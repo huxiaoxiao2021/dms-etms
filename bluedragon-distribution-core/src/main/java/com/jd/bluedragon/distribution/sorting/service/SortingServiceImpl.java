@@ -840,6 +840,17 @@ public class SortingServiceImpl implements SortingService {
 		this.logger.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
 		return this.sortingDao.queryByCode(sorting);
 	}
+	
+	/**
+	 * 根据包裹号或者运单号查询箱子、create_site_code、receive_site_code
+	 *
+	 * @param sorting
+	 * @return
+	 */
+	public List<Sorting> queryByCode2(Sorting sorting) {
+		this.logger.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
+		return this.sortingDao.queryByCode2(sorting);
+	}
 
 	public void notifyBlocker(Sorting sorting) {
 		try {
