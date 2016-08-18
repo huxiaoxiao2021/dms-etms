@@ -598,6 +598,7 @@ public class BaseServiceImpl implements BaseService {
 		reverseSendWms.setType(bigWaybillDto.getWaybillState().getWaybillType());
         reverseSendWms.setWaybillSign(bigWaybillDto.getWaybill().getWaybillSign());
         reverseSendWms.setSourceCode(bigWaybillDto.getWaybill().getSourceCode());
+        reverseSendWms.setBusiOrderCode(bigWaybillDto.getWaybill().getBusiOrderCode());
 
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
