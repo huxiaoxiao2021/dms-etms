@@ -172,5 +172,11 @@
                   alias="${monitor.jsf.alias}" timeout="${monitor.jsf.timeout}" />
 
 
+    <!--订单中间件的jsf接口 订单生产组 宋扬 宋博 测试：ioms-test 预发布：ioms-care 廊坊：ioms-LF-1.0 马驹桥：ioms-MJQ-1.0-->
+    <jsf:consumer id="orderMiddlewareJSFService"
+                  interface="com.jd.ioms.jsf.export.OrderMiddlewareJSFService"  protocol="jsf"
+                  alias="${order.middle.jsf.alias}" timeout="${order.middle.jsf.timeout}">
+    </jsf:consumer>
+
 
 </beans>

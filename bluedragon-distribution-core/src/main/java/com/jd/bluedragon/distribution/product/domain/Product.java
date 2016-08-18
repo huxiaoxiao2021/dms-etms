@@ -14,6 +14,7 @@ public class Product {
 	private String name;
 	private Integer quantity;
 	private BigDecimal price;
+	private long skuId;
 
 	public String getProductId() {
 		return this.productId;
@@ -47,9 +48,17 @@ public class Product {
 		this.price = price;
 	}
 
+	public long getSkuId() {
+		return skuId;
+	}
+
+	public void setSkuId(long skuId) {
+		this.skuId = skuId;
+	}
+
 	public String toString() {
 		return Objects.toStringHelper(this).addValue(this.productId).addValue(this.name).addValue(this.price)
-				.addValue(this.quantity).toString();
+				.addValue(this.quantity).addValue(this.skuId).toString();
 	}
 
 }

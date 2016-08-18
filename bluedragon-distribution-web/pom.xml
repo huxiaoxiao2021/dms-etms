@@ -199,18 +199,7 @@
 			</exclusions>
 		</dependency>
 
-		<!-- com.jd.common.cache, if you use hrm privilege interceptor -->
-		<dependency>
-			<groupId>com.jd.common</groupId>
-			<artifactId>jd-common-cached</artifactId>
-			<version>1.1.2-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 
 		<!-- com.jd.common.util, safely exclude unused jar -->
 		<dependency>
@@ -260,25 +249,6 @@
         </dependency>
 
 		<dependency>
-			<groupId>com.jd</groupId>
-			<artifactId>erpcas</artifactId>
-			<version>1.0.1</version>
-			<exclusions>
-				<exclusion>
-					<groupId>velocity-tools</groupId>
-            		<artifactId>velocity-tools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					  <groupId>org.slf4j</groupId>
-  					  <artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 				<groupId>com.jd.etms.waybill</groupId>
 				<artifactId>etms-waybill-agent</artifactId>
 				<version>3.0-SNAPSHOT</version>
@@ -304,6 +274,14 @@
             <artifactId>bval-jsr303</artifactId>
             <version>0.5</version>
         </dependency>
+        
+        <!-- 单点登录    start-->
+        <dependency>
+			<groupId>com.jd.common</groupId>
+			<artifactId>sso-uim-spring</artifactId> 
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+        <!-- 单点登录    end-->
         
     </dependencies>
 

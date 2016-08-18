@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.reflect.TypeToken;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,89 +16,93 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.common.cached.CacheUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Controller
 @RequestMapping("/common")
 public class CommonController {
 
-	private static final Log log = LogFactory.getLog(CommonController.class);
+    private static final Log log = LogFactory.getLog(CommonController.class);
 
-	/**
-	 * 基础资料接口
-	 */
-	@Autowired
-	private BaseService baseService;
+    /**
+     * 基础资料接口
+     */
+    @Autowired
+    private BaseService baseService;
 
-	@Autowired
-	private BaseMajorManager baseMajorManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
-	@Autowired
-	private CacheUtils cacheUtils;
+    @Autowired
+    RedisManager redisManager;
 
-	private static final String ALL_SITES_KEY = "Q_ALL_SITES_KEY";
+    private static final String ALL_SITES_KEY = "Q_ALL_SITES_KEY";
 
-	/**
-	 * 获取机构
-	 *
-	 * @param orgId
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/getBaseOrg")
-	public Object getBaseOrg() {
-		return this.baseService.getAllOrg();
-	}
+    /**
+     * 获取机构
+     *
+     * @param orgId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/getBaseOrg")
+    public Object getBaseOrg() {
+        return this.baseService.getAllOrg();
+    }
 
-	/**
-	 * 根据机构获取分拣中心
-	 *
-	 * @param orgCode
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/getSiteByOrg")
-	public Object getSiteByOrg(Integer orgCode) {
-		List<BaseStaffSiteOrgDto> list = null;
-		for (int m = 1; m < 4; m++) {
-			try {
-				list = this.baseMajorManager.getBaseSiteByOrgIdSubType(orgCode,
-				        Constants.DMS_SITE_TYPE);
-				if (list != null) {
-					break;
-				}
-				CommonController.log.error("第" + m + "次获取机构下站点信息失败");
-			} catch (Exception e) {
-				CommonController.log.error("调用基础资料发生异常！", e);
-			}
-		}
-		return list;
-	}
+    /**
+     * 根据机构获取分拣中心
+     *
+     * @param orgCode
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/getSiteByOrg")
+    public Object getSiteByOrg(Integer orgCode) {
+        List<BaseStaffSiteOrgDto> list = null;
+        for (int m = 1; m < 4; m++) {
+            try {
+                list = this.baseMajorManager.getBaseSiteByOrgIdSubType(orgCode,
+                        Constants.DMS_SITE_TYPE);
+                if (list != null) {
+                    break;
+                }
+                CommonController.log.error("第" + m + "次获取机构下站点信息失败");
+            } catch (Exception e) {
+                CommonController.log.error("调用基础资料发生异常！", e);
+            }
+        }
+        return list;
+    }
 
-	/**
-	 *
-	 * 根据站点名称获取站点
-	 *
-	 * @param name
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@ResponseBody
-	@RequestMapping("/getSiteByName")
-	public Object getSiteByName(String name) {
-		List<BaseStaffSiteOrgDto> list = (List<BaseStaffSiteOrgDto>) cacheUtils
-		        .get(CommonController.ALL_SITES_KEY);
-		if (list == null || list.size() == 0) {
-			list = this.baseMajorManager.getBaseSiteAll();
-			cacheUtils.set(CommonController.ALL_SITES_KEY, 24 * 3600, list);
-		}
-		List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
-		for (BaseStaffSiteOrgDto site : list) {
-			if (site.getSiteName().startsWith(name)) {
-				data.add(site);
-			}
-		}
-		return data;
-	}
+    /**
+     * 根据站点名称获取站点
+     *
+     * @param name
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    @ResponseBody
+    @RequestMapping("/getSiteByName")
+    public Object getSiteByName(String name) {
+        List<BaseStaffSiteOrgDto> list = null;
+        String temp = redisManager.get(CommonController.ALL_SITES_KEY);
+        if (JsonHelper.isJsonString(temp)) {
+            list = JsonHelper.fromJsonUseGson(temp, new TypeToken<List<BaseStaffSiteOrgDto>>() {
+            }.getType());
+        }
+        if (list == null || list.size() == 0) {
+            list = this.baseMajorManager.getBaseSiteAll();
+            redisManager.setex(CommonController.ALL_SITES_KEY, 24 * 3600, JsonHelper.toJson(list));
+        }
+        //TO DO
+
+        List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
+        for (BaseStaffSiteOrgDto site : list) {
+            if (site.getSiteName().startsWith(name)) {
+                data.add(site);
+            }
+        }
+        return data;
+    }
 }

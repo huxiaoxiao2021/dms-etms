@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.common.hrm.HrmPrivilege;
+import com.jd.uim.annotation.Authorization;
 
 @Controller
 @RequestMapping("/kuGuan")
@@ -24,14 +24,14 @@ public class KuGuanController {
 	@Autowired
 	private StockExportManager stockExportManager;
 	
-	@HrmPrivilege("DMS-WEB-QUERY-KUGUANINIT")
+	@Authorization("DMS-WEB-QUERY-KUGUANINIT")
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
 		model.addAttribute("errorMesage", "0");
 		return "kuguan/kuguan";
 	}
 
-	@HrmPrivilege("DMS-WEB-QUERY-KUGUANLIST")
+	@Authorization("DMS-WEB-QUERY-KUGUANLIST")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String queryOperateLog(KuGuanDomain kuGuanDomain, Model model) {
 

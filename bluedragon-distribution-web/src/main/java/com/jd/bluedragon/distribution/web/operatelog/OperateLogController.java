@@ -12,7 +12,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.common.hrm.HrmPrivilege;
+import com.jd.uim.annotation.Authorization;
 
 @Controller
 @RequestMapping("/operateLog")
@@ -23,13 +23,13 @@ public class OperateLogController {
 	@Autowired
 	private OperationLogService operationLosService;
 
-	@HrmPrivilege("DMS-WEB-QUERY-OPERATE-LOG0")
+	@Authorization("DMS-WEB-QUERY-OPERATE-LOG0")
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
 		return "operateLog/operatelog";
 	}
 
-	@HrmPrivilege("DMS-WEB-QUERY-OPERATE-LOG1")
+	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String queryOperateLog(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		Map<String, Object> params = ObjectMapHelper.makeObject2Map(operationLog);

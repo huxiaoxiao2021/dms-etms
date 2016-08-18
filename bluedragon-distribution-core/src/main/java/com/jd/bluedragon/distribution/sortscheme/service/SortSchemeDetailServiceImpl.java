@@ -6,7 +6,6 @@ import com.google.common.collect.TreeMultimap;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
-import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.utils.*;
@@ -18,12 +17,9 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.zip.DataFormatException;
@@ -33,6 +29,8 @@ import java.util.zip.DataFormatException;
  */
 @Service("sortSchemeDetailService")
 public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
+
+    private static final String EXP = "EXP";
 
     @Autowired
     private SiteService siteService;
@@ -201,7 +199,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         //------------如果一行里面有一个目的地代码不为空,就不要校验其他站点为空-------------
         boolean needValiSiteEmpty = true;
         for (int k = 4; k < effectiveColumns; k++) {
-            if(StringUtils.isNotBlank(StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(k)), "."))) {
+            if (StringUtils.isNotBlank(StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(k)), "."))) {
                 needValiSiteEmpty = false;
                 break;
             }
@@ -220,9 +218,14 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
+            } else if (i == 0 || i == 1) {
+                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
+                if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
+                    emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                }
             } else {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                if (i == 0 || i == 1 || i == 4 || (i > 4 && needValiSiteEmpty)) {
+                if (needValiSiteEmpty && !cellValue.startsWith(EXP)) {
                     if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
                         emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                     }
@@ -262,15 +265,23 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
     }
 
     private void validateSite(Map<String, BaseStaffSiteOrgDto> siteMap, String cellValue, List<String> notExsitErrorList, int rowIndex, int columnIndex) {
-        if (StringUtils.isNotBlank(cellValue) && NumberHelper.isNumberUpZero(cellValue)) {
-            // 不包含则远程获取,然后校验是否存在
-            if (!siteMap.containsKey(cellValue)) {
-                BaseStaffSiteOrgDto site = siteService.getSite(Integer.parseInt(cellValue));
-                if (site == null) {
-                    notExsitErrorList.add(MessageFormat.format("第{0}行第{1}列的站点{2}不存在", rowIndex + 1, columnIndex + 1, cellValue));
-                } else {
-                    siteMap.put(cellValue, site);
+        // 不包含则远程获取,然后校验是否存在
+        if (StringUtils.isNotBlank(cellValue) && !siteMap.containsKey(cellValue)) {
+            BaseStaffSiteOrgDto site = null;
+            if (cellValue.startsWith(EXP)) {
+                BaseStaffSiteOrgDto virtualSite = new BaseStaffSiteOrgDto();
+                virtualSite.setSiteType(8);
+                site = virtualSite;
+            } else {
+                try {
+                    site = siteService.getSite(Integer.parseInt(cellValue));
+                } catch (Exception e) {
                 }
+            }
+            if (site == null) {
+                notExsitErrorList.add(MessageFormat.format("第{0}行第{1}列的站点{2}不存在", rowIndex + 1, columnIndex + 1, cellValue));
+            } else {
+                siteMap.put(cellValue, site);
             }
         }
     }
