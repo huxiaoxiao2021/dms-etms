@@ -165,7 +165,7 @@ public class BoxResource {
                 CrossBoxResult<String> routInfoRes = crossBoxService.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
                 this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
                 if (logger.isInfoEnabled()) {
-                    this.logger.info("调用基础资料获取箱号路由" + JsonHelper.toJson(routInfoRes));
+                    this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(routInfoRes));
                 }
                 if (StringHelper.isNotEmpty(routInfoRes.getData())) {
                     response.setRouterInfo(routInfoRes.getData().split("\\-\\-"));
@@ -210,7 +210,7 @@ public class BoxResource {
             try {
                 CrossBoxResult<CrossBox> resData = crossBoxService.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
                 if (logger.isInfoEnabled()) {
-                    this.logger.info("调用基础资料获取箱号路由" + JsonHelper.toJson(resData));
+                    this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(resData));
                 }
                 List<Map.Entry<Integer, String>> router = new ArrayList<Map.Entry<Integer, String>>();
                 if (null != resData.getData()) {

@@ -21,7 +21,7 @@ public class CrossSortingReadDao extends BaseDao<CrossSorting> {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<CrossSorting> findPageCrossSorting(Map<String, Object> params) {
 		logger.info("CrossSortingReadDao.findPageCrossSorting begin...");
-		return (List<CrossSorting>) super.getSqlSessionRead().selectList(CrossSortingReadDao.namespace + ".findPageTask", params);
+		return super.getSqlSessionRead().selectList(CrossSortingReadDao.namespace + ".findPageTask", params);
 	}
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -34,12 +34,12 @@ public class CrossSortingReadDao extends BaseDao<CrossSorting> {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<CrossSorting> findMixDms(Map<String, Object> params) {
 		logger.info("CrossSortingReadDao.findMixDms begin...");
-		return (List<CrossSorting>) super.getSqlSessionRead().selectList(CrossSortingReadDao.namespace + ".findMixDms", params);
+		return super.getSqlSessionRead().selectList(CrossSortingReadDao.namespace + ".findMixDms", params);
 	}
 	
     @SuppressWarnings("unchecked")
     public List<CrossSorting> findOne(Map<String, Object> params) {
         logger.info("CrossSortingReadDao.findOne begin...");
-        return (List<CrossSorting>) super.getSqlSessionRead().selectList(CrossSortingReadDao.namespace + ".findOne", params);
+        return super.getSqlSessionRead().selectList(CrossSortingReadDao.namespace + ".findOne", params);
     }
 }

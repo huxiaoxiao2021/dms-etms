@@ -9,7 +9,7 @@ public class TurnoverBoxDao extends BaseDao<TurnoverBox> {
 	
 	public List<TurnoverBox> getTurnoverBoxList(TurnoverBox turnoverBox){
 		@SuppressWarnings("unchecked")
-		List<TurnoverBox> list =	(List<TurnoverBox>)this.getSqlSession().selectList(namespace+".getTurnoverBoxList",turnoverBox);
+		List<TurnoverBox> list = this.getSqlSession().selectList(namespace+".getTurnoverBoxList",turnoverBox);
 		return list; 
 	}
 	

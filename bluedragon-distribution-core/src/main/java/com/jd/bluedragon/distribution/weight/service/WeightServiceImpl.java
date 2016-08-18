@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weight.service;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.client.WeightClient;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -24,7 +25,7 @@ public class WeightServiceImpl implements WeightService {
 
 	public boolean doWeightTrack(Task task) {
 		this.logger.info("向运单系统回传包裹称重信息: ");
-		WeightResponse response = null;
+		//WeightResponse response = null;
 		try {
 			String body = task.getBody();
 			if (!StringUtils.isNotBlank(body)) {
@@ -36,7 +37,7 @@ public class WeightServiceImpl implements WeightService {
 				this.logger.info("向运单系统回传包裹称重信息成功");
 				return true;
 			} else {
-				this.logger.error("向运单系统回传包裹称重信息失败 : " + response.getMessage());
+                this.logger.error("向运单系统回传包裹称重信息失败 : " +(null!=map? JsonHelper.toJson(map):" result null"));
 				return false;
 			}
 		} catch (Exception e) {

@@ -207,7 +207,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 			waybill = this.orderWebService.getHisWaybillByOrderId(Long.valueOf(waybillCode));
 		}
 
-        List<Product> products = this.productService.getOrderProducts(Long.parseLong(waybillCode));
+        List<Product> products = this.productService.getProductsByWaybillCode(waybillCode);
         if (waybill != null) {
             this.logger.info("通过运单号调用非运单接口获取运单数据，调用运单中间件结束，运单【" + waybill + "】，非POP，运单类型【"
                     + waybill.getType() + "】");

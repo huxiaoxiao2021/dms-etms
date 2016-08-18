@@ -45,6 +45,23 @@ public class ProductResource {
     }
 
     @GET
+    @Path("/order/mei/products/{orderId}")
+    public ProductResponse getProducts(@PathParam("orderId")String orderId) {
+        if (orderId == null) {
+            return this.paramError();
+        }
+
+        this.logger.info("获取订单商品详情, 订单号：" + orderId);
+
+        List<Product> products = this.productService.getProductsByWaybillCode(orderId);
+        if (products == null || products.isEmpty()) {
+            return this.orderNotFound();
+        }
+
+        return this.ok(products);
+    }
+
+    @GET
     @Path("/pickware/products/{code}")
     public ProductResponse getPickwareProducts(@PathParam("code") String code) {
         if (code == null) {

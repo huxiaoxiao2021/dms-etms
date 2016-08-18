@@ -280,7 +280,7 @@
 	</bean>
 
     <!-- hrm 三方登录 -->
-    <bean id="soapHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+    <!-- <bean id="soapHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
         <property name="authHeader">
             <bean class="com.jd.common.ws.AuthHeader">
                 <property name="content" value="${hrm.dept.ws.content}" />
@@ -301,12 +301,15 @@
     </bean>
 
     <bean id="deptWebService" class="com.jd.common.struts.interceptor.ws.DeptWebService"
-          factory-bean="jcClientFactory" factory-method="create" />
+          factory-bean="jcClientFactory" factory-method="create" />-->
+    <!-- 校验用户  用sso接口替换DeptWebService -->     
+    <bean id="newDeptWebService" class="com.jd.bluedragon.distribution.base.service.impl.NewDeptWebServiceImpl" >
+    </bean>
 
     <bean id="userVerifyService" class="com.jd.bluedragon.distribution.base.service.impl.UserVerifyServiceImpl">
-        <property name="deptWebService" ref="deptWebService" />
+        <!-- <property name="deptWebService" ref="deptWebService" />  -->
         <property name="appPlatform" value="${login.passport.appplatform}" />
         <property name="passportUrl" value="${login.passport.passporturl}" />
         <property name="token" value="${login.passport.token}" />
-    </bean>
+    </bean> 
 </beans>

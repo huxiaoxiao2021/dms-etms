@@ -166,4 +166,11 @@
 
     <jsf:consumer id="invoiceJsfService" interface="com.jd.invoice.service.jsf.PrintTableJsfService" protocol="jsf"
                   alias="${fms.invoice.alias}" timeout="${fms.invoice.timeout}" retries="0" check="false"/>
+
+    <!--     监控JSF接口   -->
+    <jsf:consumer id="monitorJsfService" interface="com.jd.etms.monitor.jsf.VosScanCodeDifferenceQuery" protocol="jsf"
+                  alias="${monitor.jsf.alias}" timeout="${monitor.jsf.timeout}" />
+
+
+
 </beans>

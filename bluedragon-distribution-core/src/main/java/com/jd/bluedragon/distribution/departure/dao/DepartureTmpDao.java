@@ -16,6 +16,6 @@ public class DepartureTmpDao extends BaseDao<DepartureTmpRequest> {
     }
 
     public List<DepartureTmpRequest> queryDepartureTmpByBatchCode(String batchKey) {
-        return (List<DepartureTmpRequest>) this.getSqlSession().selectList(namespace + ".queryDepartureTmpByBatchCode", batchKey);
+        return this.getSqlSession().selectList(namespace + ".queryDepartureTmpByBatchCode", batchKey);
     }
 }

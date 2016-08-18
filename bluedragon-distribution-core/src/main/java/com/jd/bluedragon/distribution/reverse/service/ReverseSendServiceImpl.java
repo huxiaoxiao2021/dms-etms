@@ -841,9 +841,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     public static void addMapSpwms(Map<String, SendDetail> map, String waybillCode, SendDetail sendDetail) {
         if (sendDetail.getSendType() == 20 && !map.containsKey(waybillCode)) {
-            map.put(waybillCode, sendDetail);
-        }
+        map.put(waybillCode, sendDetail);
     }
+}
 
     @SuppressWarnings("rawtypes")
     public boolean sendReverseMessageToSpwms(SendM sendM, Integer baseOrgId, String baseStoreId) throws Exception {
@@ -926,18 +926,18 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     } else {
                         for (ReverseSpare rs1 : reverseSpare) {
                             for (ReverseSpare rs2 : reverseSpares) {
-                                if (rs1.getWaybillCode().equals(rs2.getWaybillCode())
-                                        && rs1.getProductId().equals(rs2.getProductId())) {
-                                    if (null != rs1.getSpareTranCode()) {
-                                        reverseSpares.remove(rs2);
-                                        break;
-                                    } else {
-                                        String temp = rs2.getSpareCode();
-                                        org.apache.commons.beanutils.BeanUtils.copyProperties(rs2, rs1);
-                                        rs2.setSpareCode(temp);
-                                        break;
+                                    if (rs1.getWaybillCode().equals(rs2.getWaybillCode())
+                                            && rs1.getProductId().equals(rs2.getProductId())) {
+                                        if (null != rs1.getSpareTranCode()) {
+                                            reverseSpares.remove(rs2);
+                                            break;
+                                        } else {
+                                            String temp = rs2.getSpareCode();
+                                            org.apache.commons.beanutils.BeanUtils.copyProperties(rs2, rs1);
+                                            rs2.setSpareCode(temp);
+                                            break;
+                                        }
                                     }
-                                }
                             }
                         }
 

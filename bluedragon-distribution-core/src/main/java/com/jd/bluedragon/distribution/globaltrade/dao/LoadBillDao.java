@@ -63,7 +63,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<LoadBill> findPageLoadBill(Map<String, Object> params) {
-		return (List<LoadBill>) super.getSqlSession().selectList(LoadBillDao.namespace + ".findPage", params);
+		return super.getSqlSession().selectList(LoadBillDao.namespace + ".findPage", params);
 	}
 
 	public Integer findCountLoadBill(Map<String, Object> params) {
@@ -72,6 +72,6 @@ public class LoadBillDao extends BaseDao<LoadBill> {
     @SuppressWarnings("unchecked")
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public List<LoadBill> findWaybillInLoadBill(Map<String, Object> params) {
-        return (List<LoadBill>) super.getSqlSession().selectList(LoadBillDao.namespace + ".findWaybillinLoadBill", params);
+        return super.getSqlSession().selectList(LoadBillDao.namespace + ".findWaybillinLoadBill", params);
     }
 }

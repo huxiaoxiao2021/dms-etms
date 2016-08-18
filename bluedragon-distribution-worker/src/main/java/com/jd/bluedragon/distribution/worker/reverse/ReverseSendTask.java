@@ -10,7 +10,7 @@ public class ReverseSendTask extends SendDBSingleScheduler {
 
 	@Autowired
 	private ReverseSendService reverseSendService;
-	
+
 	public boolean executeSingleTask(Task task, String ownSign)
 			throws Exception {
 		return reverseSendService.findSendwaybillMessage(task);

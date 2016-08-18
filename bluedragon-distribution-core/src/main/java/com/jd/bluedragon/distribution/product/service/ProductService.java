@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.product.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,21 @@ public class ProductService {
 	
 	@Autowired
 	private WaybillService waybillService;
+
+	public List<Product> getProductsByWaybillCode(String waybillCode){
+		List<Product> products = new ArrayList<Product>();
+		BigWaybillDto bigWaybillDto =  waybillService.getWaybillProduct(waybillCode);
+		List<Goods> goodses = bigWaybillDto.getGoodsList();
+		for(Goods goods:goodses){
+			Product product = new Product();
+			product.setProductId(String.valueOf(goods.getGoodId()));
+			product.setName(goods.getGoodName());
+			product.setQuantity(goods.getGoodCount());
+			product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
+			products.add(product);
+		}
+		return products;
+	}
 	
 	public List<Product> getOrderProducts(Long orderId) {
 		List<OrderDetail> orderDetails = this.orderWebService.getOrderDetailById(orderId);

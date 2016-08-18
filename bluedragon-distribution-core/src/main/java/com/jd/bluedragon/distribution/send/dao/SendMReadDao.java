@@ -14,6 +14,6 @@ public class SendMReadDao extends BaseDao<SendM>{
 
     @SuppressWarnings("unchecked")
     public List<SendM> findSendMByBoxCode(SendM sendM) {
-        return (List<SendM>) getSqlSessionRead().selectList(SendMReadDao.namespace + ".findSendMByBoxCode", sendM);
+        return getSqlSessionRead().selectList(SendMReadDao.namespace + ".findSendMByBoxCode", sendM);
     }
 }
