@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
+import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
@@ -575,8 +576,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 	
 	public void backwardSendMQ(Sorting sorting){
-//		String wayBillCode = sorting.getWaybillCode();
-		String wayBillCode = "T42747129215";//VA00080450101
+		String wayBillCode = sorting.getWaybillCode();
+//		String wayBillCode = "T42747129215";//VA00080450101
 		// 验证运单号
 		if(wayBillCode != null){
             WChoice wChoice = new WChoice();
@@ -593,44 +594,12 @@ public class SortingServiceImpl implements SortingService {
 						String signFirst = waybillsign.substring(0,1);
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						if("T".equals(signFirst) || "6".equals(signSecond)){
-							//新运单号获取老运单号的所有信息  参数返单号
-							BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(wayBillCode);
-							//orbrefund的json
-							Long applyDate = sorting.getOperateTime().getTime();
-							Integer SystemId = 12;
-							String orderId = waybill.getWaybillCode();
-							String orderIdOld = "";
-							if(wayBillOld.getData() != null){
-								orderIdOld = wayBillOld.getData().getWaybillCode();
-							}
-							String reqErp = String.valueOf(sorting.getCreateUserCode());
-							String reqName = sorting.getCreateUser();
-							String applyReason = "分拣中心快速退款";
-							
-							//bd_blocker_complete的json
-							Integer orderType = sorting.getType();
-							String messageType = "BLOCKER_QUEUE_DMS_REVERSE_PRINT";
-							DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-							String operatTime = dateFormat.format(sorting.getOperateTime());
-							
-					    	//合并之后的json并发送MQ
-					    	StringBuffer jsonBuffer = new StringBuffer();
-							jsonBuffer.append("{\"applyDate\":").append(applyDate)
-									.append(",\"systemId\":").append(SystemId)
-									.append(",\"orderId\":").append(orderId)
-									.append(",\"orderIdOld\":").append(orderIdOld)
-									.append(",\"waybillSign\":").append(waybillsign)
-									.append(",\"reqName\":").append(reqName)
-									.append(",\"reqErp\":").append(reqErp)
-									.append(",\"applyReason\":").append(applyReason)
-									.append(",\"orderType\":").append(orderType)
-									.append(",\"messageType\":").append(messageType)
-									.append(",\"operatTime\":").append(operatTime)
-									.append("}");
-							String json = JsonHelper.toJson(jsonBuffer);
+							//组装FastRefundBlockerComplete
+							FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(sorting);
+							String json = JsonHelper.toJson(frbc);
 							this.logger.info("分拣中心逆向订单快退:MQ[" + json + "]");
 							try {
-								blockerComOrbrefundRqMQ.send(waybillsign,json);
+								blockerComOrbrefundRqMQ.send(wayBillCode,json);
 							} catch (Exception e) {
 								this.logger.error("分拣中心逆向订单快退MQ失败[" + json + "]:" + e.getMessage(), e);
 							}
@@ -643,6 +612,35 @@ public class SortingServiceImpl implements SortingService {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @param sorting
+	 * @return
+	 */
+	private FastRefundBlockerComplete toMakeFastRefundBlockerComplete(Sorting sorting){
+		
+		//新运单号获取老运单号的所有信息  参数返单号
+		BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
+		FastRefundBlockerComplete frbc = new FastRefundBlockerComplete();
+		frbc.setOrderId(sorting.getWaybillCode());
+		frbc.setApplyReason("分拣中心快速退款");
+		frbc.setApplyDate(sorting.getOperateTime().getTime());
+		frbc.setSystemId(12);
+		frbc.setReqErp(String.valueOf(sorting.getCreateUserCode()));
+		frbc.setReqName(sorting.getCreateUser());
+		if(wayBillOld.getData() != null){
+			frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
+		}else{
+			frbc.setOrderIdOld("");
+		}
+		frbc.setOrderType(sorting.getType());
+		frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		frbc.setOperatTime(dateFormat.format(sorting.getOperateTime()));
+		
+		return frbc;
 	}
 
 	@Override
@@ -854,8 +852,8 @@ public class SortingServiceImpl implements SortingService {
 
 	public void notifyBlocker(Sorting sorting) {
 		try {
-			if (Sorting.TYPE_REVERSE.equals(sorting.getType())
-					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
+			if (Sorting.TYPE_REVERSE.equals(sorting.getType())) {
+//					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
                 String refundMessage = this.refundMessage(sorting.getWaybillCode(),
 						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
                 //bd_blocker_complete的MQ
