@@ -21,8 +21,12 @@
 		<location>/404.vm</location>
 	</error-page>
 	
-	<error-page>
+	<!-- <error-page>
 		<exception-type>com.jd.common.hrm.IllegalHrmPrivilegeException</exception-type>
+		<location>/401.vm</location>
+	</error-page> -->
+	<error-page>
+		<error-code>401</error-code>
 		<location>/401.vm</location>
 	</error-page>
 	
