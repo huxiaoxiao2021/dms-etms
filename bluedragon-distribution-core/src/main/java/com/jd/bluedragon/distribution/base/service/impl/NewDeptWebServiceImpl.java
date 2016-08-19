@@ -34,11 +34,8 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 			String pwd = UimHelper.md5(password);
 			String remoteIp = InetAddress.getLocalHost().getHostAddress();
 			userInfo = ssoService.verify(username, pwd, remoteIp);
-		}catch(SsoException e){
-			logger.error("SsoException verify error");
-			e.printStackTrace();
-		}catch (UnknownHostException e) {
-			e.printStackTrace();
+		}catch(Exception e){
+			logger.error("SsoException verify error", e);
 		}
 		
 		return userInfo;
