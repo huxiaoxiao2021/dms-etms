@@ -59,14 +59,17 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
         now.add(Calendar.HOUR,25);
         Date endTime=now.getTime();
         if( endTime.before(uploadData.getScannerTime())){/*如果一天后，则进行自动切换批次号*/
-            String sendCode=new StringBuilder(SerialRuleUtil.getCreateSiteCodeFromSendCode(config.getSendCode()))
+            String sendCode=new StringBuilder()
+                    .append(SerialRuleUtil.getCreateSiteCodeFromSendCode(config.getSendCode()))
                     .append("-")
                     .append(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()))
                     .append("-")
-                    .append( DateHelper.formatDate(uploadData.getScannerTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)).toString();
+                    .append( DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)).toString();
             GantryDeviceConfig model = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(config.getMachineId());
             model.setSendCode(sendCode);
-            gantryDeviceConfigService.add(model);
+            model.setStartTime(new Date(uploadData.getScannerTime().getTime() - 1000));
+            model.setEndTime(new Date(model.getStartTime().getTime()+1000*60*60*24));
+            gantryDeviceConfigService.addUseJavaTime(model);
             domain.setSendCode(sendCode);
         }
 

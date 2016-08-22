@@ -10,6 +10,7 @@ import java.util.List;
  */
 public interface GantryDeviceConfigService {
 
+    Integer addUseJavaTime(GantryDeviceConfig gantryDeviceConfig);
     /**
      * @param machineId          龙门架编号
      * @param packageOperateTime 龙门架上传的包裹交接时间

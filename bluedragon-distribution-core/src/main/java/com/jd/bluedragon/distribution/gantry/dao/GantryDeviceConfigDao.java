@@ -21,6 +21,9 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
         return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findGantryDeviceConfigByOperateTime", hashMap);
     }
 
+    public Integer addUseJavaTime(GantryDeviceConfig entity){
+        return this.getSqlSession().insert(namespace + ".addUseJavaTime", entity);
+    }
     public GantryDeviceConfig findMaxStartTimeGantryDeviceConfigByMachineId(Integer machineId) {
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("machineId",machineId);

@@ -38,6 +38,22 @@
         1)
     </insert>
 
+    <insert id="addUseJavaTime" parameterType="gantryDeviceConfig">
+        INSERT INTO gantry_device_config (id,
+        machine_id,operate_user_id,operate_user_erp,operate_user_name,
+        update_user_erp,update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        yn)
+        VALUES (SEQ_GANTRY_DEVICE_CONFIG.NEXTVAL,
+        #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
+        #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
+        #{businessTypeRemark,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},
+        to_date(to_char(#{startTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss'),
+        to_date(to_char(#{endTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss') ,
+        1,#{lockUserErp,jdbcType=VARCHAR},#{lockUserName,jdbcType=VARCHAR},
+        1)
+    </insert>
+
     <select id="findMaxStartTimeGantryDeviceConfigByMachineId" resultMap="gantryDeviceConfig"
             parameterType="java.util.Map">
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,

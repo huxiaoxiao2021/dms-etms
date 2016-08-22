@@ -58,7 +58,7 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
                     target=item;
                     continue;
                 }
-                if(item.getStartTime().before(target.getStartTime())){
+                if(item.getStartTime().after(target.getStartTime())){
                     target=item;
                 }
             }
@@ -97,6 +97,10 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
         return  gantryDeviceConfigDao.add(GantryDeviceConfigDao.namespace,gantryDeviceConfig);
     }
 
+    @Override
+    public Integer addUseJavaTime(GantryDeviceConfig gantryDeviceConfig) {
+        return  gantryDeviceConfigDao.addUseJavaTime(gantryDeviceConfig);
+    }
     @Override
     public int updateLockStatus(GantryDeviceConfig gantryDeviceConfig) {
         return gantryDeviceConfigDao.updateLockStatus(gantryDeviceConfig);
