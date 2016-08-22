@@ -26,6 +26,9 @@ public class NumberHelper {
     }
 
     public static boolean isStringNumber(String number) {
+        if(null==number){
+            return false;
+        }
         Pattern pattern1 = Pattern.compile("[1-9]\\d*\\.?\\d+");
         Matcher matcher1 = pattern1.matcher(number);
         if (matcher1.matches()) {
@@ -35,6 +38,9 @@ public class NumberHelper {
     }
 
     public static boolean isNumber(String number) {
+        if(null==number){
+            return false;
+        }
         Pattern pattern1 = Pattern.compile("[1-9]\\d*");
         Matcher matcher1 = pattern1.matcher(number);
         if (matcher1.matches()) {
