@@ -7,7 +7,6 @@
  */
 function PageBar(){}
 PageBar.prototype = new Object();
-
 //PageBar.prototype.length = 1;
 
 /**
@@ -68,7 +67,6 @@ PageBar.getHtml = function(clickFunction, totalRow, currentPage, totalPage){
 	tmp.push('<div class="m clearfix">');
 	//页码显示规则
 	if(totalRow>0){
-		
 		tmp.push('<div class="pagin fr">');
 		tmp.push('<span class="text">共'+ totalRow +'条记录</span>');
 		tmp.push('<span class="text">共'+ totalPage +'页</span>');

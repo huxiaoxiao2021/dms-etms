@@ -59,8 +59,10 @@
 		<constructor-arg index="0" ref="backupWriteSqlSessionFactory" />
 	</bean>
 	
+	<!--  
 	<bean id="backupWriteDataSourceDbStatementProcessor" class="com.jd.ql.framework.migration.replication.support.MirrorDbStatementProcessor">
 	   	<constructor-arg index="0" ref="backupWriteSqlSessionTemplate"></constructor-arg>
 	</bean>
+	-->
 	
 </beans>

@@ -85,6 +85,9 @@
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
         <typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
         <typeAlias type="com.jd.bluedragon.distribution.waybill.domain.FreshWaybill" alias="freshWaybill"/>
+        
+        <!-- xumei -->
+        <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
 
     </typeAliases>
 	<plugins>
@@ -143,6 +146,7 @@
         <!-- 拦截Executor的rollback方法， 在rollback时清空现有的消息-->
         <plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorRollbackPlugin"/>
         </plugins>
+
 	<mappers>
 		<mapper resource="mappers/oracle/box/BoxMapper.xml"/>
 
@@ -223,6 +227,9 @@
         <mapper resource="mappers/oracle/gantry/GantryDeviceMapper.xml"/>
 		<mapper resource="mappers/oracle/gantry/GantryDeviceConfigMapper.xml"/>
         <mapper resource="mappers/oracle/freshWaybill/freshWaybillMapper.xml"/>
+        
+        <!-- xumei -->
+        <mapper resource="mappers/oracle/crossbox/CrossBoxMapper.xml"/>
 	</mappers>
 	
 </configuration>

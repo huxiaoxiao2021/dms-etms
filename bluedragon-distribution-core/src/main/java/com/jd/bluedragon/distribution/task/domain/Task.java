@@ -106,6 +106,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_DEPARTURE_CAR=1410;
     
+    /**
+     * xumei 基础资料-->跨分拣箱号中转维护导入文件中信息定时生效
+     */
+    public static final Integer TASK_TYPE_CROSS_BOX=2222;
+    
     
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
@@ -126,6 +131,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_WEIGHT = "task_weight";
     public static final String TABLE_NAME_GLOBAL_TRADE = "task_global_trade";
     public static final String TABLE_NAME_MESSAGE="task_message";
+    
+    /**xumei**/
+    public static final String TABLE_NAME_CROSSBOX="task_crossbox";
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -145,9 +153,13 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_HANDOVER_SEQ = "SEQ_TASK_HANDOVER";
     public static final String TABLE_NAME_WEIGHT_SEQ = "SEQ_TASK_WEIGHT";
     public static final String TABLE_NAME_GLOBAL_TRADE_SEQ = "SEQ_TASK_GLOBAL_TRADE";
-public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
+    public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
     public static final String TABLE_NAME_SCANNER_FRAME="TASK_SCANNER_FRAME";
     public static final String TABLE_NAME_SCANNER_FRAME_SEQ ="SEQ_TASK_SCANNER_FRAME";
+    
+    /**xumei**/
+    public static final String TABLE_NAME_CORSS_BOX_SEQ ="TABLE_NAME_CROSSBOX_SEQ";
+    
 
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
@@ -457,6 +469,9 @@ public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
         else if(Task.TASK_TYPE_SCANNER_FRAME.equals(type)){
             return Task.TABLE_NAME_SCANNER_FRAME;
         }
+        else if(Task.TASK_TYPE_CROSS_BOX.equals(type)){
+        	return Task.TABLE_NAME_CROSSBOX;
+        }
         
         return Task.TABLE_NAME_SORTING;
     }
@@ -500,6 +515,8 @@ public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
             return Task.TABLE_NAME_MESSAGE_SEQ;
         }else if(Task.TABLE_NAME_SCANNER_FRAME.equals(tableName)){
             return Task.TABLE_NAME_SCANNER_FRAME_SEQ;
+        }else if(Task.TABLE_NAME_CROSSBOX.equals(tableName)){
+        	return Task.TABLE_NAME_CORSS_BOX_SEQ;
         }
         
         return Task.TABLE_NAME_SORTING_SEQ;

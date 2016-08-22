@@ -287,4 +287,9 @@
     <bean id="freshWaybillDao" class="com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+    
+    <!-- xumei -->
+    <bean id="crossBoxDao" class="com.jd.bluedragon.distribution.crossbox.dao.CrossBoxDao">
+    	<property name="sqlSession" ref="sessionTemplate"/>
+    </bean>  
 </beans>

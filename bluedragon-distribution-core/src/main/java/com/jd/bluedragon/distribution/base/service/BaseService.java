@@ -145,7 +145,7 @@ public interface BaseService {
 	 */
 	ReverseSendWms getWaybillByOrderCode(String orderCode);
 
-	
+
 	/**
 	 * 根据pop商家编号获取名称
 	 *
@@ -160,7 +160,7 @@ public interface BaseService {
 	 * @return
 	 */
 	List<SysConfig> queryConfigByKey(Map<String, Object> params);
-	
+
 	List<SysConfig> queryConfigByKey(String key);
 
     /**
@@ -207,14 +207,14 @@ public interface BaseService {
 	public List<BaseDataDict> getBaseDataDictList(Integer parentId, Integer nodeLevel,
 	        Integer typeGroup);
 
-	
+
 	/**
 	 * 根据参数查询 基础参数设置的总数据量
 	 * @param map
 	 * @return INTEGET
 	 */
 	public Integer totalSysconfigSizeByParams(String key);
-	
+
 	/**
 	 * 获得整体worker运行模式 DB or Redis
 	 * @return
@@ -228,10 +228,10 @@ public interface BaseService {
 	 * @return
 	 */
 	public Integer getSiteSelfDBySiteCode(Integer sitecode);
-	
+
 	/**
 	 * 根据分拣中心id与目的地id获取任务区和电子标签信息
-	 * @param 
+	 * @param
 	 * @return
 	 */
 	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(Integer createCode,Integer receiveCode);
