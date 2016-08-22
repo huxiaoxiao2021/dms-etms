@@ -96,26 +96,7 @@ public class GantryDeviceConfigResource {
         return temp;
     }
 
-    @POST
-    @Path("/gantryDeviceConfig/updateGantryDeviceConfigStatus")
-    public GantryDeviceConfigResponse updateGantryDeviceConfigStatus(GantryDeviceConfigRequest request) {
-        logger.debug(request.toString());
-        GantryDeviceConfigResponse response = new GantryDeviceConfigResponse();
-        response.setCode(JdResponse.CODE_OK);
-        response.setMessage(JdResponse.MESSAGE_OK);
-        try {
-            int count = gantryDeviceConfigService.updateGantryDeviceConfigStatus(toGantryDeviceConfig(request));
-            if (count == 1) {
-                gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
-            }
-        } catch (Throwable ex) {
-            String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message,ex);
-            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-            response.setMessage(message);
-        }
-        return response;
-    }
+
 
     @POST
     @Path("/gantryDeviceConfig/updateLockStatus")
@@ -201,7 +182,10 @@ public class GantryDeviceConfigResource {
     @POST
     @Path("/gantryDeviceConfig/addGantryDeviceConfig")
     public GantryDeviceConfigResponse addGantryDeviceConfig(GantryDeviceConfigRequest request) {
-        logger.debug(request.toString());
+        if(logger.isInfoEnabled()) {
+            logger.info(request.toString());
+        }
+
         GantryDeviceConfigResponse response = new GantryDeviceConfigResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -214,7 +198,6 @@ public class GantryDeviceConfigResource {
                 oldRecord.setEndTime(gantryDeviceConfig.getStartTime());
                 oldRecord.setUpdateUserErp(gantryDeviceConfig.getOperateUserErp());
                 oldRecord.setUpdateUserName(gantryDeviceConfig.getOperateUserName());
-                gantryDeviceConfigService.updateGantryDeviceConfigStatus(oldRecord);
                 response.setData(new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>());
                 config=getGantryDeviceConfig(gantryDeviceConfig);
                 response.getData().add(config);

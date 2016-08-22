@@ -14,11 +14,20 @@ import java.util.List;
  * Created by yanghongqiang on 2016/3/11.
  * 龙门架配置信息操作服务类
  * 1:提供获取龙门架操作类型接口
+ *
+ * @edit wangtingwei@jd.com 重构龙门架配置
+ * @time   2016-08-19
+ * @version 2.0
+ * ************************************************************************************************
+ * 1.龙门架操作类型判断由之前的startTime与endTime组合判断改为只由startTime判断
+ * 2.配置表endTime作为批次发货最大操作结束点，一旦此时没有更新批次号，将会根据前一批次号作为模板生成新批次号
+ *
+ * ************************************************************************************************
  */
 @Service("gantryDeviceConfigService")
 public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private static final Log logger = LogFactory.getLog(GantryDeviceConfigServiceImpl.class);
 
     @Autowired
     GantryDeviceConfigDao gantryDeviceConfigDao;
@@ -26,17 +35,35 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
     /**
      * @param machineId 龙门架编号
      * @param packageOperateTime 龙门架上传的包裹交接时间
+     * @return 返回龙门架操作类型
      */
     @Override
     public GantryDeviceConfig findGantryDeviceConfigByOperateTime(Integer machineId, Date packageOperateTime) {
-        logger.debug("龙门架编号:"+machineId+"包裹操作时间:"+packageOperateTime);
+        if(logger.isInfoEnabled()) {
+            logger.debug("龙门架编号:" + machineId + "包裹操作时间:" + packageOperateTime);
+        }
         if(packageOperateTime==null) {
-            StringBuilder sb=new StringBuilder(50);
-            sb.append("龙门架编号:").append(machineId).append("包裹操作时间:").append(packageOperateTime);
-            logger.info(sb);
+            if(logger.isWarnEnabled()) {
+                StringBuilder sb = new StringBuilder(50);
+                sb.append("龙门架编号:").append(machineId).append("包裹操作时间:").append(packageOperateTime);
+                logger.warn(sb);
+            }
             return null;
         }
-        return gantryDeviceConfigDao.findGantryDeviceConfigByOperateTime(machineId, packageOperateTime)  ;
+        List<GantryDeviceConfig> list= gantryDeviceConfigDao.findGantryDeviceConfigByOperateTime(machineId, packageOperateTime);
+        GantryDeviceConfig target=null;
+        if(null!=list&&list.size()>0){
+            for (GantryDeviceConfig item:list){
+                if(null==target){
+                    target=item;
+                    continue;
+                }
+                if(item.getStartTime().before(target.getStartTime())){
+                    target=item;
+                }
+            }
+        }
+        return target;
     }
 
     @Override
@@ -63,10 +90,7 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
         return gantryDeviceConfigDao.checkSendCode(sendCode);
     }
 
-    @Override
-    public Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig) {
-        return gantryDeviceConfigDao.updateGantryDeviceConfigStatus(gantryDeviceConfig);
-    }
+
 
     @Override
     public int add(GantryDeviceConfig gantryDeviceConfig) {
