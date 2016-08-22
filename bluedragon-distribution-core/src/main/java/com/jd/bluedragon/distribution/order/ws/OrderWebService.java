@@ -1,23 +1,23 @@
 package com.jd.bluedragon.distribution.order.ws;
 
-import java.util.Collections;
-import java.util.List;
-
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.utils.OrderServiceHelper;
+import com.jd.bluedragon.utils.SpringHelper;
+import com.jd.ioms.jsf.export.domain.ExportResult;
+import com.jd.ioms.jsf.export.domain.OrderDetail;
+import com.jd.ql.basic.domain.Assort;
 import jd.oom.client.clientbean.Order;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.utils.OrderServiceHelper;
-import com.jd.bluedragon.utils.SpringHelper;
-import com.jd.ql.basic.domain.Assort;
+import java.util.Collections;
+import java.util.List;
 
 @Service("orderWebService")
 public class OrderWebService {
@@ -30,14 +30,15 @@ public class OrderWebService {
 	@Autowired
 	private PreseparateWaybillManager preseparateWaybillManager;
 
-	public List<jd.oom.client.clientbean.OrderDetail> getOrderDetailById(long orderId) {
-		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
-		        .getBean("oomServiceSoap");
-		jd.oom.client.clientbean.ArrayOfOrderDetail orderDetail = oomServiceSoap
-		        .getOrderDetailById(orderId);
+	public List<com.jd.ioms.jsf.export.domain.OrderDetail> getOrderDetailById(long orderId) {
+		com.jd.ioms.jsf.export.OrderMiddlewareJSFService oomServiceSoap = (com.jd.ioms.jsf.export.OrderMiddlewareJSFService) SpringHelper
+		        .getBean("orderMiddlewareJSFService");
+		ExportResult<List<OrderDetail>> orderDetail = oomServiceSoap
+		        .getOrderDetailListByOrderId(orderId);
 
-		if (orderDetail.getOrderDetail() != null && orderDetail.getOrderDetail().size() > 0) {
-			return orderDetail.getOrderDetail();
+		if (orderDetail.getData() != null && orderDetail.getData().size() > 0) {
+
+			return orderDetail.getData();
 		}
 
 		return Collections.emptyList();
@@ -110,7 +111,7 @@ public class OrderWebService {
 		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
 		        .getBean("oomServiceSoap");
 
-		jd.oom.client.clientbean.Order order = oomServiceSoap.getOrderById(orderId, false,
+		Order order = oomServiceSoap.getOrderById(orderId, false,
 		        OrderServiceHelper.getFlag1());
 
 		if (order != null) {
@@ -140,7 +141,7 @@ public class OrderWebService {
 			waybill.setReceiverName(order.getCustomerName());
 			waybill.setDistributeStoreId(order.getStoreId());
 			waybill.setDistributeStoreName(order.getStoreName());
-			// region  从rdeis中获取省市县，若无则从基础资料获取，并插入redis中
+			// region  从redis中获取省市县，若无则从基础资料获取，并插入redis中
 			waybill.setProvinceNameId(order.getProvince());
 			waybill.setProvinceName(GetCityName(waybill.getProvinceNameId()));
 			waybill.setCityNameId(order.getCity());
