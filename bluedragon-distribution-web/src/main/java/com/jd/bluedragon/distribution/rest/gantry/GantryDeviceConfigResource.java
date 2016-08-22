@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.response.GantryDeviceConfigResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
@@ -182,12 +183,12 @@ public class GantryDeviceConfigResource {
 
     @POST
     @Path("/gantryDeviceConfig/addGantryDeviceConfig")
-    public GantryDeviceConfigResponse addGantryDeviceConfig(GantryDeviceConfigRequest request) {
+    public InvokeResult<List<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>> addGantryDeviceConfig(GantryDeviceConfigRequest request) {
         if(logger.isInfoEnabled()) {
             logger.info(request.toString());
         }
 
-        GantryDeviceConfigResponse response = new GantryDeviceConfigResponse();
+        InvokeResult<List<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>> response = new InvokeResult<List<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>>();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
         com.jd.bluedragon.distribution.api.response.GantryDeviceConfig config = null;
