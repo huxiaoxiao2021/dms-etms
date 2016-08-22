@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.BigDecimalHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.Goods;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,13 +76,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         return waybill;
     }
-    
 
-	@Override
-	public Waybill findWaybillAndPack(String waybillCode) {
-		Waybill waybill = null;
-		
-		try {
+    @Override
+    public Waybill findWaybillAndPack(String waybillCode) {
+        Waybill waybill = null;
+
+        try {
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
             wChoice.setQueryWaybillE(true);
@@ -95,19 +97,19 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
             }
             this.logger.info("运单号【 " + waybillCode + "】调用运单WSS数据成功");
-            
+
         } catch (Exception e) {
             this.logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
         }
-        
-		return waybill;
-	}
 
-	@Override
-	public Waybill findWaybillAndPack(String waybillCode, boolean isQueryWaybillC, boolean QueryWaybillE, boolean QueryWaybillM, boolean isQueryPackList) {
-		Waybill waybill = null;
-		
-		try {
+        return waybill;
+    }
+
+    @Override
+    public Waybill findWaybillAndPack(String waybillCode, boolean isQueryWaybillC, boolean QueryWaybillE, boolean QueryWaybillM, boolean isQueryPackList) {
+        Waybill waybill = null;
+
+        try {
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(isQueryWaybillC);
             wChoice.setQueryWaybillE(QueryWaybillE);
@@ -118,22 +120,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
                 if (Waybill.isInvalidWaybill(waybill)) {
-                	this.logger.error("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
-                	return null;
+                    this.logger.error("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
+                    return null;
                 }
             }
             this.logger.info("运单号【 " + waybillCode + "】调用运单WSS数据成功");
-            
+
         } catch (Exception e) {
             this.logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
         }
-        
-		return waybill;
-	}
+
+        return waybill;
+    }
 
     @Override
     public InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode) {
-        InvokeResult<Waybill> result=new InvokeResult<Waybill>();
+        InvokeResult<Waybill> result = new InvokeResult<Waybill>();
         Waybill waybill = null;
 
         try {
@@ -152,7 +154,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     return result;
                 }*/
             }
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 this.logger.info("运单号【 " + oldWaybillCode + "】调用运单JSF数据成功");
             }
         } catch (Throwable e) {
@@ -165,16 +167,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     /**
      * 获取订单信息通过订单中间件
+     *
      * @param waybillCode 运单号
      * @return
      */
-    @JProfiler(jKey= "DMSWEB.WaybillCommonServiceImpl.getWaybillFromOrderService", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.WaybillCommonServiceImpl.getWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
             return null;
         }
-        if(!StringUtils.isNumeric(waybillCode.trim())){
+        if (!StringUtils.isNumeric(waybillCode.trim())) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为非数字,立即返回NULL");
             return null;
         }
@@ -192,7 +195,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return waybill;
     }
 
-    @JProfiler(jKey= "DMSWEB.WaybillCommonServiceImpl.getHisWaybillFromOrderService", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.WaybillCommonServiceImpl.getHisWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getHisWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
@@ -200,12 +203,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         this.logger.info("通过运单号调用非运单接口获取运单数据，调用运单中间件开始");
-		
-		Waybill waybill = this.findByWaybillCode(waybillCode);
-		
-		if (waybill == null) {
-			waybill = this.orderWebService.getHisWaybillByOrderId(Long.valueOf(waybillCode));
-		}
+
+        Waybill waybill = this.findByWaybillCode(waybillCode);
+
+        if (waybill == null) {
+            waybill = this.orderWebService.getHisWaybillByOrderId(Long.valueOf(waybillCode));
+        }
 
         List<Product> products = this.productService.getProductsByWaybillCode(waybillCode);
         if (waybill != null) {
@@ -230,6 +233,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             return null;
         }
         com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto.getWaybill();
+
         if (waybillWS == null) {
             this.logger.debug("转换运单基本信息 --> 原始运单数据集waybillWS为空");
             return null;
@@ -249,19 +253,20 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
         if (isSetName) {
-        	dealWaybillSiteName(waybill);
+            dealWaybillSiteName(waybill);
         }
 
         waybill.setPaymentType(waybillWS.getPayment());
-		waybill.setQuantity(waybillWS.getGoodNumber());
-		waybill.setWeight(waybillWS.getGoodWeight());
-		waybill.setAddress(waybillWS.getReceiverAddress());
-		waybill.setOrgId(waybillWS.getArriveAreaId());
-		waybill.setSendPay(waybillWS.getSendPay());
-		waybill.setType(waybillWS.getWaybillType());
-		waybill.setTransferStationId(waybillWS.getTransferStationId());
-		waybill.setCrossCode(waybillWS.getSlideCode());
-		waybill.setDistributeStoreId(waybillWS.getDistributeStoreId());
+        waybill.setQuantity(waybillWS.getGoodNumber());
+        waybill.setWeight(waybillWS.getGoodWeight());
+        waybill.setAddress(waybillWS.getReceiverAddress());
+        waybill.setOrgId(waybillWS.getArriveAreaId());
+        waybill.setSendPay(waybillWS.getSendPay());
+        waybill.setType(waybillWS.getWaybillType());
+        waybill.setTransferStationId(waybillWS.getTransferStationId());
+        waybill.setCrossCode(waybillWS.getSlideCode());
+        waybill.setDistributeStoreId(waybillWS.getDistributeStoreId());
+
         waybill.setWaybillSign(waybillWS.getWaybillSign());
         waybill.setImportantHint(waybillWS.getImportantHint());
 
@@ -270,49 +275,49 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 //            waybill.setServiceCode(pick.getServiceCode());
 //        }
 
-		
-		if (isSetPack) {
-			List<DeliveryPackageD> ds = bigWaybillDto.getPackageList();
-			if (ds == null || ds.size() <= 0) {
-				this.logger.error("转换包裹信息 --> 运单号【" + waybill.getWaybillCode() + "】,原始运单数据集bigWaybillDto为空或size为空");
-			} else {
-				// 转换包裹信息
-				this.logger.debug("转换包裹信息 --> 运单号：" + waybill.getWaybillCode()
-						+ "转换包裹信息, 包裹数量为:" + ds.size());
-				if (BusinessHelper.checkIntNumRange(ds.size())) {
-					List<Pack> packList = new ArrayList<Pack>();
-					for (DeliveryPackageD d : ds) {
-						Pack pack = new Pack();
-						pack.setWaybillCode(d.getWaybillCode());
-						pack.setPackCode(d.getPackageBarcode());
-						if (d.getGoodWeight() != null) {
-							pack.setWeight(String.valueOf(d.getGoodWeight()));
-						}
-						if (StringUtils.isNotEmpty(d.getPackageBarcode())) {
-							String[] pcs = d.getPackageBarcode().split("[-NS]");
-							pack.setPackSerial(Integer.valueOf(pcs[1]));
-						} else {
-							this.logger.info("转换包裹信息 --> 运单号："
-									+ waybill.getWaybillCode() + "生成包裹号,包裹号为空");
-						}
-						pack.setPackId(d.getPackageId());
-						packList.add(pack);
-					}
-					waybill.setPackList(packList);
-				} else {
-					this.logger.error("转换包裹信息【运单返回】 --> 运单号："
-							+ waybill.getWaybillCode() + ", 包裹数量为:" + ds.size());
-				}
-			}
-		}
-		
-		return waybill;
+
+        if (isSetPack) {
+            List<DeliveryPackageD> ds = bigWaybillDto.getPackageList();
+            if (ds == null || ds.size() <= 0) {
+                this.logger.error("转换包裹信息 --> 运单号【" + waybill.getWaybillCode() + "】,原始运单数据集bigWaybillDto为空或size为空");
+            } else {
+                // 转换包裹信息
+                this.logger.debug("转换包裹信息 --> 运单号：" + waybill.getWaybillCode()
+                        + "转换包裹信息, 包裹数量为:" + ds.size());
+                if (BusinessHelper.checkIntNumRange(ds.size())) {
+                    List<Pack> packList = new ArrayList<Pack>();
+                    for (DeliveryPackageD d : ds) {
+                        Pack pack = new Pack();
+                        pack.setWaybillCode(d.getWaybillCode());
+                        pack.setPackCode(d.getPackageBarcode());
+                        if (d.getGoodWeight() != null) {
+                            pack.setWeight(String.valueOf(d.getGoodWeight()));
+                        }
+                        if (StringUtils.isNotEmpty(d.getPackageBarcode())) {
+                            String[] pcs = d.getPackageBarcode().split("[-NS]");
+                            pack.setPackSerial(Integer.valueOf(pcs[1]));
+                        } else {
+                            this.logger.info("转换包裹信息 --> 运单号："
+                                    + waybill.getWaybillCode() + "生成包裹号,包裹号为空");
+                        }
+                        pack.setPackId(d.getPackageId());
+                        packList.add(pack);
+                    }
+                    waybill.setPackList(packList);
+                } else {
+                    this.logger.error("转换包裹信息【运单返回】 --> 运单号："
+                            + waybill.getWaybillCode() + ", 包裹数量为:" + ds.size());
+                }
+            }
+        }
+
+        return waybill;
     }
-    
+
     private void dealWaybillSiteName(Waybill waybill) {
-    	if (waybill == null) {
-    		return;
-    	}
+        if (waybill == null) {
+            return;
+        }
         // 设置站点
         Integer siteCode = waybill.getSiteCode();
         String waybillCode = waybill.getWaybillCode();
@@ -332,24 +337,74 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                         + "】相关信息");
             }
         }
-        
+
         this.logger.info("运单号为【 " + waybillCode + "】 调用接口设置中转站站点名称开始");
-		// 设置中转站站点名称
-		Integer transferStationId = waybill.getTransferStationId();
-		if (transferStationId != null) {
-			waybill.setTransferStationId(transferStationId);
-			// 根据中转站站点ID获取中转站站点Name
-			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
-            		.getBaseSiteBySiteId(transferStationId);
-			if (baseStaffSiteOrgDto != null) {
-				waybill.setTransferStationName(baseStaffSiteOrgDto.getSiteName());
-				this.logger.info("运单号为【 " + waybillCode + "】 调用接口设置中转站站点名称成功【 "
-						+ transferStationId + "-"
-						+ waybill.getTransferStationName() + "】");
-			} else {
-				this.logger
-						.info("运单号为【 " + waybillCode + "】  查找不到中转站站点【" + transferStationId + "】 相关信息");
-			}
-		}
-	}
+        // 设置中转站站点名称
+        Integer transferStationId = waybill.getTransferStationId();
+        if (transferStationId != null) {
+            waybill.setTransferStationId(transferStationId);
+            // 根据中转站站点ID获取中转站站点Name
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
+                    .getBaseSiteBySiteId(transferStationId);
+            if (baseStaffSiteOrgDto != null) {
+                waybill.setTransferStationName(baseStaffSiteOrgDto.getSiteName());
+                this.logger.info("运单号为【 " + waybillCode + "】 调用接口设置中转站站点名称成功【 "
+                        + transferStationId + "-"
+                        + waybill.getTransferStationName() + "】");
+            } else {
+                this.logger
+                        .info("运单号为【 " + waybillCode + "】  查找不到中转站站点【" + transferStationId + "】 相关信息");
+            }
+        }
+    }
+
+
+    @Override
+    public Waybill findWaybillAndGoods(String waybillCode) {
+        Waybill waybill = null;
+        List<com.jd.bluedragon.distribution.product.domain.Product> products = new ArrayList<com.jd.bluedragon.distribution.product.domain.Product>();
+        try {
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryGoodList(true);
+
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+                    waybillCode, wChoice);
+            if (baseEntity != null && baseEntity.getData() != null) {
+                waybill = this.convWaybillWS(baseEntity.getData(), false, false);
+
+                if (waybill == null) {
+                    this.logger.info("运单号【 " + waybillCode + "】调用运单接口成功，运单【" + waybill + "】不存在");
+                    return null;
+                }
+
+                logger.info("获取运单StoreId");
+                if (baseEntity.getData().getWaybillState() != null && baseEntity.getData().getWaybillState().getStoreId() != null) {
+                    this.logger.info("获取运单StoreId失败");
+                    waybill.setStoreId(baseEntity.getData().getWaybillState().getStoreId());
+                }
+                List<Goods> goodses = baseEntity.getData().getGoodsList();
+                if (goodses == null || goodses.size() == 0) {
+                    this.logger.info("调用运单接口获得商品明细数据为空");
+                }
+                for (Goods goods : goodses) {
+                    com.jd.bluedragon.distribution.product.domain.Product product = new com.jd.bluedragon.distribution.product.domain.Product();
+                    product.setProductId(StringHelper.getStringValue(goods.getGoodId()));
+                    product.setName(goods.getGoodName());
+                    product.setQuantity(goods.getGoodCount());
+                    product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
+                    products.add(product);
+                }
+
+                waybill.setProList(products);
+            }
+            this.logger.info("运单号【 " + waybillCode + "】调用运单数据成功，运单【" + waybill + "】");
+        } catch (Exception e) {
+            this.logger.error("运单号【 " + waybillCode + "】调用运单异常：", e);
+        }
+
+        return waybill;
+    }
 }

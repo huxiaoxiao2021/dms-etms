@@ -253,7 +253,7 @@
 		and yn =1
 	</select>
 
-    <select id="selectCrossDmsBoxByDmsId" parameterType="crossBox"
+    <select id="selectCrossBoxByDmsId" parameterType="crossBox"
             resultMap="crossBoxMap">
         select
         <include refid="sql_columns"/>
@@ -267,7 +267,7 @@
 
     <select id="getFullLineByDmsId" parameterType="crossBox"
             resultType="String">
-        select full_line from cross_dms_box
+        select full_line from cross_box
         where
         original_dms_id =
         #{originalDmsId,jdbcType=INTEGER} and destination_dms_id =

@@ -72,4 +72,13 @@ public interface WaybillCommonService {
      * @return
      */
     InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode);
+
+	/**
+	 *  根据运单号查询运单及商品明细
+	 * 	直接调用运单接口查询运单数据及商品信息
+	 *
+	 * @param waybillCode
+	 * @return
+	 */
+	public Waybill findWaybillAndGoods(String waybillCode);
 }

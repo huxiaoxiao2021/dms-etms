@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.rest.product;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
@@ -37,23 +40,6 @@ public class ProductResource {
         this.logger.info("获取订单商品详情, 订单号：" + orderId);
 
         List<Product> products = this.productService.getOrderProducts(orderId);
-        if (products == null || products.isEmpty()) {
-            return this.orderNotFound();
-        }
-
-        return this.ok(products);
-    }
-
-    @GET
-    @Path("/order/mei/products/{orderId}")
-    public ProductResponse getProducts(@PathParam("orderId")String orderId) {
-        if (orderId == null) {
-            return this.paramError();
-        }
-
-        this.logger.info("获取订单商品详情, 订单号：" + orderId);
-
-        List<Product> products = this.productService.getProductsByWaybillCode(orderId);
         if (products == null || products.isEmpty()) {
             return this.orderNotFound();
         }

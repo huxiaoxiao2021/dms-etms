@@ -90,8 +90,6 @@
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
 
     </typeAliases>
-<<<<<<< HEAD
-=======
 	<plugins>
         <!--
           数据库访问监控组件
@@ -148,7 +146,7 @@
         <!-- 拦截Executor的rollback方法， 在rollback时清空现有的消息-->
         <plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorRollbackPlugin"/>
         </plugins>
->>>>>>> origin/develop
+
 	<mappers>
 		<mapper resource="mappers/oracle/box/BoxMapper.xml"/>
 
