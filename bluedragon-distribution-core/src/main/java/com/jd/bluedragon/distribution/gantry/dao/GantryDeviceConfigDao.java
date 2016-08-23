@@ -39,7 +39,7 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
     public GantryDeviceConfig checkSendCode(String sendCode) {
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("sendCode",sendCode);
-        return (GantryDeviceConfig) super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".checkSendCode", hashMap);
+        return (GantryDeviceConfig) super.getSqlSession().selectOne(GantryDeviceConfigDao.namespace + ".checkSendCode", hashMap);
     }
 
 

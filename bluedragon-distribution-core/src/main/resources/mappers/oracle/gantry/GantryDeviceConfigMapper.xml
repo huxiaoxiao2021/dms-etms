@@ -23,7 +23,12 @@
         <result column="SYSDATE" property="dbTime"/>
         <result column="yn" property="yn"/>
     </resultMap>
-
+    <sql id="fields">
+        id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
+        update_user_name,create_site_code,create_site_name,business_type,
+        business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
+        yn
+    </sql>
 
     <insert id="add" parameterType="gantryDeviceConfig">
         INSERT INTO gantry_device_config (id,
@@ -77,7 +82,6 @@
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
-        and end_time is null
         AND yn = 1
     </select>
 
@@ -101,22 +105,22 @@
         AND yn = 1
     </select>
     <select id="checkSendCode" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
-        SELECT id
+        SELECT <include refid="fields"/>
         FROM gantry_device_config
         WHERE send_code = #{sendCode,jdbcType=VARCHAR}
-        AND yn = 1 ROWNUM <![CDATA[<=]]> 1
+        AND yn = 1 AND ROWNUM <![CDATA[<=]]> 1
     </select>
 
     <update id="updateLockStatus" parameterType="gantryDeviceConfig">
         UPDATE gantry_device_config
         SET lock_status = #{lockStatus,jdbcType=INTEGER},lock_user_erp = #{lockUserErp,jdbcType=VARCHAR},lock_user_name=#{lockUserName,jdbcType=VARCHAR}
-        WHERE  id =  #{id,jdbcType=INTEGER} and end_time is NULL
+        WHERE  id =  #{id,jdbcType=INTEGER}
     </update>
 
     <update id="updateBusinessType" parameterType="gantryDeviceConfig">
         UPDATE gantry_device_config
         SET business_type = #{businessType,jdbcType=INTEGER}
-        WHERE  id =  #{id,jdbcType=INTEGER} and end_time is NULL
+        WHERE  id =  #{id,jdbcType=INTEGER}
     </update>
 
 
