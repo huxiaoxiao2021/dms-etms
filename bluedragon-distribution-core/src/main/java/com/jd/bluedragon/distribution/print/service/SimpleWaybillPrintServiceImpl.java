@@ -112,6 +112,11 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
+            char luxurySign=tmsWaybill.getSendPay().charAt(19);
+
+            commonWaybill.setLuxuryText(luxurySign<='4'&&luxurySign>'0'?"奢":"");
+            commonWaybill.setLuxuryText(commonWaybill.getLuxuryText()+((tmsWaybill.getSendPay().charAt(55)=='1'||tmsWaybill.getSendPay().charAt(51)=='1')?"闪":""));
+            commonWaybill.setNormalText(Integer.valueOf(1).equals(tmsWaybill.getTaxValue())?"普":"电");
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
             if(tmsWaybill.getPayment()!=null){
