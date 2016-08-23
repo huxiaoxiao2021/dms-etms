@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+	<meta http-equiv="pragma" content="no-cach" /> 
+	<meta http-equiv="cache-control" content="no-cache" /> 
+	<meta http-equiv="expires" content="0" />
+	<title>跨箱号中转维护</title>
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
+	
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+	<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <style type="text/css"></style>
+</head>
+
+<body>
+	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+	<script type="text/javascript" src="#springUrl('/static/js/crossbox/list.js')"></script>
+
+	<script type="text/javascript">
+	    $(document).ready(function(){
+				main();
+	    });
+	</script>
+<div id="breadcrumb">
+	<p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">跨箱号中转维护</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content" width="100%">
+	<div class="m">
+		<div class="tbl-n">
+			<form id="dataForm" name="dataForm" action="" method="post">
+				<table border="0" cellpadding="0" cellspacing="0" width="100%">
+					<tbody>
+						<tr>
+                            <td align="right">始发区域：</td>
+							<td>
+								<select id="originateOrg" name="originateOrg" class="select20" style="width:130px">
+                                    <option value="-1">全部</option>
+                                </select>
+								始发分拣：
+								<input type="text" id="originalDmsName" name="originalDmsName" maxlength="50" style="width:130px"/>
+								<input type="hidden" id="originalDmsId" name="originalDmsId"/>
+								数据维护人：
+								<input type="text" id="updateOperatorName" name="updateOperatorName" maxlength="30" style="width:130px"/>
+                            </td>
+						</tr>							    
+						<tr>
+							<td align="right">目的区域：</td>
+							<td>
+								<select id="destinationOrg" name="destinationOrg" class="select20" style="width:130px">
+                                    <option value="-1">全部</option>
+                                </select>
+								目的分拣：
+                                <input type="text" id="destinationDmsName" name="destinationDmsName" maxlength="50" style="width:130px"/>
+								<input type="hidden" id="destinationDmsId" name="destinationDmsId"/>
+								维护时间&nbsp;&nbsp;&nbsp;&nbsp;：
+                                <input type="text" id= "startDate"  name="startDate" style="width: 130px" class="Wdate"
+                                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})"/>
+								--
+								<input type="text" id= "endDate"  name="endDate" style="width: 130px" class="Wdate"
+                                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})"/>
+                            </td>
+							             	           
+						 </tr>
+						 <tr >
+							<td align="right">中转区域：</td>
+							<td>
+								<select id="transferOrg" name="transferOrg" class="select20" style="width:130px">
+                                    <option value="-1">全部</option>
+                                </select>
+								中转分拣：
+								<input type="text" id="transferName" name="transferName" maxlength="50" style="width:130px"/>
+								<input type="hidden" id="transferId" name="transferId"/>
+								<select id="yn" name="yn" class="select8">
+									 <option value = "-1">全部</option>
+									 <option value = "1">启用</option>
+									 <option value = "2">不启用</option>
+                                </select>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					            <input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1);"/>
+								<input type="button"  value="重置查询条件" class="btn_c" onclick="funReset()"/>
+								<input type="hidden" id="contextPath" value="#springUrl('')">
+                            </td>
+                            <td>
+                            <input type="button" id="add" name="add" value="新增" class="btn_c" onclick="addBtn();"/>
+                            <input type="button" id="import_data" name="import_data" value="导入" class="btn_c"  onclick="importDataBtn();"/>
+							<input type="button" id="export_data" name="export_data" value="导出" class="btn_c" onclick="exportDataBtn();"/>
+                            </td>
+                         </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+	 <!--[if !ie]>tbl-n<![endif]-->
+	 <div id="opening">
+		<div class="tbl-list">
+			<div class="tbl-bg">
+				<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
+					<THEAD>
+						<TR>
+							<TH rowspan="2">序号</TH>
+							<TH rowspan="2">始发分拣中心</TH>
+							<TH rowspan="2">中转1</TH>
+							<TH rowspan="2">中转2</TH>
+							<TH rowspan="2">中转3</TH>
+							<TH rowspan="2">目的分拣中心</TH>
+							<TH rowspan="2">完整线路</TH>
+							<TH rowspan="2">维护(更新)时间</TH>
+							<TH rowspan="2">维护人员</TH>
+							<TH rowspan="2">是否启用</TH>
+							<TH rowspan="2">生效时间</TH>
+							<TH rowspan="2">操作</TH>
+                        </TR>
+                    </THEAD>
+					<TBODY>
+					
+                    </TBODY>
+                </TABLE>				
+            </div>
+        </div>
+        
+         <div id="pager">
+
+        </div>
+	 </div>
+</div>
+</body>
+</html>
+	
