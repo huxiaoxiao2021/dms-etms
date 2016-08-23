@@ -106,7 +106,7 @@ public class SortingResource {
 					return this.sortingInspected();
 			}
 
-			if (this.sortingService.canCancel(sorting)) {
+			if (this.sortingService.canCancel2(sorting)) {
 				return this.ok();
 			} else {
 				return this.sortingNotFund();
@@ -159,7 +159,7 @@ public class SortingResource {
 		Boolean canCancel = false;
 		for (Sorting eachSorting : sortingRecords) {
 			eachSorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
-			canCancel |= this.sortingService.canCancel(eachSorting);
+			canCancel |= this.sortingService.canCancel2(eachSorting);
 		}
 
 		if (canCancel) {

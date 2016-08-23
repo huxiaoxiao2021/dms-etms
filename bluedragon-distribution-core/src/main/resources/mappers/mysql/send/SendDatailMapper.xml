@@ -141,6 +141,24 @@
 			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
 		</if>
 	</update>
+
+	<update id="canCancel2" parameterType="SendDetail">
+		UPDATE Send_d
+		SET is_cancel = 1, update_time = NOW()
+		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="packageBarcode != null">
+			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test=" null!=boxCode and ''!=boxCode ">
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		</if>
+		<if test=" null!=receiveSiteCode and ''!=receiveSiteCode ">
+			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
+		</if>
+	</update>
 	
 	<update id="canCancelFuzzy" parameterType="SendDetail">
 		UPDATE Send_d 

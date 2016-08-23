@@ -535,6 +535,15 @@ public class DeliveryServiceImpl implements DeliveryService {
     public Boolean canCancel(SendDetail sendDetail) {
         return this.sendDatailDao.canCancel(sendDetail);
     }
+    /**
+     * 取消发货操作 不判断send_type added by zhanglei
+     * @param sendDetail
+     * @return
+     */
+    @Override
+    public Boolean canCancel2(SendDetail sendDetail) {
+        return this.sendDatailDao.canCancel2(sendDetail);
+    }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override

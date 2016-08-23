@@ -48,6 +48,9 @@ public interface DeliveryService {
     /** 通过创建站点、包裹号码或运单号码、业务类型，判断其分拣记录能否被取消 */
     Boolean canCancel(SendDetail sendDetail);
 
+	/** 通过创建站点、包裹号码或运单号码、业务类型，判断其分拣记录能否被取消  不再判断正向还是逆向业务  added by zhanglei */
+	Boolean canCancel2(SendDetail sendDetail);
+
     /** 通过创建站点、业务类型、模糊匹配的包裹号，判断其分拣记录能否被取消 */
     Boolean canCancelFuzzy(SendDetail parseSendDetail);
     
