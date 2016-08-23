@@ -257,6 +257,25 @@
 			</if>
 		</where>
 	 </select>
+
+	<!--取消发货这里不再区分send_type added by zhanglei 20160823-->
+	<select id="findSendMByBoxCode2" parameterType="SendM"  resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from  send_m
+		<where>
+			yn=1
+			<if test="createSiteCode!=null">
+				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="receiveSiteCode!=null">
+				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="boxCode!=null">
+				and box_code = #{boxCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
 	 
 	 <update id="cancelSendM" parameterType="SendM">
 		update send_m

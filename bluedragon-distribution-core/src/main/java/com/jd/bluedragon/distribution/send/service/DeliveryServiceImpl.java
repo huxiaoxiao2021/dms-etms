@@ -935,7 +935,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 							DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode(tSendM);
+				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
                 SendDetail queryDetail = new SendDetail();
                 queryDetail.setBoxCode(tSendM.getBoxCode());
                 List<SendDetail> sendDatails = sendDatailDao.querySendDatailsByBoxCode(queryDetail);
@@ -1128,7 +1128,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 					.updateUser(dSendDetail.getCreateUser())
 					.updateUserCode(dSendDetail.getCreateUserCode())
 					.updateTime(new Date()).build();
-			tSortingService.canCancel(sorting);
+			tSortingService.canCancel2(sorting);
 		}
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
 				JdResponse.MESSAGE_OK, null);

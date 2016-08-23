@@ -62,6 +62,10 @@ public class SendMDao extends BaseDao<SendM>  {
     public List<SendM> findSendMByBoxCode(SendM sendM) {
         return getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode", sendM);
     }
+
+	public List<SendM> findSendMByBoxCode2(SendM sendM) {
+		return getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode2", sendM);
+	}
     
     public boolean cancelSendM(SendM tSendM) {
         return this
