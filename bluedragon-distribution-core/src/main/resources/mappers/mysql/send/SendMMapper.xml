@@ -26,7 +26,9 @@
 		<result column="transport_type" property="transporttype" />
 		<result column="yn" property="yn" />
 	</resultMap>
-	
+    <resultMap id="boxCodeMap" type="java.lang.String">
+        <result column="box_code" property="value"/>
+    </resultMap>
 	<resultMap id="SendMList" type="java.lang.String">
 		
 	</resultMap>
@@ -339,9 +341,9 @@
 		</where>
 	</select>
     <select id="selectBoxBySendCode" parameterType="SendM"
-            resultMap="SendM">
+            resultMap="boxCodeMap">
         select
-        <include refid="Base_Column_List"/>
+         box_code
         from send_m
         where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
     </select>
