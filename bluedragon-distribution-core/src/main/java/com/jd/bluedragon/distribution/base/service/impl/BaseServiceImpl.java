@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.common.struts.interceptor.ws.User;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -35,6 +34,8 @@ import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ssa.domain.UserInfo;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +118,7 @@ public class BaseServiceImpl implements BaseService {
                         basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
                         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
                     } else {
-                        fillPdaUserDto(basePdaUserDto, baseStaffDto, null);
+                        fillPdaUserDto(basePdaUserDto, baseStaffDto,password);
                     }
                 } else {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
@@ -126,18 +127,21 @@ public class BaseServiceImpl implements BaseService {
                 // 自营登录
             } else {
                 // 调用人事接口验证用户
-                User user = userVerifyService.baseVerify(userid, password);
+                //User user = userVerifyService.baseVerify(userid, password);
+            	//调用sso的SsoService验证用户
+            	UserInfo user = userVerifyService.baseVerify(userid, password);
                 if (null == user) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
                     basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
                 // 人事接口验证通过，获取基础资料信息
                 } else {
-                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(user.getId());
+//                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.parseInt(String.valueOf(user.getUserId())));
+                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(userid);
                     if (null == basestaffDto) {
                         basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
                         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
                     } else {
-                        fillPdaUserDto(basePdaUserDto, basestaffDto, user);
+                        fillPdaUserDto(basePdaUserDto, basestaffDto,password);
                     }
                 }
             }
@@ -149,31 +153,18 @@ public class BaseServiceImpl implements BaseService {
         return basePdaUserDto;
     }
 
-    private void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, User user){
-        if (null == user) {
-            basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
-            basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
-            basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
-            basePdaUserDto.setLoginTime(new Date());
-            basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
-            basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
-            basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
-            basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
-            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
-        } else {
-            basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
-            basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
-            basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
-            basePdaUserDto.setLoginTime(new Date());
-            basePdaUserDto.setStaffId(user.getId());
-            basePdaUserDto.setPassword(user.getPassword());
-            basePdaUserDto.setStaffName(user.getRealName());
-            basePdaUserDto.setOrganizationId(user.getOrganizationId());
-            basePdaUserDto.setOrganizationName(user.getOrganizationName());
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
-            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
-        }
+    private void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, String password) {
+        basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
+        basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
+        basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
+        basePdaUserDto.setLoginTime(new Date());
+        basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
+        basePdaUserDto.setPassword(password);
+        basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
+        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
+        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
+        basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
+        basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
     }
 
     @Override

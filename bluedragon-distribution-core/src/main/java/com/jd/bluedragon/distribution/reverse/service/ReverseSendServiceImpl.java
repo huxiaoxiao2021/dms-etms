@@ -36,7 +36,6 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.consumer.MessageConstant;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -79,9 +78,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     WaybillQueryApi waybillQueryApi;
-    
-    @Autowired
-    WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private WaybillCommonService waybillCommonService;
@@ -98,7 +94,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     @Qualifier("dmsSendLossMQ")
     private DefaultJMQProducer dmsSendLossMQ;
-	@Autowired
+    @Autowired
     private SendMDao sendMDao;
 
     @Autowired
@@ -115,7 +111,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private BlueDragonWebService lossWebService;
-    
+
     @Qualifier("bdDmsReverseSendEclp")
     @Autowired
     private DefaultJMQProducer bdDmsReverseSendEclp;
@@ -285,15 +281,15 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setPickWareCode(tSendDetail.getPickupCode());
 
             try {
-				/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                /*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
 								+ tSendDetail.getPackageBarcode());*/
-                String body=generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                String body = generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
                                 + tSendDetail.getPackageBarcode());
-                logger.error("推送售后MQ"+body);
+                logger.error("推送售后MQ" + body);
                 bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
-                        + tSendDetail.getPackageBarcode(),body);
+                        + tSendDetail.getPackageBarcode(), body);
                 try {
                     //业务流程监控, 售后埋点
                     Map<String, String> data = new HashMap<String, String>();
@@ -315,7 +311,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                                         String statementId,
                                         String dataType,
                                         String data,
-                                        String businessId){
+                                        String businessId) {
         TriggerMessage triggerMessage = new TriggerMessage();
         triggerMessage.setParameter(data);
         triggerMessage.setStatement(statementId);
@@ -366,6 +362,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             this.crud = crud;
         }
     }
+
     private void removeDuplicatedProduct(ReverseSendAsiaWms send) {
         List<com.jd.bluedragon.distribution.reverse.domain.Product> products = send
                 .getProList();
@@ -456,19 +453,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 removeDuplicatedProduct(newsend);
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
-                
-                //获得send对象,方便下方判断
-                ReverseSendWms send = null;
-                send = tBaseService.getWaybillByOrderCode(wallBillCode);
-                if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
-                    continue;
-                }
-                send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
-                //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode)) {
-                	sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
-                }
+                sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
             }
 
             // 包丢订单发车
@@ -882,16 +867,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         //------------------------维修外单---start--------------------------
         List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
         List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
-        for(SendDetail sd: sendDetails){//剔除维修外单
-        	 if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
-        		 vySendDetails.add(sd);
-             }else{
-            	 nomarlSendDetails.add(sd);
-             }
+        for (SendDetail sd : sendDetails) {//剔除维修外单
+            if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
+                vySendDetails.add(sd);
+            } else {
+                nomarlSendDetails.add(sd);
+            }
         }
         sendDetails = nomarlSendDetails;//非维修外单集合        
         pushMCSMessageToSpwms(vySendDetails);//维修外单发送
-        
+
         //------------------------维修外单---end----------------------------
 
         // 增加判断d表中数据为逆向数据
@@ -908,7 +893,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             try {
                 Waybill waybill = this.getWaybill(waybillCode);
                 if (null == waybill) {
-                    this.logger.error(waybillCode + "获取订单中间件ooms历史表订单数据失败");
+                    this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取订单数据失败");
                     continue;
                 }
 
@@ -918,6 +903,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<ReverseSpare> reverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
                             sendDetail.getSendCode());
                     List<Product> products = waybill.getProList();
+                    if (products == null || products.size() == 0) {
+                        this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
+                    }
                     List<Spare> spares = this.getSpare(baseOrgId, sendDetail, products);
 
                     int spare_num = 0;
@@ -1172,10 +1160,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         if (waybillCode.startsWith(Constants.T_WAYBILL))
             waybillCode = waybillCode.replaceFirst(Constants.T_WAYBILL, "");
 
-        Waybill waybill = this.waybillCommonService.getWaybillFromOrderService(waybillCode);
+        Waybill waybill = this.waybillCommonService.findWaybillAndGoods(waybillCode);
         if (null == waybill) {
-            this.logger.error(waybillCode + "获取订单中间件ooms订单数据失败");
-            waybill = this.waybillCommonService.getHisWaybillFromOrderService(waybillCode);
+            this.logger.error(waybillCode + "ReverseSendServiceImpl --> getWaybill 获取运单数据失败");
+            //    waybill = this.waybillCommonService.getHisWaybillFromOrderService(waybillCode);
         }
         return waybill;
     }
@@ -1327,8 +1315,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             logger.error("青龙逆向发货后回传报损系统锁定MQ json为" + jsonStr);
 
 
-			//this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
-            dmsSendLossMQ.send(orderId,jsonStr);
+            //this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
+            dmsSendLossMQ.send(orderId, jsonStr);
             logger.info("青龙逆向发货后回传报损系统锁定MQ消息成功，订单号为" + orderId);
         } catch (Exception e) {
             logger.error("青龙逆向发货后回传报损系统锁定MQ消息失败，订单号为" + orderId, e);
@@ -1363,48 +1351,41 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
         }
 
-		if (BusinessHelper.isECLPByBusiOrderCode(send.getBusiOrderCode())) {
-			// ECLP订单 不推送wms ， 发mq
-			// 发MQ-->开发平台
-			logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
-			com.jd.etms.waybill.domain.BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
-			String oldWaybillCode = null;
-			if(oldWaybill!=null&&oldWaybill.getData()!=null){
-				oldWaybillCode = oldWaybill.getData().getWaybillCode();
-			}
-			
-			if(StringHelper.isEmpty(oldWaybillCode)) oldWaybillCode = wayBillCode;
-			
-			// 给eclp发送mq, eclp然后自己组装逆向报文
-			ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
-			sendmodel.setJdOrderCode(send.getBusiOrderCode());
-			sendmodel.setSendCode(send.getSendCode());
-			sendmodel.setSourceCode("ECLP");
-			sendmodel.setWaybillCode(oldWaybillCode);
-			sendmodel.setRejType(3);
-			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
-			String jsonStr = JsonHelper.toJson(sendmodel);
-			logger.info("推送ECLP的 MQ消息体 " + jsonStr);
+        if (BusinessHelper.isECLPCode(send.getSourceCode())) {
+            // ECLP订单 不推送wms ， 发mq
+            // 发MQ-->开发平台
+            logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
 
-			// 增加系统日志
-			SystemLog sLogDetail = new SystemLog();
-			sLogDetail.setKeyword1(wayBillCode);
-			sLogDetail.setKeyword2(send.getSendCode());
-			sLogDetail.setKeyword3("ECLP");
-			sLogDetail.setType(Long.valueOf(12004));
-			sLogDetail.setContent(jsonStr);
+            // 给eclp发送mq, eclp然后自己组装逆向报文
+            ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
+            sendmodel.setJdOrderCode(send.getOrderId());
+            sendmodel.setSendCode(send.getSendCode());
+            sendmodel.setSourceCode(send.getSourceCode());
+            sendmodel.setWaybillCode(wayBillCode);
+            sendmodel.setRejType(3);
+            sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
+            String jsonStr = JsonHelper.toJson(sendmodel);
+            logger.info("推送ECLP的 MQ消息体 " + jsonStr);
 
-			try {
-				bdDmsReverseSendEclp.send(oldWaybillCode, jsonStr);
-				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
-			} catch (Exception e) {
-				logger.error("推送ECLP MQ 发生异常.", e);
-				sLogDetail.setKeyword4(Long.valueOf(-1));// 表示发送失败
-			}
-			SystemLogUtil.log(sLogDetail);
+            // 增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(wayBillCode);
+            sLogDetail.setKeyword2(send.getSendCode());
+            sLogDetail.setKeyword3("ECLP");
+            sLogDetail.setType(Long.valueOf(12004));
+            sLogDetail.setContent(jsonStr);
 
-			return Boolean.TRUE;
-		}
+            try {
+                bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
+                sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
+            } catch (Exception e) {
+                logger.error("推送ECLP MQ 发生异常.", e);
+                sLogDetail.setKeyword4(Long.valueOf(-1));// 表示发送失败
+            }
+            SystemLogUtil.log(sLogDetail);
+
+            return Boolean.TRUE;
+        }
 
         return Boolean.FALSE;
     }
@@ -1457,7 +1438,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 messageBody.setOperatorName(sendDetail.getCreateUser());
                 final String jsonStr = JsonHelper.toJson(messageBody);
                 messageList.add(new Message(topic, jsonStr, sendDetail.getWaybillCode()));
-                if(logger.isInfoEnabled()){
+                if (logger.isInfoEnabled()) {
                     logger.info(MessageFormat.format("推送MQ数据为topic:{0}, text:{1}", topic, jsonStr));
                 }
             }

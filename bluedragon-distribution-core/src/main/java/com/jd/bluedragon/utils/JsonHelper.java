@@ -44,6 +44,7 @@ public class JsonHelper {
         try {
             JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(
                     JsonSerialize.Inclusion.NON_NULL);
+
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
             JsonHelper.logger.error("Jackson反序列化JSON发生异常，将使用GSON重试");
@@ -101,6 +102,7 @@ public class JsonHelper {
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
+            	System.out.println("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage());
                 JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage(), ex);
             }
         return null;

@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.web;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +22,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.cookie.CookieUtils;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ssa.utils.SSOHelper;
 
 /**
  * @author zhaohc
@@ -33,8 +37,8 @@ public class IndexController {
     @Autowired
 	private BaseMajorManager baseMajorManager;
     
-    @Autowired
-    private CookieUtils cookieUtils;
+//    @Autowired
+//    private CookieUtils cookieUtils;
     
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
@@ -82,11 +86,25 @@ public class IndexController {
     }
     
     @RequestMapping("/quit")
-    public ModelAndView quit(HttpServletRequest request, HttpServletResponse response, Model model) {
-        this.cookieUtils.invalidate(request, response);
-        ModelAndView mav = new ModelAndView();
-        RedirectView view = new RedirectView("/index");
-        mav.setView(view);
-        return mav;// "index";
+    public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
+//        this.cookieUtils.invalidate(request, response);
+        InputStream in = getClass().getResourceAsStream( "/authen.properties");
+        Properties pps = new Properties();
+        try {
+           pps.load( in);
+           String logoutKey = "logout.address" ;
+           String logoutValue = pps .getProperty(logoutKey);
+           String domainName = "webapp.domain.name" ;
+           String domainValue = pps .getProperty(domainName);
+           String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
+           
+           if(!domainValue.contains(".jd.com")){
+        	   SSOHelper.logout(response, domainValue);
+           }
+           response.sendRedirect( newUrl);
+        } catch (IOException e ) {
+           // TODO Auto-generated catch block
+           e.printStackTrace();
+        }
     }
 }

@@ -15,7 +15,7 @@ public class Pager<T> {
 	/**
 	 * 默认每页显示数
 	 */
-	public final static int DEFAULT_PAGE_SIZE = 20;
+	public final static int DEFAULT_PAGE_SIZE = 10;
 	public static final int DEFAULT_POP_PAGE_SIZE = 1000;
 	/**
 	 * 分页-开始索引标识

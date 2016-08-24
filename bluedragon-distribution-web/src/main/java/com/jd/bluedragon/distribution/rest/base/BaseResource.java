@@ -279,6 +279,7 @@ public class BaseResource {
 		String dmsSiteCode;
 		Integer siteType;
 		Integer siteBusType;
+        Integer orgId;
         BaseStaffSiteOrgDto dto=null;
 		try {
 			dto = baseService.queryDmsBaseSiteByCode(code);
@@ -286,7 +287,8 @@ public class BaseResource {
 			siteCode = dto != null ? dto.getSiteCode() : null;
 			dmsSiteCode = dto != null && dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "";
 			siteType = dto != null && dto.getSiteType() != null ? dto.getSiteType() : null;
-			siteBusType = dto != null && dto.getSiteBusinessType() != null ? dto.getSiteBusinessType() : null;
+			orgId = dto != null && dto.getOrgId() != null ? dto.getOrgId() : null;
+            siteBusType = dto != null && dto.getSiteBusinessType() != null ? dto.getSiteBusinessType() : null;
 		} catch (Exception e) {
 			logger.error("获取站点名称失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
@@ -305,6 +307,7 @@ public class BaseResource {
 		response.setSiteName(siteName);
 		response.setDmsCode(dmsSiteCode);
 		response.setSiteType(siteType);
+        response.setOrgId(orgId);
 		response.setSiteBusinessType(siteBusType);
         /*
         if(null!=dto) {

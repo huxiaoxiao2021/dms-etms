@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+	<meta http-equiv="pragma" content="no-cach" /> 
+	<meta http-equiv="cache-control" content="no-cache" /> 
+	<meta http-equiv="expires" content="0" />
+	<title>跨箱号中转维护</title>
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/js/DatePicker/skin/WdatePicker.css')"></script>
+	
+	<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    
+    <style type="text/css"></style>
+</head>
+
+<body>
+	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+	<script type="text/javascript" src="#springUrl('/static/js/crossbox/add.js')"></script>
+	<script type="text/javascript">
+	 $(document).ready(function(){
+				main();
+	    });
+	</script>
+	
+	<div id="breadcrumb">
+	  <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#"> 跨箱号中转维护新增 </a></p>
+	</div>
+	<!--[if !ie]>breadcrumb<![endif]-->
+	<div id="content">
+	    <!--[if !ie]>tbl-n<![endif]-->
+	    <div id="opening" class="noborder">
+	        <div class="tbl-list">
+	            <div class="tbl-bg">
+	                <form id="dataForm" name="" action="" method="post">
+	                    <table width="100%" border="0" class="tb-x2" >
+	                        <tr>
+                            <td align="right" class="c_f8f8f8">始发分拣中心：</td>
+                            <td>
+                                <select id="originateOrg" name="originateOrg" class="select20" style="width:130px" >
+                                   <option value = -1> 机构</option>
+                                    #if($originateOrgId)
+                                        <option value="$!originateOrgId" #if($!originateOrgId !=-1) selected ="selected" #end>$!originateOrgName</option>
+                                    #end
+                                </select>
+                                <font class="star" style = "color:red">*</font>
+                                <input type="text" name="originalDmsName" id="originalDmsName" v="require;length:30;" value="$!crossDmsBox.originalDmsName" maxlength="50" style="width:130px"/>
+                                <font class="star" style = "color:red">*</font>
+                                <input type="hidden" name="originalDmsId" id="originalDmsId" value="$!crossDmsBox.originalDmsId"/>
+								<input type="hidden" name="id" id="id" value="$!crossDmsBox.id"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right" class="c_f8f8f8">目的分拣中心：</td>
+                            <td>
+                                <select id="destinationOrg" name="destinationOrg" class="select20"  style="width:130px">
+                                    <option value = -1> 机构 </option>
+                                    #if($destinationOrgId)
+                                        <option value="$destinationOrgId" #if($!destinationOrgId !=-1) selected ="selected" #end>$!destinationOrgName</option>
+                                    #end
+                                </select>
+                                <font class="star" style = "color:red">*</font>
+                                <input type="text" name="destinationDmsName" id="destinationDmsName" v="require;length:30;" value="$!crossDmsBox.destinationDmsName" maxlength="50" style="width:130px"/>
+								<font class="star" style = "color:red">*</font>
+                                <input type="hidden" name="destinationDmsId" id="destinationDmsId" value="$!crossDmsBox.destinationDmsId"/>
+                            </td>
+                        </tr>
+						<tr>
+                            <td align="right" class="c_f8f8f8">中转1：</td>
+                            <td>
+                                <select id="transferOneOrg" name="transferOneOrg" class="select20" style="width:130px" >
+                                    <option value = -1> 机构 </option>
+                                    #if($transferOneOrgId)
+                                        <option value="$transferOneOrgId" #if($!transferOneOrgId !=-1) selected ="selected" #end>$!transferOneOrgName</option>
+                                    #end                                 
+                                </select>
+								 <font class="star" style = "color:red">*</font>
+                                 <input type="text" name="transferOneName" id="transferOneName" v="require;length:30;"  value="$!crossDmsBox.transferOneName" maxlength="50" style="width:130px"/>
+								 <font class="star" style = "color:red">*</font>
+                                <input type="hidden" name="transferOneId" id="transferOneId" value="$!crossDmsBox.transferOneId"/>
+                            </td>
+                        </tr>
+						<tr>
+                            <td align="right" class="c_f8f8f8">中转2：</td>
+                            <td>
+                                <select id="transferTwoOrg" name="transferTwoOrg" class="select20" style="width:130px" >
+                                    <option value = -1> 机构 </option>
+                                    #if($transferTwoOrgId)
+                                        <option value="$transferTwoOrgId" #if($!transferTwoOrgId !=-1) selected ="selected" #end>$!transferTwoOrgName</option>
+                                    #end                                
+                                </select>
+								&nbsp;
+                                <input type="text" name="transferTwoName" id="transferTwoName"  value="$!crossDmsBox.transferTwoName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferTwoId" id="transferTwoId" value="$!crossDmsBox.transferTwoId"/>
+                            </td>
+                        </tr>
+						<tr>
+                            <td align="right" class="c_f8f8f8">中转3：</td>
+                            <td>
+                                <select id="transferThreeOrg" name="transferThreeOrg" class="select20" style="width:130px" >
+                                    <option value = -1> 机构 </option>
+                                    #if($transferThreeOrgId)
+                                        <option value="$transferThreeOrgId" #if($!transferThreeOrgId !=-1) selected ="selected" #end>$!transferThreeOrgName</option>
+                                    #end                            
+                                </select>
+								&nbsp;
+                                <input type="text" name="transferThreeName" id="transferThreeName"  value="$!crossDmsBox.transferThreeName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferThreeId" id="transferThreeId" value="$!crossDmsBox.transferThreeId"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th colspan="2" align="left">
+                                <input  value="确定" class="btn_c" type="button" onclick="sbmt()">
+                                <input value="返回" class="btn_c" type="button" onclick="ret_back()">
+								<input type="hidden" id="contextPath" value="#springUrl('')">
+							</th>
+						</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+	        <!--[if !ie]>tbl-list<![endif]-->
+	    </div>
+	    <!--opening end-->
+	</div>
+</body>
+</html>
