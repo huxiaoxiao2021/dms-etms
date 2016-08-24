@@ -93,7 +93,7 @@ public class SortingResource {
 			SendM sendM = new SendM();
 			sendM.setBoxCode(sorting.getBoxCode());
 			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
-			List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
+			List<SendM> sendMList = sendMDao.findSendMByBoxCode2(sendM);
 			if (null != sendMList && !sendMList.isEmpty() && sendMList.size() > 0) {
 				return this.sortingSended();
 			}
