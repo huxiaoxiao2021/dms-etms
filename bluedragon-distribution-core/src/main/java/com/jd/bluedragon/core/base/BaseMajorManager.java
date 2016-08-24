@@ -73,4 +73,6 @@ public interface BaseMajorManager {
 
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger);
 
+    public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp);
+
 }
