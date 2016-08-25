@@ -590,10 +590,8 @@ public class SortingServiceImpl implements SortingService {
 				if(waybill != null){
 					String waybillsign = waybill.getWaybillSign();
 					if(waybillsign != null && waybillsign.length()>0){
-						String signSecond = waybillsign.substring(15,16);
-						String signFirst = waybillsign.substring(0,1);
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
-						if("T".equals(signFirst) || "6".equals(signSecond)){
+						if(waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6'){
 							//组装FastRefundBlockerComplete
 							FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(sorting);
 							String json = JsonHelper.toJson(frbc);

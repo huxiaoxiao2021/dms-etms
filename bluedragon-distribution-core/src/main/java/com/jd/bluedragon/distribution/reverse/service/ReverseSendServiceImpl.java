@@ -236,9 +236,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
             String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
             String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+            //PDA选择3c备件库时自动区分订单类型(w单:售后/VY单:维修外单/T单:备件库)然后进行不同处理   暂时还用等全国上线时再隐藏
             if (siteType == Integer.parseInt(asm_type)) {
                 bl = this.sendReverseMessageToAms(sendM);
-            } else if (siteType == Integer.parseInt(wms_type)) {
+            } else 
+            if (siteType == Integer.parseInt(wms_type)) {
                 // 采用批次号和目的地组合的方式来判断退货方向是否是亚一仓站点
                 // 原因为批次号更加可靠，目的地判断方式需要依赖配置文件，而且目的地站点编码有变更的可能性
                 // 组合方式可以保障在目的地变更或者判断失效的情况下，保障库内返的流程继续正常运行
@@ -302,10 +304,47 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 } catch (Exception e) {
                     this.logger.error("推送UMP发生异常.", e);
                 }
-                this.logger.info("青龙发货至售后MQ消息成功，批次号为" + sendM.getSendCode());
+                this.logger.info("青龙发货至售后MQ消息成功，批次号为" + tSendDetail.getSendCode());
             } catch (Exception e) {
                 throw new Exception("青龙发货至售后MQ消息异常", e);
             }
+        }
+
+        return true;
+    }
+    
+    public boolean sendReverseMessageToAmsNew(SendDetail tSendDetail) throws Exception {
+        this.logger.info("处理售后退货数据开始");
+        ReverseSend send = new ReverseSend();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        send.setDispatchTime(df.format(tSendDetail.getOperateTime()));
+        send.setOperatorId(tSendDetail.getCreateUserCode().toString());
+        send.setOperatorName(tSendDetail.getCreateUser());
+        send.setPackageCode(tSendDetail.getPackageBarcode());
+        send.setSendCode(tSendDetail.getSendCode());
+        send.setPickWareCode(tSendDetail.getPickupCode());
+
+        try {
+			/*wangtingweiDEBUGthis.messageClient.sendCustomMessage("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                    "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
+							+ tSendDetail.getPackageBarcode());*/
+            String body=generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
+                    "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
+                            + tSendDetail.getPackageBarcode());
+            logger.error("推送售后MQ"+body);
+            bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
+                    + tSendDetail.getPackageBarcode(),body);
+            try {
+                //业务流程监控, 售后埋点
+                Map<String, String> data = new HashMap<String, String>();
+                data.put("packageCode", tSendDetail.getPackageBarcode());
+                Profiler.bizNode("Reverse_ws_dms2ams", data);
+            } catch (Exception e) {
+                this.logger.error("推送UMP发生异常.", e);
+            }
+            this.logger.info("青龙发货至售后MQ消息成功，批次号为" + tSendDetail.getSendCode());
+        } catch (Exception e) {
+            throw new Exception("青龙发货至售后MQ消息异常", e);
         }
 
         return true;
@@ -860,7 +899,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             map.put(waybillCode, sendDetail);
         }
     }
-
+    
+    /**
+     * PDA选择3c备件库时自动区分订单类型(w单:售后/VY单:维修外单/T单:备件库)然后进行不同处理
+     * update by lhc
+     * 2016.8.23
+     */
     @SuppressWarnings("rawtypes")
     public boolean sendReverseMessageToSpwms(SendM sendM, Integer baseOrgId, String baseStoreId) throws Exception {
         String spwmsToken = PropertiesHelper.newInstance().getValue("spwms_token");
@@ -879,27 +923,28 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             return true;
         }
 
-        //------------------------维修外单---start--------------------------
-        List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
-        List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
-        for(SendDetail sd: sendDetails){//剔除维修外单
-        	 if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
-        		 vySendDetails.add(sd);
-             }else{
-            	 nomarlSendDetails.add(sd);
-             }
-        }
-        sendDetails = nomarlSendDetails;//非维修外单集合        
-        pushMCSMessageToSpwms(vySendDetails);//维修外单发送
-        
-        //------------------------维修外单---end----------------------------
+//        //------------------------维修外单---start--------------------------
+//        List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
+//        List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
+//        for(SendDetail sd: sendDetails){//剔除维修外单
+//        	 if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
+//        		 vySendDetails.add(sd);
+//             }else{
+//            	 nomarlSendDetails.add(sd);
+//             }
+//        }
+//        sendDetails = nomarlSendDetails;//非维修外单集合        
+//        pushMCSMessageToSpwms(vySendDetails);//维修外单发送
+//        
+//        //------------------------维修外单---end----------------------------
 
         // 增加判断d表中数据为逆向数据
         Map<String, SendDetail> sendDetailMap = new ConcurrentHashMap<String, SendDetail>();
         for (SendDetail aSendDetail : sendDetails) {
             ReverseSendServiceImpl.addMapSpwms(sendDetailMap, aSendDetail.getWaybillCode(), aSendDetail);
         }
-
+        
+        List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
         Iterator<Entry<String, SendDetail>> iterator = sendDetailMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry entry = iterator.next();
@@ -911,206 +956,218 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     this.logger.error(waybillCode + "获取订单中间件ooms历史表订单数据失败");
                     continue;
                 }
+                //选择3c备件库时自动订单类型区分
+                if(null!=waybill.getWaybillSign() && waybill.getWaybillSign().length()>0){
+                	if(waybill.getWaybillSign().charAt(16)=='1'){
+                		//W单发往售后组
+                		this.sendReverseMessageToAmsNew(sendDetail);
+                	}else if(waybill.getWaybillSign().charAt(16)=='4'){
+                		//维修外单VY发往维修中心   维修外单集合
+                		vySendDetails.add(sendDetail);
+                	}else if(waybill.getWaybillSign().charAt(0)=='T'){
+                		//T单发往备件库
+                		List<ReverseSpare> sendReverseSpare = new ArrayList<ReverseSpare>();
+                        // 如果D表的包裹号不为备件库条码时，需要新增spare表数据并关联备件库条码
+                        if (!BusinessHelper.isReverseSpareCode(sendDetail.getPackageBarcode())) {
+                            List<ReverseSpare> reverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
+                                    sendDetail.getSendCode());
+                            List<Product> products = waybill.getProList();
+                            List<Spare> spares = this.getSpare(baseOrgId, sendDetail, products);
 
-                List<ReverseSpare> sendReverseSpare = new ArrayList<ReverseSpare>();
-                // 如果D表的包裹号不为备件库条码时，需要新增spare表数据并关联备件库条码
-                if (!BusinessHelper.isReverseSpareCode(sendDetail.getPackageBarcode())) {
-                    List<ReverseSpare> reverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
-                            sendDetail.getSendCode());
-                    List<Product> products = waybill.getProList();
-                    List<Spare> spares = this.getSpare(baseOrgId, sendDetail, products);
+                            int spare_num = 0;
 
-                    int spare_num = 0;
-
-                    List<ReverseSendSpwmsOrder> spwmsOrders = new ArrayList<ReverseSendSpwmsOrder>();
-                    for (int i = 0; i < products.size(); i++) {
-                        for (int j = 0; j < products.get(i).getQuantity(); j++) {
-                            ReverseSendSpwmsOrder spwmsOrder = new ReverseSendSpwmsOrder();
-                            spwmsOrder.setWaybillCode(waybillCode);
-                            spwmsOrder.setSendCode(sendDetail.getSendCode());
-                            spwmsOrder.setSpareCode(spares.get(spare_num++).getCode());
-                            spwmsOrder.setProductId(products.get(i).getProductId());
-                            spwmsOrder.setProductName(products.get(i).getName());
-                            spwmsOrder.setProductPrice(products.get(i).getPrice().doubleValue());
-                            spwmsOrders.add(spwmsOrder);
-                        }
-                    }
-
-                    List<ReverseSpare> reverseSpares = this.setReverseSpares(sendDetail, spwmsOrders);
-                    if (null == reverseSpare || reverseSpare.size() == 0) {
-                        sendReverseSpare = reverseSpares;
-                    } else {
-                        for (ReverseSpare rs1 : reverseSpare) {
-                            for (ReverseSpare rs2 : reverseSpares) {
-                                if (rs1.getWaybillCode().equals(rs2.getWaybillCode())
-                                        && rs1.getProductId().equals(rs2.getProductId())) {
-                                    if (null != rs1.getSpareTranCode()) {
-                                        reverseSpares.remove(rs2);
-                                        break;
-                                    } else {
-                                        String temp = rs2.getSpareCode();
-                                        org.apache.commons.beanutils.BeanUtils.copyProperties(rs2, rs1);
-                                        rs2.setSpareCode(temp);
-                                        break;
-                                    }
+                            List<ReverseSendSpwmsOrder> spwmsOrders = new ArrayList<ReverseSendSpwmsOrder>();
+                            for (int i = 0; i < products.size(); i++) {
+                                for (int j = 0; j < products.get(i).getQuantity(); j++) {
+                                    ReverseSendSpwmsOrder spwmsOrder = new ReverseSendSpwmsOrder();
+                                    spwmsOrder.setWaybillCode(waybillCode);
+                                    spwmsOrder.setSendCode(sendDetail.getSendCode());
+                                    spwmsOrder.setSpareCode(spares.get(spare_num++).getCode());
+                                    spwmsOrder.setProductId(products.get(i).getProductId());
+                                    spwmsOrder.setProductName(products.get(i).getName());
+                                    spwmsOrder.setProductPrice(products.get(i).getPrice().doubleValue());
+                                    spwmsOrders.add(spwmsOrder);
                                 }
                             }
-                        }
 
-                        sendReverseSpare = reverseSpares;
-                        this.logger.info(waybillCode + "处理备件库退货,List<ReverseSpare>=" + sendReverseSpare.size());
-                    }
-                } else {
-                    sendReverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
-                            sendDetail.getSendCode());
-                    if (null == sendReverseSpare || sendReverseSpare.size() == 0) {
-                        this.logger.error("spwms处理备件库退货出错waybillCode=" + waybillCode);
-                        continue;
-                    }
-                }
-                dealWithWaybillCode(sendDetails);
-                // 开始包装发货对象
-                InOrder order = new InOrder();
-                order.setSourceId(sendDetail.getCreateSiteCode());
-                order.setFromPin(sendDetail.getCreateUserCode().toString());
-                order.setFromName(sendDetail.getCreateUser());
-                order.setCreateReason(sendDetail.getSpareReason());
-                order.setOrderId(Long.parseLong(sendDetail.getWaybillCode()));
-                order.setCreateReason(sendDetail.getSpareReason());
-                order.setAimOrgId(baseOrgId);
+                            List<ReverseSpare> reverseSpares = this.setReverseSpares(sendDetail, spwmsOrders);
+                            if (null == reverseSpare || reverseSpare.size() == 0) {
+                                sendReverseSpare = reverseSpares;
+                            } else {
+                                for (ReverseSpare rs1 : reverseSpare) {
+                                    for (ReverseSpare rs2 : reverseSpares) {
+                                        if (rs1.getWaybillCode().equals(rs2.getWaybillCode())
+                                                && rs1.getProductId().equals(rs2.getProductId())) {
+                                            if (null != rs1.getSpareTranCode()) {
+                                                reverseSpares.remove(rs2);
+                                                break;
+                                            } else {
+                                                String temp = rs2.getSpareCode();
+                                                org.apache.commons.beanutils.BeanUtils.copyProperties(rs2, rs1);
+                                                rs2.setSpareCode(temp);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
 
-                try {
-                    order.setAimStoreId(Integer.parseInt(baseStoreId));
-                } catch (Exception e1) {
-                    this.logger.error("处理备件库退货,baseStoreId转换出错" + baseStoreId);
-                    continue;
-                }
-
-                if (waybill.getType() >= 21 && waybill.getType() <= 25) {
-                    // 200pop订单
-                    order.setOrderType(200);
-                } else if (waybill.getType() == 2) {
-                    // 100夺宝岛订单
-                    order.setOrderType(100);
-                } else {
-                    // 其他值其他订单
-                    order.setOrderType(300);
-                }
-
-                // 判断是否奢侈品订单
-                // 还需要再次确认运单返回的结果
-                List<OrderDetail> de = new ArrayList<OrderDetail>();
-                for (ReverseSpare reverseSpare : sendReverseSpare) {
-                    OrderDetail orderDetail = new OrderDetail();
-                    orderDetail.setWareId(reverseSpare.getProductId());
-                    orderDetail.setWareName(reverseSpare.getProductName());
-                    orderDetail.setLossType(this.getLossType(waybill, sendDetail));
-
-                    if (reverseSpare.getArrtCode3() == null || reverseSpare.getArrtCode3().intValue() == 0) {
-                        orderDetail.setMainWareFunctionType("1024");
-                    } else {
-                        orderDetail.setMainWareFunctionType(ReverseSendServiceImpl.tempMap.get(reverseSpare
-                                .getArrtCode3().toString()));
-                    }
-
-                    if (reverseSpare.getArrtCode2() == null || reverseSpare.getArrtCode2().intValue() == 0) {
-                        orderDetail.setMainWareAppearance("2");
-                    } else {
-                        orderDetail.setMainWareAppearance(ReverseSendServiceImpl.tempMap.get(reverseSpare
-                                .getArrtCode2().toString()));
-                    }
-
-                    if (reverseSpare.getArrtCode1() == null || reverseSpare.getArrtCode1().intValue() == 0) {
-                        orderDetail.setMainWarePackage("1");
-                    } else {
-                        orderDetail.setMainWarePackage(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode1()
-                                .toString()));
-                    }
-
-                    if (reverseSpare.getArrtCode4() == null || reverseSpare.getArrtCode4().intValue() == 0) {
-                        orderDetail.setAttachments("8");
-                    } else {
-                        orderDetail.setAttachments(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode4()
-                                .toString()));
-                    }
-
-                    WChoice wChoice = new WChoice();
-                    wChoice.setQueryWaybillC(true);
-                    wChoice.setQueryWaybillE(true);
-                    wChoice.setQueryWaybillM(true);
-                    try {
-                        Integer consignerId = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice).getData()
-                                .getWaybill().getConsignerId();
-
-                        if (null != consignerId) {
-                            orderDetail.setSupplierId(consignerId.toString());
+                                sendReverseSpare = reverseSpares;
+                                this.logger.info(waybillCode + "处理备件库退货,List<ReverseSpare>=" + sendReverseSpare.size());
+                            }
                         } else {
-                            orderDetail.setSupplierId("0");
+                            sendReverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
+                                    sendDetail.getSendCode());
+                            if (null == sendReverseSpare || sendReverseSpare.size() == 0) {
+                                this.logger.error("spwms处理备件库退货出错waybillCode=" + waybillCode);
+                                continue;
+                            }
                         }
-                    } catch (Exception e) {
-                        this.logger.error(waybillCode + "处理备件库退货,waybillQueryWSProxy出错,", e);
-                        orderDetail.setSupplierId("0");
-                    }
-                    orderDetail.setPartCode(reverseSpare.getSpareCode());
+                        dealWithWaybillCode(sendDetails);
+                        // 开始包装发货对象
+                        InOrder order = new InOrder();
+                        order.setSourceId(sendDetail.getCreateSiteCode());
+                        order.setFromPin(sendDetail.getCreateUserCode().toString());
+                        order.setFromName(sendDetail.getCreateUser());
+                        order.setCreateReason(sendDetail.getSpareReason());
+                        order.setOrderId(Long.parseLong(sendDetail.getWaybillCode()));
+                        order.setCreateReason(sendDetail.getSpareReason());
+                        order.setAimOrgId(baseOrgId);
 
-                    this.logger.info(waybillCode + "处理备件库退货,reverseSpare.getSpareCode=" + reverseSpare.getSpareCode());
-                    orderDetail.setIsLuxury(this.isLuxury(waybill.getSendPay()));
-                    orderDetail.setSerialNo(null);
-                    de.add(orderDetail);
-                }
-                order.setOrderDetail(de);
-
-                order.setFlashOrgId(waybill.getOrgId());
-                order.setFlashStoreId(waybill.getStoreId());
-
-                String jsonString = JsonHelper.toJson(order);
-
-                this.logger.info("处理备件库退货,生成的json串为：" + jsonString);
-                PostMethod postMethod = new PostMethod(spwmsUrl);
-
-                String contentType = "application/json";
-                String charset = "UTF-8";
-                RequestEntity requestEntity = new StringRequestEntity(jsonString, contentType, charset);
-                postMethod.setRequestEntity(requestEntity);
-                postMethod.addRequestHeader("Accept", contentType);
-                // headedr
-                // spwms.360buy.com线上需要去配置文件中获取
-                ReverseSendServiceImpl.setMethodHeaders(postMethod, spwmsToken, "");
-
-                HttpClient httpClient = new HttpClient();
-                httpClient.executeMethod(postMethod);
-                try {
-                    // 业务流程监控, 备件库埋点
-                    Map<String, String> data = new HashMap<String, String>();
-                    data.put("orderId", order.getOrderId().toString());
-                    Profiler.bizNode("Reverse_ws_dms2spare", data);
-                } catch (Exception e) {
-                    this.logger.error("推送UMP发生异常.", e);
-                }
-                if (postMethod.getStatusCode() != 200) {
-                    this.logger.error("postMethod.getStatusCode() != 200 [" + postMethod.getStatusCode() + "]");
-                    continue;
-                }
-                String bodyContent = postMethod.getResponseBodyAsString();
-                String transferId = JsonHelper.fromJson(bodyContent, MessageResult.class).getTransferId();
-                this.logger.info(waybillCode + "返回json结果:" + bodyContent);
-                if (null == transferId) {
-                    this.logger.error(waybillCode + "spwms发货备件库失败，返回json结果:" + bodyContent);
-                } else {
-                    //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
-                    sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
-                }
-
-                postMethod.releaseConnection();
-                if (null != transferId) {
-                    List<ReverseSpare> reverseSpares = new ArrayList<ReverseSpare>();
-                    for (ReverseSpare aReverseSpare : sendReverseSpare) {
-                        if (null == aReverseSpare.getSpareTranCode()) {
-                            aReverseSpare.setSpareTranCode(transferId);
-                            reverseSpares.add(aReverseSpare);
+                        try {
+                            order.setAimStoreId(Integer.parseInt(baseStoreId));
+                        } catch (Exception e1) {
+                            this.logger.error("处理备件库退货,baseStoreId转换出错" + baseStoreId);
+                            continue;
                         }
-                    }
-                    this.reverseSpareService.batchAddOrUpdate(reverseSpares);
+
+                        if (waybill.getType() >= 21 && waybill.getType() <= 25) {
+                            // 200pop订单
+                            order.setOrderType(200);
+                        } else if (waybill.getType() == 2) {
+                            // 100夺宝岛订单
+                            order.setOrderType(100);
+                        } else {
+                            // 其他值其他订单
+                            order.setOrderType(300);
+                        }
+
+                        // 判断是否奢侈品订单
+                        // 还需要再次确认运单返回的结果
+                        List<OrderDetail> de = new ArrayList<OrderDetail>();
+                        for (ReverseSpare reverseSpare : sendReverseSpare) {
+                            OrderDetail orderDetail = new OrderDetail();
+                            orderDetail.setWareId(reverseSpare.getProductId());
+                            orderDetail.setWareName(reverseSpare.getProductName());
+                            orderDetail.setLossType(this.getLossType(waybill, sendDetail));
+
+                            if (reverseSpare.getArrtCode3() == null || reverseSpare.getArrtCode3().intValue() == 0) {
+                                orderDetail.setMainWareFunctionType("1024");
+                            } else {
+                                orderDetail.setMainWareFunctionType(ReverseSendServiceImpl.tempMap.get(reverseSpare
+                                        .getArrtCode3().toString()));
+                            }
+
+                            if (reverseSpare.getArrtCode2() == null || reverseSpare.getArrtCode2().intValue() == 0) {
+                                orderDetail.setMainWareAppearance("2");
+                            } else {
+                                orderDetail.setMainWareAppearance(ReverseSendServiceImpl.tempMap.get(reverseSpare
+                                        .getArrtCode2().toString()));
+                            }
+
+                            if (reverseSpare.getArrtCode1() == null || reverseSpare.getArrtCode1().intValue() == 0) {
+                                orderDetail.setMainWarePackage("1");
+                            } else {
+                                orderDetail.setMainWarePackage(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode1()
+                                        .toString()));
+                            }
+
+                            if (reverseSpare.getArrtCode4() == null || reverseSpare.getArrtCode4().intValue() == 0) {
+                                orderDetail.setAttachments("8");
+                            } else {
+                                orderDetail.setAttachments(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode4()
+                                        .toString()));
+                            }
+
+                            WChoice wChoice = new WChoice();
+                            wChoice.setQueryWaybillC(true);
+                            wChoice.setQueryWaybillE(true);
+                            wChoice.setQueryWaybillM(true);
+                            try {
+                                Integer consignerId = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice).getData()
+                                        .getWaybill().getConsignerId();
+
+                                if (null != consignerId) {
+                                    orderDetail.setSupplierId(consignerId.toString());
+                                } else {
+                                    orderDetail.setSupplierId("0");
+                                }
+                            } catch (Exception e) {
+                                this.logger.error(waybillCode + "处理备件库退货,waybillQueryWSProxy出错,", e);
+                                orderDetail.setSupplierId("0");
+                            }
+                            orderDetail.setPartCode(reverseSpare.getSpareCode());
+
+                            this.logger.info(waybillCode + "处理备件库退货,reverseSpare.getSpareCode=" + reverseSpare.getSpareCode());
+                            orderDetail.setIsLuxury(this.isLuxury(waybill.getSendPay()));
+                            orderDetail.setSerialNo(null);
+                            de.add(orderDetail);
+                        }
+                        order.setOrderDetail(de);
+
+                        order.setFlashOrgId(waybill.getOrgId());
+                        order.setFlashStoreId(waybill.getStoreId());
+
+                        String jsonString = JsonHelper.toJson(order);
+
+                        this.logger.info("处理备件库退货,生成的json串为：" + jsonString);
+                        PostMethod postMethod = new PostMethod(spwmsUrl);
+
+                        String contentType = "application/json";
+                        String charset = "UTF-8";
+                        RequestEntity requestEntity = new StringRequestEntity(jsonString, contentType, charset);
+                        postMethod.setRequestEntity(requestEntity);
+                        postMethod.addRequestHeader("Accept", contentType);
+                        // headedr
+                        // spwms.360buy.com线上需要去配置文件中获取
+                        ReverseSendServiceImpl.setMethodHeaders(postMethod, spwmsToken, "");
+
+                        HttpClient httpClient = new HttpClient();
+                        httpClient.executeMethod(postMethod);
+                        try {
+                            // 业务流程监控, 备件库埋点
+                            Map<String, String> data = new HashMap<String, String>();
+                            data.put("orderId", order.getOrderId().toString());
+                            Profiler.bizNode("Reverse_ws_dms2spare", data);
+                        } catch (Exception e) {
+                            this.logger.error("推送UMP发生异常.", e);
+                        }
+                        if (postMethod.getStatusCode() != 200) {
+                            this.logger.error("postMethod.getStatusCode() != 200 [" + postMethod.getStatusCode() + "]");
+                            continue;
+                        }
+                        String bodyContent = postMethod.getResponseBodyAsString();
+                        String transferId = JsonHelper.fromJson(bodyContent, MessageResult.class).getTransferId();
+                        this.logger.info(waybillCode + "返回json结果:" + bodyContent);
+                        if (null == transferId) {
+                            this.logger.error(waybillCode + "spwms发货备件库失败，返回json结果:" + bodyContent);
+                        } else {
+                            //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
+                            sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
+                        }
+
+                        postMethod.releaseConnection();
+                        if (null != transferId) {
+                            List<ReverseSpare> reverseSpares = new ArrayList<ReverseSpare>();
+                            for (ReverseSpare aReverseSpare : sendReverseSpare) {
+                                if (null == aReverseSpare.getSpareTranCode()) {
+                                    aReverseSpare.setSpareTranCode(transferId);
+                                    reverseSpares.add(aReverseSpare);
+                                }
+                            }
+                            this.reverseSpareService.batchAddOrUpdate(reverseSpares);
+                        }
+                		
+                	}
                 }
             } catch (RuntimeException e) {
                 throw e;
@@ -1119,9 +1176,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                         ex);
             }
         }
+        pushMCSMessageToSpwms(vySendDetails);//维修外单发送
         return true;
     }
-
+    
     private List<ReverseSpare> setReverseSpares(SendDetail sendDetail, List<ReverseSendSpwmsOrder> spwmsOrders) {
         List<ReverseSpare> reverseSpares = new ArrayList<ReverseSpare>();
         for (ReverseSendSpwmsOrder reverseSendSpwmsOrder : spwmsOrders) {
