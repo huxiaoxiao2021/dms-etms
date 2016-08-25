@@ -6,7 +6,8 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+        default-autowire="byName">
 
     <!-- 调度服务器配置 -->
     <bean id="scheduleConfigCenter"
@@ -39,9 +40,10 @@
 
     <bean id="refreshFetchNumber" class="com.jd.bluedragon.distribution.framework.RefreshSchedulerFetchNumber"
           init-method="start" destroy-method="close" depends-on="managerFactory">
-        <property name="interval" value="5"/>
+        <property name="interval" value="1"/>
         <property name="firstInterval" value="1"/>
     </bean>
+
     <bean id="receiveTask" class="com.jd.bluedragon.distribution.worker.ReceiveTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
@@ -158,13 +160,14 @@
         <property name="taskType" value="TaskFailQueueTask"/>
         <property name="ownSign" value="DMS"/>
     </bean>
-    <!--
-        <bean id="toSendwaybillTask" class="com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask"
-              init-method="init" depends-on="managerFactory">
-            <property name="dataSource" ref="taskDataSource"/>
-            <property name="taskType" value="ToSendwaybillTaskN"/>
-            <property name="ownSign" value="DMS"/>
-        </bean>
+
+    <!--  下线该WORKER
+    <bean id="toSendwaybillTask" class="com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="taskType" value="ToSendwaybillTaskN"/>
+        <property name="ownSign" value="DMS"/>
+    </bean>
     -->
     <bean id="reverseDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.ReverseDeliveryToTmsTask"
           init-method="init" depends-on="managerFactory">
@@ -188,8 +191,7 @@
         <property name="desc" value="中转发货补全任务"/>
     </bean>
 
-    <bean id="sendDeliveryTotmsTask"
-          class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTotmsTask"
+    <bean id="sendDeliveryTotmsTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTotmsTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="SendDeliveryTotmsTaskN"/>
@@ -235,17 +237,17 @@
         <property name="limitHour" value="1"/>
     </bean>
 
-    <!-- bean id="reverseSendTask"
+    <bean id="reverseSendTask"
           class="com.jd.bluedragon.distribution.worker.reverse.ReverseSendTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReverseSendTask"/>
         <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
+        <property name="ownSign" value="DMS"/>
         <property name="type" value="1300"/>
         <property name="keyType" value="4"/>
         <property name="desc" value="逆向发货回传任务"/>
-    </bean -->
+    </bean>
 
     <!-- 备件库相关work -->
     <bean id="reverseSpareTask" class="com.jd.bluedragon.distribution.worker.reverse.ReverseSpareTask"
@@ -343,7 +345,7 @@
         <property name="desc" value="自动分拣交接数据存交接表任务"/>
     </bean>
 
-    <!--bean id="batchSendCarTask" class="com.jd.bluedragon.distribution.worker.departure.BatchSendCarTask"
+    <bean id="batchSendCarTask" class="com.jd.bluedragon.distribution.worker.departure.BatchSendCarTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="BatchSendCarTask"/>
@@ -351,7 +353,7 @@
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1410"/>
         <property name="desc" value="批量发车任务"/>
-    </bean-->
+    </bean>
 
     <bean id="sortingExceptionTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingExceptionTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
@@ -372,35 +374,37 @@
         <property name="type" value="3340"/>
         <property name="desc" value="发送质控系统，配送外呼任务"/>
     </bean>
+
     <bean id="weightTask" class="com.jd.bluedragon.distribution.worker.weight.WeightTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="WeightTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1160"/>
-        <property name="desc" value="将称重信息回传到运单中心"/>
-    </bean>
+		init-method="init" lazy-init="false" depends-on="managerFactory">
+		<property name="dataSource" ref="taskDataSource" />
+		<property name="taskType" value="WeightTask" />
+		<property name="managerFactory" ref="managerFactory" />
+		<property name="ownSign" value="${ownSign}" />
+		<property name="type" value="1160" />
+		<property name="desc" value="将称重信息回传到运单中心" />
+	</bean>
     <bean id="scannerFrameTask" class="com.jd.bluedragon.distribution.worker.ScannerFrameTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ScannerFrameTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="7779"/>
-        <property name="desc" value="龙门架自动发货"/>
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="ScannerFrameTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="7779" />
+        <property name="desc" value="龙门架自动发货" />
     </bean>
-    <!-- xumei -->
-    <bean id="crossBoxTask"
-          class="com.jd.bluedragon.distribution.worker.crossbox.CrossBoxTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="CrossBoxTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="2222"/>
-        <property name="desc" value="导入的跨分拣箱号中转信息定时激活"/>
-    </bean>
+
+	<!-- xumei -->
+	<bean id="crossBoxTask"
+		class="com.jd.bluedragon.distribution.worker.crossbox.CrossBoxTask"
+		init-method="init" lazy-init="false" depends-on="managerFactory">
+		<property name="dataSource" ref="taskDataSource" />
+		<property name="taskType" value="CrossBoxTask" />
+		<property name="managerFactory" ref="managerFactory" />
+		<property name="ownSign" value="${ownSign}" />
+		<property name="type" value="2222" />
+		<property name="desc" value="导入的跨分拣箱号中转信息定时激活" />
+	</bean>
 </beans>
 	
 	

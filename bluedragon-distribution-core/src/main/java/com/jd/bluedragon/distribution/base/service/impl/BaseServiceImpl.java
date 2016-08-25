@@ -118,7 +118,7 @@ public class BaseServiceImpl implements BaseService {
                         basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
                         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
                     } else {
-                        fillPdaUserDto(basePdaUserDto, baseStaffDto, null,password);
+                        fillPdaUserDto(basePdaUserDto, baseStaffDto,password);
                     }
                 } else {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
@@ -135,12 +135,13 @@ public class BaseServiceImpl implements BaseService {
                     basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
                 // 人事接口验证通过，获取基础资料信息
                 } else {
-                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.parseInt(String.valueOf(user.getUserId())));
+//                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.parseInt(String.valueOf(user.getUserId())));
+                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(userid);
                     if (null == basestaffDto) {
                         basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
                         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
                     } else {
-                        fillPdaUserDto(basePdaUserDto, basestaffDto, user,password);
+                        fillPdaUserDto(basePdaUserDto, basestaffDto,password);
                     }
                 }
             }
@@ -152,34 +153,16 @@ public class BaseServiceImpl implements BaseService {
         return basePdaUserDto;
     }
 
-    private void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, UserInfo userInfo,String password){
-        if (null == userInfo) {
-            basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
-            basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
-            basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
-            basePdaUserDto.setLoginTime(new Date());
-            basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
-            basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
-
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
-            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
-        } else {
-            basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
-            basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
-            basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
-            basePdaUserDto.setLoginTime(new Date());
-//            basePdaUserDto.setStaffId(user.getId());
-//            basePdaUserDto.setPassword(user.getPassword());
-//            basePdaUserDto.setStaffName(user.getRealName());
-//            basePdaUserDto.setOrganizationId(user.getOrganizationId());
-//            basePdaUserDto.setOrganizationName(user.getOrganizationName());
-            basePdaUserDto.setStaffId(Integer.parseInt(String.valueOf(userInfo.getUserId())));
-            basePdaUserDto.setPassword(password);
-            basePdaUserDto.setStaffName(userInfo.getFullname());
-
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
-            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
-        }
+    private void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, String password) {
+        basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
+        basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
+        basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
+        basePdaUserDto.setLoginTime(new Date());
+        basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
+        basePdaUserDto.setPassword(password);
+        basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
+        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
+        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
         basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
         basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
     }
