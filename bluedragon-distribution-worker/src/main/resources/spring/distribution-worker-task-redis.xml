@@ -22,7 +22,7 @@
 			value="com.jd.bluedragon.distribution.task.domain.Task" />
 		<property name="ownSign" value="${ownSign}" />
 	</bean>
-<!-- 
+
 	<bean id="receiveRedisTask"
 		class="com.jd.bluedragon.distribution.worker.redis.ReceiveRedisTask"
 		parent="parentRedisTask">
@@ -216,6 +216,6 @@
 		<property name="taskType" value="MessageRedisTask" />
 		<property name="desc" value="异步推送MQ" />
 	</bean>
-	 -->
+
 </beans>
 
