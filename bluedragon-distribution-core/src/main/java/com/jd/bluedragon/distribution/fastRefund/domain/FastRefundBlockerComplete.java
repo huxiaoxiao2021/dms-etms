@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.fastRefund.domain;
 
 import java.util.Date;
 /**
- * 逆向订单分拣生产、快退系统和拦截系统消费合并mq的domain
+ * 正向【分拣理货】的逆向订单发送,供快退系统和拦截系统消费合并mq的domain
  * @author lihuachang
  * 
  */
@@ -11,6 +11,8 @@ public class FastRefundBlockerComplete {
 	String orderId;//订单号　
 	
 	String orderIdOld;//老运单号
+	
+	String vendorId;//客户订单号
 	 
 	String applyReason;//申请原因
 	 
@@ -140,6 +142,14 @@ public class FastRefundBlockerComplete {
 
 	public void setOperatTime(String operatTime) {
 		this.operatTime = operatTime;
+	}
+
+	public String getVendorId() {
+		return vendorId;
+	}
+
+	public void setVendorId(String vendorId) {
+		this.vendorId = vendorId;
 	}
 	
 }

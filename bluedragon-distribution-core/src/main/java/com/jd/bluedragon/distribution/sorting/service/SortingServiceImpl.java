@@ -572,9 +572,15 @@ public class SortingServiceImpl implements SortingService {
 		this.saveOrUpdateInspectionEC(sorting);//FIXME:差异处理拿出
 		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
 		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
-		this.backwardSendMQ(sorting);//根据waybillsign判断逆向取老运单信息发送新MQ
+		this.backwardSendMQ(sorting);
 	}
 	
+	/**
+	 * 正向【分拣理货】所有逆向订单发送topic是blockerComOrbrefundRq的mq,供快退系统和拦截系统消费.
+	 * add by lhc
+	 * 2016.08.17
+	 * @param sorting
+	 */
 	public void backwardSendMQ(Sorting sorting){
 		String wayBillCode = sorting.getWaybillCode();
 //		String wayBillCode = "T42747129215";//VA00080450101
@@ -630,8 +636,10 @@ public class SortingServiceImpl implements SortingService {
 		frbc.setReqName(sorting.getCreateUser());
 		if(wayBillOld.getData() != null){
 			frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
+			frbc.setVendorId(wayBillOld.getData().getVendorId());
 		}else{
 			frbc.setOrderIdOld("");
+			frbc.setVendorId("");
 		}
 		frbc.setOrderType(sorting.getType());
 		frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
@@ -856,7 +864,7 @@ public class SortingServiceImpl implements SortingService {
 						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
                 //bd_blocker_complete的MQ
 				this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
-				//增加orbrefundRqMQ  add by lhc  2016.8.17
+				//【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
 				fastRefundService.execRefund(sorting);
 			}
 		} catch (Exception e) {
