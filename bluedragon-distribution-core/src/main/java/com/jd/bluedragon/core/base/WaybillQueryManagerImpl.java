@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.base;
 
 import java.util.Date;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -126,5 +128,21 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			Profiler.registerInfoEnd(info);
 		}
 		return true;
+	}
+
+
+	public static void main(String [] args){
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(true);
+		wChoice.setQueryWaybillE(true);
+		wChoice.setQueryWaybillM(true);
+		wChoice.setQueryGoodList(true);
+		wChoice.setQueryPackList(true);
+		wChoice.setQueryPickupTask(true);
+		wChoice.setQueryServiceBillPay(true);
+
+		System.out.println(JsonHelper.toJson(wChoice));
+
+
 	}
 }

@@ -26,31 +26,41 @@
 		INSERT INTO ${tableName} (
 		task_id, task_type, create_site_code, receive_site_code, box_code,
 		body,
-		keyword1, keyword2, create_time, update_time, execute_count, execute_time,
+		keyword1, keyword2, create_time, update_time, execute_count,
+		execute_time,
 		fingerprint, task_status, yn, own_sign)
 		VALUES (
 		${sequenceName}.NEXTVAL, #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{receiveSiteCode,jdbcType=INTEGER},
-		#{boxCode,jdbcType=VARCHAR}, #{body,jdbcType=VARCHAR},
-		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
-		sysdate, sysdate, 0, sysdate, #{fingerprint,jdbcType=VARCHAR}, 0, 1,
+		#{boxCode,jdbcType=VARCHAR},
+		#{body,jdbcType=VARCHAR},
+		#{keyword1,jdbcType=VARCHAR},
+		#{keyword2,jdbcType=VARCHAR},
+		sysdate, sysdate, 0, sysdate,
+		#{fingerprint,jdbcType=VARCHAR}, 0, 1,
 		#{ownSign,jdbcType=VARCHAR})
 	</insert>
 
 	<insert id="addWithStatus" parameterType="task">
 		INSERT INTO
 		${tableName} (
-		task_id, task_type, create_site_code, receive_site_code, box_code, body,
-		keyword1, keyword2, create_time, update_time, execute_count,
+		task_id, task_type, create_site_code, receive_site_code,
+		box_code, body,
+		keyword1, keyword2, create_time, update_time,
+		execute_count,
 		execute_time,
 		fingerprint, task_status, yn, own_sign)
 		VALUES (
 		${sequenceName}.NEXTVAL, #{type,jdbcType=INTEGER},
-		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
-		#{boxCode,jdbcType=VARCHAR}, #{body,jdbcType=VARCHAR},
-		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
-		sysdate, sysdate, #{executeCount,jdbcType=INTEGER}, sysdate,
+		#{createSiteCode,jdbcType=INTEGER},
+		#{receiveSiteCode,jdbcType=INTEGER},
+		#{boxCode,jdbcType=VARCHAR},
+		#{body,jdbcType=VARCHAR},
+		#{keyword1,jdbcType=VARCHAR},
+		#{keyword2,jdbcType=VARCHAR},
+		sysdate, sysdate,
+		#{executeCount,jdbcType=INTEGER}, sysdate,
 		#{fingerprint,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 1,
 		#{ownSign,jdbcType=VARCHAR})
 	</insert>
@@ -59,14 +69,16 @@
 		parameterType="map">
 		SELECT task_id
 		FROM ${tableName}
-		WHERE fingerprint = #{fingerprint}
+		WHERE fingerprint =
+		#{fingerprint}
 	</select>
 
 	<select id="findTasks" resultMap="task" parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
 		execute_count, task_status, create_time
-		FROM ${tableName}
+		FROM
+		${tableName}
 		<where>
 			yn = 1 AND task_type = #{type}
 			<if test="ownSign != null">
@@ -111,14 +123,16 @@
 		parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
-		execute_count,execute_time, task_status, create_time,yn,keyword1,keyword2
+		execute_count,execute_time, task_status,
+		create_time,yn,keyword1,keyword2
 		FROM ${tableName}
 		<where>
 			yn = 1 AND execute_count <![CDATA[<]]>
 			5
 			AND (execute_time <![CDATA[<]]>
 			SYSDATE OR execute_time IS NULL)
-			AND task_status IN (0, 3) AND task_type = #{type}
+			AND task_status IN (0, 3) AND
+			task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
@@ -130,10 +144,13 @@
 	<select id="findTasksStatusByBoxcode" resultMap="task"
 		parameterType="map">
 		SELECT task_id, task_type, box_code, execute_count, task_status
-		FROM ${tableName}
+		FROM
+		${tableName}
 		WHERE yn = 1 AND task_status in (${statuses})
-		AND box_code = #{boxCode,jdbcType=VARCHAR}
-		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND box_code
+		= #{boxCode,jdbcType=VARCHAR}
+		AND create_site_code =
+		#{createSiteCode,jdbcType=INTEGER}
 		AND ROWNUM <![CDATA[<=]]>
 		50
 	</select>
@@ -160,7 +177,8 @@
 	<select id="findSendTasks" resultMap="task" parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
-		execute_count, task_status, create_time, keyword2
+		execute_count, task_status, create_time,
+		keyword2
 		FROM ${tableName}
 		<where>
 			yn = 1 AND (task_status = 0 or task_status=4) AND task_type = #{type}
@@ -177,13 +195,15 @@
 	<select id="findReverseSendTask" resultMap="task" parameterType="map">
 		SELECT task_id
 		FROM task_send
-		WHERE yn=1 AND keyword1 = 4 AND body = #{body}
+		WHERE yn=1 AND keyword1 = 4 AND body =
+		#{body}
 	</select>
 
 	<select id="findWaybillSendTask" resultMap="task" parameterType="map">
 		SELECT task_id
 		FROM task_send
-		WHERE yn=1 AND keyword1 = 3 AND body = #{body}  and task_type='1300'
+		WHERE yn=1 AND keyword1 = 3 AND body =
+		#{body} and task_type='1300'
 	</select>
 
 	<select id="findTasksNumsByType" resultType="Integer"
@@ -195,7 +215,8 @@
 			5
 			AND (execute_time <![CDATA[<]]>
 			SYSDATE OR execute_time IS NULL)
-			AND task_status IN (0, 3) AND task_type = #{type}
+			AND task_status IN (0, 3) AND
+			task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
@@ -210,7 +231,8 @@
 			5
 			AND (execute_time <![CDATA[<]]>
 			SYSDATE OR execute_time IS NULL)
-			AND task_status=4 AND task_type = #{type}
+			AND task_status=4 AND task_type =
+			#{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
@@ -220,7 +242,7 @@
 
 
 	<select id="findTasksNumsIgnoreType" resultType="Integer"
-			parameterType="map">
+		parameterType="map">
 		SELECT count(task_id)
 		FROM ${tableName}
 		<where>
@@ -235,7 +257,7 @@
 		</where>
 	</select>
 	<select id="findFailTasksNumsIgnoreType" resultType="Integer"
-			parameterType="map">
+		parameterType="map">
 		SELECT count(task_id)
 		FROM ${tableName}
 		<where>
@@ -250,7 +272,7 @@
 		</where>
 	</select>
 
-	
+
 	<sql id="Base_Where_List">
 		<where>
 			yn = 1 AND task_status != 2
@@ -313,12 +335,32 @@
 	<update id="updateTaskById" parameterType="map">
 		UPDATE ${tableName}
 		SET TASK_STATUS = 0, EXECUTE_COUNT = 0
-		WHERE TASK_ID = #{id, jdbcType=INTEGER}
+		WHERE TASK_ID = #{id,
+		jdbcType=INTEGER}
 	</update>
 
 	<update id="updateBatchTask" parameterType="map">
 		UPDATE ${tableName}
 		SET TASK_STATUS = 0, EXECUTE_COUNT = 0
 		<include refid="Base_Where_List" />
+	</update>
+
+	<!-- xumei -->
+	<select id="findTaskTypeByStatus" resultMap="task"
+		parameterType="map">
+		SELECT task_id, task_type, body,
+		task_status,create_site_code,receive_site_code,
+		create_time,yn
+		FROM
+		${tableName}
+		<where>
+			yn = 1 AND task_status = 0
+		</where>
+	</select>
+
+	<!-- xumei -->
+	<update id="updateTaskStatus" parameterType="task">
+		UPDATE ${tableName}
+		SET TASK_STATUS = 2 where task_id = #{id,jdbcType=INTEGER}
 	</update>
 </mapper>

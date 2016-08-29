@@ -99,6 +99,7 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 							WaybillResponse  response = new WaybillResponse();
 							response.setPackageCode(send.getPackageBarcode());
 							response.setWaybillCode(send.getWaybillCode());
+                            response.setBoxCode(send.getBoxCode());  //王显群需要box_code
 							responseList.add(response);
 						}
 					}
