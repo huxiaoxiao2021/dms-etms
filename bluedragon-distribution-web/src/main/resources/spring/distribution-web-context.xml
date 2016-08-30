@@ -18,7 +18,6 @@
 	<context:component-scan base-package="com.jd.common.authorization"/>
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
-	<!-- <import resource="classpath:spring/distribution-web-authen.xml" />  -->
 	<import resource="classpath:spring/distribution-web-new-authen.xml" />
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
 	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 

@@ -107,7 +107,7 @@ public class DeliveryResource {
             result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
         } catch (Exception ex) {
             result.error(ex);
-            logger.error("一车一单发货",ex);
+            logger.error("一车一单发货", ex);
         }
         logger.info(JsonHelper.toJson(result));
         return result;
@@ -184,22 +184,22 @@ public class DeliveryResource {
         try {
             List<LoadBill> loadBillList = loadBillService.findWaybillInLoadBill(loadBillReport);
 
-        /**  loadBillList 空时表示未装载 可以取消，
-         *  10初始,20已申请,30已放行, 【40未放行】
-         */
-        if (loadBillList != null && !loadBillList.isEmpty()) {
-            for (LoadBill bill : loadBillList) {
-                if (bill.getApprovalCode().equals(LoadBill.REDLIGHT) || !bill.getDmsCode().equals(request.getSiteCode())) {
-                    return new DeliveryResponse(JdResponse.CODE_OK,
-                            JdResponse.MESSAGE_OK);
+            /**  loadBillList 空时表示未装载 可以取消，
+             *  10初始,20已申请,30已放行, 【40未放行】
+             */
+            if (loadBillList != null && !loadBillList.isEmpty()) {
+                for (LoadBill bill : loadBillList) {
+                    if (bill.getApprovalCode().equals(LoadBill.REDLIGHT) || !bill.getDmsCode().equals(request.getSiteCode())) {
+                        return new DeliveryResponse(JdResponse.CODE_OK,
+                                JdResponse.MESSAGE_OK);
+                    }
                 }
+            } else {
+                return new DeliveryResponse(JdResponse.CODE_OK,
+                        JdResponse.MESSAGE_OK);
             }
-        } else {
-            return new DeliveryResponse(JdResponse.CODE_OK,
-                    JdResponse.MESSAGE_OK);
-        }
         } catch (Exception e) {
-            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill"+e);
+            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill" + e);
         }
 
         return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
@@ -227,7 +227,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/verification")
-    @JProfiler(jKey= "DMSWEB.DeliveryResource.verification",mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.verification", mState = {JProEnum.TP})
     public ThreeDeliveryResponse checkThreeDelivery(List<DeliveryRequest> request) {
         this.logger.info("开始三方发货不全验证");
         try {
@@ -404,7 +404,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/whemsWaybill")
-    @JProfiler(jKey= "DMSWEB.DeliveryResource.getWhemsWaybill",mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.getWhemsWaybill", mState = {JProEnum.TP})
     public WhemsWaybillResponse getWhemsWaybill(List<String> request, @Context HttpServletRequest servletRequest) {
 
         this.logger.error("servletRequest.getHeader()" + servletRequest.getHeader("X-Forwarded-For"));
@@ -423,7 +423,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/pushWhemsWaybill")
-    @JProfiler(jKey= "DMSWEB.DeliveryResource.pushWhemsWaybill",mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.pushWhemsWaybill", mState = {JProEnum.TP})
     public WhemsWaybillResponse pushWhemsWaybill(List<String> request) {
         if (request == null || request.isEmpty()) {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
@@ -538,7 +538,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/sendBatch")
-    @JProfiler(jKey= "DMSWEB.DeliveryResource.sendBatch",mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.sendBatch", mState = {JProEnum.TP})
     public DeliveryResponse sendBatch(DeliveryRequest request) {
         this.logger.info("开始批量发货写入信息");
         if (check(request)) {
@@ -596,7 +596,7 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/autoBatchSend")
-    @JProfiler(jKey= "DMSWEB.DeliveryResource.atuoBatchSend",mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.atuoBatchSend", mState = {JProEnum.TP})
     public DeliveryResponse autoBatchSend(DeliveryBatchRequest request) {
         this.logger.info("batchSend开始批量发货写入信息");
         if (checkAutoBatchSend(request)) {
@@ -617,12 +617,12 @@ public class DeliveryResource {
     @Path("/delivery/SendDifference/{sendCode}")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.SendDifference", mState = {JProEnum.TP})
     public SendDifference sendDifference(@PathParam("sendCode") String sendCode) {
-        SendDifference sendDifference=new SendDifference();
+        SendDifference sendDifference = new SendDifference();
         if (sendCode == null) {
             return new SendDifference(JdResponse.CODE_OK_NULL, JdResponse.MESSAGE_OK_NULL);
         }
         try {
-            sendDifference= sendQueryService.querySendDifference(sendCode);
+            sendDifference = sendQueryService.querySendDifference(sendCode);
             return sendDifference;
         } catch (Exception ex) {
             this.logger.error("调用监控-发货运输差异仓查询异常：", ex);
