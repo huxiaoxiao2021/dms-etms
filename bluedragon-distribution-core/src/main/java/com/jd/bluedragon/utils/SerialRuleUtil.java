@@ -118,6 +118,18 @@ public class SerialRuleUtil
         return null;
     }
     /**
+     * 获取发送站点
+     * @param sendCode 发货批次号
+     * @return
+     */
+    public static final Integer getCreateSiteCodeFromSendCode(String sendCode){
+        Matcher matcher=RULE_SEND_CODE_REGEX.matcher(sendCode.trim());
+        if(matcher.matches()){
+            return Integer.parseInt(matcher.group(1));
+        }
+        return null;
+    }
+    /**
      * 是否匹配F返单号
      * @param input
      * @return
