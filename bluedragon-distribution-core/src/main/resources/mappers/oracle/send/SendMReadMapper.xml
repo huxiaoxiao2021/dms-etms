@@ -69,8 +69,8 @@
 	<select id="selectBoxCodeBySendCode" parameterType="SendM"
             resultMap="SendMList">
         select
-        	DMS.box_code
-        from send_m
+        	box_code
+        from DMS.send_m
         where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
     </select>
 </mapper>
