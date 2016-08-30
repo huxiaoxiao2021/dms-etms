@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -747,33 +748,39 @@ public class SendPrintServiceImpl implements SendPrintService{
 	@Override
 	public BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends) {
 		logger.info("获取发货批次下的原包及箱子信息-selectBoxBySendCode");
+        BatchSendInfoResponse batchSendInfoResponse = new BatchSendInfoResponse();
+        try {
+            Map<String, String> boxes = new HashMap<String, String>();// 存放箱号用于计算箱子数量
+            Map<String, String> packages = new HashMap<String, String>();// 存放包裹号用于计算包裹数量
+            for (int i = 0; i < batchSends.size(); i++) {
+                List<String> scanCodeList = this.sendMReadDao.selectBoxCodeBySendCode(batchSends.get(i).getSendCode());
+                if (scanCodeList != null && scanCodeList.size() > 0) {
+                    for (String scanCode : scanCodeList) {
+                        if (BusinessHelper.isBoxcode(scanCode))
+                            boxes.put(scanCode, scanCode);
+                        else if (BusinessHelper.isPackageCode(scanCode))
+                            packages.put(scanCode, scanCode);
+                    }
+                }
+            }
 
-		Map<String, String> boxes = new HashMap<String, String>();// 存放箱号用于计算箱子数量
-		Map<String, String> packages = new HashMap<String, String>();// 存放包裹号用于计算包裹数量
-		for (int i = 0; i < batchSends.size(); i++) {
-			List<String> scanCodeList = this.sendMReadDao.selectBoxCodeBySendCode(batchSends.get(i).getSendCode());
-			if (scanCodeList != null && scanCodeList.size() > 0) {
-				for (String scanCode : scanCodeList) {
-					if (BusinessHelper.isBoxcode(scanCode))
-						boxes.put(scanCode, scanCode);
-					else if (BusinessHelper.isPackageCode(scanCode))
-						packages.put(scanCode, scanCode);
-				}
-			}
-		}
+            // 组装返回值对象
+            BatchSendResult batchSendResult = new BatchSendResult();
+            batchSendResult.setTotalBoxNum(boxes.size());
+            batchSendResult.setPackageBarNum(packages.size());
 
-		// 组装返回值对象
-		BatchSendResult batchSendResult = new BatchSendResult();
-		batchSendResult.setTotalBoxNum(boxes.size());
-		batchSendResult.setPackageBarNum(packages.size());
+            List<BatchSendResult> data = new ArrayList<BatchSendResult>();
+            data.add(batchSendResult);
 
-		List<BatchSendResult> data = new ArrayList<BatchSendResult>();
-		data.add(batchSendResult);
-		
-		BatchSendInfoResponse batchSendInfoResponse = new BatchSendInfoResponse();
-		batchSendInfoResponse.setData(data);
-		batchSendInfoResponse.setCode(JdResponse.CODE_OK);
-		batchSendInfoResponse.setMessage(JdResponse.MESSAGE_OK);
+
+            batchSendInfoResponse.setData(data);
+            batchSendInfoResponse.setCode(JdResponse.CODE_OK);
+            batchSendInfoResponse.setMessage(JdResponse.MESSAGE_OK);
+        }catch (Throwable e){
+            logger.error("查询发货原包数量与箱子数量",e);
+            batchSendInfoResponse.setCode(InvokeResult.SERVER_ERROR_CODE);
+            batchSendInfoResponse.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
 
 		return batchSendInfoResponse;
 	}
