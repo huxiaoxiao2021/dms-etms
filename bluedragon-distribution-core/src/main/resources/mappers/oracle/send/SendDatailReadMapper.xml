@@ -74,5 +74,11 @@
 				#{item}
 			</foreach>
 	</select>
-	
+	<select id="selectBoxCodeBySendCode" parameterType="SendM"
+            resultMap="SendM">
+        select
+        	box_code
+        from send_m
+        where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
+    </select>
 </mapper>
