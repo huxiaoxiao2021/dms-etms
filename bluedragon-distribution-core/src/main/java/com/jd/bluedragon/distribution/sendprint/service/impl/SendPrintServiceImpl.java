@@ -726,22 +726,19 @@ public class SendPrintServiceImpl implements SendPrintService{
         BatchSendInfoResponse batchSendInfoResponse=new BatchSendInfoResponse();
         List<BatchSendResult> data=new ArrayList<BatchSendResult>();
         batchSendInfoResponse.setData(data);
-        List<String> list = null;
+        List<SendM> list = null;
         BatchSendResult batchSendResult=null;
         List<String> boxes=new ArrayList<String>();
         List<String> packages =new ArrayList<String>();
         for (int i = 0; i < batchSends.size(); i++) {
-            list = this.sendMDao.selectBoxCodesBySendCode(batchSends.get(i).getSendCode());
+            list = this.sendMDao.selectBoxBySendCode(batchSends.get(i).getSendCode());
             if (list != null && list.size() > 0) {
                 batchSendResult = new BatchSendResult();
-                Iterator<String> iterator=list.iterator();
-                String boxCode=null;
-                while (iterator.hasNext()){
-                    boxCode=iterator.next();
-                    if(BusinessHelper.isBoxcode(boxCode)&&(!boxes.contains(boxCode)))
-                        boxes.add(boxCode);
-                    else if(BusinessHelper.isPackageCode(boxCode)&&(!packages.contains(boxCode)))
-                        packages.add(boxCode);
+                for(int j=0;j<list.size();j++){
+                    if(BusinessHelper.isBoxcode(list.get(j).getBoxCode())&&(!list.contains(list.get(j).getBoxCode())))
+                        boxes.add(list.get(j).getBoxCode());
+                    else if(BusinessHelper.isPackageCode(list.get(j).getBoxCode())&&(!packages.contains(list.get(j).getBoxCode())))
+                        packages.add(list.get(j).getBoxCode());
                 }
                 batchSendResult.setTotalBoxNum(boxes.size());
                 batchSendResult.setPackageBarNum(packages.size());

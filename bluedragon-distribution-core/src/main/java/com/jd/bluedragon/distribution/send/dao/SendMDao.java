@@ -101,7 +101,7 @@ public class SendMDao extends BaseDao<SendM>  {
 		return getSqlSession().selectList(SendMDao.namespace + ".batchQueryCancelSendMList", sendM);
 	}
 
-	public List<String> selectBoxCodesBySendCode(String sendCode) {
+	public List<SendM> selectBoxBySendCode(String sendCode) {
 		SendM sendM = new SendM();
 		sendM.setSendCode(sendCode);
 		return	this.getSqlSession().selectList(

@@ -68,7 +68,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
     public void testSelectBoxBySendCode() {
         SendM parameter = new SendM();
         parameter.setSendCode("Jone");
-        sendMDao.selectBoxCodesBySendCode("Jone");
+        sendMDao.selectBoxBySendCode("Jone");
     }
 	
 	//@Test
