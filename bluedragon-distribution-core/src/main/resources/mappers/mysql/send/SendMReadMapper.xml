@@ -67,7 +67,7 @@
         </where>
     </select>
 	<select id="selectBoxCodeBySendCode" parameterType="SendM"
-            resultMap="SendM">
+            resultMap="SendMList">
         select
         	box_code
         from DMS.send_m
