@@ -624,23 +624,27 @@ public class SortingServiceImpl implements SortingService {
 	 * @return
 	 */
 	private FastRefundBlockerComplete toMakeFastRefundBlockerComplete(Sorting sorting){
-		
-		//新运单号获取老运单号的所有信息  参数返单号
-		BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 		FastRefundBlockerComplete frbc = new FastRefundBlockerComplete();
+		//新运单号获取老运单号的所有信息  参数返单号
+		try{
+			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
+			if(wayBillOld.getData() != null){
+				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
+				frbc.setVendorId(wayBillOld.getData().getVendorId());
+			}else{
+				frbc.setOrderIdOld("");
+				frbc.setVendorId("");
+			}
+		}catch(Exception e){
+			this.logger.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
+		}
+		
 		frbc.setOrderId(sorting.getWaybillCode());
 		frbc.setApplyReason("分拣中心快速退款");
 		frbc.setApplyDate(sorting.getOperateTime().getTime());
 		frbc.setSystemId(12);
 		frbc.setReqErp(String.valueOf(sorting.getCreateUserCode()));
 		frbc.setReqName(sorting.getCreateUser());
-		if(wayBillOld.getData() != null){
-			frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
-			frbc.setVendorId(wayBillOld.getData().getVendorId());
-		}else{
-			frbc.setOrderIdOld("");
-			frbc.setVendorId("");
-		}
 		frbc.setOrderType(sorting.getType());
 		frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
