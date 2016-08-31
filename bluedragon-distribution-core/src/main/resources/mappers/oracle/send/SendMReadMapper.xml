@@ -70,7 +70,7 @@
             resultMap="SendMList">
         select
         	box_code
-        from send_m
+        from DMS.send_m
         where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
     </select>
 </mapper>
