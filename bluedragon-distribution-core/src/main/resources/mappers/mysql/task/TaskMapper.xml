@@ -287,7 +287,9 @@
 		<include refid="Base_Where_List" />
 		ORDER BY EXECUTE_TIME
 		<if test="startIndex != null">
+		<if test="startIndex != null">
 		LIMIT #{startIndex},#{pageSize}
+		</if>
 		</if>
 	</select>
 
@@ -313,5 +315,24 @@
 		UPDATE ${tableName}
 		SET TASK_STATUS = 0, EXECUTE_COUNT = 0
 		<include refid="Base_Where_List" />
+	</update>
+
+	<!-- xumei -->
+	<select id="findTaskTypeByStatus" resultMap="task"
+		parameterType="map">
+		SELECT task_id, task_type, body,
+		task_status,create_site_code,receive_site_code,
+		create_time,yn
+		FROM
+		${tableName}
+		<where>
+			yn = 1 AND task_status = 0
+		</where>
+	</select>
+
+	<!-- xumei -->
+	<update id="updateTaskStatus" parameterType="task">
+		UPDATE ${tableName}
+		SET TASK_STATUS = 2 where task_id = #{id,jdbcType=INTEGER}
 	</update>
 </mapper>

@@ -6,17 +6,19 @@
     </sql>
     <insert id="insertQueues" parameterType="java.util.List">
         INSERT INTO PAMIRS_SCHEDULE_QUEUE(
-          <include refid="baseColumns"/>)
+          <include refid="baseColumns"/>) VALUES
 
           <foreach collection="list" index="index" item="item" separator=" union " >
-              SELECT #{item.id,jdbcType=INTEGER},
+              (
+              #{item.id,jdbcType=INTEGER},
               #{item.taskType,jdbcType=VARCHAR},
               #{item.queueId,jdbcType=INTEGER},
               #{item.ownSign,jdbcType=VARCHAR},
               #{item.baseTaskType,jdbcType=VARCHAR},
               #{item.curServer,jdbcType=VARCHAR},
               #{item.reqServer,jdbcType=VARCHAR},
-              NOW(),NOW() FROM DUAL
+              NOW(),NOW()
+              )
           </foreach>
     </insert>
 
