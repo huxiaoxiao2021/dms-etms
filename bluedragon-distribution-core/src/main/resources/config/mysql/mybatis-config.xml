@@ -221,6 +221,8 @@
 
         <mapper resource="mappers/mysql/gantry/GantryDeviceMapper.xml"/>
 		<mapper resource="mappers/mysql/gantry/GantryDeviceConfigMapper.xml"/>
+
+		<mapper resource ="mappers/mysql/queryTool/QueryReverseReceiveMapper.xml"/>
 	</mappers>
 	
 </configuration>

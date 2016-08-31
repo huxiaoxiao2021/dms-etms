@@ -291,5 +291,9 @@
     <!-- xumei -->
     <bean id="crossBoxDao" class="com.jd.bluedragon.distribution.crossbox.dao.CrossBoxDao">
     	<property name="sqlSession" ref="sessionTemplate"/>
-    </bean>  
+    </bean>
+
+	<bean id = "queryReverseReceiveQueryDao" class = "com.jd.bluedragon.distribution.queryTool.dao.QueryReverseReceiveDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
 </beans>

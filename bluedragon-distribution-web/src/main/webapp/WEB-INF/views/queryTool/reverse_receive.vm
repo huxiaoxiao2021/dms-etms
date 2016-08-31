@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8">
+		<meta http-equiv="pragma" content="no-cach" />
+		<meta http-equiv="cache-control" content="no-cache" />
+		<meta http-equiv="expires" content="0" />
+		<title>逆向收货查询</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
+		<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
+
+		<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+        <script type="text/javascript" src="#springUrl('/static/js/queryTool/reverseReceive.js')"></script>
+		<style type="text/css"></style>
+	</head>
+
+	<body>
+		<div id="breadcrumb">
+			<p><a href="#">订单</a>&nbsp;&gt;&nbsp;<a href="#">逆向收货查询界面</a></p>
+		</div>
+		<div id="content" width="100%">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="dataForm" name="dataForm" action="" method="post">
+						<table border="0" cellpadding="0" cellspacing="0" width="100%">
+							<tbody>
+							<tr>
+								<td>
+									批次号：
+									<input type="text" id="sendCode" name="sendCode" maxlength="50" style="width:130px"/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;包裹编码：
+									<input type="text" id="packageBarCode" name="packageBarCode" maxlength="50" style="width:130px"/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;业务类型：
+                                    <input type="text" id="businessType" name="businessType" maxlength="50" style="width:130px"/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;操作人：
+									<input type="text" id="operator" name="operator" maxlength="50" style="width:130px"/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;是否可收：
+									<select id="canReceive" name="canReceive" class="select8">
+										<option value = "-1">全部</option>
+										<option value = "0">0</option>
+										<option value = "1">1</option>
+                                        <option value = "2">2</option>
+									</select>
+								</td>
+							</tr>
+
+							<tr >
+								<td></td>
+								<td>
+									<input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1);"/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									<input type="button"  value="重置查询条件" class="btn_c" onclick="funReset()"/>
+									<input type="hidden" id="contextPath" value="#springUrl('')">
+								</td>
+
+							</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div id="opening">
+				<div class="tbl-list">
+					<div class="tbl-bg">
+						<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
+							<THEAD>
+								<TR>
+									<TH rowspan="2">序号</TH>
+                                    <TH rowspan="2">批次号</TH>
+                                    <TH rowspan="2">包裹编码</TH>
+                                    <TH rowspan="2">BusinessType</TH>
+                                    <TH rowspan="2">是否可收</TH>
+                                    <TH rowspan="2">操作人ID</TH>
+                                    <TH rowspan="2">操作人</TH>
+                                    <TH rowspan="2">操作时间</TH>
+                                    <TH rowspan="2">拒收编码</TH>
+                                    <TH rowspan="2">拒收原因</TH>
+								</TR>
+							</THEAD>
+
+                            <tbody>
+
+                            </tbody>
+						</TABLE>
+					</div>
+				</div>
+
+				<div id="pager">
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
