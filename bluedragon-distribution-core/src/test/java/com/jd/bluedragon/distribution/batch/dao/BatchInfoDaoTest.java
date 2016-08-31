@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.batch.dao;
 
 import java.util.Date;
 
+import com.jd.bluedragon.distribution.basic.IntegerCellValidate;
 import org.junit.Assert;
 import org.junit.Test;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
@@ -12,31 +13,8 @@ public class BatchInfoDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private BatchInfoDao batchInfoDao;
-	
-	
+
 	@Test
-    public void testFindAllBatchInfo() {
-        BatchInfo parameter = new BatchInfo();
-        parameter.setCreateSiteCode(388);
-        parameter.setCreateTime(new Date());
-        parameter.setUpdateTime(new Date());
-        Assert.assertNotNull(batchInfoDao.findAllBatchInfo(parameter));
-    }
-	
-	@Test
-    public void testFindBatchInfoByCode() {
-        String batchCode = "12345678";
-        batchInfoDao.findBatchInfoByCode(batchCode);
-    }
-	
-	@Test
-    public void testFindBatchInfo() {
-        BatchInfo parameter = new BatchInfo();
-        parameter.setCreateSiteCode(388);
-        Assert.assertNotNull(batchInfoDao.findBatchInfo(parameter));
-    }
-	
-	//@Test
     public void testAdd() {
         BatchInfo parameter = new BatchInfo();
         parameter.setBatchCode("12345678");
@@ -67,5 +45,28 @@ public class BatchInfoDaoTest extends AbstractDaoIntegrationTest{
         BatchInfo parameter = new BatchInfo();
         parameter.setCreateSiteCode(388);
         Assert.assertNotNull(batchInfoDao.findMaxCreateTimeBatchInfo(parameter));
+    }
+
+
+    @Test
+    public void testFindAllBatchInfo() {
+        BatchInfo parameter = new BatchInfo();
+        parameter.setCreateSiteCode(388);
+        parameter.setCreateTime(new Date());
+        parameter.setUpdateTime(new Date());
+        Assert.assertNotNull(batchInfoDao.findAllBatchInfo(parameter));
+    }
+
+    @Test
+    public void testFindBatchInfoByCode() {
+        String batchCode = "12345678";
+        Assert.assertNotNull(batchInfoDao.findBatchInfoByCode(batchCode));
+    }
+
+    @Test
+    public void testFindBatchInfo() {
+        BatchInfo parameter = new BatchInfo();
+        parameter.setCreateSiteCode(388);
+        Assert.assertNotNull(batchInfoDao.findBatchInfo(parameter));
     }
 }
