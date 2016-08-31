@@ -218,14 +218,9 @@
         from cross_box
         <include refid="selectWhere"/>
         order by id desc
-        <choose>
-            <when test="startIndex!=null and endIndex!=null">
-                limit #{startIndex},#{endIndex}
-            </when>
-            <when test="endIndex!=null">
-                limit #{endIndex}
-            </when>
-        </choose>
+        <if test="startIndex != null">
+			LIMIT #{startIndex},#{pageSize}
+		</if>
     </select>
 
     <select id="countByCondition" parameterType="java.util.Map"
