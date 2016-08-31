@@ -294,6 +294,6 @@
     </bean>
 
 	<bean id = "queryReverseReceiveQueryDao" class = "com.jd.bluedragon.distribution.queryTool.dao.QueryReverseReceiveDao">
-		<property name="sqlSession" ref="sessionTemplate"/>
+		<property name="sqlSession" ref="readSqlSessionTemplate"/>
 	</bean>
 </beans>
