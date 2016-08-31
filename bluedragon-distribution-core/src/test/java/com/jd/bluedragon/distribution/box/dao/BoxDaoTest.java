@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.box.dao;
 
+import com.jd.bluedragon.distribution.basic.IntegerCellValidate;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
@@ -36,7 +39,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindBoxByCode() {
-        String code = "James";
+        String code = "123";
         Box box = boxDao.findBoxByCode(code);
         Assert.assertNotNull(box);
     }
@@ -79,5 +82,30 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(10);
         Box box = boxDao.findBoxByBoxCode(parameter);
         Assert.assertNotNull(box);
+    }
+
+    @Test
+    public void testUpdateVolumeByCode() {
+        Box paramater = new Box();
+        paramater.setCode("123");
+        paramater.setHeight(3f);
+        paramater.setWidth(4f);
+        paramater.setLength(5f);
+        Assert.assertEquals(new Integer(1), boxDao.updateVolumeByCode(paramater));
+    }
+
+
+    @Test
+    public void testBatchUpdateStatus() {
+        Box paramater = new Box();
+        paramater.setCode("('123')");
+        paramater.setStatus(10);
+        Assert.assertEquals(new Integer(1), boxDao.batchUpdateStatus(paramater));
+    }
+
+    public static void main(String[] args) {
+        List<String> waybills = new ArrayList<String>();
+        waybills.add("VC31200899155");
+        System.out.println(JsonHelper.toJson(waybills));
     }
 }
