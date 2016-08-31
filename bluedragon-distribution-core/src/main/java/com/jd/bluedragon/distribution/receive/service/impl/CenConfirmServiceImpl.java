@@ -61,8 +61,8 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return createCenConfirm(inspection, null);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public synchronized void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {//FIXME:PRIVATE 取消事务
+	public void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {
+        //取消同步方法，取消事务（上层调用方已经设置事务为required）
 
         InspectionMQBody inspectionMQBody=new InspectionMQBody();
         inspectionMQBody.setWaybillCode(null!=cenConfirm.getWaybillCode()?cenConfirm.getWaybillCode(): SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
