@@ -169,9 +169,9 @@
 		<property name="sitetype" value="18" />
 		<property name="capacityType">
 			<list>
-				<value>7030</value>
-				<value>7031</value>
-				<value>7032</value>
+				<value>1011</value>
+				<value>1004</value>
+				<value>1001</value>
 			</list>
 		</property>
 	</bean>
