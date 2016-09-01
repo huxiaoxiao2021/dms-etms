@@ -15,11 +15,14 @@ import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
 import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.CarrierParamDto;
+import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -1149,6 +1152,42 @@ public class BaseResource {
 			responseList.add(response);
 		}
 
+		return responseList;
+	}
+	
+	/**
+	 * 获取所有的承运商
+	 * add by lhc
+	 * 2016.9.1
+	 * @return
+	 */
+	@GET
+	@Path("/bases/getCarrierInfoList")
+	public List<BaseResponse> getCarrierInfoList() {
+		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
+		CarrierParamDto carrierParamDto = new CarrierParamDto();
+		carrierParamDto.setOwner("1");
+		CommonDto<List<CarrierInfo>> commonDtoList = vtsQueryWS.getCarrierInfoList(carrierParamDto);
+		List<CarrierInfo> carrierInfoList = new ArrayList<CarrierInfo>();
+		carrierInfoList = commonDtoList.getData();
+		if (carrierInfoList != null && carrierInfoList.size() > 0) {
+			
+		}
+		
+		for (CarrierInfo carrierInfo : carrierInfoList) {
+			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+			// 机构ID
+//			response.setOrgId(carrierInfo.getCarrierId());
+
+			// 机构名称
+			if (null == carrierInfo.getCarrierName()) {
+				response.setOrgName("");
+			} else {
+				response.setOrgName(carrierInfo.getCarrierName());
+			}
+
+		}
+		
 		return responseList;
 	}
 
