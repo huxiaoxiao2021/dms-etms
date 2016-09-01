@@ -18,6 +18,9 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
+import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.DictDto;
+import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
@@ -66,6 +69,9 @@ public class BaseResource {
 
 	@Autowired
 	private SysConfigService sysConfigService;
+	
+	@Autowired
+	private VtsQueryWS vtsQueryWS;
 
 	@GET
 	@Path("/bases/allsite/")
@@ -1031,7 +1037,7 @@ public class BaseResource {
 			return "Error";
 		}
 	}
-
+	
 	@GET
 	@Path("/bases/capacityTypelist")
 	public List<BaseResponse> getCapacityTypelist() {
@@ -1076,6 +1082,64 @@ public class BaseResource {
 			response.setParentId(dto.getParentId());
 			//层级
 			response.setNodeLevel(dto.getNodeLevel());
+			//修改时间
+			response.setDataUpdate(dto.getUpdateTime());
+			responseList.add(response);
+		}
+
+		return responseList;
+	}
+	
+	/**
+	 * 通过VTS已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
+	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
+	 * add by lhc
+	 * 2016.8.31
+	 * @return
+	 */
+	@GET
+	@Path("/bases/capacityTypelists")
+	public List<BaseResponse> getCapacityTypelists() {
+		//运力编码需求相关类型
+		//(1011,2,1011) //线路类型：运输类型
+		//(1004,2,1004) //运力类型：承运商类型
+		//(1001,2,1001) //运输方式 :运输方式
+		this.logger.info("获取运力的线路类型、运力类型、运输方式 ");
+
+		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
+		DictDto[] result = null;
+		try {
+			//批量提交数据字典信息查询
+			result = baseService.getDictListByGroupType(baseSetConfig.getCapacityType());
+		} catch (Exception e) {
+			//如果异常直接返回
+			logger.error("获取获取运力信息列表失败");
+			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+			        JdResponse.MESSAGE_SERVICE_ERROR);
+			responseList.add(response);
+			return responseList;
+		}
+
+		if (null == result || result.length == 0) {
+			logger.error("获取运力信息为空");
+			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
+			        JdResponse.MESSAGE_ERROR_EMPTY);
+			responseList.add(response);
+			return responseList;
+		}
+
+		for (DictDto dto : result) {
+			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+			//类型名称
+			response.setTypeName(dto.getDictName());
+			//类型编号
+			response.setTypeCode(Integer.parseInt(dto.getDictCode()));
+			//数据字典分组
+			response.setTypeGroup(Integer.parseInt(dto.getDictGroup()));
+			//上一级编号
+			response.setParentId(Integer.parseInt(dto.getParentCode()));
+			//层级
+			response.setNodeLevel(dto.getDictLevel());
 			//修改时间
 			response.setDataUpdate(dto.getUpdateTime());
 			responseList.add(response);
