@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
@@ -51,6 +52,9 @@ public class BaseResource {
 
 	@Autowired
 	private BaseSetConfig baseSetConfig;
+	
+	@Autowired
+	private VtsBaseSetConfig vtsbaseSetConfig;
 
 	@Autowired
 	private BaseService baseService;
@@ -1110,7 +1114,7 @@ public class BaseResource {
 		DictDto[] result = null;
 		try {
 			//批量提交数据字典信息查询
-			result = baseService.getDictListByGroupType(baseSetConfig.getCapacityType());
+			result = baseService.getDictListByGroupType(vtsbaseSetConfig.getCapacityType());
 		} catch (Exception e) {
 			//如果异常直接返回
 			logger.error("获取获取运力信息列表失败");
