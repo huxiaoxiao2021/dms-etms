@@ -21,6 +21,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -439,6 +441,26 @@ public class BaseServiceImpl implements BaseService {
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
 			log.error("调用vtsQueryWS.getDictList()异常，待查询类型为：" + stypeGroup, e);
+		}
+		return null;
+	}
+	
+	/**
+	 * 承运商列表
+	 * add by lhc
+	 * 2016.9.1
+	 */
+	public List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto){
+		try{
+			CommonDto<List<CarrierInfo>> commonDtoList = vtsQueryWS.getCarrierInfoList(carrierParamDto);
+			List<CarrierInfo> carrierInfoList = commonDtoList.getData();
+			if (carrierInfoList != null && carrierInfoList.size() > 0) {
+				return carrierInfoList;
+			}else{
+				log.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+			}
+		}catch(Exception e){
+			log.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常", e);
 		}
 		return null;
 	}

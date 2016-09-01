@@ -1167,25 +1167,19 @@ public class BaseResource {
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
 		CarrierParamDto carrierParamDto = new CarrierParamDto();
 		carrierParamDto.setOwner("1");
-		CommonDto<List<CarrierInfo>> commonDtoList = vtsQueryWS.getCarrierInfoList(carrierParamDto);
-		List<CarrierInfo> carrierInfoList = new ArrayList<CarrierInfo>();
-		carrierInfoList = commonDtoList.getData();
-		if (carrierInfoList != null && carrierInfoList.size() > 0) {
-			
-		}
 		
-		for (CarrierInfo carrierInfo : carrierInfoList) {
-			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-			// 机构ID
-//			response.setOrgId(carrierInfo.getCarrierId());
-
-			// 机构名称
-			if (null == carrierInfo.getCarrierName()) {
-				response.setOrgName("");
-			} else {
-				response.setOrgName(carrierInfo.getCarrierName());
+		List<CarrierInfo> carrierInfoList = baseService.getCarrierInfoList(carrierParamDto);
+		
+		if (carrierInfoList != null && carrierInfoList.size() > 0) {
+			for (CarrierInfo carrierInfo : carrierInfoList) {
+				BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+				response.setCarrierId(carrierInfo.getCarrierId());
+				response.setCarrierCode(carrierInfo.getCarrierCode());
+				response.setContacter(carrierInfo.getContacter());
+				response.setCarrierName(carrierInfo.getCarrierName());
+				response.setAddress(carrierInfo.getAddress());
+				responseList.add(response);
 			}
-
 		}
 		
 		return responseList;

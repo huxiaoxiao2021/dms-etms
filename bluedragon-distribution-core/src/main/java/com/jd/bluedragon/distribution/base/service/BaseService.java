@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -94,6 +96,13 @@ public interface BaseService {
 	 * @return
 	 */
 	DictDto[] getDictListByGroupType(List<Integer> typeGroups);
+	
+	/**
+	 * 承运商列表
+	 * @param carrierParamDto
+	 * @return
+	 */
+	List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto);
 
 	/**
 	 * 根据站点ID查询站点名称，如果没有匹配数据则返回空值(null)
