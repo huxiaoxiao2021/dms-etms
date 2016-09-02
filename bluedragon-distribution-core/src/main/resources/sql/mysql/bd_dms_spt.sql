@@ -1,0 +1,284 @@
+-- MySQL dump 10.13  Distrib 5.6.26, for Linux (x86_64)
+--
+-- Host: localhost    Database: bd_dms_shard_com0
+-- ------------------------------------------------------
+-- Server version	5.6.26-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `box`
+--
+
+DROP TABLE IF EXISTS `box`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `box` (
+  `BOX_ID` bigint(20) unsigned NOT NULL,
+  `BOX_CODE` varchar(50) DEFAULT NULL,
+  `BOX_TYPE` varchar(2) DEFAULT NULL,
+  `CREATE_SITE_CODE` bigint(20) unsigned DEFAULT NULL,
+  `CREATE_SITE_NAME` varchar(100) DEFAULT NULL,
+  `RECEIVE_SITE_CODE` bigint(20) unsigned DEFAULT NULL,
+  `RECEIVE_SITE_NAME` varchar(100) DEFAULT NULL,
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `CREATE_USER_CODE` bigint(20) unsigned DEFAULT NULL,
+  `CREATE_USER` varchar(16) DEFAULT NULL,
+  `UPDATE_USER_CODE` bigint(20) unsigned DEFAULT NULL,
+  `UPDATE_USER` varchar(16) DEFAULT NULL,
+  `UPDATE_TIME` datetime DEFAULT NULL,
+  `TIMES` bigint(20) unsigned DEFAULT NULL,
+  `BOX_STATUS` bigint(20) DEFAULT NULL,
+  `YN` bigint(20) DEFAULT NULL,
+  `TRANSPORT_TYPE` bigint(20) DEFAULT NULL,
+  `MIX_BOX_TYPE` bigint(20) DEFAULT NULL COMMENT '混包类型0不混1可混',
+  `LENGTH` bigint(20) DEFAULT NULL COMMENT '箱号长度',
+  `WIDTH` bigint(20) DEFAULT NULL COMMENT '箱号宽度',
+  `HEIGHT` bigint(20) DEFAULT NULL COMMENT '箱号高度',
+  PRIMARY KEY (`BOX_ID`),
+  KEY `IND_BOX_BC` (`BOX_CODE`),
+  KEY `IND_BOX_BC_P` (`BOX_CODE`),
+  KEY `IND_BOX_CRSITE_P` (`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `cen_confirm`
+--
+
+DROP TABLE IF EXISTS `cen_confirm`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cen_confirm` (
+  `CONFIRM_ID` bigint(20) unsigned NOT NULL COMMENT '收货确认表ID',
+  `SEND_CODE` varchar(30) DEFAULT NULL COMMENT '发货交接单号',
+  `WAYBILL_CODE` varchar(30) DEFAULT NULL COMMENT '运单号',
+  `BOX_CODE` varchar(30) DEFAULT NULL COMMENT '箱号',
+  `PACKAGE_BARCODE` varchar(30) DEFAULT NULL COMMENT '包裹号',
+  `CONFIRM_TYPE` bigint(20) DEFAULT NULL COMMENT '收货类型(10正向 20逆向 30第三方)',
+  `RECEIVE_USER` varchar(32) DEFAULT NULL COMMENT '创建人（收货人）',
+  `RECEIVE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '创建人ID（收货人ID）',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间（收货时间）',
+  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位（收货单位）ID',
+  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
+  `YN` bigint(20) DEFAULT '1' COMMENT 'DF',
+  `CONFIRM_STATUS` bigint(20) DEFAULT '0' COMMENT '0 待处理  1 处理完成',
+  `THIRD_WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT 'POP第三方收货运单号',
+  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '收货单位编号',
+  `INSPECTION_USER` varchar(32) DEFAULT NULL COMMENT '操作人',
+  `INSPECTION_USER_CODE` bigint(20) DEFAULT NULL COMMENT '操作人ID',
+  `INSPECTION_TIME` datetime DEFAULT NULL COMMENT '操作时间',
+  `PICKUP_CODE` varchar(32) DEFAULT NULL COMMENT '取件单号',
+  `OPERATE_TYPE` bigint(20) DEFAULT NULL COMMENT '操作类型(1.跨分拣中心收货2.库房交接3.pop交接4.三方验货5.返调度再投6.取件7.站点退货8.三方退货)',
+  `EXCUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
+  `EXCUTE_TIME` datetime DEFAULT NULL COMMENT '执行时间',
+  `OPERATE_TIME` datetime DEFAULT NULL COMMENT '操作时间',
+  `RECEIVE_TIME` datetime DEFAULT NULL COMMENT '收货时间',
+  `OPERATE_USER` varchar(32) DEFAULT NULL COMMENT '操作人',
+  `OPERATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '操作人ID',
+  PRIMARY KEY (`CONFIRM_ID`),
+  KEY `IND_CEN_CONFIRM_CSTAT_D_P` (`CONFIRM_STATUS`),
+  KEY `IND_CEN_CONFIRM_PCODE_P` (`PACKAGE_BARCODE`),
+  KEY `IND_CEN_CONFIRM_SITE_CT` (`CREATE_SITE_CODE`,`CREATE_TIME`),
+  KEY `IND_CEN_CONFIRM_WCODE_P` (`WAYBILL_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='收货确认表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `inspection`
+--
+
+DROP TABLE IF EXISTS `inspection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `inspection` (
+  `INSPECTION_ID` bigint(20) unsigned NOT NULL COMMENT '验货表ID',
+  `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '运单号',
+  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
+  `PACKAGE_BARCODE` varchar(32) DEFAULT NULL COMMENT '包裹号',
+  `INSPECTION_STATUS` bigint(20) DEFAULT NULL COMMENT '0 待处理  1 处理完成 2 处理中  3 异常',
+  `EXCEPTION_TYPE` varchar(50) DEFAULT NULL COMMENT '异常类型',
+  `INSPECTION_TYPE` bigint(20) DEFAULT NULL COMMENT '验货类型',
+  `CREATE_USER` varchar(32) DEFAULT NULL COMMENT '操作人',
+  `CREATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '操作人ID',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '操作时间',
+  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '操作单位ID',
+  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '收货单位编号',
+  `UPDATE_USER` varchar(32) DEFAULT NULL COMMENT '最后修改人name',
+  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '最后修改人code',
+  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '最后修改时间',
+  `YN` bigint(20) DEFAULT '1' COMMENT 'DF',
+  `THIRD_WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT 'POP第三方运单号',
+  `POP_FLAG` bigint(20) DEFAULT NULL COMMENT '操作标识，0或空代表系统处理，1代表人工处理',
+  `POP_SUP_ID` bigint(20) DEFAULT NULL COMMENT 'POP商家ID',
+  `POP_SUP_NAME` varchar(128) DEFAULT NULL COMMENT 'POP商家名称',
+  `QUANTITY` bigint(20) DEFAULT NULL COMMENT '包裹数量',
+  `CROSS_CODE` varchar(16) DEFAULT NULL COMMENT '滑道号',
+  `WAYBILL_TYPE` bigint(20) DEFAULT NULL COMMENT '运单类型',
+  `OPERATE_TYPE` bigint(20) DEFAULT NULL COMMENT '操作类型',
+  `POP_RECEIVE_TYPE` bigint(20) DEFAULT NULL COMMENT 'POP收货类型:1,商家直送；2,托寄送货',
+  `QUEUE_NO` varchar(32) DEFAULT NULL COMMENT 'POP排队号',
+  `DRIVER_CODE` varchar(32) DEFAULT NULL COMMENT '司机编号',
+  `DRIVER_NAME` varchar(32) DEFAULT NULL COMMENT '司机名称',
+  `BUSI_ID` bigint(20) DEFAULT NULL COMMENT 'B商家ID',
+  `BUSI_NAME` varchar(128) DEFAULT NULL COMMENT 'B商家名称',
+  `LENGTH` bigint(20) DEFAULT NULL COMMENT '长',
+  `WIDTH` bigint(20) DEFAULT NULL COMMENT '宽',
+  `HIGH` bigint(20) DEFAULT NULL COMMENT '高',
+  `VOLUMN` bigint(20) DEFAULT NULL COMMENT '体积'
+  `OPERATE_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`INSPECTION_ID`),
+  KEY `IND_INSPECTION_BCODE_PL` (`BOX_CODE`),
+  KEY `IND_INSPECTION_CS_CTIME` (`CREATE_SITE_CODE`,`CREATE_TIME`),
+  KEY `IND_INSPECTION_PCODE_D` (`PACKAGE_BARCODE`),
+  KEY `IND_INSPECTION_STATUS_P` (`INSPECTION_STATUS`),
+  KEY `IND_INSPECTION_WCODE_D` (`WAYBILL_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `send_d`
+--
+
+DROP TABLE IF EXISTS `send_d`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `send_d` (
+  `SEND_D_ID` bigint(20) unsigned NOT NULL,
+  `SEND_CODE` varchar(50) DEFAULT NULL,
+  `BOX_CODE` varchar(30) DEFAULT NULL,
+  `PACKAGE_BARCODE` varchar(30) DEFAULT NULL,
+  `WAYBILL_CODE` varchar(30) DEFAULT NULL,
+  `SEND_TYPE` bigint(20) DEFAULT NULL,
+  `SENDD_STATUS` bigint(20) DEFAULT '0',
+  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
+  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `CREATE_USER` varchar(50) DEFAULT NULL,
+  `CREATE_USER_CODE` bigint(20) DEFAULT NULL,
+  `UPDATE_TIME` date DEFAULT NULL,
+  `WEIGHT` bigint(20) DEFAULT NULL,
+  `YN` bigint(20) DEFAULT '1',
+  `IS_CANCEL` bigint(20) DEFAULT '0',
+  `PICKUP_CODE` varchar(30) DEFAULT NULL,
+  `EXCUTE_COUNT` bigint(20) DEFAULT NULL,
+  `EXCUTE_TIME` datetime DEFAULT NULL,
+  `TOFA_STATUS` bigint(20) DEFAULT NULL,
+  `PACKAGE_NUM` bigint(20) DEFAULT NULL,
+  `OPERATE_TIME` datetime DEFAULT NULL,
+  `SPARE_REASON` varchar(128) DEFAULT NULL,
+  `SPARE_TRAN_CODE` varchar(32) DEFAULT NULL,
+  `IS_LOSS` bigint(20) DEFAULT NULL,
+  `FEATURE_TYPE` bigint(20) DEFAULT NULL,
+  `WH_REVERSE` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`SEND_D_ID`),
+  KEY `IND_SEND_D_BCPB` (`BOX_CODE`,`PACKAGE_BARCODE`),
+  KEY `IND_SEND_D_PB_P` (`PACKAGE_BARCODE`),
+  KEY `IND_SEND_D_SCODE_P` (`SEND_CODE`),
+  KEY `IND_SEND_D_SITE_OT_PL` (`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`,`OPERATE_TIME`),
+  KEY `IND_SEND_D_STAT_CT` (`SENDD_STATUS`,`CREATE_TIME`),
+  KEY `IND_SEND_D_WCODE_P` (`WAYBILL_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `send_m`
+--
+
+DROP TABLE IF EXISTS `send_m`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `send_m` (
+  `SEND_M_ID` bigint(20) unsigned NOT NULL,
+  `SEND_CODE` varchar(50) DEFAULT NULL,
+  `BOX_CODE` varchar(50) DEFAULT NULL,
+  `SEND_USER` varchar(50) DEFAULT NULL,
+  `SEND_USER_CODE` bigint(20) DEFAULT NULL,
+  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
+  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
+  `SEND_TYPE` bigint(20) DEFAULT NULL,
+  `CAR_CODE` varchar(50) DEFAULT NULL,
+  `CREATE_USER` varchar(50) DEFAULT NULL,
+  `CREATE_USER_CODE` bigint(20) DEFAULT NULL,
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL,
+  `UPDATER_USER` varchar(50) DEFAULT NULL,
+  `UPDATE_TIME` datetime DEFAULT NULL,
+  `SHIELDS_CAR_ID` bigint(20) DEFAULT NULL,
+  `YN` bigint(20) DEFAULT '1',
+  `SENDM_STATUS` bigint(20) DEFAULT '0',
+  `EXCUTE_TIME` datetime DEFAULT NULL,
+  `EXCUTE_COUNT` bigint(20) DEFAULT NULL,
+  `OPERATE_TIME` datetime DEFAULT NULL,
+  `TURNOVERBOX_CODE` varchar(30) DEFAULT NULL,
+  `TRANSPORT_TYPE` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`SEND_M_ID`),
+  KEY `IND_SEND_M_SC` (`SEND_CODE`),
+  KEY `IND_SEND_M_BCODE_BCODE_P` (`BOX_CODE`),
+  KEY `IND_SEND_M_BCODE_CSITE_CODE` (`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`,`BOX_CODE`),
+  KEY `IND_SEND_M_BCODE_CSITE_OT` (`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`,`OPERATE_TIME`),
+  KEY `IND_SEND_M_SCAR_ID` (`SHIELDS_CAR_ID`),
+  KEY `IND_SEND_M_SC_P` (`SEND_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sorting`
+--
+
+DROP TABLE IF EXISTS `sorting`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sorting` (
+  `SORTING_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `BOX_CODE` varchar(32) DEFAULT NULL,
+  `PACKAGE_CODE` varchar(32) DEFAULT NULL,
+  `WAYBILL_CODE` varchar(32) DEFAULT NULL,
+  `SORTING_TYPE` bigint(20) DEFAULT NULL,
+  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
+  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
+  `CREATE_USER_CODE` bigint(20) DEFAULT NULL,
+  `CREATE_USER` varchar(16) DEFAULT NULL,
+  `CREATE_TIME` datetime NOT NULL,
+  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL,
+  `UPDATE_USER` varchar(16) DEFAULT NULL,
+  `UPDATE_TIME` datetime DEFAULT NULL,
+  `SORTING_STATUS` bigint(20) DEFAULT NULL,
+  `IS_CANCEL` bigint(20) DEFAULT NULL,
+  `YN` bigint(20) DEFAULT NULL,
+  `PICKUP_CODE` varchar(32) DEFAULT NULL,
+  `EXCUTE_COUNT` bigint(20) DEFAULT NULL,
+  `EXCUTE_TIME` datetime DEFAULT NULL,
+  `OPERATE_TIME` datetime DEFAULT NULL,
+  `SPARE_REASON` varchar(128) DEFAULT NULL,
+  `IS_LOSS` bigint(20) DEFAULT NULL,
+  `FEATURE_TYPE` bigint(20) DEFAULT NULL,
+  `WH_REVERSE` bigint(20) DEFAULT NULL,
+  `BSEND_CODE` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`SORTING_ID`),
+  KEY `IND_SORTING_BCODE_P` (`BOX_CODE`),
+  KEY `IND_SORTING_BSCODE_P` (`BSEND_CODE`),
+  KEY `IND_SORTING_PCODE_P` (`PACKAGE_CODE`),
+  KEY `IND_SORTING_WCODE_P` (`WAYBILL_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=334932185 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2016-08-12 15:46:54
