@@ -1054,19 +1054,19 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 String jsonString = JsonHelper.toJson(order);
 
                 this.logger.info("处理备件库退货,生成的json串为：" + jsonString);
-               // PostMethod postMethod = new PostMethod(spwmsUrl);
+                PostMethod postMethod = new PostMethod(spwmsUrl);
 
                 String contentType = "application/json";
                 String charset = "UTF-8";
                 RequestEntity requestEntity = new StringRequestEntity(jsonString, contentType, charset);
-             //   postMethod.setRequestEntity(requestEntity);
-             //   postMethod.addRequestHeader("Accept", contentType);
+                postMethod.setRequestEntity(requestEntity);
+                postMethod.addRequestHeader("Accept", contentType);
                 // headedr
                 // spwms.360buy.com线上需要去配置文件中获取
-                //ReverseSendServiceImpl.setMethodHeaders(postMethod, spwmsToken, "");
+                ReverseSendServiceImpl.setMethodHeaders(postMethod, spwmsToken, "");
 
                 HttpClient httpClient = new HttpClient();
-                //httpClient.executeMethod(postMethod);
+                httpClient.executeMethod(postMethod);
                 try {
                     // 业务流程监控, 备件库埋点
                     Map<String, String> data = new HashMap<String, String>();
@@ -1075,14 +1075,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 } catch (Exception e) {
                     this.logger.error("推送UMP发生异常.", e);
                 }
-//                if (postMethod.getStatusCode() != 200) {
-//                    this.logger.error("postMethod.getStatusCode() != 200 [" + postMethod.getStatusCode() + "]");
-//                    continue;
-//                }
-                String bodyContent = "send mq to spwms";
-                //String bodyContent = postMethod.getResponseBodyAsString();
-               // String transferId = JsonHelper.fromJson(bodyContent, MessageResult.class).getTransferId();
-                String transferId = "123";
+                if (postMethod.getStatusCode() != 200) {
+                    this.logger.error("postMethod.getStatusCode() != 200 [" + postMethod.getStatusCode() + "]");
+                    continue;
+                }
+                String bodyContent = postMethod.getResponseBodyAsString();
+                String transferId = JsonHelper.fromJson(bodyContent, MessageResult.class).getTransferId();
                 this.logger.info(waybillCode + "返回json结果:" + bodyContent);
                 if (null == transferId) {
                     this.logger.error(waybillCode + "spwms发货备件库失败，返回json结果:" + bodyContent);
@@ -1091,7 +1089,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
                 }
 
-                //postMethod.releaseConnection();
+                postMethod.releaseConnection();
                 if (null != transferId) {
                     List<ReverseSpare> reverseSpares = new ArrayList<ReverseSpare>();
                     for (ReverseSpare aReverseSpare : sendReverseSpare) {
@@ -1158,13 +1156,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     private Waybill getWaybill(String waybillCode) {
-//        if (waybillCode.startsWith(Constants.T_WAYBILL))
-//            waybillCode = waybillCode.replaceFirst(Constants.T_WAYBILL, "");
-
         Waybill waybill = this.waybillCommonService.findWaybillAndGoods(waybillCode);
         if (null == waybill) {
             this.logger.error(waybillCode + "ReverseSendServiceImpl --> getWaybill 获取运单数据失败");
-            //    waybill = this.waybillCommonService.getHisWaybillFromOrderService(waybillCode);
         }
         return waybill;
     }
