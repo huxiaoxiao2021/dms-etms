@@ -149,7 +149,7 @@
 		<include refid="Pop_Join_Where_List"/>
 		order by inspection_id
 		<if test="startIndex != null">
-		 LIMIT #{startIndex} ,#{endIndex}
+		 LIMIT #{startIndex} ,#{pageSize}
 		</if>
 	</select>
 	
@@ -167,7 +167,7 @@
 	 		<include refid="BPop_Join_Where_List" />
 		order by inspection_id
 		<if test="startIndex != null">
-			 LIMIT #{startIndex} ,#{endIndex}
+			 LIMIT #{startIndex} ,#{pageSize}
 		</if>
 	</select>
 

@@ -130,7 +130,7 @@
 		<include refid="Pop_Pickup_Where_List"/>
 		order by pickup_id
 		<if test="startIndex != null">
-			LIMIT #{startIndex},#{endIndex}
+			LIMIT #{startIndex},#{pageSize}
 		</if>
 	</select>
   

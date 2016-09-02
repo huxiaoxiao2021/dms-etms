@@ -83,23 +83,26 @@
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
 		<typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
-	</typeAliases>
-    <plugins>
+
+        <!-- xumei -->
+        <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
+    </typeAliases>
+    <!--<plugins>-->
 
         <!--
           数据库访问监控组件
         -->
-        <plugin interceptor="com.jd.etms.framework.utils.orm.monitor.DbAccessInterceptor">
-            <property name="sqlExceptionEnabled" value="true" />  <!--sql执行异常报警-->
-            <property name="sqlExceptionKey" value="ql.dms.sql.exception" />  <!--sql执行异常报警key-->
-            <property name="slowSqlEnabled" value="true" />   <!--慢sql超时-->
-            <property name="slowSqlKey" value="ql.dms.slowsql.timeout" />  <!--慢sql超时报警key-->
-            <property name="slowSqlTimeout" value="1000" />   <!--慢sql超时时间1秒-->
-            <property name="tooManyActiveConnEnabled" value="true" /> <!--连接数过多报警-->
-            <property name="tooManyActiveConnKey" value="ql.dms.tooMany.active.connection" />  <!--连接数过多报警key-->
-            <property name="maxActiveConRatio" value="0.7f"/> <!--连接数占比max-active-->
-            <property name="isLogDBUrl" value="true"/> <!--是否显示DB连接url-->
-        </plugin>
+        <!--<plugin interceptor="com.jd.etms.framework.utils.orm.monitor.DbAccessInterceptor">-->
+            <!--<property name="sqlExceptionEnabled" value="true" />  &lt;!&ndash;sql执行异常报警&ndash;&gt;-->
+            <!--<property name="sqlExceptionKey" value="ql.dms.sql.exception" />  &lt;!&ndash;sql执行异常报警key&ndash;&gt;-->
+            <!--<property name="slowSqlEnabled" value="true" />   &lt;!&ndash;慢sql超时&ndash;&gt;-->
+            <!--<property name="slowSqlKey" value="ql.dms.slowsql.timeout" />  &lt;!&ndash;慢sql超时报警key&ndash;&gt;-->
+            <!--<property name="slowSqlTimeout" value="1000" />   &lt;!&ndash;慢sql超时时间1秒&ndash;&gt;-->
+            <!--<property name="tooManyActiveConnEnabled" value="true" /> &lt;!&ndash;连接数过多报警&ndash;&gt;-->
+            <!--<property name="tooManyActiveConnKey" value="ql.dms.tooMany.active.connection" />  &lt;!&ndash;连接数过多报警key&ndash;&gt;-->
+            <!--<property name="maxActiveConRatio" value="0.7f"/> &lt;!&ndash;连接数占比max-active&ndash;&gt;-->
+            <!--<property name="isLogDBUrl" value="true"/> &lt;!&ndash;是否显示DB连接url&ndash;&gt;-->
+        <!--</plugin>-->
 
         <!--
         mq消息发送说明：
@@ -109,38 +112,38 @@
         mqProducerBeanName: mq消息生产者bean名称
         mq-xxx-topicName: mq为固定前缀， xxx表示sqlId， topicName表示发送到的mq topic名称， 值格式为作为businessId的属性， 逗号后面部分为发送消息的条件判断类， 逗号后面部分可省略
         -->
-        <plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorUpdatePlugin">
-            <property name="swallowException" value="false"/>
-            <property name="mqProducerBeanName" value="jmqProducer"/>
-            <!--保证事务的一致性, 会在事务提交前发消息， 如果消息发送成功，提交事务，否则抛出异常，事务回滚-->
-            <property name="keepConsistency" value="true"/>
-            <!-- 注意： MQPluginContext需要spring上下文， 请在spring配置文件中添加此类bean， 以使此类可以找到当前的ApplicationContext -->
-            <property name="pluginContextType" value="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
-            <!--<property name="mq-com.jd.coo.sa.mybatis.plugins.test.dao.StudentDao.insertWithPrimary-jmqtest" value="id"/>-->
+        <!--<plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorUpdatePlugin">-->
+            <!--<property name="swallowException" value="false"/>-->
+            <!--<property name="mqProducerBeanName" value="jmqProducer"/>-->
+            <!--&lt;!&ndash;保证事务的一致性, 会在事务提交前发消息， 如果消息发送成功，提交事务，否则抛出异常，事务回滚&ndash;&gt;-->
+            <!--<property name="keepConsistency" value="true"/>-->
+            <!--&lt;!&ndash; 注意： MQPluginContext需要spring上下文， 请在spring配置文件中添加此类bean， 以使此类可以找到当前的ApplicationContext &ndash;&gt;-->
+            <!--<property name="pluginContextType" value="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>-->
+            <!--&lt;!&ndash;<property name="mq-com.jd.coo.sa.mybatis.plugins.test.dao.StudentDao.insertWithPrimary-jmqtest" value="id"/>&ndash;&gt;-->
 
-            <property name="mq-com.jd.bluedragon.distribution.box.dao.BoxDao.add-bd_dms" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.box.dao.BoxDao.batchUpdateStatus-bd_dms" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.inspection.dao.InspectionDao.add-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao.add-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao.updateByWaybillCode-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.receive.dao.CenConfirmDao.add-bd_monitor" value=""/>
+            <!--<property name="mq-com.jd.bluedragon.distribution.box.dao.BoxDao.add-bd_dms" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.box.dao.BoxDao.batchUpdateStatus-bd_dms" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.inspection.dao.InspectionDao.add-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao.add-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao.updateByWaybillCode-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.receive.dao.CenConfirmDao.add-bd_monitor" value=""/>-->
 
-            <property name="mq-com.jd.bluedragon.distribution.receive.dao.CenConfirmDao.updateFillField-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.receive.dao.ReceiveDao.add-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.send.dao.SendDatailDao.UpdatewaybillCodeStatus-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.send.dao.SendDatailDao.cancelSendDatail-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingDao.add-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingDao.canCancel-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingDao.update-bd_monitor" value=""/>
-            <property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingReturnDao.add-bd_monitor" value=""/>
-        </plugin>
-        <!-- 拦截Executor的commit方法， 在commit时发送mq消息， 如果keepConsistency为true则在事务提交前发消息， 如果发消息失败抛出异常， 阻止事务提交，老保证一致性； 否则在事务提交后发消息-->
-        <plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorCommitPlugin">
-            <property name="keepConsistency" value="true"/>
-        </plugin>
-        <!-- 拦截Executor的rollback方法， 在rollback时清空现有的消息-->
-        <plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorRollbackPlugin"/>
-        </plugins>
+            <!--<property name="mq-com.jd.bluedragon.distribution.receive.dao.CenConfirmDao.updateFillField-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.receive.dao.ReceiveDao.add-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.send.dao.SendDatailDao.UpdatewaybillCodeStatus-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.send.dao.SendDatailDao.cancelSendDatail-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingDao.add-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingDao.canCancel-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingDao.update-bd_monitor" value=""/>-->
+            <!--<property name="mq-com.jd.bluedragon.distribution.sorting.dao.SortingReturnDao.add-bd_monitor" value=""/>-->
+        <!--</plugin>-->
+        <!--&lt;!&ndash; 拦截Executor的commit方法， 在commit时发送mq消息， 如果keepConsistency为true则在事务提交前发消息， 如果发消息失败抛出异常， 阻止事务提交，老保证一致性； 否则在事务提交后发消息&ndash;&gt;-->
+        <!--<plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorCommitPlugin">-->
+            <!--<property name="keepConsistency" value="true"/>-->
+        <!--</plugin>-->
+        <!--&lt;!&ndash; 拦截Executor的rollback方法， 在rollback时清空现有的消息&ndash;&gt;-->
+        <!--<plugin interceptor="com.jd.coo.sa.mybatis.plugins.event.ExecutorRollbackPlugin"/>-->
+        <!--</plugins>-->
 	<mappers>
 		<mapper resource="mappers/mysql/box/BoxMapper.xml"/>
 
@@ -222,6 +225,8 @@
         <mapper resource="mappers/mysql/gantry/GantryDeviceMapper.xml"/>
 		<mapper resource="mappers/mysql/gantry/GantryDeviceConfigMapper.xml"/>
 
+        <!-- xumei -->
+        <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
 	</mappers>
 	
 </configuration>

@@ -27,7 +27,7 @@
 		
 		SELECT * FROM turnoverbox t1
 		<include refid="where"/>
-		LIMIT #{start} ,#{end}
+		LIMIT #{start} , 50
 	</select>
 	
 	<select id="getCount"

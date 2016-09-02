@@ -124,7 +124,7 @@
           <include refid="gantryQueryParam" />
         ORDER BY CREATE_TIME
         <if test="startIndex != null">
-			LIMIT #{startIndex},#{endIndex}
+			LIMIT #{startIndex},#{pageSize}
 		</if>
         
     </select>
