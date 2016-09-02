@@ -1156,14 +1156,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     private Waybill getWaybill(String waybillCode) {
-//
-//        if (waybillCode.startsWith(Constants.T_WAYBILL))
-//            waybillCode = waybillCode.replaceFirst(Constants.T_WAYBILL, "");
-
         Waybill waybill = this.waybillCommonService.findWaybillAndGoods(waybillCode);
         if (null == waybill) {
             this.logger.error(waybillCode + "ReverseSendServiceImpl --> getWaybill 获取运单数据失败");
-            //    waybill = this.waybillCommonService.getHisWaybillFromOrderService(waybillCode);
         }
         return waybill;
     }
