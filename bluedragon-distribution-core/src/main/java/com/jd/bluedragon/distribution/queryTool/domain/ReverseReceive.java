@@ -7,7 +7,7 @@ import java.util.Date;
  * Created by xumei1 on 2016/8/30.
  */
 
-public class QueryReverseReceiveDomain {
+public class ReverseReceive {
     public Long getId() {
         return id;
     }

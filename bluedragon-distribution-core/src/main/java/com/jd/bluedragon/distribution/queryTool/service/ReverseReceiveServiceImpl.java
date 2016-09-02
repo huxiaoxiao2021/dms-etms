@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.queryTool.service;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.queryTool.dao.QueryReverseReceiveDao;
-import com.jd.bluedragon.distribution.queryTool.domain.QueryReverseReceiveDomain;
+import com.jd.bluedragon.distribution.queryTool.dao.ReverseReceiveDao;
+import com.jd.bluedragon.distribution.queryTool.domain.ReverseReceive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +14,17 @@ import java.util.Map;
  */
 
 @Service("queryReverseReceiveService")
-public class QueryReverseReceiveServiceImpl implements QueryReverseReceiveService{
+public class ReverseReceiveServiceImpl implements ReverseReceiveService {
     @Autowired
-    QueryReverseReceiveDao queryReverseReceiveDao;
+    ReverseReceiveDao queryReverseReceiveDao;
 
     @Override
-    public List<QueryReverseReceiveDomain> queryByCondition(Map<String, Object> params, Pager<List<QueryReverseReceiveDomain>> page) {
+    public List<ReverseReceive> queryByCondition(Map<String, Object> params, Pager<List<ReverseReceive>> page) {
         int count = queryReverseReceiveDao.countByCondition(params);
         if (page == null) {
-            page = new Pager<List<QueryReverseReceiveDomain>>();
+            page = new Pager<List<ReverseReceive>>();
         }
-        List<QueryReverseReceiveDomain> list = null;
+        List<ReverseReceive> list = null;
         if (count > 0) {
             page.setTotalSize(count);
             page.init();

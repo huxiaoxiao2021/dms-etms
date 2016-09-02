@@ -41,7 +41,7 @@
 		<mapper resource="mappers/oracle/globaltrade/LoadBillReadMapper.xml"/>
 		<mapper resource="mappers/oracle/globaltrade/LoadBillReportReadMapper.xml"/>
 
-		<mapper resource="mappers/oracle/queryTool/QueryReverseReceiveMapper.xml"/>
+		<mapper resource="mappers/oracle/queryTool/ReverseReceiveMapper.xml"/>
 	</mappers>
 	
 </configuration>

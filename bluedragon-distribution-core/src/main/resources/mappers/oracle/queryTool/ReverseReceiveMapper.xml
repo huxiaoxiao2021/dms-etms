@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.queryTool.dao.QueryReverseReceiveDao">
+<mapper namespace="com.jd.bluedragon.distribution.queryTool.dao.ReverseReceiveDao">
 
     <resultMap id="reverseReceiveMap"
-               type="com.jd.bluedragon.distribution.queryTool.domain.QueryReverseReceiveDomain">
+               type="com.jd.bluedragon.distribution.queryTool.domain.ReverseReceive">
         <result column="system_id" property="id"/>
         <result column="fingerprint" property="fingerprint"/>
         <result column="operate_time" property="operateTime"/>

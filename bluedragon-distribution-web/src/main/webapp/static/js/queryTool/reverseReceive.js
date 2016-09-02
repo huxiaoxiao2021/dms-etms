@@ -16,7 +16,7 @@ function getParams() {
 }
 
 function doQuery(params) {
-	var url = $("#contextPath").val() + "/query_reverse/receive";
+	var url = $("#contextPath").val() + "/query_reversereceive/query";
 	CommonClient.post(url, params, function(data) {
 		if (data == undefined || data == null) {
 			jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');

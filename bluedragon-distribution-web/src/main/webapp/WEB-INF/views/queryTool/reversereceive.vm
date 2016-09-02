@@ -21,7 +21,7 @@
 
 	<body>
 		<div id="breadcrumb">
-			<p><a href="#">订单</a>&nbsp;&gt;&nbsp;<a href="#">逆向收货查询界面</a></p>
+			<p><a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">逆向收货查询界面</a></p>
 		</div>
 		<div id="content" width="100%">
 			<div class="m">
@@ -50,7 +50,7 @@
 							</tr>
 
 							<tr >
-								<td></td>
+
 								<td>
 									<input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1);"/>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
