@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.fastRefund.service;
 
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
 public interface FastRefundService {
 	
@@ -65,6 +66,10 @@ public interface FastRefundService {
 
 	public String execRefund(String waybillCode) throws Exception;
 	public String execRefund(FastRefundRequest fastRefundRequest) throws Exception;
+	/**
+	 * 分拣逆向触发快速退款发送orbrefundRqMQ
+	 */
+	public String execRefund(Sorting sorting) throws Exception;
 	
 
 }

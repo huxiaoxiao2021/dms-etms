@@ -40,6 +40,7 @@
 		<mapper resource="mappers/mysql/crossSorting/CrossSortingReadMapper.xml"/>
 		<mapper resource="mappers/mysql/globaltrade/LoadBillReadMapper.xml"/>
 		<mapper resource="mappers/mysql/globaltrade/LoadBillReportReadMapper.xml"/>
+		<mapper resource="mappers/mysql/queryTool/ReverseReceiveMapper.xml"/>
 	</mappers>
 	
 </configuration>

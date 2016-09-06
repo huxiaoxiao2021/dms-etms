@@ -30,6 +30,30 @@ public class ProductResource {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private WaybillCommonService waybillCommonService;
+
+    @GET
+    @Path("/order/waybillAndGoods/{orderId}")
+    public ProductResponse getwaybillAndGoods(@PathParam("orderId") String  orderId){
+        if (orderId == null) {
+            return this.paramError();
+        }
+
+        this.logger.info("调用运单接口获取订单商品明细, 订单号：" + orderId);
+
+        Waybill waybill = waybillCommonService.findWaybillAndGoods(orderId);
+        if(waybill == null){
+            return this.orderNotFound();
+        }
+        List<Product> products = waybill.getProList();
+        if (products == null || products.isEmpty()) {
+            return this.orderNotFound();
+        }
+
+        return this.ok(products);
+    }
+
     @GET
     @Path("/order/products/{orderId}")
     public ProductResponse getOrderProducts(@PathParam("orderId") Long orderId) {
