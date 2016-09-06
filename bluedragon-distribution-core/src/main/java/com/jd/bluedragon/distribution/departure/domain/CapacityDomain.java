@@ -72,6 +72,11 @@ public class CapacityDomain implements Serializable{
 	 * 承运商ID
 	 * */
 	private String carrierId;
+	
+	/**
+	 * 航空班次
+	 */
+	private String airShiftName;
 
 	public String getSorgid() {
 		return sorgid;
@@ -175,6 +180,14 @@ public class CapacityDomain implements Serializable{
 
 	public void setCarrierId(String carrierId) {
 		this.carrierId = carrierId;
+	}
+
+	public String getAirShiftName() {
+		return airShiftName;
+	}
+
+	public void setAirShiftName(String airShiftName) {
+		this.airShiftName = airShiftName;
 	}
 	
 	
