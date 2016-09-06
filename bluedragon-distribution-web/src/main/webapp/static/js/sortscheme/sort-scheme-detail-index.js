@@ -15,6 +15,8 @@ function main() {
     // 初始化搜索信息
     initSearch();
 
+    onQueryBtnClick(1);
+
 }
 
 //---------------模糊搜索-------start------------
