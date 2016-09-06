@@ -14,13 +14,16 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
 
     public static final String namespace = GantryDeviceConfigDao.class.getName();
 
-    public GantryDeviceConfig findGantryDeviceConfigByOperateTime(Integer machineId,Date packageOperateTime){
+    public List<GantryDeviceConfig> findGantryDeviceConfigByOperateTime(Integer machineId,Date packageOperateTime){
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("machineId",machineId);
         hashMap.put("operateTime",packageOperateTime);
-        return (GantryDeviceConfig) super.getSqlSession().selectOne(GantryDeviceConfigDao.namespace + ".findGantryDeviceConfigByOperateTime", hashMap);
+        return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findGantryDeviceConfigByOperateTime", hashMap);
     }
 
+    public Integer addUseJavaTime(GantryDeviceConfig entity){
+        return this.getSqlSession().insert(namespace + ".addUseJavaTime", entity);
+    }
     public GantryDeviceConfig findMaxStartTimeGantryDeviceConfigByMachineId(Integer machineId) {
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("machineId",machineId);
@@ -36,12 +39,10 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
     public GantryDeviceConfig checkSendCode(String sendCode) {
         HashMap<String,Object> hashMap=new HashMap<String, Object>();
         hashMap.put("sendCode",sendCode);
-        return (GantryDeviceConfig) super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".checkSendCode", hashMap);
+        return (GantryDeviceConfig) super.getSqlSession().selectOne(GantryDeviceConfigDao.namespace + ".checkSendCode", hashMap);
     }
 
-    public Integer updateGantryDeviceConfigStatus(GantryDeviceConfig gantryDeviceConfig) {
-        return super.getSqlSession().update(namespace + ".update", gantryDeviceConfig);
-    }
+
 
     public int updateLockStatus(GantryDeviceConfig gantryDeviceConfig) {
         return super.getSqlSession().update(namespace + ".updateLockStatus", gantryDeviceConfig);

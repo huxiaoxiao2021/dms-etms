@@ -225,7 +225,7 @@
   	ORDER BY check_id DESC
   	
   	<if test="startNo != null and limitNo != null">
-  	 LIMIT ${startNo} ,${limitNo}
+  	 LIMIT ${startNo} ,50
   	</if>
   </select>
   

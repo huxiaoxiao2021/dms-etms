@@ -63,6 +63,9 @@ function initList() {
 				if (data.code == 1) {
 					var pager = data.data;
 					var resultList = pager.data;
+                    if (null == pager || null == resultList) {
+                        return; //无数据情况下的bug
+                    }
 					var temp = "";
 					for (var i = 0; i < resultList.length; i++) {
 						temp += "<tr class='a2' style=''>";

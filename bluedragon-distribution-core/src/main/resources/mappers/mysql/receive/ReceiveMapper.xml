@@ -80,7 +80,7 @@
 		<include refid="Receive_Join_Where_List" />
 		order by receive_id
 		<if test="startIndex != null">
-			LIMIT #{startIndex, jdbcType=INTEGER} ,#{endIndex, jdbcType=INTEGER}
+			LIMIT #{startIndex, jdbcType=INTEGER} , #{pageSize}
 		</if>
 	</select>
 </mapper>
