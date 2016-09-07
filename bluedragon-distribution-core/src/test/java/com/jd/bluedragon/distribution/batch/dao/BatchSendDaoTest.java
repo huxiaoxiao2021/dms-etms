@@ -15,17 +15,6 @@ public class BatchSendDaoTest extends AbstractDaoIntegrationTest{
 	private BatchSendDao batchSendDao;
 	
 	@Test
-    public void testFindBatchSend() {
-        BatchSendRequest parameter = new BatchSendRequest();
-        parameter.setCreateSiteCode(664);
-        parameter.setReceiveCodes("591");
-        parameter.setBatchCode("123456789");
-        parameter.setCreateTime(new Date());
-        parameter.setUpdateTime(new Date());
-        Assert.assertNotNull(batchSendDao.findBatchSend(parameter));
-    }
-	
-	//@Test
     public void testInsertOne() {
         BatchSend parameter = new BatchSend();
         parameter.setBatchCode("1234567892");
@@ -42,16 +31,16 @@ public class BatchSendDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testReadBySendCode() {
-        String value = "1-123456789";
+        String value = "1-1234567891";
         Assert.assertNotNull(batchSendDao.readBySendCode(value));
     }
 	
 	@Test
     public void testGetBatchSend() {
         BatchSend parameter = new BatchSend();
-        parameter.setBatchCode("123456789");
+        parameter.setBatchCode("1234567892");
         parameter.setReceiveSiteCode(591);
-        Assert.assertNotNull(batchSendDao.read("123456789",591));
+        Assert.assertNotNull(batchSendDao.read("1234567892",591));
     }
 	
 	@Test
@@ -59,16 +48,27 @@ public class BatchSendDaoTest extends AbstractDaoIntegrationTest{
         BatchSend parameter = new BatchSend();
         parameter.setSendCarState(325);
         parameter.setSendCarOperateTime(new Date());
-        parameter.setSendCode("1-123456789");
+        parameter.setSendCode("1-1234567891");
         parameter.setSendCarOperateTime(new Date());
-        parameter.setSendCarState(2);
+        parameter.setSendCarState(3);
         Assert.assertEquals(new Integer (1), batchSendDao.updateSendCarState(parameter));
     }
 	
 	@Test
     public void testBatchUpdateStatus() {
         BatchSend parameter = new BatchSend();
-        parameter.setSendCode("1-123456789");
+        parameter.setSendCode("1-1234567891");
         Assert.assertEquals(new Integer (1), batchSendDao.batchUpdateStatus(parameter));
+    }
+
+    @Test
+    public void testFindBatchSend() {
+        BatchSendRequest parameter = new BatchSendRequest();
+        parameter.setCreateSiteCode(664);
+        parameter.setReceiveCodes("591");
+        parameter.setBatchCode("1234567892");
+        parameter.setCreateTime(new Date());
+        parameter.setUpdateTime(new Date());
+        Assert.assertNotNull(batchSendDao.findBatchSend(parameter));
     }
 }

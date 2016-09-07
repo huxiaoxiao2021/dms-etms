@@ -58,6 +58,17 @@ public class ReverseSendAsiaWms {
 	 */
 	private String reverseReason;
 	
+    private String busiOrderCode;
+    
+    @XmlTransient
+    public String getBusiOrderCode() {
+		return busiOrderCode;
+	}
+
+	public void setBusiOrderCode(String busiOrderCode) {
+		this.busiOrderCode = busiOrderCode;
+	}
+	
 	public Integer getIsInStore() {
 		return isInStore;
 	}

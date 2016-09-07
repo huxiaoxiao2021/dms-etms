@@ -125,7 +125,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			data.put("orderId", reverseReceive.getPackageCode());
 			data.put("outboundNo", reverseReceive.getPackageCode());
 			data.put("packageCode", reverseReceive.getPackageCode());
-			
+
 			if (reverseReceive.getReceiveType() == 1){//仓储
 				Profiler.bizNode("bd_dms_reverse_receive_wms", data);
 			}else if (reverseReceive.getReceiveType() == 2){//售后系统

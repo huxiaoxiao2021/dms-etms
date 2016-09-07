@@ -1,6 +1,20 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
-import IceInternal.Ex;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -13,33 +27,44 @@ import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.sendprint.domain.*;
+import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntity;
+import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.BatchSendResult;
+import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import jd.oom.client.archiveorder.Business;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
 
 @Service
 public class SendPrintServiceImpl implements SendPrintService{
 	
 	@Autowired
 	private SendMDao sendMDao;
+	
+	@Autowired
+	private SendMReadDao sendMReadDao;
 	
 	@Autowired
 	private SendDatailDao sendDatailDao;
@@ -381,7 +406,7 @@ public class SendPrintServiceImpl implements SendPrintService{
  						siteId = waybill.getOldSiteId();
  						String siteName = null;
  		    			BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteId);
- 	        			if(bDto!=null){
+ 	        			if(bDto!=null){ 
   				           siteName = bDto.getSiteName();
   				           Integer siteType = bDto.getSiteType();
   				           if(siteType!=null && !siteType.equals(16)){
@@ -720,36 +745,45 @@ public class SendPrintServiceImpl implements SendPrintService{
 	}
 
 
-    @Override
-    public BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends) {
-        logger.info("获取发货批次下的原包及箱子信息-selectBoxBySendCode");
-        BatchSendInfoResponse batchSendInfoResponse=new BatchSendInfoResponse();
-        List<BatchSendResult> data=new ArrayList<BatchSendResult>();
-        batchSendInfoResponse.setData(data);
-        List<SendM> list = null;
-        BatchSendResult batchSendResult=null;
-        List<String> boxes=new ArrayList<String>();
-        List<String> packages =new ArrayList<String>();
-        for (int i = 0; i < batchSends.size(); i++) {
-            list = this.sendMDao.selectBoxBySendCode(batchSends.get(i).getSendCode());
-            if (list != null && list.size() > 0) {
-                batchSendResult = new BatchSendResult();
-                for(int j=0;j<list.size();j++){
-                    if(BusinessHelper.isBoxcode(list.get(j).getBoxCode())&&(!list.contains(list.get(j).getBoxCode())))
-                        boxes.add(list.get(j).getBoxCode());
-                    else if(BusinessHelper.isPackageCode(list.get(j).getBoxCode())&&(!packages.contains(list.get(j).getBoxCode())))
-                        packages.add(list.get(j).getBoxCode());
+	@Override
+	public BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends) {
+		logger.info("获取发货批次下的原包及箱子信息-selectBoxBySendCode");
+        BatchSendInfoResponse batchSendInfoResponse = new BatchSendInfoResponse();
+        try {
+            Map<String, String> boxes = new HashMap<String, String>();// 存放箱号用于计算箱子数量
+            Map<String, String> packages = new HashMap<String, String>();// 存放包裹号用于计算包裹数量
+            for (int i = 0; i < batchSends.size(); i++) {
+                List<String> scanCodeList = this.sendMReadDao.selectBoxCodeBySendCode(batchSends.get(i).getSendCode());
+                if (scanCodeList != null && scanCodeList.size() > 0) {
+                    for (String scanCode : scanCodeList) {
+                        if (BusinessHelper.isBoxcode(scanCode))
+                            boxes.put(scanCode, scanCode);
+                        else if (BusinessHelper.isPackageCode(scanCode))
+                            packages.put(scanCode, scanCode);
+                    }
                 }
-                batchSendResult.setTotalBoxNum(boxes.size());
-                batchSendResult.setPackageBarNum(packages.size());
-                data.add(batchSendResult);
             }
 
+            // 组装返回值对象
+            BatchSendResult batchSendResult = new BatchSendResult();
+            batchSendResult.setTotalBoxNum(boxes.size());
+            batchSendResult.setPackageBarNum(packages.size());
+
+            List<BatchSendResult> data = new ArrayList<BatchSendResult>();
+            data.add(batchSendResult);
+
+
+            batchSendInfoResponse.setData(data);
+            batchSendInfoResponse.setCode(JdResponse.CODE_OK);
+            batchSendInfoResponse.setMessage(JdResponse.MESSAGE_OK);
+        }catch (Throwable e){
+            logger.error("查询发货原包数量与箱子数量",e);
+            batchSendInfoResponse.setCode(InvokeResult.SERVER_ERROR_CODE);
+            batchSendInfoResponse.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        batchSendInfoResponse.setCode(JdResponse.CODE_OK);
-        batchSendInfoResponse.setMessage(JdResponse.MESSAGE_OK);
-        return batchSendInfoResponse;
-    }
+
+		return batchSendInfoResponse;
+	}
 
     /**
 	 * 快生打印

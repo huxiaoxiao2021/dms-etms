@@ -126,7 +126,7 @@ public class ReverseSendServiceImplTestCase {
 		sendAssert.setIsInStore(1);
 		sendAssert.setLossQuantity(0);
 		sendAssert.setOperateTime("2014-08-26 16:46:11");
-		sendAssert.setOrderId("1786592045");
+		sendAssert.setOrderId("T1786592045");
 		sendAssert.setOrgId(3);
 		sendAssert.setPackageCodes("1786592045N1S1H110");
 		List<Product> proList = new ArrayList<Product>();
@@ -147,6 +147,7 @@ public class ReverseSendServiceImplTestCase {
 		
 		sendAssert.setReverseCode(10);
 		sendAssert.setReverseReason("打包不全");
+		sendAssert.setBusiOrderCode("1786592045");
 		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendAsiaWms.class);
 		logger.info(messageValue);
 		
@@ -155,6 +156,7 @@ public class ReverseSendServiceImplTestCase {
 
 		Assert.assertEquals(null, send.getReverseCode());
 		Assert.assertEquals(null, send.getReverseReason());
+		Assert.assertEquals(null, send.getBusiOrderCode());
 	}
 	
 	@Test

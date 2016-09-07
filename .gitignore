@@ -41,3 +41,4 @@ overlays/
 *.diff
 *.ipr
 bluedragon-distribution.iws
+*.orig

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.fastRefund.domain.QrderCancelResult;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -19,6 +20,7 @@ import com.jd.fa.orderrefund.XmlMessage;
 import com.jd.fa.refundService.CustomerRequestNew;
 import com.jd.fa.refundService.RefundServiceNewSoap;
 import com.jd.fa.refundService.ValidRequest;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -66,36 +68,38 @@ public class FastRefundServiceImpl implements FastRefundService{
 	public String execRefund(FastRefundRequest fastRefundRequest) throws Exception{
     	FastRefund fastRefund = toFastRefund(fastRefundRequest);
     	
-    	String waybillCode = fastRefundRequest.getWaybillCode().toString();
-		logger.info("FastRefundServiceImpl.execRefund 开始查询运单[" + waybillCode + "]");
-		BigWaybillDto waybill = queryWaybillByCode(waybillCode);
-		
-		if(isCancel(waybillCode)){
-			logger.info("FastRefundServiceImpl.execRefund 运单为取消锁定订单[" + waybillCode + "]");
-			return FastRefundService.WAYBILL_IS_CANCEL;
-		}
-		 
-		if(waybill.getWaybill() == null){
-			logger.info("FastRefundServiceImpl.execRefund 查询运单信息为空[" + waybillCode + "]");
-			return FastRefundService.WAYBILL_NOT_FIND;
-		}
-		
-		if(null!=waybill.getWaybill().getWaybillSign() && waybill.getWaybill().getWaybillSign().length()>0){
-//			1、 京东自营订单 
-//			2、 SOP订单 
-//			3、 纯外单 
-//			4、 售后绑定的面单
-
-			Integer waybillsign = Integer.valueOf(waybill.getWaybill().getWaybillSign().charAt(0));
-			fastRefund.setWaybillSign(waybillsign);
-		}
-
-    	String json = JsonHelper.toJson(fastRefund);
-    	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM接口 body:" + json);
-    	//mqService.pubshMq(MQ_KEY, json, waybillCode);
-        orbrefundRqMQ.send(waybillCode,json);
-    	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM FINISH");
-    	return FastRefundService.SUCCESS;
+    	return sendOrbrefundRqMQ(fastRefund);
+    	
+//    	String waybillCode = fastRefundRequest.getWaybillCode().toString();
+//		logger.info("FastRefundServiceImpl.execRefund 开始查询运单[" + waybillCode + "]");
+//		BigWaybillDto waybill = queryWaybillByCode(waybillCode);
+//		
+//		if(isCancel(waybillCode)){
+//			logger.info("FastRefundServiceImpl.execRefund 运单为取消锁定订单[" + waybillCode + "]");
+//			return FastRefundService.WAYBILL_IS_CANCEL;
+//		}
+//		 
+//		if(waybill.getWaybill() == null){
+//			logger.info("FastRefundServiceImpl.execRefund 查询运单信息为空[" + waybillCode + "]");
+//			return FastRefundService.WAYBILL_NOT_FIND;
+//		}
+//		
+//		if(null!=waybill.getWaybill().getWaybillSign() && waybill.getWaybill().getWaybillSign().length()>0){
+////			1、 京东自营订单 
+////			2、 SOP订单 
+////			3、 纯外单 
+////			4、 售后绑定的面单
+//
+//			Integer waybillsign = Integer.valueOf(waybill.getWaybill().getWaybillSign().charAt(0));
+//			fastRefund.setWaybillSign(waybillsign);
+//		}
+//
+//    	String json = JsonHelper.toJson(fastRefund);
+//    	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM接口 body:" + json);
+//    	//mqService.pubshMq(MQ_KEY, json, waybillCode);
+//        orbrefundRqMQ.send(waybillCode,json);
+//    	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM FINISH");
+//    	return FastRefundService.SUCCESS;
 	}
     
     private FastRefund toFastRefund(FastRefundRequest fastRefundRequest){
@@ -302,5 +306,66 @@ public class FastRefundServiceImpl implements FastRefundService{
 
 	public boolean isCancel(String waybillCode){
 		return WaybillCancelClient.isWaybillCancel(waybillCode);
+	}
+
+	/**
+	 * 分拣逆向触发快速退款发送orbrefundRqMQ
+	 */
+	@Override
+	public String execRefund(Sorting sorting) throws Exception {
+		FastRefund fastRefund = toFastRefundBySorting(sorting);
+		return sendOrbrefundRqMQ(fastRefund);
+	}
+	
+	private FastRefund toFastRefundBySorting(Sorting sorting){
+    	FastRefund fastRefund = new FastRefund();
+    	fastRefund.setOrderId(Long.parseLong(sorting.getWaybillCode()));//订单号　   	 
+    	fastRefund.setApplyReason("分拣中心快速退款");//申请原因    	 
+    	fastRefund.setReqErp(String.valueOf(sorting.getCreateUserCode()));//申请人erp账号    	 
+    	fastRefund.setReqName(sorting.getCreateUser());//申请人name    	 
+    	fastRefund.setSystemId(13);//分拣中心 13    	 
+    	fastRefund.setApplyDate(sorting.getOperateTime().getTime());//申请时间    	 
+    	fastRefund.setReqDMSId(sorting.getCreateSiteCode());//分拣中心id    	 
+    	fastRefund.setReqDMSName(sorting.getCreateSiteName());//分拣中心名称
+    	
+    	return fastRefund;
+    }
+	
+	private String sendOrbrefundRqMQ(FastRefund fastRefund){
+		String waybillCode = fastRefund.getOrderId().toString();
+		logger.info("FastRefundServiceImpl.execRefund 开始查询运单[" + waybillCode + "]");
+		BigWaybillDto waybill = queryWaybillByCode(waybillCode);
+		
+		if(isCancel(waybillCode)){
+			logger.info("FastRefundServiceImpl.execRefund 运单为取消锁定订单[" + waybillCode + "]");
+			return FastRefundService.WAYBILL_IS_CANCEL;
+		}
+		 
+		if(waybill.getWaybill() == null){
+			logger.info("FastRefundServiceImpl.execRefund 查询运单信息为空[" + waybillCode + "]");
+			return FastRefundService.WAYBILL_NOT_FIND;
+		}
+		
+		if(null!=waybill.getWaybill().getWaybillSign() && waybill.getWaybill().getWaybillSign().length()>0){
+//			1、 京东自营订单 
+//			2、 SOP订单 
+//			3、 纯外单 
+//			4、 售后绑定的面单
+
+			Integer waybillsign = Integer.valueOf(waybill.getWaybill().getWaybillSign().charAt(0));
+			fastRefund.setWaybillSign(waybillsign);
+		}
+
+    	String json = JsonHelper.toJson(fastRefund);
+    	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM接口 body:" + json);
+    	//mqService.pubshMq(MQ_KEY, json, waybillCode);
+        try {
+			orbrefundRqMQ.send(waybillCode,json);
+		} catch (JMQException e) {
+			// TODO Auto-generated catch block
+			logger.error("orbrefundRqMQ send error", e);
+		}
+    	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM FINISH");
+    	return FastRefundService.SUCCESS;
 	}
 }

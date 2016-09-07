@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.queryTool.dao.QueryReverseReceiveDao">
+
+	<resultMap id="reverseReceiveMap"
+		type="com.jd.bluedragon.distribution.queryTool.domain.ReverseReceive">
+		<result column="fingerprint" property="fingerprint" />
+		<result column="operate_time" property="operateTime" />
+		<result column="operator" property="operator" />
+		<result column="can_receive" property="canReceive" />
+		<result column="reject_code" property="rejectCode" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="reject_message" property="rejectMessage" />
+		<result column="yn" property="yn" />
+		<result column="operator_code" property="operatorCode" />
+		<result column="send_code" property="sendCode" />
+		<result column="package_barcode" property="packageBarCode" />
+		<result column="business_type" property="businessType" />
+
+	</resultMap>
+
+	<sql id="sql_columns">
+		fingerprint,operate_time,operator,can_receive,reject_code,create_time,update_time,reject_message,
+		yn,operator_code,send_code,package_barcode,business_type
+	</sql>
+
+	<select id="queryByCondition" parameterType="java.util.Map"
+			resultMap="reverseReceiveMap">
+		select
+		<include refid="sql_columns" />
+		from reverse_receive
+		<include refid="selectWhere"/>
+		order by system_id desc
+		<if test="startIndex !=null and endIndex!=null">
+			limit ${startIndex},${endIndex}
+		</if>
+	</select>
+
+	<sql id="selectWhere">
+		<where>
+			yn !=0
+			<if test="sendCode != null and sendCode != ''">
+				and send_code =
+				#{sendCode,jdbcType=VARCHAR}
+			</if>
+			<if test="packageBarCode != null and packageBarCode != ''">
+				and package_barcode =
+				#{packageBarCode,jdbcType=VARCHAR}
+			</if>
+			<if test="businessType != null and businessType != ''">
+				and business_type =
+				#{businessType,jdbcType=INTEGER}
+			</if>
+			<if test="operator != null and operator != ''">
+				and operator like
+				#{operator,jdbcType=VARCHAR}
+			</if>
+			<if test="canReceive != null and canReceive != -1">
+				and can_receive =
+				#{canReceive,jdbcType=INTEGER}
+
+			</if>
+		</where>
+	</sql>
+	<select id="countByCondition" parameterType="java.util.Map"
+			resultType="int">
+		select count(*) from reverse_receive
+		<include refid="selectWhere"/>
+	</select>
+
+</mapper>

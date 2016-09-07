@@ -84,7 +84,7 @@
 		<include refid="Base_Where_List" />
 		order by update_time desc
 		<if test="startIndex != null">
-			LIMIT #{startIndex},#{endIndex}
+			LIMIT #{startIndex},#{pageSize}
 		</if>
 	</select>
 	
