@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.systemLog.dao;
 
+import com.jd.bluedragon.utils.ObjectMapHelper;
 import org.junit.Assert;
 import org.junit.After;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 
 import java.util.Date;
+import java.util.Map;
 
 public class SystemLogDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -42,7 +44,8 @@ public class SystemLogDaoTest extends AbstractDaoIntegrationTest{
         parameter.setKeyword4((long)1577);
         parameter.setContent("Mary");
         parameter.setType((long)3043);
-//        systemLogDao.totalSizeByParams(parameter);
+        Map<String,Object> param = ObjectMapHelper.makeObject2Map(parameter);
+        systemLogDao.totalSizeByParams(param);
     }
 	
 	@Test
@@ -55,8 +58,9 @@ public class SystemLogDaoTest extends AbstractDaoIntegrationTest{
         parameter.setKeyword4((long)9180);
         parameter.setContent("Jax");
         parameter.setType((long)7715);
-        // parameter.getEndIndex(new Object());
-        // parameter.getStartIndex(new Object());
-//        systemLogDao.queryByParams(parameter);
+        Map<String,Object> param = ObjectMapHelper.makeObject2Map(parameter);
+        param.put("startIndex",1L);
+        param.put("pageSize", 2L);
+        systemLogDao.queryByParams(param);
     }
 }

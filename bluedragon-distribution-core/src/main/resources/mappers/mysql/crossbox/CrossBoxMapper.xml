@@ -256,7 +256,7 @@
         original_dms_id =
         #{originalDmsId,jdbcType=INTEGER} and destination_dms_id =
         #{destinationDmsId,jdbcType=INTEGER} and (yn =1 or yn=2)
-        and rownum = 1
+        limit 1
     </select>
 
     <select id="getFullLineByDmsId" parameterType="crossBox"

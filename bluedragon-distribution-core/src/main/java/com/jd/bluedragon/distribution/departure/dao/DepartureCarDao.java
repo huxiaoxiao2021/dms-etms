@@ -42,6 +42,7 @@ public class DepartureCarDao extends BaseDao<DepartureCar> {
         return (DeparturePrintResponse)this.getSqlSession().selectOne(namespace + ".queryArteryBillingInfo", carCode);
     }
 
+    @Deprecated
     public DeparturePrintResponse queryArteryBillingInfoByBoxCode(String boxCode){
         return (DeparturePrintResponse) this.getSqlSession().selectOne(namespace + ".queryArteryBillingInfoByBoxCode", boxCode);
     }

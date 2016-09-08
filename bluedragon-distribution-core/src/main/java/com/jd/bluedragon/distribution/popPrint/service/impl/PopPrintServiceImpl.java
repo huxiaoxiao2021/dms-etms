@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.utils.CollectionHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -92,21 +94,39 @@ public class PopPrintServiceImpl implements PopPrintService {
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
-		 List<PopPrint> popList = popPrintDao.findLimitListNoReceive(paramMap);
-		 if(popList!=null && !popList.isEmpty()){
-			 Inspection inspection = new Inspection();
-			 for(PopPrint popPrint :popList){
-				 inspection.setCreateSiteCode(popPrint.getCreateSiteCode());
-				 inspection.setWaybillCode(popPrint.getWaybillCode());
-				 inspection.setPackageBarcode(popPrint.getPackageBarcode());
-				 inspection.setInspectionType(popPrint.getPopReceiveType());
-				 if(inspectionDao.havePOPInspection(inspection)){
-					 popList.remove(popPrint);
-				 }
-			 }
-		 }
-		return popList;
-	}
+    public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
+        List<PopPrint> popList = popPrintDao.findLimitListNoReceive(paramMap);
+        if (popList != null && !popList.isEmpty()) {
+            for (PopPrint popPrint : popList) {
+                // 优化拆分表和非拆分表查询语句加入的代码
+                String ownSign = (String) paramMap.get("ownSign");
+                Inspection inspection = new Inspection();
+                inspection.setWaybillCode(popPrint.getWaybillCode());
+                inspection.setPackageBarcode(popPrint.getPackageBarcode());
+                if("PRE".equals(ownSign)) {
+                    inspection.setInspectionType(60);
+                } else {
+                    inspection.setInspectionType(40);
+                }
+                List<Inspection> inspectionList = inspectionDao.queryByCondition(inspection);
+                if(null != inspectionList && inspectionList.size() > 0) {
+                    popList.remove(popPrint);
+                    continue;
+                }
+
+
+                //原来的代码
+                inspection = new Inspection();
+                inspection.setCreateSiteCode(popPrint.getCreateSiteCode());
+                inspection.setWaybillCode(popPrint.getWaybillCode());
+                inspection.setPackageBarcode(popPrint.getPackageBarcode());
+                inspection.setInspectionType(popPrint.getPopReceiveType());
+                if (inspectionDao.havePOPInspection(inspection)) {
+                    popList.remove(popPrint);
+                }
+            }
+        }
+        return popList;
+    }
 
 }

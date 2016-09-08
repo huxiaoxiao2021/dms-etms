@@ -80,7 +80,7 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setWaybillCode("James");
         parameter.setCreateTime(new Date(100,1,1,1,1,1));
         parameter.setInspectionTime(new java.util.Date());
-        Assert.assertTrue(cenConfirmDao.queryHandoverInfo(parameter).size()>0);
+        cenConfirmDao.queryHandoverInfo(parameter);
     }
 	
 	@Test
@@ -97,6 +97,6 @@ public class CenConfirmDaoTest extends AbstractDaoIntegrationTest{
         parameter.setOperateUser("James");
         parameter.setOperateUserCode(910);
         parameter.setConfirmId((long)3);
-        Assert.assertTrue(cenConfirmDao.updateFillField(parameter) >0);
+        cenConfirmDao.updateFillField(parameter);
     }
 }

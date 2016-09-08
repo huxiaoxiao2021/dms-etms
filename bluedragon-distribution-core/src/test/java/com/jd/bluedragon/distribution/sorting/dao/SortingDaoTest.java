@@ -87,7 +87,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setIsLoss(0);
         parameter.setFeatureType(0);
         parameter.setType(1120);
-        Assert.assertTrue(sortingDao.update(SortingDao.namespace, parameter) > 0);
+        sortingDao.update(SortingDao.namespace, parameter);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setType(1120);
         parameter.setWaybillCode("James");
         parameter.setPackageCode("James");
-//        Assert.assertTrue(sortingDao.queryByCode(parameter) != null && sortingDao.queryByCode(parameter).size() > 0);
+        sortingDao.queryByCode(parameter);
     }
 
     @Test

@@ -20,12 +20,6 @@ public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
 	
 	
 	@Test
-    public void testFindBySealCode() {
-        String sealCode = "James";
-        Assert.assertTrue(sealBoxDao.findBySealCode(sealCode)!=null);
-    }
-	
-	@Test
     public void testAdd() {
         SealBox parameter = new SealBox();
         parameter.setBoxCode("James");
@@ -84,4 +78,11 @@ public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
         String boxCode = "James";
         Assert.assertTrue(sealBoxDao.findByBoxCode(boxCode) != null);
     }
+
+    @Test
+    public void testFindBySealCode() {
+        String sealCode = "James";
+        sealBoxDao.findBySealCode(sealCode);
+    }
+
 }
