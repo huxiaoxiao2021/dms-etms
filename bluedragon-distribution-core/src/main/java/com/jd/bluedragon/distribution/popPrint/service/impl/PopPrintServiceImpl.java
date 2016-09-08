@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -96,6 +97,7 @@ public class PopPrintServiceImpl implements PopPrintService {
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
         List<PopPrint> popList = popPrintDao.findLimitListNoReceive(paramMap);
+        List<PopPrint> target=new LinkedList<PopPrint>();
         if (popList != null && !popList.isEmpty()) {
             for (PopPrint popPrint : popList) {
                 // 优化拆分表和非拆分表查询语句加入的代码
@@ -110,7 +112,7 @@ public class PopPrintServiceImpl implements PopPrintService {
                 }
                 List<Inspection> inspectionList = inspectionDao.queryByCondition(inspection);
                 if(null != inspectionList && inspectionList.size() > 0) {
-                    popList.remove(popPrint);
+                    //popList.remove(popPrint);
                     continue;
                 }
 
@@ -122,11 +124,14 @@ public class PopPrintServiceImpl implements PopPrintService {
                 inspection.setPackageBarcode(popPrint.getPackageBarcode());
                 inspection.setInspectionType(popPrint.getPopReceiveType());
                 if (inspectionDao.havePOPInspection(inspection)) {
-                    popList.remove(popPrint);
+                    //popList.remove(popPrint);///DEBUG TO DO
+                    continue;
                 }
+
+                target.add(popPrint);
             }
         }
-        return popList;
+        return target;
     }
 
 }
