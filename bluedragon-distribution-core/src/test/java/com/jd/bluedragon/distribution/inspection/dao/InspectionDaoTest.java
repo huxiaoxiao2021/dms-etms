@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -212,5 +215,14 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(741);
         parameter.setBoxCode("Jax");
         inspectionDao.updateYnByPackage(parameter);
+    }
+
+    @Test
+    public void testSelectSelective() {
+        testAdd();
+        Inspection inspection = new Inspection();
+        inspection.setWaybillCode("joe1");
+        inspection.setPackageBarcode("jim1");
+        Assert.assertEquals(1,inspectionDao.queryByCondition(inspection).size());
     }
 }
