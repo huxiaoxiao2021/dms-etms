@@ -168,6 +168,26 @@
 			</list>
 		</property>
 	</bean>
+	
+	<!-- new vts baseSetConfig -->
+	<bean id="vtsBaseSetConfig" class="com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig">
+		<property name="erroral">
+			<list>
+				<value>110</value>
+				<value>120</value>
+				<value>130</value>
+				<value>140</value>
+			</list>
+		</property>
+		<property name="sitetype" value="18" />
+		<property name="capacityType">
+			<list>
+				<value>1011</value>
+				<value>1004</value>
+				<value>1001</value>
+			</list>
+		</property>
+	</bean>
     <!--
 	<util:properties id="mqsenderProperties" location="classpath:configured/mqsender.properties"></util:properties>
 	
