@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.send.dao;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
-import com.jd.bluedragon.distribution.send.domain.SendM;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class SendMDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -16,13 +15,13 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
 	private SendMDao sendMDao;
 	
 	
-	//@Test
+	@Test
     public void testSelectOneBySiteAndSendCode() {
         sendMDao.selectOneBySiteAndSendCode(510, "Jone");
     }
 	
 	
-	//@Test
+	@Test
     public void testUpdateBySendCodeSelective() {
         SendM parameter = new SendM();
         parameter.setSendCode("Joe");
@@ -45,7 +44,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.updateBySendCodeSelective(parameter);
     }
 	
-	//@Test
+	@Test
     public void testCheckSendByBox() {
         SendM parameter = new SendM();
         parameter.setSendType(868);
@@ -56,7 +55,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
     }
 	
 	
-	//@Test
+	@Test
     public void testSelectBySiteAndSendCodeBYtime() {
         SendM parameter = new SendM();
         parameter.setSendCode("James");
@@ -64,24 +63,24 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.selectBySiteAndSendCodeBYtime(789, "James");
     }
 	
-	//@Test
+	@Test
     public void testSelectBoxBySendCode() {
         SendM parameter = new SendM();
         parameter.setSendCode("Jone");
         sendMDao.selectBoxBySendCode("Jone");
     }
 	
-	//@Test
+	@Test
     public void testBatchQueryCancelSendMList() {
         SendM parameter = new SendM();
         parameter.setCreateSiteCode(0);
         parameter.setReceiveSiteCode(437);
-        parameter.setBoxCode("Jone");
+        parameter.setBoxCode("'Jone'");
         sendMDao.batchQueryCancelSendMList(parameter);
     }
 	
 	
-	//@Test
+	@Test
     public void testSelectBySendSiteCode() {
         SendM parameter = new SendM();
         parameter.setCreateSiteCode(175);
@@ -94,7 +93,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.selectBySendSiteCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testSelectOneBySendCode() {
         SendM parameter = new SendM();
         parameter.setSendCode("Mary");
@@ -102,7 +101,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
     }
 	
 	
-	//@Test
+	@Test
     public void testSelectBySendCode() {
         SendM parameter = new SendM();
         parameter.setSendCode("Mary");
@@ -132,9 +131,20 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.insertSendM(parameter);
     }
 	
-	//@Test
+//	@Test
     public void testAddBatch() {
-        List parameter = new ArrayList();
+        List<SendM> parameter = new ArrayList<SendM>();
+        for(int i = 0; i < 10; i++) {
+            SendM sendM = new SendM();
+            sendM.setSendCode("jamse" + i);
+            sendM.setSendUser("zhang" + i);
+            sendM.setBoxCode("BC124312" + i);
+            sendM.setCreateSiteCode(13);
+            sendM.setReceiveSiteCode(14);
+            sendM.setCreateUser("lisi");
+            sendM.setCreateUserCode(111);
+            parameter.add(sendM);
+        }
         //set property for item.sendCode
         //set property for item.sendUser
         //set property for item.sendUserCode
@@ -156,7 +166,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.addBatch(parameter);
     }
 	
-	//@Test
+	@Test
     public void testFindSendMByBoxCode() {
         SendM parameter = new SendM();
         parameter.setCreateSiteCode(756);
@@ -166,7 +176,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.findSendMByBoxCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testSelectBySiteAndSendCode() {
         SendM parameter = new SendM();
         parameter.setSendCode("Jone");
@@ -174,23 +184,23 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         sendMDao.selectBySiteAndSendCode(330, "Jone");
     }
 	
-	///@Test
+	@Test
     public void testQuerySendCodesByDepartue() {
         SendM parameter = new SendM();
         parameter.setShieldsCarId((long)4609);
         sendMDao.querySendCodesByDepartue(4609l);
     }
 	
-	//@Test
+	@Test
     public void testBatchQuerySendMList() {
         SendM parameter = new SendM();
         parameter.setCreateSiteCode(86);
         parameter.setReceiveSiteCode(932);
-        parameter.setBoxCode("Jim");
+        parameter.setBoxCode("'Jim'");
         sendMDao.batchQuerySendMList(parameter);
     }
 	
-	//@Test
+	@Test
     public void testCancelSendM() {
         SendM parameter = new SendM();
         parameter.setUpdateUserCode(131);

@@ -17,8 +17,43 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private InspectionDao inspectionDao;
-	
-	@Test
+
+    @Test
+    public void testAdd() {
+        Inspection parameter = new Inspection();
+        parameter.setInspectionId((long)2738);
+        parameter.setWaybillCode("Joe1");
+        parameter.setBoxCode("Stone1");
+        parameter.setPackageBarcode("Jim1");
+        parameter.setExceptionType("1");
+        parameter.setInspectionType(50);
+        parameter.setOperateType(1);
+        parameter.setCreateUser("Stone");
+        parameter.setCreateUserCode(276);
+        parameter.setCreateTime(new Date());
+        parameter.setCreateSiteCode(593);
+        parameter.setReceiveSiteCode(204);
+        parameter.setUpdateUser("James");
+        parameter.setUpdateUserCode(542);
+        parameter.setCreateTime(new Date());
+        parameter.setThirdWaybillCode("Mary");
+        parameter.setPopFlag(1);
+        parameter.setPopSupId(830);
+        parameter.setPopSupName("Joe");
+        parameter.setQuantity(285);
+        parameter.setCrossCode("James");
+        parameter.setWaybillType(1);
+        parameter.setPopReceiveType(3);
+        parameter.setQueueNo("Jim");
+        parameter.setDriverCode("Stone");
+        parameter.setDriverName("Jone");
+        parameter.setBusiId(639);
+        parameter.setBusiName("Stone");
+        inspectionDao.add(InspectionDao.namespace, parameter);
+    }
+
+
+    @Test
     public void testFindBPopJoinTotalCount() {
         Map parameter = new HashMap();
         // parameter.put("createSiteCode", new Object());
@@ -64,40 +99,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         inspectionDao.updatePop(parameter);
     }
 	
-	@Test
-    public void testAdd() {
-        Inspection parameter = new Inspection();
-        parameter.setInspectionId((long)2738);
-        parameter.setWaybillCode("Joe1");
-        parameter.setBoxCode("Stone1");
-        parameter.setPackageBarcode("Jim1");
-        parameter.setExceptionType("1");
-        parameter.setInspectionType(50);
-        parameter.setOperateType(1);
-        parameter.setCreateUser("Stone");
-        parameter.setCreateUserCode(276);
-        parameter.setCreateTime(new Date());
-        parameter.setCreateSiteCode(593);
-        parameter.setReceiveSiteCode(204);
-        parameter.setUpdateUser("James");
-        parameter.setUpdateUserCode(542);
-        parameter.setCreateTime(new Date());
-        parameter.setThirdWaybillCode("Mary");
-        parameter.setPopFlag(1);
-        parameter.setPopSupId(830);
-        parameter.setPopSupName("Joe");
-        parameter.setQuantity(285);
-        parameter.setCrossCode("James");
-        parameter.setWaybillType(1);
-        parameter.setPopReceiveType(3);
-        parameter.setQueueNo("Jim");
-        parameter.setDriverCode("Stone");
-        parameter.setDriverName("Jone");
-        parameter.setBusiId(639);
-        parameter.setBusiName("Stone");
-        inspectionDao.add(InspectionDao.namespace, parameter);
-    }
-	
+
 	@Test
     public void testFindBPopJoinList() {
         Map parameter = new HashMap();
@@ -145,7 +147,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
     public void testFindPopJoinList() {
         Map parameter = new HashMap();
        
-        parameter.put("endIndex", 2);
+        parameter.put("pageSize", 2);
         parameter.put("startIndex", 1);
         
         parameter.put("createSiteCode", 596);
@@ -181,7 +183,7 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindPopByWaybillCodes() {
-		List parameter = new ArrayList();
+		List<String> parameter = new ArrayList<String>();
 		parameter.add("123");
         inspectionDao.findPopByWaybillCodes(parameter);
     }

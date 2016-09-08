@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.abnormalorder.dao;
 
 import java.util.Date;
+
 import org.junit.Test;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 
@@ -10,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 
-public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
-	
-	@Autowired
-	private AbnormalOrderDao abnormalOrderDao;
+public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest {
+
+    @Autowired
+    private AbnormalOrderDao abnormalOrderDao;
 
 
     @Test
@@ -43,8 +44,8 @@ public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
         AbnormalOrder abnormalOrder = abnormalOrderDao.query(orderId);
         Assert.assertNotNull(abnormalOrder);
     }
-	
-	@Test
+
+    @Test
     public void testUpdateResult() {
         AbnormalOrder parameter = new AbnormalOrder();
         parameter.setMemo("Joe");
@@ -53,8 +54,8 @@ public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
         int i = abnormalOrderDao.updateResult(parameter);
         Assert.assertEquals(1, i);
     }
-	
-	@Test
+
+    @Test
     public void testUpdate() {
         AbnormalOrder parameter = new AbnormalOrder();
         parameter.setFingerprint("Jim");
@@ -74,6 +75,6 @@ public class AbnormalOrderDaoTest extends AbstractDaoIntegrationTest{
         int i = abnormalOrderDao.updateSome(parameter);
         Assert.assertEquals(1, i);
     }
-	
+
 
 }

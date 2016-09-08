@@ -13,6 +13,7 @@
     <result column="create_user" property="createUser" jdbcType="VARCHAR" />
     <result column="create_user_code" property="createUserCode" jdbcType="INTEGER" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
     <result column="create_site_code" property="createSiteCode" jdbcType="INTEGER" />
     <result column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER"/>
     <result column="update_user" property="updateUser" jdbcType="VARCHAR"/>
@@ -38,13 +39,68 @@
     inspection_id, waybill_code, box_code, 
     package_barcode, inspection_status, exception_type, 
     inspection_type, operate_type, create_user, 
-    create_user_code, create_time, create_site_code , 
+    create_user_code, create_time,operate_time, create_site_code ,
     receive_site_code, update_user, 
     update_user_code, update_time, yn, third_waybill_code, pop_flag,
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
     pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name
   </sql>
-  
+	<sql id ="where_condition">
+		<where>
+			<if test="thirdWaybillCode!= null">
+				AND third_waybill_code =#{thirdWaybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="inspectionId!=null">
+				AND inspection_id = #{inspectionId,jdbcType=INTEGER}
+			</if>
+			<if test="waybillCode!=null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="boxCode!=null">
+				AND box_code = #{boxCode,jdbcType=VARCHAR}
+			</if>
+			<if test="packageBarcode!=null">
+				AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+			</if>
+			<if test="status!=null">
+				AND inspection_status = #{status,jdbcType=INTEGER}
+			</if>
+			<if test="exceptionType!=null">
+				AND exception_type = #{exceptionType,jdbcType=VARCHAR}
+			</if>
+			<if test="inspectionType!=null">
+				AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+			</if>
+			<if test="createUser!=null">
+				AND create_user = #{createUser,jdbcType=VARCHAR}
+			</if>
+			<if test="createUserCode!=null">
+				AND create_user_code = #{createUserCode,jdbcType=INTEGER}
+			</if>
+			<if test="createTime!=null">
+				AND create_time=#{createTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="createSiteCode!=null">
+				AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="receiveSiteCode!=null">
+				AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="updateUser!=null">
+				AND update_user = #{updateUser,jdbcType=VARCHAR}
+			</if>
+			<if test="updateUserCode!=null">
+				AND update_user_code = #{updateUserCode,jdbcType=INTEGER}
+			</if>
+			<if test="updateTime!=null">
+				AND updateTime = #{updateTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="yn!=null">
+				AND yn = #{yn,jdbcType=INTEGER}
+			</if>
+		</where>
+	</sql>
+
   <sql id="Pop_Join_Where_List">
 	<where>
  		yn = 1
@@ -136,6 +192,44 @@
   </sql>
 
   
+	<select id="queryForObject" parameterType="Inspection" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM inspection
+		<include refid="where_condition"/>
+		AND rownum <![CDATA[<=]]> 1
+	</select>
+
+
+	<select id="selectSelective" resultMap="BaseResultMap"  parameterType="Inspection">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM inspection
+		<include refid="where_condition"/>
+		<if test="limitNo!=null and startNo!=null">
+			AND rownum <![CDATA[<=]]> ${limitNo}
+		</if>
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM inspection
+		WHERE inspection_id = #{inspectionId,jdbcType=BIGINT}
+	</select>
+
+	<select id="queryListByBox" resultMap="BaseResultMap"  parameterType="Inspection">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM inspection
+		WHERE box_code = #{boxCode,jdbcType=VARCHAR}
+		AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND inspection_type=30
+		AND yn=1
+	</select>
+
   <select id="inspectionCount" resultType="Integer"  parameterType="Inspection">
 	  SELECT
 	  COUNT(*)
@@ -185,7 +279,7 @@
 		</if>
 	</select>
 	
-	<select id="findPopByWaybillCodes" resultMap="BaseResultMap" parameterType="java.util.Map">
+	<select id="findPopByWaybillCodes" resultMap="BaseResultMap">
 		select 
 			<include refid="Base_Column_List" />
 	 	from inspection
@@ -193,9 +287,6 @@
  		<foreach item="waybillCode" index="index" collection="list" open="(" separator="," close=")">
             #{waybillCode}
         </foreach>
-		<if test="create_site_code != null">
-			and create_site_code = #{createSiteCode, jdbcType=INTEGER}
-		</if>
 		order by inspection_id 
 	</select>
   
@@ -210,7 +301,7 @@
     	#{inspectionId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{exceptionType,jdbcType=VARCHAR},
 		#{inspectionType,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
-      	#{createUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
+		#{createUserCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{operateTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
       	#{receiveSiteCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
       	#{updateUserCode,jdbcType=INTEGER}, #{createTime, jdbcType=TIMESTAMP}, 1, #{thirdWaybillCode,jdbcType=VARCHAR},
       	#{popFlag,jdbcType=INTEGER}, #{popSupId,jdbcType=INTEGER}, #{popSupName,jdbcType=VARCHAR}, 
@@ -220,12 +311,47 @@
       )
   </insert>
   
+	<update id="updateByBoxPackageBarcode" parameterType="map" >
+		UPDATE inspection
+		<set >
+			<if test="waybillCode != null" >
+				waybill_code = #{waybillCode,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null" >
+				inspection_status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="exceptionType != null" >
+				exception_type = #{exceptionType,jdbcType=VARCHAR},
+			</if>
+			<if test="inspectionType!=null">
+				inspection_type = #{inspectionType,jdbcType=INTEGER},
+			</if>
+			<if test="createSiteCode != null" >
+				create_site_code = #{createSiteCode,jdbcType=INTEGER},
+			</if>
+			<if test="receiveSiteCode!=null">
+				receive_site_code = #{record.receiveSiteCode,jdbcType=INTEGER},
+			</if>
+			<if test="updateUser!=null">
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUserCode!=null">
+				update_user_code = #{updateUserCode,jdbcType=INTEGER},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="yn != null" >
+				yn = #{yn,jdbcType=INTEGER},
+			</if>
+		</set>
+		WHERE box_code = #{boxCode,jdbcType=VARCHAR} AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+	</update>
   <update id="update" parameterType="Inspection" >
 	UPDATE inspection
     <set> 
 		box_code = #{boxCode,jdbcType=VARCHAR},
 		exception_type = #{exceptionType,jdbcType=VARCHAR},
-   		receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
    		update_user =#{updateUser,jdbcType=VARCHAR},
    		update_user_code = #{updateUserCode,jdbcType=INTEGER},
    		update_time = #{updateTime,jdbcType=TIMESTAMP},
@@ -304,6 +430,14 @@
 		</if>
   </update>
   
+	<update id="updateStatusBatchByPrimaryKey" parameterType="list">
+		UPDATE inspection
+		SET inspection_status=1
+		WHERE
+		<foreach collection="list" item="record" separator="OR" open="" close="">
+			inspection_id = #{record.inspectionId,jdbcType=BIGINT}
+		</foreach>
+	</update>
   <update id="updateYnByPackage" parameterType="Inspection">
   	UPDATE inspection 
   	SET yn=0, update_user =#{updateUser,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=INTEGER}
@@ -346,10 +480,6 @@
   			AND inspection_type != 20
   			</if>
 
-	        <if test="createSiteCode != null">
-		     AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
-	        </if>
-  		
 		 LIMIT 1
 	</select>
 	

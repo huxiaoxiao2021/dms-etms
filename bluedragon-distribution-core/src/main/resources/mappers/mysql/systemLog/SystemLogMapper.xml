@@ -27,7 +27,7 @@
 		<where>
 			yn = 1
 			<if test="id != null">
-				AND system = #{id}
+				AND id = #{id}
 			</if>
 			<if test="keyword1 != null">
 				AND keyword1 = #{keyword1}
