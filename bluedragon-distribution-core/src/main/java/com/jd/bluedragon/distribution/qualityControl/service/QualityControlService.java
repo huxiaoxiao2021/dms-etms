@@ -126,6 +126,7 @@ public class QualityControlService {
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
             //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
+            logger.info("执行自营换新单  convert2ExchangeNewWaybill exchangeOwnWaybill ");
             OwnReverseTransferDomain domain=convert2ExchangeNewWaybill(sendDetail, request);
             reversePrintService.exchangeOwnWaybill(domain);
 
