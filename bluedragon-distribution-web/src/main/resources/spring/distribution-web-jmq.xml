@@ -9,47 +9,47 @@
 	    http://www.springframework.org/schema/util
 	    http://www.springframework.org/schema/util/spring-util.xsd">
 	<!-- jmq transport配置区 -->
-	<jmq:transport id="jmq.BlueDragonDistribution.transport"
-	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
-	password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
+	<!--<jmq:transport id="jmq.BlueDragonDistribution.transport"-->
+	<!--address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"-->
+	<!--password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />-->
 
-	<jmq:transport id="jmq.bd.transport"
-		address="${jmq.bd.address}" user="${jmq.bd.user}"
-		password="${jmq.bd.password}" app="${jmq.bd.app}" />
+	<!--<jmq:transport id="jmq.bd.transport"-->
+		<!--address="${jmq.bd.address}" user="${jmq.bd.user}"-->
+		<!--password="${jmq.bd.password}" app="${jmq.bd.app}" />-->
 
-	<jmq:transport id="jmq.BlueDragonDistributionStock.transport"
-		address="${jmq.BlueDragonDistributionStock.address}" user="${jmq.BlueDragonDistributionStock.user}"
-		password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />
+	<!--<jmq:transport id="jmq.BlueDragonDistributionStock.transport"-->
+		<!--address="${jmq.BlueDragonDistributionStock.address}" user="${jmq.BlueDragonDistributionStock.user}"-->
+		<!--password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />-->
 
-	<jmq:transport id="jmq.BlueDragonDistributionPop.transport"
-		address="${jmq.BlueDragonDistributionPop.address}" user="${jmq.BlueDragonDistributionPop.user}"
-		password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />	
-		
-	<!-- jmq 消费客户端配置区 -->	    
-    <!--&lt;!&ndash; 一车一单发车 &ndash;&gt;-->
-    <!--<jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">-->
-        <!--<jmq:listener topic="vos_send_car" listener="sendCarConsumer"/>-->
+	<!--<jmq:transport id="jmq.BlueDragonDistributionPop.transport"-->
+		<!--address="${jmq.BlueDragonDistributionPop.address}" user="${jmq.BlueDragonDistributionPop.user}"-->
+		<!--password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />	-->
+		<!---->
+	<!--&lt;!&ndash; jmq 消费客户端配置区 &ndash;&gt;	    -->
+    <!--&lt;!&ndash;&lt;!&ndash; 一车一单发车 &ndash;&gt;&ndash;&gt;-->
+    <!--&lt;!&ndash;<jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">&ndash;&gt;-->
+        <!--&lt;!&ndash;<jmq:listener topic="vos_send_car" listener="sendCarConsumer"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;</jmq:consumer>&ndash;&gt;-->
+
+    <!--&lt;!&ndash;&lt;!&ndash; 一车一单取消发车 &ndash;&gt;&ndash;&gt;-->
+    <!--&lt;!&ndash;<jmq:consumer id="jmq.cancelSendCarConsumer" transport="jmq.BlueDragonDistribution.transport">&ndash;&gt;-->
+        <!--&lt;!&ndash;<jmq:listener topic="vos_cancel_send" listener="cancelSendCarConsumer"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;</jmq:consumer>&ndash;&gt;-->
+    	<!--&lt;!&ndash; &ndash;&gt;-->
+    <!--&lt;!&ndash;&lt;!&ndash; 逆向备件库收货消息消费回传库存中间件 &ndash;&gt;&ndash;&gt;-->
+    <!--&lt;!&ndash;<jmq:consumer id="jmq.reverseStockConsumer" transport="jmq.BlueDragonDistributionStock.transport">&ndash;&gt;-->
+        <!--&lt;!&ndash;<jmq:listener topic="bd_dms_reverse_receive" listener="reverseStockConsumer"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;</jmq:consumer>&ndash;&gt;-->
+
+    <!--&lt;!&ndash;&lt;!&ndash; 逆向收货消息消费回传POP系统 &ndash;&gt;&ndash;&gt;-->
+    <!--&lt;!&ndash;<jmq:consumer id="jmq.reversePopConsumer" transport="jmq.BlueDragonDistributionPop.transport">&ndash;&gt;-->
+        <!--&lt;!&ndash;<jmq:listener topic="bd_dms_reverse_receive" listener="reversePopConsumer"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;</jmq:consumer>&ndash;&gt;-->
+    <!---->
+    <!--&lt;!&ndash; 逆向大库收货消息内部系统消费 &ndash;&gt;-->
+    <!--<jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.bd.transport">-->
+        <!--<jmq:listener topic="bd_dms_reverse_receive" listener="reverseReceiveConsumer"/>-->
     <!--</jmq:consumer>-->
-
-    <!--&lt;!&ndash; 一车一单取消发车 &ndash;&gt;-->
-    <!--<jmq:consumer id="jmq.cancelSendCarConsumer" transport="jmq.BlueDragonDistribution.transport">-->
-        <!--<jmq:listener topic="vos_cancel_send" listener="cancelSendCarConsumer"/>-->
-    <!--</jmq:consumer>-->
-    	<!-- -->
-    <!--&lt;!&ndash; 逆向备件库收货消息消费回传库存中间件 &ndash;&gt;-->
-    <!--<jmq:consumer id="jmq.reverseStockConsumer" transport="jmq.BlueDragonDistributionStock.transport">-->
-        <!--<jmq:listener topic="bd_dms_reverse_receive" listener="reverseStockConsumer"/>-->
-    <!--</jmq:consumer>-->
-
-    <!--&lt;!&ndash; 逆向收货消息消费回传POP系统 &ndash;&gt;-->
-    <!--<jmq:consumer id="jmq.reversePopConsumer" transport="jmq.BlueDragonDistributionPop.transport">-->
-        <!--<jmq:listener topic="bd_dms_reverse_receive" listener="reversePopConsumer"/>-->
-    <!--</jmq:consumer>-->
-    
-    <!-- 逆向大库收货消息内部系统消费 -->
-    <jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.bd.transport">
-        <jmq:listener topic="bd_dms_reverse_receive" listener="reverseReceiveConsumer"/>
-    </jmq:consumer>
 
     
     
