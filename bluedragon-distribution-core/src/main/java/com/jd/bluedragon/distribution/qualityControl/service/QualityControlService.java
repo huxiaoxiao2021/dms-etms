@@ -6,7 +6,9 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -53,6 +55,9 @@ public class QualityControlService {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private ReversePrintService reversePrintService;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -120,7 +125,27 @@ public class QualityControlService {
             //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
+            //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
+            OwnReverseTransferDomain domain=convert2ExchangeNewWaybill(sendDetail, request);
+            reversePrintService.exchangeOwnWaybill(domain);
+
         }
+    }
+
+    /**
+     * 异常处理 节点发MQ 换新单
+     * @param sendDetail
+     * @param request
+     * @return
+     */
+    public OwnReverseTransferDomain convert2ExchangeNewWaybill(SendDetail sendDetail,QualityControlRequest request){
+        OwnReverseTransferDomain ownReverseTransferDomain=new OwnReverseTransferDomain();
+        ownReverseTransferDomain.setWaybillCode(sendDetail.getWaybillCode());
+        ownReverseTransferDomain.setSiteId(request.getDistCenterID());
+        ownReverseTransferDomain.setUserId(request.getUserID());
+        ownReverseTransferDomain.setUserRealName(request.getUserName());
+        ownReverseTransferDomain.setSiteName(request.getDistCenterName());
+        return ownReverseTransferDomain;
     }
 
     public BdTraceDto convert2WaybillTrace(SendDetail sendDetail, QualityControlRequest request){

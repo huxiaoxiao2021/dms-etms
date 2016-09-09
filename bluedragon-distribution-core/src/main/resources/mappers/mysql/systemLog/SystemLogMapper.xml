@@ -72,18 +72,13 @@
 	</select>
 
 	<select id="queryByParams" resultMap="systemLog" parameterType="SystemLog">
-		<if test="startIndex != null">
-			select * from ( select t.*, rownum l from (
-		</if>
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM system_log
 		<include refid="Base_Where_List" />
 		order by create_time desc
 		<if test="startIndex != null">
-			) t where <![CDATA[ LIMIT #{endIndex, jdbcType=INTEGER} ]]>
-			) where <![CDATA[l >]]>
-			#{startIndex, jdbcType=INTEGER}
+		  LIMIT #{startIndex},#{pageSize}
 		</if>
 	</select>
 </mapper>

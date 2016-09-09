@@ -305,4 +305,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger) {
        return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
     }
+
+    @Override
+    public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp) {
+        return basicPrimaryWS.getBaseStaffByErp(erp);
+    }
 }

@@ -40,6 +40,8 @@
 		<mapper resource="mappers/oracle/crossSorting/CrossSortingReadMapper.xml"/>
 		<mapper resource="mappers/oracle/globaltrade/LoadBillReadMapper.xml"/>
 		<mapper resource="mappers/oracle/globaltrade/LoadBillReportReadMapper.xml"/>
+
+		<mapper resource="mappers/oracle/queryTool/ReverseReceiveMapper.xml"/>
 	</mappers>
 	
 </configuration>

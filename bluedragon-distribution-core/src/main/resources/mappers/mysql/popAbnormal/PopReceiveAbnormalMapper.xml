@@ -120,7 +120,7 @@
 			ORDER BY ${orderByString} desc
 		</if>
 		<if test="startIndex != null">
-		 LIMIT #{startIndex},#{endIndex}
+		 LIMIT #{startIndex},#{pageSize}
 		</if>
 	</select>
 	

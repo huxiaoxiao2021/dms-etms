@@ -16,6 +16,7 @@
 	<dd><a href="#springUrl('/popQueueManager/query')" target="mainFrame">平台排队号查询</a></dd>
 	<dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
 	<dt><a href="#" class="curr">分拣中心相关查询</a></dt>
+
 	<dd><a href="#springUrl('/base/crossbox/index')" target="mainFrame">跨箱号中转</a></dd>
 	<dd><a href="http://waybill.jd.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
     <dd><a href="#springUrl('/crossSorting')" target="mainFrame">跨分拣校验规则配置</a></dd>
@@ -26,15 +27,16 @@
     <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
 	<dd><a href="#springUrl('/operateLog/goListPage2')" target="mainFrame">分拣中心操作日志(新)</a></dd>
 	<dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
-      <dd><a href="#springUrl('/fresh/index')" target="mainFrame">生鲜温度录入</a></dd>
-      <dt><a href="#" class="curr">工具</a></dt>
+    <dd><a href="#springUrl('/fresh/index')" target="mainFrame">生鲜温度录入</a></dd>
+    <dt><a href="#" class="curr">工具</a></dt>
 	<dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
 	<dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>
 	<dd><a href="/tips/waybill" target="mainFrame">运单判断</a></dd>
 	<dd><a href="/turBoxManager/query" target="mainFrame">收发空箱查询</a></dd>
 	<dd><a href="/tips/repail_waybillSend" target="mainFrame">全国邮政数据重新下发</a></dd>
-      <dd><a href="/sysconfig/dafu/index" target="mainFrame">大福线白名单管理</a></dd>
-      <dd><a href="http://dmsver1.etms.jd.com/gantry/index" target="mainFrame">龙门架账号管理</a></dd>
+    <dd><a href="/sysconfig/dafu/index" target="mainFrame">大福线白名单管理</a></dd>
+    <dd><a href="http://dmsver1.etms.jd.com/gantry/index" target="mainFrame">龙门架账号管理</a></dd>
+    <dd><a a href="#springUrl('/query_reversereceive/index')" target="mainFrame">逆向收货查询</a></dd>
 	<dt><a href="#" class="curr">FAQ</a></dt>
 	<dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
 	<dt><a href="#" class="curr">离线管理</a></dt>

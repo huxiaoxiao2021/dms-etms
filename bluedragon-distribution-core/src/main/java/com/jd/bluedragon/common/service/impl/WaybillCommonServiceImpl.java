@@ -376,7 +376,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 waybill = this.convWaybillWS(baseEntity.getData(), false, false);
 
                 if (waybill == null) {
-                    this.logger.info("运单号【 " + waybillCode + "】调用运单接口成功，运单【" + waybill + "】不存在");
+                    this.logger.info("运单号【 " + waybillCode + "】调用运单接口成功，运单【" + waybillCode + "】不存在");
                     return null;
                 }
 
