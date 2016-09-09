@@ -28,6 +28,9 @@
     <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>
     <import resource="classpath:spring/distribution-core-dcam.xml"/>
 
+	<import resource="classpath:spring/distribution-core-jss.xml"/>
+	<import resource="classpath:spring/distribution-core-ucc.xml"/>
+
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
@@ -38,6 +41,9 @@
 	<context:component-scan base-package="com.jd.bluedragon.core.message.consumer.*" />
 	<context:component-scan base-package="com.jd.bluedragon.core.redis" />
 	<context:component-scan base-package="com.jd.bluedragon.core.base" />
+	<context:component-scan base-package="com.jd.bluedragon.alpha.jss" />
+	<context:component-scan base-package="com.jd.bluedragon.alpha.service" />
+	<context:component-scan base-package="com.jd.bluedragon.alpha.ucc" />
 
 	<bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>
 	<bean id="cacheAspect" class="com.jd.etms.framework.utils.cache.spring.CacheAspect">
