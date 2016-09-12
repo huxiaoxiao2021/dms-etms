@@ -79,8 +79,14 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
         URI uri = null ;
         try{
             uri = jssVersionService.downloadVersion(versionId);
+
         }catch(Exception e){
             logger.error("版本下载失败：",e);
+        }
+        String str = uri.toString();
+        if(str.contains("storage.jd.local")){
+            String strUri = str.replaceAll("storage.jd.local","storage.jd.com");
+            uri = URI.create(strUri);
         }
         return uri.toURL();
     }
