@@ -127,7 +127,7 @@ public class JssVersionServiceImpl implements JssVersionService {
         this.endpoint = endpoint;
     }
 
-    public long getConnectionTimeout() {
+    public int getConnectionTimeout() {
         return connectionTimeout;
     }
 
@@ -135,7 +135,7 @@ public class JssVersionServiceImpl implements JssVersionService {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public long getSocketTimeout() {
+    public int getSocketTimeout() {
         return socketTimeout;
     }
 
