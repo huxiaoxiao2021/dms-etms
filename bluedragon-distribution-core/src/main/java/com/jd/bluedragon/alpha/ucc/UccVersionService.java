@@ -8,7 +8,7 @@ import java.util.List;
  * 单独对ISV版本信息的维护
  * Created by wuzuxiang on 2016/8/25.
  */
-public interface UccVersion {
+public interface UccVersionService {
 
 
     /**
@@ -23,7 +23,14 @@ public interface UccVersion {
      * @param state 版本状态
      * @return
      */
-    public List<Version> queryList(String versionId,String state)throws Exception;
+    public List<Version> queryList(String versionId, boolean state)throws Exception;
+
+    /**
+     * 根据版本编号查询版本信息
+     * @param versionId
+     * @return
+     */
+    public Version queryById(String versionId) throws Exception;
 
     /**
      * 上传版本文件的的同时，需要处理ucc信息备份
@@ -53,7 +60,7 @@ public interface UccVersion {
      * @param versionId
      * @param state
      */
-    public void changeVersionState(String versionId,String state)throws Exception;
+    public void changeVersionState(String versionId, boolean state)throws Exception;
 
 
 }

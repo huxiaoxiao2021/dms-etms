@@ -4,7 +4,6 @@ import com.jd.bluedragon.alpha.domain.PrintDevice;
 import com.jd.bluedragon.alpha.domain.Version;
 import com.jd.bluedragon.alpha.service.PrintDeviceService;
 import com.jd.bluedragon.alpha.service.VersionInfoInUccService;
-import com.jd.bluedragon.distribution.alpha.PrintDeviceDto;
 import com.jd.bluedragon.distribution.alpha.PrintDeviceIdListRequest;
 import com.jd.bluedragon.distribution.alpha.PrintDeviceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -133,7 +132,7 @@ public class PrintDeviceController {
         printDeviceParamsMap.put("printDeviceId",printDevice.getPrintDeviceId());
         printDeviceParamsMap.put("versionId",printDevice.getVersionId());
         printDeviceParamsMap.put("des",printDevice.getDes());
-        printDeviceParamsMap.put("state",printDevice.getState());
+        printDeviceParamsMap.put("state",printDevice.isState());
         printDeviceParamsMap.put("createTime",printDevice.getCreateTime());
 
         ModelAndView mav = new ModelAndView("printDevice/printDeviceModify");
@@ -148,10 +147,10 @@ public class PrintDeviceController {
      */
     @RequestMapping(value = "/modify",method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult doModify(@RequestBody PrintDeviceDto printDeviceDto){
+    public InvokeResult doModify(@RequestBody PrintDevice printDevice){
         InvokeResult result = new InvokeResult();
         try{
-            printDeviceService.modifyPrintDevice(printDeviceDto);
+            printDeviceService.modifyPrintDevice(printDevice);
             result.setCode(200);
             result.setMessage("修改成功");
         }catch(Exception e ){
@@ -192,11 +191,11 @@ public class PrintDeviceController {
      */
     @RequestMapping(value = "/stateChange",method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult versionStateChange(@RequestBody PrintDeviceDto request){
+    public InvokeResult versionStateChange(@RequestBody PrintDevice request){
         InvokeResult result = new InvokeResult();
-        request.setState(request.getState().equals("1")?"0":"1");//改变状态
+        request.setState(request.isState()?false:true);//改变状态
         try{
-            Integer i = printDeviceService.changePrintDeviceState(request.getPrintDeviceId(),request.getState());
+            Integer i = printDeviceService.changePrintDeviceState(request.getPrintDeviceId(),request.isState());
             if(i==1){
                 result.setCode(200);
                 result.setMessage("修改状态成功");

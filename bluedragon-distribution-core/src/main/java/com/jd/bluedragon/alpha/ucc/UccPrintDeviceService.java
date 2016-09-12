@@ -7,14 +7,14 @@ import java.util.List;
 /**
  * Created by wuzuxiang on 2016/8/23.
  */
-public interface UccPrintDevice {
+public interface UccPrintDeviceService {
 
 
     //获取所有的基本信息
     public List<PrintDevice> getPrintDevice();
 
     //根据条件查询信息
-    public List<PrintDevice> searchPrintDevice(String versionId,String printDeviceId);
+    public List<PrintDevice> searchPrintDevice(String versionId, String printDeviceId);
 
     /**
      * 添加ISV信息
@@ -59,6 +59,6 @@ public interface UccPrintDevice {
      * @param printDeviceId ISVID
      * @param state 要更改的状态
      */
-    public void changePrintDeviceState(String printDeviceId,String state)throws Exception;
+    public void changePrintDeviceState(String printDeviceId, boolean state)throws Exception;
 
 }

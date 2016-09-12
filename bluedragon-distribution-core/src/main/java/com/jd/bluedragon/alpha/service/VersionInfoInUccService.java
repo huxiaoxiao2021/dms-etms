@@ -18,12 +18,19 @@ public interface VersionInfoInUccService {
     public List<Version> versionList();
 
     /**
+     * 根据版本ID查询版本信息
+     * @param versionId
+     * @return
+     */
+    public Version queryById(String versionId) throws Exception;
+
+    /**
      * 根据版本编号、版本状态查询版本信息
      * @param versionId 版本编号
      * @params state 版本状态
      * @return
      */
-    public List<Version> queryList(String versionId,String state)throws Exception;
+    public List<Version> queryList(String versionId,boolean state)throws Exception;
 
     /**
      * 上传版本文件的的同时，执行ucc信息备份
@@ -56,7 +63,7 @@ public interface VersionInfoInUccService {
      * @param state 要更改的状态
      * @return
      */
-    public Integer changeVersionState(String verisonId,String state);
+    public Integer changeVersionState(String verisonId,boolean state);
 
 
 }

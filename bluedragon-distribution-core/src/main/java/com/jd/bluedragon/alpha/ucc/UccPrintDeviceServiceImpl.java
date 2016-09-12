@@ -1,8 +1,8 @@
 package com.jd.bluedragon.alpha.ucc;
 
+import com.google.gson.Gson;
 import com.jd.bluedragon.alpha.domain.PrintDevice;
 import com.jd.bluedragon.alpha.domain.Version;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.std.ucc.client.ConfClient;
 import com.jd.std.ucc.client.client.ConfClientFactory;
 import org.apache.commons.logging.Log;
@@ -15,31 +15,35 @@ import java.util.Map;
 /**
  * Created by wuzuxiang on 2016/8/23.
  */
-public class UccPrintDeviceImpl implements UccPrintDevice{
+public class UccPrintDeviceServiceImpl implements UccPrintDeviceService{
 
-    private static final Log logger = LogFactory.getLog(UccPrintDeviceImpl.class);
+    private static final Log logger = LogFactory.getLog(UccPrintDeviceServiceImpl.class);
 
     ConfClient confClient = ConfClientFactory.getConfClient();
 
+    Gson gson = new Gson();
 
+    /** UCC的路径**/
+    private String uccPath;
 
-    private String uccPath;//ucc路径
+    /** UCC的读权限**/
+    private String uccReadToken;
 
-    private String uccReadToken;//ucc读权限
+    /**UCC的写权限**/
+    private String uccWriteToken;
 
-    private String uccWriteToken;//ucc写权限
-
-
-    //获取所有的基本信息
+    /**获取所有的基本信息**/
     public List<PrintDevice> getPrintDevice(){
 
-        Map<String,String> KeyMap;//用于获取UCC的key集合
+        /** 用于获取UCC的key集合 **/
+        Map<String,String> KeyMap;
         List<PrintDevice> printDevicesList = new ArrayList<PrintDevice>();
         PrintDevice PrintDevice ;
         try{
             KeyMap = confClient.getPathValues(uccPath,uccReadToken);
             for (String value : KeyMap.values()){
-                PrintDevice = JsonHelper.fromJson(value,PrintDevice.class);//将key的值转化为json
+                /** 将key的值转化为json **/
+                PrintDevice = gson.fromJson(value,PrintDevice.class);
                 printDevicesList.add(PrintDevice);
             }
         }catch(Exception e){
@@ -49,24 +53,22 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
         return printDevicesList;
     }
 
-    //根据条件查询信息
+    /**根据条件查询信息**/
     public List<PrintDevice> searchPrintDevice(String versionId,String printDeviceId){
 
         List<PrintDevice> result = new ArrayList<PrintDevice>();
-        String str = "";
-        PrintDevice printDevice;
         try{
             if(null != printDeviceId && "".equals(printDeviceId) == false){
-                str = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);
-                printDevice = JsonHelper.fromJsonUseGson(str,PrintDevice.class);
-                if (null != versionId && versionId == printDevice.getVersionId()){
+                String str = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);
+                PrintDevice printDevice = gson.fromJson(str,PrintDevice.class);
+                if (null != versionId && versionId.equals(printDevice.getVersionId())){
                     result.add(printDevice);
                 }
                 if(null == versionId || "".equals(versionId)){
                     result.add(printDevice);
                 }
             }else{
-                if (null != versionId && "".equals(versionId) == false){
+                if (null != versionId && !"".equals(versionId)){
                     List<PrintDevice> trans = getPrintDevice();
                     for (PrintDevice a: trans) {
                         if(versionId.equals(a.getVersionId())){
@@ -90,7 +92,7 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
      * @param PrintDevice 对象
      */
     public void addPrintDevice(PrintDevice PrintDevice){
-        String value = JsonHelper.toJson(PrintDevice);//将对象转化为json字符串
+        String value = gson.toJson(PrintDevice);//将对象转化为json字符串
         try{
             confClient.addConfValue(uccPath,uccWriteToken,PrintDevice.getPrintDeviceId(),value);//将ID作为key值
         }catch (Exception e){
@@ -114,7 +116,7 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
                 bool = true;
             }
         }catch (Exception e){
-            logger.error("查询该ISVID失败：",e);
+            logger.error("查询该ISVID失败,该ISVID不存在：",e);
             bool = false;
         }
         return bool;
@@ -139,7 +141,7 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
      * @param PrintDevice 对象
      */
     public void modifyPrintDevice(PrintDevice PrintDevice){
-        String value = JsonHelper.toJson(PrintDevice);//将对象转化为json字符串
+        String value = gson.toJson(PrintDevice);//将对象转化为json字符串
         try{
             confClient.updateConfValue(uccPath,uccWriteToken,PrintDevice.getPrintDeviceId(),value);
         }catch (Exception e){
@@ -159,7 +161,7 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
 
         try{
             String str = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);
-            version = JsonHelper.fromJsonUseGson(str,Version.class);
+            version = gson.fromJson(str,Version.class);
         }catch(Exception e ){
             logger.error("版本查询失败",e);
         }
@@ -174,16 +176,16 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
     public boolean printDeviceState(String printDeviceId){
         boolean bool = false;
         try{
-            String value = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);//读取该ISV的配置信息
-            PrintDevice printDevice = JsonHelper.fromJsonUseGson(value,PrintDevice.class);
-            if(printDevice.getState() == "1"){
+            /** 读取该ISV的配置信息 **/
+            String value = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);
+            PrintDevice printDevice = gson.fromJson(value,PrintDevice.class);
+            if(printDevice.isState()){
                 bool = true;
             }else{
                 bool = false;
             }
         }catch(Exception e){
             bool = false;
-            e.printStackTrace();
             logger.error("UCC连接失败：",e);
         }
         return bool;
@@ -194,12 +196,12 @@ public class UccPrintDeviceImpl implements UccPrintDevice{
      * @param printDeviceId ISVID
      * @param state 要更改的状态
      */
-    public void changePrintDeviceState(String printDeviceId,String state)throws Exception{
+    public void changePrintDeviceState(String printDeviceId,boolean state)throws Exception{
         String value1 = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);//获取ISV配置最初状态
-        PrintDevice printDevice = JsonHelper.fromJsonUseGson(value1,PrintDevice.class);
-        if(printDevice.getState() != state){
+        PrintDevice printDevice = gson.fromJson(value1,PrintDevice.class);
+        if(printDevice.isState() != state){
             printDevice.setState(state);//执行修改
-            confClient.updateConfValue(uccPath,uccWriteToken,printDeviceId,JsonHelper.toJson(printDevice));
+            confClient.updateConfValue(uccPath,uccWriteToken,printDeviceId,gson.toJson(printDevice));
         }
     }
 

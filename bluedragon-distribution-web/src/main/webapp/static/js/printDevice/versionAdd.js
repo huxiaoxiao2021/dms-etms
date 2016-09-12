@@ -25,7 +25,7 @@ function getParams(){
     var filePath = $.trim($("#uploadFile").val());
     params.versionId = $.trim($("#versionId").val());
 
-    params.des = $.trim($("#versionDes").val());
+    params.des = $.trim($("#des").val());
     params.state = $.trim($("#state").val());
     if (null == params.versionId || params.versionId == undefined || params.versionId.length <= 0){
         alert("请输入版本编号");

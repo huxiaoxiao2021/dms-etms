@@ -41,12 +41,12 @@ function init() {
 
     $("#enableBtn").click(function () {
         //启用按钮
-        changeState(1);
+        changeState("true");
     })
 
     $("#disableBtn").click(function () {
         //停用按钮
-        changeState(0);
+        changeState("false");
     })
 
     /**
@@ -107,7 +107,7 @@ function doQuery(params) {
             for(var i = 0;i<versionList.length;i++){
                 temp += "<tr class='a2 tr'>";
                 temp += "<td><input type='checkbox' name='subcheckbox' ></td>";
-                temp += "<td id='stateId'>" + (null == versionList[i].state? "" : versionList[i].state ) + "</td>";
+                temp += "<td id='stateId'>" + (versionList[i].state) + "</td>";
                 // temp += "<td></td>";
                 temp += "<td id='id'>" + (null == versionList[i].versionId? "" : versionList[i].versionId) + "</td>";
                 temp += "<td>" + (null == versionList[i].des? "" : versionList[i].des) + "</td>";
@@ -178,7 +178,7 @@ function versionDelete(params){
 
 /**
  * 状态改变
- * state==1表示启用按钮：state==0表示停用按钮
+ * state==true表示启用按钮：state==false表示停用按钮
  */
 function changeState(state){
 

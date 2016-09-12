@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by wuzuxiang on 2016/8/25.
  */
-public interface JssVersion {
+public interface JssVersionService {
 
     /**
      * 获取所有的版本编号

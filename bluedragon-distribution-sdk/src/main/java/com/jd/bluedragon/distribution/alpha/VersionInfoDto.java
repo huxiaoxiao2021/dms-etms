@@ -23,7 +23,7 @@ public class VersionInfoDto {
     /**
      * 状态
      */
-    private String state;
+    private boolean state;
 
     public String getVersionId() {
         return versionId;
@@ -49,11 +49,11 @@ public class VersionInfoDto {
         this.des = des;
     }
 
-    public String getState() {
+    public boolean isState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(boolean state) {
         this.state = state;
     }
 }

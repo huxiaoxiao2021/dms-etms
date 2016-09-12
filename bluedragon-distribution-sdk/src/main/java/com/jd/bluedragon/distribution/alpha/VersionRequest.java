@@ -17,7 +17,7 @@ public class VersionRequest implements Serializable{
     /**
      * 版本状态
      */
-    private String state;
+    private boolean state;
 
     public String getVersionId() {
         return versionId;
@@ -27,11 +27,11 @@ public class VersionRequest implements Serializable{
         this.versionId = versionId;
     }
 
-    public String getState() {
+    public boolean isState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(boolean state) {
         this.state = state;
     }
 }

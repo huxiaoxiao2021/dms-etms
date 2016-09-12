@@ -18,9 +18,9 @@ import java.util.List;
 /**
  * Created by wuzuxiang on 2016/8/25.
  */
-public class JssVersionImpl implements JssVersion {
+public class JssVersionServiceImpl implements JssVersionService {
 
-    private static final Log logger = LogFactory.getLog(JssVersionImpl.class);
+    private static final Log logger = LogFactory.getLog(JssVersionServiceImpl.class);
 
     /**存储数据的最基本的单元*/
     private String bucket;
@@ -30,8 +30,6 @@ public class JssVersionImpl implements JssVersion {
     private String secretkey;
     /**内网连接端点*/
     private String endpoint;
-    //    /**外网连接端点*/
-    //    private String domainEndpoint;
     /**服务器请求超时*/
     private long connectionTimeout=10000;
     /**服务器响应超时*/
@@ -47,10 +45,6 @@ public class JssVersionImpl implements JssVersion {
         JingdongStorageService jss = getJss();
 
         List<String> result = new ArrayList<String>();
-        //        if (!jss.hasBucket(bucket)){
-        //            jss.bucket(bucket).create();
-        //        }
-        //        jss.bucket(bucket).acl().allowAnyoneRead().set();//允许内网中所有人访问
         ObjectListing vertionList = jss.bucket(bucket).listObject();
         for (ObjectSummary key: vertionList.getObjectSummaries()){
             result.add(key.getKey().trim().substring(0,key.getKey().trim().indexOf(".")));
@@ -132,14 +126,6 @@ public class JssVersionImpl implements JssVersion {
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
-
-    //    public String getDomainEndpoint() {
-    //        return domainEndpoint;
-    //    }
-    //
-    //    public void setDomainEndpoint(String domainEndpoint) {
-    //        this.domainEndpoint = domainEndpoint;
-    //    }
 
     public long getConnectionTimeout() {
         return connectionTimeout;

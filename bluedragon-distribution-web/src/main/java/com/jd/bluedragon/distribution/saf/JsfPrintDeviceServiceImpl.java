@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class JsfPrintDeviceServiceImpl implements JsfPrintDeviceService{
 
-    private String printDeviceIdKing = "00000";//用于全部更新的
+    private static final String printDeviceIdKing = "00000";//用于全部更新的
 
     @Autowired
     PrintDeviceService printDeviceService;

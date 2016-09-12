@@ -10,13 +10,13 @@
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <bean  id="uccPrintDeviceClient" class="com.jd.bluedragon.alpha.ucc.UccPrintDeviceImpl">
+    <bean  id="uccPrintDeviceClientService" class="com.jd.bluedragon.alpha.ucc.UccPrintDeviceServiceImpl">
         <property name="uccPath" value="${ucc.isv.path}"/>
         <property name="uccReadToken" value="${ucc.isv.readToken}"/>
         <property name="uccWriteToken" value="${ucc.isv.writeToken}"/>
     </bean>
 
-    <bean id="uccVersion" class="com.jd.bluedragon.alpha.ucc.UccVersionImpl">
+    <bean id="uccVersionService" class="com.jd.bluedragon.alpha.ucc.UccVersionServiceImpl">
         <property name="path" value="${ucc.version.path}"/>
         <property name="readToken" value="${ucc.version.readToken}"/>
         <property name="writeToken" value="${ucc.version.writeToken}"/>

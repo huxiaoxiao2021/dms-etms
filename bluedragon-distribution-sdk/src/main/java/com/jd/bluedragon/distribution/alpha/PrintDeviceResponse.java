@@ -1,11 +1,12 @@
 package com.jd.bluedragon.distribution.alpha;
 
+import java.io.Serializable;
 import java.net.URL;
 
 /**
  * Created by wuzuxiang on 2016/9/1.
  */
-public class PrintDeviceResponse {
+public class PrintDeviceResponse implements Serializable{
 
     /**
      * ISVID的id号
