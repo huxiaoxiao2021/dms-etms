@@ -31,9 +31,9 @@ public class JssVersionServiceImpl implements JssVersionService {
     /**内网连接端点*/
     private String endpoint;
     /**服务器请求超时*/
-    private long connectionTimeout=10000;
+    private int connectionTimeout=10000;
     /**服务器响应超时*/
-    private long socketTimeout=10000;
+    private int socketTimeout=10000;
     /**存放时间*/
     private Integer storeTime = 2592000;
 
@@ -131,7 +131,7 @@ public class JssVersionServiceImpl implements JssVersionService {
         return connectionTimeout;
     }
 
-    public void setConnectionTimeout(long connectionTimeout) {
+    public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
@@ -139,7 +139,7 @@ public class JssVersionServiceImpl implements JssVersionService {
         return socketTimeout;
     }
 
-    public void setSocketTimeout(long socketTimeout) {
+    public void setSocketTimeout(int socketTimeout) {
         this.socketTimeout = socketTimeout;
     }
 
@@ -155,8 +155,8 @@ public class JssVersionServiceImpl implements JssVersionService {
         Credential credential = new Credential(accesskey, secretkey);
         ClientConfig config = new ClientConfig();
         config.setEndpoint(endpoint);
-        config.setConnectionTimeout(5000);
-        config.setSocketTimeout(50000);
+        config.setConnectionTimeout(connectionTimeout);
+        config.setSocketTimeout(socketTimeout);
         return  new JingdongStorageService(credential,config);
     }
 }
