@@ -109,6 +109,17 @@ public class BaseResponse extends JdResponse {
 	//车牌号
 	private String license;
 	
+	//承运商部分
+	private Long carrierId;
+
+    private String carrierCode;
+
+    private String carrierName;
+
+    private String contacter;
+
+    private String address;
+	
 	/**
 	 * 速递id
 	 */
@@ -465,4 +476,45 @@ public class BaseResponse extends JdResponse {
 	public void setSendUserType(Integer sendUserType) {
 		this.sendUserType = sendUserType;
 	}
+
+	public Long getCarrierId() {
+		return carrierId;
+	}
+
+	public void setCarrierId(Long carrierId) {
+		this.carrierId = carrierId;
+	}
+
+	public String getCarrierCode() {
+		return carrierCode;
+	}
+
+	public void setCarrierCode(String carrierCode) {
+		this.carrierCode = carrierCode;
+	}
+
+	public String getCarrierName() {
+		return carrierName;
+	}
+
+	public void setCarrierName(String carrierName) {
+		this.carrierName = carrierName;
+	}
+
+	public String getContacter() {
+		return contacter;
+	}
+
+	public void setContacter(String contacter) {
+		this.contacter = contacter;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
 }

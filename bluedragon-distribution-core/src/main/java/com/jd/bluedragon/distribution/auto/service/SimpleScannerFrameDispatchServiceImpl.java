@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.ctc.wstx.util.StringUtil;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     @Resource(name = "scannerFrameConsumeMap")
     private Map<Integer,ScannerFrameConsume> scannerFrameConsumeMap;
 
+    private static final String BOX_SUFFIX="-CL";
     @Override
     public boolean dispatch(UploadData domain) {
         GantryDeviceConfig config= gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
@@ -47,6 +50,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             return true;
         }
         boolean result=false;
+        domain.setBarCode(StringUtils.remove(domain.getBarCode(),BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
         Iterator<Map.Entry<Integer,ScannerFrameConsume>> item= scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()){
             Map.Entry<Integer,ScannerFrameConsume> comsume=item.next();

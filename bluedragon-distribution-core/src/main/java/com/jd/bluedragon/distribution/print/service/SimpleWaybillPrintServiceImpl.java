@@ -19,6 +19,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,6 +113,12 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>55) {
+                char luxurySign = tmsWaybill.getSendPay().charAt(19);
+                commonWaybill.setLuxuryText(luxurySign <= '4' && luxurySign > '0' ? "奢" : "");
+                commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((tmsWaybill.getSendPay().charAt(55) == '1' || tmsWaybill.getSendPay().charAt(51) == '1') ? "闪" : ""));
+            }
+            //commonWaybill.setNormalText(Integer.valueOf(1).equals(tmsWaybill.getTaxValue())?"普":"电");
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
             if(tmsWaybill.getPayment()!=null){
