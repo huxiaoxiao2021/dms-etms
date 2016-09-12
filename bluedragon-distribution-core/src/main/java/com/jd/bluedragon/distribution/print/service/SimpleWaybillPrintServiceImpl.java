@@ -53,6 +53,44 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     private List<ComposeService> composeServiceList;
 
+    /**
+     * 奢侈品订单打标位起始值
+     */
+    private static final char LUXURY_SIGN_START='1';
+
+    /**
+     * 奢侈品订单打标终值
+     */
+    private static final char LUXURY_SIGN_END='4';
+
+    /**
+     * 奢侈品订单标签显示值
+     */
+    private static final String LUXURY_SIGN_TEXT="奢";
+
+    /**
+     * 奢侈器订单打标位
+     */
+    private static final int LUXURY_SIGN_BIT=19;
+
+    /**
+     * 闪购订单标签显示值
+     */
+    private static final String QUICK_SIGN_TEXT="闪";
+
+    /**
+     * 闪购订单打标位1
+     */
+    private static final int QUICK_SIGN_BIT_ONE=55;
+
+    /**
+     * 闪购订单打标位2
+     */
+    private static final int QUICK_SIGN_BIT_TWO=51;
+    /**
+     * 闪购订单打标值
+     */
+    private static final char QUICK_SIGN_VALUE='1';
 
     @Override
     public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
@@ -113,10 +151,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
-            if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>55) {
-                char luxurySign = tmsWaybill.getSendPay().charAt(19);
-                commonWaybill.setLuxuryText(luxurySign <= '4' && luxurySign > '0' ? "奢" : "");
-                commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((tmsWaybill.getSendPay().charAt(55) == '1' || tmsWaybill.getSendPay().charAt(51) == '1') ? "闪" : ""));
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>QUICK_SIGN_BIT_ONE) {
+                char luxurySign = tmsWaybill.getSendPay().charAt(LUXURY_SIGN_BIT);
+                commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
+                commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((tmsWaybill.getSendPay().charAt(QUICK_SIGN_BIT_ONE) == QUICK_SIGN_VALUE || tmsWaybill.getSendPay().charAt(QUICK_SIGN_BIT_TWO) == QUICK_SIGN_VALUE) ? QUICK_SIGN_TEXT : StringUtils.EMPTY));
             }
             //commonWaybill.setNormalText(Integer.valueOf(1).equals(tmsWaybill.getTaxValue())?"普":"电");
             commonWaybill.setType(tmsWaybill.getWaybillType());
