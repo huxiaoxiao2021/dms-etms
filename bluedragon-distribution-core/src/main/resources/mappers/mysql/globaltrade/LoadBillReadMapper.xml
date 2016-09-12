@@ -65,7 +65,7 @@
 		id, load_id, waybill_code, package_barcode, order_id, dms_name,
 		send_time, send_code, truck_no, approval_code, 
 		approval_time, remark
-		FROM DMS.load_bill
+		FROM load_bill
 		<include refid="Base_Where_List" />
 		ORDER BY CREATE_TIME
 		<if test="startIndex != null">
@@ -75,7 +75,7 @@
 	
 	<select id="findCount" resultType="Integer" parameterType="map">
 		SELECT count(1)
-		FROM DMS.load_bill
+		FROM load_bill
 		<include refid="Base_Where_List" />
 	</select>
 
@@ -83,7 +83,7 @@
 
     <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
         SELECT waybill_code,box_code,approval_code,dms_code
-        FROM DMS.load_bill
+        FROM load_bill
         WHERE
           yn=1
         <if test="waybillCode != null">

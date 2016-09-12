@@ -46,13 +46,13 @@
                     </tr>
                     <tr>
                         <th>版本说明：</th>
-                        <td><input id="versionDes" name="versionDes" type="text" class="textFiled28"></td>
+                        <td><input id="des" name="des" type="text" class="textFiled28"></td>
                     </tr>
                     <tr>
                         <th>是否可用：</th>
                         <td><select name="state" id="state">
-                            <option value="1">是</option>
-                            <option value="0">否</option>
+                            <option value="true">是</option>
+                            <option value="false">否</option>
                         </select></td>
                     </tr>
                     </tbody>

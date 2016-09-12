@@ -1,8 +1,8 @@
 package com.jd.bluedragon.alpha.ucc;
 
+import com.google.gson.Gson;
 import com.jd.bluedragon.alpha.domain.Version;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.std.ucc.client.ConfClient;
 import com.jd.std.ucc.client.client.ConfClientFactory;
 import org.apache.commons.logging.Log;
@@ -17,10 +17,12 @@ import java.util.Map;
  * 单独对ISV版本信息的维护
  * Created by wuzuxiang on 2016/8/25.
  */
-public class UccVersionImpl implements UccVersion {
+public class UccVersionServiceImpl implements UccVersionService {
 
-    private static final Log logger = LogFactory.getLog(UccVersionImpl.class);
+    private static final Log logger = LogFactory.getLog(UccVersionServiceImpl.class);
     ConfClient confClient = ConfClientFactory.getConfClient();
+
+    Gson gson = new Gson();
 
     private String path ;//版本信息的UCC库
     private String readToken ;//只读token
@@ -38,13 +40,11 @@ public class UccVersionImpl implements UccVersion {
         try{
             keyMap = confClient.getPathValues(path,readToken);
             for (String value: keyMap.values()) {
-                version = JsonHelper.fromJsonUseGson(value,Version.class);
+                version = gson.fromJson(value,Version.class);
                 list.add(version);
             }
         }catch(Exception e){
-
             logger.error("UCC连接失败：",e);
-            e.printStackTrace();
         }
         return list;
     }
@@ -56,29 +56,22 @@ public class UccVersionImpl implements UccVersion {
      * @return
      */
     @Override
-    public List<Version> queryList(String versionId,String state)throws Exception{
+    public List<Version> queryList(String versionId,boolean state)throws Exception{
         List<Version> result = new ArrayList<Version>();
         Version version;
-        if("".equals(versionId)==false && null != versionId){
+        if(!"".equals(versionId) && null != versionId){
             String value= confClient.getConfValue(path,readToken,versionId);
-            version = JsonHelper.fromJsonUseGson(value,Version.class);
-            if(null != state && state.equals(version.getState())){
-                result.add(version);
-            }
-            if(null == state || "".equals(state)){
+            version = gson.fromJson(value,Version.class);
+            if(state == version.isState()){
                 result.add(version);
             }
         }else{
-            if(null != state && !"".equals(state)){
                 List<Version> list = versionList();
                 for(Version a:list){
-                    if(state.equals(a.getState())){
+                    if(state == a.isState()){
                         result.add(a);
                     }
                 }
-            }else{
-                result = versionList();
-            }
         }
         return result;
     }
@@ -94,10 +87,9 @@ public class UccVersionImpl implements UccVersion {
         version.setUpdateTime(DateHelper.formatDateTime(new Date()));
 
         try{
-            confClient.addConfValue(path,writeToken,version.getVersionId(),JsonHelper.toJson(version));
+            confClient.addConfValue(path,writeToken,version.getVersionId(),gson.toJson(version));
         }catch (Exception e){
             logger.error("UCC连接失败：",e);
-            e.printStackTrace();
         }
     }
 
@@ -112,7 +104,6 @@ public class UccVersionImpl implements UccVersion {
                 confClient.deleteConfKey(path,writeToken,versionId);
             }catch (Exception e){
                 logger.error("UCC连接失败：",e);
-                e.printStackTrace();
             }
         }
 
@@ -125,10 +116,9 @@ public class UccVersionImpl implements UccVersion {
     @Override
     public void modifyVersion(Version version){
         try{
-            confClient.updateConfValue(path,writeToken,version.getVersionId(),JsonHelper.toJson(version));
+            confClient.updateConfValue(path,writeToken,version.getVersionId(),gson.toJson(version));
         }catch(Exception e){
             logger.error("UCC连接失败：",e);
-            e.printStackTrace();
         }
     }
 
@@ -142,19 +132,20 @@ public class UccVersionImpl implements UccVersion {
         boolean bool = false;
         try{
             String value = confClient.getConfValue(path,readToken,versionId);
-            Version versionInfo = JsonHelper.fromJsonUseGson(value,Version.class);
-            if("" == versionInfo.getState() || null == versionInfo.getState() || versionInfo.getState() == "0"){
-                bool = false;//已停用
-            }
-            if(versionInfo.getState() == "1"){
-                bool = true;//已启用
-            }
+            Version versionInfo = gson.fromJson(value,Version.class);
+            bool = versionInfo.isState();
         }catch(Exception e){
             bool = false;//停用
             logger.error("UCC连接失败：",e);
-            e.printStackTrace();
         }
         return bool;
+    }
+
+    @Override
+    public Version queryById(String versionId) throws Exception{
+        String str = confClient.getConfValue(path,readToken,versionId);
+        Version version = gson.fromJson(str,Version.class);
+        return version;
     }
 
     /**
@@ -163,13 +154,14 @@ public class UccVersionImpl implements UccVersion {
      * @param state
      */
     @Override
-    public void changeVersionState(String versionId,String state)throws Exception{
+    public void changeVersionState(String versionId,boolean state)throws Exception{
 
-        String value1 = confClient.getConfValue(path,readToken,versionId);//先取出版本的初始信息
-        Version version = JsonHelper.fromJsonUseGson(value1,Version.class);
-        if(version.getState() != state){
-            version.setState(state);//执行修改
-            confClient.updateConfValue(path,writeToken,versionId,JsonHelper.toJson(version));
+        /** 先取出版本的初始信息**/
+        String value1 = confClient.getConfValue(path,readToken,versionId);
+        Version version = gson.fromJson(value1,Version.class);
+        if(version.isState() != state){
+            version.setState(state);
+            confClient.updateConfValue(path,writeToken,versionId,gson.toJson(version));
         }
     }
 

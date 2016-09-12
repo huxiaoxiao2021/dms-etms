@@ -53,8 +53,8 @@
         #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
         #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
         #{businessTypeRemark,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},
-        to_date(to_char(#{startTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss'),
-        to_date(to_char(#{endTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss') ,
+        str_to_date(date_format(#{startTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s'),
+        str_to_date(date_format(#{endTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s') ,
         1,#{lockUserErp,jdbcType=VARCHAR},#{lockUserName,jdbcType=VARCHAR},
         1)
     </insert>

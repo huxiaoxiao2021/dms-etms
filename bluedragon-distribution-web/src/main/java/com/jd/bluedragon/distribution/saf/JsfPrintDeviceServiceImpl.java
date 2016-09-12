@@ -18,7 +18,8 @@ import java.util.List;
  */
 public class JsfPrintDeviceServiceImpl implements JsfPrintDeviceService{
 
-    private String printDeviceIdKing = "00000";//用于全部更新的
+    /** 用于全部更新的ISVID */
+    private static final String printDeviceIdKing = "00000";
 
     @Autowired
     PrintDeviceService printDeviceService;
@@ -44,36 +45,43 @@ public class JsfPrintDeviceServiceImpl implements JsfPrintDeviceService{
 
     @Override
     public PrintDeviceResponse PrintDeviceUpdata(PrintDeviceRequest request) {
-        List<String> printDeviceIdMinisterList = new ArrayList<String>();//用于灰度测试的五个ISV设备
-        printDeviceIdMinisterList = getPrintDeviceIdMinisterList();//初始化灰度测试ISV列表
-        PrintDeviceResponse response = new PrintDeviceResponse();//返回结果
+        /** 用于灰度测试的五个ISV设备 **/
+        List<String> printDeviceIdMinisterList = new ArrayList<String>();
+        /** 初始化灰度测试ISV列表 **/
+        printDeviceIdMinisterList = getPrintDeviceIdMinisterList();
+        PrintDeviceResponse response = new PrintDeviceResponse();
 
         String versionIdInUcc = "";
-        if(printDeviceIdMinisterList.contains(request.getPrintDeviceId())){//判断是否在灰度测试列表中
-            versionIdInUcc = printDeviceService.searchVersionIdByPrintDeviceId(request.getPrintDeviceId());//获取UCC中的灰度ISV对应的最新版本号
+        /** 判断是否在灰度测试列表中 **/
+        if(printDeviceIdMinisterList.contains(request.getPrintDeviceId())){
+            /** 获取UCC中的灰度ISV对应的最新版本号 **/
+            versionIdInUcc = printDeviceService.searchVersionIdByPrintDeviceId(request.getPrintDeviceId());
 
         }else{
-            versionIdInUcc = printDeviceService.searchVersionIdByPrintDeviceId(printDeviceIdKing);//获取UCC中全国上线的最新ISV版本号
+            /** 获取UCC中全国上线的最新ISV版本号 **/
+            versionIdInUcc = printDeviceService.searchVersionIdByPrintDeviceId(printDeviceIdKing);
         }
 
         String id = printDeviceIdMinisterList.contains(request.getPrintDeviceId())? request.getPrintDeviceId() : printDeviceIdKing;
-        boolean printDeviceState = printDeviceService.printDeviceState(id); //获取该设备的状态,用于灰度测试的直接查找，全国的则通过查找对应全国的ISV的状态
+        /** 获取该设备的状态,用于灰度测试的直接查找，全国的则通过查找对应全国的ISV的状态 **/
+        boolean printDeviceState = printDeviceService.printDeviceState(id);
         if(printDeviceState == true){
-            //该ISV是启用状态则往下执行获取版本号
-            if(request.getVersionId() != versionIdInUcc){//判断是否是最新版本
+        /**该ISV是启用状态则往下执行获取版本号 **/
+            /** 判断是否是最新版本 **/
+            if(request.getVersionId() != versionIdInUcc){
                 boolean versionState = versionInfoInUccService.versionState(versionIdInUcc);
-                if(versionState == true){//并且最新版本可用
-                    //通过最新版本的版本编号versionIdInUcc获取JSS中的下载地址
+                if(versionState == true){
+                    /**通过最新版本的版本编号versionIdInUcc获取JSS中的下载地址**/
                     try{
                         URL url = versionInfoInJssService.downloadVersion(versionIdInUcc);
                         response.setPrintDeviceId(request.getPrintDeviceId());
                         response.setVersionId(versionIdInUcc);
-                        response.setYn(0);//请求成功
+                        response.setYn(1);
                         response.setUrl(url);
                     }catch (Exception e){
                         response.setPrintDeviceId(request.getPrintDeviceId());
                         response.setVersionId(versionIdInUcc);
-                        response.setYn(0);//请求失败
+                        response.setYn(0);
                     }
                 }
             }

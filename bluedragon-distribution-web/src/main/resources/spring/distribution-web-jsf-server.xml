@@ -61,6 +61,6 @@
     <bean id="jsfPrintDeviceServiceImpl" class="com.jd.bluedragon.distribution.saf.JsfPrintDeviceServiceImpl"/>
     <jsf:provider id="jsfPrintDeviceService" server="dmsjsf" ref="jsfPrintDeviceServiceImpl"
                   interface="com.jd.bluedragon.distribution.alpha.jsf.JsfPrintDeviceService"
-                    alias="${dms.jsf.ISV.alias}"/>
+                    alias="${dms.jsf.alias}"/>
 
 </beans>

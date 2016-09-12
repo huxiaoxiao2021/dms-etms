@@ -43,9 +43,8 @@
                         <td><input id="versionId" name="versionId" type="text" class="textFiled28"></td>
                         <th>状态：</th>
                         <td><select name="state" id="state" class="textFiled28">
-                            <option>请选择</option>
-                            <option value="1">是</option>
-                            <option value="0">否</option>
+                            <option value="true">是</option>
+                            <option value="false">否</option>
                         </select></td>
                         <td align="right"><input id="search" type="button" value="查询" class="btn_c"></td>
                     </tr>

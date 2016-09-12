@@ -14,9 +14,31 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private SendDatailDao sendDatailDao;
-	
-	
-	//@Test
+
+    @Test
+    public void testAdd() {
+        SendDetail parameter = new SendDetail();
+        parameter.setSendCode("1111");
+        parameter.setBoxCode("2222");
+        parameter.setPackageBarcode("3333-1-1-");
+        parameter.setPackageNum(27);
+        parameter.setWaybillCode("3333");
+        parameter.setPickupCode("Jone");
+        parameter.setSendType(30);
+        parameter.setCreateSiteCode(346);
+        parameter.setReceiveSiteCode(171);
+        parameter.setCreateUser("James");
+        parameter.setCreateUserCode(521);
+        parameter.setOperateTime(new Date());
+        parameter.setIsCancel(0);
+        parameter.setSpareReason("Stone");
+        parameter.setIsLoss(1);
+        parameter.setFeatureType(3);
+        sendDatailDao.add(SendDatailDao.namespace, parameter);
+    }
+
+
+	@Test
     public void testGetSendSiteID() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(420);
@@ -25,13 +47,13 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.getSendSiteID(parameter);
     }
 	
-	//@Test
+	@Test
     public void testGetSendDatailsWithoutMeasures() {
         Map parameter = new HashMap();
         //sendDatailDao.getSendDatailsWithoutMeasures(100);
     }
 	
-	//@Test
+	@Test
     public void testUpdatewaybillCodeStatus() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Stone");
@@ -47,13 +69,13 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.updatewaybillCodeStatus(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryWaybillsByBoxCode() {
         String boxCode = "Joe";
         sendDatailDao.queryWaybillsByBoxCode(boxCode);
     }
 	
-	//@Test
+	@Test
     public void testCancelDelivery() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Jim");
@@ -61,7 +83,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.cancelDelivery(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdateSendDatail() {
         SendDetail parameter = new SendDetail();
         parameter.setStatus(300);
@@ -71,30 +93,30 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.updateSendDatail(parameter);
     }
 	
-	//@Test
+	@Test
     public void testBatchQuerySendDList() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(128);
         parameter.setReceiveSiteCode(435);
-        parameter.setBoxCode("Joe");
+        parameter.setBoxCode("'Joe'");
         sendDatailDao.batchQuerySendDList(parameter);
     }
 	
-	//@Test
+	@Test
     public void testFindsendDeliveryMessageTotms() {
-        //sendDatailDao.findsendDeliveryMessageTotms();
+//        sendDatailDao.findsendDeliveryMessageTotms();
     }
 	
-	//@Test
+	@Test
     public void testUpdateCancelBatch() {
         SendDetail parameter = new SendDetail();
-        parameter.setBoxCode("Jax");
+        parameter.setBoxCode("'Jax'");
         parameter.setCreateSiteCode(133);
         parameter.setReceiveSiteCode(419);
         sendDatailDao.updateCancelBatch(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryWithoutPackageNum() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(237);
@@ -103,32 +125,32 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.queryWithoutPackageNum(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryWaybillsBySendCode() {
         String sendCode = "Jax";
         sendDatailDao.queryWaybillsBySendCode(sendCode);
     }
 	
-	//@Test
+	@Test
     public void testQuerySendDatailsByBoxCode() {
         SendDetail parameter = new SendDetail();
         parameter.setBoxCode("James");
         sendDatailDao.querySendDatailsByBoxCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testFindUpdatewaybillCodeMessage() {
         sendDatailDao.findUpdatewaybillCodeMessage();
     }
 	
-	//@Test
+	@Test
     public void testFindSendDetails() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Jax");
         sendDatailDao.findSendDetails(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQuerySortingDiff() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(113);
@@ -137,7 +159,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.querySortingDiff(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdatePackageNum() {
         SendDetail parameter = new SendDetail();
         parameter.setPackageNum(259);
@@ -145,7 +167,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.updatePackageNum(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQuerySendDatailsBySelective() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(152);
@@ -158,7 +180,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.querySendDatailsBySelective(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryOneSendDatailBySendM() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(725);
@@ -167,13 +189,13 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         //sendDatailDao.queryOneSendDatailBySendM(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryWaybillsByDepartID() {
         Long departureID = (long)3567;
         //sendDatailDao.queryWaybillsByDepartID(departureID);
     }
 	
-	//@Test
+	@Test
     public void testCheckSendSendCode() {
         SendDetail parameter = new SendDetail();
         parameter.setSendType(756);
@@ -185,7 +207,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.checkSendSendCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdateMessageTotmsStatus() {
         SendDetail parameter = new SendDetail();
         parameter.setStatus(956);
@@ -195,7 +217,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         //sendDatailDao.updateMessageTotmsStatus(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdateSendStatusByPackage() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Joe");
@@ -211,19 +233,19 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.updateSendStatusByPackage(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryOneSendDatailByBoxCode() {
         String boxCode = "Mary";
         sendDatailDao.queryOneSendDatailByBoxCode(boxCode);
     }
 	
-	//@Test
+	@Test
     public void testQueryWaybillsByPackCode() {
         String packCode = "James";
         sendDatailDao.queryWaybillsByPackCode(packCode);
     }
 	
-	//@Test
+	@Test
     public void testCanCancel() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(627);
@@ -235,7 +257,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.canCancel(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdateCancelStasus() {
         SendDetail parameter = new SendDetail();
         parameter.setBoxCode("Mary");
@@ -244,7 +266,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.updateCancel(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryBySiteCodeAndSendCode() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Mary");
@@ -252,7 +274,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.queryBySiteCodeAndSendCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testFindOrder() {
         SendDetail parameter = new SendDetail();
         parameter.setOperateTime(new Date());
@@ -261,7 +283,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.findOrder(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQueryBySendCodeAndSendType() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Jim");
@@ -269,7 +291,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.queryBySendCodeAndSendType(parameter);
     }
 	
-	//@Test
+	@Test
     public void testCheckSendByPackage() {
         SendDetail parameter = new SendDetail();
         parameter.setSendType(502);
@@ -280,7 +302,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.checkSendByPackage(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQuerySendDatailsByPackageCode() {
         SendDetail parameter = new SendDetail();
         parameter.setReceiveSiteCode(332);
@@ -288,7 +310,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.querySendDatailsByPackageCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdateWeight() {
         SendDetail parameter = new SendDetail();
         parameter.setWeight(0.7887576473532901);
@@ -298,7 +320,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.updateWeight(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQuerySendDatailBySendStatus() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(423);
@@ -307,7 +329,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.querySendDatailBySendStatus(parameter);
     }
 	
-	//@Test
+	@Test
     public void testUpdate() {
         SendDetail parameter = new SendDetail();
         parameter.setSendCode("Stone");
@@ -331,7 +353,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.update(SendDatailDao.namespace, parameter);
     }
 	
-	//@Test
+	@Test
     public void testCanCancelFuzzy() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(508);
@@ -343,7 +365,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.canCancelFuzzy(parameter);
     }
 	
-	//@Test
+	@Test
     public void testFindDeliveryPackageByCode() {
         SendDetail parameter = new SendDetail();
         parameter.setWaybillCode("Jax");
@@ -351,52 +373,32 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.findDeliveryPackageByCode(parameter);
     }
 	
-	//@Test
+	@Test
     public void testQuerySendCodesByWaybills() {
         SendDetail parameter = new SendDetail();
         parameter.setWaybillCode("Jax");
-        sendDatailDao.querySendCodesByWaybills("Jax");
+        sendDatailDao.querySendCodesByWaybills("'Jax'");
     }
 	
-	//@Test
+	@Test
     public void testFindSendwaybillMessage() {
         //sendDatailDao.findSendwaybillMessage();
     }
 	
-	//@Test
+	@Test
     public void testCancelSendDatail() {
         SendDetail parameter = new SendDetail();
         parameter.setCreateSiteCode(618);
         parameter.setReceiveSiteCode(487);
         parameter.setBoxCode("Stone");
-        parameter.setPackageBarcode("Stone");
-        parameter.setSendCode("Jax");
+        parameter.setPackageBarcode("'Stone'");
+        parameter.setSendCode("('Jax')");
         sendDatailDao.cancelSendDatail(parameter);
     }
 	
-	@Test
-    public void testAdd() {
-        SendDetail parameter = new SendDetail();
-        parameter.setSendCode("1111");
-        parameter.setBoxCode("2222");
-        parameter.setPackageBarcode("3333-1-1-");
-        parameter.setPackageNum(27);
-        parameter.setWaybillCode("3333");
-        parameter.setPickupCode("Jone");
-        parameter.setSendType(30);
-        parameter.setCreateSiteCode(346);
-        parameter.setReceiveSiteCode(171);
-        parameter.setCreateUser("James");
-        parameter.setCreateUserCode(521);
-        parameter.setOperateTime(new Date());
-        parameter.setIsCancel(0);
-        parameter.setSpareReason("Stone");
-        parameter.setIsLoss(1);
-        parameter.setFeatureType(3);
-        sendDatailDao.add(SendDatailDao.namespace, parameter);
-    }
+
 	
-	//@Test
+	@Test
     public void testFindDeliveryPackageBySite() {
         SendDetail parameter = new SendDetail();
         parameter.setOperateTime(new Date());

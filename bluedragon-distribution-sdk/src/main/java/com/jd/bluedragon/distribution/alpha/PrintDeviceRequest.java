@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.alpha;
 
+import java.io.Serializable;
+
 /**
  * Created by wuzuxiang on 2016/8/26.
  */
-public class PrintDeviceRequest {
+public class PrintDeviceRequest implements Serializable{
 
     private static final long serialVersionUID = 5799267676878153722L;
 

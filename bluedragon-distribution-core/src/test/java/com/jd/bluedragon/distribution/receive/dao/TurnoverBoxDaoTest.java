@@ -54,6 +54,6 @@ public class TurnoverBoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setOperateType(10);
         parameter.setPrintStartTime("James");
         parameter.setPrintEndTime("James");
-        Assert.assertTrue(turnoverBoxDao.getCount(parameter)>0);
+        turnoverBoxDao.getCount(parameter);
     }
 }

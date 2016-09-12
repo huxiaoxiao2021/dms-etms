@@ -34,7 +34,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateUser("Jim");
         parameter.setTransportType(3);
         parameter.setMixBoxType(60);
-        boxDao.add(BoxDao.namespace, parameter);
+        Assert.assertEquals(new Integer(1), boxDao.add(BoxDao.namespace, parameter));
     }
 	
 	@Test
@@ -61,7 +61,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUserCode(10);
         parameter.setUpdateUser("James22");
         parameter.setCode("James");
-        boxDao.reprint(parameter);
+        Assert.assertEquals(new Integer(0), boxDao.reprint(parameter));
     }
 	
 	@Test
@@ -72,7 +72,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUserCode(352);
         parameter.setCodes("'"+123+"'");
         parameter.setCreateSiteCode(10);
-        boxDao.updateStatusByCodes(parameter);
+        Assert.assertEquals(new Integer(1), boxDao.updateStatusByCodes(parameter));
     }
 	
 	@Test
@@ -103,9 +103,4 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertEquals(new Integer(1), boxDao.batchUpdateStatus(paramater));
     }
 
-    public static void main(String[] args) {
-        List<String> waybills = new ArrayList<String>();
-        waybills.add("VC31200899155");
-        System.out.println(JsonHelper.toJson(waybills));
-    }
 }

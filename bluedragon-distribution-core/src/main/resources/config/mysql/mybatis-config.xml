@@ -83,6 +83,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
         <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
 		<typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
+        <typeAlias type="com.jd.bluedragon.distribution.waybill.domain.FreshWaybill" alias="freshWaybill"/>
 
         <!-- xumei -->
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
@@ -224,6 +225,7 @@
 
         <mapper resource="mappers/mysql/gantry/GantryDeviceMapper.xml"/>
 		<mapper resource="mappers/mysql/gantry/GantryDeviceConfigMapper.xml"/>
+        <mapper resource="mappers/mysql/freshWaybill/freshWaybillMapper.xml"/>
 
         <!-- xumei -->
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>

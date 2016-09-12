@@ -20,8 +20,37 @@ public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private LoadBillDao loadBillDao;
-	
-	
+
+    @Test
+    public void testAdd() {
+        LoadBill parameter = new LoadBill();
+        parameter.setLoadId("1");
+        parameter.setWarehouseId("Jim");
+        parameter.setWaybillCode("1111");
+        parameter.setPackageBarcode("Mary");
+        parameter.setPackageAmount(231);
+        parameter.setOrderId("3333");
+        parameter.setBoxCode("2222");
+        parameter.setDmsCode(330);
+        parameter.setDmsName("Jone");
+        parameter.setSendTime(new Date());
+        parameter.setSendCode("2222");
+        parameter.setTruckNo("Jone");
+        parameter.setApprovalCode(162);
+        parameter.setCtno("Mary");
+        parameter.setGjno("Stone");
+        parameter.setTpl("Mary");
+        parameter.setWeight(0.7768244752565674);
+        parameter.setCreateUserCode(289);
+        parameter.setCreateUser("Stone");
+        parameter.setPackageUserCode(839);
+        parameter.setPackageUser("Jim");
+        parameter.setPackageTime(new Date());
+        parameter.setRemark("Stone");
+        loadBillDao.add(parameter);
+    }
+
+
 	@Test
     public void testUpdateLoadBillStatus() {
 		Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
@@ -107,42 +136,13 @@ public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
         loadBillDao.updatePreLoadBillById(billId,trunkNo,loadId,approvalCode);
     }
 	
-	@Test
-    public void testAdd() {
-        LoadBill parameter = new LoadBill();
-        parameter.setLoadId("1");
-        parameter.setWarehouseId("Jim");
-        parameter.setWaybillCode("1111");
-        parameter.setPackageBarcode("Mary");
-        parameter.setPackageAmount(231);
-        parameter.setOrderId("3333");
-        parameter.setBoxCode("2222");
-        parameter.setDmsCode(330);
-        parameter.setDmsName("Jone");
-        parameter.setSendTime(new Date());
-        parameter.setSendCode("2222");
-        parameter.setTruckNo("Jone");
-        parameter.setApprovalCode(162);
-        parameter.setCtno("Mary");
-        parameter.setGjno("Stone");
-        parameter.setTpl("Mary");
-        parameter.setWeight(0.7768244752565674);
-        parameter.setCreateUserCode(289);
-        parameter.setCreateUser("Stone");
-        parameter.setPackageUserCode(839);
-        parameter.setPackageUser("Jim");
-        parameter.setPackageTime(new Date());
-        parameter.setRemark("Stone");
-        loadBillDao.add(parameter);
-    }
+
 	
 	@Test
     public void testSelectPreLoadBillId() {
-		for(int i=0;i<100;i++){
 		Long a =loadBillDao.selectPreLoadBillId();
 		System.out.println();
 		Assert.assertEquals(1, 1);
-		}
     }
 	
 	@Test
@@ -153,7 +153,7 @@ public class LoadBillDaoTest extends AbstractDaoIntegrationTest{
 		billId.add("1111");
 		billId.add("2222");
 			loadBillStatusMap.put("startIndex", 1);
-			loadBillStatusMap.put("endIndex", 3);
+			loadBillStatusMap.put("pageSize", 3);
 			loadBillStatusMap.put("sendCodeList", billId);
 			loadBillStatusMap.put("dmsCode", "330");
 			loadBillStatusMap.put("approvalCode", "162");

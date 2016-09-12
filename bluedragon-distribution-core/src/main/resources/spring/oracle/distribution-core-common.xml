@@ -102,7 +102,8 @@
 		<property name="statementDecider">
 			<bean class="com.jd.bluedragon.common.dao.migration.DmsBackupDataSourceStatementDecider" />
 		</property>
-		<property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
+        <property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
+        <property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
 		<property name="excludedStatements">
 			<list>
 				<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>

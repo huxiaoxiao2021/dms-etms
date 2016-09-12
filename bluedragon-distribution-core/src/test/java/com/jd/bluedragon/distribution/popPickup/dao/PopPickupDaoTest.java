@@ -49,7 +49,7 @@ public class PopPickupDaoTest extends AbstractDaoIntegrationTest{
          parameter.put("startTime", new Date());
          parameter.put("endTime", new Date());
          parameter.put("startIndex", 1);
-         parameter.put("endIndex", 2);
+         parameter.put("pageSize", 2);
         popPickupDao.findPopPickupList(parameter);
     }
 	

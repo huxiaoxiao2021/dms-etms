@@ -1,7 +1,9 @@
 package com.jd.bluedragon.alpha.service.impl;
 
-import com.jd.bluedragon.alpha.jss.JssVersion;
+import com.jd.bluedragon.alpha.jss.JssVersionService;
 import com.jd.bluedragon.alpha.service.VersionInfoInJssService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,13 @@ import java.util.List;
 @Service("versionInfoInJssService")
 public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
 
+    private static final Log logger = LogFactory.getLog(PrintDeviceServiceImpl.class);
     @Autowired
-    JssVersion jssClient;
+    JssVersionService jssVersionService;
 
     @Override
     public List<String> allVersionIdInJss() {
-        List<String> versionList = jssClient.getVersionId();
+        List<String> versionList = jssVersionService.getVersionId();
         return versionList;
     }
 
@@ -31,9 +34,11 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
     public Integer uploadNewVersion(String versionId, long length , InputStream inputStream) {
         String keyName = versionId + ".rar";
         try{
-            jssClient.addVersion(keyName,length,inputStream);
+            jssVersionService.addVersion(keyName,length,inputStream);
+            inputStream.close();
             return 1;//上传成功
         }catch(Exception e){
+            logger.error("上传版本失败：",e);
             return -1;//上传失败
         }
     }
@@ -45,10 +50,11 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
         List<String> versionList = new ArrayList<String>();
         versionList.add(versionId);
         try{
-            jssClient.deleteVersion(versionList);//先删除旧版本
-            jssClient.addVersion(keyName,length,inputStream);//添加新版本
+            jssVersionService.deleteVersion(versionList);//先删除旧版本
+            jssVersionService.addVersion(keyName,length,inputStream);//添加新版本
             return 1;//更新完成
         }catch(Exception e){
+            logger.error("版本更新失败：",e);
             return -1;//更新失败
         }
     }
@@ -58,9 +64,10 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
         Integer result = null;
 
             try{
-                jssClient.deleteVersion(versionIdList);
+                jssVersionService.deleteVersion(versionIdList);
                 result = 1;
             }catch(Exception e){
+                logger.error("版本删除失败：",e);
                 result = -1;
             }
 
@@ -71,9 +78,9 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
     public URL downloadVersion(String versionId) throws MalformedURLException {
         URI uri = null ;
         try{
-            uri = jssClient.downloadVersion(versionId);
+            uri = jssVersionService.downloadVersion(versionId);
         }catch(Exception e){
-            e.printStackTrace();
+            logger.error("版本下载失败：",e);
         }
         return uri.toURL();
     }

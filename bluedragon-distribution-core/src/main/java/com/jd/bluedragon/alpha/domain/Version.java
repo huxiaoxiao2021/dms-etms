@@ -5,17 +5,32 @@ package com.jd.bluedragon.alpha.domain;
  */
 public class Version {
 
-    private String state;//状态（0不可用：1可用）
-    private String versionId;//版本编号
-    private String des;//版本描述
-    private String createTime;//创建时间
-    private String updateTime;//更新时间
+    /**
+     * 版本状态 true启用 false停用
+     */
+    private boolean state;
+    /**
+     * 版本编号 作为UCC存储的key值
+     */
+    private String versionId;
+    /**
+     * 描述
+     */
+    private String des;
+    /**
+     * 版本创建时间
+     */
+    private String createTime;
+    /**
+     * 版本更新时间
+     */
+    private String updateTime;
 
-    public String getState() {
+    public boolean isState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(boolean state) {
         this.state = state;
     }
 

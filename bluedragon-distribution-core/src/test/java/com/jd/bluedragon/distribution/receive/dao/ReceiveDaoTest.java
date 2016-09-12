@@ -18,17 +18,7 @@ public class ReceiveDaoTest extends AbstractDaoIntegrationTest{
 	@Autowired
 	private ReceiveDao receiveDao;
 	
-	
-	@Test
-    public void testFindReceiveJoinTotalCount() {
-        Map parameter = new HashMap();
-        parameter.put("createSiteCode", 910);
-        parameter.put("startTime", new Date());
-        parameter.put("endTime", new Date());
-        parameter.put("createUser", "James");
-        parameter.put("queueNo", "James");
-        Assert.assertTrue(receiveDao.findReceiveJoinTotalCount(parameter)>0);
-    }
+
 	
 	@Test
     public void testAdd() {
@@ -49,7 +39,19 @@ public class ReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.setShieldsCarTime(new Date());
         Assert.assertTrue(receiveDao.add(receiveDao.getClass().getName(), parameter) > 0);
     }
-	
+
+
+    @Test
+    public void testFindReceiveJoinTotalCount() {
+        Map parameter = new HashMap();
+        parameter.put("createSiteCode", 910);
+        parameter.put("startTime", new Date());
+        parameter.put("endTime", new Date());
+        parameter.put("createUser", "James");
+        parameter.put("queueNo", "James");
+        receiveDao.findReceiveJoinTotalCount(parameter);
+    }
+
 	@Test
     public void testFindReceiveJoinList() {
         Map parameter = new HashMap();
@@ -58,8 +60,8 @@ public class ReceiveDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("endTime", new Date());
         parameter.put("createUser", "James");
         parameter.put("queueNo", "James");
-        parameter.put("endIndex", 2);
+        parameter.put("pageSize", 2);
         parameter.put("startIndex", 1);
-        Assert.assertTrue(receiveDao.findReceiveJoinList(parameter).size() > 0);
+        receiveDao.findReceiveJoinList(parameter);
     }
 }

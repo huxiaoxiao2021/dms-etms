@@ -58,8 +58,8 @@
                     <tr>
                         <th>是否可用：</th>
                         <td><select name="state" id="state" ">
-                            <option value="1" #if($!{printDeviceParamsMap.state} == 1) selected = "selected" #end>是</option>
-                            <option value="0" #if($!{printDeviceParamsMap.state} == 0) selected = "selected" #end>否</option>
+                            <option value="true" #if($!{printDeviceParamsMap.state} == 1) selected = "selected" #end>是</option>
+                            <option value="false" #if($!{printDeviceParamsMap.state} == 0) selected = "selected" #end>否</option>
                         </select></td>
                     </tr>
                     </tbody>

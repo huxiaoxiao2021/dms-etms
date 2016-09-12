@@ -10,29 +10,6 @@
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <!-- JingdongStoregeService 的生命周期 -->
-    <!--<bean id="credential" class="com.jcloud.jss.Credential">-->
-        <!--<constructor-arg name="accessKeyId" value="${jss.accessKey}"/>-->
-        <!--<constructor-arg name="secretAccessKeyId" value="${jss.secretKey}"/>-->
-    <!--</bean>-->
-    <!--<bean id="clientConfig" class="com.jcloud.jss.client.ClientConfig">-->
-        <!--<property name="socketTimeout" value="${jss.socketTimeout}"/>-->
-        <!--<property name="connectionTimeout" value="${jss.connectionTimeout}"/>-->
-        <!--<property name="endpoint" value="${jss.hostName}"/>-->
-        <!--&lt;!&ndash;<property name="partSize" value="${jss.partSize}"/>&ndash;&gt;-->
-        <!--<property name="maxConnections" value="${jss.maxConnections}"/>-->
-    <!--</bean>-->
-    <!--<bean id="jss" class="com.jcloud.jss.JingdongStorageService">-->
-        <!--<constructor-arg name="credential" ref="credential"/>-->
-        <!--<constructor-arg name="config" ref="clientConfig"/>-->
-    <!--</bean>-->
-
-    <!--<bean id="jssClient" class="com.jd.bluedragon.alpha.jss.JSSClient">-->
-        <!--<property name="bucket" value="${jss.bucket}"/>-->
-        <!--<property name="jss" ref="jss"/>-->
-    <!--</bean>-->
-
-
     <!-- 调用云存储 -->
     <util:map id="jssMapb" map-class="java.util.HashMap">
         <entry key="accessKey" value="${jss.accessKey}"/>
@@ -40,7 +17,7 @@
         <entry key="bucketName" value="${jss.bucket}"/>
     </util:map>
 
-    <bean id="jssClient" class="com.jd.bluedragon.alpha.jss.JssVersionImpl">
+    <bean id="jssClientService" class="com.jd.bluedragon.alpha.jss.JssVersionServiceImpl">
         <property name="bucket" value="${jss.bucket}"/>
         <property name="accesskey" value="${jss.accessKey}"/>
         <property name="secretkey" value="${jss.secretKey}"/>

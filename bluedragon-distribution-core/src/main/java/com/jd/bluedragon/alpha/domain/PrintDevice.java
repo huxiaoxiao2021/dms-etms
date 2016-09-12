@@ -9,22 +9,30 @@ public class PrintDevice implements Serializable{
 
     private static final long serializable = 1L;
 
+    /**
+     * ISVID的别名
+     */
     private String printDeviceId;
-    private String state;//ISV的状态，0停用：1启用；
-    private String versionId;//版本编号
-    private String des;//说明；
-    private String createTime;//创建时间 yyyy-mm-dd hh:mm:ss
-    private String updateTime;//更新时间 yyyy-mm-dd hh:mm:ss
-
-    public PrintDevice() {
-    }
-
-    public PrintDevice(String printDeviceId, String state, String versionId, String des) {
-        this.printDeviceId = printDeviceId;
-        this.state = state;
-        this.versionId = versionId;
-        this.des = des;
-    }
+    /**
+     * ISV的状态 true启用  false停用
+     */
+    private boolean state;
+    /**
+     * 版本编号
+     */
+    private String versionId;
+    /**
+     * 说明
+     */
+    private String des;
+    /**
+     * 创建时间 yyyy-mm-dd hh:mm:ss
+     */
+    private String createTime;
+    /**
+     * 更新时间 yyyy-mm-dd hh:mm:ss
+     */
+    private String updateTime;
 
     public String getPrintDeviceId() {
         return printDeviceId;
@@ -34,11 +42,11 @@ public class PrintDevice implements Serializable{
         this.printDeviceId = printDeviceId;
     }
 
-    public String getState() {
+    public boolean isState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(boolean state) {
         this.state = state;
     }
 

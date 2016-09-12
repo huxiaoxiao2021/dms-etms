@@ -43,7 +43,7 @@ public class TaskPopRecieveCountDaoTest extends AbstractDaoIntegrationTest{
         parameter.setTaskType(1120);
         parameter.setExecuteCount(118);
         parameter.setTaskId((long)1);
-        Assert.assertTrue(taskPopRecieveCountDao.update(parameter)>0);
+        taskPopRecieveCountDao.update(parameter);
     }
 	
 	@Test

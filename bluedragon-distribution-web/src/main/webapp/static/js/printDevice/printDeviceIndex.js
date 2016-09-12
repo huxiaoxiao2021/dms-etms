@@ -32,12 +32,12 @@ function init() {
 
     $("#enableBtn").click(function () {
         //启用按钮
-        changeState(1);
+        changeState("true");
     })
 
     $("#disableBtn").click(function () {
         //停用按钮
-        changeState(0);
+        changeState("false");
     })
 
     /**
@@ -95,8 +95,8 @@ function doQuery(params) {
             var temp = "";
             for (var i = 0; i < printDeviceList.length; i++) {
                 temp += "<tr class='a2 tr' style=''>";
-                temp += "<td><input type='checkbox' name='subcheckbox' id='" + printDeviceList[i].state + "'/></td>"
-                temp += "<td id='stateId'>" + (null == printDeviceList[i].state ? "" : printDeviceList[i].state) + "</td>";
+                temp += "<td><input type='checkbox' name='subcheckbox'/></td>"
+                temp += "<td id='stateId'>" + (printDeviceList[i].state) + "</td>";
                 temp += "<td id='id'>" + (printDeviceList[i].printDeviceId) + "</td>";
                 temp += "<td>" + (null == printDeviceList[i].versionId ? "" : printDeviceList[i].versionId) + "</td>";
                 temp += "<td>" + (null == printDeviceList[i].des ? "" : printDeviceList[i].des) + "</td>";
@@ -172,7 +172,7 @@ function printDeviceDelete(printDeviceIdList) {
 
 /**
  * 状态改变
- * state==1表示启用按钮：state==0表示停用按钮
+ * state==true表示启用按钮：state==false表示停用按钮
  */
 function changeState(state){
 
