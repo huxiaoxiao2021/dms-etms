@@ -17,15 +17,7 @@ public class PickWareDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private PickWareDao pickWareDao;
-	
-	
-	@Test
-    public void testFindByFingerprint() {
-        PickWare parameter=new PickWare();
 
-        Assert.assertTrue(pickWareDao.findByFingerprint(parameter)>0);
-    }
-	
 	@Test
     public void testAdd() {
         PickWare parameter = new PickWare();
@@ -40,4 +32,14 @@ public class PickWareDaoTest extends AbstractDaoIntegrationTest{
         parameter.setFingerprint("Mary");
         Assert.assertTrue(pickWareDao.add(PickWareDao.class.getName(), parameter) > 0);
     }
+
+
+
+    @Test
+    public void testFindByFingerprint() {
+        PickWare parameter=new PickWare();
+
+        pickWareDao.findByFingerprint(parameter);
+    }
+
 }

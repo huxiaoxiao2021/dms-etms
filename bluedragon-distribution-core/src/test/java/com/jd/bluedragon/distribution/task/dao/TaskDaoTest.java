@@ -123,6 +123,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         task.setType(1120);
         task.setTableName(table_name);
         task.setOwnSign("DMS");
+        task.setStatuses("'3,4'");
         taskDao.findTasks(task);
     }
 	

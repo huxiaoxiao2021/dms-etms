@@ -319,7 +319,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 	
 	private FastRefund toFastRefundBySorting(Sorting sorting){
     	FastRefund fastRefund = new FastRefund();
-    	fastRefund.setOrderId(Long.parseLong(sorting.getWaybillCode()));//订单号　   	 
+    	fastRefund.setOrderId(sorting.getWaybillCode());//订单号　   	 
     	fastRefund.setApplyReason("分拣中心快速退款");//申请原因    	 
     	fastRefund.setReqErp(String.valueOf(sorting.getCreateUserCode()));//申请人erp账号    	 
     	fastRefund.setReqName(sorting.getCreateUser());//申请人name    	 

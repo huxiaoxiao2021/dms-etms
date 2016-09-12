@@ -15,7 +15,7 @@ public class DepartureSendDaoTest extends AbstractDaoIntegrationTest{
 	private DepartureSendDao departureSendDao;
 	
 	
-	//@Test
+	@Test
     public void testInsert() {
         DepartureSend parameter = new DepartureSend();
         parameter.setShieldsCarId((long)234);
@@ -28,7 +28,7 @@ public class DepartureSendDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertEquals(1, departureSendDao.insert(parameter));
     }
 	
-	//@Test
+	@Test
     public void testGetDepartureSendByCarId() {
         Long departureCarId = (long)234;
         List<DepartureSend> list = departureSendDao.getDepartureSendByCarId(departureCarId);

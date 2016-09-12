@@ -56,7 +56,7 @@ public class OfflineDaoTest extends AbstractDaoIntegrationTest{
         parameter.setReceiveSiteCode(401);
         parameter.setStatus(778);
         parameter.setCreateSiteCode(317);
-        //offlineDao.totalSizeByParams(parameter);
+//        offlineDao.totalSizeByParams(parameter);
     }
 	
 	@Test
@@ -84,7 +84,7 @@ public class OfflineDaoTest extends AbstractDaoIntegrationTest{
         parameter.setSendUser("Jone");
         parameter.setSendUserCode(847);
         parameter.setStatus(933);
-        //offlineDao.add(parameter);
+        offlineDao.add(OfflineDao.namespace,parameter);
     }
 	
 	@Test

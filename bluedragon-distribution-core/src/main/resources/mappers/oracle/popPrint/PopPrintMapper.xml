@@ -182,13 +182,13 @@
         <choose>
             <when test="ownSign == 'PRE'">
                 AND p.pop_receive_type = 4
-                AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
-                i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
+--                 AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
+--                 i.package_barcode AND i.inspection_type = 60 AND i.yn = 1)
             </when>
             <otherwise>
                 AND p.pop_receive_type <![CDATA[ < ]]> 4
-                AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
-                i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
+--                 AND NOT EXISTS (SELECT 1 FROM inspection i WHERE p.waybill_code = i.waybill_code AND p.package_barcode =
+--                 i.package_barcode AND i.inspection_type = 40 AND i.yn = 1)
             </otherwise>
         </choose>
         AND rownum <![CDATA[ <= ]]> #{fetchNum, jdbcType=INTEGER}

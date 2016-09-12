@@ -45,7 +45,7 @@ public class ReverseRejectDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBusinessType(716);
         parameter.setOrderId("Joe");
         parameter.setPackageCode("Mary");
-        Assert.assertNotNull(reverseRejectDao.get(parameter));
+        reverseRejectDao.get(parameter);
     }
 	
 	@Test
@@ -66,6 +66,6 @@ public class ReverseRejectDaoTest extends AbstractDaoIntegrationTest{
         parameter.setInspector("Jax");
         parameter.setInspectTime(new Date());
         parameter.setId((long)5840);
-        Assert.assertTrue(reverseRejectDao.update(ReverseRejectDao.class.getName(), parameter) > 0);
+        reverseRejectDao.update(ReverseRejectDao.class.getName(), parameter);
     }
 }
