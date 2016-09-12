@@ -113,7 +113,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
-            if(StringUtils.isNotBlank(tmsWaybill.getSendPay())) {
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>55) {
                 char luxurySign = tmsWaybill.getSendPay().charAt(19);
                 commonWaybill.setLuxuryText(luxurySign <= '4' && luxurySign > '0' ? "奢" : "");
                 commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((tmsWaybill.getSendPay().charAt(55) == '1' || tmsWaybill.getSendPay().charAt(51) == '1') ? "闪" : ""));
