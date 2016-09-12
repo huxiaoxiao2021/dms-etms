@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.fastRefund.domain;
 import java.util.Date;
 
 public class FastRefund {
-	Long OrderId;//订单号　
+	String OrderId;//订单号　
 	 
 	String applyReason;//申请原因
 	 
@@ -26,11 +26,11 @@ public class FastRefund {
 	*/
 	Integer waybillSign;
 
-	public Long getOrderId() {
+	public String getOrderId() {
 		return OrderId;
 	}
 
-	public void setOrderId(Long orderid) {
+	public void setOrderId(String orderid) {
 		OrderId = orderid;
 	}
 

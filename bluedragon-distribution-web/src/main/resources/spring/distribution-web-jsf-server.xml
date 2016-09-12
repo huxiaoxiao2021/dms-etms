@@ -55,4 +55,12 @@
     <jsf:provider id="jsfDmsInternalService" server="dmsjsf" ref="dmsInternalService"
                   interface="com.jd.bluedragon.distribution.internal.service.DmsInternalService"
                   alias="${dms.jsf.internal.alias}"/>
+
+    <!-- 阿尔法打印插件自动升级JSF接口 -->
+    <!-- 实现类 -->
+    <bean id="jsfPrintDeviceServiceImpl" class="com.jd.bluedragon.distribution.saf.JsfPrintDeviceServiceImpl"/>
+    <jsf:provider id="jsfPrintDeviceService" server="dmsjsf" ref="jsfPrintDeviceServiceImpl"
+                  interface="com.jd.bluedragon.distribution.alpha.jsf.JsfPrintDeviceService"
+                    alias="${dms.jsf.alias}"/>
+
 </beans>

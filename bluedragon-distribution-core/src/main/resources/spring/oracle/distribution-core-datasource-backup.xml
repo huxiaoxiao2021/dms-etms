@@ -57,12 +57,10 @@
 	<bean id="backupWriteSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg index="0" ref="backupWriteSqlSessionFactory" />
 	</bean>
-	
-	<!--
+
 	<bean id="backupWriteDataSourceDbStatementProcessor" class="com.jd.ql.framework.migration.replication.support.AsyncMirrorDbStatementProcessor">
 	   	<constructor-arg index="0" ref="backupWriteSqlSessionTemplate"></constructor-arg>
 	   	<constructor-arg index="1" value="${backup.db.replication.aysn.threadNum}"></constructor-arg>
 	</bean>
-	  -->
-	
+
 </beans>

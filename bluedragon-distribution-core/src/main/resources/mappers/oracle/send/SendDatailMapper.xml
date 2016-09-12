@@ -687,11 +687,16 @@
         AND yn = 1
         AND send_code = #{sendCode,jdbcType=VARCHAR}
     </select>
+
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
         SELECT sd.waybill_code,sd.package_barcode
         FROM departure_send ds
         INNER JOIN send_d sd
         ON ds.send_code = sd.send_code
         where ds.departure_car_id = #{departureID,jdbcType=BIGINT}
+    </select>
+
+	<select id="querySendCodesByDepartID"  parameterType="java.lang.Long" resultType="String">
+		select SEND_CODE from DEPARTURE_SEND where departure_car_id=#{departureID]}
     </select>
 </mapper>

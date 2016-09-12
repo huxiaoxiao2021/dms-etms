@@ -5,6 +5,7 @@ import org.junit.Test;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +19,7 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
 	private DepartureCarDao departureCarDao;
 	
 	
-	//@Test
+	@Test
     public void testQueryDepartureInfoBySendCode() {
 		List<String> sendCodes = new ArrayList<String>();
 		sendCodes.add("1111");
@@ -27,7 +28,7 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
 		Assert.assertNotNull(list);
     }
 	
-	//@Test
+	@Test
     public void testInsert() {
         DepartureCar parameter = new DepartureCar();
         parameter.setCarCode("Jone");
@@ -94,9 +95,12 @@ public class DepartureCarDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertNotNull(list);
     }
 	
-	//@Test
+	@Test
     public void testQueryArteryBillingInfoByBoxCode() {
+        // 此方法设计非拆分表和拆分表的关联查询，由于业务没有调用，忽略测试用例
         String boxCode = "1111";
         departureCarDao.queryArteryBillingInfoByBoxCode(boxCode);
     }
+
+
 }

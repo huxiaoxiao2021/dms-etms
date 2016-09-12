@@ -71,7 +71,7 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
          parameter.put("endTime", new Date());
          parameter.put("popReceiveType", 1);
          parameter.put("waybillType", 1);
-         parameter.put("endIndex", 2);
+         parameter.put("pageSize", 2);
          parameter.put("startIndex", 1);
         popPrintDao.findSitePrintDetail(parameter);
     }
@@ -93,7 +93,7 @@ public class PopPrintDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("endTime", new Date());
         parameter.put("popReceiveType", 1);
         parameter.put("waybillType", 1);
-        parameter.put("endIndex", 2);
+        parameter.put("pageSize", 2);
         parameter.put("startIndex", 1);
         popPrintDao.findSitePrintDetailCount(parameter);
     }

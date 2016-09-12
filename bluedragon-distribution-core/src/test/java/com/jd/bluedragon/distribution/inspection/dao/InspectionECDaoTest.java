@@ -17,7 +17,10 @@ public class InspectionECDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private InspectionECDao inspectionECDao;
-	
+    @Test
+    public void testBoxUnInspection() {
+        inspectionECDao.boxUnInspection(656, 601, "Jone");
+    }
 	
 	@Test
     public void testGet() {
@@ -186,8 +189,5 @@ public class InspectionECDaoTest extends AbstractDaoIntegrationTest{
 		}
     }
 	
-	@Test
-    public void testBoxUnInspection() {
-        inspectionECDao.boxUnInspection(656, 601, "Jone");
-    }
+
 }

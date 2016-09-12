@@ -29,9 +29,11 @@
 
     <insert id="addFreshWaybill" parameterType="freshWaybill">
         INSERT INTO FRESH_WAYBILL(
-        <include refid="freshWaybillColumn"/>
+        PACKAGE_CODE, BOX_TYPE, SLAB_TYPE,SLAB_NUM,PACKAGE_TEMP,SLAB_TEMP,
+        CREATE_TIME,UPDATE_TIME,USER_CODE,USER_NAME,USER_DMS_CODE,USER_DMS_NAME,
+        USER_ORG_CODE,USER_ORG_NAME,YN
         )VALUES(
-        #{id,jdbcType=BIGINT},#{packageCode,jdbcType=VARCHAR},#{boxType,jdbcType=INTEGER},#{slabType,jdbcType=INTEGER},
+        #{packageCode,jdbcType=VARCHAR},#{boxType,jdbcType=INTEGER},#{slabType,jdbcType=INTEGER},
         #{slabNum,jdbcType=INTEGER},#{packageTemp,jdbcType=FLOAT},#{slabTemp,jdbcType=FLOAT},
         now(),now(),#{userCode,jdbcType=INTEGER},#{userName,jdbcType=VARCHAR},#{userDmsId,jdbcType=INTEGER},
         #{userDmsName,jdbcType=VARCHAR},#{userOrgId,jdbcType=INTEGER},#{userOrgName,jdbcType=VARCHAR},1
@@ -51,9 +53,6 @@
     </select>
 
     <select id="getFreshWaybillPage" parameterType="java.util.Map" resultMap="freshWaybill">
-        <if test="startIndex != null">
-            select * from ( select t.*, rownum l from (
-        </if>
         SELECT
         <include refid="freshWaybillColumn"/>
         FROM
@@ -64,9 +63,7 @@
         </if>
         ORDER BY CREATE_TIME
         <if test="startIndex != null">
-            ) t where <![CDATA[ rownum <= #{endIndex, jdbcType=INTEGER} ]]>
-            ) where <![CDATA[l >]]>
-            #{startIndex, jdbcType=INTEGER}
+            LIMIT #{startIndex},#{pageSize}
         </if>
     </select>
 
