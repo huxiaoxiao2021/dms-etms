@@ -1043,6 +1043,7 @@ public class DepartureServiceImpl implements DepartureService {
         return departureCarDao.queryArteryBillingInfo(carCode);
     }
 
+    @Deprecated
     @Override
     public DeparturePrintResponse queryArteryBillingInfoByBoxCode(String boxCode) {
         return departureCarDao.queryArteryBillingInfoByBoxCode(boxCode);

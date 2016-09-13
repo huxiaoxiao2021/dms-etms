@@ -102,6 +102,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Deprecated
 	public int findTotalCount(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
 		return popAbnormalDao.findTotalCount(paramMap);

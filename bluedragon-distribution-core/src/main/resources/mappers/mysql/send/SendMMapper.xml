@@ -146,47 +146,48 @@
 			,0,NOW(),#{transporttype,jdbcType=INTEGER})
 	</insert>
 	
-	<insert id="addBatch" parameterType="list" >
-	    INSERT INTO send_m (
-		send_m_id, send_code, send_user, send_user_code,box_code,turnoverBox_Code,
-		create_site_code,
-		receive_site_code, car_code,
-		send_type,
-		create_user, create_user_code, create_time,operate_time,
-		update_user_code, updater_user,sendm_status,
-		update_time, yn,shields_car_id,excute_count,excute_time,transport_type
-		)
-		
-		select  dms_core_send_m.nextval,A.*  from(
-	        <foreach collection="list" item="item" index="index"  separator="UNION ALL" >
-				SELECT
-				#{item.sendCode,jdbcType=VARCHAR} as send_code,
-				#{item.sendUser,jdbcType=VARCHAR} as send_user,
-				#{item.sendUserCode,jdbcType=INTEGER} as send_user_code,
-				#{item.boxCode,jdbcType=VARCHAR} as box_code, 
-				#{item.turnoverBoxCode,jdbcType=VARCHAR} as turnoverBox_Code,
-				#{item.createSiteCode,jdbcType=INTEGER} as create_site_code,
-				#{item.receiveSiteCode,jdbcType=INTEGER} as receive_site_code, 
-				#{item.carCode,jdbcType=INTEGER} as car_code, 
-				#{item.sendType,jdbcType=INTEGER} as send_type,
-				#{item.createUser,jdbcType=VARCHAR} as create_user,
-				#{item.createUserCode,jdbcType=INTEGER} as create_user_code,				
-				NOW() as create_time,
-				#{item.operateTime,jdbcType=TIMESTAMP} as operate_time,
-				#{item.updateUserCode,jdbcType=INTEGER} as update_user_code,
-				#{item.updaterUser,jdbcType=VARCHAR} as updater_user,
-				1 as sendm_status,
-				#{item.updateTime,jdbcType=TIMESTAMP} as update_time,
-				#{item.yn,jdbcType=TINYINT} as yn,
-				#{item.shieldsCarId,jdbcType=INTEGER} as shields_car_id,
-				0 as excute_count,
-				NOW() as excute_time,
-				#{item.transporttype,jdbcType=INTEGER} as transport_type
-	            from dual
-	        </foreach>
-        ) A 
+	<!--<insert id="addBatch" parameterType="list" >-->
+	    <!--INSERT INTO send_m (-->
+		<!--send_m_id, send_code, send_user, send_user_code,box_code,turnoverBox_Code,-->
+		<!--create_site_code,-->
+		<!--receive_site_code, car_code,-->
+		<!--send_type,-->
+		<!--create_user, create_user_code, create_time,operate_time,-->
+		<!--update_user_code, updater_user,sendm_status,-->
+		<!--update_time, yn,shields_car_id,excute_count,excute_time,transport_type-->
+		<!--)-->
+		<!---->
+		<!--select  A.*  from(-->
+	        <!--<foreach collection="list" item="item" index="index"  separator="UNION ALL" >-->
+				<!--SELECT-->
+                <!--dms_core_send_m.batchnextval as send_m_id,-->
+				<!--#{item.sendCode,jdbcType=VARCHAR} as send_code,-->
+				<!--#{item.sendUser,jdbcType=VARCHAR} as send_user,-->
+				<!--#{item.sendUserCode,jdbcType=INTEGER} as send_user_code,-->
+				<!--#{item.boxCode,jdbcType=VARCHAR} as box_code, -->
+				<!--#{item.turnoverBoxCode,jdbcType=VARCHAR} as turnoverBox_Code,-->
+				<!--#{item.createSiteCode,jdbcType=INTEGER} as create_site_code,-->
+				<!--#{item.receiveSiteCode,jdbcType=INTEGER} as receive_site_code, -->
+				<!--#{item.carCode,jdbcType=INTEGER} as car_code, -->
+				<!--#{item.sendType,jdbcType=INTEGER} as send_type,-->
+				<!--#{item.createUser,jdbcType=VARCHAR} as create_user,-->
+				<!--#{item.createUserCode,jdbcType=INTEGER} as create_user_code,				-->
+				<!--NOW() as create_time,-->
+				<!--#{item.operateTime,jdbcType=TIMESTAMP} as operate_time,-->
+				<!--#{item.updateUserCode,jdbcType=INTEGER} as update_user_code,-->
+				<!--#{item.updaterUser,jdbcType=VARCHAR} as updater_user,-->
+				<!--1 as sendm_status,-->
+				<!--#{item.updateTime,jdbcType=TIMESTAMP} as update_time,-->
+				<!--#{item.yn,jdbcType=TINYINT} as yn,-->
+				<!--#{item.shieldsCarId,jdbcType=INTEGER} as shields_car_id,-->
+				<!--0 as excute_count,-->
+				<!--NOW() as excute_time,-->
+				<!--#{item.transporttype,jdbcType=INTEGER} as transport_type-->
+	            <!--from dual-->
+	        <!--</foreach>-->
+        <!--) A -->
 
-    </insert>
+    <!--</insert>-->
 
 	<update id="updateBySendCodeSelective" parameterType="SendM" timeout="5">
 		update send_m
@@ -236,6 +237,33 @@
 		</set>
 		where send_code = #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</update>
+
+	<update id="batchUpdateForDepartrue" parameterType="SendM">
+		update send_m
+		<set>
+			<if test="planStartTime!=null">
+				PLAN_START_TIME = #{planStartTime},
+			</if>
+			<if test="PLAN_END_TIME!=null ">
+				PLAN_END_TIME = #{planEndTime},
+			</if>
+		</set>
+		WHERE WORKSHEET_ID IN
+		<foreach item="worksheetId" index="index" collection="idList"
+			open="(" close=")" separator=",">
+			#{worksheetId}
+		</foreach>
+	</update>
+
+    <update id="updateSendM" parameterType="list">
+				UPDATE send_m
+				SET yn=0  , update_time = sysdate
+				WHERE yn =1 and send_code in
+				<foreach collection="list" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items.sendCode,jdbcType=VARCHAR}
+				</foreach>
+	 </update>
 
 	 <select id="findSendMByBoxCode" parameterType="SendM"  resultMap="SendM">
 		 select  
@@ -308,6 +336,47 @@
 		</where>
 	</update>
 
+	<select id="querySendCodesByBoxCodes" parameterType="SendM"
+		resultMap="SendM">
+		SELECT box_code, send_code
+		FROM send_m where yn=1 and
+		box_code in ${boxCode}
+	</select>
+
+	<select id="findCancel" parameterType="SendM"
+		resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from send_m
+		<where>
+		yn =0
+		    <if test="createSiteCode!=null">
+				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="receiveSiteCode!=null">
+				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="boxCode!=null">
+				and box_code = #{boxCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
+
+	<update id="updatetmstBySendCode" parameterType="SendM">
+		update send_m
+		set sendm_status = #{sendmStatus,jdbcType=INTEGER}
+		<if test="excuteCount != null">
+		, excute_count = (excute_count + 1)
+		</if>
+
+		<if test="excuteTime != null">
+		, excute_time = (excute_time + 15/(24*60))
+		</if>
+		,update_time = sysdate
+		where send_code = #{sendCode,jdbcType=VARCHAR}
+	</update>
+
 	<select id="checkSendByBox" parameterType="SendM"  resultType="Integer">
 		SELECT COUNT(send_m_id)
 		FROM send_m
@@ -318,6 +387,18 @@
 		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 	</select>
 	
+	<select id="findsendMToReverse" resultMap="SendM">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM send_m  where sendm_status=0 and send_type =20 and yn=1
+
+			AND (excute_count <![CDATA[<]]> 4 or excute_count is  null)
+
+			AND (excute_time <![CDATA[<]]> NOW() or excute_time is   null)
+
+		 and operate_time <![CDATA[<=]]> timestampadd(minute,-5,NOW())  LIMIT 100
+	</select>
+
 	<select id="querySendCodesByDepartue" parameterType="SendM"
 		resultMap="SendM">
 		SELECT distinct send_code
@@ -325,7 +406,8 @@
 		WHERE yn = 1 and SHIELDS_CAR_ID=
 		#{shieldsCarId,jdbcType=INTEGER}
 	</select>
-	
+
+
 	<select id="batchQuerySendMList" parameterType="SendM"
 		resultMap="SendMList">
 		select

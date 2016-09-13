@@ -80,7 +80,12 @@
 	
 	<insert id="add" parameterType="OfflineLog">
 		insert into offline_log(
-		<include refid="Base_Insert_Column_List" />
+		waybill_code,package_code,box_code,business_type,
+	create_user, create_user_code, create_time, create_site_code,
+	create_site_name,receive_site_code,update_time,
+	operate_time,
+	turnoverbox_code,weight,volume,exception_type,send_code,seal_box_code,seal_vehicle_code,vehicle_code,
+	task_type,send_user,send_user_code, yn,status
 		)
 		values
 		(#{waybillCode,jdbcType=VARCHAR},#{packageCode,jdbcType=VARCHAR},#{boxCode,jdbcType=VARCHAR},

@@ -17,7 +17,7 @@ public class CrossSortingDaoTest extends AbstractDaoIntegrationTest{
 	@Autowired
 	private CrossSortingDao crossSortingDao;
 	
-	//@Test
+	@Test
     public void testAdd() {
         CrossSorting parameter = new CrossSorting();
         parameter.setOrgId(6);
@@ -37,7 +37,7 @@ public class CrossSortingDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertEquals(new Integer(1), crossSortingDao.add(CrossSortingDao.namespace , parameter));
     }
 	
-	//@Test
+	@Test
     public void testFindCrossSorting() {
         CrossSorting parameter = new CrossSorting();
         parameter.setCreateDmsCode(864);
@@ -46,17 +46,17 @@ public class CrossSortingDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertNotNull(crossSortingDao.findCrossSorting(parameter));
     }
 	
-	//@Test
+	@Test
     public void testUpdateForDelete() {
         CrossSorting parameter = new CrossSorting();
         parameter.setDeleteUserCode(478);
         parameter.setDeleteUserName("Joe");
         parameter.setDeleteTime(new Date());
-        parameter.setId((long)2);
+        parameter.setId((long)1);
         Assert.assertEquals(1, crossSortingDao.updateCrossSortingForDelete(parameter));
     }
 	
-	//@Test
+	@Test
     public void testAddBatch() {
 		List<CrossSorting> csList = new ArrayList<CrossSorting>();
 		
@@ -110,10 +110,10 @@ public class CrossSortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.setDeleteTime(new Date());
         parameter.setYn(1);
         csList.add(parameter);
-        Assert.assertEquals(1, crossSortingDao.addBatchCrossSorting(csList));
+        Assert.assertEquals(3, crossSortingDao.addBatchCrossSorting(csList));
     }
 	
-	//@Test
+	@Test
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testDelete() {
         Map parameter = new HashMap();
@@ -140,7 +140,7 @@ public class CrossSortingDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertEquals(1, crossSortingDao.updateCrossSorting(parameter));
     }
 	
-	//@Test
+	@Test
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void findPageCrossSorting(){
 		Map parameter = new HashMap();
@@ -151,19 +151,19 @@ public class CrossSortingDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("startIndex", 1);
         parameter.put("endIndex", 2);
         List<CrossSorting> list = crossSortingDao.findPageCrossSorting(parameter);
-        Assert.assertNotNull(list);
+        Assert.assertEquals(0, list.size());
 	}
 	
-	//@Test
+	@Test
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void findCountCrossSorting(){
 		Map parameter = new HashMap();
-        parameter.put("orgId", 3);
+        parameter.put("orgId", 6);
         parameter.put("createUserName", "Stone");
         parameter.put("createDmsCode", 864);
         parameter.put("destinationDmsCode", 732);
         Integer i = crossSortingDao.findCountCrossSorting(parameter);
-        Assert.assertEquals(new Integer(1), i);
+        Assert.assertEquals(new Integer(2), i);
 	}
     
     @SuppressWarnings({ "rawtypes", "unchecked" })

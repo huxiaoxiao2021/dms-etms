@@ -116,4 +116,12 @@ public class InspectionDao extends BaseDao<Inspection>{
 		Object o = this.getSqlSession().selectOne(namespace+".havePOPInspection", inspection);
 		return  o==null?false:true;
 	}
+
+    /**
+     * 按条件查询验货记录
+     *
+     * */
+    public List<Inspection> queryByCondition(Inspection inspection) {
+        return this.getSqlSession().selectList(namespace + ".selectSelective", inspection);
+    }
 }

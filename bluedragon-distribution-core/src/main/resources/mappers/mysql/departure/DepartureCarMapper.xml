@@ -64,26 +64,27 @@
     </select>
 
     <select id="queryArteryBillingInfo" resultMap="arteryBillingMap" parameterType="Long">
-        SELECT create_site_code,receive_site_codes,send_user_code
-              ,create_time,route_type,capacity_code,departure_car_id,volume,weight
+        SELECT cs.create_site_code,cs.receive_site_codes,cs.send_user_code
+              ,cs.create_time,cs.route_type,cs.capacity_code,cs.departure_car_id,cs.volume,cs.weight
         FROM (SELECT dc.create_site_code,dc.receive_site_codes,dc.send_user_code
                ,dc.create_time,dc.capacity_code as route_type,ds.capacity_code,dc.departure_car_id,dc.volume,dc.weight
                 FROM departure_car dc
                 INNER JOIN departure_send ds ON dc.departure_car_id = ds.departure_car_id
-                WHERE dc.departure_car_id = #{carCode})
+                WHERE dc.departure_car_id = #{carCode}) as cs
          LIMIT 1
     </select>
 
+    <!-- 此方法在Mysql中涉及到分库和非拆分库关联，暂时没有任何调用 -->
     <select id="queryArteryBillingInfoByBoxCode" resultMap="arteryBillingMap" parameterType="String">
-        SELECT create_site_code,receive_site_codes,send_user_code,transport_type
-              ,create_time,route_type,capacity_code,departure_car_id,volume,weight
+        SELECT cs.create_site_code,cs.receive_site_codes,cs.send_user_code,cs.transport_type
+              ,cs.create_time,cs.route_type,cs.capacity_code,cs.departure_car_id,cs.volume,cs.weight
         FROM (SELECT dc.create_site_code,dc.receive_site_codes,dc.send_user_code,sm.transport_type
                 ,dc.create_time,dc.capacity_code as route_type,ds.capacity_code,dc.departure_car_id,dc.volume,dc.weight
                 FROM send_m sm
                 INNER JOIN departure_send ds ON sm.send_code = ds.send_code
                 INNER JOIN departure_car dc ON ds.departure_car_id = dc.departure_car_id
-                WHERE sm.box_code = #{boxCode})
-        WHERE LIMIT 1
+                WHERE sm.box_code = #{boxCode}) as cs
+        LIMIT 1
     </select>
 
     <insert id="insert" parameterType="DepartureCar" useGeneratedKeys="true" keyProperty="shieldsCarId">
