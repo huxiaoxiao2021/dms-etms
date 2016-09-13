@@ -124,4 +124,13 @@ public class InspectionDao extends BaseDao<Inspection>{
     public List<Inspection> queryByCondition(Inspection inspection) {
         return this.getSqlSession().selectList(namespace + ".selectSelective", inspection);
     }
+
+
+    /**
+     * 查询符合条件验货记录数量
+     *
+     * */
+    public Integer queryCountByCondition(Inspection inspection) {
+        return (Integer) this.getSqlSession().selectOne(namespace + ".selectCountSelective", inspection);
+    }
 }

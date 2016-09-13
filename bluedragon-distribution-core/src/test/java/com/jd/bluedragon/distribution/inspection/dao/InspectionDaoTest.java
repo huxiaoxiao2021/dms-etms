@@ -225,4 +225,13 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         inspection.setPackageBarcode("jim1");
         Assert.assertEquals(1,inspectionDao.queryByCondition(inspection).size());
     }
+
+    @Test
+    public void testSelectCountSelective() {
+        testAdd();
+        Inspection inspection = new Inspection();
+        inspection.setWaybillCode("joe1");
+        inspection.setPackageBarcode("jim1");
+        Assert.assertEquals(new Integer(8), inspectionDao.queryCountByCondition(inspection));
+    }
 }
