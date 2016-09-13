@@ -8,6 +8,9 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.CarrierParamDto;
+import com.jd.etms.vts.dto.DictDto;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -86,6 +89,20 @@ public interface BaseService {
 	 * @return BaseDataDict[]
 	 */
 	BaseDataDict[] getBaseDataDictListByDate(List<Integer> typeGroups);
+	
+	/**
+	 * 通过VTS已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
+	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
+	 * @return
+	 */
+	DictDto[] getDictListByGroupType(List<Integer> typeGroups);
+	
+	/**
+	 * 承运商列表
+	 * @param carrierParamDto
+	 * @return
+	 */
+	List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto);
 
 	/**
 	 * 根据站点ID查询站点名称，如果没有匹配数据则返回空值(null)

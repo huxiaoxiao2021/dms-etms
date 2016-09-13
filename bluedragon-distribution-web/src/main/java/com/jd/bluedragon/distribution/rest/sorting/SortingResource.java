@@ -93,7 +93,7 @@ public class SortingResource {
 			SendM sendM = new SendM();
 			sendM.setBoxCode(sorting.getBoxCode());
 			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
-			List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
+			List<SendM> sendMList = sendMDao.findSendMByBoxCode2(sendM);
 			if (null != sendMList && !sendMList.isEmpty() && sendMList.size() > 0) {
 				return this.sortingSended();
 			}
@@ -106,7 +106,7 @@ public class SortingResource {
 					return this.sortingInspected();
 			}
 
-			if (this.sortingService.canCancel(sorting)) {
+			if (this.sortingService.canCancel2(sorting)) {
 				return this.ok();
 			} else {
 				return this.sortingNotFund();
@@ -128,7 +128,7 @@ public class SortingResource {
 			return this.paramIsError();
 		}
 
-		List<Sorting> sortingRecords = sortingService.queryByCode(sorting);
+		List<Sorting> sortingRecords = sortingService.queryByCode2(sorting);
 
 		if (sortingRecords.isEmpty() || sortingRecords.size() == 0) {
 			logger.warn("取消分拣--->包裹已经发货");
@@ -159,7 +159,7 @@ public class SortingResource {
 		Boolean canCancel = false;
 		for (Sorting eachSorting : sortingRecords) {
 			eachSorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
-			canCancel |= this.sortingService.canCancel(eachSorting);
+			canCancel |= this.sortingService.canCancel2(eachSorting);
 		}
 
 		if (canCancel) {

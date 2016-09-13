@@ -536,6 +536,15 @@ public class DeliveryServiceImpl implements DeliveryService {
     public Boolean canCancel(SendDetail sendDetail) {
         return this.sendDatailDao.canCancel(sendDetail);
     }
+    /**
+     * 取消发货操作 不判断send_type added by zhanglei
+     * @param sendDetail
+     * @return
+     */
+    @Override
+    public Boolean canCancel2(SendDetail sendDetail) {
+        return this.sendDatailDao.canCancel2(sendDetail);
+    }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
@@ -930,14 +939,14 @@ public class DeliveryServiceImpl implements DeliveryService {
                         delDeliveryFromRedis(tSendM);      //取消发货成功，删除redis缓存的发货数据
                         sendMessage(tlist, tSendM);
                     }
-                    return responsePack;
-                } else {
-                    return new ThreeDeliveryResponse(
-                            DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                            DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
-                }
-            } else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-                List<SendM> sendMList = this.sendMDao.findSendMByBoxCode(tSendM);
+					return responsePack;
+				} else {
+					return new ThreeDeliveryResponse(
+							DeliveryResponse.CODE_Delivery_NO_MESAGE,
+							DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
+				}
+			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
                 SendDetail queryDetail = new SendDetail();
                 queryDetail.setBoxCode(tSendM.getBoxCode());
                 List<SendDetail> sendDatails = sendDatailDao.querySendDatailsByBoxCode(queryDetail);
@@ -1094,45 +1103,45 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ThreeDeliveryResponse cancelUpdateDataByPack(SendM tSendM,
                                                          List<SendDetail> tList) {
         Collections.sort(tList);
-        for (SendDetail dSendDetail : tList) {
-            tSendM.setBoxCode(dSendDetail.getBoxCode());
-            List<SendM> sendMList = this.sendMDao.findSendMByBoxCode(tSendM);
-            // 发车验证
-            if (sendMList != null && !sendMList.isEmpty()) {
-                SendM dSendM = this.getLastSendDate(sendMList);
-                dSendM.setUpdaterUser(tSendM.getUpdaterUser());
-                dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
-                dSendM.setUpdateTime(new Date());
-                String caruser = dSendM.getSendUser();
-                if (caruser != null && !"".equals(caruser)) {
-                    return new ThreeDeliveryResponse(
-                            DeliveryResponse.CODE_Delivery_NO_DEPART,
-                            DeliveryResponse.MESSAGE_Delivery_NO_DEPART, null);
-                }
-                break;
-            } else {
-                return new ThreeDeliveryResponse(
-                        DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                        DeliveryResponse.MESSAGE_Delivery_NO_MESAGE, null);
-            }
-        }
-        for (SendDetail dSendDetail : tList) {
-            cancelDeliveryStatusByPack(tSendM, dSendDetail);
-            Sorting sorting = new Sorting.Builder(
-                    dSendDetail.getCreateSiteCode())
-                    .boxCode(dSendDetail.getBoxCode())
-                    .waybillCode(dSendDetail.getWaybillCode())
-                    .packageCode(dSendDetail.getPackageBarcode())
-                    .type(dSendDetail.getSendType())
-                    .receiveSiteCode(dSendDetail.getReceiveSiteCode())
-                    .updateUser(dSendDetail.getCreateUser())
-                    .updateUserCode(dSendDetail.getCreateUserCode())
-                    .updateTime(new Date()).build();
-            tSortingService.canCancel(sorting);
-        }
-        return new ThreeDeliveryResponse(JdResponse.CODE_OK,
-                JdResponse.MESSAGE_OK, null);
-    }
+		for (SendDetail dSendDetail : tList) {
+			tSendM.setBoxCode(dSendDetail.getBoxCode());
+			List<SendM> sendMList = this.sendMDao.findSendMByBoxCode(tSendM);
+			// 发车验证
+			if (sendMList != null && !sendMList.isEmpty()) {
+				SendM dSendM = this.getLastSendDate(sendMList);
+				dSendM.setUpdaterUser(tSendM.getUpdaterUser());
+				dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
+				dSendM.setUpdateTime(new Date());
+				String caruser = dSendM.getSendUser();
+				if (caruser != null && !"".equals(caruser)) {
+					return new ThreeDeliveryResponse(
+							DeliveryResponse.CODE_Delivery_NO_DEPART,
+							DeliveryResponse.MESSAGE_Delivery_NO_DEPART, null);
+				}
+				break;
+			} else {
+				return new ThreeDeliveryResponse(
+						DeliveryResponse.CODE_Delivery_NO_MESAGE,
+						DeliveryResponse.MESSAGE_Delivery_NO_MESAGE, null);
+			}
+		}
+		for (SendDetail dSendDetail : tList) {
+			cancelDeliveryStatusByPack(tSendM, dSendDetail);
+			Sorting sorting = new Sorting.Builder(
+					dSendDetail.getCreateSiteCode())
+					.boxCode(dSendDetail.getBoxCode())
+					.waybillCode(dSendDetail.getWaybillCode())
+					.packageCode(dSendDetail.getPackageBarcode())
+					.type(dSendDetail.getSendType())
+					.receiveSiteCode(dSendDetail.getReceiveSiteCode())
+					.updateUser(dSendDetail.getCreateUser())
+					.updateUserCode(dSendDetail.getCreateUserCode())
+					.updateTime(new Date()).build();
+			tSortingService.canCancel2(sorting);
+		}
+		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
+				JdResponse.MESSAGE_OK, null);
+	}
 
     //箱子更新取消发货状态
     public ThreeDeliveryResponse cancelDeliveryStatusByBox(SendM tSendM, SendDetail tSendDatail) {

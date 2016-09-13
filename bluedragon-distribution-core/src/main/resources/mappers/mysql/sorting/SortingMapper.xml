@@ -254,7 +254,7 @@
 		)
 	</select>
 
-	<!--取消分拣正向模块取数  这里因为不知道是不是有别的地方在用 所以新加了一个方法-->
+	<!--取消分拣正向模块取数  这里因为不知道是不是有别的地方在用 所以新加了一个方法 start-->
 	<select id="queryByCode2" resultMap="sorting" parameterType="sorting">
 		SELECT
 		box_code, create_site_code, receive_site_code, package_code,
@@ -275,7 +275,28 @@
 		AND m.yn=1
 		)
 	</select>
-	
+
+	<update id="canCancel2" parameterType="sorting">
+		UPDATE Sorting
+		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},
+		update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
+		WHERE yn=1 AND is_cancel = 0
+		AND create_site_code = #{createSiteCode}
+		<if test="packageCode != null">
+			AND package_code = #{packageCode}
+		</if>
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode}
+		</if>
+		<if test=" null!=boxCode and ''!=boxCode ">
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		</if>
+		<if test=" null!=receiveSiteCode and ''!=receiveSiteCode ">
+			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
+		</if>
+	</update>
+
+	<!--取消分拣正向模块 所以新加了一个方法 end-->
 	<select id="findByBsendCode" resultMap="sorting" parameterType="sorting">
 		<![CDATA[
 			SELECT distinct(box_code),create_site_code,receive_site_code

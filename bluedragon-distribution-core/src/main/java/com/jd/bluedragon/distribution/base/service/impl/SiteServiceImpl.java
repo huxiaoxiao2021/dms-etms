@@ -145,6 +145,8 @@ public class SiteServiceImpl implements SiteService {
 					domain.setCarrierName(dto.getCarrierName());
 					// 承运商ID
 					domain.setCarrierId(String.valueOf(dto.getCarrierId()));
+					//航空班次
+					domain.setAirShiftName(dto.getAirShiftName());
 
 					domainList.add(domain);
 				}

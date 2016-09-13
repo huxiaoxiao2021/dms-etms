@@ -83,6 +83,9 @@ public interface SortingService {
      * @return
      */
     List<Sorting> queryByCode2(Sorting sorting);
+
+    /** 执行取消文件操作  这里不再判断业务类型是正向还是逆向等  added by zhanglei */
+    Boolean canCancel2(Sorting sorting);
     
 	/**
 	 * 加入日志

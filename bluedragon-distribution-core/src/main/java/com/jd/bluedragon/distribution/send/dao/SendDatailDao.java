@@ -92,6 +92,12 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 				sendDetail);
 		return count > 0 ? Boolean.TRUE : Boolean.FALSE;
 	}
+
+	public Boolean canCancel2(SendDetail sendDetail) {
+		Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancel2",
+				sendDetail);
+		return count > 0 ? Boolean.TRUE : Boolean.FALSE;
+	}
 	
 	public Boolean canCancelFuzzy(SendDetail sendDetail) {
 		Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancelFuzzy",

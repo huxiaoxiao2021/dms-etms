@@ -113,12 +113,14 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
 			if(baseEntity!=null){
 				if(baseEntity.getResultCode()!=1){
+					this.logger.error(JsonHelper.toJson(bdTraceDto));
+					this.logger.error(bdTraceDto.getWaybillCode());
 					this.logger.error("分拣数据回传全程跟踪sendBdTrace异常："+baseEntity.getMessage());
 					Profiler.functionError(info);
 					return false;
 				}
 			}else{
-				this.logger.error("分拣数据回传全程跟踪接口sendBdTrace异常");
+				this.logger.error("分拣数据回传全程跟踪接口sendBdTrace异常"+bdTraceDto.getWaybillCode());
 				Profiler.functionError(info);
 				return false;
 			}
