@@ -94,9 +94,7 @@ public class PopPrintServiceImpl implements PopPrintService {
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
-        List<PopPrint> popList = popPrintDao.findLimitListNoReceive(paramMap);
+    public List<PopPrint> findLimitListNoReceive(List<PopPrint> popList, Map<String, Object> paramMap) {
         List<PopPrint> target=new LinkedList<PopPrint>();
         if (popList != null && !popList.isEmpty()) {
             for (PopPrint popPrint : popList) {

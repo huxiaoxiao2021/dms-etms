@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class PopSupplementReceiveTask implements
 	
 	@Autowired
 	private TaskPopRecieveCountService taskPopRecieveCountService;
+
+    @Autowired
+    private PopPrintDao popPrintDao;
 
 	@Override
 	public boolean execute(Object[] objs, String arg1) throws Exception {
@@ -187,20 +191,22 @@ public class PopSupplementReceiveTask implements
 			paramMap.put("limitMin", limitMin);
 			paramMap.put("limitHour", limitHour);
 			paramMap.put("ownSign", this.ownSign);
-			List<PopPrint> popPrintList = this.popPrintService
-					.findLimitListNoReceive(paramMap);
-			for (PopPrint popPrint : popPrintList) {
+			List<PopPrint> popPrintList = popPrintDao.findLimitListNoReceive(paramMap);
+
+            for (PopPrint popPrint : popPrintList) {
 				if (!isMyTask(queueNum, popPrint.getPopPrintId(),
 						queryCondition)) {
 					continue;
 				}
 				popPrints.add(popPrint);
 			}
+
+            return popPrintService.findLimitListNoReceive(popPrints, paramMap);
 		} catch (Exception e) {
-			this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
-		}
-		return popPrints;
-	}
+            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+        }
+        return popPrints;
+    }
 
 	private boolean isMyTask(long taskCount, long id, List<?> subQueues) {
 		if (taskCount == subQueues.size())

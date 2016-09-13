@@ -23,7 +23,7 @@
 	
 	<appender name="bluedragon.error" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-error.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
         <param name="MaxFileSize" value="20MB" />
         <param name="MaxBackupIndex" value="100"/>
@@ -35,7 +35,7 @@
 	
 	<appender name="bluedragon.sorting" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-sorting.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -47,7 +47,7 @@
 	
 	<appender name="bluedragon.inspection" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-inspection.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -59,7 +59,7 @@
 	
 	<appender name="bluedragon.popAbnormal" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-popAbnormal.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -71,7 +71,7 @@
 	
 	<appender name="bluedragon.base" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-base.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -83,7 +83,7 @@
 	
 	<appender name="bluedragon.box" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-box.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -95,7 +95,7 @@
 	
 	<appender name="bluedragon.send" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-send.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -107,7 +107,7 @@
 
 	<appender name="bluedragon.sortingReturn" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-sortingReturnReturnStatus.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -119,7 +119,7 @@
 	
 	<appender name="bluedragon.receive" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-receive.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -131,7 +131,7 @@
 	
 	<appender name="bluedragon.partnerWaybill" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-partnerWaybill.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -143,7 +143,7 @@
 	
 	<appender name="bluedragon.reverseservice" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-reverseservice.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -155,7 +155,7 @@
 	
 	<appender name="bluedragon.etms.mq.sender" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="${log.path.prefix}/bluedragon-distribution-worker-mq-sender.log" />
-		<param name="Threshold" value="ERROR"/>
+		<param name="Threshold" value="INFO"/>
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="20MB" />
 		<param name="MaxBackupIndex" value="100"/>
@@ -175,107 +175,107 @@
 	<!-- mybatis debug -->
 	<category name="org.apache.ibatis"
 		additivity="true">
-		<priority value="ERROR" />
+		<priority value="DEBUG" />
 		<appender-ref ref="console" />
 	</category>
 	
 	<category name="java.sql" additivity="true">
-		<priority value="ERROR" />
+		<priority value="DEBUG" />
 		<appender-ref ref="console" />
 	</category>
 	
 	<logger name="com.jd.dbs.transaction" >
-		<level value="ERROR" />
+		<level value="INFO" />
 	</logger>
 
 	<logger name="com.jd.etms.basic.cache" >
-		<level value="ERROR" />
+		<level value="INFO" />
 	</logger>
 
 	<logger name="com.jd.bluedragon.distribution">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="console"/>
 		<appender-ref ref="bluedragon"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.sorting">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.sorting"/>
 		<appender-ref ref="console"/>
 	</logger>
 		
 	<logger name="com.jd.bluedragon.distribution.inspection" >
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.inspection"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.worker.PopAbnormalTask" >
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.popAbnormal"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.base">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.base"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.box">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.box"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.send">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.send"/>
 		<appender-ref ref="console"/>
 	</logger>
  
 	<logger name="com.jd.bluedragon.distribution.sendprint">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.send"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.sorting.service.SortingReturnServiceImple">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.sortingReturn"/>
 		<appender-ref ref="console"/>
 	</logger>
 		
 	<logger name="com.jd.bluedragon.distribution.receive">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.receive"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.receiveInspectionExc">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.receive"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.partnerWaybill">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.partnerWaybill"/>
 		<appender-ref ref="console"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon.distribution.reverse.service">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.reverseservice"/>
 	</logger>
 	
 	<logger name="com.jd.etms.message">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.etms.mq.sender"/>
 	</logger>
 	
 	<logger name="com.jd.bluedragon">
-		<level value="ERROR"/>
+		<level value="INFO"/>
 		<appender-ref ref="bluedragon.error"/>
 		<appender-ref ref="console"/>
 	</logger>
@@ -293,7 +293,7 @@
 	</appender>
 
 	<logger name="com.jd.bluedragon.dbArchive" additivity="true">
-		<level value="ERROR" />
+		<level value="INFO" />
 		<appender-ref ref="dbArchive" />
 	</logger>
 	
