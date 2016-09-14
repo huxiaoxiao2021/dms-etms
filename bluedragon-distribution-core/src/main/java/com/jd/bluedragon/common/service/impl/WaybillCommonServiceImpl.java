@@ -391,7 +391,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
                 for (Goods goods : goodses) {
                     com.jd.bluedragon.distribution.product.domain.Product product = new com.jd.bluedragon.distribution.product.domain.Product();
-                    product.setProductId(StringHelper.getStringValue(goods.getGoodId()));
+                    product.setProductId(goods.getSku());
                     product.setName(goods.getGoodName());
                     product.setQuantity(goods.getGoodCount());
                     product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
