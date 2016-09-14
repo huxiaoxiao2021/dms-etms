@@ -13,6 +13,9 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.fa.orderrefund.RefundWebService;
@@ -54,6 +57,9 @@ public class FastRefundServiceImpl implements FastRefundService{
 	
     @Autowired
     private IPushPackageToMqService mqService;
+    
+    @Autowired
+	WaybillQueryApi waybillQueryApi;
     
 	private static final int IS_GOODS = 1;
 	private static final int IS_MONEY = 2;
@@ -319,7 +325,15 @@ public class FastRefundServiceImpl implements FastRefundService{
 	
 	private FastRefund toFastRefundBySorting(Sorting sorting){
     	FastRefund fastRefund = new FastRefund();
-    	fastRefund.setOrderId(sorting.getWaybillCode());//订单号　   	 
+    	//新运单号获取老运单号的所有信息  参数返单号
+		try{
+			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
+			if(wayBillOld != null && wayBillOld.getData() != null){
+				fastRefund.setOrderId(wayBillOld.getData().getVendorId());
+			}
+		}catch(Exception e){
+			this.logger.error("发送orbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
+		}
     	fastRefund.setApplyReason("分拣中心快速退款");//申请原因    	 
     	fastRefund.setReqErp(String.valueOf(sorting.getCreateUserCode()));//申请人erp账号    	 
     	fastRefund.setReqName(sorting.getCreateUser());//申请人name    	 

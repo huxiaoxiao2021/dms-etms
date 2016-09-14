@@ -10,10 +10,8 @@ public class FastRefundBlockerComplete {
 	
 	String orderId;//订单号　
 	
-	String orderIdOld;//老运单号
+	String waybillcode;//运单号
 	
-	String vendorId;//客户订单号
-	 
 	String applyReason;//申请原因
 	 
 	String ReqErp;//申请人erp账号
@@ -112,14 +110,6 @@ public class FastRefundBlockerComplete {
 		this.waybillSign = waybillSign;
 	}
 
-	public String getOrderIdOld() {
-		return orderIdOld;
-	}
-
-	public void setOrderIdOld(String orderIdOld) {
-		this.orderIdOld = orderIdOld;
-	}
-
 	public Integer getOrderType() {
 		return orderType;
 	}
@@ -144,12 +134,12 @@ public class FastRefundBlockerComplete {
 		this.operatTime = operatTime;
 	}
 
-	public String getVendorId() {
-		return vendorId;
+	public String getWaybillcode() {
+		return waybillcode;
 	}
 
-	public void setVendorId(String vendorId) {
-		this.vendorId = vendorId;
+	public void setWaybillcode(String waybillcode) {
+		this.waybillcode = waybillcode;
 	}
 	
 }

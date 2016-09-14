@@ -638,18 +638,14 @@ public class SortingServiceImpl implements SortingService {
 		//新运单号获取老运单号的所有信息  参数返单号
 		try{
 			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
-			if(wayBillOld.getData() != null){
-				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
-				frbc.setVendorId(wayBillOld.getData().getVendorId());
-			}else{
-				frbc.setOrderIdOld("");
-				frbc.setVendorId("");
+			if(wayBillOld != null && wayBillOld.getData() != null){
+				frbc.setOrderId(wayBillOld.getData().getVendorId());
 			}
 		}catch(Exception e){
 			this.logger.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
 		}
 		
-		frbc.setOrderId(sorting.getWaybillCode());
+		frbc.setWaybillcode(sorting.getWaybillCode());
 		frbc.setApplyReason("分拣中心快速退款");
 		frbc.setApplyDate(sorting.getOperateTime().getTime());
 		frbc.setSystemId(12);
