@@ -1,13 +1,18 @@
 package com.jd.bluedragon.utils;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import com.jd.bluedragon.Constants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DateHelper {
-    
+
+    private static final Log LOGGER= LogFactory.getLog(DateHelper.class);
+
     public static final long TEN_MINUTES = 10 * 60 * 1000;
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS="yyyyMMddHHmmssSSS";
@@ -67,7 +72,60 @@ public class DateHelper {
         
         return sdf.format(date);
     }
-    
+
+    /**
+     * 校正时间截
+     * @param source 原时间截
+     * @return JAVA时间截
+     */
+    public static long adjustTimestampToJava(long source){
+        long target=source;
+        int timeLength=String.valueOf(System.currentTimeMillis()).length();
+        int clientTimeLength=String.valueOf(source).length();
+        if(clientTimeLength>timeLength){
+            target=(source / (long) Math.pow(10, clientTimeLength - timeLength));
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}",DateHelper.formatDateTimeMs(new Date(source)),DateHelper.formatDateTimeMs(new Date(target)),source,target));
+            }
+        }else if(timeLength>clientTimeLength){
+            target=(source*(long)Math.pow(10,timeLength-clientTimeLength));
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}",DateHelper.formatDateTimeMs(new Date(source)),DateHelper.formatDateTimeMs(new Date(target)),source,target));
+            }
+        }
+        return target;
+    }
+
+    public static void main(String[] args) {
+        long source=14738233921256L;
+        long target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+        source=14736094286801256L;
+        target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+        source=14736094286801L;
+        target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+        source=14736097046982760L;
+        target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+        source=14736094604249413L;
+        target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+        source=1473824034L;
+        target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+        source=1473824030L;
+        target= adjustTimestampToJava(source);
+        System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
+
+    }
     /**
      * 将日期转换成为字符（yyyy-MM-dd HH:mm:ss.SSS）
      * 

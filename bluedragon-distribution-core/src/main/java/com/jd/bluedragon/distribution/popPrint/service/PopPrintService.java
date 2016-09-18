@@ -47,7 +47,7 @@ public interface PopPrintService {
 	 * @param paramMap
 	 * @return List<PopPrint>
 	 */
-	public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap);
+	public List<PopPrint> findLimitListNoReceive(List<PopPrint> popList, Map<String, Object> paramMap);
 	
 	/**
 	 * 增加POP打印记录

@@ -211,6 +211,13 @@
 		</if>
 	</select>
 
+    <select id="selectCountSelective" resultType="java.lang.Integer"  parameterType="Inspection">
+        SELECT
+        count(*)
+        FROM inspection
+        <include refid="where_condition"/>
+    </select>
+
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
 		SELECT
 		<include refid="Base_Column_List" />
