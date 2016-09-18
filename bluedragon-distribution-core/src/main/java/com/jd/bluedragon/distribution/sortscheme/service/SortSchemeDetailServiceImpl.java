@@ -136,7 +136,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         int effectiveRowNum = 1;
         List<String> repeatChuteErrorList = new ArrayList<String>();
         Map<String, String> chuteCodeMap = new HashedMap<String, String>();
-        for (int i = 1; i < maxRowNum; i++) {
+        for (int i = 1; i <= maxRowNum; i++) {
             String chuteCode = ExportByPOIUtil.getCellValue(sheet0.getRow(i).getCell(0));
             if (StringUtils.isBlank(chuteCode)) {
                 break;
@@ -218,12 +218,17 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
-            } else if (i == 0 || i == 1) {
+            } else if (i == 0) {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
                 if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
-            } else {
+            }else if(i == 1){
+                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
+                if (StringUtils.isBlank(cellValue) && !cellValue.startsWith(EXP) && !NumberHelper.isNumberUpZero(cellValue)) {
+                    emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                }
+            }else {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
                 if (needValiSiteEmpty && !cellValue.startsWith(EXP)) {
                     if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
