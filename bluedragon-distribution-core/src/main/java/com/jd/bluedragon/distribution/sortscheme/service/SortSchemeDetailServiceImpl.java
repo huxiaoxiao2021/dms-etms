@@ -225,8 +225,12 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 }
             }else if(i == 1){
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                if (StringUtils.isBlank(cellValue) && !cellValue.startsWith(EXP) && !NumberHelper.isNumberUpZero(cellValue)) {
+                if(StringUtils.isBlank(cellValue)){
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                }else{
+                    if (!cellValue.startsWith(EXP) && !NumberHelper.isNumberUpZero(cellValue)) {
+                        emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                    }
                 }
             }else {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
