@@ -229,7 +229,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }else{
                     if (!cellValue.startsWith(EXP) && !NumberHelper.isNumberUpZero(cellValue)) {
-                        emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
+                        emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}不符合规则", rowIndex + 1, i + 1, cellValue));
                     }
                 }
             }else {
