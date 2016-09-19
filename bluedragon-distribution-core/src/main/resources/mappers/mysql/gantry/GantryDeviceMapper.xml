@@ -67,7 +67,7 @@
     </sql>
     
     <sql id="gantryDeviceColumnNoID" >
-        MSERIAL_NUMBER, ORG_CODE,
+        SERIAL_NUMBER, ORG_CODE,
         ORG_NAME, SITE_CODE, SITE_NAME,
         SUPPLIER, MODEL_NUMBER, MODEL_TYPE,
         MARK, CREATE_TIME,UPDATE_TIME,
@@ -131,7 +131,7 @@
 
     <select id="queryGantryCount" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT
-          COUNT (1)
+          COUNT(1)
         FROM GANTRY_DEVICE_INFO
         <include refid="gantryQueryParam"/>
     </select>

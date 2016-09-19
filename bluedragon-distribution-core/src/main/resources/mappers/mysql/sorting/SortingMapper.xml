@@ -185,7 +185,7 @@
 	</update>
 	
 	<select id="findPackCount" resultType="java.lang.Integer" parameterType="java.util.HashMap">
-		SELECT count(1) AS totalPack
+		SELECT count(*) AS totalPack
 		FROM Sorting
 		WHERE yn=1 AND is_cancel = 0
 			AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -224,7 +224,7 @@
 	
 	
 	<select id="existSortingByPackageCode" resultType="java.lang.Integer" parameterType="sorting">
-		SELECT count(1)	FROM Sorting
+		SELECT count(*)	FROM Sorting
 		WHERE yn=1 AND package_code = #{packageCode,jdbcType=VARCHAR}
 		<if test="createSiteCode != null"> 
 			AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
