@@ -145,12 +145,18 @@
     </bean>
     <!-- worker配置 数据源    -end-->
 
-	<bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">
-		<property name="dataSource" ref="dms_main"/>
-    </bean>
-    
+	<!--<bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">-->
+		<!--<property name="dataSource" ref="dms_main"/>-->
+    <!--</bean>-->
+    <!---->
 
-	
+    <!-- 箱号生成序列号服务 -->
+    <bean id="objectIdService" class="com.jd.bluedragon.distribution.dbs.service.ObjectIdServiceImpl">
+    </bean>
+    <bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">
+        <property name="objectIdService" ref="objectIdService"/>
+    </bean>
+
 	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
 		<property name="erroral">
 			<list>

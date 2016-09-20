@@ -257,7 +257,7 @@
 
     <update id="updateSendM" parameterType="list">
 				UPDATE send_m
-				SET yn=0  , update_time = sysdate
+				SET yn=0  , update_time = NOW()
 				WHERE yn =1 and send_code in
 				<foreach collection="list" item="items" index="index" open="("
 					close=")" separator=",">
@@ -373,7 +373,7 @@
 		<if test="excuteTime != null">
 		, excute_time = (excute_time + 15/(24*60))
 		</if>
-		,update_time = sysdate
+		,update_time = NOW()
 		where send_code = #{sendCode,jdbcType=VARCHAR}
 	</update>
 

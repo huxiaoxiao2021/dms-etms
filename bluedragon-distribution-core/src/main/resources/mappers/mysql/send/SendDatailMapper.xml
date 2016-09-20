@@ -410,7 +410,7 @@
 				<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 				</if>
-				update_time = sysdate ,
+				update_time = NOW() ,
 				excute_count = (excute_count + 1)
 				<if test="status == 1">
 					, excute_time = (excute_time + 15/(24*60))
@@ -459,7 +459,7 @@
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=1 and sed.send_type = 10  and sed.is_cancel in (0,2)
 		AND sed.excute_count < 5
-		AND sed.excute_time < SYSDATE
+		AND sed.excute_time < NOW()
 		and rownum <=300]]>
 	</select>
 
