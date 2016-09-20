@@ -229,6 +229,7 @@
 
         <!-- xumei -->
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
+        <mapper resource="mappers/mysql/dbs/objectIdMapper.xml" />
 	</mappers>
 	
 </configuration>

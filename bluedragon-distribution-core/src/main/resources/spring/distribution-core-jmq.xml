@@ -153,6 +153,12 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <!--worker发送mq失败之后 重新通过通用worker发送mq-->
+    <bean id="dmsWorkSendDetailMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dmsWorkSendDetail"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
 
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>

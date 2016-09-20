@@ -219,6 +219,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Qualifier("turnoverBoxMQ")
     private DefaultJMQProducer turnoverBoxMQ;
 
+    @Autowired
+    @Qualifier("dmsWorkSendDetailMQ")
+    private DefaultJMQProducer dmsWorkSendDetailMQ;
+
     //自营
     public static final Integer businessTypeONE = 10;
     //退货
@@ -1557,10 +1561,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 //			}
             //==================================================================
         }
-        try {
-            workerProducer.send(sendDetailMessageList);
-        } catch (JMQException e) {
-            logger.error("发货明细发送JMQ失败: ", e);
+
+        //使用下面的这种方式会在发送mq失败之后 通过worker再发送一次 modified by zhanglei
+//        try {
+//            workerProducer.send(sendDetailMessageList);
+//        } catch (Throwable e) {
+//            logger.error("发货明细发送JMQ失败: ", e);
+//        }
+        for(Message itemMessage : sendDetailMessageList){
+            this.logger.info("发送MQ["+itemMessage.getTopic()+"],业务ID["+itemMessage.getBusinessId()+"],消息主题: " + itemMessage.getText());
+            this.dmsWorkSendDetailMQ.sendOnFailPersistent(itemMessage.getBusinessId(),itemMessage.getText());
         }
         return true;
     }
