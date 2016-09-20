@@ -21,9 +21,9 @@ public class MessageTask extends DBSingleScheduler {
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         try {
-            asyncMessageExecutor.execute(task.getBoxCode(), task.getKeyword1(), task.getBody());
+            asyncMessageExecutor.execute(task.getKeyword1(), task.getBoxCode(), task.getBody());
         }catch (Throwable throwable){
-            logger.error(MessageFormat.format("消息队列处理topic:{0};body:{1}",task.getBoxCode(),task.getBody()),throwable);
+            logger.error(MessageFormat.format("消息队列处理topic:{0};body:{1}",task.getKeyword1(),task.getBody()),throwable);
             return false;
         }
         return true;

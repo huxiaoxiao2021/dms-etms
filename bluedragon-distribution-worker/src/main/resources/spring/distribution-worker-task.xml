@@ -405,4 +405,14 @@
 		<property name="type" value="2222" />
 		<property name="desc" value="导入的跨分拣箱号中转信息定时激活" />
 	</bean>
+
+    <bean id="messageTask" class="com.jd.bluedragon.distribution.worker.MessageTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="MessageTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="8000" />
+        <property name="desc" value="补发失败mq" />
+    </bean>
 </beans>
