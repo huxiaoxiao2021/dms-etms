@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.FreshWaybill;
 import com.jd.bluedragon.distribution.waybill.service.FreshWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -163,9 +164,10 @@ public class FreshWaybillController {
 
     private void fillUserInfo(FreshWaybill freshWaybill) {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        logger.error("生鲜温度录入用户信息" + JsonHelper.toJson(erpUser));
 //        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
 //        erpUser.setUserId(11535);
-        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffIdNoCache(erpUser.getUserId());
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         freshWaybill.setUserName(baseStaffSiteOrgDto.getStaffName());
         freshWaybill.setUserCode(baseStaffSiteOrgDto.getsId());
         freshWaybill.setUserDmsId(baseStaffSiteOrgDto.getSiteCode());
