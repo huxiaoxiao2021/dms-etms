@@ -1357,6 +1357,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 }
                                 canSuccess(tWaybillStatus, tSendDatail);
                                 sendInspection(tSendDatail, sendDatailMap);
+
+                                //发送发货明细mq
+                                Message sendMessage = parseSendDetailToMessage(tSendDatail);
+                                this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
+                                this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+
+
                             } else if (tSendDatail.getYn().equals(0) && tSendDatail.getIsCancel().equals(2)) {
                                 tSendDatail.setSendCode(null);
                                 if (businessTypeTWO.equals(tSendDatail
@@ -1568,10 +1575,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 //        } catch (Throwable e) {
 //            logger.error("发货明细发送JMQ失败: ", e);
 //        }
-        for(Message itemMessage : sendDetailMessageList){
-            this.logger.info("发送MQ["+itemMessage.getTopic()+"],业务ID["+itemMessage.getBusinessId()+"],消息主题: " + itemMessage.getText());
-            this.dmsWorkSendDetailMQ.sendOnFailPersistent(itemMessage.getBusinessId(),itemMessage.getText());
-        }
+//        for(Message itemMessage : sendDetailMessageList){
+//            this.logger.info("发送MQ["+itemMessage.getTopic()+"],业务ID["+itemMessage.getBusinessId()+"],消息主题: " + itemMessage.getText());
+//            this.dmsWorkSendDetailMQ.sendOnFailPersistent(itemMessage.getBusinessId(),itemMessage.getText());
+//        }
         return true;
     }
 
