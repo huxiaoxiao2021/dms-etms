@@ -8,7 +8,7 @@ import java.util.Date;
  * @author zhuchao
  *
  */
-public class SendBoxDetailResponse implements Serializable{
+	public class SendBoxDetailResponse implements Serializable{
 	
 	/**
 	 * 
@@ -29,6 +29,15 @@ public class SendBoxDetailResponse implements Serializable{
 	
 	/**  司机      */
 	private String sendUser;
+
+	/**  创建站点编号 */
+	private Integer createSiteCode;
+
+	/**  接收站点编号 */
+	private Integer receiveSiteCode;
+
+	/**  操作时间    */
+	private Date operateTime;
 	
 	/**  发送时间    */
 	private Date sendTime;
@@ -69,12 +78,44 @@ public class SendBoxDetailResponse implements Serializable{
 	public void setPackagebarcode(String packagebarcode) {
 		this.packagebarcode = packagebarcode;
 	}
-	@Override
-	public String toString() {
-		return "SendBoxDetailResponse [sendCode=" + sendCode + ", boxCode="
-				+ boxCode + ", waybillCode=" + waybillCode
-				+ ", packagebarcode=" + packagebarcode + ", sendUser="
-				+ sendUser + ", sendTime=" + sendTime + "]";
+
+	public Integer getCreateSiteCode() {
+		return createSiteCode;
 	}
-	
+
+	public void setCreateSiteCode(Integer createSiteCode) {
+		this.createSiteCode = createSiteCode;
+	}
+
+	public Integer getReceiveSiteCode() {
+		return receiveSiteCode;
+	}
+
+	public void setReceiveSiteCode(Integer receiveSiteCode) {
+		this.receiveSiteCode = receiveSiteCode;
+	}
+
+	public Date getOperateTime() {
+		return operateTime == null ? null : (Date) operateTime.clone();
+	}
+
+	public void setOperateTime(Date operateTime) {
+		this.operateTime = operateTime == null ? null : (Date) operateTime.clone();
+	}
+
+    @Override
+    public String toString() {
+        return "SendBoxDetailResponse{" +
+                "sendCode='" + sendCode + '\'' +
+                ", boxCode='" + boxCode + '\'' +
+                ", waybillCode='" + waybillCode + '\'' +
+                ", packagebarcode='" + packagebarcode + '\'' +
+                ", sendUser='" + sendUser + '\'' +
+                ", createSiteCode=" + createSiteCode +
+                ", receiveSiteCode=" + receiveSiteCode +
+                ", operateTime=" + operateTime +
+                ", sendTime=" + sendTime +
+                '}';
+    }
+
 }
