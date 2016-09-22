@@ -76,7 +76,6 @@ import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -92,7 +91,6 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -103,9 +101,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
-import com.jd.jim.cli.Cluster;
 import com.jd.jmq.client.producer.MessageProducer;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -1341,7 +1337,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         tWaybillStatus.setSendCode(tSendDatail.getSendCode());
                         tWaybillStatus.setBoxCode(tSendDatail.getBoxCode());
 
-                        if (!chekeParameter(tWaybillStatus)) {
+                        if (!checkParameter(tWaybillStatus)) {
                             this.logger.info("发货数据调用基础资料接口参数信息不全：包裹号为"
                                     + tSendDatail.getPackageBarcode());
                         } else {
@@ -1391,7 +1387,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    private boolean chekeParameter(WaybillStatus tWaybillStatus) {
+    private boolean checkParameter(WaybillStatus tWaybillStatus) {
         if (tWaybillStatus.getOperatorId() == null) {
             return Boolean.FALSE;
         } else if (tWaybillStatus.getReceiveSiteType() == null) {
