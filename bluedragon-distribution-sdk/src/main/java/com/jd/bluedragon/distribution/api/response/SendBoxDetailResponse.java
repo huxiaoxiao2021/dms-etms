@@ -29,18 +29,18 @@ import java.util.Date;
 	
 	/**  司机      */
 	private String sendUser;
-
-	/**  创建站点编号 */
-	private Integer createSiteCode;
-
-	/**  接收站点编号 */
-	private Integer receiveSiteCode;
-
-	/**  操作时间    */
-	private Date operateTime;
 	
 	/**  发送时间    */
 	private Date sendTime;
+
+    /**  创建站点编号 */
+    private Integer createSiteCode;
+
+    /**  接收站点编号 */
+    private Integer receiveSiteCode;
+
+    /**  操作时间    */
+    private Date operateTime;
 	
 	public String getSendCode() {
 		return sendCode;
