@@ -1,18 +1,28 @@
--- --------------------------------------------------------
--- 主机:                           127.0.0.1
--- 服务器版本:                        5.5.45 - MySQL Community Server (GPL)
--- 服务器操作系统:                      Win64
--- HeidiSQL 版本:                  8.0.0.4396
--- --------------------------------------------------------
+-- MySQL dump 10.13  Distrib 5.6.26, for Linux (x86_64)
+--
+-- Host: localhost    Database: bd_dms_core
+-- ------------------------------------------------------
+-- Server version	5.6.26-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- 导出  表 test3.abnormal_order 结构
+--
+-- Table structure for table `abnormal_order`
+--
+
 DROP TABLE IF EXISTS `abnormal_order`;
-CREATE TABLE IF NOT EXISTS `abnormal_order` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `abnormal_order` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `FINGERPRINT` varchar(64) DEFAULT NULL,
   `ORDER_ID` varchar(20) DEFAULT NULL,
@@ -31,16 +41,20 @@ CREATE TABLE IF NOT EXISTS `abnormal_order` (
   `IS_CANCEL` bigint(20) DEFAULT NULL,
   `MEMO` varchar(256) DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_ABNORMAL_ORDER` (`SYSTEM_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2247 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `alert_config`
+--
 
-
--- 导出  表 test3.alert_config 结构
 DROP TABLE IF EXISTS `alert_config`;
-CREATE TABLE IF NOT EXISTS `alert_config` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alert_config` (
   `ALERT_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `ENABLED` bigint(20) DEFAULT NULL COMMENT '是否开启',
   `THRESHOLD` bigint(20) DEFAULT NULL COMMENT '阀值',
@@ -61,33 +75,16 @@ CREATE TABLE IF NOT EXISTS `alert_config` (
   PRIMARY KEY (`ALERT_ID`),
   UNIQUE KEY `PK_ALERT_ID` (`ALERT_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `batch_send`
+--
 
-
--- 导出  表 test3.batchinfo 结构
-DROP TABLE IF EXISTS `batchinfo`;
-CREATE TABLE IF NOT EXISTS `batchinfo` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `BATCH_CODE` varchar(50) DEFAULT NULL COMMENT '波次号',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '始发地编号',
-  `CREATE_USER` varchar(50) DEFAULT NULL COMMENT '操作人',
-  `CREATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '操作人编号',
-  `UPDATE_USER` varchar(50) DEFAULT NULL COMMENT '更新操作人',
-  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '更新操作人编号',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `PK_BATCHINFO` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- 数据导出被取消选择。
-
-
--- 导出  表 test3.batch_send 结构
 DROP TABLE IF EXISTS `batch_send`;
-CREATE TABLE IF NOT EXISTS `batch_send` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `batch_send` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `BATCH_CODE` varchar(50) DEFAULT NULL COMMENT '波次号',
   `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '始发地编号',
@@ -108,14 +105,40 @@ CREATE TABLE IF NOT EXISTS `batch_send` (
   UNIQUE KEY `IDX_BATCHSEND_BCRSC` (`BATCH_CODE`,`RECEIVE_SITE_CODE`),
   KEY `IND_BATCH_SEND_BCODE` (`BATCH_CODE`),
   KEY `IND_BATCH_SEND_SCODE` (`SEND_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=604704 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `batchinfo`
+--
 
+DROP TABLE IF EXISTS `batchinfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `batchinfo` (
+  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `BATCH_CODE` varchar(50) DEFAULT NULL COMMENT '波次号',
+  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '始发地编号',
+  `CREATE_USER` varchar(50) DEFAULT NULL COMMENT '操作人',
+  `CREATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '操作人编号',
+  `UPDATE_USER` varchar(50) DEFAULT NULL COMMENT '更新操作人',
+  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '更新操作人编号',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
+  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
+  `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `PK_BATCHINFO` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=476 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 导出  表 test3.client_config 结构
+--
+-- Table structure for table `client_config`
+--
+
 DROP TABLE IF EXISTS `client_config`;
-CREATE TABLE IF NOT EXISTS `client_config` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_config` (
   `CONFIG_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `SITE_CODE` varchar(20) DEFAULT NULL COMMENT '分拣中心编号',
   `PROGRAM_TYPE` bigint(20) DEFAULT NULL COMMENT '应用程序类型（0-PDA,1-Winform）',
@@ -126,13 +149,16 @@ CREATE TABLE IF NOT EXISTS `client_config` (
   PRIMARY KEY (`CONFIG_ID`),
   UNIQUE KEY `PK_CLIENT_CONFIG` (`CONFIG_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户端版本配置';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `client_config_history`
+--
 
-
--- 导出  表 test3.client_config_history 结构
 DROP TABLE IF EXISTS `client_config_history`;
-CREATE TABLE IF NOT EXISTS `client_config_history` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_config_history` (
   `CONFIG_HISTORY_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `SITE_CODE` varchar(20) DEFAULT NULL COMMENT '分拣中心编号',
   `PROGRAM_TYPE` bigint(20) DEFAULT NULL COMMENT '应用程序类型（0-PDA,1-Winform）',
@@ -142,14 +168,17 @@ CREATE TABLE IF NOT EXISTS `client_config_history` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`CONFIG_HISTORY_ID`),
   UNIQUE KEY `PK_CLIENT_CONFIG_HISTORY` (`CONFIG_HISTORY_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户端版本配置变更历史';
+) ENGINE=InnoDB AUTO_INCREMENT=527 DEFAULT CHARSET=utf8 COMMENT='客户端版本配置变更历史';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `client_version`
+--
 
-
--- 导出  表 test3.client_version 结构
 DROP TABLE IF EXISTS `client_version`;
-CREATE TABLE IF NOT EXISTS `client_version` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_version` (
   `VERSION_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `VERSION_CODE` varchar(20) DEFAULT NULL COMMENT '版本号',
   `VERSION_TYPE` bigint(20) DEFAULT NULL COMMENT '版本类型（0-PDA,1-Winform）',
@@ -160,14 +189,50 @@ CREATE TABLE IF NOT EXISTS `client_version` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`VERSION_ID`),
   UNIQUE KEY `PK_CLIENT_VERSION` (`VERSION_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户端的版本（PDA、Wwinform）';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='客户端的版本（PDA、Wwinform）';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `cross_box`
+--
 
+DROP TABLE IF EXISTS `cross_box`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cross_box` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `ORIGINAL_DMS_ID` int(11) DEFAULT NULL COMMENT '始发分拣中心编号',
+  `ORIGINAL_DMS_NAME` varchar(64) DEFAULT NULL COMMENT '始发分拣中心名称',
+  `DESTINATION_DMS_ID` int(11) DEFAULT NULL COMMENT '目的分拣中心编号',
+  `DESTINATION_DMS_NAME` varchar(64) DEFAULT NULL COMMENT '目的分拣中心名称',
+  `TRANSFER_ONE_ID` int(11) DEFAULT NULL COMMENT '中转1编号',
+  `TRANSFER_ONE_NAME` varchar(64) DEFAULT NULL COMMENT '中转1名称',
+  `TRANSFER_TWO_ID` int(11) DEFAULT NULL COMMENT '中转2编号',
+  `TRANSFER_TWO_NAME` varchar(64) DEFAULT NULL COMMENT '中转2名称',
+  `TRANSFER_THREE_ID` int(11) DEFAULT NULL COMMENT '中转3编号',
+  `TRANSFER_THREE_NAME` varchar(64) DEFAULT NULL COMMENT '中转3名称',
+  `FULL_LINE` varchar(160) DEFAULT NULL COMMENT '完整路线',
+  `CREATE_OPERATOR_NAME` varchar(32) DEFAULT NULL COMMENT '创建人名称',
+  `UPDATE_OPERATOR_NAME` varchar(32) DEFAULT NULL COMMENT '修改人名称',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
+  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
+  `REMARK` varchar(200) DEFAULT NULL COMMENT '备注',
+  `EXPIRY_DATE` datetime DEFAULT NULL COMMENT '失效时间',
+  `EFFECTIVE_DATE` datetime DEFAULT NULL COMMENT '生效时间',
+  `ORIGIN_ID` int(11) DEFAULT NULL COMMENT '源序号',
+  `YN` tinyint(4) DEFAULT NULL COMMENT '是否有效',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5408 DEFAULT CHARSET=utf8 COMMENT='跨中转箱号';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 导出  表 test3.cross_sorting 结构
+--
+-- Table structure for table `cross_sorting`
+--
+
 DROP TABLE IF EXISTS `cross_sorting`;
-CREATE TABLE IF NOT EXISTS `cross_sorting` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cross_sorting` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `ORG_ID` bigint(20) DEFAULT NULL COMMENT '机构ID',
   `CREATE_DMS_CODE` bigint(20) DEFAULT NULL COMMENT '建包/发货分拣中心编码',
@@ -187,39 +252,48 @@ CREATE TABLE IF NOT EXISTS `cross_sorting` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `SYS_C0011875` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='跨区分拣校验规则表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `db_schedule`
+--
 
-
--- 导出  表 test3.dbs_objectid 结构
-DROP TABLE IF EXISTS `dbs_objectid`;
-CREATE TABLE IF NOT EXISTS `dbs_objectid` (
-  `ID` bigint(20) NOT NULL,
-  `OBJECTNAME` varchar(255) DEFAULT NULL COMMENT '序列标识',
-  `FIRSTID` bigint(20) DEFAULT NULL COMMENT 'ID计算参考值',
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `PK_DBS_OBJECTID_ID` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- 数据导出被取消选择。
-
-
--- 导出  表 test3.db_schedule 结构
 DROP TABLE IF EXISTS `db_schedule`;
-CREATE TABLE IF NOT EXISTS `db_schedule` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_schedule` (
   `TABLE_NAME` varchar(50) NOT NULL,
   `MAX_ID` bigint(20) NOT NULL,
   `SCHEDULE_STATUS` bigint(20) DEFAULT NULL,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `dbs_objectid`
+--
 
+DROP TABLE IF EXISTS `dbs_objectid`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dbs_objectid` (
+  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '箱号ID生成器',
+  `OBJECTNAME` varchar(255) DEFAULT NULL COMMENT '序列标识',
+  `FIRSTID` bigint(20) DEFAULT NULL COMMENT 'ID计算参考值',
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `PK_DBS_OBJECTID_ID` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 导出  表 test3.departure_car 结构
+--
+-- Table structure for table `departure_car`
+--
+
 DROP TABLE IF EXISTS `departure_car`;
-CREATE TABLE IF NOT EXISTS `departure_car` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `departure_car` (
   `DEPARTURE_CAR_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `CAR_CODE` varchar(30) DEFAULT NULL COMMENT '车号',
   `SHIELDS_CAR_CODE` varchar(30) DEFAULT NULL COMMENT '封车号',
@@ -241,18 +315,22 @@ CREATE TABLE IF NOT EXISTS `departure_car` (
   `RECEIVE_SITE_CODES` varchar(512) DEFAULT NULL COMMENT '目的站点编号，多个使用逗号进行分割',
   `PRINT_TIME` datetime DEFAULT NULL COMMENT '打印时间',
   `CAPACITY_CODE` varchar(50) DEFAULT NULL COMMENT '运力编码',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`DEPARTURE_CAR_ID`),
   UNIQUE KEY `PK_DEPARTURE_CAR` (`DEPARTURE_CAR_ID`),
   KEY `IND_DEPARTURE_CAR_CCODE` (`SHIELDS_CAR_CODE`),
   KEY `IND_DEPARTURE_CAR_FPRINT` (`FINGERPRINT`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='发车表';
+) ENGINE=InnoDB AUTO_INCREMENT=11458 DEFAULT CHARSET=utf8 COMMENT='发车表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `departure_log_bk`
+--
 
-
--- 导出  表 test3.departure_log_bk 结构
 DROP TABLE IF EXISTS `departure_log_bk`;
-CREATE TABLE IF NOT EXISTS `departure_log_bk` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `departure_log_bk` (
   `DEPARTURE_LOG_ID` bigint(20) NOT NULL,
   `DISTRIBUTE_CODE` bigint(20) DEFAULT NULL,
   `DISTRIBUTE_NAME` varchar(50) DEFAULT NULL,
@@ -265,13 +343,16 @@ CREATE TABLE IF NOT EXISTS `departure_log_bk` (
   `FINGERPRINT` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`DEPARTURE_LOG_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `departure_send`
+--
 
-
--- 导出  表 test3.departure_send 结构
 DROP TABLE IF EXISTS `departure_send`;
-CREATE TABLE IF NOT EXISTS `departure_send` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `departure_send` (
   `DEPARTURE_SEND_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `DEPARTURE_CAR_ID` bigint(20) DEFAULT NULL COMMENT '转发车批次ID',
   `SEND_CODE` varchar(50) DEFAULT NULL COMMENT '批次号',
@@ -283,17 +364,21 @@ CREATE TABLE IF NOT EXISTS `departure_send` (
   `YN` bigint(20) DEFAULT '1' COMMENT 'YN',
   `THIRD_WAYBILL_CODE` varchar(50) DEFAULT NULL,
   `CAPACITY_CODE` varchar(50) DEFAULT NULL COMMENT '运力编码',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`DEPARTURE_SEND_ID`),
   UNIQUE KEY `PK_DEPARTURE_SEND` (`DEPARTURE_SEND_ID`),
   KEY `IND_DEPARTURE_SEND_SCODE` (`SEND_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='发转车批次对应关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=8416 DEFAULT CHARSET=utf8 COMMENT='发转车批次对应关系表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `departure_tmp`
+--
 
-
--- 导出  表 test3.departure_tmp 结构
 DROP TABLE IF EXISTS `departure_tmp`;
-CREATE TABLE IF NOT EXISTS `departure_tmp` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `departure_tmp` (
   `DEPARTURE_TMP_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SEND_CODE` varchar(50) DEFAULT NULL,
   `CREATE_TIME` datetime DEFAULT NULL,
@@ -303,13 +388,16 @@ CREATE TABLE IF NOT EXISTS `departure_tmp` (
   `THIRD_WAYBILL_CODE` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`DEPARTURE_TMP_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `fbarcode`
+--
 
-
--- 导出  表 test3.fbarcode 结构
 DROP TABLE IF EXISTS `fbarcode`;
-CREATE TABLE IF NOT EXISTS `fbarcode` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fbarcode` (
   `FBARCODE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `FBARCODE_CODE` varchar(16) DEFAULT NULL COMMENT 'F条码号',
   `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建站点编号',
@@ -325,14 +413,17 @@ CREATE TABLE IF NOT EXISTS `fbarcode` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否删除 ''0'' 删除 ''1'' 使用',
   PRIMARY KEY (`FBARCODE_ID`),
   UNIQUE KEY `PK_FBARCODE` (`FBARCODE_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='F条码信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=7287 DEFAULT CHARSET=utf8 COMMENT='F条码信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `fresh_waybill`
+--
 
-
--- 导出  表 test3.fresh_waybill 结构
 DROP TABLE IF EXISTS `fresh_waybill`;
-CREATE TABLE IF NOT EXISTS `fresh_waybill` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fresh_waybill` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `PACKAGE_CODE` varchar(20) NOT NULL COMMENT '包裹号',
   `BOX_TYPE` bigint(20) DEFAULT NULL COMMENT '保温箱类型',
@@ -343,7 +434,7 @@ CREATE TABLE IF NOT EXISTS `fresh_waybill` (
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
   `USER_CODE` bigint(20) DEFAULT NULL COMMENT '修改人ID',
-  `USER_NAME` bigint(20) DEFAULT NULL COMMENT '修改人名称',
+  `USER_NAME` varchar(40) DEFAULT NULL COMMENT '录入人姓名',
   `USER_DMS_CODE` bigint(20) DEFAULT NULL COMMENT '操作人分拣中心',
   `USER_DMS_NAME` varchar(40) DEFAULT NULL COMMENT '操作人所在分拣名称',
   `USER_ORG_CODE` bigint(20) DEFAULT NULL COMMENT '操作人所属机构ID',
@@ -352,13 +443,16 @@ CREATE TABLE IF NOT EXISTS `fresh_waybill` (
   PRIMARY KEY (`ID`),
   KEY `IDX_FRESH_PACKAGE` (`PACKAGE_CODE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='记录生鲜订单温度';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `gantry_device_config`
+--
 
-
--- 导出  表 test3.gantry_device_config 结构
 DROP TABLE IF EXISTS `gantry_device_config`;
-CREATE TABLE IF NOT EXISTS `gantry_device_config` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gantry_device_config` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `MACHINE_ID` bigint(20) DEFAULT NULL,
   `OPERATE_USER_ID` bigint(20) DEFAULT NULL,
@@ -378,14 +472,17 @@ CREATE TABLE IF NOT EXISTS `gantry_device_config` (
   `LOCK_USER_NAME` varchar(20) DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `gantry_device_info`
+--
 
-
--- 导出  表 test3.gantry_device_info 结构
 DROP TABLE IF EXISTS `gantry_device_info`;
-CREATE TABLE IF NOT EXISTS `gantry_device_info` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gantry_device_info` (
   `MACHINE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SERIAL_NUMBER` varchar(32) DEFAULT NULL,
   `ORG_CODE` bigint(20) DEFAULT NULL,
@@ -401,14 +498,17 @@ CREATE TABLE IF NOT EXISTS `gantry_device_info` (
   `OPERATE_NAME` varchar(16) DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`MACHINE_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `inspection_e_c`
+--
 
-
--- 导出  表 test3.inspection_e_c 结构
 DROP TABLE IF EXISTS `inspection_e_c`;
-CREATE TABLE IF NOT EXISTS `inspection_e_c` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `inspection_e_c` (
   `CHECK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '验货异常比对表主键',
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '运单号',
   `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
@@ -431,17 +531,18 @@ CREATE TABLE IF NOT EXISTS `inspection_e_c` (
   KEY `INSPECTION_E_C_CI` (`CREATE_SITE_CODE`,`INSPECTION_E_C_TYPE`),
   KEY `INSPECTION_E_C_WC` (`WAYBILL_CODE`),
   KEY `IND_INSPECTION_E_C_BCODE_P` (`BOX_CODE`),
-  KEY `IND_INSPECTION_E_C_PCODE_P` (`PACKAGE_BARCODE`),
-  KEY `INSPECTION_E_C_CI_P` (`CREATE_SITE_CODE`,`INSPECTION_E_C_TYPE`),
-  KEY `INSPECTION_E_C_WC_P` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='验货异常比对表';
+  KEY `IND_INSPECTION_E_C_PCODE_P` (`PACKAGE_BARCODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=161727 DEFAULT CHARSET=utf8 COMMENT='验货异常比对表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `load_bill`
+--
 
-
--- 导出  表 test3.load_bill 结构
 DROP TABLE IF EXISTS `load_bill`;
-CREATE TABLE IF NOT EXISTS `load_bill` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `load_bill` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `LOAD_ID` varchar(50) DEFAULT NULL COMMENT '装载单ID(随机号码)',
   `WAREHOUSE_ID` varchar(50) DEFAULT NULL COMMENT '仓库ID',
@@ -473,26 +574,24 @@ CREATE TABLE IF NOT EXISTS `load_bill` (
   `YN` bigint(20) DEFAULT NULL COMMENT '有效标识',
   PRIMARY KEY (`ID`),
   KEY `IDX_APPROVAL_CODE` (`APPROVAL_CODE`),
-  KEY `IDX_BOX_CODE` (`BOX_CODE`),
   KEY `IDX_DMS_CODE` (`DMS_CODE`),
   KEY `IDX_LOADID_ORDERID_WAREHOUSEID` (`LOAD_ID`,`ORDER_ID`,`WAREHOUSE_ID`),
   KEY `IDX_PACKAGE_BARCODE` (`PACKAGE_BARCODE`),
   KEY `IDX_SEND_CODE` (`SEND_CODE`),
   KEY `IDX_SEND_TIME` (`SEND_TIME`),
   KEY `IDX_LOADBILL_BOXCODE` (`BOX_CODE`),
-  KEY `IDX_LOADBILL_LD_OD_WID` (`LOAD_ID`,`ORDER_ID`,`WAREHOUSE_ID`),
-  KEY `IDX_LOADBILL_SENDCODE` (`SEND_CODE`),
-  KEY `IDX_LOADBILL_SENDTIME` (`SEND_TIME`),
-  KEY `IND_LOAD_BILL_PCODE` (`PACKAGE_BARCODE`),
   KEY `IND_LOAD_BILL_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='全球购业务表';
+) ENGINE=InnoDB AUTO_INCREMENT=217487 DEFAULT CHARSET=utf8 COMMENT='全球购业务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `load_bill_report`
+--
 
-
--- 导出  表 test3.load_bill_report 结构
 DROP TABLE IF EXISTS `load_bill_report`;
-CREATE TABLE IF NOT EXISTS `load_bill_report` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `load_bill_report` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `REPORT_ID` varchar(50) DEFAULT NULL COMMENT '装载单申报ID',
   `LOAD_ID` varchar(500) DEFAULT NULL COMMENT '装载单ID(随机号码),多个以逗号隔开',
@@ -503,14 +602,17 @@ CREATE TABLE IF NOT EXISTS `load_bill_report` (
   `ORDER_ID` varchar(500) DEFAULT NULL COMMENT '成功的订单号,多个以逗号分割',
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='装载单状态回传表';
+) ENGINE=InnoDB AUTO_INCREMENT=7202 DEFAULT CHARSET=utf8 COMMENT='装载单状态回传表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `loss_order`
+--
 
-
--- 导出  表 test3.loss_order 结构
 DROP TABLE IF EXISTS `loss_order`;
-CREATE TABLE IF NOT EXISTS `loss_order` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `loss_order` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `ORDER_ID` bigint(20) DEFAULT NULL COMMENT '订单号',
   `LOSS_TYPE` bigint(20) DEFAULT NULL COMMENT '报损类型',
@@ -527,14 +629,17 @@ CREATE TABLE IF NOT EXISTS `loss_order` (
   `LOSS_CODE` bigint(20) DEFAULT NULL COMMENT '报损单号',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `LOSS_ORDER_PK` (`SYSTEM_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5214 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `mc_message_task`
+--
 
-
--- 导出  表 test3.mc_message_task 结构
 DROP TABLE IF EXISTS `mc_message_task`;
-CREATE TABLE IF NOT EXISTS `mc_message_task` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mc_message_task` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `QUEUE_ID` varchar(100) DEFAULT NULL,
   `OWNSGN` varchar(100) DEFAULT NULL,
@@ -553,13 +658,16 @@ CREATE TABLE IF NOT EXISTS `mc_message_task` (
   PRIMARY KEY (`ID`),
   KEY `IDX_MC_MESSAGE_TASK_QUERY` (`QUEUE_ID`,`MESSAGE_NAME`,`BUSINESS_ID`,`SUCCESS`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `mc_message_task_part`
+--
 
-
--- 导出  表 test3.mc_message_task_part 结构
 DROP TABLE IF EXISTS `mc_message_task_part`;
-CREATE TABLE IF NOT EXISTS `mc_message_task_part` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mc_message_task_part` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CONTENT` varchar(4000) DEFAULT NULL,
   `TASK_ID` bigint(20) NOT NULL,
@@ -568,13 +676,16 @@ CREATE TABLE IF NOT EXISTS `mc_message_task_part` (
   PRIMARY KEY (`ID`),
   KEY `IDX_MESSAGE_TASK_PART_TASK_ID` (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `offline_log`
+--
 
-
--- 导出  表 test3.offline_log 结构
 DROP TABLE IF EXISTS `offline_log`;
-CREATE TABLE IF NOT EXISTS `offline_log` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `offline_log` (
   `OFFLINE_LOG_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '离线日志表ID',
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '运单号',
   `PACKAGE_CODE` varchar(32) DEFAULT NULL COMMENT '包裹号',
@@ -604,15 +715,18 @@ CREATE TABLE IF NOT EXISTS `offline_log` (
   `STATUS` bigint(20) DEFAULT NULL COMMENT '状态0失败1成功',
   PRIMARY KEY (`OFFLINE_LOG_ID`),
   UNIQUE KEY `UNQ_OFFLINE_LOG_ID` (`OFFLINE_LOG_ID`,`CREATE_TIME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='离线日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=1145543 DEFAULT CHARSET=utf8 COMMENT='离线日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `operation_log_0`
+--
 
-
--- 导出  表 test3.operation_log_0 结构
 DROP TABLE IF EXISTS `operation_log_0`;
-CREATE TABLE IF NOT EXISTS `operation_log_0` (
-  `LOG_ID` bigint(20) NOT NULL COMMENT '主键',
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `operation_log_0` (
+  `LOG_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '操作日志表ID',
   `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '运单号',
   `PICKUP_CODE` varchar(32) DEFAULT NULL COMMENT '取件单号',
@@ -637,13 +751,16 @@ CREATE TABLE IF NOT EXISTS `operation_log_0` (
   KEY `IND_OPERATION_LOG_0_WCODE_P` (`WAYBILL_CODE`),
   KEY `IND_OPERATION_L_PCODE_PL` (`PICKUP_CODE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='操作日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pamirs_schedule_queue`
+--
 
-
--- 导出  表 test3.pamirs_schedule_queue 结构
 DROP TABLE IF EXISTS `pamirs_schedule_queue`;
-CREATE TABLE IF NOT EXISTS `pamirs_schedule_queue` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pamirs_schedule_queue` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `TASK_TYPE` varchar(50) NOT NULL,
   `QUEUE_ID` varchar(50) NOT NULL,
@@ -656,13 +773,16 @@ CREATE TABLE IF NOT EXISTS `pamirs_schedule_queue` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `IND_PAMIRS_SCHEDULE_QUEUEID` (`TASK_TYPE`,`QUEUE_ID`,`OWN_SIGN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pamirs_schedule_server`
+--
 
-
--- 导出  表 test3.pamirs_schedule_server 结构
 DROP TABLE IF EXISTS `pamirs_schedule_server`;
-CREATE TABLE IF NOT EXISTS `pamirs_schedule_server` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pamirs_schedule_server` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `UUID` varchar(100) NOT NULL,
   `TASK_TYPE` varchar(50) NOT NULL,
@@ -684,13 +804,46 @@ CREATE TABLE IF NOT EXISTS `pamirs_schedule_server` (
   PRIMARY KEY (`ID`),
   KEY `IND_PAMIRS_SCHEDULE_UUID` (`UUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pamirs_schedule_server_his`
+--
 
+DROP TABLE IF EXISTS `pamirs_schedule_server_his`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pamirs_schedule_server_his` (
+  `id` bigint(20) DEFAULT NULL,
+  `uuid` varchar(100) DEFAULT NULL,
+  `task_type` varchar(100) DEFAULT NULL,
+  `own_sign` varchar(100) DEFAULT NULL,
+  `base_task_type` varchar(100) DEFAULT NULL,
+  `ip` varchar(100) DEFAULT NULL,
+  `host_name` varchar(100) DEFAULT NULL,
+  `manager_port` int(11) DEFAULT NULL,
+  `thread_num` int(11) DEFAULT NULL,
+  `register_time` datetime DEFAULT NULL,
+  `heartbeat_time` datetime DEFAULT NULL,
+  `version` int(11) DEFAULT NULL,
+  `jmx_url` varchar(100) DEFAULT NULL,
+  `dealinfo_desc` varchar(100) DEFAULT NULL,
+  `next_run_start_time` varchar(100) DEFAULT NULL,
+  `next_run_end_time` varchar(100) DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 导出  表 test3.pamirs_schedule_tasktrun 结构
+--
+-- Table structure for table `pamirs_schedule_tasktrun`
+--
+
 DROP TABLE IF EXISTS `pamirs_schedule_tasktrun`;
-CREATE TABLE IF NOT EXISTS `pamirs_schedule_tasktrun` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pamirs_schedule_tasktrun` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `TASK_TYPE` varchar(100) NOT NULL,
   `OWN_SIGN` varchar(50) DEFAULT NULL,
@@ -702,13 +855,16 @@ CREATE TABLE IF NOT EXISTS `pamirs_schedule_tasktrun` (
   PRIMARY KEY (`ID`),
   KEY `IND_PAMIRS_SCHEDULE_RUN_TASK` (`TASK_TYPE`,`OWN_SIGN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pamirs_schedule_tasktype`
+--
 
-
--- 导出  表 test3.pamirs_schedule_tasktype 结构
 DROP TABLE IF EXISTS `pamirs_schedule_tasktype`;
-CREATE TABLE IF NOT EXISTS `pamirs_schedule_tasktype` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pamirs_schedule_tasktype` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `TASK_TYPE` varchar(100) NOT NULL,
   `DEAL_BEAN_NAME` varchar(100) NOT NULL,
@@ -730,13 +886,16 @@ CREATE TABLE IF NOT EXISTS `pamirs_schedule_tasktype` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `IND_PAMIRS_TASKTYPE_TASKTYPE` (`TASK_TYPE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `partner_waybill`
+--
 
-
--- 导出  表 test3.partner_waybill 结构
 DROP TABLE IF EXISTS `partner_waybill`;
-CREATE TABLE IF NOT EXISTS `partner_waybill` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `partner_waybill` (
   `RELATION_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '运单包裹(订单)关联表ID',
   `PARTNER_WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '第三方运单号',
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '运单号(订单号)',
@@ -754,13 +913,16 @@ CREATE TABLE IF NOT EXISTS `partner_waybill` (
   PRIMARY KEY (`RELATION_ID`),
   UNIQUE KEY `PK_PARTNER_WAYBILL` (`RELATION_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='三方运单关联信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pick_ware`
+--
 
-
--- 导出  表 test3.pick_ware 结构
 DROP TABLE IF EXISTS `pick_ware`;
-CREATE TABLE IF NOT EXISTS `pick_ware` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pick_ware` (
   `PICKWARE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '备件库取件单表ID',
   `ORG_ID` bigint(20) DEFAULT NULL COMMENT '机构ID',
   `ORDER_ID` bigint(20) DEFAULT NULL COMMENT '订单号',
@@ -774,17 +936,21 @@ CREATE TABLE IF NOT EXISTS `pick_ware` (
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
   `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
   `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`PICKWARE_ID`),
   UNIQUE KEY `PK_PICKWARE` (`PICKWARE_ID`),
   KEY `IND_PICK_WARE_FINGPT` (`FINGERPRINT`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='备件库取件单';
+) ENGINE=InnoDB AUTO_INCREMENT=1421293 DEFAULT CHARSET=utf8 COMMENT='备件库取件单';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_abnormal`
+--
 
-
--- 导出  表 test3.pop_abnormal 结构
 DROP TABLE IF EXISTS `pop_abnormal`;
-CREATE TABLE IF NOT EXISTS `pop_abnormal` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_abnormal` (
   `ABNORMAL_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '递增主键',
   `ORG_CODE` bigint(20) DEFAULT NULL COMMENT '机构CODE',
   `ORG_NAME` varchar(64) DEFAULT NULL COMMENT '机构名称',
@@ -810,14 +976,17 @@ CREATE TABLE IF NOT EXISTS `pop_abnormal` (
   `ORDER_CODE` varchar(32) DEFAULT NULL COMMENT '订单号',
   PRIMARY KEY (`ABNORMAL_ID`),
   UNIQUE KEY `PK_POP_ABNORMAL` (`ABNORMAL_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='POP差异列表';
+) ENGINE=InnoDB AUTO_INCREMENT=10363 DEFAULT CHARSET=utf8 COMMENT='POP差异列表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_abnormal_detail`
+--
 
-
--- 导出  表 test3.pop_abnormal_detail 结构
 DROP TABLE IF EXISTS `pop_abnormal_detail`;
-CREATE TABLE IF NOT EXISTS `pop_abnormal_detail` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_abnormal_detail` (
   `ABNORMAL_DETAIL_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '递增主键ID',
   `ABNORMAL_ID` bigint(20) DEFAULT NULL COMMENT '差异列表对应ID',
   `OPERATOR_CODE` bigint(20) DEFAULT NULL COMMENT '操作人CODE',
@@ -830,14 +999,17 @@ CREATE TABLE IF NOT EXISTS `pop_abnormal_detail` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`ABNORMAL_DETAIL_ID`),
   UNIQUE KEY `PK_POP_ABNORMAL_DETAIL` (`ABNORMAL_DETAIL_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='POP差异明细列表';
+) ENGINE=InnoDB AUTO_INCREMENT=17378 DEFAULT CHARSET=utf8 COMMENT='POP差异明细列表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_abnormal_order`
+--
 
-
--- 导出  表 test3.pop_abnormal_order 结构
 DROP TABLE IF EXISTS `pop_abnormal_order`;
-CREATE TABLE IF NOT EXISTS `pop_abnormal_order` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_abnormal_order` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `SERIAL_NUMBER` varchar(32) NOT NULL COMMENT '流水单号',
   `ABNORMAL_TYPE` bigint(20) NOT NULL COMMENT '类型',
@@ -861,13 +1033,16 @@ CREATE TABLE IF NOT EXISTS `pop_abnormal_order` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_POP_ABNORMAL_ORDER` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='POP异常订单申请单';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_pickup`
+--
 
-
--- 导出  表 test3.pop_pickup 结构
 DROP TABLE IF EXISTS `pop_pickup`;
-CREATE TABLE IF NOT EXISTS `pop_pickup` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_pickup` (
   `PICKUP_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'POP上门取货表ID',
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '运单号',
   `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
@@ -889,18 +1064,22 @@ CREATE TABLE IF NOT EXISTS `pop_pickup` (
   `YN` bigint(20) DEFAULT '1' COMMENT 'DF',
   `CAR_CODE` varchar(64) DEFAULT NULL COMMENT '车牌号',
   `WAYBILL_TYPE` bigint(20) DEFAULT NULL COMMENT '运单类型',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`PICKUP_ID`),
   UNIQUE KEY `PK_POP_PICKUP` (`PICKUP_ID`),
   KEY `IND_POP_PICKUP_CID_OTIME` (`CREATE_SITE_CODE`,`OPERATE_TIME`),
   KEY `IND_POP_PICKUP_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='POP上门取货表';
+) ENGINE=InnoDB AUTO_INCREMENT=548182 DEFAULT CHARSET=utf8 COMMENT='POP上门取货表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_print`
+--
 
-
--- 导出  表 test3.pop_print 结构
 DROP TABLE IF EXISTS `pop_print`;
-CREATE TABLE IF NOT EXISTS `pop_print` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_print` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `WAYBILL_CODE` varchar(32) DEFAULT NULL,
   `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
@@ -931,18 +1110,21 @@ CREATE TABLE IF NOT EXISTS `pop_print` (
   `DRIVER_NAME` varchar(32) DEFAULT NULL COMMENT '司机名称',
   `BUSI_ID` bigint(20) DEFAULT NULL COMMENT 'B商家ID',
   `BUSI_NAME` varchar(128) DEFAULT NULL COMMENT 'B商家名称',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `UNQ_POP_PRINT_P` (`CREATE_TIME`,`ID`),
-  KEY `IND_POP_PRINT_WC` (`WAYBILL_CODE`),
-  KEY `IND_POP_PRINT_WC_P` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='POP打印记录表';
+  KEY `IND_POP_PRINT_WC` (`WAYBILL_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=8871547 DEFAULT CHARSET=utf8 COMMENT='POP打印记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_queue`
+--
 
-
--- 导出  表 test3.pop_queue 结构
 DROP TABLE IF EXISTS `pop_queue`;
-CREATE TABLE IF NOT EXISTS `pop_queue` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_queue` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `QUEUE_NO` varchar(32) NOT NULL,
   `CREATE_SITE_CODE` bigint(20) NOT NULL,
@@ -960,17 +1142,21 @@ CREATE TABLE IF NOT EXISTS `pop_queue` (
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `UNQ_POP_QUEUE_ID` (`ID`,`CREATE_TIME`),
   KEY `IND_POP_QUEUE_QNO` (`QUEUE_NO`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2567 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_receive`
+--
 
-
--- 导出  表 test3.pop_receive 结构
 DROP TABLE IF EXISTS `pop_receive`;
-CREATE TABLE IF NOT EXISTS `pop_receive` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_receive` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `RECEIVE_TYPE` bigint(20) DEFAULT NULL COMMENT '收货类型',
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '订单号',
@@ -987,18 +1173,22 @@ CREATE TABLE IF NOT EXISTS `pop_receive` (
   `IS_REVERSE` bigint(20) DEFAULT NULL COMMENT '是否收全',
   `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '防重码',
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `UNQ_POP_RECEIVE_ID` (`SYSTEM_ID`,`CREATE_TIME`),
   KEY `IND_POP_RECEIVE_FPRINT` (`FINGERPRINT`),
   KEY `IND_POP_RECEIVE_WCODE` (`WAYBILL_CODE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分拣中心客户端POP收货记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `pop_signin`
+--
 
-
--- 导出  表 test3.pop_signin 结构
 DROP TABLE IF EXISTS `pop_signin`;
-CREATE TABLE IF NOT EXISTS `pop_signin` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pop_signin` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `QUEUE_NO` varchar(32) DEFAULT NULL,
   `THIRD_WAYBILL_CODE` varchar(32) NOT NULL,
@@ -1012,18 +1202,22 @@ CREATE TABLE IF NOT EXISTS `pop_signin` (
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `UNQ_POP_SIGNIN_ID` (`ID`,`CREATE_TIME`),
   KEY `IND_POP_SIGNIN_QNO` (`QUEUE_NO`),
   KEY `IND_POP_SIGNIN_TWCODE` (`THIRD_WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3058 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `reassign_waybill`
+--
 
-
--- 导出  表 test3.reassign_waybill 结构
 DROP TABLE IF EXISTS `reassign_waybill`;
-CREATE TABLE IF NOT EXISTS `reassign_waybill` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reassign_waybill` (
   `REASSIGN_WAYBILL_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `PACKAGE_BARCODE` varchar(32) DEFAULT NULL COMMENT '包裹号',
   `ADDRESS` varchar(500) DEFAULT NULL COMMENT '运单地址',
@@ -1040,18 +1234,22 @@ CREATE TABLE IF NOT EXISTS `reassign_waybill` (
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   `WAYBILL_CODE` varchar(30) DEFAULT NULL COMMENT '运单号',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`REASSIGN_WAYBILL_ID`),
   UNIQUE KEY `PK_REASSIGN_WAYBILL` (`REASSIGN_WAYBILL_ID`),
   KEY `IND_RE_WAYBILL_PCODE` (`PACKAGE_BARCODE`),
   KEY `IND_RE_WAYBILL_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='返调度重打包裹标签';
+) ENGINE=InnoDB AUTO_INCREMENT=79036 DEFAULT CHARSET=utf8 COMMENT='返调度重打包裹标签';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `receive`
+--
 
-
--- 导出  表 test3.receive 结构
 DROP TABLE IF EXISTS `receive`;
-CREATE TABLE IF NOT EXISTS `receive` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `receive` (
   `RECEIVE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '收货表ID',
   `WAYBILL_CODE` varchar(30) DEFAULT NULL COMMENT '运单号',
   `PACKAGE_BARCODE` varchar(30) DEFAULT NULL COMMENT '包裹号',
@@ -1070,17 +1268,21 @@ CREATE TABLE IF NOT EXISTS `receive` (
   `QUEUENO` varchar(64) DEFAULT NULL COMMENT '排队号',
   `DEPARTURE_CAR_ID` bigint(20) DEFAULT NULL COMMENT '发车号',
   `SHIELDS_CAR_TIME` datetime DEFAULT NULL COMMENT '收箱扫描发车条码时间',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`RECEIVE_ID`),
   UNIQUE KEY `UNQ_RECEIVE_P` (`RECEIVE_ID`,`CREATE_TIME`),
   KEY `IND_RECEIVE_BCODE` (`BOX_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='收货表';
+) ENGINE=InnoDB AUTO_INCREMENT=950711 DEFAULT CHARSET=utf8 COMMENT='收货表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `reverse_label`
+--
 
-
--- 导出  表 test3.reverse_label 结构
 DROP TABLE IF EXISTS `reverse_label`;
-CREATE TABLE IF NOT EXISTS `reverse_label` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reverse_label` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `LABEL_TYPE` bigint(20) DEFAULT NULL COMMENT '打印类型',
   `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '始发地编号',
@@ -1096,14 +1298,17 @@ CREATE TABLE IF NOT EXISTS `reverse_label` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_REVERSE_LABEL` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1860 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `reverse_receive`
+--
 
-
--- 导出  表 test3.reverse_receive 结构
 DROP TABLE IF EXISTS `reverse_receive`;
-CREATE TABLE IF NOT EXISTS `reverse_receive` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reverse_receive` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键自增序列',
   `FINGERPRINT` varchar(60) DEFAULT NULL COMMENT '数据指纹',
   `OPERATE_TIME` datetime DEFAULT NULL COMMENT '收货时间',
@@ -1118,17 +1323,21 @@ CREATE TABLE IF NOT EXISTS `reverse_receive` (
   `OPERATOR_CODE` varchar(32) DEFAULT NULL COMMENT '收货人编号',
   `SEND_CODE` varchar(30) DEFAULT NULL COMMENT '发货交接单号',
   `PACKAGE_BARCODE` varchar(30) DEFAULT NULL COMMENT '包裹号',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `REVERSE_RECEIVE_PK` (`SYSTEM_ID`),
   KEY `IND_REVERSE_RECEIVE_PCODE` (`PACKAGE_BARCODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=342435 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `reverse_reject`
+--
 
-
--- 导出  表 test3.reverse_reject 结构
 DROP TABLE IF EXISTS `reverse_reject`;
-CREATE TABLE IF NOT EXISTS `reverse_reject` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reverse_reject` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `CKY2` bigint(20) DEFAULT NULL COMMENT '配送中心标识',
   `STORE_ID` bigint(20) DEFAULT NULL COMMENT '库房ID',
@@ -1148,16 +1357,20 @@ CREATE TABLE IF NOT EXISTS `reverse_reject` (
   `CREATE_SITE_NAME` varchar(32) DEFAULT NULL COMMENT '创建站点名称',
   `PICKWARE_CODE` varchar(32) DEFAULT NULL COMMENT '取件单号',
   `ORG_ID` bigint(20) DEFAULT NULL COMMENT '机构ID',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_REVERSE_REJECT_NEW` (`SYSTEM_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9546 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `reverse_spare`
+--
 
-
--- 导出  表 test3.reverse_spare 结构
 DROP TABLE IF EXISTS `reverse_spare`;
-CREATE TABLE IF NOT EXISTS `reverse_spare` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reverse_spare` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SPARE_CODE` varchar(32) DEFAULT NULL,
   `SEND_CODE` varchar(30) DEFAULT NULL,
@@ -1178,18 +1391,22 @@ CREATE TABLE IF NOT EXISTS `reverse_spare` (
   `YN` bigint(20) DEFAULT NULL,
   `PRODUCT_PRICE` bigint(20) DEFAULT NULL,
   `SPARE_TRAN_CODE` varchar(32) DEFAULT NULL,
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_REVERSE_SPARE_NEW` (`SYSTEM_ID`),
   KEY `IND_REVERSE_SPARE_CODE_NEW` (`SPARE_CODE`),
   KEY `IND_REVERSE_SPARE_STCODE_N` (`SPARE_TRAN_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=29190 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `seal_box`
+--
 
-
--- 导出  表 test3.seal_box 结构
 DROP TABLE IF EXISTS `seal_box`;
-CREATE TABLE IF NOT EXISTS `seal_box` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `seal_box` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
   `SEAL_CODE` varchar(32) DEFAULT NULL COMMENT '封箱编号',
@@ -1202,19 +1419,22 @@ CREATE TABLE IF NOT EXISTS `seal_box` (
   `UPDATE_USER` varchar(16) DEFAULT NULL COMMENT '修改人',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
   `YN` bigint(20) DEFAULT NULL COMMENT '是否删除 ''0'' 删除 ''1'' 使用',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `UNQ_SEAL_BOX_P` (`SYSTEM_ID`,`CREATE_TIME`),
   KEY `IND_SEAL_BOX_SC` (`SEAL_CODE`),
-  KEY `IND_SEAL_BOX_BCODE_PL` (`BOX_CODE`),
-  KEY `IND_SEAL_BOX_SCODE_PL` (`SEAL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='封箱信息表';
+  KEY `IND_SEAL_BOX_BCODE_PL` (`BOX_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=303733 DEFAULT CHARSET=utf8 COMMENT='封箱信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `seal_vehicle`
+--
 
-
--- 导出  表 test3.seal_vehicle 结构
 DROP TABLE IF EXISTS `seal_vehicle`;
-CREATE TABLE IF NOT EXISTS `seal_vehicle` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `seal_vehicle` (
   `SYSTEM_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `VEHICLE_CODE` varchar(32) DEFAULT NULL COMMENT '车辆编号',
   `SEAL_CODE` varchar(32) DEFAULT NULL COMMENT '封车编号',
@@ -1233,18 +1453,21 @@ CREATE TABLE IF NOT EXISTS `seal_vehicle` (
   `VOLUME` bigint(20) DEFAULT NULL COMMENT '体积',
   `WEIGHT` bigint(20) DEFAULT NULL COMMENT '重量',
   `PACKAGE_NUM` bigint(20) DEFAULT NULL COMMENT '包裹数',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_SEAL_VEHICLE` (`SYSTEM_ID`),
-  KEY `IND_SEAL_VEHICLE_SC` (`SEAL_CODE`),
-  KEY `IND_SEAL_VEHICLESC` (`SEAL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='封车信息表';
+  KEY `IND_SEAL_VEHICLE_SC` (`SEAL_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=25287 DEFAULT CHARSET=utf8 COMMENT='封车信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `send_barcode`
+--
 
-
--- 导出  表 test3.send_barcode 结构
 DROP TABLE IF EXISTS `send_barcode`;
-CREATE TABLE IF NOT EXISTS `send_barcode` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `send_barcode` (
   `SEND_BARCODE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SEND_BARCODE_CODE` varchar(50) DEFAULT NULL,
   `SEND_BARCODE_TYPE` varchar(2) DEFAULT NULL,
@@ -1264,13 +1487,16 @@ CREATE TABLE IF NOT EXISTS `send_barcode` (
   PRIMARY KEY (`SEND_BARCODE_ID`),
   KEY `IND_SEND_BARCODE_BC` (`SEND_BARCODE_CODE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `send_query`
+--
 
-
--- 导出  表 test3.send_query 结构
 DROP TABLE IF EXISTS `send_query`;
-CREATE TABLE IF NOT EXISTS `send_query` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `send_query` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SEND_CODE` varchar(50) DEFAULT NULL,
   `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
@@ -1284,112 +1510,138 @@ CREATE TABLE IF NOT EXISTS `send_query` (
   `IP_ADDRESS` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_SEND_QUERY` (`ID`),
-  KEY `IND_SEND_QUERY_SEND_CODE` (`SEND_CODE`),
-  KEY `IND_SEND_QUERY_SENDCODE` (`SEND_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  KEY `IND_SEND_QUERY_SEND_CODE` (`SEND_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=3978 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_0`
+--
 
-
--- 导出  表 test3.sequence_0 结构
 DROP TABLE IF EXISTS `sequence_0`;
-CREATE TABLE IF NOT EXISTS `sequence_0` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_0` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_1`
+--
 
-
--- 导出  表 test3.sequence_1 结构
 DROP TABLE IF EXISTS `sequence_1`;
-CREATE TABLE IF NOT EXISTS `sequence_1` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_1` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_2`
+--
 
-
--- 导出  表 test3.sequence_2 结构
 DROP TABLE IF EXISTS `sequence_2`;
-CREATE TABLE IF NOT EXISTS `sequence_2` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_2` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_3`
+--
 
-
--- 导出  表 test3.sequence_3 结构
 DROP TABLE IF EXISTS `sequence_3`;
-CREATE TABLE IF NOT EXISTS `sequence_3` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_3` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_4`
+--
 
-
--- 导出  表 test3.sequence_4 结构
 DROP TABLE IF EXISTS `sequence_4`;
-CREATE TABLE IF NOT EXISTS `sequence_4` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_4` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_5`
+--
 
-
--- 导出  表 test3.sequence_5 结构
 DROP TABLE IF EXISTS `sequence_5`;
-CREATE TABLE IF NOT EXISTS `sequence_5` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_5` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_6`
+--
 
-
--- 导出  表 test3.sequence_6 结构
 DROP TABLE IF EXISTS `sequence_6`;
-CREATE TABLE IF NOT EXISTS `sequence_6` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_6` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sequence_7`
+--
 
-
--- 导出  表 test3.sequence_7 结构
 DROP TABLE IF EXISTS `sequence_7`;
-CREATE TABLE IF NOT EXISTS `sequence_7` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_7` (
   `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
   `currentValue` bigint(20) NOT NULL,
   `increment` bigint(20) NOT NULL,
   PRIMARY KEY (`seqName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `shields_error`
+--
 
-
--- 导出  表 test3.shields_error 结构
 DROP TABLE IF EXISTS `shields_error`;
-CREATE TABLE IF NOT EXISTS `shields_error` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `shields_error` (
   `ERROR_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `BOX_CODE` varchar(30) DEFAULT NULL,
   `SHIELDS_CODE` varchar(30) DEFAULT NULL,
@@ -1405,13 +1657,16 @@ CREATE TABLE IF NOT EXISTS `shields_error` (
   PRIMARY KEY (`ERROR_ID`),
   UNIQUE KEY `PK_SHIELDS_ERROR` (`ERROR_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sorting_ec`
+--
 
-
--- 导出  表 test3.sorting_ec 结构
 DROP TABLE IF EXISTS `sorting_ec`;
-CREATE TABLE IF NOT EXISTS `sorting_ec` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sorting_ec` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_SITE_CODE` bigint(20) unsigned DEFAULT NULL,
   `RECEIVE_SITE_CODE` bigint(20) unsigned DEFAULT NULL,
@@ -1429,14 +1684,17 @@ CREATE TABLE IF NOT EXISTS `sorting_ec` (
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_SORTING_EC` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1539 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sorting_ret`
+--
 
-
--- 导出  表 test3.sorting_ret 结构
 DROP TABLE IF EXISTS `sorting_ret`;
-CREATE TABLE IF NOT EXISTS `sorting_ret` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sorting_ret` (
   `SORTING_RET_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `WAYBILL_CODE` varchar(50) DEFAULT NULL,
   `PACKAGE_CODE` varchar(50) DEFAULT NULL,
@@ -1453,18 +1711,22 @@ CREATE TABLE IF NOT EXISTS `sorting_ret` (
   `SHIELDS_TYPE` bigint(20) DEFAULT NULL,
   `EXCUTE_COUNT` bigint(20) DEFAULT NULL,
   `EXCUTE_TIME` datetime DEFAULT NULL,
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SORTING_RET_ID`),
   UNIQUE KEY `PK_SORTING_RET` (`SORTING_RET_ID`),
   KEY `IND_SORTING_RET_PCODE` (`PACKAGE_CODE`),
   KEY `IND_SORTING_RET_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=564682 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `spare`
+--
 
-
--- 导出  表 test3.spare 结构
 DROP TABLE IF EXISTS `spare`;
-CREATE TABLE IF NOT EXISTS `spare` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spare` (
   `SPARE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SPARE_CODE` varchar(32) DEFAULT NULL,
   `SPARE_STATUS` bigint(20) DEFAULT NULL,
@@ -1479,14 +1741,17 @@ CREATE TABLE IF NOT EXISTS `spare` (
   `SPARE_TYPE` varchar(4) DEFAULT NULL,
   PRIMARY KEY (`SPARE_ID`),
   UNIQUE KEY `SPARE_PK` (`SPARE_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=48281 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `spare_sale`
+--
 
-
--- 导出  表 test3.spare_sale 结构
 DROP TABLE IF EXISTS `spare_sale`;
-CREATE TABLE IF NOT EXISTS `spare_sale` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spare_sale` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `SPARE_CODE` varchar(32) DEFAULT NULL,
   `PRODUCT_ID` bigint(20) DEFAULT NULL,
@@ -1499,13 +1764,16 @@ CREATE TABLE IF NOT EXISTS `spare_sale` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_SPARE_SALE` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `sysconfig`
+--
 
-
--- 导出  表 test3.sysconfig 结构
 DROP TABLE IF EXISTS `sysconfig`;
-CREATE TABLE IF NOT EXISTS `sysconfig` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysconfig` (
   `CONFIG_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CONFIG_TYPE` bigint(20) DEFAULT NULL,
   `CONFIG_NAME` varchar(200) DEFAULT NULL,
@@ -1517,14 +1785,17 @@ CREATE TABLE IF NOT EXISTS `sysconfig` (
   `UPDATE_TIME` datetime DEFAULT NULL,
   PRIMARY KEY (`CONFIG_ID`),
   UNIQUE KEY `PK_SYSCONFIG` (`CONFIG_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6210 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `system_log`
+--
 
-
--- 导出  表 test3.system_log 结构
 DROP TABLE IF EXISTS `system_log`;
-CREATE TABLE IF NOT EXISTS `system_log` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_log` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `KEYWORD1` varchar(32) DEFAULT NULL,
   `KEYWORD2` varchar(32) DEFAULT NULL,
@@ -1536,13 +1807,16 @@ CREATE TABLE IF NOT EXISTS `system_log` (
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_boundary`
+--
 
-
--- 导出  表 test3.task_boundary 结构
 DROP TABLE IF EXISTS `task_boundary`;
-CREATE TABLE IF NOT EXISTS `task_boundary` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_boundary` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1562,13 +1836,44 @@ CREATE TABLE IF NOT EXISTS `task_boundary` (
   PRIMARY KEY (`TASK_ID`),
   UNIQUE KEY `PK_TASK_BOUNDARY` (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='对外服务相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_crossbox`
+--
 
+DROP TABLE IF EXISTS `task_crossbox`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_crossbox` (
+  `TASK_ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
+  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
+  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT 'KEYWORD1',
+  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT 'KEYWORD2',
+  `CREATE_SITE_CODE` int(11) DEFAULT NULL COMMENT '创建站点ID',
+  `RECEIVE_SITE_CODE` int(11) DEFAULT NULL COMMENT '接收站点ID',
+  `BOX_CODE` varchar(64) DEFAULT NULL COMMENT '箱号',
+  `BODY` varchar(1000) DEFAULT NULL COMMENT '主体',
+  `EXECUTE_COUNT` int(11) DEFAULT NULL COMMENT '执行次数',
+  `TASK_TYPE` int(11) DEFAULT NULL COMMENT '任务类型',
+  `TASK_STATUS` int(11) DEFAULT NULL COMMENT '任务状态',
+  `OWN_SIGN` varchar(32) DEFAULT NULL COMMENT 'OWN_SIGN',
+  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '指纹',
+  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '执行时间',
+  `YN` tinyint(4) DEFAULT NULL COMMENT '有效标示',
+  PRIMARY KEY (`TASK_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='跨中转箱号任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 导出  表 test3.task_failqueue 结构
+--
+-- Table structure for table `task_failqueue`
+--
+
 DROP TABLE IF EXISTS `task_failqueue`;
-CREATE TABLE IF NOT EXISTS `task_failqueue` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_failqueue` (
   `FAILQUEUE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `BUSI_ID` bigint(20) DEFAULT NULL COMMENT '业务主键',
   `BUSI_TYPE` bigint(20) DEFAULT NULL COMMENT '业务类型',
@@ -1584,14 +1889,17 @@ CREATE TABLE IF NOT EXISTS `task_failqueue` (
   PRIMARY KEY (`FAILQUEUE_ID`),
   KEY `IND_TASK_FAILQUEUE_BID_P` (`BUSI_ID`),
   KEY `IND_TASK_FAILQUEUE_FS_P` (`FAIL_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6327973 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_global_trade`
+--
 
-
--- 导出  表 test3.task_global_trade 结构
 DROP TABLE IF EXISTS `task_global_trade`;
-CREATE TABLE IF NOT EXISTS `task_global_trade` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_global_trade` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1610,13 +1918,16 @@ CREATE TABLE IF NOT EXISTS `task_global_trade` (
   `EXECUTE_TIME` datetime DEFAULT NULL,
   PRIMARY KEY (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_handover`
+--
 
-
--- 导出  表 test3.task_handover 结构
 DROP TABLE IF EXISTS `task_handover`;
-CREATE TABLE IF NOT EXISTS `task_handover` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_handover` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1638,14 +1949,17 @@ CREATE TABLE IF NOT EXISTS `task_handover` (
   KEY `IND_TASK_HANDOVER_FP` (`FINGERPRINT`),
   KEY `IND_TASK_HANDOVER_KWORD` (`KEYWORD2`),
   KEY `IND_TASK_HANDOVER_STAT` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分拣相关任务表';
+) ENGINE=InnoDB AUTO_INCREMENT=3177590 DEFAULT CHARSET=utf8 COMMENT='分拣相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_inspection`
+--
 
-
--- 导出  表 test3.task_inspection 结构
 DROP TABLE IF EXISTS `task_inspection`;
-CREATE TABLE IF NOT EXISTS `task_inspection` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_inspection` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1665,14 +1979,17 @@ CREATE TABLE IF NOT EXISTS `task_inspection` (
   PRIMARY KEY (`TASK_ID`),
   KEY `IND_TASK_INSPECTION_FP_P` (`FINGERPRINT`),
   KEY `IND_TASK_INSPECTION_STATUS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4111665 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_message`
+--
 
-
--- 导出  表 test3.task_message 结构
 DROP TABLE IF EXISTS `task_message`;
-CREATE TABLE IF NOT EXISTS `task_message` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_message` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '任务ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1692,14 +2009,17 @@ CREATE TABLE IF NOT EXISTS `task_message` (
   PRIMARY KEY (`TASK_ID`),
   KEY `IDX_TASK_STATUS` (`TASK_STATUS`),
   KEY `IDX_FINGERPRINT` (`FINGERPRINT`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='记录异步消息信息';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='记录异步消息信息';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_offline`
+--
 
-
--- 导出  表 test3.task_offline 结构
 DROP TABLE IF EXISTS `task_offline`;
-CREATE TABLE IF NOT EXISTS `task_offline` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_offline` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
   `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词2',
@@ -1720,13 +2040,16 @@ CREATE TABLE IF NOT EXISTS `task_offline` (
   UNIQUE KEY `UNQ_TASK_OFFLINE_ID` (`TASK_ID`,`CREATE_TIME`),
   KEY `IND_TASK_OFFLINE_STAT` (`TASK_STATUS`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='离线任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_pda`
+--
 
-
--- 导出  表 test3.task_pda 结构
 DROP TABLE IF EXISTS `task_pda`;
-CREATE TABLE IF NOT EXISTS `task_pda` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_pda` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1745,13 +2068,16 @@ CREATE TABLE IF NOT EXISTS `task_pda` (
   `EXECUTE_TIME` datetime DEFAULT NULL,
   PRIMARY KEY (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_pop`
+--
 
-
--- 导出  表 test3.task_pop 结构
 DROP TABLE IF EXISTS `task_pop`;
-CREATE TABLE IF NOT EXISTS `task_pop` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_pop` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1771,14 +2097,17 @@ CREATE TABLE IF NOT EXISTS `task_pop` (
   PRIMARY KEY (`TASK_ID`),
   KEY `IND_TASK_POP_KEYWORD1` (`KEYWORD1`),
   KEY `IND_TASK_POP_STATUS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12393844 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_pop_recieve_count`
+--
 
-
--- 导出  表 test3.task_pop_recieve_count 结构
 DROP TABLE IF EXISTS `task_pop_recieve_count`;
-CREATE TABLE IF NOT EXISTS `task_pop_recieve_count` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_pop_recieve_count` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '订单号',
   `THIRD_WAYBILL_CODE` varchar(128) DEFAULT NULL COMMENT '三方运单号',
@@ -1799,13 +2128,16 @@ CREATE TABLE IF NOT EXISTS `task_pop_recieve_count` (
   KEY `IND_TASK_POP_RE_CNT_STAT` (`OWN_SIGN`,`TASK_STATUS`),
   KEY `IND_TASK_POP_RE_CNT_WCODE` (`WAYBILL_CODE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_receive_exception`
+--
 
-
--- 导出  表 test3.task_receive_exception 结构
 DROP TABLE IF EXISTS `task_receive_exception`;
-CREATE TABLE IF NOT EXISTS `task_receive_exception` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_receive_exception` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1825,13 +2157,16 @@ CREATE TABLE IF NOT EXISTS `task_receive_exception` (
   PRIMARY KEY (`TASK_ID`),
   UNIQUE KEY `PK_TASK_RECEIVE_EXCEPTION` (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='接货中心异常相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_receive_pickup`
+--
 
-
--- 导出  表 test3.task_receive_pickup 结构
 DROP TABLE IF EXISTS `task_receive_pickup`;
-CREATE TABLE IF NOT EXISTS `task_receive_pickup` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_receive_pickup` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1851,13 +2186,16 @@ CREATE TABLE IF NOT EXISTS `task_receive_pickup` (
   PRIMARY KEY (`TASK_ID`),
   UNIQUE KEY `PK_TASK_RECEIVE_PICKUP` (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='接货相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_receive_receive`
+--
 
-
--- 导出  表 test3.task_receive_receive 结构
 DROP TABLE IF EXISTS `task_receive_receive`;
-CREATE TABLE IF NOT EXISTS `task_receive_receive` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_receive_receive` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1878,13 +2216,16 @@ CREATE TABLE IF NOT EXISTS `task_receive_receive` (
   UNIQUE KEY `PK_TASK_RECEIVE_RECEIVE` (`TASK_ID`),
   KEY `IND_TASK_RECEIVE_RECEIVE_FS_P` (`TASK_STATUS`,`TASK_TYPE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='收货验货相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_reverse`
+--
 
-
--- 导出  表 test3.task_reverse 结构
 DROP TABLE IF EXISTS `task_reverse`;
-CREATE TABLE IF NOT EXISTS `task_reverse` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_reverse` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -1903,14 +2244,17 @@ CREATE TABLE IF NOT EXISTS `task_reverse` (
   `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
   PRIMARY KEY (`TASK_ID`),
   KEY `IND_TASK_REVERSE_TS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='运单状态相关任务表';
+) ENGINE=InnoDB AUTO_INCREMENT=122151 DEFAULT CHARSET=utf8 COMMENT='运单状态相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_scanner_frame`
+--
 
-
--- 导出  表 test3.task_scanner_frame 结构
 DROP TABLE IF EXISTS `task_scanner_frame`;
-CREATE TABLE IF NOT EXISTS `task_scanner_frame` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_scanner_frame` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1928,14 +2272,17 @@ CREATE TABLE IF NOT EXISTS `task_scanner_frame` (
   `FINGERPRINT` varchar(64) DEFAULT NULL,
   `EXECUTE_TIME` datetime DEFAULT NULL,
   PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=29072 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_send`
+--
 
-
--- 导出  表 test3.task_send 结构
 DROP TABLE IF EXISTS `task_send`;
-CREATE TABLE IF NOT EXISTS `task_send` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_send` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1955,14 +2302,17 @@ CREATE TABLE IF NOT EXISTS `task_send` (
   PRIMARY KEY (`TASK_ID`),
   KEY `IND_TASK_SEND_FP_P` (`FINGERPRINT`),
   KEY `IND_TASK_SEND_TS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=55341 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_sorting`
+--
 
-
--- 导出  表 test3.task_sorting 结构
 DROP TABLE IF EXISTS `task_sorting`;
-CREATE TABLE IF NOT EXISTS `task_sorting` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_sorting` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -1983,14 +2333,17 @@ CREATE TABLE IF NOT EXISTS `task_sorting` (
   KEY `IND_TASK_SORTING_BCODE_P` (`BOX_CODE`),
   KEY `IND_TASK_SORTING_FP_P` (`FINGERPRINT`),
   KEY `IND_TASK_SORTING_STATUS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2874875 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_sorting_ec`
+--
 
-
--- 导出  表 test3.task_sorting_ec 结构
 DROP TABLE IF EXISTS `task_sorting_ec`;
-CREATE TABLE IF NOT EXISTS `task_sorting_ec` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_sorting_ec` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -2009,14 +2362,17 @@ CREATE TABLE IF NOT EXISTS `task_sorting_ec` (
   `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
   PRIMARY KEY (`TASK_ID`),
   UNIQUE KEY `PK_TASK_SORTING_EC` (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分拣相关任务表';
+) ENGINE=InnoDB AUTO_INCREMENT=195 DEFAULT CHARSET=utf8 COMMENT='分拣相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_waybill`
+--
 
-
--- 导出  表 test3.task_waybill 结构
 DROP TABLE IF EXISTS `task_waybill`;
-CREATE TABLE IF NOT EXISTS `task_waybill` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_waybill` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -2036,14 +2392,17 @@ CREATE TABLE IF NOT EXISTS `task_waybill` (
   PRIMARY KEY (`TASK_ID`),
   KEY `IND_TASK_WAYBILL_FP_P` (`FINGERPRINT`),
   KEY `IND_TASK_WAYBILL_TS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1683 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_weight`
+--
 
-
--- 导出  表 test3.task_weight 结构
 DROP TABLE IF EXISTS `task_weight`;
-CREATE TABLE IF NOT EXISTS `task_weight` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_weight` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
   `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
   `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
@@ -2063,14 +2422,17 @@ CREATE TABLE IF NOT EXISTS `task_weight` (
   PRIMARY KEY (`TASK_ID`),
   UNIQUE KEY `UNQ_TASK_WEIGHT` (`TASK_ID`,`CREATE_TIME`),
   KEY `IND_TASK_WEIGHT_STAT` (`TASK_STATUS`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='称重相关任务表';
+) ENGINE=InnoDB AUTO_INCREMENT=314792 DEFAULT CHARSET=utf8 COMMENT='称重相关任务表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `task_weight1`
+--
 
-
--- 导出  表 test3.task_weight1 结构
 DROP TABLE IF EXISTS `task_weight1`;
-CREATE TABLE IF NOT EXISTS `task_weight1` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_weight1` (
   `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CREATE_TIME` datetime DEFAULT NULL,
   `UPDATE_TIME` datetime DEFAULT NULL,
@@ -2089,13 +2451,16 @@ CREATE TABLE IF NOT EXISTS `task_weight1` (
   `EXECUTE_TIME` datetime DEFAULT NULL,
   PRIMARY KEY (`TASK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- 数据导出被取消选择。
+--
+-- Table structure for table `turnoverbox`
+--
 
-
--- 导出  表 test3.turnoverbox 结构
 DROP TABLE IF EXISTS `turnoverbox`;
-CREATE TABLE IF NOT EXISTS `turnoverbox` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `turnoverbox` (
   `TURNOVERBOX_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `TURNOVERBOX_CODE` varchar(30) DEFAULT NULL,
   `CREATE_USER` varchar(32) DEFAULT NULL,
@@ -2111,9 +2476,16 @@ CREATE TABLE IF NOT EXISTS `turnoverbox` (
   `OPERATE_TYPE` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`TURNOVERBOX_ID`),
   UNIQUE KEY `PK_TURNOVERBOX` (`TURNOVERBOX_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16246 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
--- 数据导出被取消选择。
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2016-09-20  9:44:59
