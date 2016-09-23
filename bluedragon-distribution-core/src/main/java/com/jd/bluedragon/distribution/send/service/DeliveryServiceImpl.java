@@ -1524,7 +1524,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
         SendDetail tSendDatail = new SendDetail();
-        List<Message> sendDetailMessageList = new ArrayList<Message>();
+//        List<Message> sendDetailMessageList = new ArrayList<Message>();
         List<SendDetail> sendDatailList = new ArrayList<SendDetail>();
         for (SendM newSendM : tSendM) {
             tSendDatail.setBoxCode(newSendM.getBoxCode());
@@ -1540,7 +1540,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 dSendDatail.setCreateUserCode(newSendM.getCreateUserCode());
 
                 //包装JMQ的Message对象,保存到sendDetailMessageList集合中
-                sendDetailMessageList.add(parseSendDetailToMessage(dSendDatail));
+//                sendDetailMessageList.add(parseSendDetailToMessage(dSendDatail));
             }
             logger.info("SEND_D明细" + JsonHelper.toJson(sendDatailList));
             updateWaybillStatus(sendDatailList);
