@@ -93,8 +93,6 @@
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND yn = 1
         AND start_time <![CDATA[<=]]> str_to_date(date_format(#{operateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s'),'%Y-%m-%d %H:%i:%s')
-
-        LIMIT 1
     </select>
     <select id="findAllGantryDeviceCurrentConfig" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
