@@ -27,7 +27,7 @@
         id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn
+        yn,SYSDATE
     </sql>
 
     <insert id="add" parameterType="gantryDeviceConfig">
@@ -89,7 +89,7 @@
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn
+        yn,SYSDATE
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND yn = 1
