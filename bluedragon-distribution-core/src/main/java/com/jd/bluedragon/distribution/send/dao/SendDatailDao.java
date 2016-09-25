@@ -50,12 +50,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
-		if(querySendDatail.getCreateSiteCode()==null){
-			if(StringHelper.isEmpty(querySendDatail.getSendCode())){
-				Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode());
-				querySendDatail.setCreateSiteCode(createSiteCode);
-			}
-		}
+        if(null != querySendDatail && StringHelper.isEmpty(querySendDatail.getSendCode())
+                && null == querySendDatail.getCreateSiteCode()) {
+            querySendDatail.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode()));
+        }
 		return this.getSqlSession().selectList(
 				SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
 	}

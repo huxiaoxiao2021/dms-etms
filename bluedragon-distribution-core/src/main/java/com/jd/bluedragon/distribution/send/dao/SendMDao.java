@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.jboss.marshalling.serial.Serial;
 
 public class SendMDao extends BaseDao<SendM>  {
 	
@@ -20,6 +22,7 @@ public class SendMDao extends BaseDao<SendM>  {
 	public List<SendM> selectOneBySendCode(String sendCode) {
 		SendM querySendM = new SendM();
 		querySendM.setSendCode(sendCode);
+        querySendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
 		return getSqlSession().selectList(SendMDao.namespace + ".selectOneBySendCode", querySendM);
 	}
 	
@@ -40,11 +43,17 @@ public class SendMDao extends BaseDao<SendM>  {
 	}
 
 	public SendM selectBySendCode(String sendCode) {
-		return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectBySendCode", sendCode);
+        SendM querySendM = new SendM();
+        querySendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
+        querySendM.setSendCode(sendCode);
+		return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectBySendCode", querySendM);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySendSiteCode(SendM sendM) {
+        if(null !=sendM && null != sendM.getSendCode() && null == sendM.getCreateSiteCode()) {
+            sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendM.getSendCode()));
+        }
 		return getSqlSession().selectList(SendMDao.namespace + ".selectBySendSiteCode", sendM);
 	}
 
