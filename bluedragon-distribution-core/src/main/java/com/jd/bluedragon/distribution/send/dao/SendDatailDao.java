@@ -8,6 +8,7 @@ import java.util.Map;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
 	
@@ -48,6 +49,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
+        if(null != querySendDatail && null != querySendDatail.getSendCode()
+                && null == querySendDatail.getCreateSiteCode()) {
+            querySendDatail.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode()));
+        }
 		return this.getSqlSession().selectList(
 				SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
 	}

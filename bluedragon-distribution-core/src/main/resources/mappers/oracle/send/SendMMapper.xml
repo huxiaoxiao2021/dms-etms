@@ -59,7 +59,11 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
+		where yn =1
+        <if test = "null!=createSiteCode">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
+        and send_code= #{sendCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
 	</select>
 	
 	<select id="selectOneBySendCode" parameterType="SendM"
@@ -67,7 +71,11 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
+		where yn =1
+        <if test = "null!=createSiteCode">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
+        and send_code= #{sendCode,jdbcType=VARCHAR} and rownum <![CDATA[<=]]>1
 	</select>
 	
 	<select id="selectOneBySiteAndSendCode" parameterType="SendM"
