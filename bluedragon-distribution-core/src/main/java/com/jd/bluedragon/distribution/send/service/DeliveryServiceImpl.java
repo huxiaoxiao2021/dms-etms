@@ -1461,7 +1461,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.TABLE_NAME_WAYBILL);
         tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
-        tTask.setOwnSign("DMS");
+        tTask.setOwnSign(BusinessHelper.getOwnSign());
         tTask.setKeyword1(tSendDatail.getWaybillCode());//回传运单状态
         tTask.setFingerprint(Md5Helper.encode(tSendDatail.getCreateSiteCode() + "_"
                 + tSendDatail.getReceiveSiteCode() + "_" + tSendDatail.getSendType() + "-"
