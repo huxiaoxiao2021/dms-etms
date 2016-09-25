@@ -50,7 +50,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
-        if(null != querySendDatail && StringHelper.isEmpty(querySendDatail.getSendCode())
+        if(null != querySendDatail && StringHelper.isNotEmpty(querySendDatail.getSendCode())
                 && null == querySendDatail.getCreateSiteCode()) {
             querySendDatail.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode()));
         }
@@ -188,7 +188,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	}
 	
 	public Integer cancelDelivery(SendDetail sendDetail) {
-		if (null != sendDetail && StringHelper.isEmpty(sendDetail.getSendCode())
+		if (null != sendDetail && StringHelper.isNotEmpty(sendDetail.getSendCode())
 				&& sendDetail.getCreateSiteCode() == null) {
 			Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendDetail.getSendCode());
 			sendDetail.setCreateSiteCode(createSiteCode);
