@@ -8,6 +8,8 @@ import java.util.Map;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
 	
@@ -48,6 +50,12 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
+		if(querySendDatail.getCreateSiteCode()==null){
+			if(StringHelper.isEmpty(querySendDatail.getSendCode())){
+				Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode());
+				querySendDatail.setCreateSiteCode(createSiteCode);
+			}
+		}
 		return this.getSqlSession().selectList(
 				SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
 	}
@@ -182,6 +190,11 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	}
 	
 	public Integer cancelDelivery(SendDetail sendDetail) {
+		if (null != sendDetail && StringHelper.isEmpty(sendDetail.getSendCode())
+				&& sendDetail.getCreateSiteCode() == null) {
+			Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendDetail.getSendCode());
+			sendDetail.setCreateSiteCode(createSiteCode);
+		}
 		return this.getSqlSession().update(SendDatailDao.namespace + ".cancelDelivery",
 				sendDetail);
 	}

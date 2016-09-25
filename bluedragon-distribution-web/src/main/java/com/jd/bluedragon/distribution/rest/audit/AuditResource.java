@@ -115,7 +115,7 @@ public class AuditResource {
 	public List<SendDetail> getSendDetail(@PathParam("waybillCode") String waybillCode) {
 		SendDetail querySendDetail = new SendDetail();
 		querySendDetail.setWaybillCode(waybillCode);
-		return this.sendDatailDao.querySendDatailsBySelective(querySendDetail);
+		return this.sendDatailDao.querySendDatailsBySelective(querySendDetail);//FIXME:无create_site_code有跨节点风险
 	}
 	
 	@GET

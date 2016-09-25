@@ -1687,7 +1687,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public boolean checkSend(SendDetail tSendDatail) {
-        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
         if (sendDetails != null && !sendDetails.isEmpty()) {
             Set<SendDetail> sendDatailset = new CollectionHelper<SendDetail>().toSet(sendDetails);
             sendDetails = new CollectionHelper<SendDetail>().toList(sendDatailset);
