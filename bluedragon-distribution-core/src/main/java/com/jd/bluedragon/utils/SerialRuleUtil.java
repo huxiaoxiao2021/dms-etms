@@ -294,9 +294,10 @@ public class SerialRuleUtil
 
 
     public static void main(String[] args) {
-
-        System.out.printf(getCreateSiteCodeFromSendCode("Y3011-105-20160916125959100").toString());
-
+        System.out.println(getCreateSiteCodeFromSendCode("y3011-105-20160916125959100").toString());
+        System.out.println(getCreateSiteCodeFromSendCode("Y3011-105-20160916125959100").toString());
+        System.out.println(getCreateSiteCodeFromSendCode("3011-105-20160916125959100").toString());
+        System.out.println(getCreateSiteCodeFromSendCode(null));
         String context=String.valueOf(isMatchAllPackageNo("VT05969883920-1-1-"));
         System.out.printf( context);
     }
