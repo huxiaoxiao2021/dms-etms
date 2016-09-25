@@ -103,7 +103,7 @@ public class SerialRuleUtil
     /**
      * 发货批次号正则表达式
      */
-    private static final Pattern RULE_SEND_CODE_REGEX=Pattern.compile("^(\\d+)-(\\d+)-([0-9]{14,17})");
+    private static final Pattern RULE_SEND_CODE_REGEX=Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,17})");
 
     /**
      * 获取收货站点
@@ -123,12 +123,17 @@ public class SerialRuleUtil
      * @return
      */
     public static final Integer getCreateSiteCodeFromSendCode(String sendCode){
+        if(null==sendCode){
+            return null;
+        }
         Matcher matcher=RULE_SEND_CODE_REGEX.matcher(sendCode.trim());
         if(matcher.matches()){
             return Integer.parseInt(matcher.group(1));
         }
         return null;
     }
+
+
     /**
      * 是否匹配F返单号
      * @param input
@@ -289,6 +294,10 @@ public class SerialRuleUtil
 
 
     public static void main(String[] args) {
+        System.out.println(getCreateSiteCodeFromSendCode("y3011-105-20160916125959100").toString());
+        System.out.println(getCreateSiteCodeFromSendCode("Y3011-105-20160916125959100").toString());
+        System.out.println(getCreateSiteCodeFromSendCode("3011-105-20160916125959100").toString());
+        System.out.println(getCreateSiteCodeFromSendCode(null));
         String context=String.valueOf(isMatchAllPackageNo("VT05969883920-1-1-"));
         System.out.printf( context);
     }
