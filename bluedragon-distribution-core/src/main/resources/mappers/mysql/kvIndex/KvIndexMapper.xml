@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
+	<resultMap id="kvIndex"
+		type="com.jd.bluedragon.distribution.base.domain.KvIndex">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<id column="keyword" property="keyword" jdbcType="VARCHAR" />
+		<id column="value" property="value" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Insert_Column_List">
+		 keyword, value
+	</sql>
+
+	<insert id="add">
+		INSERT INTO kvIndex(
+		<include refid="Base_Insert_Column_List" />
+		)
+		VALUES(
+		#{keyword,jdbcType=INTEGER},
+		#{value,jdbcType=VARCHAR},
+		)
+	</insert>
+	
+	<select id="queryByKeyword" resultType="kvIndex" parameterType="java.lang.String">
+		SELECT
+			value
+		FROM kvIndex
+		WHERE keyword = #{keyword}
+	</select>
+
+</mapper>

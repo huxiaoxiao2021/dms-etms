@@ -300,4 +300,8 @@
     <bean id="objectIdDao" class="com.jd.bluedragon.distribution.dbs.dao.ObjectIdDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+    
+   	<bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
+       	<property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
 </beans>
