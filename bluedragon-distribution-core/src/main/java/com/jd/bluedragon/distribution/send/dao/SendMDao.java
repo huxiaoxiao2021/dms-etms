@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
@@ -7,7 +8,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.jboss.marshalling.serial.Serial;
 
-public class SendMDao extends BaseDao<SendM>  {
+public  class SendMDao extends BaseDao<SendM>  {
 	
 	public static final String namespace = SendMDao.class.getName();
 	
@@ -69,10 +70,12 @@ public class SendMDao extends BaseDao<SendM>  {
     
     @SuppressWarnings("unchecked")
     public List<SendM> findSendMByBoxCode(SendM sendM) {
+        //TODO
         return getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode", sendM);
     }
 
 	public List<SendM> findSendMByBoxCode2(SendM sendM) {
+        //TODO
 		return getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode2", sendM);
 	}
     
@@ -114,9 +117,19 @@ public class SendMDao extends BaseDao<SendM>  {
 		return getSqlSession().selectList(SendMDao.namespace + ".batchQueryCancelSendMList", sendM);
 	}
 
+    /**
+     * Update By wangtingwei@jd.com，提取创建站点作为查询条件，以便消除全节点数据库查询
+     * @param sendCode 发货批次号
+     * @return
+     */
 	public List<SendM> selectBoxBySendCode(String sendCode) {
 		SendM sendM = new SendM();
 		sendM.setSendCode(sendCode);
+        Integer createSiteCode=SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(null==createSiteCode){
+            return new ArrayList<SendM>(0);
+        }
+        sendM.setCreateSiteCode(createSiteCode);
 		return	this.getSqlSession().selectList(
 				SendMDao.namespace + ".selectBoxBySendCode", sendM);
 
