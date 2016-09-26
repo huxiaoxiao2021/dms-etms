@@ -46,7 +46,7 @@
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
-	<bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDatailDao">
+	<bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailIndexDao">
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 

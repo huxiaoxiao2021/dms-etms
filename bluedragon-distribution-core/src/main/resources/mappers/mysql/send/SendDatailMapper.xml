@@ -198,6 +198,9 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and is_cancel=0  and box_code=#{boxCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            create_site_code = #{createSiteCode,jdbcType=INTEGER},
+        </if>
 	</select>
 	
 	<select id="querySendDatailsByPackageCode" parameterType="SendDetail"
@@ -205,6 +208,9 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and is_cancel=0 and receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} and box_code=#{boxCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            create_site_code = #{createSiteCode,jdbcType=INTEGER},
+        </if>
 	</select>
 
 	<select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
