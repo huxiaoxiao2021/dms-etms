@@ -14,10 +14,11 @@
 	</sql>
 
 	<insert id="add">
-		INSERT INTO kvIndex(
+		INSERT INTO kv_index(id,
 		<include refid="Base_Insert_Column_List" />
 		)
 		VALUES(
+        SEQ_KV_INDEX.NEXTVAL,
 		#{keyword,jdbcType=INTEGER},
 		#{value,jdbcType=VARCHAR},
 		)
@@ -26,7 +27,7 @@
 	<select id="queryByKeyword" resultMap="kvIndex" parameterType="java.lang.String">
 		SELECT
 			value
-		FROM kvIndex
+		FROM kv_index
 		WHERE keyword = #{keyword}
 	</select>
 
