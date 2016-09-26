@@ -459,6 +459,6 @@
         select
         <include refid="Base_Column_List"/>
         from send_m
-        where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
+        where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1 AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
 </mapper>
