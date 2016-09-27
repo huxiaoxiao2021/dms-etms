@@ -35,7 +35,6 @@ public class SendDetailReadIndexDao extends SendDatailReadDao {
         if (waybillCode == null || waybillCode.isEmpty()) {
             return null;
         }
-
         try {
             List<SendBoxDetailResponse> sendResponseList = new ArrayList<SendBoxDetailResponse>();
             List<Integer> createSiteCodes = kvIndexDao.queryCreateSiteCodesByKey(waybillCode);
@@ -56,12 +55,13 @@ public class SendDetailReadIndexDao extends SendDatailReadDao {
                     response.setOperateTime(sendDetail.getOperateTime());
                     sendResponseList.add(response);
                 }
+                return sendResponseList;
             }
-            return sendResponseList;
         } catch (Throwable e) {
-            logger.error("获取分库拆分键失败", e);
-            return super.findSendBoxByWaybillCode(waybillCode);
+            logger.error("获取分库拆分键失败，运单号" + waybillCode, e);
         }
+
+        return super.findSendBoxByWaybillCode(waybillCode);
     }
 
     @Override

@@ -2,13 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
 	namespace="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
-	<resultMap id="kvIndex"
-		type="com.jd.bluedragon.distribution.base.domain.KvIndex">
-		<id column="id" property="id" jdbcType="BIGINT" />
-		<id column="keyword" property="keyword" jdbcType="VARCHAR" />
-		<id column="value" property="value" jdbcType="VARCHAR" />
-	</resultMap>
-
 	<sql id="Base_Insert_Column_List">
 		 keyword, value
 	</sql>
@@ -26,9 +19,14 @@
 	
 	<select id="queryByKeyword" resultType="java.lang.String" parameterType="java.lang.String">
 		SELECT
-			value
+			DISTINCT(value)
 		FROM kv_index
 		WHERE keyword = #{keyword}
 	</select>
 
+    <delete id="deleteByKey" parameterType="java.lang.String">
+        DELETE
+        FROM kv_index
+        WHERE keyword = #{keyword}
+    </delete>
 </mapper>

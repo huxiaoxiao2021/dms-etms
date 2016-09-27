@@ -21,6 +21,10 @@ public class KvIndexDao extends BaseDao<KvIndex> {
 		return this.getSqlSession().selectList(namespace + ".queryByKeyword", keyword);
 	}
 
+    public Integer deleteByKeyword(String keyword) {
+        return this.getSqlSession().delete(namespace + ".deleteByKey", keyword);
+    }
+
     /**
      * 获取创建站点索引值
      * @param keyword 关键字

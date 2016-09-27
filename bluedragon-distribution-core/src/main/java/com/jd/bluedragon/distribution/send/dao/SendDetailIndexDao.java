@@ -29,6 +29,7 @@ public class SendDetailIndexDao extends SendDatailDao{
             kvIndex.setValue(String.valueOf(entity.getCreateSiteCode()));
             kvIndexDao.add(KvIndexDao.namespace,kvIndex);
             kvIndex.setKeyword(entity.getBoxCode());
+            kvIndexDao.add(kvIndexDao.namespace,kvIndex);
         } catch (Throwable e) {
             logger.error("保存到中间索引表失败 " + JsonHelper.toJson(entity), e);
         }

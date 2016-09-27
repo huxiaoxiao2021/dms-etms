@@ -414,10 +414,9 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
     }
 
 
-
-
-    /*********************SendDetailReadIndexDao*********************/
-
+    ////////////////////////////////////////////////////////
+    // SendDetailReadIndexDao TestCase
+    ///////////////////////////////////////////////////////
     @Test
     public void testFindSendBoxByWaybillCode () {
         List<SendBoxDetailResponse> sendBoxDetailResponses = sendDatailReadDao.findSendBoxByWaybillCode("16635238583");
