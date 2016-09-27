@@ -75,10 +75,15 @@ public class SendMRouterTest extends AbstractDaoIntegrationTest {
 //        return super.batchQuerySendMList(sendM);
 //    }
 //
-//    @Override
-//    public Integer addBatch(List<SendM> param) {
-//        return super.addBatch(param);
-//    }
+    @Test
+    public void testAddBatch() {
+        List<SendM> list=new ArrayList<SendM>();
+        SendM domain=new SendM();
+        domain.setBoxCode("BC010F001010F00300000008");
+        domain.setCreateSiteCode(2015);
+        list.add(domain);
+        sendMRouter.addBatch(list);
+    }
 //
 //    @Override
 //    public List<SendM> querySendCodesByDepartue(Long shieldsCarId) {

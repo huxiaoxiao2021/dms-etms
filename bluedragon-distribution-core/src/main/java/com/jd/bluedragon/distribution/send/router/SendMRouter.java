@@ -136,53 +136,54 @@ public class SendMRouter extends SendMDao {
         return super.cancelSendM(tSendM);
     }
 
-    @Override
-    public List<SendM> findSendMByBoxCode2(SendM sendM) {
-        if(null==sendM.getCreateSiteCode()){
-            //查询索引表,循环查询数据库
-            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
-            if(LOGGER.isInfoEnabled()){
-                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
-            }
-            if(null!=siteCodes&&siteCodes.size()>0) {
+//
+//    @Override
+//    public List<SendM> findSendMByBoxCode2(SendM sendM) {
+//        if(null==sendM.getCreateSiteCode()){
+//            //查询索引表,循环查询数据库
+//            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
+//            if(LOGGER.isInfoEnabled()){
+//                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
+//            }
+//            if(null!=siteCodes&&siteCodes.size()>0) {
+//
+//                List<SendM> list=new ArrayList<SendM>();
+//                for (Integer item :siteCodes){
+//                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
+//                    list.addAll(super.findSendMByBoxCode2(sendM));
+//                }
+//                if(LOGGER.isInfoEnabled()){
+//                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
+//                }
+//                return list;
+//            }
+//        }
+//        return super.findSendMByBoxCode2(sendM);
+//    }
 
-                List<SendM> list=new ArrayList<SendM>();
-                for (Integer item :siteCodes){
-                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
-                    list.addAll(super.findSendMByBoxCode2(sendM));
-                }
-                if(LOGGER.isInfoEnabled()){
-                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
-                }
-                return list;
-            }
-        }
-        return super.findSendMByBoxCode2(sendM);
-    }
-
-    @Override
-    public List<SendM> findSendMByBoxCode(SendM sendM) {
-        if(null==sendM.getCreateSiteCode()){
-            //查询索引表,循环查询数据库
-            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
-            if(LOGGER.isInfoEnabled()){
-                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
-            }
-            if(null!=siteCodes&&siteCodes.size()>0) {
-
-                List<SendM> list=new ArrayList<SendM>();
-                for (Integer item :siteCodes){
-                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
-                    list.addAll(super.findSendMByBoxCode(sendM));
-                }
-                if(LOGGER.isInfoEnabled()){
-                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
-                }
-                return list;
-            }
-        }
-        return super.findSendMByBoxCode(sendM);
-    }
+//    @Override
+//    public List<SendM> findSendMByBoxCode(SendM sendM) {
+//        if(null==sendM.getCreateSiteCode()){
+//            //查询索引表,循环查询数据库
+//            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
+//            if(LOGGER.isInfoEnabled()){
+//                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
+//            }
+//            if(null!=siteCodes&&siteCodes.size()>0) {
+//
+//                List<SendM> list=new ArrayList<SendM>();
+//                for (Integer item :siteCodes){
+//                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
+//                    list.addAll(super.findSendMByBoxCode(sendM));
+//                }
+//                if(LOGGER.isInfoEnabled()){
+//                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
+//                }
+//                return list;
+//            }
+//        }
+//        return super.findSendMByBoxCode(sendM);
+//    }
 
     @Override
     public boolean insertSendM(SendM dSendM) {
