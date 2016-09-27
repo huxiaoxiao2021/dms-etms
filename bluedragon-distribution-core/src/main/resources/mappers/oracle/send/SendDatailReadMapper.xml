@@ -51,8 +51,9 @@
 	</select>
 	
 	<select id="findSendBoxByWaybillCode" parameterType="java.util.Map" resultMap="SendDetail">
-		select send_code,box_code,package_barcode  
-		from (select send_code,box_code,package_barcode,row_number() over(partition by package_barcode order by create_time desc) rn 
+		select send_code,box_code,package_barcode,create_site_code,receive_site_code,operate_time
+		from (select send_code,box_code,package_barcode,create_site_code,receive_site_code,operate_time,
+		              row_number() over(partition by package_barcode order by create_time desc) rn
               from DMS.send_d
               where yn = 1 and waybill_code = #{waybillCode}) t1 
         where t1.rn = 1

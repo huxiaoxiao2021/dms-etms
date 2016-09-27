@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 
 public class Task implements java.io.Serializable, TaskModeAware{
@@ -628,7 +629,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 		
 		//2.计算任务的灰度 FIXME:是否应从配置文件中得来
 		if(StringUtils.isEmpty(ownSign))
-			ownSign = "DMS";
+			ownSign = BusinessHelper.getOwnSign();;
 		
 		//3.计算任务的队列号
 		Integer queueId = getFingerprint() != null ? Math.abs(getFingerprint()

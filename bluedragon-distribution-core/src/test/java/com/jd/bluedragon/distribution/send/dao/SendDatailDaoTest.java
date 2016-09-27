@@ -2,8 +2,11 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,6 +17,9 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private SendDatailReadDao sendDatailReadDao;
 
     @Test
     public void testAdd() {
@@ -405,5 +411,15 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateTime(new Date());
         parameter.setReceiveSiteCode(560);
         sendDatailDao.findDeliveryPackageBySite(parameter);
+    }
+
+
+    ////////////////////////////////////////////////////////
+    // SendDetailReadIndexDao TestCase
+    ///////////////////////////////////////////////////////
+    @Test
+    public void testFindSendBoxByWaybillCode () {
+        List<SendBoxDetailResponse> sendBoxDetailResponses = sendDatailReadDao.findSendBoxByWaybillCode("16635238583");
+        Assert.assertNotNull(sendBoxDetailResponses);
     }
 }

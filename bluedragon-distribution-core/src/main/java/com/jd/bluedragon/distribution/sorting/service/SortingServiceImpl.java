@@ -201,6 +201,16 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public Boolean canCancelSorting2(Sorting sorting) {
+		boolean result = this.sortingDao.canCancel2(sorting)
+				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
+		if (result) {
+			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL);
+		}
+		return result;
+	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
 	public Boolean canCancelSortingFuzzy(Sorting sorting) {
 		boolean result = this.sortingDao.canCancelFuzzy(sorting)
@@ -629,17 +639,18 @@ public class SortingServiceImpl implements SortingService {
 		try{
 			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 			if(wayBillOld.getData() != null){
-				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
-				frbc.setVendorId(wayBillOld.getData().getVendorId());
+//				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
+//				frbc.setVendorId(wayBillOld.getData().getVendorId());
+				frbc.setOrderId(wayBillOld.getData().getVendorId());
 			}else{
-				frbc.setOrderIdOld("");
-				frbc.setVendorId("");
+//				frbc.setOrderIdOld("");
+//				frbc.setVendorId("");
+				frbc.setOrderId("");
 			}
 		}catch(Exception e){
 			this.logger.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
 		}
-		
-		frbc.setOrderId(sorting.getWaybillCode());
+		frbc.setWaybillcode(sorting.getWaybillCode());
 		frbc.setApplyReason("分拣中心快速退款");
 		frbc.setApplyDate(sorting.getOperateTime().getTime());
 		frbc.setSystemId(12);
@@ -649,6 +660,7 @@ public class SortingServiceImpl implements SortingService {
 		frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		frbc.setOperatTime(dateFormat.format(sorting.getOperateTime()));
+		frbc.setSys("ql.dms");
 		
 		return frbc;
 	}
@@ -858,6 +870,21 @@ public class SortingServiceImpl implements SortingService {
 	public List<Sorting> queryByCode2(Sorting sorting) {
 		this.logger.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
 		return this.sortingDao.queryByCode2(sorting);
+	}
+
+	/**
+	 * @param sorting
+	 * @return
+	 */
+	public Boolean canCancel2(Sorting sorting) {
+		// sorting & send_d ---> cancel=1
+		boolean result = this.canCancelSorting2(sorting);
+
+		if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
+			// 更新三方验货异常比对表，由少验修改为正常
+			this.canCancelInspectionEC(sorting);
+		}
+		return result;
 	}
 
 	public void notifyBlocker(Sorting sorting) {

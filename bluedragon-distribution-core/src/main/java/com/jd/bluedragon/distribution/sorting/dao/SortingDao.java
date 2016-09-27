@@ -32,6 +32,11 @@ public class SortingDao extends BaseDao<Sorting> {
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 
+    public Boolean canCancel2(Sorting sorting) {
+        Integer count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
+        return count > 0 ? Boolean.TRUE : Boolean.FALSE;
+    }
+
     public boolean canCancelFuzzy(Sorting sorting) {
     	Integer count = this.getSqlSession().update(namespace + ".canCancelFuzzy", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;

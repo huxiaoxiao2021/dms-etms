@@ -94,15 +94,14 @@ public class PopPrintServiceImpl implements PopPrintService {
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public List<PopPrint> findLimitListNoReceive(Map<String, Object> paramMap) {
-        List<PopPrint> popList = popPrintDao.findLimitListNoReceive(paramMap);
+    public List<PopPrint> findLimitListNoReceive(List<PopPrint> popList, Map<String, Object> paramMap) {
         List<PopPrint> target=new LinkedList<PopPrint>();
         if (popList != null && !popList.isEmpty()) {
             for (PopPrint popPrint : popList) {
                 // 优化拆分表和非拆分表查询语句加入的代码
                 String ownSign = (String) paramMap.get("ownSign");
                 Inspection inspection = new Inspection();
+                inspection.setCreateSiteCode(popPrint.getCreateSiteCode());
                 inspection.setWaybillCode(popPrint.getWaybillCode());
                 inspection.setPackageBarcode(popPrint.getPackageBarcode());
                 if("PRE".equals(ownSign)) {
@@ -110,8 +109,8 @@ public class PopPrintServiceImpl implements PopPrintService {
                 } else {
                     inspection.setInspectionType(40);
                 }
-                List<Inspection> inspectionList = inspectionDao.queryByCondition(inspection);
-                if(null != inspectionList && inspectionList.size() > 0) {
+                Integer inspectionList = inspectionDao.queryCountByCondition(inspection);
+                if(null != inspectionList && inspectionList > 0) {
                     //popList.remove(popPrint);
                     continue;
                 }

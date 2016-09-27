@@ -20,10 +20,10 @@
 		</property>
 	</bean>
 	
-	<import resource="classpath:spring/mysql/distribution-core-datasource-backup.xml"/>
+	<import resource="classpath:spring/oracle/distribution-core-datasource-backup.xml"/>
 	
 	<bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
-	    <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+	    <property name="driverClassName" value="${db.driverClassName}"/>
 		<property name="defaultAutoCommit" value="true"/>
 		<property name="initialSize" value="${db.initialSize}"/>
 		<property name="maxIdle" value="${db.maxIdle}"/>
@@ -33,6 +33,16 @@
 		<property name="minEvictableIdleTimeMillis" value="${db.minEvictableIdleTimeMillis}"/>
 		<property name="timeBetweenEvictionRunsMillis" value="${db.timeBetweenEvictionRunsMillis}"/>
 		<property name="poolPreparedStatements" value="false" />
+	</bean>
+	
+	<bean id="taskDataSource" parent="parentDataSource">
+	    <property name="url" value="${dms.task.db.url}"/>
+	    <property name="username" value="${dms.task.db.username}" />
+		<property name="password" value="${dms.task.db.password}" />
+		<property name="initialSize" value="${dms.task.db.initialSize}"/>
+		<property name="minIdle" value="${dms.task.db.minIdle}"/>
+		<property name="maxIdle" value="${dms.task.db.maxIdle}"/>
+		<property name="maxActive" value="${dms.task.db.maxActive}"/>
 	</bean>
 	
 	<bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -52,27 +62,17 @@
 	</bean>	
 	
 	<bean id="dms_main" parent="parentDataSource">
-	    <property name="url" value="${db.mysql.url}"/>
-	    <property name="username" value="${db.mysql.username}" />
-		<property name="password" value="${db.mysql.password}" />
+	    <property name="url" value="${db.url}"/>
+	    <property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
 	</bean>
-	
-	<bean id="dmsMainSequenceDataSource" class="com.jd.ql.framework.ddf.jdbc.sequence.SequenceDataSource">
-	    <constructor-arg index="0">
-	      <bean class="com.jd.ql.framework.idgenerator.support.DdfSequenceGenerator">
-	        <property name="jsfAlias" value="${sequenceService.alias}"/>
-	        <property name="jsfTimeout" value="${sequenceService.timeout}"/>
-	      </bean>
-	    </constructor-arg>
-	    <constructor-arg index="1" ref="dms_main"/>
-  	</bean>
 	
 	<bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
-		<property name="driverClassName" value="${dms.read.mysql.db.driverClassName}"/>
-		<property name="url" value="${dms.read.mysql.db.url}"/>
-		<property name="username" value="${dms.read.mysql.db.username}"/>
-		<property name="password" value="${dms.read.mysql.db.password}"/>
+		<property name="driverClassName" value="${dms.read.db.driverClassName}"/>
+		<property name="url" value="${dms.read.db.new.url}"/>
+		<property name="username" value="${dms.read.db.username}"/>
+		<property name="password" value="${dms.read.db.password}"/>
 		<property name="defaultAutoCommit" value="${dms.read.db.defaultAutoCommit}" />
 		<property name="maxActive" value="${dms.read.db.maxActive}" />
 		<property name="maxIdle" value="${dms.read.db.maxIdle}" />
@@ -83,30 +83,32 @@
 		<property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
 	</bean>
 
-	<bean id="mainWriteSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dmsMainSequenceDataSource" />
-		<property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
-	</bean>
-	
-	<bean id="transactionManager"
+
+    <bean id="writeSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main" />
+        <property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />
+    </bean>
+
+    <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dms_main" />
 		<qualifier value="main"></qualifier>
     </bean>
     <tx:annotation-driven transaction-manager="transactionManager"/>
-	
-	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory">
-		<constructor-arg index="0" ref="mainWriteSessionFactory"/>
+
+	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.bluedragon.common.dao.migration.DynamicConfigReplicationSqlSessionFactory">
+		<constructor-arg index="0" ref="writeSqlSessionFactory"/>
 		<property name="enable" value="${db.backup.replicate.enable}" />
 		<property name="statementDecider">
 			<bean class="com.jd.bluedragon.common.dao.migration.DmsBackupDataSourceStatementDecider" />
 		</property>
-		<property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
-		<property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
+        <property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
+        <property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
 		<property name="excludedStatements">
 			<list>
 				<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
 				<value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
+				<value>com.jd.bluedragon.distribution.box.dao.BaseDao.reprint</value>
 			</list>
 		</property>
 	</bean>
@@ -118,7 +120,7 @@
 	<!-- dms读库 数据源  -start-->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dmsReadDataSource" />
-		<property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml" />
+		<property name="configLocation" value="classpath:config/oracle/mybatis-config-read.xml" />
 	</bean>
 	
 	
@@ -128,22 +130,14 @@
 	
 	<!-- dms读库 数据源  -end-->
 
+
     <!-- worker配置数据源    -start-->
     
-   <bean id="taskDataSource" parent="parentDataSource">
-	    <property name="url" value="${mysqlTaskDb.url}"/>
-	    <property name="username" value="${mysqlTaskDb.username}" />
-		<property name="password" value="${mysqlTaskDb.password}" />
-	</bean>
-
-	<bean id="mysqlTaskDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="taskDataSource" />
-		<qualifier value="worker"></qualifier>
-	</bean>
-	
     <bean id="workerSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- <property name="dataSource" ref="mysqlTaskDataSource" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-worker.xml" /> -->
         <property name="dataSource" ref="taskDataSource" />
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config-worker.xml" />
+       <property name="configLocation" value="classpath:config/oracle/mybatis-config-worker.xml" />
     </bean>
 
     <bean id="workerSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
@@ -151,11 +145,16 @@
     </bean>
     <!-- worker配置 数据源    -end-->
 
-	<bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">
-		<property name="dataSource" ref="dmsMainSequenceDataSource"/>
+	<!--<bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">-->
+		<!--<property name="dataSource" ref="dms_main"/>-->
+    <!--</bean>-->
+    <!---->
+    <!-- 箱号生成序列号服务 -->
+    <bean id="objectIdService" class="com.jd.bluedragon.distribution.dbs.service.ObjectIdServiceImpl">
     </bean>
-    
-
+    <bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">
+        <property name="objectIdService" ref="objectIdService"/>
+    </bean>
 	
 	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
 		<property name="erroral">
@@ -176,6 +175,35 @@
 		</property>
 	</bean>
 	
+	<!-- new vts baseSetConfig -->
+	<bean id="vtsBaseSetConfig" class="com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig">
+		<property name="erroral">
+			<list>
+				<value>110</value>
+				<value>120</value>
+				<value>130</value>
+				<value>140</value>
+			</list>
+		</property>
+		<property name="sitetype" value="18" />
+		<property name="capacityType">
+			<list>
+				<value>1011</value>
+				<value>1004</value>
+				<value>1001</value>
+			</list>
+		</property>
+	</bean>
+    <!--
+	<util:properties id="mqsenderProperties" location="classpath:configured/mqsender.properties"></util:properties>
+	
+	<bean id="mesageClient" class="com.jd.bluedragon.core.message.produce.client.factory.SingleClientFactory">
+		<property name="appName" value="dms-distribution"/>
+		<property name="properties" ref="mqsenderProperties" />
+		<property name="dataSource" ref="centerDataSource"/>
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+    -->
 	<!-- ump monitor begin common-->
 	<!-- aop动态代理 --> 
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
@@ -185,5 +213,6 @@
 	   <property name="systemKey" value="Bluedragon_dms_center.system.common"></property>
 	</bean-->
 	<!-- ump monitor end common-->
+
 
 </beans>

@@ -20,6 +20,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,13 +81,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      */
     @Override
     public boolean handlePrint(ReversePrintRequest domain) {
-        /*if(BusinessHelper.isPackageCode(domain.getOldCode())){
-            domain.setOldCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getOldCode()));
-        }
 
-        if(BusinessHelper.isPackageCode(domain.getNewCode())){
-            domain.setNewCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getNewCode()));
-        }*/
+        domain.setOperateUnixTime(DateHelper.adjustTimestampToJava(domain.getOperateUnixTime()));
+
         Task tTask = new Task();
         tTask.setKeyword1(domain.getOldCode());
         tTask.setCreateSiteCode(domain.getSiteCode());

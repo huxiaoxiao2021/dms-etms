@@ -56,6 +56,9 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 				response.setBoxCode(sendDetail.getBoxCode());
 				response.setPackagebarcode(sendDetail.getPackageBarcode());
 				response.setSendCode(sendDetail.getSendCode());
+				response.setCreateSiteCode(sendDetail.getCreateSiteCode());
+				response.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+				response.setOperateTime(sendDetail.getOperateTime());
 				sendResponseList.add(response);
 			}
 		}

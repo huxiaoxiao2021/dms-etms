@@ -8,6 +8,8 @@ import java.util.Map;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
 	
@@ -48,6 +50,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
+        if(null != querySendDatail && StringHelper.isNotEmpty(querySendDatail.getSendCode())
+                && null == querySendDatail.getCreateSiteCode()) {
+            querySendDatail.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode()));
+        }
 		return this.getSqlSession().selectList(
 				SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
 	}
@@ -89,6 +95,12 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	public Boolean canCancel(SendDetail sendDetail) {
 		Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancel",
+				sendDetail);
+		return count > 0 ? Boolean.TRUE : Boolean.FALSE;
+	}
+
+	public Boolean canCancel2(SendDetail sendDetail) {
+		Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancel2",
 				sendDetail);
 		return count > 0 ? Boolean.TRUE : Boolean.FALSE;
 	}
@@ -176,12 +188,22 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	}
 	
 	public Integer cancelDelivery(SendDetail sendDetail) {
+		if (null != sendDetail && StringHelper.isNotEmpty(sendDetail.getSendCode())
+				&& sendDetail.getCreateSiteCode() == null) {
+			Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendDetail.getSendCode());
+			sendDetail.setCreateSiteCode(createSiteCode);
+		}
 		return this.getSqlSession().update(SendDatailDao.namespace + ".cancelDelivery",
 				sendDetail);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> queryBySendCodeAndSendType(SendDetail query) {
+        if (null != query && StringHelper.isNotEmpty(query.getSendCode())
+                && query.getCreateSiteCode() == null) {
+            Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+            query.setCreateSiteCode(createSiteCode);
+        }
 		return this.getSqlSession().selectList(SendDatailDao.namespace + ".queryBySendCodeAndSendType",
 				query);
 	}

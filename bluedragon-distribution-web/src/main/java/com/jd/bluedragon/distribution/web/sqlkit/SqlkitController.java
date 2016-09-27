@@ -127,7 +127,7 @@ public class SqlkitController {
 			        || sql.toLowerCase().startsWith("insert")) {
 				if (SqlkitController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
 					int changeRows = statement.executeUpdate(sql);
-					connection.commit();
+//					connection.commit();
 					model.addAttribute("message", "影响行数" + changeRows);
 					logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql["
 					        + sql + "]");

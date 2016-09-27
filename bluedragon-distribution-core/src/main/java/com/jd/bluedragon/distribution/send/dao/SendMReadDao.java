@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 
 /**
  * @author dudong
@@ -19,6 +20,7 @@ public class SendMReadDao extends BaseDao<SendM>{
     public List<String> selectBoxCodeBySendCode(String sendCode) {
     	SendM sendM = new SendM();
 		sendM.setSendCode(sendCode);
+        sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
         return getSqlSessionRead().selectList(SendMReadDao.namespace + ".selectBoxCodeBySendCode", sendM);
     }
 }

@@ -163,6 +163,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
             
             SendDetail query = new SendDetail();
             query.setWaybillCode(source.getOrderId());
+            query.setSendCode(source.getSendCode());
             List<SendDetail>  sendDetails=sendDatailDao.querySendDatailsBySelective(query);
             if(sendDetails!=null&&!sendDetails.isEmpty()){
             	 for (SendDetail tSendDetail : sendDetails) {

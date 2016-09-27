@@ -298,6 +298,26 @@
 		AND m.yn=1
 		)
 	</select>
+
+	<update id="canCancel2" parameterType="sorting">
+		UPDATE Sorting
+		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},
+		update_user = #{updateUser,jdbcType=VARCHAR}, update_time = SYSDATE
+		WHERE yn=1 AND is_cancel = 0
+		AND create_site_code = #{createSiteCode}
+		<if test="packageCode != null">
+			AND package_code = #{packageCode}
+		</if>
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode}
+		</if>
+		<if test=" null!=boxCode and ''!=boxCode ">
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		</if>
+		<if test=" null!=receiveSiteCode and ''!=receiveSiteCode ">
+			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
+		</if>
+	</update>
 	
 	<select id="findByBsendCode" resultMap="sorting" parameterType="sorting">
 		<![CDATA[

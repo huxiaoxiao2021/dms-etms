@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -65,9 +66,11 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testSelectBoxBySendCode() {
-        SendM parameter = new SendM();
-        parameter.setSendCode("Jone");
-        sendMDao.selectBoxBySendCode("Jone");
+//        SendM parameter = new SendM();
+//        parameter.setSendCode("Jone");
+//        sendMDao.selectBoxBySendCode("Jone");
+        Assert.assertNotNull(sendMDao.selectBySendCode("910-39-20160920155200010"));
+        Assert.assertNull(sendMDao.selectBySendCode("910-25016-20160921110921111"));
     }
 	
 	@Test

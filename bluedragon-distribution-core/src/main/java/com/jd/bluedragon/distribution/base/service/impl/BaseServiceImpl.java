@@ -14,10 +14,16 @@ import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.etms.vts.dto.DictDto;
+import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.CarrierParamDto;
+import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -91,6 +97,9 @@ public class BaseServiceImpl implements BaseService {
 
     @Autowired
     private UserVerifyService userVerifyService;
+    
+    @Autowired
+	private VtsQueryWS vtsQueryWS;
 
     @Override
     public BasePdaUserDto pdaUserLogin(String userid, String password) {
@@ -395,6 +404,63 @@ public class BaseServiceImpl implements BaseService {
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
 			log.error("调用basicMajorServiceProxy.getBaseDataDictList()异常，待查询类型为：" + stypeGroup, e);
+		}
+		return null;
+	}
+	
+	/**
+	 * vtsQueryWS.getDictList()接口，获取字典数据
+	 * add by lhc
+	 * 2016.9.1
+	 */
+	@Override
+	public DictDto[] getDictListByGroupType(List<Integer> typeGroups) {
+		/** 查询错误信息列表 */
+		try {
+			ArrayList<DictDto> resultal = new ArrayList<DictDto>();
+			for (Integer typeGroup : typeGroups) {
+				log.info("调用vtsQueryWS.getDictList(" + typeGroup + ",2, "+ typeGroup + ")接口");
+				List<DictDto> dictDtoList = new ArrayList<DictDto>();
+				String typeGroupStr = String.valueOf(typeGroup);
+				CommonDto<List<DictDto>> commonDtoList = vtsQueryWS.getDictList(typeGroupStr, 2, typeGroupStr);
+				dictDtoList = commonDtoList.getData();
+				if (dictDtoList != null && dictDtoList.size() > 0) {
+					resultal.addAll(dictDtoList);
+				}else{
+					log.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+				}
+			}
+			return resultal.toArray(new DictDto[0]);
+		} catch (Exception e) {
+			StringBuilder sb = new StringBuilder();
+			for (Integer typeGroup : typeGroups) {
+				sb.append(typeGroup);
+				sb.append(",");
+			}
+			String stypeGroup = sb.toString();
+			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
+			        : stypeGroup;
+			log.error("调用vtsQueryWS.getDictList()异常，待查询类型为：" + stypeGroup, e);
+		}
+		return null;
+	}
+	
+	/**
+	 * 承运商列表
+	 * add by lhc
+	 * 2016.9.1
+	 */
+	public List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto){
+		try{
+			CommonDto<List<CarrierInfo>> commonDtoList = vtsQueryWS.getCarrierInfoList(carrierParamDto);
+			List<CarrierInfo> carrierInfoList = commonDtoList.getData();
+			if (carrierInfoList != null && carrierInfoList.size() > 0) {
+				return carrierInfoList;
+			}else{
+				log.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+			}
+		}catch(Exception e){
+			log.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常", e);
 		}
 		return null;
 	}

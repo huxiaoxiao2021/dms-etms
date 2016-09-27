@@ -1450,7 +1450,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
             workerProducer.send(messageList);
         } catch (Exception e) {
-            logger.warn(String.format("推送维修外单MQ失败, 发货明细 : s%", JsonHelper.toJson(sendDetailList)), e);
+            logger.warn(String.format("推送维修外单MQ失败, 发货明细 : %s", JsonHelper.toJson(sendDetailList)), e);
         }
 
     }

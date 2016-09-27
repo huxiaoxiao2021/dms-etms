@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
+
+	<sql id="Base_Insert_Column_List">
+		 keyword, value
+	</sql>
+
+	<insert id="add">
+		INSERT INTO kv_index(
+		<include refid="Base_Insert_Column_List" />
+		)
+		VALUES(
+		#{keyword,jdbcType=INTEGER},
+		#{value,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<select id="queryByKeyword" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+			DISTINCT(value)
+		FROM kv_index
+		WHERE keyword = #{keyword}
+	</select>
+
+    <delete id="deleteByKey" parameterType="java.lang.String">
+        DELETE
+        FROM kv_index
+        WHERE keyword = #{keyword}
+    </delete>
+</mapper>

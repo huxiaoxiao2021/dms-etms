@@ -107,7 +107,7 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 			taskPopRecieveCount.setExecuteCount(0);
 			taskPopRecieveCount.setTaskType(1040);
 
-			taskPopRecieveCount.setOwnSign(getOwnSign());
+			taskPopRecieveCount.setOwnSign(BusinessHelper.getOwnSign());
 			taskPopRecieveCount.setActualNum(popReceive.getActualNum());
 			if (originalNum != null) {
 				taskPopRecieveCount.setThirdWaybillCode(popReceive.getThirdWaybillCode() + "#"
@@ -163,7 +163,7 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 			taskPopRecieveCount.setTaskStatus(0);
 			taskPopRecieveCount.setExecuteCount(0);
 			taskPopRecieveCount.setTaskType(1040);
-			taskPopRecieveCount.setOwnSign(getOwnSign());
+			taskPopRecieveCount.setOwnSign(BusinessHelper.getOwnSign());
 			n = this.insert(taskPopRecieveCount);
 		} else {
 			TaskPopRecieveCount oldObj = oldDataList.get(0);
@@ -227,15 +227,6 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 
         bdPopReceivecountMQ.send(String.valueOf(System.currentTimeMillis()),jsonStr);
 		messageLog.info("向POP回传收货信息【" + jsonStr + "】成功");
-
-	}
-
-	public String getOwnSign() {
-		String ownSign = BusinessHelper.getOwnSign();
-		if (StringUtils.isEmpty(ownSign)) {
-			ownSign = "DMS";
-		}
-		return ownSign;
 
 	}
 

@@ -85,7 +85,7 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 		SendDetail send = new SendDetail();
 		send.setWaybillCode(waybillCode);
 		List<SendDetail> sendlist = sendDatailDao
-				.querySendDatailsBySelective(send);
+				.querySendDatailsBySelective(send);//FIXME:无create_site_code有跨节点风险
 		if (sendlist.isEmpty()) {
 			logger.error("JOS获取订单信息,订单没有发货记录" + waybillCode);
 			return new WaybillInfoResponse(JdResponse.CODE_OK_NULL,

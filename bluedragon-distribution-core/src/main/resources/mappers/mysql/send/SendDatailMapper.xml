@@ -144,6 +144,24 @@
 			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
 		</if>
 	</update>
+
+	<update id="canCancel2" parameterType="SendDetail">
+		UPDATE Send_d
+		SET is_cancel = 1, update_time = NOW()
+		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="packageBarcode != null">
+			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test=" null!=boxCode and ''!=boxCode ">
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		</if>
+		<if test=" null!=receiveSiteCode and ''!=receiveSiteCode ">
+			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
+		</if>
+	</update>
 	
 	<update id="canCancelFuzzy" parameterType="SendDetail">
 		UPDATE Send_d 
@@ -180,6 +198,9 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and is_cancel=0  and box_code=#{boxCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            create_site_code = #{createSiteCode,jdbcType=INTEGER},
+        </if>
 	</select>
 	
 	<select id="querySendDatailsByPackageCode" parameterType="SendDetail"
@@ -187,6 +208,9 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and is_cancel=0 and receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} and box_code=#{boxCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            create_site_code = #{createSiteCode,jdbcType=INTEGER},
+        </if>
 	</select>
 
 	<select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
@@ -392,7 +416,7 @@
 				<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 				</if>
-				update_time = sysdate ,
+				update_time = NOW() ,
 				excute_count = (excute_count + 1)
 				<if test="status == 1">
 					, excute_time = (excute_time + 15/(24*60))
@@ -441,7 +465,7 @@
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=1 and sed.send_type = 10  and sed.is_cancel in (0,2)
 		AND sed.excute_count < 5
-		AND sed.excute_time < SYSDATE
+		AND sed.excute_time < NOW()
 		and rownum <=300]]>
 	</select>
 
@@ -641,7 +665,10 @@
 		SELECT 
 		waybill_code 
 		FROM send_d where yn=1 and
-		send_code=#{sendCode,jdbcType=VARCHAR} 
+		send_code=#{sendCode,jdbcType=VARCHAR}
+        <if test="createSiteCode!=null">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
 		<if test = "null!=sendType">
 			and send_type = #{sendType,jdbcType=SMALLINT}
 		</if>

@@ -230,6 +230,8 @@
         
         <!-- xumei -->
         <mapper resource="mappers/oracle/crossbox/CrossBoxMapper.xml"/>
-	</mappers>
+        <mapper resource="mappers/oracle/dbs/objectIdMapper.xml" />
+        <mapper resource="mappers/oracle/kvIndex/KvIndexMapper.xml" />
+    </mappers>
 	
 </configuration>

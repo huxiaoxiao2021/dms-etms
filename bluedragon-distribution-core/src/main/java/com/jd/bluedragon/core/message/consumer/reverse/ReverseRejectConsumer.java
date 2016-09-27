@@ -52,7 +52,7 @@ public class ReverseRejectConsumer extends MessageBaseConsumer {
 		//添加订单处理，判断是否是T单 2016-1-8
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setWaybillCode(Constants.T_WAYBILL + request.getOrderId());
-		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);//FIXME:无create_site_code有跨节点风险
 		if (sendDatailist != null && !sendDatailist.isEmpty())
 			request.setOrderId(Constants.T_WAYBILL + request.getOrderId());
 

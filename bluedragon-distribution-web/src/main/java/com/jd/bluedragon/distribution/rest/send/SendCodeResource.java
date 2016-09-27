@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -42,7 +43,6 @@ public class SendCodeResource {
 	
 	private static final String TASK_REVERSE_SEND_BUSINESS = "30";
 	private static final String TASK_REVERSE_SEND_NODIFY = "3";
-	private static final String OWN_SIGN_DMS = "DMS";
 
 	@Autowired
 	private SiteService siteService;
@@ -144,7 +144,7 @@ public class SendCodeResource {
 			task.setType(Task.TASK_TYPE_SEND_DELIVERY);
 			task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
 			task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
-			task.setOwnSign(SendCodeResource.OWN_SIGN_DMS);
+			task.setOwnSign(BusinessHelper.getOwnSign());
 
 			this.taskService.add(task);
 		}
