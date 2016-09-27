@@ -46,7 +46,7 @@
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
-	<bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailIndexDao">
+	<bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao">
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
@@ -210,7 +210,7 @@
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 	
-	<bean id="SendDatailReadDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailReadIndexDao" depends-on="sessionTemplate">
+	<bean id="SendDatailReadDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailReadRouterDao" depends-on="sessionTemplate">
 		<property name="sqlSession" ref="sessionTemplate" />
 		<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
 	</bean>
