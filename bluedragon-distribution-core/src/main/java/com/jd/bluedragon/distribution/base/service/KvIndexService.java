@@ -6,6 +6,6 @@ public interface KvIndexService {
 
 	int add(String keyword, String value);
 
-	public List<String> queryByKeyword(String keyword);
+	public List<Integer> queryCreateSiteCodesByKey(String keyword);
 
 }
