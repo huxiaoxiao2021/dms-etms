@@ -6,6 +6,8 @@ import java.util.*;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -17,7 +19,9 @@ public class KvIndexDao extends BaseDao<KvIndex> {
 
 	public static final String namespace = KvIndexDao.class.getName();
 
-	public List<String> queryByKeyword(String keyword) {
+
+
+    private List<String> queryByKeyword(String keyword) {
 		return this.getSqlSession().selectList(namespace + ".queryByKeyword", keyword);
 	}
 
@@ -31,7 +35,23 @@ public class KvIndexDao extends BaseDao<KvIndex> {
      * @return
      */
     public List<Integer> queryCreateSiteCodesByKey(String keyword){
+        CallerInfo info = Profiler.registerInfo("DMSDAO.KvIndexDao.queryCreateSiteCodesByKey", false, true);
+        List<Integer> result=selectCreateSiteCodes(keyword);
+        Profiler.registerInfoEnd(info);
+        return result;
+    }
 
+    private List<Integer> selectCreateSiteCodes(String keyword){
+        if(StringUtils.isBlank(keyword)){
+            return new ArrayList<Integer>(0);
+        }
+        keyword=keyword.trim().toUpperCase();
+        if(keyword.length()>50){
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("KEY={0}值超过50，截断为50",keyword));
+            }
+            keyword=keyword.substring(0,50);
+        }
         List<String> values= this.getSqlSession().selectList(namespace + ".queryByKeyword", keyword);
         if(null==values||values.size()==0){
             return new ArrayList<Integer>(0);
@@ -41,7 +61,7 @@ public class KvIndexDao extends BaseDao<KvIndex> {
                 try {
                     sets.add(NumberUtils.createInteger(item));
                 }catch (Throwable throwable){
-                    LOGGER.error(MessageFormat.format("分库索引值转成为数字失败keyword:{0}",keyword),throwable);
+                    LOGGER.error(MessageFormat.format("分库索引值转成为数字失败keyword:{0}", keyword), throwable);
                 }
             }
             return new ArrayList<Integer>(sets);
@@ -49,6 +69,33 @@ public class KvIndexDao extends BaseDao<KvIndex> {
     }
 
     public Integer add(KvIndex entity) {
+        CallerInfo info = Profiler.registerInfo("DMSDAO.KvIndexDao.add", false, true);
+        Integer result=addEntity(entity);
+        Profiler.registerInfoEnd(info);
+        return result;
+    }
+
+    private Integer addEntity(KvIndex entity){
+        if(null==entity||StringUtils.isBlank(entity.getKeyword())||StringUtils.isBlank(entity.getValue())){
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("索引对象有空值{0}",JsonHelper.toJson(entity)));
+            }
+            return 0;
+        }
+        entity.setKeyword(entity.getKeyword().trim().toUpperCase());
+        entity.setValue(entity.getValue().trim().toUpperCase());
+        if(entity.getKeyword().length()>50){
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("KEY={0}值超过50，截断为50",entity.getKeyword()));
+            }
+            entity.setKeyword(entity.getKeyword().substring(0,50));
+        }
+        if (entity.getValue().length() > 50) {
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("VALUE={0}值超过50，截断为50",entity.getValue()));
+            }
+            entity.setValue(entity.getValue().substring(0,50));
+        }
         return super.add(namespace, entity);
     }
 
