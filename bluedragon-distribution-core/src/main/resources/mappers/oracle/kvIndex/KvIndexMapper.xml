@@ -20,7 +20,7 @@
 		VALUES(
         SEQ_KV_INDEX.NEXTVAL,
 		#{keyword,jdbcType=INTEGER},
-		#{value,jdbcType=VARCHAR},
+		#{value,jdbcType=VARCHAR}
 		)
 	</insert>
 	

@@ -38,7 +38,7 @@ public class SendMRouter extends SendMDao {
         index.setKeyword(entity.getBoxCode());
         index.setValue(String.valueOf(entity.getCreateSiteCode()));
         kvIndexDao.add(index);
-        return super.add(namespace, entity);
+        return super.add(SendMDao.namespace, entity);
     }
 
     /**

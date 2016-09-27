@@ -19,7 +19,7 @@
 		)
 		VALUES(
 		#{keyword,jdbcType=INTEGER},
-		#{value,jdbcType=VARCHAR},
+		#{value,jdbcType=VARCHAR}
 		)
 	</insert>
 	
