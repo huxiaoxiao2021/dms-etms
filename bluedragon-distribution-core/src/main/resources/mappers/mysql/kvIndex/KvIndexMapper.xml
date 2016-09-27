@@ -8,6 +8,7 @@
 		<id column="keyword" property="keyword" jdbcType="VARCHAR" />
 		<id column="value" property="value" jdbcType="VARCHAR" />
 	</resultMap>
+    <resultMap id="valueMap" type="java.lang.String"></resultMap>
 
 	<sql id="Base_Insert_Column_List">
 		 keyword, value
@@ -23,7 +24,7 @@
 		)
 	</insert>
 	
-	<select id="queryByKeyword" resultMap="kvIndex" parameterType="java.lang.String">
+	<select id="queryByKeyword" resultMap="valueMap" parameterType="java.lang.String">
 		SELECT
 			value
 		FROM kv_index

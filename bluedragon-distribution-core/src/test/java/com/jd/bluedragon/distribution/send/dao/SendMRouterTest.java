@@ -22,35 +22,35 @@ public class SendMRouterTest extends AbstractDaoIntegrationTest {
     @Autowired
     private KvIndexDao kvIndexDao;
 
-    @Test
-    public void testAdd() {
-        List<Integer> createSiteCode=new ArrayList<Integer>();
-        createSiteCode.add(Integer.valueOf(908));
-        createSiteCode.add(Integer.valueOf(910));
-        createSiteCode.add(Integer.valueOf(2015));
-        createSiteCode.add(Integer.valueOf(1609));
-        createSiteCode.add(Integer.valueOf(1610));
-        SendM domain=new SendM();
-        domain.setBoxCode("BC010F005027F00200000012");
-        for (Integer item :createSiteCode){
-            domain.setCreateSiteCode(item);
-            sendMRouter.add(StringUtils.EMPTY, domain);
-        }
-        List<Integer> list= kvIndexDao.queryCreateSiteCodesByKey("BC010F005027F00200000012");
-        Integer result=0;
-        for (Integer item:list){
-            for (Integer value:createSiteCode){
-                if(item.equals(value)){
-                    ++result;
-                }
-            }
+//    @Test
+//    public void testAdd() {
+//        List<Integer> createSiteCode=new ArrayList<Integer>();
+//        createSiteCode.add(Integer.valueOf(908));
+//        createSiteCode.add(Integer.valueOf(910));
+//        createSiteCode.add(Integer.valueOf(2015));
+//        createSiteCode.add(Integer.valueOf(1609));
+//        createSiteCode.add(Integer.valueOf(1610));
+//        SendM domain=new SendM();
+//        domain.setBoxCode("BC010F005027F00200000012");
+//        for (Integer item :createSiteCode){
+//            domain.setCreateSiteCode(item);
+//            sendMRouter.add(StringUtils.EMPTY, domain);
+//        }
+//        List<Integer> list= kvIndexDao.queryCreateSiteCodesByKey("BC010F005027F00200000012");
+//        Integer result=0;
+//        for (Integer item:list){
+//            for (Integer value:createSiteCode){
+//                if(item.equals(value)){
+//                    ++result;
+//                }
+//            }
+//
+//        }
+//        Assert.assertEquals(result.intValue(),createSiteCode.size());
+//    }
 
-        }
-        Assert.assertEquals(result.intValue(),createSiteCode.size());
-    }
 
-
-//    @Override
+    //    @Override
 //    public SendM get(String namespace, Long pk) {
 //        return super.get(namespace, pk);
 //    }
@@ -105,10 +105,33 @@ public class SendMRouterTest extends AbstractDaoIntegrationTest {
 //        return super.findSendMByBoxCode(sendM);
 //    }
 //
-//    @Override
-//    public boolean insertSendM(SendM dSendM) {
-//        return super.insertSendM(dSendM);
-//    }
+    @Test
+    public void testInsertSendM() {
+        List<Integer> createSiteCode = new ArrayList<Integer>();
+        createSiteCode.add(Integer.valueOf(908));
+        createSiteCode.add(Integer.valueOf(910));
+        createSiteCode.add(Integer.valueOf(2015));
+        createSiteCode.add(Integer.valueOf(1609));
+        createSiteCode.add(Integer.valueOf(1610));
+        SendM domain = new SendM();
+        domain.setBoxCode("BC010F005027F00200000012");
+        for (Integer item : createSiteCode) {
+            domain.setCreateSiteCode(item);
+            sendMRouter.insertSendM(domain);
+        }
+        List<Integer> list = kvIndexDao.queryCreateSiteCodesByKey("BC010F005027F00200000012");
+        Integer result = 0;
+        for (Integer item : list) {
+            for (Integer value : createSiteCode) {
+                if (item.equals(value)) {
+                    ++result;
+                }
+            }
+
+        }
+        Assert.assertEquals(result.intValue(), createSiteCode.size());
+    }
+
 //
 //    @Override
 //    public int updateBySendCodeSelective(SendM record) {
@@ -144,4 +167,5 @@ public class SendMRouterTest extends AbstractDaoIntegrationTest {
 //    public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 //        return super.selectOneBySiteAndSendCode(createSiteCode, sendCode);
 //    }
+
 }

@@ -37,7 +37,7 @@ public class KvIndexDao extends BaseDao<KvIndex> {
                 try {
                     sets.add(NumberUtils.createInteger(item));
                 }catch (Throwable throwable){
-                    LOGGER.fatal(MessageFormat.format("分库索引值转成为数字失败keyword:{0}",keyword),throwable);
+                    LOGGER.error(MessageFormat.format("分库索引值转成为数字失败keyword:{0}",keyword),throwable);
                 }
             }
             return new ArrayList<Integer>(sets);
