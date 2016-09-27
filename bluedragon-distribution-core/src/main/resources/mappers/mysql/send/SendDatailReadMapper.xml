@@ -33,8 +33,8 @@
 		sed.send_d_id, sem.send_code, sed.box_code, sed.package_barcode,sed.pickup_code, sed.waybill_code, 
 		sem.send_type,sem.create_site_code, 
         sem.receive_site_code, sem.operate_time,sem.update_time, sem.create_user, sed.is_cancel,sem.create_user_code,sem.yn
-		From DMS.send_d  sed  
-		Inner Join DMS.send_m sem  On sed.box_code = sem.box_code 
+		From send_d  sed  
+		Inner Join send_m sem  On sed.box_code = sem.box_code 
         and sed.receive_site_code= sem.receive_site_code
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=0
@@ -48,7 +48,7 @@
 	<select id="findWaybillByBoxCode" parameterType="String"
 		resultType="String">
 		select distinct waybill_code
-		from dms.send_d
+		from send_d
 		where box_code=#{boxCode} and yn=1
         <if test="createSiteCode != null">
             and create_site_code = #{createSiteCode,jdbcType=INTEGER},
@@ -57,10 +57,10 @@
 	
 	<select id="findSendBoxByWaybillCode" parameterType="java.util.Map" resultMap="SendDetail">
 		select send_code,box_code,package_barcode,create_site_code,receive_site_code,operate_time
-              from DMS.send_d
+              from send_d
               where yn = 1 and waybill_code = #{waybillCode}
         <if test="createSiteCode != null">
-            and create_site_code = #{createSiteCode,jdbcType=INTEGER},
+            and create_site_code in (${createSiteCode})
         </if>
               order by create_time desc
         limit 1 
@@ -71,7 +71,7 @@
 			send_code, box_code, package_barcode, package_num, waybill_code,
 			create_site_code, create_time, create_user, create_user_code, weight
 		FROM 
-		    dms.send_d
+		    send_d
 		WHERE 
 		  	yn = 1 AND send_code IN
 		  	<foreach collection="sendCodeList" item="item" index="index" open="(" close=")" separator=",">

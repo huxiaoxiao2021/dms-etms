@@ -14,7 +14,10 @@ public  class SendMDao extends BaseDao<SendM>  {
 	
 	public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
-		querySendM.setCreateSiteCode(createSiteCode);
+        querySendM.setCreateSiteCode(createSiteCode);
+        if(null == createSiteCode) {
+            querySendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
+        }
 		querySendM.setSendCode(sendCode);
 		return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectOneBySiteAndSendCode", querySendM);
 	}

@@ -1,7 +1,12 @@
 package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -11,16 +16,27 @@ import java.util.List;
  */
 public class SendDetailIndexDao extends SendDatailDao{
 
+    private static final Log logger = LogFactory.getLog(SendDetailIndexDao.class);
+
     @Autowired
     private KvIndexDao kvIndexDao;
 
     @Override
     public Integer add(String namespace, SendDetail entity) { //// FIXME: 2016/9/26
+        try {
+            KvIndex kvIndex = new KvIndex();
+            kvIndex.setKeyword(entity.getWaybillCode());
+            kvIndex.setValue(String.valueOf(entity.getCreateSiteCode()));
+            kvIndexDao.add(KvIndexDao.namespace,kvIndex);
+            kvIndex.setKeyword(entity.getBoxCode());
+        } catch (Throwable e) {
+            logger.error("保存到中间索引表失败 " + JsonHelper.toJson(entity), e);
+        }
         return super.add(namespace, entity);
     }
 
     @Override
-    public Integer update(String namespace, SendDetail entity) { //// FIXME: 2016/9/26 
+    public Integer update(String namespace, SendDetail entity) {
         return super.update(namespace, entity);
     }
 
@@ -40,7 +56,7 @@ public class SendDetailIndexDao extends SendDatailDao{
     }
 
     @Override
-    public SendDetail queryOneSendDatailByBoxCode(String boxCode) {
+    public SendDetail queryOneSendDatailByBoxCode(String boxCode) { //// FIXME: 2016/9/26
         return super.queryOneSendDatailByBoxCode(boxCode);
     }
 
@@ -115,7 +131,7 @@ public class SendDetailIndexDao extends SendDatailDao{
     }
 
     @Override
-    public List<SendDetail> querySendCodesByWaybills(String waybillCodeIn) {
+    public List<SendDetail> querySendCodesByWaybills(String waybillCodeIn) { //// FIXME: 2016/9/26 
         return super.querySendCodesByWaybills(waybillCodeIn);
     }
 
@@ -145,12 +161,12 @@ public class SendDetailIndexDao extends SendDatailDao{
     }
 
     @Override
-    public List<SendDetail> findDeliveryPackageBySite(SendDetail query) {
+    public List<SendDetail> findDeliveryPackageBySite(SendDetail query) { //// FIXME: 2016/9/26 
         return super.findDeliveryPackageBySite(query);
     }
 
     @Override
-    public List<SendDetail> findDeliveryPackageByCode(SendDetail query) {
+    public List<SendDetail> findDeliveryPackageByCode(SendDetail query) { //// FIXME: 2016/9/26
         return super.findDeliveryPackageByCode(query);
     }
 

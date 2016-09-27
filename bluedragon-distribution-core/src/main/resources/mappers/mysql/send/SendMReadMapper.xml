@@ -49,7 +49,7 @@
     <select id="findSendMByBoxCode" parameterType="SendM"  resultMap="SendM">
         select
         <include refid="Base_Column_List" />
-        from  DMS.send_m
+        from  send_m
         <where>
             yn=1
             <if test="createSiteCode!=null">
@@ -70,7 +70,7 @@
             resultMap="SendMList">
         select
         	box_code
-        from DMS.send_m
+        from send_m
         where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
     </select>
 </mapper>
