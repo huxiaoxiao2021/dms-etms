@@ -1,20 +1,5 @@
 package com.jd.bluedragon.distribution.web.crossbox;
 
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
@@ -28,7 +13,25 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * 跨分拣箱号中转维护
@@ -48,27 +51,50 @@ public class CrossBoxController {
 	private BaseMajorManager baseSiteManager;
 
 	@RequestMapping("/index")
-	public String index(Model model) {
+	public String index(CrossBoxRequest crossBoxRequest, Model model) {
+			if(!ObjectMapHelper.makeObject2Map(crossBoxRequest).isEmpty()){
+				HashMap queryInfo = new HashMap();/** 用于传入查询参数，只用在数据返回 **/
+				try{
+					queryInfo.put("originateOrg",crossBoxRequest.getOriginateOrg());
+					queryInfo.put("originateOrgName",URLDecoder.decode(crossBoxRequest.getOriginateOrgName(),"UTF-8"));
+					queryInfo.put("originalDmsName", URLDecoder.decode(crossBoxRequest.getOriginalDmsName(),"UTF-8"));
+					queryInfo.put("updateOperatorName",URLDecoder.decode(crossBoxRequest.getUpdateOperatorName(),"UTF-8"));
+					queryInfo.put("destinationOrg",crossBoxRequest.getDestinationOrg());
+					queryInfo.put("destinationOrgName",URLDecoder.decode(crossBoxRequest.getDestinationOrgName(),"UTF-8"));
+					queryInfo.put("destinationDmsName",URLDecoder.decode(crossBoxRequest.getDestinationDmsName(),"UTF-8"));
+					queryInfo.put("startDate",crossBoxRequest.getStartDate());
+					queryInfo.put("endDate",crossBoxRequest.getEndDate());
+					queryInfo.put("transferOrg",crossBoxRequest.getTransferOrg());
+					queryInfo.put("transferOrgName",URLDecoder.decode(crossBoxRequest.getTransferOrgName(),"UTF-8"));
+					queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
+					queryInfo.put("yn",crossBoxRequest.getYn());
+				}catch(UnsupportedEncodingException e){
+					logger.error("查询条件参数解码异常：",e);
+				}
+				model.addAttribute("queryInfo",queryInfo);
+			}
+
+
 		return "crossbox/list";
 	}
 
 	@RequestMapping("/query")
 	@ResponseBody
-	public CrossBoxResponse<Pager<List<CrossBox>>> query(CrossBoxRequest csrossBoxRequest, Pager<List<CrossBox>> pager) {
+	public CrossBoxResponse<Pager<List<CrossBox>>> query(CrossBoxRequest crossBoxRequest, Pager<List<CrossBox>> pager) {
 		CrossBoxResponse<Pager<List<CrossBox>>> crossBoxResponse = new CrossBoxResponse<Pager<List<CrossBox>>>();
 		try {
-			if (csrossBoxRequest != null) {
-				if (StringUtils.isNotBlank(csrossBoxRequest.getCreateDateString())) {
-					Date createdate = DateHelper.parseDate(csrossBoxRequest.getCreateDateString());
-					csrossBoxRequest.setCreateDate(createdate);
+			if (crossBoxRequest != null) {
+				if (StringUtils.isNotBlank(crossBoxRequest.getCreateDateString())) {
+					Date createdate = DateHelper.parseDate(crossBoxRequest.getCreateDateString());
+					crossBoxRequest.setCreateDate(createdate);
 				}
-				if (StringUtils.isNotBlank(csrossBoxRequest.getUpdateDateString())) {
-					Date updatedate = DateHelper.parseDate(csrossBoxRequest.getUpdateDateString());
-					csrossBoxRequest.setUpdateDate(updatedate);
+				if (StringUtils.isNotBlank(crossBoxRequest.getUpdateDateString())) {
+					Date updatedate = DateHelper.parseDate(crossBoxRequest.getUpdateDateString());
+					crossBoxRequest.setUpdateDate(updatedate);
 				}
 			}
 
-			List<CrossBox> resultList = crossBoxService.queryByCondition(csrossBoxRequest, pager);
+			List<CrossBox> resultList = crossBoxService.queryByCondition(crossBoxRequest, pager);
 
 			// 设置分页对象
 			if (pager == null) {
@@ -93,7 +119,25 @@ public class CrossBoxController {
 	}
 
 	@RequestMapping("/toEdit")
-	public String toEdit(Integer id, Model model) {
+	public String toEdit(Integer id, CrossBoxRequest crossBoxRequest, Model model) {
+		HashMap queryInfo = new HashMap();/** 组装查询条件 **/
+		try{
+			queryInfo.put("originateOrg",crossBoxRequest.getOriginateOrg());
+			queryInfo.put("originateOrgName",URLDecoder.decode(crossBoxRequest.getOriginateOrgName(),"UTF-8"));
+			queryInfo.put("originalDmsName", URLDecoder.decode(crossBoxRequest.getOriginalDmsName(),"UTF-8"));
+			queryInfo.put("updateOperatorName",URLDecoder.decode(crossBoxRequest.getUpdateOperatorName(),"UTF-8"));
+			queryInfo.put("destinationOrg",crossBoxRequest.getDestinationOrg());
+			queryInfo.put("destinationOrgName",URLDecoder.decode(crossBoxRequest.getDestinationOrgName(),"UTF-8"));
+			queryInfo.put("destinationDmsName",URLDecoder.decode(crossBoxRequest.getDestinationDmsName(),"UTF-8"));
+			queryInfo.put("startDate",crossBoxRequest.getStartDate());
+			queryInfo.put("endDate",crossBoxRequest.getEndDate());
+			queryInfo.put("transferOrg",crossBoxRequest.getTransferOrg());
+			queryInfo.put("transferOrgName",URLDecoder.decode(crossBoxRequest.getTransferOrgName(),"UTF-8"));
+			queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
+			queryInfo.put("yn",crossBoxRequest.getYn());
+		}catch(UnsupportedEncodingException e){
+			logger.error("对查询条件中的汉字解码失败：",e);
+		}
 		try {
 			CrossBox crossBox = crossBoxService.getCrossBoxById(id);
 			model.addAttribute("originateOrgId", getSiteOrgId(crossBox.getOriginalDmsId()));
@@ -112,6 +156,7 @@ public class CrossBoxController {
 			model.addAttribute("transferThreeOrgName", getSiteOrgName(crossBox.getTransferThreeId()));
 
 			model.addAttribute("crossDmsBox", crossBox);
+			model.addAttribute("queryInfo",queryInfo);/** 渲染出查询参数 **/
 		} catch (Exception e) {
 			logger.error("进入跨分拣箱号中转修改页面异常：", e);
 		}

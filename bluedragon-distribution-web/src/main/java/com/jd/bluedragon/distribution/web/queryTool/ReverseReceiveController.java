@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.queryTool;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.response.QueryBaseResponse;
 import com.jd.bluedragon.distribution.queryTool.domain.ReverseReceive;
+import com.jd.bluedragon.distribution.queryTool.domain.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.queryTool.service.ReverseReceiveService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import org.apache.commons.logging.Log;
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 
 @Controller
-@RequestMapping("/query_reversereceive")
+@RequestMapping("/reverseReceive")
 public class ReverseReceiveController {
     @Autowired
     ReverseReceiveService queryReverseReceiveService;
@@ -34,14 +35,14 @@ public class ReverseReceiveController {
         return "queryTool/reversereceive";
     }
 
-    @RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public QueryBaseResponse<Pager<List<ReverseReceive>>> query(ReverseReceive reverseReceiveDomain, Pager<List<ReverseReceive>> pager) {
+    public QueryBaseResponse<Pager<List<ReverseReceive>>> query(ReverseReceiveRequest request, Pager<List<ReverseReceive>> pager) {
         QueryBaseResponse<Pager<List<ReverseReceive>>> queryBaseResponse = new QueryBaseResponse<Pager<List<ReverseReceive>>>();
         try {
             logger.info("reverse_receive 表查询");
 
-            Map<String, Object> params = ObjectMapHelper.makeObject2Map(reverseReceiveDomain);
+            Map<String, Object> params = ObjectMapHelper.makeObject2Map(request);
             List<ReverseReceive> resultList = queryReverseReceiveService.queryByCondition(params, pager);
 
             if (pager == null) {

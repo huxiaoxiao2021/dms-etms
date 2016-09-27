@@ -38,7 +38,10 @@ function main() {
 }
 
 function goAddBtnClick() {
-    location.href = $("#contextPath").val() + "/autosorting/sortScheme/goAdd";
+    //获取分拣中心控件的值
+    var siteCode = $("#siteNo").val();
+    var siteName = $("#siteNo").find("option:selected").text();
+    location.href = $("#contextPath").val() + "/autosorting/sortScheme/goAdd?siteCode=" + siteCode + "&siteName=" + encodeURIComponent(encodeURIComponent(siteName));
 }
 
 function goDetailClick(id) {

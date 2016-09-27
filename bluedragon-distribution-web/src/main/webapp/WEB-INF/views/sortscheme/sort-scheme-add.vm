@@ -63,7 +63,7 @@
 
             </div>
             <select id="siteNo" class="sortscheme_query_select">
-                <option value="">所有分拣中心</option>
+                <option value="$!{siteCode}">$!{siteName}</option>
             </select>
         </div>
         <div class="column_div">

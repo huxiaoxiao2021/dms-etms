@@ -1,3 +1,9 @@
+// document.ready(function(){
+// 	$("#search").click(function(){
+//
+// 	})
+// })
+
 function queryBtn(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
@@ -16,7 +22,7 @@ function getParams() {
 }
 
 function doQuery(params) {
-	var url = $("#contextPath").val() + "/query_reversereceive/query";
+	var url = $("#contextPath").val() + "/reverseReceive/query";
 	CommonClient.post(url, params, function(data) {
 		if (data == undefined || data == null) {
 			jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
@@ -88,7 +94,7 @@ function doQuery(params) {
 							pager.totalNo));
 
 		} else {
-			alert('提示:', data.message, 'info');
+			jQuery.messager.alert('提示：',data.message,'info');
 		}
 	});
 }

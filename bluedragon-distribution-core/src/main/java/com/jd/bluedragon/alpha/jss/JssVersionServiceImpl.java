@@ -91,7 +91,8 @@ public class JssVersionServiceImpl implements JssVersionService {
     public URI downloadVersion(String versionId)throws MalformedURLException {
         JingdongStorageService jss = getJss();
 
-        URI uri = jss.bucket(bucket).object(versionId).generatePresignedUrl(10000);//获得带有预签名的下载地址timeout == 10000
+        String key = versionId + ".rar";/** JSS的key值是版本号加上.rar的文件后缀 **/
+        URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(10000);//获得带有预签名的下载地址timeout == 10000
         return uri;
     }
 
@@ -127,7 +128,7 @@ public class JssVersionServiceImpl implements JssVersionService {
         this.endpoint = endpoint;
     }
 
-    public long getConnectionTimeout() {
+    public int getConnectionTimeout() {
         return connectionTimeout;
     }
 
@@ -135,7 +136,7 @@ public class JssVersionServiceImpl implements JssVersionService {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public long getSocketTimeout() {
+    public int getSocketTimeout() {
         return socketTimeout;
     }
 
