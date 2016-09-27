@@ -19,11 +19,11 @@
 		)
 		VALUES(
 		#{keyword,jdbcType=INTEGER},
-		#{value,jdbcType=VARCHAR},
+		#{value,jdbcType=VARCHAR}
 		)
 	</insert>
 	
-	<select id="queryByKeyword" resultMap="kvIndex" parameterType="java.lang.String">
+	<select id="queryByKeyword" resultType="java.lang.String" parameterType="java.lang.String">
 		SELECT
 			value
 		FROM kv_index

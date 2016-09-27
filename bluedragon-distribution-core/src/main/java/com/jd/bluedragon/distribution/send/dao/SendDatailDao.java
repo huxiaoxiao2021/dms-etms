@@ -199,6 +199,11 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> queryBySendCodeAndSendType(SendDetail query) {
+        if (null != query && StringHelper.isNotEmpty(query.getSendCode())
+                && query.getCreateSiteCode() == null) {
+            Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+            query.setCreateSiteCode(createSiteCode);
+        }
 		return this.getSqlSession().selectList(SendDatailDao.namespace + ".queryBySendCodeAndSendType",
 				query);
 	}
