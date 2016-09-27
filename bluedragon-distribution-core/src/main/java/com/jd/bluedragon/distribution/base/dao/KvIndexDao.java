@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.base.dao;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -32,15 +32,29 @@ public class KvIndexDao extends BaseDao<KvIndex> {
         if(null==values||values.size()==0){
             return new ArrayList<Integer>(0);
         }else{
-            List<Integer> target=new ArrayList<Integer>(values.size());
+            Set<Integer> sets=new HashSet<Integer>(values.size());
             for (String item:values){
                 try {
-                    target.add(NumberUtils.createInteger(item));
+                    sets.add(NumberUtils.createInteger(item));
                 }catch (Throwable throwable){
-                    LOGGER.fatal(MessageFormat.format("分库索引值转成为数字失败keyword:{0}",keyword),throwable);
+                    LOGGER.error(MessageFormat.format("分库索引值转成为数字失败keyword:{0}",keyword),throwable);
                 }
             }
-            return target;
+            return new ArrayList<Integer>(sets);
         }
+    }
+
+    public Integer add(KvIndex entity) {
+        return super.add(namespace, entity);
+    }
+
+    public static void main(String[] args) {
+        Set<Integer> sets=new HashSet<Integer>();
+        sets.add(Integer.valueOf(3));
+        sets.add(Integer.valueOf(3));
+        sets.add(Integer.valueOf(123412134));
+
+        sets.add(Integer.valueOf(123412134));
+        System.out.println(JsonHelper.toJson(sets));
     }
 }
