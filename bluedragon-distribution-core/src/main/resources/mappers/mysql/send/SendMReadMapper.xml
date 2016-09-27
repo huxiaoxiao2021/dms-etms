@@ -67,10 +67,13 @@
         </where>
     </select>
 	<select id="selectBoxCodeBySendCode" parameterType="SendM"
-            resultMap="SendMList">
+            resultType="java.lang.String">
         select
         	box_code
         from send_m
         where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
+        <if test="createSiteCode!=null">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
     </select>
 </mapper>

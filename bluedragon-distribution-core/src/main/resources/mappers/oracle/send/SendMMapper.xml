@@ -455,9 +455,9 @@
 		</where>
 	</select>
     <select id="selectBoxBySendCode" parameterType="SendM"
-            resultMap="SendM">
+            resultType="java.lang.String">
         select
-        <include refid="Base_Column_List"/>
+        box_code
         from send_m
         where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1 AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
