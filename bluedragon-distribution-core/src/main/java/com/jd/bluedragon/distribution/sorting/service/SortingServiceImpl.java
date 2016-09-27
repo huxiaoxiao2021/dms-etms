@@ -639,17 +639,18 @@ public class SortingServiceImpl implements SortingService {
 		try{
 			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 			if(wayBillOld.getData() != null){
-				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
-				frbc.setVendorId(wayBillOld.getData().getVendorId());
+//				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
+//				frbc.setVendorId(wayBillOld.getData().getVendorId());
+				frbc.setOrderId(wayBillOld.getData().getVendorId());
 			}else{
-				frbc.setOrderIdOld("");
-				frbc.setVendorId("");
+//				frbc.setOrderIdOld("");
+//				frbc.setVendorId("");
+				frbc.setOrderId("");
 			}
 		}catch(Exception e){
 			this.logger.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
 		}
-		
-		frbc.setOrderId(sorting.getWaybillCode());
+		frbc.setWaybillcode(sorting.getWaybillCode());
 		frbc.setApplyReason("分拣中心快速退款");
 		frbc.setApplyDate(sorting.getOperateTime().getTime());
 		frbc.setSystemId(12);
@@ -659,6 +660,7 @@ public class SortingServiceImpl implements SortingService {
 		frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		frbc.setOperatTime(dateFormat.format(sorting.getOperateTime()));
+		frbc.setSys("ql.dms");
 		
 		return frbc;
 	}
