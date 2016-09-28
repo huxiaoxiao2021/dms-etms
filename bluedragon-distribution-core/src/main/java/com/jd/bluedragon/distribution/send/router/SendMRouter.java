@@ -83,7 +83,7 @@ public class SendMRouter extends SendMDao {
                 if(LOGGER.isDebugEnabled()){
                     int debugCount=(null!=debugList)?debugList.size():0;
                     int normalCount=(null!=list)?list.size():0;
-                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{0}",debugCount,normalCount));
+                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{1}",debugCount,normalCount));
                     LOGGER.debug(MessageFormat.format("原版查询数据内容为{0}",JsonHelper.toJson(debugList)));
                     if(debugCount!=normalCount){
                         LOGGER.error("发货主表两次查询数据不一致");
@@ -123,7 +123,7 @@ public class SendMRouter extends SendMDao {
                 if(LOGGER.isDebugEnabled()){
                     int debugCount=(null!=debugList)?debugList.size():0;
                     int normalCount=(null!=list)?list.size():0;
-                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{0}",debugCount,normalCount));
+                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{1}",debugCount,normalCount));
                     LOGGER.debug(MessageFormat.format("原版查询数据内容为{0}",JsonHelper.toJson(debugList)));
                     if(debugCount!=normalCount){
                         LOGGER.error("发货主表两次查询数据不一致");
