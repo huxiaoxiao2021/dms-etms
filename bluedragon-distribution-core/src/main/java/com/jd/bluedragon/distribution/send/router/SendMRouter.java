@@ -55,54 +55,86 @@ public class SendMRouter extends SendMDao {
 
 
 
-//
-//    @Override
-//    public List<SendM> findSendMByBoxCode2(SendM sendM) {
-//        if(null==sendM.getCreateSiteCode()){
-//            //查询索引表,循环查询数据库
-//            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
-//            if(LOGGER.isInfoEnabled()){
-//                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
-//            }
-//            if(null!=siteCodes&&siteCodes.size()>0) {
-//
-//                List<SendM> list=new ArrayList<SendM>();
-//                for (Integer item :siteCodes){
-//                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
-//                    list.addAll(super.findSendMByBoxCode2(sendM));
-//                }
-//                if(LOGGER.isInfoEnabled()){
-//                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
-//                }
-//                return list;
-//            }
-//        }
-//        return super.findSendMByBoxCode2(sendM);
-//    }
 
-//    @Override
-//    public List<SendM> findSendMByBoxCode(SendM sendM) {
-//        if(null==sendM.getCreateSiteCode()){
-//            //查询索引表,循环查询数据库
-//            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
-//            if(LOGGER.isInfoEnabled()){
-//                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
-//            }
-//            if(null!=siteCodes&&siteCodes.size()>0) {
-//
-//                List<SendM> list=new ArrayList<SendM>();
-//                for (Integer item :siteCodes){
-//                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
-//                    list.addAll(super.findSendMByBoxCode(sendM));
-//                }
-//                if(LOGGER.isInfoEnabled()){
-//                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
-//                }
-//                return list;
-//            }
-//        }
-//        return super.findSendMByBoxCode(sendM);
-//    }
+    @Override
+    public List<SendM> findSendMByBoxCode2(SendM sendM) {
+        if(null==sendM.getCreateSiteCode()){
+            //查询索引表,循环查询数据库
+            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
+            }
+            if(null!=siteCodes&&siteCodes.size()>0) {
+                List<SendM> debugList=null;
+                if(LOGGER.isDebugEnabled()){
+                    debugList=super.findSendMByBoxCode2(sendM);
+                }
+                List<SendM> list=new ArrayList<SendM>();
+                for (Integer item :siteCodes){
+                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
+                    List<SendM> index=super.findSendMByBoxCode2(sendM);
+                    if(null!=index&&index.size()>0) {
+                        list.addAll(index);
+                    }
+                }
+                if(LOGGER.isInfoEnabled()){
+                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
+                }
+                if(LOGGER.isDebugEnabled()){
+                    int debugCount=(null!=debugList)?debugList.size():0;
+                    int normalCount=(null!=list)?list.size():0;
+                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{0}",debugCount,normalCount));
+                    LOGGER.debug(MessageFormat.format("原版查询数据内容为{0}",JsonHelper.toJson(debugList)));
+                    if(debugCount!=normalCount){
+                        LOGGER.error("发货主表两次查询数据不一致");
+                        return debugList;
+                    }
+                }
+                return list;
+            }
+        }
+        return super.findSendMByBoxCode2(sendM);
+    }
+
+    @Override
+    public List<SendM> findSendMByBoxCode(SendM sendM) {
+        if(null==sendM.getCreateSiteCode()){
+            //查询索引表,循环查询数据库
+            List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(MessageFormat.format("执行索引表查询-SEND_M表创建站点为{0}", JsonHelper.toJson(siteCodes)));
+            }
+            if(null!=siteCodes&&siteCodes.size()>0) {
+                List<SendM> debugList=null;
+                if(LOGGER.isDebugEnabled()){
+                    debugList=super.findSendMByBoxCode(sendM);
+                }
+                List<SendM> list=new ArrayList<SendM>();
+                for (Integer item :siteCodes){
+                    sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
+                    List<SendM> index=super.findSendMByBoxCode(sendM);
+                    if(null!=index&&index.size()>0) {
+                        list.addAll(index);
+                    }
+                }
+                if(LOGGER.isInfoEnabled()){
+                    LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}",JsonHelper.toJson(list)));
+                }
+                if(LOGGER.isDebugEnabled()){
+                    int debugCount=(null!=debugList)?debugList.size():0;
+                    int normalCount=(null!=list)?list.size():0;
+                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{0}",debugCount,normalCount));
+                    LOGGER.debug(MessageFormat.format("原版查询数据内容为{0}",JsonHelper.toJson(debugList)));
+                    if(debugCount!=normalCount){
+                        LOGGER.error("发货主表两次查询数据不一致");
+                        return debugList;
+                    }
+                }
+                return list;
+            }
+        }
+        return super.findSendMByBoxCode(sendM);
+    }
 
     @Override
     public boolean insertSendM(SendM dSendM) {

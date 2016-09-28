@@ -42,11 +42,11 @@
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
-	<bean id="sendMDao" class="com.jd.bluedragon.distribution.send.dao.SendMDao">
+	<bean id="sendMDao" class="com.jd.bluedragon.distribution.send.router.SendMRouter">
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
-	<bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDatailDao">
+	<bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao">
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
