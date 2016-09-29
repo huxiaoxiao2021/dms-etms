@@ -1,11 +1,10 @@
 package com.jd.bluedragon.distribution.send.dao;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
+import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,11 @@ import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
 public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
-	
+
+
+    @Autowired
+    private KvIndexDao kvIndexDao;
+
 	@Autowired
 	private SendDatailDao sendDatailDao;
 
@@ -415,11 +418,58 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 
 
     ////////////////////////////////////////////////////////
-    // SendDetailReadIndexDao TestCase
+    // SendDetailReadRouterDao TestCase
     ///////////////////////////////////////////////////////
     @Test
     public void testFindSendBoxByWaybillCode () {
         List<SendBoxDetailResponse> sendBoxDetailResponses = sendDatailReadDao.findSendBoxByWaybillCode("16635238583");
         Assert.assertNotNull(sendBoxDetailResponses);
+    }
+
+
+    /////////////////////////////////////////////////////
+    // SendDetailRouterDao TestCase
+    ////////////////////////////////////////////////////
+    @Test
+    public void testQuerySendDatailsBySelectiveRouter() {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(910);
+        sendDetail.setWaybillCode("16635238583");
+        Assert.assertEquals(1,sendDatailDao.querySendDatailsBySelective(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setWaybillCode("16635238583");
+        Assert.assertEquals(2, sendDatailDao.querySendDatailsBySelective(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setWaybillCode("16635238583");
+        sendDetail.setBoxCode("BC010F002010Y10000003001");
+        Assert.assertEquals(1, sendDatailDao.querySendDatailsBySelective(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC010F002010Y10000004101");
+        Assert.assertEquals(1, sendDatailDao.querySendDatailsBySelective(sendDetail).size());
+    }
+
+
+    /////////////////////////////////////////////////////
+    // KVIndexDao TestCase
+    /////////////////////////////////////////////////////
+
+    @Test
+    public void testGetIndexByKeywordSet() {
+        List<String> param = new ArrayList<String>();
+        param.add("BC010F005027F04444341413 ");
+        param.add("16635238583");
+        param.add(" 16635238583");
+        param.add("BC010F005027F00200123412");
+        param.add("BC010F005027F00200123412");
+        Assert.assertEquals(6, kvIndexDao.queryByKeywordSet(param).size());
+
+        param = new ArrayList<String>();
+        Assert.assertEquals(0, kvIndexDao.queryByKeywordSet(param).size());
+
+        param.add(null);
+        Assert.assertEquals(0, kvIndexDao.queryByKeywordSet(param).size());
     }
 }
