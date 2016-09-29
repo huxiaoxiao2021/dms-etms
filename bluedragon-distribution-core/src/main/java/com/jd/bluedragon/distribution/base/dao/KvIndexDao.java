@@ -6,6 +6,7 @@ import java.util.*;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +28,35 @@ public class KvIndexDao extends BaseDao<KvIndex> {
 
     public Integer deleteByKeyword(String keyword) {
         return this.getSqlSession().delete(namespace + ".deleteByKey", keyword);
+    }
+
+    public List<Integer> queryByKeywordSet(List<String> keywords) {
+        if (null == keywords || keywords.size() <= 0) {
+            return new ArrayList<Integer>();
+        }
+        List<String> createSiteCodes = new ArrayList<String>();
+        for (String key : keywords) {
+            if (StringHelper.isNotEmpty(key)) {
+                List<String> values = queryByKeyword(key.trim().toUpperCase());
+                if (null != values && values.size() > 0) {
+                    createSiteCodes.addAll(values);
+                }
+            }
+        }
+        if (null != createSiteCodes && createSiteCodes.size() > 0) {
+            Set<Integer> uniqueSiteCodes = new HashSet<Integer>();
+            for(String siteCode : createSiteCodes) {
+                if(StringHelper.isNotEmpty(siteCode)) {
+                    try {
+                        uniqueSiteCodes.add(NumberUtils.createInteger(siteCode.trim()));
+                    }catch (NumberFormatException e) {
+                        LOGGER.error(MessageFormat.format("分库索引值转成为数字失败siteCode:{0}", siteCode));
+                    }
+                }
+            }
+            return new ArrayList<Integer>(uniqueSiteCodes);
+        }
+        return new ArrayList<Integer>();
     }
 
     /**
@@ -107,5 +137,6 @@ public class KvIndexDao extends BaseDao<KvIndex> {
 
         sets.add(Integer.valueOf(123412134));
         System.out.println(JsonHelper.toJson(sets));
+
     }
 }
