@@ -5,6 +5,8 @@ import java.util.*;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.JsonHelper;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 
     @Autowired
     private SendDatailReadDao sendDatailReadDao;
+
+    @Autowired
+    private SendMDao sendMDao;
 
     @Test
     public void testAdd() {
@@ -426,7 +431,58 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertNotNull(sendBoxDetailResponses);
     }
 
+    @Test
+    public void testFindSendDetailsBySendMSendCodeAndYn1AndIsCancel0(){
+        SendM sendM=new SendM();
+        List<String> sendCodes=new ArrayList<String>();
+        sendCodes.add("910-39-20160920155200010");
+        sendCodes.add("910-1-20160923111244123");
+        sendCodes.add("910-25016-20160921110636250");
+        sendCodes.add("910-25016-20160921110921111");
+        sendCodes.add("910-25016-20160921110923131");
+        sendCodes.add("910-25016-20160921151356382");
+        sendCodes.add("910-37620-20160930113159606");
+        sendCodes.add("910-39-20160921105544016");
 
+        for (String item:sendCodes) {
+            sendM.setSendCode(item);
+            List<SendDetail> source = this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
+            List<SendDetail> target = findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(sendM.getSendCode());
+            System.out.println(JsonHelper.toJson(source));
+            int scount = (null != source) ? source.size() : 0;
+            int tcount = (null != target) ? target.size() : 0;
+            Assert.assertEquals(scount, tcount);
+        }
+    }
+    private SendDetail paramSendDetail(SendM sendM) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setSendCode(sendM.getSendCode());
+        sendDetail.setCreateSiteCode(sendM.getCreateSiteCode());
+        return sendDetail;
+    }
+    /**
+     * 根据SEND_M的send_code查询sendd明细，通过箱号关联
+     * @return
+     */
+    private List<SendDetail> findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(String sendCodeForSendM){
+        List<String> boxCodeList=sendMDao.selectBoxCodeBySendCodeAndCreateSiteCode(sendCodeForSendM);
+        List<SendDetail> details=new ArrayList<SendDetail>();
+        if(null!=boxCodeList&&boxCodeList.size()>0){
+            SendDetail detail=new SendDetail();
+
+            for (String item:boxCodeList){
+                if(org.apache.commons.lang.StringUtils.isBlank(item)){
+                    continue;
+                }
+                detail.setBoxCode(item.trim());
+                List<SendDetail> tempList= sendDatailDao.querySendDatailsByBoxCode(detail);
+                if(null!=tempList&&tempList.size()>0){
+                    details.addAll(tempList);
+                }
+            }
+        }
+        return details;
+    }
     /////////////////////////////////////////////////////
     // SendDetailRouterDao TestCase
     ////////////////////////////////////////////////////

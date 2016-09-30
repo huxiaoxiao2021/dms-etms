@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.httpclient.HttpClient;
@@ -386,6 +385,29 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setProList(new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>(productIds.values()));
     }
 
+    /**
+     * 根据SEND_M的send_code查询sendd明细，通过箱号关联
+     * @return
+     */
+    private List<SendDetail> findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(String sendCodeForSendM){
+        List<String> boxCodeList=sendMDao.selectBoxCodeBySendCodeAndCreateSiteCode(sendCodeForSendM);
+        List<SendDetail> details=new ArrayList<SendDetail>();
+        if(null!=boxCodeList&&boxCodeList.size()>0){
+            SendDetail detail=new SendDetail();
+
+            for (String item:boxCodeList){
+                if(org.apache.commons.lang.StringUtils.isBlank(item)){
+                    continue;
+                }
+                detail.setBoxCode(item.trim());
+                List<SendDetail> tempList= sendDatailDao.querySendDatailsByBoxCode(detail);
+                if(null!=tempList&&tempList.size()>0){
+                    details.addAll(tempList);
+                }
+            }
+        }
+        return details;
+    }
     @SuppressWarnings("rawtypes")
     public boolean sendReverseMessageToAsiaWms(SendM sendM, BaseStaffSiteOrgDto bDto)
             throws Exception {
@@ -399,7 +421,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             Map<String, String> orderpackMap = new ConcurrentHashMap<String, String>();
             Map<String, String> orderpackMapLoss = new ConcurrentHashMap<String, String>();
             Set<String> packSet = new HashSet<String>();
-            List<SendDetail> allsendList = this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
+
+            List<SendDetail> allsendList = findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(sendM.getSendCode());// this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
 
             dealWithWaybillCode(allsendList);
 
@@ -541,7 +564,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         try {
             Map<String, String> orderpackMap = new ConcurrentHashMap<String, String>();
             Map<String, String> orderpackMapLoss = new ConcurrentHashMap<String, String>();
-            List<SendDetail> allsendList = this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
+            List<SendDetail> allsendList = findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(sendM.getSendCode());// this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
             dealWithWaybillCode(allsendList);
             int allsendListSize = allsendList != null ? allsendList.size() : 0;
             this.logger.info("获得发货明细数量:" + allsendListSize);
