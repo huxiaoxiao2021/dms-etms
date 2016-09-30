@@ -43,15 +43,49 @@ public class SendDetailRouterDao extends SendDatailDao{
 //        return super.update(namespace, entity);
 //    }
 //
-//    @Override
-//    public List<SendDetail> querySendDatailsByBoxCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
-//        return super.querySendDatailsByBoxCode(tSendDatail);
-//    }
-//
-//    @Override
-//    public List<SendDetail> querySendDatailsByPackageCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
-//        return super.querySendDatailsByPackageCode(tSendDatail);
-//    }
+    @Override
+    public List<SendDetail> querySendDatailsByBoxCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
+        if(null == tSendDatail || StringHelper.isEmpty(tSendDatail.getBoxCode())) {
+            return new ArrayList<SendDetail>();
+        }
+        List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
+        List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(tSendDatail.getBoxCode());
+        if(null != siteCodes && siteCodes.size() > 0) {
+            for(Integer siteCode : siteCodes) {
+                tSendDatail.setCreateSiteCode(siteCode);
+                List<SendDetail> sendDetails = super.querySendDatailsByBoxCode(tSendDatail);
+                if(null != sendDetails && sendDetails.size() > 0) {
+                    mergeSendDetails.addAll(sendDetails);
+                }
+            }
+        }
+        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+            return mergeSendDetails;
+        }
+        return super.querySendDatailsByBoxCode(tSendDatail);
+    }
+
+    @Override
+    public List<SendDetail> querySendDatailsByPackageCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
+        if(null == tSendDatail) {
+            return new ArrayList<SendDetail>();
+        }
+        List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
+        List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(tSendDatail.getBoxCode());
+        if(null != siteCodes && siteCodes.size() > 0) {
+            for(Integer siteCode : siteCodes) {
+                tSendDatail.setCreateSiteCode(siteCode);
+                List<SendDetail> sendDetails = super.querySendDatailsByPackageCode(tSendDatail);
+                if(null != sendDetails && sendDetails.size() > 0) {
+                    mergeSendDetails.addAll(sendDetails);
+                }
+            }
+        }
+        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+            return mergeSendDetails;
+        }
+        return super.querySendDatailsByPackageCode(tSendDatail);
+    }
 //
 //    @Override
 //    public SendDetail querySendDatailBySendStatus(SendDetail tSendDatail) {
