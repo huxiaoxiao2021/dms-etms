@@ -230,6 +230,9 @@
 	    FROM send_d sd 
 	        INNER JOIN send_m sm ON sd.box_code = sm.box_code
 	    WHERE sm.send_code  = #{sendCode,jdbcType=VARCHAR}
+        <if test = "null!=createSiteCode">
+            and sm.create_site_code=#{createSiteCode,jdbcType=INTEGER}
+        </if>
 	        AND sd.yn = 1 AND sd.is_cancel = 0
 	</select>
 	

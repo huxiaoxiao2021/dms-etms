@@ -39,6 +39,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendDetail> findSendDetails(SendDetail param) {
+        if(null != param && StringHelper.isNotEmpty(param.getSendCode())
+                && null == param.getCreateSiteCode()) {
+            param.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(param.getSendCode()));
+        }
 		return this.getSqlSession().selectList(SendDatailDao.namespace + ".findSendDetails", param);
 	}
 	
