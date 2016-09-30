@@ -4,9 +4,14 @@ import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dudong on 2016/9/26.
@@ -38,15 +43,49 @@ public class SendDetailRouterDao extends SendDatailDao{
 //        return super.update(namespace, entity);
 //    }
 //
-//    @Override
-//    public List<SendDetail> querySendDatailsByBoxCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
-//        return super.querySendDatailsByBoxCode(tSendDatail);
-//    }
-//
-//    @Override
-//    public List<SendDetail> querySendDatailsByPackageCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
-//        return super.querySendDatailsByPackageCode(tSendDatail);
-//    }
+    @Override
+    public List<SendDetail> querySendDatailsByBoxCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
+        if(null == tSendDatail || StringHelper.isEmpty(tSendDatail.getBoxCode())) {
+            return new ArrayList<SendDetail>();
+        }
+        List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
+        List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(tSendDatail.getBoxCode());
+        if(null != siteCodes && siteCodes.size() > 0) {
+            for(Integer siteCode : siteCodes) {
+                tSendDatail.setCreateSiteCode(siteCode);
+                List<SendDetail> sendDetails = super.querySendDatailsByBoxCode(tSendDatail);
+                if(null != sendDetails && sendDetails.size() > 0) {
+                    mergeSendDetails.addAll(sendDetails);
+                }
+            }
+        }
+        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+            return mergeSendDetails;
+        }
+        return super.querySendDatailsByBoxCode(tSendDatail);
+    }
+
+    @Override
+    public List<SendDetail> querySendDatailsByPackageCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
+        if(null == tSendDatail) {
+            return new ArrayList<SendDetail>();
+        }
+        List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
+        List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(tSendDatail.getBoxCode());
+        if(null != siteCodes && siteCodes.size() > 0) {
+            for(Integer siteCode : siteCodes) {
+                tSendDatail.setCreateSiteCode(siteCode);
+                List<SendDetail> sendDetails = super.querySendDatailsByPackageCode(tSendDatail);
+                if(null != sendDetails && sendDetails.size() > 0) {
+                    mergeSendDetails.addAll(sendDetails);
+                }
+            }
+        }
+        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+            return mergeSendDetails;
+        }
+        return super.querySendDatailsByPackageCode(tSendDatail);
+    }
 //
 //    @Override
 //    public SendDetail querySendDatailBySendStatus(SendDetail tSendDatail) {
@@ -68,10 +107,48 @@ public class SendDetailRouterDao extends SendDatailDao{
 //        return super.queryBySiteCodeAndSendCode(query);
 //    }
 //
-//    @Override
-//    public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
-//        return super.querySendDatailsBySelective(querySendDatail);
-//    }
+    @Override
+    public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
+        List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
+        if(null == querySendDatail) {
+            return mergeSendDetails;
+        }
+        if(logger.isInfoEnabled()) {
+            // 如果有拆分键（createSiteCode），走原来的逻辑
+            if (null != querySendDatail.getCreateSiteCode()) {
+                return super.querySendDatailsBySelective(querySendDatail);
+            }
+
+            // 如果有批次号，走原来的逻辑（已根据批次号拆分）
+            if (StringHelper.isNotEmpty(querySendDatail.getSendCode())) {
+                return super.querySendDatailsBySelective(querySendDatail);
+            }
+
+            List<String> keywords = new ArrayList<String>();
+            keywords.add(querySendDatail.getBoxCode());
+            keywords.add(querySendDatail.getWaybillCode());
+            keywords.add(querySendDatail.getPackageBarcode());
+
+            List<Integer> siteCodes = kvIndexDao.queryByKeywordSet(keywords);
+            if (null != siteCodes && siteCodes.size() > 0) {
+                for (Integer site : siteCodes) {
+                    querySendDatail.setCreateSiteCode(site);
+                    List<SendDetail> sendDetails = super.querySendDatailsBySelective(querySendDatail);
+                    if (null != sendDetails && sendDetails.size() > 0) {
+                        mergeSendDetails.addAll(sendDetails);
+                    }
+                }
+            }
+
+            if (null != mergeSendDetails && mergeSendDetails.size() > 0) {
+                logger.info(MessageFormat.format("根据中间索引表查出的数据为{0}",JsonHelper.toJson(mergeSendDetails)));
+                return mergeSendDetails;
+            }
+            logger.warn(MessageFormat.format("根据中间索引没有查出数据,参数{0}",JsonHelper.toJson(querySendDatail)));
+        }
+        return super.querySendDatailsBySelective(querySendDatail);
+    }
+
 //
 //    @Override
 //    public boolean updateSendDatail(SendDetail SendDatail) {

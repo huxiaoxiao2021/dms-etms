@@ -1,20 +1,24 @@
 package com.jd.bluedragon.distribution.failqueue.dao;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Map;
-import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+
+import junit.framework.Assert;
+
+@RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
+@ContextConfiguration(locations = {"classpath:/spring/distribution-core-context.xml"})
 public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
@@ -32,8 +36,32 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testQuerySendDatail_SELF() {
 		List<String> param =new ArrayList<String>();
-		param.add("1111");
-        taskFailQueueDao.querySendDatail_SELF(param);
+		param.add("James");
+		List<SendDetail> result = taskFailQueueDao.querySendDatailBySendCodes_SELF(param);
+		Assert.assertEquals(0, result.size());
+		
+		param.clear();
+		param.add("910-311-20160126202034466");
+		result = taskFailQueueDao.querySendDatailBySendCodes_SELF(param);
+		Assert.assertEquals("910-311-20160126202034466", result.get(0).getSendCode());
+    }
+	
+	@Test
+    public void testQuerySendDatail_3PL() {
+        List parameter = new ArrayList();
+        parameter.add("James");
+        List<SendDetail> result = taskFailQueueDao.querySendDatailBySendCodes_3PL(parameter);
+        Assert.assertEquals(0, result.size());
+        
+        parameter.clear();
+        parameter.add("511-1-20120925100935659");
+		result = taskFailQueueDao.querySendDatailBySendCodes_3PL(parameter);
+		Assert.assertEquals("511-1-20120925100935659", result.get(0).getSendCode());
+		
+        parameter.clear();
+        parameter.add("511201203280756360");
+		result = taskFailQueueDao.querySendDatailBySendCodes_3PL(parameter);
+		Assert.assertEquals("511201203280756360", result.get(0).getSendCode());
     }
 	
 	@Test
@@ -78,13 +106,6 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBody("Jone");
         parameter.setBusiId((long)3437);
         taskFailQueueDao.update(TaskFailQueueDao.namespace ,parameter);
-    }
-	
-	@Test
-    public void testQuerySendDatail_3PL() {
-        List parameter = new ArrayList();
-        parameter.add("James");
-        taskFailQueueDao.querySendDatail_3PL(parameter);
     }
 	
 	@Test

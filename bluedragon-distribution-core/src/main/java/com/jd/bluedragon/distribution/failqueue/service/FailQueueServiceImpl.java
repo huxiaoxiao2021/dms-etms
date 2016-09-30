@@ -353,13 +353,13 @@ public class FailQueueServiceImpl implements IFailQueueService {
 			ArrayList<SendDetail> senddAL = new ArrayList<SendDetail>();
 			if (sendCodeAl_self.size() > 0) {
 				List<SendDetail> senddAL_self = taskFailQueueDao
-						.querySendDatail_SELF(sendCodeAl_self);
+						.querySendDatailBySendCodes_SELF(sendCodeAl_self);
 				senddAL.addAll(senddAL_self);
 			}
 
 			if (sendCodeAl_3pl.size() > 0) {
 				List<SendDetail> senddAL_3pl = taskFailQueueDao
-						.querySendDatail_3PL(sendCodeAl_3pl);
+						.querySendDatailBySendCodes_3PL(sendCodeAl_3pl);
 				senddAL.addAll(senddAL_3pl);
 			}
 

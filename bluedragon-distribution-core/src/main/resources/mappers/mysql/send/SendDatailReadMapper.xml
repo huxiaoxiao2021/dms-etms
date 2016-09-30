@@ -51,16 +51,16 @@
 		from send_d
 		where box_code=#{boxCode} and yn=1
         <if test="createSiteCode != null">
-            and create_site_code = #{createSiteCode,jdbcType=INTEGER},
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
         </if>
 	</select>
 	
 	<select id="findSendBoxByWaybillCode" parameterType="java.util.Map" resultMap="SendDetail">
-		select send_code,box_code,package_barcode,create_site_code,receive_site_code,operate_time
+		select send_code,box_code,package_barcode,create_site_code,receive_site_code,operate_time,create_time
               from send_d
               where yn = 1 and waybill_code = #{waybillCode}
         <if test="createSiteCode != null">
-            and create_site_code in (${createSiteCode})
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
         </if>
               order by create_time desc
         limit 1 
