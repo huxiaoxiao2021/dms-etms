@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +53,12 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 	public List<SendDetail> querySendDatailsBySelective(SendDetail querySendDatail) {
         if(null != querySendDatail && StringHelper.isNotEmpty(querySendDatail.getSendCode())
                 && null == querySendDatail.getCreateSiteCode()) {
-            querySendDatail.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode()));
+        	Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(querySendDatail.getSendCode());
+            querySendDatail.setCreateSiteCode(createSiteCode);
+            if(null==createSiteCode) //为null说明不是合法的批次号,直接返回空List
+            	return new ArrayList<SendDetail>();
         }
+
 		return this.getSqlSession().selectList(
 				SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
 	}
@@ -192,6 +197,8 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 				&& sendDetail.getCreateSiteCode() == null) {
 			Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendDetail.getSendCode());
 			sendDetail.setCreateSiteCode(createSiteCode);
+            if(null==createSiteCode) //为null说明不是合法的批次号,直接返回空List
+            	return 0;
 		}
 		return this.getSqlSession().update(SendDatailDao.namespace + ".cancelDelivery",
 				sendDetail);
@@ -203,6 +210,8 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 && query.getCreateSiteCode() == null) {
             Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
             query.setCreateSiteCode(createSiteCode);
+            if(null==createSiteCode) //为null说明不是合法的批次号,直接返回空List
+            	return new ArrayList<SendDetail>();
         }
 		return this.getSqlSession().selectList(SendDatailDao.namespace + ".queryBySendCodeAndSendType",
 				query);
