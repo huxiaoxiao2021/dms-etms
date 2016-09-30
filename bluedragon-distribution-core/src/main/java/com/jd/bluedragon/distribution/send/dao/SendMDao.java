@@ -125,16 +125,29 @@ public  class SendMDao extends BaseDao<SendM>  {
      * @param sendCode 发货批次号
      * @return
      */
-	public List<SendM> selectBoxBySendCode(String sendCode) {
+	public List<String> selectBoxBySendCode(String sendCode) {
 		SendM sendM = new SendM();
 		sendM.setSendCode(sendCode);
         Integer createSiteCode=SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
         if(null==createSiteCode){
-            return new ArrayList<SendM>(0);
+            return new ArrayList<String>(0);
         }
         sendM.setCreateSiteCode(createSiteCode);
 		return	this.getSqlSession().selectList(
 				SendMDao.namespace + ".selectBoxBySendCode", sendM);
 
 	}
+
+
+    public List<String> selectBoxCodeBySendCodeAndCreateSiteCode(String sendCode){
+        SendM sendM = new SendM();
+        sendM.setSendCode(sendCode);
+        Integer createSiteCode=SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(null==createSiteCode){
+            return new ArrayList<String>(0);
+        }
+        sendM.setCreateSiteCode(createSiteCode);
+        return	this.getSqlSession().selectList(
+                SendMDao.namespace + ".selectBoxCodeBySendCodeAndCreateSiteCode", sendM);
+    }
 }
