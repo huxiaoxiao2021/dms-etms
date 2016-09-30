@@ -451,6 +451,41 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         Assert.assertEquals(1, sendDatailDao.querySendDatailsBySelective(sendDetail).size());
     }
 
+    @Test
+    public void testQuerySendDatailsByPackCodeRouter() {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC010F002010Y10000003001");
+        sendDetail.setReceiveSiteCode(39);
+        Assert.assertEquals(1, sendDatailDao.querySendDatailsByPackageCode(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC01324214324324324");
+        sendDetail.setReceiveSiteCode(29);
+        Assert.assertEquals(4, sendDatailDao.querySendDatailsByPackageCode(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC010F005027F04422341413");
+        sendDetail.setReceiveSiteCode(25016);
+        Assert.assertEquals(1, sendDatailDao.querySendDatailsByPackageCode(sendDetail).size());
+
+    }
+
+
+    @Test
+    public void testQuerySendDatailsByBoxCodeRouter() {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC010F002010Y10000003001");
+        Assert.assertEquals(1, sendDatailDao.querySendDatailsByBoxCode(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC01324214324324324");
+        Assert.assertEquals(4, sendDatailDao.querySendDatailsByBoxCode(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setBoxCode("BC010F005027F04422341413");
+        Assert.assertEquals(1, sendDatailDao.querySendDatailsByBoxCode(sendDetail).size());
+
+    }
 
     /////////////////////////////////////////////////////
     // KVIndexDao TestCase
@@ -472,4 +507,5 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         param.add(null);
         Assert.assertEquals(0, kvIndexDao.queryByKeywordSet(param).size());
     }
+
 }
