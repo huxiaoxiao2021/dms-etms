@@ -280,11 +280,14 @@ public class SendDetailRouterDao extends SendDatailDao{
 //        return super.queryWaybillsByPackCode(packCode);
 //    }
 //
-//    @Override
-//    public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
-//        return super.queryWaybillsByBoxCode(boxCode);
-//    }
-//
+	public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
+		Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
+		SendDetail query = new SendDetail();
+		query.setBoxCode(boxCode);
+		query.setCreateSiteCode(createSiteCode);
+		return super.queryWaybillsByBoxCode(query);
+	}
+
 //    @Override
 //    public List<SendDetail> queryWaybillsBySendCode(String sendCode) {
 //        return super.queryWaybillsBySendCode(sendCode);
