@@ -508,6 +508,18 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
     }
 
     @Test
+    public void testQuerySendDatailsBySelectiveRouterSendCode() {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setSendCode("910-39-20160921105544016");
+        sendDetail.setWaybillCode("16635238583");
+        Assert.assertEquals(1,sendDatailDao.querySendDatailsBySelective(sendDetail).size());
+
+        sendDetail.setSendCode("9103920160921105544016");
+        sendDetail.setWaybillCode("16635238583");
+        Assert.assertEquals(0,sendDatailDao.querySendDatailsBySelective(sendDetail).size());
+    }
+    
+    @Test
     public void testQuerySendDatailsByPackCodeRouter() {
         SendDetail sendDetail = new SendDetail();
         sendDetail.setBoxCode("BC010F002010Y10000003001");

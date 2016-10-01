@@ -103,7 +103,7 @@ public class SerialRuleUtil
     /**
      * 发货批次号正则表达式
      */
-    private static final Pattern RULE_SEND_CODE_REGEX=Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,17})");
+    private static final Pattern RULE_SEND_CODE_REGEX=Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,20})");
 
     /**
      * 获取收货站点

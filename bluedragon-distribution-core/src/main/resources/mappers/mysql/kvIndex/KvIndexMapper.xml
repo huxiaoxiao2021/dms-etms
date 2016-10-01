@@ -24,6 +24,13 @@
 		WHERE keyword = #{keyword}
 	</select>
 
+	<select id="queryOneByKeyword" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+			value
+		FROM kv_index
+		WHERE keyword = #{keyword} limit 1
+	</select>
+	
     <select id="queryByKeywordSet" resultType="java.lang.String" parameterType="java.util.List">
         SELECT
 			DISTINCT(value)

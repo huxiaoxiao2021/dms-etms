@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.base.service.KvIndexService;
@@ -24,6 +25,9 @@ public class KvIndexServiceImpl implements KvIndexService {
 
 	@Autowired
 	private KvIndexDao kvIndexDao;
+	
+	@Autowired
+	private RedisManager redisManager;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -36,6 +40,10 @@ public class KvIndexServiceImpl implements KvIndexService {
 		KvIndex kvIndex = new KvIndex();
 		kvIndex.setKeyword(keyword);
 		kvIndex.setKeyword(value);
-		return kvIndexDao.add(KvIndexDao.namespace, kvIndex);
+		if(redisManager.exists(kvIndex.toUniqueString())){
+			return 1;
+		}else{
+			return kvIndexDao.add(KvIndexDao.namespace, kvIndex);
+		}
 	}
 }

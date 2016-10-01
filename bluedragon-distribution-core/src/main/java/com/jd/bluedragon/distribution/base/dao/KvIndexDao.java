@@ -2,30 +2,49 @@ package com.jd.bluedragon.distribution.base.dao;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 public class KvIndexDao extends BaseDao<KvIndex> {
 
+	@Autowired
+	@Qualifier("redisClientCache")
+	private Cluster redisClientCache;
+	
     private static final Log LOGGER= LogFactory.getLog(KvIndexDao.class);
 
 	public static final String namespace = KvIndexDao.class.getName();
 
-
+	@Override
+    public Integer add(String namespace, KvIndex entity) {
+        return this.add(entity);
+    }
 
     private List<String> queryByKeyword(String keyword) {
 		return this.getSqlSession().selectList(namespace + ".queryByKeyword", keyword);
 	}
 
+    public Integer queryOneByKeyword(String keyword) {
+    	String createSiteCode = this.getSqlSession().selectOne(namespace + ".queryOneByKeyword", keyword);
+    	if(StringHelper.isNotEmpty(createSiteCode))
+    		return NumberUtils.createInteger(createSiteCode);
+    	return null;
+	}
+    
     public Integer deleteByKeyword(String keyword) {
         return this.getSqlSession().delete(namespace + ".deleteByKey", keyword);
     }
@@ -126,7 +145,14 @@ public class KvIndexDao extends BaseDao<KvIndex> {
             }
             entity.setValue(entity.getValue().substring(0,50));
         }
-        return super.add(namespace, entity);
+        
+        if(redisClientCache.exists(entity.toUniqueString())){
+			return 1;
+		}else{
+			Integer result = super.add(namespace, entity);
+			redisClientCache.setEx(entity.toUniqueString(),"1", 30 * 60 * 1000, TimeUnit.SECONDS);
+			return result;
+		}
     }
 
     public static void main(String[] args) {
