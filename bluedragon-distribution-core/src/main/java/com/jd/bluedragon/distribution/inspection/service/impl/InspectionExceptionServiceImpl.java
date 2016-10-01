@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
@@ -26,7 +25,6 @@ import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -111,16 +109,20 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getByThird(InspectionEC inspectionEC) throws Exception{
 		List<InspectionEC> list =inspectionECDao.queryByThird(inspectionEC);
-		SendM tSendM = new SendM();
-		for(InspectionEC tinspectionEC : list){
-			tSendM.setBoxCode(inspectionEC.getBoxCode());
-			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
-			tSendM.setSendType(inspectionEC.getInspectionType());
-			if(sendMDao.checkSendByBox(tSendM))
-				list.remove(tinspectionEC);
-		}
-		return list;
+        List<InspectionEC> target=new ArrayList<InspectionEC>();
+		SendM searchArgument = new SendM();
+        if(null!=list&&list.size()>0) {
+            for (InspectionEC item : list) {
+                searchArgument.setBoxCode(item.getBoxCode());
+                searchArgument.setCreateSiteCode(item.getCreateSiteCode());
+                searchArgument.setReceiveSiteCode(item.getReceiveSiteCode());
+                searchArgument.setSendType(item.getInspectionType());
+                if (!sendMDao.checkSendByBox(searchArgument)){
+                    target.add(item);
+                }
+            }
+        }
+		return target;
 	}
 
 	/**
@@ -350,31 +352,39 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	@Override
 	public int totalThirdByParams(Map<String, Object> paramMap) {
 		List<InspectionEC> list =inspectionECDao.queryThirdByParams(paramMap);
-		SendM tSendM = new SendM();
-		for(InspectionEC inspectionEC : list){
-			tSendM.setBoxCode(inspectionEC.getBoxCode());
-			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
-			tSendM.setSendType(inspectionEC.getInspectionType());
-			if(sendMDao.checkSendByBox(tSendM))
-				list.remove(inspectionEC);
-		}
-		return list.size();
+        int count=0;
+        if(null!=list&&list.size()>0) {
+            SendM searchArgument = new SendM();
+            for (InspectionEC item : list) {
+                searchArgument.setBoxCode(item.getBoxCode());
+                searchArgument.setCreateSiteCode(item.getCreateSiteCode());
+                searchArgument.setReceiveSiteCode(item.getReceiveSiteCode());
+                searchArgument.setSendType(item.getInspectionType());
+                if (!sendMDao.checkSendByBox(searchArgument)){
+                    ++count;
+                }
+            }
+        }
+		return count;
 	}
 
 	@Override
 	public List<InspectionEC> queryThirdByParams(Map<String, Object> paramMap) {
 		List<InspectionEC> list =inspectionECDao.queryThirdByParams(paramMap);
-		SendM tSendM = new SendM();
-		for(InspectionEC inspectionEC : list){
-			tSendM.setBoxCode(inspectionEC.getBoxCode());
-			tSendM.setCreateSiteCode(inspectionEC.getCreateSiteCode());
-			tSendM.setReceiveSiteCode(inspectionEC.getReceiveSiteCode());
-			tSendM.setSendType(inspectionEC.getInspectionType());
-			if(sendMDao.checkSendByBox(tSendM))
-				list.remove(inspectionEC);
-		}
-		return list;
+		List<InspectionEC> target=new ArrayList<InspectionEC>();
+        if(null!=list&&list.size()>0) {
+            SendM argument = new SendM();
+            for (InspectionEC item : list) {
+                argument.setBoxCode(item.getBoxCode());
+                argument.setCreateSiteCode(item.getCreateSiteCode());
+                argument.setReceiveSiteCode(item.getReceiveSiteCode());
+                argument.setSendType(item.getInspectionType());
+                if (!sendMDao.checkSendByBox(argument)) {
+                    target.add(item);
+                }
+            }
+        }
+		return target;
 	}
 
 	@Override
