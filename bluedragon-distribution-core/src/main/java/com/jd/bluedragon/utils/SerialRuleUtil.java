@@ -103,15 +103,19 @@ public class SerialRuleUtil
     /**
      * 发货批次号正则表达式
      */
-    private static final Pattern RULE_SEND_CODE_REGEX=Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,20})");
+    private static final Pattern RULE_SEND_CODE_REGEX=Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,17})");
 
+    /**
+     * 提取发货批次号中站点正则
+     */
+    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX=Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})");
     /**
      * 获取收货站点
      * @param sendCode 发货批次号
      * @return
      */
     public static final Integer getReceiveSiteCodeFromSendCode(String sendCode){
-        Matcher matcher=RULE_SEND_CODE_REGEX.matcher(sendCode.trim());
+        Matcher matcher=RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
         if(matcher.matches()){
             return Integer.parseInt(matcher.group(2));
         }
@@ -126,7 +130,7 @@ public class SerialRuleUtil
         if(null==sendCode){
             return null;
         }
-        Matcher matcher=RULE_SEND_CODE_REGEX.matcher(sendCode.trim());
+        Matcher matcher=RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
         if(matcher.matches()){
             return Integer.parseInt(matcher.group(1));
         }
