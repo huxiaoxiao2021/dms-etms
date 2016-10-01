@@ -150,7 +150,7 @@ public class KvIndexDao extends BaseDao<KvIndex> {
 			return 1;
 		}else{
 			Integer result = super.add(namespace, entity);
-			redisClientCache.setEx(entity.toUniqueString(),"1", 30 * 60 * 1000, TimeUnit.SECONDS);
+			redisClientCache.setEx(entity.toUniqueString(),"1", 30 * 60, TimeUnit.SECONDS);
 			return result;
 		}
     }
