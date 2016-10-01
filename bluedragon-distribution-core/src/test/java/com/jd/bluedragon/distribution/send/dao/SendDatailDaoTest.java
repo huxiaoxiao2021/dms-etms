@@ -543,6 +543,21 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 
     }
 
+
+    @Test
+    public void testfindDeliveryPackageByCode() {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setWaybillCode("36245754583");
+        sendDetail.setReceiveSiteCode(910);
+        Assert.assertEquals(0, sendDatailDao.findDeliveryPackageByCode(sendDetail).size());
+
+        sendDetail = new SendDetail();
+        sendDetail.setWaybillCode("16635238583");
+        sendDetail.setReceiveSiteCode(29);
+        Assert.assertEquals(1, sendDatailDao.findDeliveryPackageByCode(sendDetail).size());
+
+    }
+
     /////////////////////////////////////////////////////
     // KVIndexDao TestCase
     /////////////////////////////////////////////////////

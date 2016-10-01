@@ -600,6 +600,9 @@
 		    WHERE  sed.Is_Cancel=0 And Sem.Yn=1  AND Sem.send_type=30 
 		    AND sed.waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			AND Sem.receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+        <if test="createSiteCode!=null">
+            and Sem.create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
 	</select>
 	
 	<select id="querySortingDiff" parameterType="SendDetail" resultMap="SendDetail">
