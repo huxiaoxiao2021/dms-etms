@@ -37,6 +37,12 @@ public class KvIndex implements Cloneable, java.io.Serializable {
 		this.value = value;
 	}
 
+	public String toUniqueString(){
+		StringBuilder result = new StringBuilder();
+		result.append("kv_index@").append(this.getKeyword()).append("@").append(this.getValue());
+		return result.toString();
+	}
+	
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();

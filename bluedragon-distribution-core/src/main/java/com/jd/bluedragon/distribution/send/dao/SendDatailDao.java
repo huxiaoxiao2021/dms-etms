@@ -232,14 +232,29 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 				SendDatailDao.namespace + ".queryWaybillsByPackCode", packCode);
 	}
 
-    public List<SendDetail> queryWaybillsByBoxCode(String boxCode){
+	public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
+		SendDetail query = new SendDetail();
+		query.setBoxCode(boxCode);
+		return this.queryWaybillsByBoxCode(query);
+	}
+	
+    protected List<SendDetail> queryWaybillsByBoxCode(SendDetail query){
         return this.getSqlSession().selectList(
-                SendDatailDao.namespace + ".queryWaybillsByBoxCode", boxCode);
+                SendDatailDao.namespace + ".queryWaybillsByBoxCode", query);
     }
 
     public List<SendDetail> queryWaybillsBySendCode(String sendCode){
+    	SendDetail query = new SendDetail();
+    	query.setSendCode(sendCode);
+    	if (null != query && StringHelper.isNotEmpty(query.getSendCode())
+                && query.getCreateSiteCode() == null) {
+            Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+            query.setCreateSiteCode(createSiteCode);
+            if(null==createSiteCode) //为null说明不是合法的批次号,直接返回空List
+            	return new ArrayList<SendDetail>();
+        }
         return this.getSqlSession().selectList(
-                SendDatailDao.namespace + ".queryWaybillsBySendCode", sendCode);
+                SendDatailDao.namespace + ".queryWaybillsBySendCode", query);
     }
 
     public List<SendDetail> queryWaybillsByDepartID(Long departureID){

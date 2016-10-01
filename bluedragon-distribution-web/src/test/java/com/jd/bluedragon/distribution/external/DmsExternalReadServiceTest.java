@@ -169,7 +169,7 @@ public class DmsExternalReadServiceTest {
                 "/distribution-web-jsf-client-test.xml");
 
         DmsExternalReadService service = (DmsExternalReadService) appContext
-                .getBean("jsfDmsExternalReadService");
+                .getBean("dmsExternalReadService");
         LOGGER.info("得到调用端代理：{}", service);
 
         List<String> result = null;

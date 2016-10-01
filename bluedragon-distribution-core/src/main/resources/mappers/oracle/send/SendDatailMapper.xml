@@ -697,6 +697,9 @@
 		WHERE is_cancel=0
 		AND yn = 1
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
 	</select>
     <select id="queryWaybillsBySendCode" parameterType="java.lang.String" resultMap="SendDetail">
         SELECT waybill_code,package_barcode
@@ -704,6 +707,9 @@
         WHERE is_cancel=0
         AND yn = 1
         AND send_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
     </select>
 
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">

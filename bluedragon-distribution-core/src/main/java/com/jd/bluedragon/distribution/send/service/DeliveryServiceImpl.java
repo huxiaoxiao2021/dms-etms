@@ -2228,6 +2228,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if ((boxCode != null) && (!boxCode.trim().equals(""))) {
             SendDetail queryDetail = new SendDetail();
             queryDetail.setBoxCode(boxCode);
+            queryDetail.setCreateSiteCode(createSiteCode);
             List<SendDetail> oneList = sendDatailDao.querySortingDiff(queryDetail);
             if (oneList != null && !oneList.isEmpty()) {
                 for (SendDetail dSendDatail : oneList) {
