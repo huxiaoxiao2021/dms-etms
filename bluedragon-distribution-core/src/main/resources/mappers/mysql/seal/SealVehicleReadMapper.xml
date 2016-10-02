@@ -31,7 +31,7 @@
 			   update_user_code, update_user, create_time, update_time
 		FROM DMS.seal_vehicle
 		WHERE seal_code = #{sealCode} and yn = 1
-			  and LIMIT 1
+		LIMIT 1
 	</select>
 	
 	<select id="findBySendCode" resultMap="sealVehicle" parameterType="map">

@@ -102,9 +102,7 @@ public class SqlkitController {
 			if (sql.toLowerCase().startsWith("select")) {
 				pager = setPager(pager);
 				setTotalSize(pager, statement, sql);
-				String sqlExecute = "select * from ( select t.*, rownum l from (" + sql
-				        + ") t where  rownum <=" + pager.getEndIndex() + ") where l >"
-				        + pager.getStartIndex();
+				String sqlExecute = sql + " limit " + pager.getStartIndex() + "," + pager.getPageSize();
 				resultSet = statement.executeQuery(sqlExecute);
 				logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql[" + sql
 				        + "]");
@@ -185,7 +183,7 @@ public class SqlkitController {
 	private void setTotalSize(Pager pager, Statement statement, String sql) throws SQLException {
 		ResultSet resultSet = null;
 		try {
-			String sqlCount = "select count(*) from (" + sql + ")";
+			String sqlCount = "select count(1) from (" + sql + ") AS b";
 			resultSet = statement.executeQuery(sqlCount);
 			resultSet.next();
 			pager.setTotalSize(resultSet.getInt(1));
