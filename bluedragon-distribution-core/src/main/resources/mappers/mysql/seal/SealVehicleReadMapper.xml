@@ -29,7 +29,7 @@
 			   send_code,volume,weight,package_num,
 			   create_site_code, receive_site_code, create_user_code, create_user,
 			   update_user_code, update_user, create_time, update_time
-		FROM DMS.seal_vehicle
+		FROM seal_vehicle
 		WHERE seal_code = #{sealCode} and yn = 1
 		LIMIT 1
 	</select>
@@ -39,13 +39,13 @@
 			   send_code,volume,weight,package_num,
 			   create_site_code, receive_site_code, create_user_code, create_user,
 			   update_user_code, update_user, create_time, update_time
-		FROM DMS.seal_vehicle
+		FROM seal_vehicle
 		WHERE send_code = #{sendCode} and yn = 1
 	</select>
 
 	<select id="findBySealCodes" resultMap="sealVehicle" parameterType="list">
 		SELECT system_id, seal_code
-		FROM DMS.seal_vehicle
+		FROM seal_vehicle
 		WHERE yn = 1 AND seal_code in
 		<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
 			#{item,jdbcType=VARCHAR} 
@@ -54,7 +54,7 @@
 	
 	<select id="findByVehicleCode" resultMap="sealVehicle" parameterType="map">
 		SELECT seal_code,send_code,vehicle_code
-		FROM DMS.seal_vehicle
+		FROM seal_vehicle
 		WHERE yn = 1 
 		      AND create_site_code is not null 
 		      AND receive_site_code is null 
