@@ -28,7 +28,7 @@
 		SELECT
 			value
 		FROM kv_index
-		WHERE keyword = #{keyword} limit 1
+		WHERE keyword = #{keyword} and rownum<![CDATA[<=]]>1
 	</select>
 	
     <select id="queryByKeywordSet" resultType="java.lang.String" parameterType="java.util.List">
