@@ -691,19 +691,25 @@
 		AND yn = 1
 		AND package_barcode= #{packCode,jdbcType=VARCHAR}
 	</select>
-	<select id="queryWaybillsByBoxCode" parameterType="java.lang.String" resultMap="SendDetail">
+	<select id="queryWaybillsByBoxCode" parameterType="SendDetail" resultMap="SendDetail">
 		SELECT waybill_code,package_barcode
 		FROM send_d
 		WHERE is_cancel=0
 		AND yn = 1
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
 	</select>
-    <select id="queryWaybillsBySendCode" parameterType="java.lang.String" resultMap="SendDetail">
+    <select id="queryWaybillsBySendCode" parameterType="SendDetail" resultMap="SendDetail">
         SELECT waybill_code,package_barcode
         FROM send_d
         WHERE is_cancel=0
         AND yn = 1
         AND send_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
     </select>
 
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">

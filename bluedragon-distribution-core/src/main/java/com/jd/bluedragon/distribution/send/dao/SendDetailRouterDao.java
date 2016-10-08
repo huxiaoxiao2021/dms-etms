@@ -240,10 +240,27 @@ public class SendDetailRouterDao extends SendDatailDao{
 //        return super.findDeliveryPackageBySite(query);
 //    }
 //
-//    @Override
-//    public List<SendDetail> findDeliveryPackageByCode(SendDetail query) { //// FIXME: 2016/9/26
-//        return super.findDeliveryPackageByCode(query);
-//    }
+    @Override
+    public List<SendDetail> findDeliveryPackageByCode(SendDetail query) { //// FIXME: 2016/9/26
+        if(null == query || null == query.getWaybillCode()) {
+            return new ArrayList<SendDetail>();
+        }
+        List<SendDetail> mergeSendDetail = new ArrayList<SendDetail>();
+        List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(query.getWaybillCode());
+        if(null != siteCodes && siteCodes.size() > 0) {
+            for(Integer siteCode : siteCodes) {
+                query.setCreateSiteCode(siteCode);
+                List<SendDetail> sendDetails = super.findDeliveryPackageByCode(query);
+                if(null != sendDetails && sendDetails.size() > 0) {
+                    mergeSendDetail.addAll(sendDetails);
+                }
+            }
+        }
+        if(null != mergeSendDetail && mergeSendDetail.size() > 0) {
+            return mergeSendDetail;
+        }
+        return super.findDeliveryPackageByCode(query);
+    }
 //
 //    @Override
 //    public List<SendDetail> querySortingDiff(SendDetail query) {
@@ -280,11 +297,14 @@ public class SendDetailRouterDao extends SendDatailDao{
 //        return super.queryWaybillsByPackCode(packCode);
 //    }
 //
-//    @Override
-//    public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
-//        return super.queryWaybillsByBoxCode(boxCode);
-//    }
-//
+	public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
+		Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
+		SendDetail query = new SendDetail();
+		query.setBoxCode(boxCode);
+		query.setCreateSiteCode(createSiteCode);
+		return super.queryWaybillsByBoxCode(query);
+	}
+
 //    @Override
 //    public List<SendDetail> queryWaybillsBySendCode(String sendCode) {
 //        return super.queryWaybillsBySendCode(sendCode);

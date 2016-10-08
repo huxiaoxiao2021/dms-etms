@@ -54,4 +54,25 @@ public class KvIndexTest extends AbstractDaoIntegrationTest {
 
         }
     }
+    
+    
+    @Test
+    public void testQueryOneByKeyword() {
+    	Integer createSiteCode = kvIndexDao.queryOneByKeyword("0123456789012345678901234567890123456789012345678");
+    	Assert.assertNotNull(createSiteCode);
+    }
+    
+    
+    @Test
+    public void testAddRepeat() {
+    	 KvIndex index = new KvIndex();
+    	 index.setKeyword("hltest1l");
+    	 index.setValue("134567");
+    	 int count = kvIndexDao.add(index);
+    	 count = kvIndexDao.add(index);
+    	 Assert.assertEquals(1, count);
+    	 
+    	 List<Integer> cc = kvIndexDao.queryCreateSiteCodesByKey(index.getKeyword());
+    	 Assert.assertEquals(1, cc.size());
+    }
 }
