@@ -49,8 +49,8 @@ function checkParams(params) {
     if (params.siteNo == null || params.siteNo == "") {
         throw new Error("分拣中心为空!!");
     }
-    if (params.machineCode == null || params.machineCode == "" || params.machineCode.length > 10) {
-        throw new Error("机器码为空,或者长度超过10个字符!!");
+    if (params.machineCode == null || params.machineCode == "" || params.machineCode.length > 30) {
+        throw new Error("机器码为空,或者长度超过30个字符!!");
     }
     if (params.sortMode == null || params.sortMode == "") {
         throw new Error("分拣模式为空!!");

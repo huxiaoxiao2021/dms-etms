@@ -22,7 +22,7 @@ public interface DmsExternalReadService {
 
 
 	/**
-	 * 根据运单号,获取批次号,箱号,包裹号
+	 * 根据运单号，获取批次号，箱号，包裹号，创建站点编号，接收站点编号，操作时间
 	 * @param waybillCode 运单号
 	 * @return
 	 */

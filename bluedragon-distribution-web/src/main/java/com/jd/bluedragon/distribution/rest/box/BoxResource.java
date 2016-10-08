@@ -119,6 +119,7 @@ public class BoxResource {
             }
             SendM sendM = new SendM();
             sendM.setBoxCode(boxCode);
+            sendM.setCreateSiteCode(box.getCreateSiteCode());
             List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
             if (!sendMList.isEmpty()) {// 如果箱子已经发货，则不能再使用了
                 return this.boxHasBeanSended();

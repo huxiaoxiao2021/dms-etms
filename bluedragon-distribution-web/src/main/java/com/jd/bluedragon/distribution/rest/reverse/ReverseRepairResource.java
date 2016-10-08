@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ public class ReverseRepairResource {
 
 	private static final String TASK_REVERSE_SEND_BUSINESS = "20";
 	private static final String TASK_REVERSE_SEND_NODIFY = "4";
-	private static final String OWN_SIGN_DMS = "DMS";
 
 	@Autowired
 	private TaskService taskService;
@@ -62,7 +62,7 @@ public class ReverseRepairResource {
 			task.setType(Task.TASK_TYPE_SEND_DELIVERY);
 			task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
 			task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
-			task.setOwnSign(ReverseRepairResource.OWN_SIGN_DMS);
+			task.setOwnSign(BusinessHelper.getOwnSign());
 
 			this.taskService.add(task);
 		}

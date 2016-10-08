@@ -219,7 +219,7 @@
         <include refid="selectWhere"/>
         order by id desc
         <if test="startIndex != null">
-			LIMIT #{startIndex},#{pageSize}
+			LIMIT #{startIndex},#{endIndex}
 		</if>
     </select>
 

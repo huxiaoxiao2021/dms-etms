@@ -60,7 +60,7 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
         queryPara.setPackageBarcode(packageCode);
         queryPara.setIsCancel(Integer.valueOf(0));
         queryPara.setSendType(Constants.BUSSINESS_TYPE_THIRD_PARTY);
-        List<SendDetail> sendDetails= sendDatailDao.querySendDatailsBySelective(queryPara);
+        List<SendDetail> sendDetails= sendDatailDao.querySendDatailsBySelective(queryPara);//FIXME:无create_site_code有跨节点风险
         if(null==sendDetails||sendDetails.size()==0){
             result.customMessage(0,WAYBILL_NOT_SEND);
             return result;

@@ -7,7 +7,11 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-3.1.xsd">
-	
+
+    <!-- 去O的Oracle和Mysql主备配置表 -->
+    <import resource="classpath:spring/oracle/distribution-core-common.xml" />
+    <import resource="classpath:spring/distribution-core-dao.xml" />
+
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-worker-task.xml" />
 	<import resource="classpath:spring/distribution-worker-task-redis.xml" />

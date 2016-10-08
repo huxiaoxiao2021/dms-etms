@@ -341,6 +341,7 @@ public class FastRefundServiceImpl implements FastRefundService{
     	fastRefund.setApplyDate(sorting.getOperateTime().getTime());//申请时间    	 
     	fastRefund.setReqDMSId(sorting.getCreateSiteCode());//分拣中心id    	 
     	fastRefund.setReqDMSName(sorting.getCreateSiteName());//分拣中心名称
+    	fastRefund.setSys("ql.dms");
     	
     	return fastRefund;
     }

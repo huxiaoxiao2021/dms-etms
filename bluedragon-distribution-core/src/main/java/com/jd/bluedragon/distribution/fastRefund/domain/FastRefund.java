@@ -25,6 +25,8 @@ public class FastRefund {
 	4、 售后绑定的面单
 	*/
 	Integer waybillSign;
+	
+	String sys;//拦截mq添加  作为标示
 
 	public String getOrderId() {
 		return OrderId;
@@ -96,6 +98,14 @@ public class FastRefund {
 
 	public void setWaybillSign(Integer waybillSign) {
 		this.waybillSign = waybillSign;
+	}
+
+	public String getSys() {
+		return sys;
+	}
+
+	public void setSys(String sys) {
+		this.sys = sys;
 	}
 
 }

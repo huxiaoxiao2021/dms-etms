@@ -10,8 +10,12 @@ public class FastRefundBlockerComplete {
 	
 	String orderId;//订单号　
 	
+//	String orderIdOld;//老运单号
+	
 	String waybillcode;//运单号
 	
+	String vendorId;//客户订单号
+	 
 	String applyReason;//申请原因
 	 
 	String ReqErp;//申请人erp账号
@@ -25,6 +29,8 @@ public class FastRefundBlockerComplete {
 	Integer reqDMSId;//分拣中心id
 	 
 	String ReqDMSName;//分拣中心名称
+	
+	String sys;//拦截mq添加  作为标示
 	/**	
 	1、 京东自营订单 
 	2、 SOP订单 
@@ -110,6 +116,7 @@ public class FastRefundBlockerComplete {
 		this.waybillSign = waybillSign;
 	}
 
+
 	public Integer getOrderType() {
 		return orderType;
 	}
@@ -140,6 +147,22 @@ public class FastRefundBlockerComplete {
 
 	public void setWaybillcode(String waybillcode) {
 		this.waybillcode = waybillcode;
+	}
+
+	public String getWaybillcode() {
+		return waybillcode;
+	}
+
+	public void setWaybillcode(String waybillcode) {
+		this.waybillcode = waybillcode;
+	}
+
+	public String getSys() {
+		return sys;
+	}
+
+	public void setSys(String sys) {
+		this.sys = sys;
 	}
 	
 }

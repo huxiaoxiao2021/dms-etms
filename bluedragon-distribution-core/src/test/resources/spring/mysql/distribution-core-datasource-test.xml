@@ -19,8 +19,9 @@
 			</list>
 		</property>
 	</bean>
-	
-	<import resource="classpath:spring/distribution-core-dao.xml" />
+
+	<import resource="classpath:spring/distribution-core-dao-test.xml" />
+	<import resource="classpath:spring/distribution-core-redis.xml" />
 	
 	<bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
 	    <property name="driverClassName" value="${db.driverClassName}"/>

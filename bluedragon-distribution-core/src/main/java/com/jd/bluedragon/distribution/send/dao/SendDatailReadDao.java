@@ -28,15 +28,21 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 				SendDatailReadDao.namespace + ".findUpdatewaybillCodeMessage", paramMap);
 	}
 	
+	/**
+	 * 
+	 * @param boxCode
+	 * @param createSiteCode 可为空,为空时全库扫描,影响性能
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public List<String> findWaybillByBoxCode(String boxCode) {
-		
-		if(boxCode==null || boxCode.isEmpty())
+	public List<String> findWaybillByBoxCode(String boxCode, Integer createSiteCode) {
+		if (boxCode == null || boxCode.isEmpty())
 			return null;
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("boxCode", boxCode);
-		return this.getSqlSessionRead().selectList(
-				SendDatailReadDao.namespace + ".findWaybillByBoxCode", paramMap);
+		if (null != createSiteCode && createSiteCode > 0)
+			paramMap.put("createSiteCode", createSiteCode);
+		return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findWaybillByBoxCode", paramMap);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,6 +62,9 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
 				response.setBoxCode(sendDetail.getBoxCode());
 				response.setPackagebarcode(sendDetail.getPackageBarcode());
 				response.setSendCode(sendDetail.getSendCode());
+				response.setCreateSiteCode(sendDetail.getCreateSiteCode());
+				response.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+				response.setOperateTime(sendDetail.getOperateTime());
 				sendResponseList.add(response);
 			}
 		}

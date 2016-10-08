@@ -76,7 +76,6 @@ import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -92,7 +91,6 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -103,9 +101,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
-import com.jd.jim.cli.Cluster;
 import com.jd.jmq.client.producer.MessageProducer;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -218,6 +214,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("turnoverBoxMQ")
     private DefaultJMQProducer turnoverBoxMQ;
+
+    @Autowired
+    @Qualifier("dmsWorkSendDetailMQ")
+    private DefaultJMQProducer dmsWorkSendDetailMQ;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -1337,7 +1337,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         tWaybillStatus.setSendCode(tSendDatail.getSendCode());
                         tWaybillStatus.setBoxCode(tSendDatail.getBoxCode());
 
-                        if (!chekeParameter(tWaybillStatus)) {
+                        if (!checkParameter(tWaybillStatus)) {
                             this.logger.info("发货数据调用基础资料接口参数信息不全：包裹号为"
                                     + tSendDatail.getPackageBarcode());
                         } else {
@@ -1353,6 +1353,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 }
                                 canSuccess(tWaybillStatus, tSendDatail);
                                 sendInspection(tSendDatail, sendDatailMap);
+
+                                //发送发货明细mq
+                                Message sendMessage = parseSendDetailToMessage(tSendDatail);
+                                this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
+                                this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+
+
                             } else if (tSendDatail.getYn().equals(0) && tSendDatail.getIsCancel().equals(2)) {
                                 tSendDatail.setSendCode(null);
                                 if (businessTypeTWO.equals(tSendDatail
@@ -1380,7 +1387,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    private boolean chekeParameter(WaybillStatus tWaybillStatus) {
+    private boolean checkParameter(WaybillStatus tWaybillStatus) {
         if (tWaybillStatus.getOperatorId() == null) {
             return Boolean.FALSE;
         } else if (tWaybillStatus.getReceiveSiteType() == null) {
@@ -1454,7 +1461,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.TABLE_NAME_WAYBILL);
         tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
-        tTask.setOwnSign("DMS");
+        tTask.setOwnSign(BusinessHelper.getOwnSign());
         tTask.setKeyword1(tSendDatail.getWaybillCode());//回传运单状态
         tTask.setFingerprint(Md5Helper.encode(tSendDatail.getCreateSiteCode() + "_"
                 + tSendDatail.getReceiveSiteCode() + "_" + tSendDatail.getSendType() + "-"
@@ -1517,7 +1524,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
         SendDetail tSendDatail = new SendDetail();
-        List<Message> sendDetailMessageList = new ArrayList<Message>();
+//        List<Message> sendDetailMessageList = new ArrayList<Message>();
         List<SendDetail> sendDatailList = new ArrayList<SendDetail>();
         for (SendM newSendM : tSendM) {
             tSendDatail.setBoxCode(newSendM.getBoxCode());
@@ -1533,7 +1540,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 dSendDatail.setCreateUserCode(newSendM.getCreateUserCode());
 
                 //包装JMQ的Message对象,保存到sendDetailMessageList集合中
-                sendDetailMessageList.add(parseSendDetailToMessage(dSendDatail));
+//                sendDetailMessageList.add(parseSendDetailToMessage(dSendDatail));
             }
             logger.info("SEND_D明细" + JsonHelper.toJson(sendDatailList));
             updateWaybillStatus(sendDatailList);
@@ -1557,11 +1564,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 //			}
             //==================================================================
         }
-        try {
-            workerProducer.send(sendDetailMessageList);
-        } catch (JMQException e) {
-            logger.error("发货明细发送JMQ失败: ", e);
-        }
+
+        //使用下面的这种方式会在发送mq失败之后 通过worker再发送一次 modified by zhanglei
+//        try {
+//            workerProducer.send(sendDetailMessageList);
+//        } catch (Throwable e) {
+//            logger.error("发货明细发送JMQ失败: ", e);
+//        }
+//        for(Message itemMessage : sendDetailMessageList){
+//            this.logger.info("发送MQ["+itemMessage.getTopic()+"],业务ID["+itemMessage.getBusinessId()+"],消息主题: " + itemMessage.getText());
+//            this.dmsWorkSendDetailMQ.sendOnFailPersistent(itemMessage.getBusinessId(),itemMessage.getText());
+//        }
         return true;
     }
 
@@ -1674,7 +1687,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public boolean checkSend(SendDetail tSendDatail) {
-        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
         if (sendDetails != null && !sendDetails.isEmpty()) {
             Set<SendDetail> sendDatailset = new CollectionHelper<SendDetail>().toSet(sendDetails);
             sendDetails = new CollectionHelper<SendDetail>().toList(sendDatailset);
@@ -2215,6 +2228,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if ((boxCode != null) && (!boxCode.trim().equals(""))) {
             SendDetail queryDetail = new SendDetail();
             queryDetail.setBoxCode(boxCode);
+            queryDetail.setCreateSiteCode(createSiteCode);
             List<SendDetail> oneList = sendDatailDao.querySortingDiff(queryDetail);
             if (oneList != null && !oneList.isEmpty()) {
                 for (SendDetail dSendDatail : oneList) {

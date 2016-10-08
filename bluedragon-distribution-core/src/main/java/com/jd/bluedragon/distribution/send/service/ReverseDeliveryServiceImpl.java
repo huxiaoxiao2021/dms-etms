@@ -503,7 +503,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			send.setWaybillCode(wayCode);
 			send.setIsCancel(0);
 			List<SendDetail> sendlist = sendDatailDao
-					.querySendDatailsBySelective(send);
+					.querySendDatailsBySelective(send);//FIXME:无create_site_code有跨节点风险
 			if (sendlist.isEmpty()) {
 				response.setCode(JdResponse.CODE_PARAM_ERROR);
 				response.setMessage("没有该订单的发货数据请查证后在调用，订单号为：" + wayCode);
@@ -768,7 +768,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
 		SendDetail send = new SendDetail();
 		send.setWaybillCode(waybillCode);
-		List<SendDetail> sendlist = sendDatailDao.querySendDatailsBySelective(send);
+		List<SendDetail> sendlist = sendDatailDao.querySendDatailsBySelective(send);//FIXME:无create_site_code有跨节点风险
 		if (sendlist.isEmpty()) {
 			return null;
 		}
@@ -946,7 +946,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		
 		SendDetail tSendDatail = new SendDetail();
 		tSendDatail.setWaybillCode(waybillQP.getWaybillCode());
-		List<SendDetail> oneList = sendDatailDao.querySendDatailsBySelective(tSendDatail);
+		List<SendDetail> oneList = sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
 		if (oneList != null && !oneList.isEmpty()) {
 			List<DeliveryPackageD> list = generateAllPackageCodes(oneList.get(0).getPackageBarcode(), tJoinDetail);
 			waybill.setGoodNumber(list.size());

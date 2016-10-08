@@ -141,10 +141,17 @@
     		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
 		from send_d
 		where send_code in 
-		<foreach collection="list" item="items" index="index" open="("
+		<foreach collection="sendCodeList" item="items" index="index" open="("
 					close=")" separator=",">
 					#{items,jdbcType=VARCHAR}
 		</foreach> and yn = 1 and send_type = 10
+		<if test="dmsList.size()>0">
+		and create_site_code in 
+				<foreach collection="dmsList" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items,jdbcType=INTEGER}
+				</foreach>
+		</if>
 	</select>
 	
 	<select id="querySendDatail_3PL" parameterType="list" resultMap="SendDatail_TaskFailQueue">
@@ -153,10 +160,17 @@
     		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
 		from send_d
 		where send_code in 
-		<foreach collection="list" item="items" index="index" open="("
+		<foreach collection="sendCodeList" item="items" index="index" open="("
 					close=")" separator=",">
 					#{items,jdbcType=VARCHAR}
 		</foreach> and yn = 1 and send_type = 30
+		<if test="dmsList.size()>0">
+		and create_site_code in 
+				<foreach collection="dmsList" item="items" index="index" open="("
+					close=")" separator=",">
+					#{items,jdbcType=INTEGER}
+				</foreach>
+		</if>
 	</select>
 	
 	<insert id="batchInsert" parameterType="list">

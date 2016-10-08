@@ -198,6 +198,9 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and is_cancel=0  and box_code=#{boxCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
 	</select>
 	
 	<select id="querySendDatailsByPackageCode" parameterType="SendDetail"
@@ -205,6 +208,9 @@
 		SELECT 
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and is_cancel=0 and receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} and box_code=#{boxCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
 	</select>
 
 	<select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
@@ -224,6 +230,9 @@
 	    FROM send_d sd 
 	        INNER JOIN send_m sm ON sd.box_code = sm.box_code
 	    WHERE sm.send_code  = #{sendCode,jdbcType=VARCHAR}
+        <if test = "null!=createSiteCode">
+            and sm.create_site_code=#{createSiteCode,jdbcType=INTEGER}
+        </if>
 	        AND sd.yn = 1 AND sd.is_cancel = 0
 	</select>
 	
@@ -410,7 +419,7 @@
 				<if test="status != null">
 				sendd_status = #{status,jdbcType=TINYINT},
 				</if>
-				update_time = sysdate ,
+				update_time = NOW() ,
 				excute_count = (excute_count + 1)
 				<if test="status == 1">
 					, excute_time = (excute_time + 15/(24*60))
@@ -459,7 +468,7 @@
 		and sed.create_site_code= sem.create_site_code
 		where sed.sendd_status=1 and sed.send_type = 10  and sed.is_cancel in (0,2)
 		AND sed.excute_count < 5
-		AND sed.excute_time < SYSDATE
+		AND sed.excute_time < NOW()
 		and rownum <=300]]>
 	</select>
 
@@ -591,6 +600,9 @@
 		    WHERE  sed.Is_Cancel=0 And Sem.Yn=1  AND Sem.send_type=30 
 		    AND sed.waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			AND Sem.receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+        <if test="createSiteCode!=null">
+            and Sem.create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
 	</select>
 	
 	<select id="querySortingDiff" parameterType="SendDetail" resultMap="SendDetail">
@@ -659,7 +671,10 @@
 		SELECT 
 		waybill_code 
 		FROM send_d where yn=1 and
-		send_code=#{sendCode,jdbcType=VARCHAR} 
+		send_code=#{sendCode,jdbcType=VARCHAR}
+        <if test="createSiteCode!=null">
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        </if>
 		<if test = "null!=sendType">
 			and send_type = #{sendType,jdbcType=SMALLINT}
 		</if>
@@ -695,19 +710,25 @@
 		AND yn = 1
 		AND package_barcode= #{packCode,jdbcType=VARCHAR}
 	</select>
-	<select id="queryWaybillsByBoxCode" parameterType="java.lang.String" resultMap="SendDetail">
+	<select id="queryWaybillsByBoxCode" parameterType="SendDetail" resultMap="SendDetail">
 		SELECT waybill_code,package_barcode
 		FROM send_d
 		WHERE is_cancel=0
 		AND yn = 1
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
 	</select>
-    <select id="queryWaybillsBySendCode" parameterType="java.lang.String" resultMap="SendDetail">
+    <select id="queryWaybillsBySendCode" parameterType="SendDetail" resultMap="SendDetail">
         SELECT waybill_code,package_barcode
         FROM send_d
         WHERE is_cancel=0
         AND yn = 1
         AND send_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
     </select>
     
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">

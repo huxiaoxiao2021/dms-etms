@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.dbs.dao.ObjectIdDao">
+    <update id="updateFirstIdByName" parameterType="java.util.Map">
+        UPDATE
+        dbs_objectid
+        SET firstId = firstId + #{count, jdbcType=INTEGER}
+        WHERE objectName = #{objectName,jdbcType=VARCHAR}
+    </update>
+
+    <insert id="insertObjectId" parameterType="java.util.Map">
+        INSERT INTO dbs_objectid(id,objectName,firstId)
+        VALUES (SEQ_DBS_OBJECTID.NEXTVAL,#{objectName,jdbcType=VARCHAR},#{firstId,jdbcType=INTEGER})
+    </insert>
+
+    <select id="selectFirstIdByName" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT firstId FROM dbs_objectid WHERE objectName=#{objectName,jdbcType=VARCHAR}
+    </select>
+</mapper>

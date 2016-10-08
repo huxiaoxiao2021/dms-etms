@@ -16,6 +16,11 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
+
+    <!-- 去O的Oracle和Mysql主备配置表 -->
+    <import resource="classpath:spring/oracle/distribution-core-common.xml" />
+    <import resource="classpath:spring/distribution-core-dao.xml" />
+
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<import resource="classpath:spring/distribution-web-new-authen.xml" />
