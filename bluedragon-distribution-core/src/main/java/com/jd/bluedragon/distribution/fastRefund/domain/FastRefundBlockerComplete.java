@@ -141,12 +141,12 @@ public class FastRefundBlockerComplete {
 		this.operatTime = operatTime;
 	}
 
-	public String getWaybillcode() {
-		return waybillcode;
+	public String getVendorId() {
+		return vendorId;
 	}
 
-	public void setWaybillcode(String waybillcode) {
-		this.waybillcode = waybillcode;
+	public void setVendorId(String vendorId) {
+		this.vendorId = vendorId;
 	}
 
 	public String getWaybillcode() {

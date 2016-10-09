@@ -68,7 +68,7 @@ public class JsfPrintDeviceServiceImpl implements JsfPrintDeviceService{
         if(printDeviceState == true){
         /**该ISV是启用状态则往下执行获取版本号 **/
             /** 判断是否是最新版本 **/
-            if( !versionIdInUcc.equals(request.getVersionId())){
+            if(request.getVersionId() != versionIdInUcc){
                 boolean versionState = versionInfoInUccService.versionState(versionIdInUcc);
                 if(versionState == true){
                     /**通过最新版本的版本编号versionIdInUcc获取JSS中的下载地址**/
@@ -83,21 +83,12 @@ public class JsfPrintDeviceServiceImpl implements JsfPrintDeviceService{
                         response.setVersionId(versionIdInUcc);
                         response.setYn(0);
                     }
-                }else{
-                    response.setPrintDeviceId(request.getPrintDeviceId());
-                    response.setVersionId(request.getVersionId());
-                    response.setYn(0);
                 }
-            }else{
-                response.setPrintDeviceId(request.getPrintDeviceId());
-                response.setVersionId(request.getVersionId());
-                response.setYn(0);
             }
-
         }else{
             response.setPrintDeviceId(request.getPrintDeviceId());
             response.setVersionId(request.getVersionId());
-            response.setYn(0);
+            response.setYn(1);
         }
         return response;
     }

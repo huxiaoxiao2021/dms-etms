@@ -17,7 +17,7 @@
         <entry key="bucketName" value="${jss.bucket}"/>
     </util:map>
 
-    <bean id="jssVersionService" class="com.jd.bluedragon.alpha.jss.JssVersionServiceImpl">
+    <bean id="jssClientService" class="com.jd.bluedragon.alpha.jss.JssVersionServiceImpl">
         <property name="bucket" value="${jss.bucket}"/>
         <property name="accesskey" value="${jss.accessKey}"/>
         <property name="secretkey" value="${jss.secretKey}"/>
