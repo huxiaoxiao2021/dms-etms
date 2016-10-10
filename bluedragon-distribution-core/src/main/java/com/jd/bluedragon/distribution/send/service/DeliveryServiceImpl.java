@@ -1587,6 +1587,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             newSendDetail.setCreateSiteCode(sendDatail.getCreateSiteCode());
             newSendDetail.setReceiveSiteCode(sendDatail.getReceiveSiteCode());
             newSendDetail.setOperateTime(sendDatail.getOperateTime());
+            newSendDetail.setSendCode(sendDatail.getSendCode());
             message.setTopic(MessageDestinationConstant.SendDetailMQ.getName());
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDatail.getPackageBarcode());

@@ -280,7 +280,7 @@
 			<include refid="Base_Column_List" />
 	 	from inspection
 	 		<include refid="BPop_Join_Where_List" />
-		order by inspection_id 
+		order by create_time
 		<if test="startIndex != null">
 		  LIMIT #{startIndex},#{pageSize}
 		</if>
