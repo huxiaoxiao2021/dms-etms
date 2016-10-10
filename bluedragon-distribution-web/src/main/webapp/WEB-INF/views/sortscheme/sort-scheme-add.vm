@@ -63,7 +63,7 @@
 
             </div>
             <select id="siteNo" class="sortscheme_query_select">
-                <option value="$!{siteCode}">$!{siteName}</option>
+                <option value="$!{siteCode}">$!{siteCode} $!{siteName}</option>
             </select>
         </div>
         <div class="column_div">
