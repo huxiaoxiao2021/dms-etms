@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,10 +60,10 @@ public class SendDetailRouterDao extends SendDatailDao{
                 }
             }
         }
-        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
-            return mergeSendDetails;
-        }
-        return super.querySendDatailsByBoxCode(tSendDatail);
+        //if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+        return mergeSendDetails;
+        //}
+        //return super.querySendDatailsByBoxCode(tSendDatail);
     }
 
     @Override
@@ -81,10 +82,10 @@ public class SendDetailRouterDao extends SendDatailDao{
                 }
             }
         }
-        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
-            return mergeSendDetails;
-        }
-        return super.querySendDatailsByPackageCode(tSendDatail);
+        //if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+        return mergeSendDetails;
+        //}
+        //return super.querySendDatailsByPackageCode(tSendDatail);
     }
 //
 //    @Override
@@ -256,10 +257,10 @@ public class SendDetailRouterDao extends SendDatailDao{
                 }
             }
         }
-        if(null != mergeSendDetail && mergeSendDetail.size() > 0) {
-            return mergeSendDetail;
-        }
-        return super.findDeliveryPackageByCode(query);
+        //if(null != mergeSendDetail && mergeSendDetail.size() > 0) {
+        return mergeSendDetail;
+        //}
+        //return super.findDeliveryPackageByCode(query);
     }
 //
 //    @Override
@@ -299,11 +300,14 @@ public class SendDetailRouterDao extends SendDatailDao{
 //
 	public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
 		Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
-		SendDetail query = new SendDetail();
-		query.setBoxCode(boxCode);
-		query.setCreateSiteCode(createSiteCode);
-		return super.queryWaybillsByBoxCode(query);
-	}
+        if (createSiteCode != null) {
+            SendDetail query = new SendDetail();
+            query.setBoxCode(boxCode);
+            query.setCreateSiteCode(createSiteCode);
+            return super.queryWaybillsByBoxCode(query);
+        }
+        return Collections.emptyList();
+    }
 
 //    @Override
 //    public List<SendDetail> queryWaybillsBySendCode(String sendCode) {
