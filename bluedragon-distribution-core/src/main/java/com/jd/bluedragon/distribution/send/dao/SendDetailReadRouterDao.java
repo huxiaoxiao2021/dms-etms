@@ -36,11 +36,13 @@ public class SendDetailReadRouterDao extends SendDatailReadDao {
         if (waybillCode == null || waybillCode.isEmpty()) {
             return null;
         }
+
+        List<SendBoxDetailResponse> sendResponseList = new ArrayList<SendBoxDetailResponse>();
         try {
-            List<SendBoxDetailResponse> sendResponseList = new ArrayList<SendBoxDetailResponse>();
+            //List<SendBoxDetailResponse> sendResponseList = new ArrayList<SendBoxDetailResponse>();
             List<Integer> createSiteCodes = kvIndexDao.queryCreateSiteCodesByKey(waybillCode);
             if (null == createSiteCodes || createSiteCodes.size() <= 0) {
-                return super.findSendBoxByWaybillCode(waybillCode);
+                return sendResponseList;
             }
 
             List<SendDetail> sendDetailSet = new ArrayList<SendDetail>();
@@ -83,7 +85,8 @@ public class SendDetailReadRouterDao extends SendDatailReadDao {
             logger.error("获取分库拆分键失败，运单号" + waybillCode, e);
         }
 
-        return super.findSendBoxByWaybillCode(waybillCode);
+        //return super.findSendBoxByWaybillCode(waybillCode);
+        return sendResponseList;
     }
 
 //    @Override

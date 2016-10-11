@@ -60,10 +60,10 @@ public class SendDetailRouterDao extends SendDatailDao{
                 }
             }
         }
-        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
-            return mergeSendDetails;
-        }
-        return super.querySendDatailsByBoxCode(tSendDatail);
+        //if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+        return mergeSendDetails;
+        //}
+        //return super.querySendDatailsByBoxCode(tSendDatail);
     }
 
     @Override
@@ -82,10 +82,10 @@ public class SendDetailRouterDao extends SendDatailDao{
                 }
             }
         }
-        if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
-            return mergeSendDetails;
-        }
-        return super.querySendDatailsByPackageCode(tSendDatail);
+        //if(null != mergeSendDetails && mergeSendDetails.size() > 0) {
+        return mergeSendDetails;
+        //}
+        //return super.querySendDatailsByPackageCode(tSendDatail);
     }
 //
 //    @Override
@@ -257,10 +257,10 @@ public class SendDetailRouterDao extends SendDatailDao{
                 }
             }
         }
-        if(null != mergeSendDetail && mergeSendDetail.size() > 0) {
-            return mergeSendDetail;
-        }
-        return super.findDeliveryPackageByCode(query);
+        //if(null != mergeSendDetail && mergeSendDetail.size() > 0) {
+        return mergeSendDetail;
+        //}
+        //return super.findDeliveryPackageByCode(query);
     }
 //
 //    @Override

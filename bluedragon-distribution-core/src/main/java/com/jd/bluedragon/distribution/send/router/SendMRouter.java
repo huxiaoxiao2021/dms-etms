@@ -54,11 +54,10 @@ public class SendMRouter extends SendMDao {
     }
 
 
-
-
     @Override
     public List<SendM> findSendMByBoxCode2(SendM sendM) {
-        if(null==sendM.getCreateSiteCode()){
+        List<SendM> list = new ArrayList<SendM>();
+        if (null == sendM.getCreateSiteCode()) {
             //查询索引表,循环查询数据库
             List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
             if(LOGGER.isInfoEnabled()){
@@ -69,7 +68,7 @@ public class SendMRouter extends SendMDao {
                 if(LOGGER.isDebugEnabled()){
                     debugList=super.findSendMByBoxCode2(sendM);
                 }
-                List<SendM> list=new ArrayList<SendM>();
+                //List<SendM> list=new ArrayList<SendM>();
                 for (Integer item :siteCodes){
                     sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
                     List<SendM> index=super.findSendMByBoxCode2(sendM);
@@ -90,15 +89,17 @@ public class SendMRouter extends SendMDao {
                         return debugList;
                     }
                 }
-                return list;
+                //return list;
             }
         }
-        return super.findSendMByBoxCode2(sendM);
+        //return super.findSendMByBoxCode2(sendM);
+        return list;
     }
 
     @Override
     public List<SendM> findSendMByBoxCode(SendM sendM) {
-        if(null==sendM.getCreateSiteCode()){
+        List<SendM> list = new ArrayList<SendM>();
+        if (null == sendM.getCreateSiteCode()) {
             //查询索引表,循环查询数据库
             List<Integer> siteCodes= kvIndexDao.queryCreateSiteCodesByKey(sendM.getBoxCode());
             if(LOGGER.isInfoEnabled()){
@@ -109,7 +110,7 @@ public class SendMRouter extends SendMDao {
                 if(LOGGER.isDebugEnabled()){
                     debugList=super.findSendMByBoxCode(sendM);
                 }
-                List<SendM> list=new ArrayList<SendM>();
+                //List<SendM> list=new ArrayList<SendM>();
                 for (Integer item :siteCodes){
                     sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
                     List<SendM> index=super.findSendMByBoxCode(sendM);
@@ -130,10 +131,11 @@ public class SendMRouter extends SendMDao {
                         return debugList;
                     }
                 }
-                return list;
+                //return list;
             }
         }
-        return super.findSendMByBoxCode(sendM);
+        //return super.findSendMByBoxCode(sendM);
+        return list;
     }
 
     @Override
