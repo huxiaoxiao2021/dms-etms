@@ -176,13 +176,13 @@
 	<select id="findReverseSendTask" resultMap="task" parameterType="map">
 		SELECT task_id
 		FROM task_send
-		WHERE yn=1 AND keyword1 = 4 AND body = #{body}
+		WHERE yn=1 AND keyword1 = 4 AND box_code = #{body}
 	</select>
 
 	<select id="findWaybillSendTask" resultMap="task" parameterType="map">
 		SELECT task_id
 		FROM task_send
-		WHERE yn=1 AND keyword1 = 3 AND body = #{body}  and task_type='1300'
+		WHERE yn=1 AND keyword1 = 3 AND box_code = #{body}  and task_type='1300'
 	</select>
 
 	<select id="findTasksNumsByType" resultType="Integer"
