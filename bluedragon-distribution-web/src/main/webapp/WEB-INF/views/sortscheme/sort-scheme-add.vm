@@ -63,12 +63,16 @@
 
             </div>
             <select id="siteNo" class="sortscheme_query_select">
-                <option value="$!{siteCode}">$!{siteCode} $!{siteName}</option>
+                #if($!{siteCode})
+                    <option value="$!{siteCode}">$!{siteCode} $!{siteName}</option>
+                #else
+                    <option value="">所有分拣中心</option>
+                #end
             </select>
         </div>
         <div class="column_div">
             <div class="column_title">
-                <span>分拣机代码：</span>
+                <span>分拣机代码：</span>l
             </div>
             <div class="column_text">
                 <input type="text" id="machineCode" class="sortscheme_query_text"/>

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
@@ -22,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +68,9 @@ public class SortSchemeController {
     @Resource
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private BaseService baseService;
+
     // 页面跳转控制 增加参数跳转
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Integer siteCode,String siteName,Model model) {
@@ -74,10 +79,11 @@ public class SortSchemeController {
             /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
             try{
                 ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-                String erp = user.getUserCode();
-                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
-                siteCode = bssod.getSiteCode();
-                siteName = bssod.getSiteName();
+//                String erp = user.getUserCode();
+//                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
+                BaseStaffSiteOrgDto bssod = baseService.getBaseStaffByStaffId(user.getUserId());
+                siteCode = bssod.getDmsId();//仅为自营站点时有值
+                siteName = bssod.getDmsName();//仅为自营站点时有值
             }catch(Exception e){
                 logger.error("用户分拣中心初始化失败：",e);
             }
