@@ -79,11 +79,12 @@ public class SortSchemeController {
             /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
             try{
                 ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-//                String erp = user.getUserCode();
-//                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
-                BaseStaffSiteOrgDto bssod = baseService.getBaseStaffByStaffId(user.getUserId());
-                siteCode = bssod.getDmsId();//仅为自营站点时有值
-                siteName = bssod.getDmsName();//仅为自营站点时有值
+                logger.info("获取用户ERP："+ user.getUserCode());
+                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+                if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                    siteCode = bssod.getSiteCode();
+                    siteName = bssod.getSiteName();
+                }
             }catch(Exception e){
                 logger.error("用户分拣中心初始化失败：",e);
             }
