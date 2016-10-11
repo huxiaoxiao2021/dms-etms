@@ -36,11 +36,12 @@ public class SendDetailReadRouterDao extends SendDatailReadDao {
         if (waybillCode == null || waybillCode.isEmpty()) {
             return null;
         }
+
         try {
             List<SendBoxDetailResponse> sendResponseList = new ArrayList<SendBoxDetailResponse>();
             List<Integer> createSiteCodes = kvIndexDao.queryCreateSiteCodesByKey(waybillCode);
             if (null == createSiteCodes || createSiteCodes.size() <= 0) {
-                return super.findSendBoxByWaybillCode(waybillCode);
+                return sendResponseList;
             }
 
             List<SendDetail> sendDetailSet = new ArrayList<SendDetail>();
