@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -56,15 +57,16 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	@Override
 	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findWaybillByBoxCode", mState = { JProEnum.TP })
 	public List<String> findWaybillByBoxCode(String boxCode) {
-		List<String> waybillCodes = null;
-		try {
-			Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
-			waybillCodes = sendDatailReadDao.findWaybillByBoxCode(boxCode, createSiteCode);
-		} catch (Exception e) {
-			this.logger.error("根据箱号获得运单号异常boxCode:" + boxCode, e);
-		}
-		return waybillCodes;
-	}
+        try {
+            Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
+            if (createSiteCode != null) {
+                return sendDatailReadDao.findWaybillByBoxCode(boxCode, createSiteCode);
+            }
+        } catch (Exception e) {
+            this.logger.error("根据箱号获得运单号异常boxCode:" + boxCode, e);
+        }
+        return Collections.emptyList();
+    }
 
 
 	@Override

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -299,11 +300,14 @@ public class SendDetailRouterDao extends SendDatailDao{
 //
 	public List<SendDetail> queryWaybillsByBoxCode(String boxCode) {
 		Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
-		SendDetail query = new SendDetail();
-		query.setBoxCode(boxCode);
-		query.setCreateSiteCode(createSiteCode);
-		return super.queryWaybillsByBoxCode(query);
-	}
+        if (createSiteCode != null) {
+            SendDetail query = new SendDetail();
+            query.setBoxCode(boxCode);
+            query.setCreateSiteCode(createSiteCode);
+            return super.queryWaybillsByBoxCode(query);
+        }
+        return Collections.emptyList();
+    }
 
 //    @Override
 //    public List<SendDetail> queryWaybillsBySendCode(String sendCode) {
