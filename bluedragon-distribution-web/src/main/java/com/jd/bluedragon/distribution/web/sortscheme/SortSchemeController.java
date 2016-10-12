@@ -72,6 +72,7 @@ public class SortSchemeController {
 
         if(null == siteName || "".equals(siteName)){
             /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
+            logger.info("开始获取当前登录用户的ERP信息......");
             try{
                 ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
                 logger.info("获取用户ERP："+ user.getUserCode());
