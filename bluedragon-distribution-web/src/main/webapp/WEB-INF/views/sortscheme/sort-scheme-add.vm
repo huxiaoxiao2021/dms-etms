@@ -72,7 +72,7 @@
         </div>
         <div class="column_div">
             <div class="column_title">
-                <span>分拣机代码：</span>l
+                <span>分拣机代码：</span>
             </div>
             <div class="column_text">
                 <input type="text" id="machineCode" class="sortscheme_query_text"/>

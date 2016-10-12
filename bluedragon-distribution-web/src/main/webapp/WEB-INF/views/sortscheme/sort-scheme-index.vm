@@ -91,8 +91,10 @@
                 分拣中心：
                 <select id="siteNo" class="query_text">
                     <option value="">所有分拣中心</option>
-                    #if($siteCode)
-                        <option value="$!{siteCode}" selected="selected">$!{siteName}</option>
+                    #if($!{siteCode})
+                        <option value="$!{siteCode}">$!{siteCode} $!{siteName}</option>
+                    #else
+                        <option value="">所有分拣中心</option>
                     #end
                 </select>
             </span>
