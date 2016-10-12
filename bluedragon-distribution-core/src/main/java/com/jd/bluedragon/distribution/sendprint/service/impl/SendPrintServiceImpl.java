@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,6 +100,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	 * 批次汇总&&批次汇总打印
 	 */
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria) {
 	    SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
 		List<SummaryPrintResult> results = new ArrayList<SummaryPrintResult>();
@@ -590,6 +593,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	 * 基本查询
 	 */
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.basicPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
 		Date startDate = new Date();
 	    logger.info("打印交接清单-基本信息查询开始"+DateHelper.formatDate(startDate));
