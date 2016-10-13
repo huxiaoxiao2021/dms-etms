@@ -38,6 +38,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 
 /**
@@ -86,7 +88,8 @@ public class SortSchemeController {
             }
         }else{
             try{
-                siteName = URLDecoder.decode(siteName,"UTF-8");
+                siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));//需要截取字段
+
             }catch(UnsupportedEncodingException e){
                 logger.error("分拣中心参数解码异常：",e);
             }
@@ -122,8 +125,9 @@ public class SortSchemeController {
     public String goAdd(Integer siteCode,String siteName,Model model) {
 
         try{
+            siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));
             model.addAttribute("siteCode",siteCode);
-            model.addAttribute("siteName",URLDecoder.decode(siteName,"UTF-8"));
+            model.addAttribute("siteName",siteName);
         }catch(UnsupportedEncodingException e){
             logger.error("分拣中心参数解码异常：",e);
         }
@@ -386,6 +390,20 @@ public class SortSchemeController {
             response.setMessage(e.getMessage());
         }
         return response;
+    }
+
+    /** 去掉参数中的ID，保留中午分拣中心名 **/
+    private String getSiteNameParam(String str){
+        String siteName = "";
+        String regEX = "[\\u4e00-\\u9fa5]+";
+        Pattern pattern = Pattern.compile(regEX);
+        Matcher matcher = pattern.matcher(str);
+        logger.info("分拣中心参数截取......");
+        if(matcher.find()){
+            return matcher.group(0);
+        }
+        logger.error("getSiteNameParam()方法执行异常。。。");
+        return str;
     }
 
 }

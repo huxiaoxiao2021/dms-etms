@@ -64,7 +64,7 @@
             </div>
             <select id="siteNo" class="sortscheme_query_select">
                 #if($!{siteCode})
-                    <option value="$!{siteCode}">$!{siteCode} $!{siteName}</option>
+                    <option value="$!{siteCode}">$!{siteCode}&nbsp$!{siteName}</option>
                 #else
                     <option value="">所有分拣中心</option>
                 #end
