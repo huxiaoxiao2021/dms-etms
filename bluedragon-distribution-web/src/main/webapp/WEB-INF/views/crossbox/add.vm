@@ -38,6 +38,24 @@
 	<div id="breadcrumb">
 	  <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#"> 跨箱号中转维护新增 </a></p>
 	</div>
+    
+    <!-- 查询条件的参数隐藏接受领域 -->
+    <div>
+        <input type="hidden" id="query_originateOrg" name="originateOrg" value="$!{queryInfo.originateOrg}">
+        <input type="hidden" id="query_originateOrgName" name="originateOrgName" value="$!{queryInfo.originateOrgName}">
+        <input type="hidden" id="query_originalDmsName" name="originalDmsName" value="$!{queryInfo.originalDmsName}">
+        <input type="hidden" id="query_updateOperatorName" name="updateOperatorName" value="$!{queryInfo.updateOperatorName}">
+        <input type="hidden" id="query_destinationOrg" name="destinationOrg" value="$!{queryInfo.destinationOrg}">
+        <input type="hidden" id="query_destinationOrgName" name="destinationOrgName" value="$!{queryInfo.destinationOrgName}">
+        <input type="hidden" id="query_destinationDmsName" name="destinationDmsName" value="$!{queryInfo.destinationDmsName}">
+        <input type="hidden" id="query_startDate" name="startDate" value="$!{queryInfo.startDate}">
+        <input type="hidden" id="query_endDate" name="endDate" value="$!{queryInfo.endDate}">
+        <input type="hidden" id="query_transferOrg" name="transferOrg" value="$!{queryInfo.transferOrg}">
+        <input type="hidden" id="query_transferOrgName" name="transferOrgName" value="$!{queryInfo.transferOrgName}">
+        <input type="hidden" id="query_transferName" name="transferName" value="$!{queryInfo.transferName}">
+        <input type="hidden" id="query_yn" name="yn" value="$!{queryInfo.yn}">
+    </div>
+    
 	<!--[if !ie]>breadcrumb<![endif]-->
 	<div id="content">
 	    <!--[if !ie]>tbl-n<![endif]-->
@@ -124,7 +142,7 @@
                             <th></th>
                             <th colspan="2" align="left">
                                 <input  value="确定" class="btn_c" type="button" onclick="sbmt()">
-                                <input value="返回" class="btn_c" type="button" onclick="ret_back()">
+                                <input value="返回" class="btn_c" type="button" onclick="back_index()">
 								<input type="hidden" id="contextPath" value="#springUrl('')">
 							</th>
 						</tr>

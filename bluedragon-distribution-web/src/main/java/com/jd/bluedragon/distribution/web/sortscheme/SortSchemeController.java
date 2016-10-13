@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.web.sortscheme;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
@@ -17,8 +17,7 @@ import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.jsf.gd.util.StringUtils;
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.collections4.map.MultiValueMap;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -34,10 +33,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 
 /**
@@ -63,9 +65,39 @@ public class SortSchemeController {
     @Resource
     private SortSchemeDetailService sortSchemeDetailService;
 
-    // 页面跳转控制
+    @Resource
+    private BaseMajorManager baseMajorManager;
+
+    // 页面跳转控制 增加参数跳转
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String index() {
+    public String index(Integer siteCode,String siteName,Model model) {
+
+        if(null == siteName || "".equals(siteName)){
+            /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
+            logger.info("开始获取当前登录用户的ERP信息......");
+            try{
+                ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+                logger.info("获取用户ERP："+ user.getUserCode());
+                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+                if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                    siteCode = bssod.getSiteCode();
+                    siteName = bssod.getSiteName();
+                }
+            }catch(Exception e){
+                logger.error("用户分拣中心初始化失败：",e);
+            }
+        }else{
+            try{
+                siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));//需要截取字段
+
+            }catch(UnsupportedEncodingException e){
+                logger.error("分拣中心参数解码异常：",e);
+            }
+        }
+
+        model.addAttribute("siteCode",siteCode);
+        model.addAttribute("siteName",siteName);
+
         return "sortscheme/sort-scheme-index";
     }
 
@@ -90,7 +122,15 @@ public class SortSchemeController {
     }
 
     @RequestMapping(value = "/goAdd", method = RequestMethod.GET)
-    public String goAdd() {
+    public String goAdd(Integer siteCode,String siteName,Model model) {
+
+        try{
+            siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));
+            model.addAttribute("siteCode",siteCode);
+            model.addAttribute("siteName",siteName);
+        }catch(UnsupportedEncodingException e){
+            logger.error("分拣中心参数解码异常：",e);
+        }
         return "sortscheme/sort-scheme-add";
     }
 
@@ -350,6 +390,20 @@ public class SortSchemeController {
             response.setMessage(e.getMessage());
         }
         return response;
+    }
+
+    /** 去掉参数中的ID，保留中午分拣中心名 **/
+    private String getSiteNameParam(String str){
+        String siteName = "";
+        String regEX = "[\\u4e00-\\u9fa5]+";
+        Pattern pattern = Pattern.compile(regEX);
+        Matcher matcher = pattern.matcher(str);
+        logger.info("分拣中心参数截取......");
+        if(matcher.find()){
+            return matcher.group(0);
+        }
+        logger.error("getSiteNameParam()方法执行异常。。。");
+        return str;
     }
 
 }

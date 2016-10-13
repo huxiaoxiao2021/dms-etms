@@ -159,6 +159,12 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <!--包裹称重信息发送mq-->
+    <bean id="dmsWeightSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="dmsWeightSendMQ"/>
+        <property name="timeout" value="1000"/>
+        <!---->
+    </bean>
 
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>

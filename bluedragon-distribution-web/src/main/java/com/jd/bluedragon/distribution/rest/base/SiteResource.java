@@ -8,8 +8,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -23,6 +28,9 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
+
+import java.text.MessageFormat;
+import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -108,4 +116,26 @@ public class SiteResource {
     public BaseStaffSiteOrgDto getSiteString(@PathParam("siteCode") String siteCode) {
         return this.baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCode);
     }
+
+    /**
+     * 分页获取所有站点
+     * @param pageNo 页号
+     * @param category  1：站点---2：库房---3：商家
+     * @return
+     */
+    @GET
+    @Path("/site/siteWareHourceMerchantByPage/{category}/{pageNo}")
+    @JProfiler(jKey = "DMS.siteResource.getSiteByPageNo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSiteByPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
+        InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
+        try{
+            result.setData(this.siteService.getSitesByPage(category,pageNo));
+        }catch (Throwable throwable){
+            logger.error(MessageFormat.format("分页获取站点数据失败{0}-{1}",category,pageNo),throwable);
+            result.error("获取站点出现异常，请联系孔春飞");
+        }
+        return result;
+    }
+
+
 }

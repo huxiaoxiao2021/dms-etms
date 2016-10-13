@@ -13,7 +13,11 @@ function main() {
 
     // 返回按钮
     $("#backBtn").click(function () {
-        location.href = $("#contextPath").val() + "/autosorting/sortScheme/index";
+        var siteCode = $("#siteNo").val();
+        var siteName = $("#siteNo").find("option:selected").text();
+
+        location.href = $("#contextPath").val() + "/autosorting/sortScheme/index?siteCode="
+            + siteCode + "&siteName=" + encodeURIComponent(encodeURIComponent(siteName));
     });
 
     // 加载所有的分拣中心

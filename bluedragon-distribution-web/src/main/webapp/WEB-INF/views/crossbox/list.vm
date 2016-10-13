@@ -41,47 +41,58 @@
 						<tr>
                             <td align="right">始发区域：</td>
 							<td>
-								<select id="originateOrg" name="originateOrg" class="select20" style="width:130px">
+								<select id="originateOrg" name="originateOrg" class="select20" style="width:130px" >
                                     <option value="-1">全部</option>
+                                    #if($queryInfo.originateOrg)
+                                        <option value="$!queryInfo.originateOrg" #if($!queryInfo.originateOrg !=-1) selected ="selected" #end>$!{queryInfo.originateOrgName}</option>
+                                    #end
                                 </select>
 								始发分拣：
-								<input type="text" id="originalDmsName" name="originalDmsName" maxlength="50" style="width:130px"/>
-								<input type="hidden" id="originalDmsId" name="originalDmsId"/>
+								<input type="text" id="originalDmsName" name="originalDmsName" maxlength="50" style="width:130px" value="$!{queryInfo.originalDmsName}"/>
+								<input type="hidden" id="originalDmsId" name="originalDmsId" value="$!{queryInfo.originalDmsId}"/>
 								数据维护人：
-								<input type="text" id="updateOperatorName" name="updateOperatorName" maxlength="30" style="width:130px"/>
+								<input type="text" id="updateOperatorName" name="updateOperatorName" maxlength="30" style="width:130px" value="$!{queryInfo.updateOperatorName}"/>
                             </td>
 						</tr>							    
 						<tr>
 							<td align="right">目的区域：</td>
 							<td>
-								<select id="destinationOrg" name="destinationOrg" class="select20" style="width:130px">
+								<select id="destinationOrg" name="destinationOrg" class="select20" style="width:130px" value="$!{queryInfo.destinationOrg}">
                                     <option value="-1">全部</option>
+                                    #if($queryInfo.destinationOrg)
+                                        <option value="$!queryInfo.destinationOrg" #if($!queryInfo.destinationOrg !=-1) selected ="selected" #end>$!{queryInfo.destinationOrgName}</option>
+                                    #end
                                 </select>
 								目的分拣：
-                                <input type="text" id="destinationDmsName" name="destinationDmsName" maxlength="50" style="width:130px"/>
-								<input type="hidden" id="destinationDmsId" name="destinationDmsId"/>
+                                <input type="text" id="destinationDmsName" name="destinationDmsName" maxlength="50" style="width:130px" value="$!{queryInfo.destinationDmsName}"/>
+								<input type="hidden" id="destinationDmsId" name="destinationDmsId" value="$!{queryInfo.destinationDmsId}"/>
 								维护时间&nbsp;&nbsp;&nbsp;&nbsp;：
                                 <input type="text" id= "startDate"  name="startDate" style="width: 130px" class="Wdate"
-                                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})"/>
+                                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})" value="$!{queryInfo.startDate}"/>
 								--
 								<input type="text" id= "endDate"  name="endDate" style="width: 130px" class="Wdate"
-                                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})"/>
+                                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})" value="$!{queryInfo.endDate}"/>
                             </td>
 							             	           
 						 </tr>
 						 <tr >
 							<td align="right">中转区域：</td>
 							<td>
-								<select id="transferOrg" name="transferOrg" class="select20" style="width:130px">
+								<select id="transferOrg" name="transferOrg" class="select20" style="width:130px" value="$!{queryInfo.transferOrg}">
                                     <option value="-1">全部</option>
+                                    #if($queryInfo.transferOrg)
+                                        <option value="$!queryInfo.transferOrg" #if($!queryInfo.transferOrg !=-1) selected ="selected" #end>$!{queryInfo.transferOrgName}</option>
+                                    #end
                                 </select>
 								中转分拣：
-								<input type="text" id="transferName" name="transferName" maxlength="50" style="width:130px"/>
-								<input type="hidden" id="transferId" name="transferId"/>
-								<select id="yn" name="yn" class="select8">
+								<input type="text" id="transferName" name="transferName" maxlength="50" style="width:130px" value="$!{queryInfo.transferName}"/>
+								<input type="hidden" id="transferId" name="transferId" value="$!{queryInfo.transferId}"/>
+								<select id="yn" name="yn" class="select8" value="$!{queryInfo.yn}">
 									 <option value = "-1">全部</option>
-									 <option value = "1">启用</option>
-									 <option value = "2">不启用</option>
+									 <option value = "1" #if($!{queryInfo.yn} == 1) selected = "selected"
+                                     #end>启用</option>
+									 <option value = "2" #if($!{queryInfo.yn} == 2) selected = "selected"
+                                     #end>不启用</option>
                                 </select>
 								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 					            <input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1);"/>
@@ -134,4 +145,3 @@
 </div>
 </body>
 </html>
-	

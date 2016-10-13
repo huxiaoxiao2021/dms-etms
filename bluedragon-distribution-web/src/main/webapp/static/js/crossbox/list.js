@@ -26,115 +26,9 @@ function main() {
 	initOrg();
 
 	// 初始化列表，加载所有信息
-	initList();
+	queryBtn(1);
 }
 
-// 初始化现在的列表
-function initList() {
-	var params = {};
-	params.originateOrg = -1;
-	params.originalDmsName = null;
-	params.originalDmsId = null;
-
-	params.updateOperatorName = null;
-
-	params.destinationOrg = -1;
-	params.destinationDmsName = null;
-	params.destinationDmsId = null;
-
-	params.startDate = null;
-	params.endDate = null;
-
-	params.transferOrg = -1;
-	params.transferName = null;
-	params.transferId = null;
-
-	params.yn = -1;
-
-	var url = $("#contextPath").val() + "/base/crossbox/query";
-	var url_edit = $("#contextPath").val() + "/base/crossbox/toEdit?id="
-	CommonClient.post(url, params,
-			function(data) {
-				if (data == undefined || data == null) {
-					alert('提示:', 'HTTP请求无数据返回！', 'info');
-					return;
-				}
-
-				if (data.code == 1) {
-					var pager = data.data;
-					var resultList = pager.data;
-                    if (null == pager || null == resultList) {
-                        return; //无数据情况下的bug
-                    }
-					var temp = "";
-					for (var i = 0; i < resultList.length; i++) {
-						temp += "<tr class='a2' style=''>";
-						temp += "<td>" + (resultList[i].id) + "</td>";
-
-						temp += "<td>"
-						if (resultList[i].originalDmsName != null)
-							temp += resultList[i].originalDmsName;
-						temp += "</td>";
-
-						temp += "<td>";
-						if (resultList[i].transferOneName != null)
-							temp += resultList[i].transferOneName;
-						temp += "</td>";
-
-						temp += "<td>";
-						if (resultList[i].transferTwoName != null)
-							temp += resultList[i].transferTwoName;
-						temp += "</td>";
-
-						temp += "<td> ";
-						if (resultList[i].transferThreeName != null)
-							temp += resultList[i].transferThreeName;
-						temp += "</td>";
-
-						temp += "<td>" + (resultList[i].destinationDmsName)
-								+ "</td>";
-
-						temp += "<td>" + (resultList[i].fullLine) + "</td>";
-						temp += "<td>" + dateFormat(resultList[i].updateTime)
-								+ "</td>";
-						temp += "<td>" + (resultList[i].updateOperatorName)
-								+ "</td>";
-
-						if (resultList[i].yn == 1)
-							temp += "<td>启用</td>";
-
-						else if (resultList[i].yn == 2)
-							temp += "<td>未启用</td>";
-						else
-							temp += "<td>删除</td>";
-						temp += "<td>";
-						if (resultList[i].effectiveDate != null)
-							temp += dateFormat(resultList[i].effectiveDate);
-						temp += "</td>";
-
-						temp += "<td>";
-						if (resultList[i].yn == 1) {
-							temp += "<a href=" + url_edit + resultList[i].id
-									+ ">修改</a>";
-							temp += "<a href= '#' onclick='toDelete( "
-									+ resultList[i].id + ")' >删除</a>";
-						} else if (resultList[i].yn == 2) {
-							temp += "<a href= '#' onclick='toDelete( "
-									+ resultList[i].id + ")' >删除</a>";
-						}
-						temp += "</td>";
-						temp += "</tr>";
-					}
-
-					$("#paperTable tbody").html(temp);
-					$("#pager").html(
-							PageBar.getHtml("queryBtn", pager.totalSize,
-									pager.pageNo, pager.totalNo));
-				} else {
-					alert('提示:', data.message, 'info');
-				}
-			});
-}
 
 // 初始化始发区域、目的区域、中转区域下拉框
 function initOrg() {
@@ -148,7 +42,7 @@ function initOrg() {
 		var optionList;
 		for (var i = 0; i < orgList.length; i++) {
 			if (orgList[i].orgId != -100) {
-				optionList += "<option value='" + orgList[i].orgId + "'>"
+				optionList += "<option value='" + orgList[i].orgId + "')>"
 						+ orgList[i].orgName + "</option>";
 			}
 		}
@@ -342,8 +236,8 @@ function doQuery(params) {
 
 					temp += "<td>";
 					if (resultList[i].yn == 1) {
-						temp += "<a href=" + url_edit + resultList[i].id
-								+ ">修改</a>";
+						temp += "<a href='#' onclick='do_modify( "
+								+ resultList[i].id + ")'>修改</a>";
 						temp += "<a href= '#' onclick='toDelete( "
 								+ resultList[i].id + ")' >删除</a>";
 					} else if (resultList[i].yn == 2) {
@@ -401,4 +295,24 @@ function dateFormat(date) {
 
 	return y + '-' + add0(m) + '-' + add0(d) + ' ' + add0(h) + ':' + add0(mm)
 			+ ':' + add0(s);
+}
+
+/**
+ * 修改按钮两个功能：1. 携带查询参数，2.实现页面跳转
+ *
+ */
+function do_modify(id){
+	var params = getParams();
+    var originateOrgName = $("#originateOrg").find("option:selected").text();
+    var destinationOrgName = $("#destinationOrg").find("option:selected").text();
+    var transferOrgName = $("#transferOrg").find("option:selected").text();
+	var url = $("#contextPath").val() + "/base/crossbox/toEdit?id=" + id + "&originateOrg="
+		+ params.originateOrg + "&originateOrgName=" + encodeURIComponent(encodeURIComponent(originateOrgName))+"&originalDmsName=" + encodeURIComponent(encodeURIComponent(params.originalDmsName)) + "&updateOperatorName="
+		+ encodeURIComponent(encodeURIComponent(params.updateOperatorName)) + "&destinationOrg=" + params.destinationOrg + "&destinationOrgName=" + encodeURIComponent(encodeURIComponent(destinationOrgName)) + "&destinationDmsName="
+		+ encodeURIComponent(encodeURIComponent(params.destinationDmsName)) +  "&startDate=" + params.startDate + "&endDate="
+		+ params.endDate + "&transferOrg=" + params.transferOrg + "&transferOrgName=" + encodeURIComponent(encodeURIComponent(transferOrgName)) +"&transferName="
+		+ encodeURIComponent(encodeURIComponent(params.transferName)) + "&yn=" + params.yn;
+
+	window.location.href = url;
+
 }

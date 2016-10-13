@@ -63,7 +63,11 @@
 
             </div>
             <select id="siteNo" class="sortscheme_query_select">
-                <option value="">所有分拣中心</option>
+                #if($!{siteCode})
+                    <option value="$!{siteCode}">$!{siteCode}&nbsp$!{siteName}</option>
+                #else
+                    <option value="">所有分拣中心</option>
+                #end
             </select>
         </div>
         <div class="column_div">

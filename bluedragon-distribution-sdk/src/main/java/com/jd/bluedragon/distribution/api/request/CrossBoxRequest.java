@@ -22,6 +22,9 @@ public class CrossBoxRequest implements Serializable {
 	private Integer startIndex;
 	private Integer endIndex;
 	private Integer yn;
+	private String originateOrgName;//始发区域名称
+	private String destinationOrgName;//目的区域名称
+	private String transferOrgName;//中转区域名称
 
 	public String getOriginalDmsName() {
 		return originalDmsName;
@@ -157,6 +160,30 @@ public class CrossBoxRequest implements Serializable {
 
 	public void setYn(Integer yn) {
 		this.yn = yn;
+	}
+
+	public String getOriginateOrgName() {
+		return originateOrgName;
+	}
+
+	public void setOriginateOrgName(String originateOrgName) {
+		this.originateOrgName = originateOrgName;
+	}
+
+	public String getDestinationOrgName() {
+		return destinationOrgName;
+	}
+
+	public void setDestinationOrgName(String destinationOrgName) {
+		this.destinationOrgName = destinationOrgName;
+	}
+
+	public String getTransferOrgName() {
+		return transferOrgName;
+	}
+
+	public void setTransferOrgName(String transferOrgName) {
+		this.transferOrgName = transferOrgName;
 	}
 
 }

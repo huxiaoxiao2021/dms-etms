@@ -197,10 +197,6 @@ function getSites(info) {
 	return info.siteName + "|" + info.siteCode + "|";
 }
 
-function ret_back() {
-	var contextPath = $("#contextPath").val();
-	location.href = contextPath + "/base/crossbox/index";
-}
 function clearHiddenInput() {
 	if ($("#transferOneName").val() == "") {
 		$("#transferOneId").val("");
@@ -306,9 +302,47 @@ function doUpdate() {
 				}
 			} else {
 				alert("更新成功");
-				document.location.href = contextPath
-						+ "/base/crossbox/index";
+				back_index();//携带之前的查询条件参数跳转到主页
 			}
 		}
 	});
+}
+
+/**
+ * 获取查询条件的参数
+ */
+function getQueryParams() {
+	var params = {};
+	params.originateOrg = $.trim($("#query_originateOrg").val());
+	params.originateOrgName = $.trim($("#query_originateOrgName").val());
+	params.originalDmsName = $.trim($("#query_originalDmsName").val());
+	params.updateOperatorName = $.trim($("#query_updateOperatorName").val());
+
+	params.destinationOrg = $.trim($("#query_destinationOrg").val());
+	params.destinationOrgName = $.trim($("#query_destinationOrgName").val());
+	params.destinationDmsName = $.trim($("#query_destinationDmsName").val());
+
+	params.startDate = $.trim($("#query_startDate").val());
+	params.endDate = $.trim($("#query_endDate").val());
+
+	params.transferOrg = $.trim($("#query_transferOrg").val());
+	params.transferOrgName = $.trim($("#query_transferOrgName").val());
+	params.transferName = $.trim($("#query_transferName").val());
+
+	params.yn = $.trim($("#query_yn").val());
+	return params;
+}
+
+/**
+ * 主页跳转
+ */
+function back_index(){
+	var params = getQueryParams();
+	var url =  "/base/crossbox/index?originateOrg="
+		+ params.originateOrg + "&originateOrgName=" + encodeURIComponent(encodeURIComponent(params.originateOrgName))+"&originalDmsName=" + encodeURIComponent(encodeURIComponent(params.originalDmsName)) + "&updateOperatorName="
+		+ encodeURIComponent(encodeURIComponent(params.updateOperatorName)) + "&destinationOrg=" + params.destinationOrg + "&destinationOrgName=" + encodeURIComponent(encodeURIComponent(params.destinationOrgName)) + "&destinationDmsName="
+		+ encodeURIComponent(encodeURIComponent(params.destinationDmsName)) +  "&startDate=" + params.startDate + "&endDate="
+		+ params.endDate + "&transferOrg=" + params.transferOrg + "&transferOrgName=" + encodeURIComponent(encodeURIComponent(params.transferOrgName)) +"&transferName="
+		+ encodeURIComponent(encodeURIComponent(params.transferName)) + "&yn=" + params.yn;
+	window.location.href = url;
 }
