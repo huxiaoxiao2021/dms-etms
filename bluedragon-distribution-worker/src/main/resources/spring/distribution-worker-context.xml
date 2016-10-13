@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
     <!-- 去O的Oracle和Mysql主备配置表 -->
-    <import resource="classpath:spring/oracle/distribution-core-common.xml" />
+    <import resource="classpath:spring/mysql/distribution-core-common.xml" />
     <import resource="classpath:spring/distribution-core-dao.xml" />
 
 	<import resource="classpath:spring/distribution-core-context.xml" />
@@ -25,4 +25,4 @@
 	   <property name="systemKey" value="Bluedragon_dms_worker.system"></property>
 	</bean>
 	<!-- ump monitor end -->
-</beans> 
+</beans>

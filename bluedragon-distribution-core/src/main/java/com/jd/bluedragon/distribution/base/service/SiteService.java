@@ -1,10 +1,14 @@
 package com.jd.bluedragon.distribution.base.service;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
+
+import java.util.List;
 
 public interface SiteService {
 
@@ -24,5 +28,13 @@ public interface SiteService {
 	 * @return
 	 */
 	public CapacityCodeResponse queryCapacityCodeInfo(CapacityCodeRequest request);
-	
+
+    /**
+     * 获取站点分页
+     * @param pageNo
+     * @return
+     */
+    public Pager<List<SiteWareHouseMerchant>> getSitesByPage(int category,int pageNo);
+
+
 }

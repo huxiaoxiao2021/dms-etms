@@ -1,17 +1,25 @@
 package com.jd.bluedragon.distribution.weight.service;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
-import com.jd.bluedragon.distribution.client.WeightClient;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
+import com.jd.bluedragon.distribution.weight.domain.OpeObject;
+import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Service("weightService")
@@ -19,6 +27,9 @@ public class WeightServiceImpl implements WeightService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	@Autowired
+	@Qualifier("dmsWeightSendMQ")
+	private DefaultJMQProducer dmsWeightSendMQ;
 
 	@Autowired
 	private  WaybillPackageApi waybillPackageApiJsf;
@@ -32,7 +43,8 @@ public class WeightServiceImpl implements WeightService {
 				return false;
 			}
 			//response = WeightClient.weightTrack(body.substring(1, body.length() - 1));
-			Map<String,Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
+			Map<String, Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
+			this.sendMQ(body);
 			if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
 				this.logger.info("向运单系统回传包裹称重信息成功");
 				return true;
@@ -46,4 +58,47 @@ public class WeightServiceImpl implements WeightService {
 		return false;
 	}
 
+	/**
+	 * 发送包裹称重、体积信息MQ
+	 *
+	 * @param body 数据内容
+	 * @throws JMQException
+	 */
+	private void sendMQ(String body) throws JMQException {
+		List<OpeObject> opeDetails = JsonHelper.jsonToArray(body.substring(1, body.length() - 1), OpeEntity.class).getOpeDetails();
+		if (opeDetails != null && opeDetails.size() > 0) {
+			for (OpeObject ope : opeDetails) {
+				OpeSendObject opeSend = new OpeSendObject();
+				opeSend.setPackage_code(ope.getPackageCode());
+				opeSend.setDms_site_id(ope.getOpeSiteId());
+				opeSend.setThisUpdateTime(this.getDateLong(ope.getOpeTime()));
+				if (ope.getpWeight() != null) {
+					opeSend.setWeight(ope.getpWeight());
+				} else {
+					opeSend.setWeight(0f);
+				}
+				if (ope.getpHigh() != null && ope.getpLength() != null && ope.getpWidth() != null) {
+					//计算体积
+					opeSend.setVolume(ope.getpHigh() * ope.getpLength() * ope.getpWidth());
+				} else {
+					opeSend.setVolume(0f);
+				}
+				this.dmsWeightSendMQ.send(ope.getPackageCode(), opeSend.toString());
+			}
+		}
+	}
+
+	private Long getDateLong(String dateStr) {
+		if (dateStr != null && !dateStr.isEmpty()) {
+			try {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date date = format.parse(dateStr);
+				return date.getTime();
+			} catch (ParseException e) {
+				this.logger.error("无效的日期格式：" + dateStr, e);
+				return null;
+			}
+		}
+		return null;
+	}
 }

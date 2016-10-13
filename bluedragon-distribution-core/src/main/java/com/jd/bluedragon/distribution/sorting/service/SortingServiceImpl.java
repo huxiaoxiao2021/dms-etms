@@ -653,7 +653,7 @@ public class SortingServiceImpl implements SortingService {
 		frbc.setWaybillcode(sorting.getWaybillCode());
 		frbc.setApplyReason("分拣中心快速退款");
 		frbc.setApplyDate(sorting.getOperateTime().getTime());
-		frbc.setSystemId(12);
+		frbc.setSystemId(87);//blockerComOrbrefundRq的systemId设定为87
 		frbc.setReqErp(String.valueOf(sorting.getCreateUserCode()));
 		frbc.setReqName(sorting.getCreateUser());
 		frbc.setOrderType(sorting.getType());

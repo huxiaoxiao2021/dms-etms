@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.send.dao;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -22,9 +24,11 @@ public class SendMReadDao extends BaseDao<SendM>{
     }
     
     public List<String> selectBoxCodeBySendCode(String sendCode) {
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(null == createSiteCode) return Collections.emptyList();
     	SendM sendM = new SendM();
 		sendM.setSendCode(sendCode);
-        sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
+        sendM.setCreateSiteCode(createSiteCode);
         return getSqlSessionRead().selectList(SendMReadDao.namespace + ".selectBoxCodeBySendCode", sendM);
     }
 }

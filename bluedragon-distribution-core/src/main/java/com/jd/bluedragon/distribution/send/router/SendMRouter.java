@@ -64,10 +64,6 @@ public class SendMRouter extends SendMDao {
             }
             List<SendM> list = new ArrayList<SendM>();
             if (null != siteCodes && siteCodes.size() > 0) {
-                List<SendM> debugList = null;
-                if (LOGGER.isDebugEnabled()) {
-                    debugList = super.findSendMByBoxCode2(sendM);
-                }
                 for (Integer item : siteCodes) {
                     sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
                     List<SendM> index = super.findSendMByBoxCode2(sendM);
@@ -77,16 +73,6 @@ public class SendMRouter extends SendMDao {
                 }
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}", JsonHelper.toJson(list)));
-                }
-                if (LOGGER.isDebugEnabled()) {
-                    int debugCount = (null != debugList) ? debugList.size() : 0;
-                    int normalCount = (null != list) ? list.size() : 0;
-                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{1}", debugCount, normalCount));
-                    LOGGER.debug(MessageFormat.format("原版查询数据内容为{0}", JsonHelper.toJson(debugList)));
-                    if (debugCount != normalCount) {
-                        LOGGER.error("发货主表两次查询数据不一致");
-                        return debugList;
-                    }
                 }
             }
             return list;
@@ -105,11 +91,6 @@ public class SendMRouter extends SendMDao {
 
             List<SendM> list = new ArrayList<SendM>();
             if (null != siteCodes && siteCodes.size() > 0) {
-                List<SendM> debugList = null;
-                if (LOGGER.isDebugEnabled()) {
-                    debugList = super.findSendMByBoxCode(sendM);
-                }
-
                 for (Integer item : siteCodes) {
                     sendM.setCreateSiteCode(item);/*循环变更创建站点查询数据，并进行汇总*/
                     List<SendM> index = super.findSendMByBoxCode(sendM);
@@ -119,16 +100,6 @@ public class SendMRouter extends SendMDao {
                 }
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info(MessageFormat.format("执行数据聚合-数据内容为{0}", JsonHelper.toJson(list)));
-                }
-                if (LOGGER.isDebugEnabled()) {
-                    int debugCount = (null != debugList) ? debugList.size() : 0;
-                    int normalCount = (null != list) ? list.size() : 0;
-                    LOGGER.debug(MessageFormat.format("数据对比原版查询量为{0},索引表二次查询为{1}", debugCount, normalCount));
-                    LOGGER.debug(MessageFormat.format("原版查询数据内容为{0}", JsonHelper.toJson(debugList)));
-                    if (debugCount != normalCount) {
-                        LOGGER.error("发货主表两次查询数据不一致");
-                        return debugList;
-                    }
                 }
             }
             return list;

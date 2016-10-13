@@ -183,6 +183,7 @@
 	<update id="cancelDelivery" parameterType="SendDetail">
 		UPDATE send_d SET yn=0 
 		WHERE send_code  = #{sendCode, jdbcType=VARCHAR}
+		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			AND waybill_code  = #{waybillCode, jdbcType=VARCHAR}
 			AND send_type = 20
 			AND yn=1 

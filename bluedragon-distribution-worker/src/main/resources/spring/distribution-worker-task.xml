@@ -12,7 +12,7 @@
     <!-- 调度服务器配置 -->
     <bean id="scheduleConfigCenter"
           class="com.taobao.pamirs.schedule.ScheduleConfigCenterClientByDatabase">
-        <property name="dataBaseType" value="oracle"/>
+        <property name="dataBaseType" value="mysql"/>
         <property name="dataSource">
             <ref bean="taskDataSource"/>
         </property>
