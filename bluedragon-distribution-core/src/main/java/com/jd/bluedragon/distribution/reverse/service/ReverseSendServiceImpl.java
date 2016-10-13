@@ -423,8 +423,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             Set<String> packSet = new HashSet<String>();
 
             List<SendDetail> allsendList = findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(sendM.getSendCode());// this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
-
-            dealWithWaybillCode(allsendList);
+            Map<String, String> operCodeMap = dealWithWaybillCode(allsendList);//处理T单,并将操作单号存入operCodeMap中去
 
             int allsendListSize = allsendList != null ? allsendList.size() : 0;
             this.logger.info("获得发货明细数量:" + allsendListSize);
@@ -480,6 +479,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 removeDuplicatedProduct(newsend);
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
+                newsend.setBusiOrderCode(operCodeMap.get(wallBillCode));
                 sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
             }
 
@@ -541,6 +541,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
+                newsend.setBusiOrderCode(operCodeMap.get(wallBillCode));
                 sendAsiaWMS(newsend, wallBillCode, sendM, entry, lossCount, bDto, orderpackMap);
             }
             return true;
@@ -565,7 +566,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             Map<String, String> orderpackMap = new ConcurrentHashMap<String, String>();
             Map<String, String> orderpackMapLoss = new ConcurrentHashMap<String, String>();
             List<SendDetail> allsendList = findSendDetailsBySendMSendCodeAndYn1AndIsCancel0(sendM.getSendCode());// this.sendDatailDao.findSendDetails(this.paramSendDetail(sendM));
-            dealWithWaybillCode(allsendList);
+            Map<String, String> operCodeMap = dealWithWaybillCode(allsendList);//处理T单,并将操作单号存入operCodeMap中去
+            
             int allsendListSize = allsendList != null ? allsendList.size() : 0;
             this.logger.info("获得发货明细数量:" + allsendListSize);
 
@@ -599,18 +601,19 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
-                String wallBillCode = (String) entry.getKey();
+                String wayBillCode = (String) entry.getKey();
 
                 ReverseSendWms send = null;
-                send = tBaseService.getWaybillByOrderCode(wallBillCode);
+                send = tBaseService.getWaybillByOrderCode(wayBillCode);
                 if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
+                    this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
                     continue;
                 }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode)) {
-                    sendWMS(send, wallBillCode, sendM, entry, 0, bDto);
+                if (!isSpecial(send, wayBillCode)) {
+                	send.setBusiOrderCode(operCodeMap.get(wayBillCode));
+                    sendWMS(send, wayBillCode, sendM, entry, 0, bDto);
                 }
             }
 
@@ -618,22 +621,22 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             Iterator iterator = orderpackMapLoss.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
-                String wallBillCode = (String) entry.getKey();
+                String wayBillCode = (String) entry.getKey();
 
                 // 报损总数
                 int lossCount = 0;
                 try {
                     lossCount = this.lossWebService
-                            .getLossProductCountOrderId(wallBillCode);
+                            .getLossProductCountOrderId(wayBillCode);
                 } catch (Exception e1) {
-                    this.logger.error("调用报损订单接口失败, 运单号为" + wallBillCode);
-                    throw new Exception("调用报损订单接口失败, 运单号为" + wallBillCode);
+                    this.logger.error("调用报损订单接口失败, 运单号为" + wayBillCode);
+                    throw new Exception("调用报损订单接口失败, 运单号为" + wayBillCode);
                 }
 
                 ReverseSendWms send = null;
-                send = tBaseService.getWaybillByOrderCode(wallBillCode);
+                send = tBaseService.getWaybillByOrderCode(wayBillCode);
                 if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
+                    this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
                     continue;
                 }
                 if (lossCount != 0) {
@@ -643,7 +646,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<com.jd.bluedragon.distribution.reverse.domain.Product> sendLossProducts = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
 
                     // 报损系统拿出的报损明细
-                    List<LossProduct> lossProducts = this.lossWebService.getLossProductByOrderId(wallBillCode);
+                    List<LossProduct> lossProducts = this.lossWebService.getLossProductByOrderId(wayBillCode);
 
                     int loss_Count = 0;
                     if (sendProducts != null && !sendProducts.isEmpty()) {
@@ -676,8 +679,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     }
                     send.setProList(sendLossProducts);
                 }
-
-                sendWMS(send, wallBillCode, sendM, entry, lossCount, bDto);
+                send.setBusiOrderCode(operCodeMap.get(wayBillCode));
+                sendWMS(send, wayBillCode, sendM, entry, lossCount, bDto);
             }
             return true;
         } catch (Exception e) {
@@ -1425,15 +1428,20 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param
      * @return
      */
-    private List<SendDetail> dealWithWaybillCode(List<SendDetail> sendList) {
+    private Map<String, String> dealWithWaybillCode(List<SendDetail> sendList) {
+    	Map<String, String> operCodeMap = new HashMap<String, String>();
+    	
         for (SendDetail sendDetail : sendList) {
-            if (sendDetail.getWaybillCode().startsWith(Constants.T_WAYBILL))
+        	String operCode = sendDetail.getWaybillCode();
+            if (sendDetail.getWaybillCode().startsWith(Constants.T_WAYBILL)){
                 sendDetail.setWaybillCode(sendDetail.getWaybillCode().replaceFirst(Constants.T_WAYBILL, ""));
+            }
+            operCodeMap.put(sendDetail.getWaybillCode(), operCode);//保存原操作单号
 
             if (sendDetail.getPackageBarcode().startsWith(Constants.T_WAYBILL))
                 sendDetail.setPackageBarcode(sendDetail.getPackageBarcode().replaceFirst(Constants.T_WAYBILL, ""));
         }
-        return sendList;
+        return operCodeMap;
     }
 
     /**
