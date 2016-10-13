@@ -1,21 +1,25 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.basic.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +29,8 @@ import java.util.List;
 
 @Service("siteService")
 public class SiteServiceImpl implements SiteService {
-	
+	private static final int SITE_PAGE_SIZE=1000;
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 	
@@ -163,5 +168,21 @@ public class SiteServiceImpl implements SiteService {
 
 		return response;
 	}
-	
+
+    @Cache(key = "SiteServiceImpl.getSitesByPage@args0-@args1",memoryEnable = false,redisExpiredTime =1000*60*5,redisEnable = true)
+    @Override
+    public Pager<List<SiteWareHouseMerchant>> getSitesByPage(int category, int pageNo) {
+        switch (category){
+            case 1:
+                return baseMajorManager.getBaseSiteByPage(pageNo);
+            case 2:
+                return baseMajorManager.getBaseStoreInfoByPage(pageNo);
+            case 3:
+                return baseMajorManager.getTraderListByPage(pageNo);
+            default:
+                return baseMajorManager.getBaseSiteByPage(pageNo);
+        }
+
+    }
+
 }

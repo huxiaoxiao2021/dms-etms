@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -9,10 +11,7 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseStoreInfoDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
-import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -309,5 +308,129 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Override
     public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp) {
         return basicPrimaryWS.getBaseStaffByErp(erp);
+    }
+
+    public Pager<List<SiteWareHouseMerchant>> getBaseSiteByPage(int pageIndex) {
+        PageDto<List<BaseStaffSiteOrgDto>> resPageDto= basicPrimaryWS.getBaseSiteAllByPage(pageIndex);
+        Pager<List<SiteWareHouseMerchant>> result=new Pager<List<SiteWareHouseMerchant>>();
+        if(null==resPageDto||null==resPageDto.getData()){
+            result.setTotalSize(0);
+            result.setTotalNo(1);
+            return result;
+        }
+        result.setPageSize(resPageDto.getPageSize());
+        result.setTotalSize(resPageDto.getTotalRow());
+        result.setTotalNo(resPageDto.getTotalPage());
+        result.setPageNo(resPageDto.getCurPage());
+        result.setData(convertFromSite(resPageDto.getData()));
+        return result;
+    }
+
+    private List<SiteWareHouseMerchant> convertFromSite(List<BaseStaffSiteOrgDto> list){
+        if(null==list)
+            return new ArrayList<SiteWareHouseMerchant>();
+        List<SiteWareHouseMerchant> result=new ArrayList<SiteWareHouseMerchant>(list.size());
+        for (BaseStaffSiteOrgDto item:list){
+            SiteWareHouseMerchant site=new SiteWareHouseMerchant();
+            site.setId(item.getSiteCode());
+            site.setName(item.getSiteName());
+            site.setDmsCode(item.getDmsSiteCode());
+            site.setOrgId(item.getOrgId());
+            site.setOrgName(item.getOrgName());
+            site.setParentId(item.getParentSiteCode());
+            site.setParentName(item.getParentSiteName());
+            site.setSortingCenterId(item.getDmsId());
+            site.setSortingCenterName(item.getDmsName());
+            site.setPinyinCode(item.getSiteNamePym());
+            site.setType(item.getSiteType());
+            site.setSubType(item.getSubType());
+            site.setProvinceId(item.getProvinceId());
+            site.setCityId(item.getCityId());
+            site.setCountryId(item.getCountryId());
+            result.add(site);
+        }
+        return result;
+    }
+    /**
+     * 分页获取库房
+     *
+     * @param pageIndex
+     * @return
+     */
+    public Pager<List<SiteWareHouseMerchant>> getBaseStoreInfoByPage(Integer pageIndex){
+        PageDto<List<BaseStoreInfoDto>> resPageDto= basicPrimaryWS.getBaseStoreInfoByPage(pageIndex);
+        Pager<List<SiteWareHouseMerchant>> result=new Pager<List<SiteWareHouseMerchant>>();
+        if(null==resPageDto||null==resPageDto.getData()){
+            result.setTotalSize(0);
+            result.setTotalNo(1);
+            return result;
+        }
+        result.setPageSize(resPageDto.getPageSize());
+        result.setTotalSize(resPageDto.getTotalRow());
+        result.setTotalNo(resPageDto.getTotalPage());
+        result.setPageNo(resPageDto.getCurPage());
+        result.setData(convertFromStore(resPageDto.getData()));
+        return result;
+    }
+    private List<SiteWareHouseMerchant> convertFromStore(List<BaseStoreInfoDto> list){
+        if(null==list)
+            return new ArrayList<SiteWareHouseMerchant>();
+        List<SiteWareHouseMerchant> result=new ArrayList<SiteWareHouseMerchant>(list.size());
+        for (BaseStoreInfoDto item:list){
+            SiteWareHouseMerchant site=new SiteWareHouseMerchant();
+            site.setId(item.getStoreSiteCode());
+            site.setName(item.getDmsStoreName());
+            site.setDmsCode(item.getDmsSiteCode());
+            site.setOrgId(item.getParentId());
+            site.setOrgName(item.getOrgName());
+            site.setType(item.getDmsType());
+            site.setParentId(null);
+            site.setParentName(null);
+            site.setSortingCenterId(null);
+            site.setSortingCenterName(null);
+            site.setPinyinCode(item.getSiteNamePym());
+            site.setProvinceId(item.getProvinceId());
+            site.setCityId(item.getCityId());
+            site.setCountryId(null);
+            result.add(site);
+        }
+        return result;
+    }
+    public Pager<List<SiteWareHouseMerchant>> getTraderListByPage(int pageIndex){
+        PageDto<List<BaseTradeInfoDto>> resPageDto= this.basicSecondaryWS.getTraderListByPage(pageIndex);
+        Pager<List<SiteWareHouseMerchant>> result=new Pager<List<SiteWareHouseMerchant>>();
+        if(null==resPageDto||null==resPageDto.getData()){
+            result.setTotalSize(0);
+            result.setTotalNo(1);
+            return result;
+        }
+
+        result.setPageSize(resPageDto.getPageSize());
+        result.setTotalSize(resPageDto.getTotalRow());
+        result.setTotalNo(resPageDto.getTotalPage());
+        result.setPageNo(resPageDto.getCurPage());
+        result.setData(convertFromTrade(resPageDto.getData()));
+        return result;
+    }
+    private List<SiteWareHouseMerchant> convertFromTrade(List<BaseTradeInfoDto> list){
+        if(null==list)
+            return new ArrayList<SiteWareHouseMerchant>();
+        List<SiteWareHouseMerchant> result=new ArrayList<SiteWareHouseMerchant>(list.size());
+        for (BaseTradeInfoDto item:list){
+            SiteWareHouseMerchant site=new SiteWareHouseMerchant();
+            site.setId(item.getId());
+            site.setName(item.getTraderName());
+            site.setDmsCode(item.getTraderCode());
+            site.setOrgId(BaseContants.BASIC_B_TRADER_ORG);
+            site.setOrgName(BaseContants.BASIC_B_TRADER_ORG_NAME);
+            site.setType(BaseContants.BASIC_B_TRADER_SITE_TYPE);
+            site.setParentId(null);
+            site.setParentName(null);
+            site.setSortingCenterId(null);
+            site.setSortingCenterName(null);
+            site.setPinyinCode(item.getSiteNamePym());
+            result.add(site);
+        }
+        return result;
     }
 }
