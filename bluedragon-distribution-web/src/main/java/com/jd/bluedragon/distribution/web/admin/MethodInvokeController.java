@@ -36,7 +36,7 @@ public class MethodInvokeController implements ApplicationContextAware{
     @ResponseBody
     public Map<String,List<String>> getMethodList(String beanName) {
         Map<String,List<String>> methods = new HashMap<String, List<String>>();
-        Object bean = context.getBean(beanName.trim(),getClassByName(beanName.trim()));
+        Object bean = context.getBean(getClassByName(beanName.trim()));
         if(null == bean) return methods;
         Method[] declareMethods = bean.getClass().getMethods();
         for(Method method : declareMethods) {
@@ -69,7 +69,7 @@ public class MethodInvokeController implements ApplicationContextAware{
         } else {
             paramStr = beanPara.split("&");
         }
-        Object bean = context.getBean(beanName.trim(),getClassByName(beanName.trim()));
+        Object bean = context.getBean(getClassByName(beanName.trim()));
         if(null == bean) return null;
         Method[] declareMethods = bean.getClass().getMethods();
         for(Method method : declareMethods) {
