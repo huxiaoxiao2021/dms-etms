@@ -20,6 +20,7 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +93,21 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      */
     private static final char QUICK_SIGN_VALUE='1';
 
+    /**
+     * 普通发货
+     */
+    private static final String INVOICE_TYPE_COMMON_TEXT ="普";
+
+    /**
+     * 电子发票
+     */
+    private static final String INVOICE_TYPE_ELECTRONIC_TEXT="电";
+
+    /**
+     * 无发票
+     */
+    private static final String INVOICE_TYPE_NULL_TEXT="无";
+
     @Override
     public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -156,7 +172,25 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
                 commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((tmsWaybill.getSendPay().charAt(QUICK_SIGN_BIT_ONE) == QUICK_SIGN_VALUE || tmsWaybill.getSendPay().charAt(QUICK_SIGN_BIT_TWO) == QUICK_SIGN_VALUE) ? QUICK_SIGN_TEXT : StringUtils.EMPTY));
             }
-            //commonWaybill.setNormalText(Integer.valueOf(1).equals(tmsWaybill.getTaxValue())?"普":"电");
+            /*值=1，打“普”字，
+值=3，打“电”，
+值=2,4,8，或字段为空，打“无”
+*/
+            commonWaybill.setNormalText(INVOICE_TYPE_NULL_TEXT);
+            if(StringUtils.isNotBlank(tmsWaybill.getSpareColumn1())&& NumberUtils.isNumber(tmsWaybill.getSpareColumn1().trim())){
+                Integer value= NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
+                switch (value){
+                    case 1:
+                        commonWaybill.setNormalText(INVOICE_TYPE_COMMON_TEXT);
+                        break;
+                    case 3:
+                        commonWaybill.setNormalText(INVOICE_TYPE_ELECTRONIC_TEXT);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            commonWaybill.setNormalText(Integer.valueOf(1).equals(tmsWaybill.getSpareColumn1())?"普":"电");
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
             if(tmsWaybill.getPayment()!=null){
@@ -284,4 +318,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
     }
+
+    
 }
