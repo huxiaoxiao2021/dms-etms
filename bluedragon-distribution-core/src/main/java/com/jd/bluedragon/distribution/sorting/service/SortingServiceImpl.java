@@ -639,13 +639,14 @@ public class SortingServiceImpl implements SortingService {
 		try{
 			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 			if(wayBillOld.getData() != null){
-//				frbc.setOrderIdOld(wayBillOld.getData().getWaybillCode());
-//				frbc.setVendorId(wayBillOld.getData().getVendorId());
-				frbc.setOrderId(wayBillOld.getData().getVendorId());
+				String vendorId = wayBillOld.getData().getVendorId();
+				if(vendorId == null || "".equals(vendorId)){
+					frbc.setOrderId("0");//没有订单号的外单,是非京东平台上下的订单
+				}else{
+					frbc.setOrderId(vendorId);
+				}
 			}else{
-//				frbc.setOrderIdOld("");
-//				frbc.setVendorId("");
-				frbc.setOrderId("");
+				frbc.setOrderId("0");
 			}
 		}catch(Exception e){
 			this.logger.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
