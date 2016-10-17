@@ -52,6 +52,7 @@ public class ReverseSendWms {
     
     private String busiOrderCode;
     
+    @XmlTransient
     public String getBusiOrderCode() {
 		return busiOrderCode;
 	}

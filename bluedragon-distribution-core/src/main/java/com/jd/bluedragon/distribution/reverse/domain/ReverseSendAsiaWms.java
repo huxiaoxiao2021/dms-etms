@@ -60,6 +60,7 @@ public class ReverseSendAsiaWms {
 	
     private String busiOrderCode;
     
+    @XmlTransient
     public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
