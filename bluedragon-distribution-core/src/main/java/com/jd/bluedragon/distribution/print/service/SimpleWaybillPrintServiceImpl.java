@@ -190,7 +190,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                         break;
                 }
             }
-            commonWaybill.setNormalText(Integer.valueOf(1).equals(tmsWaybill.getSpareColumn1())?"普":"电");
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
             if(tmsWaybill.getPayment()!=null){
