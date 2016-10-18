@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
-import java.util.Map;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,9 +22,8 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
-import com.jd.bluedragon.utils.ObjectMapHelper;
 
-import jd.oom.client.clientbean.Order;
+import com.jd.ioms.jsf.export.domain.Order;
 
 @Component
 @Path(Constants.REST_URL)

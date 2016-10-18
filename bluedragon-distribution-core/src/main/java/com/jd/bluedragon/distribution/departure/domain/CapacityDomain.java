@@ -12,21 +12,40 @@ public class CapacityDomain implements Serializable{
 	 * 始发区域
 	 * */
 	private String sorgid;
+
+    /**
+     * 始发区域名称
+     */
+    private String sorgName;
 	
 	/**
 	 * 始发站
 	 * */
 	private String scode;
-	
+
+    /**
+     * 始发站名称
+     */
+    private String sname;
 	/**
 	 * 目的区域
 	 * */
 	private String rorgid;
+
+    /**
+     * 目的区域名称
+     */
+    private String rorgName;
 	
 	/**
 	 * 目的站
 	 * */
 	private String rcode;
+
+    /**
+     * 目的站名称
+     */
+    private String rname;
 	
 	/**
 	 * 线路类型
@@ -189,6 +208,36 @@ public class CapacityDomain implements Serializable{
 	public void setAirShiftName(String airShiftName) {
 		this.airShiftName = airShiftName;
 	}
-	
-	
+
+    public String getSorgName() {
+        return sorgName;
+    }
+
+    public void setSorgName(String sorgName) {
+        this.sorgName = sorgName;
+    }
+
+    public String getSname() {
+        return sname;
+    }
+
+    public void setSname(String sname) {
+        this.sname = sname;
+    }
+
+    public String getRorgName() {
+        return rorgName;
+    }
+
+    public void setRorgName(String rorgName) {
+        this.rorgName = rorgName;
+    }
+
+    public String getRname() {
+        return rname;
+    }
+
+    public void setRname(String rname) {
+        this.rname = rname;
+    }
 }
