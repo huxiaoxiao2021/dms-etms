@@ -6,9 +6,10 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.utils.OrderServiceHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.ioms.jsf.export.domain.ExportResult;
+import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ioms.jsf.export.domain.OrderDetail;
 import com.jd.ql.basic.domain.Assort;
-import jd.oom.client.clientbean.Order;
+
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 import org.apache.commons.logging.Log;
@@ -89,9 +90,13 @@ public class OrderWebService {
 	}
 
 	public Order getOrder(long orderId) {
-		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
-		        .getBean("oomServiceSoap");
-		return oomServiceSoap.getOrderById(orderId, false, OrderLoadFlag.getLoadFlag("全部"));
+		com.jd.ioms.jsf.export.OrderMiddlewareJSFService orderMiddlewareJSFService = (com.jd.ioms.jsf.export.OrderMiddlewareJSFService) SpringHelper
+				.getBean("orderMiddlewareJSFService");
+		ExportResult<Order> exportResult = orderMiddlewareJSFService.getOrderById(orderId, false, OrderServiceHelper.getAllFlag());
+		if (exportResult != null && exportResult.isSuccess()) {
+			return exportResult.getData();
+		}
+		return null;
 	}
 
 	public jd.oom.client.orderfile.Order getHistoryOrder(long orderId) {
@@ -108,50 +113,49 @@ public class OrderWebService {
 	}
 	
 	public Waybill getWaybillByOrderId(long orderId) {
-		jd.oom.client.clientbean.ServiceSoap oomServiceSoap = (jd.oom.client.clientbean.ServiceSoap) SpringHelper
-		        .getBean("oomServiceSoap");
+		com.jd.ioms.jsf.export.OrderMiddlewareJSFService orderMiddlewareJSFService = (com.jd.ioms.jsf.export.OrderMiddlewareJSFService) SpringHelper
+				.getBean("orderMiddlewareJSFService");
+		ExportResult<Order> exportResult = orderMiddlewareJSFService.getOrderById(orderId, false, OrderServiceHelper.getWaybillFlag());
+		if (exportResult != null && exportResult.isSuccess()) {
+			Order order = exportResult.getData();
+			if (order != null) {
+				Waybill waybill = new Waybill();
+				waybill.setWaybillCode(String.valueOf(orderId));
 
-		Order order = oomServiceSoap.getOrderById(orderId, false,
-		        OrderServiceHelper.getFlag1());
-
-		if (order != null) {
-			Waybill waybill = new Waybill();
-			waybill.setWaybillCode(String.valueOf(orderId));
-
-			try {
-				waybill.setSiteCode(preseparateWaybillManager.getPreseparateSiteId(String.valueOf(orderId)));
-				logger.info("快生从预分拣获取预分拣站点"+orderId +"-"+waybill.getSiteCode());
-			}catch (Exception ex){
-				waybill.setSiteCode(order.getPartnerId());
-				logger.error("快生预分拣接口异常"+orderId,ex);
+				try {
+					waybill.setSiteCode(preseparateWaybillManager.getPreseparateSiteId(String.valueOf(orderId)));
+					logger.info("快生从预分拣获取预分拣站点" + orderId + "-" + waybill.getSiteCode());
+				} catch (Exception ex) {
+					waybill.setSiteCode(order.getPartnerId());
+					logger.error("快生预分拣接口异常" + orderId, ex);
+				}
+				waybill.setSiteName(order.getIdPickSiteName());
+				waybill.setPaymentType(order.getPaymentType());
+				waybill.setSendPay(order.getSendPay());
+				if (order.getWeight() != null) {
+					waybill.setWeight(order.getWeight().doubleValue());
+				}
+				waybill.setAddress(order.getAddress());
+				waybill.setOrgId(order.getIdCompanyBranch());
+				waybill.setStoreId(order.getStoreId());
+				waybill.setType(order.getOrderType());
+				waybill.setShipmentType(order.getShipmentType());
+				waybill.setReceiverTel(order.getPhone());
+				waybill.setReceiverMobile(order.getMobile());
+				waybill.setReceiverName(order.getCustomerName());
+				waybill.setDistributeStoreId(order.getStoreId());
+				waybill.setDistributeStoreName(order.getStoreName());
+				// region  从redis中获取省市县，若无则从基础资料获取，并插入redis中
+				waybill.setProvinceNameId(order.getProvince());
+				waybill.setProvinceName(GetCityName(waybill.getProvinceNameId()));
+				waybill.setCityNameId(order.getCity());
+				waybill.setCityName(GetCityName(waybill.getCityNameId()));
+				waybill.setCountryNameId(order.getCounty());
+				waybill.setCountryName(GetCityName(waybill.getCountryNameId()));
+				// endregion
+				return waybill;
 			}
-			waybill.setSiteName(order.getIdPickSiteName());
-			waybill.setPaymentType(order.getIdPaymentType());
-			waybill.setSendPay(order.getSendPay());
-			if (order.getWeight() != null) {
-				waybill.setWeight(order.getWeight().doubleValue());
-			}
-			waybill.setAddress(order.getAddress());
-			waybill.setOrgId(order.getIdCompanyBranch());
-			waybill.setStoreId(order.getStoreId());
-			waybill.setType(order.getOrderType());
-			waybill.setShipmentType(order.getIdShipmentType());
-			waybill.setReceiverTel(order.getPhone());
-			waybill.setReceiverMobile(order.getMobile());
-			waybill.setReceiverName(order.getCustomerName());
-			waybill.setDistributeStoreId(order.getStoreId());
-			waybill.setDistributeStoreName(order.getStoreName());
-			// region  从redis中获取省市县，若无则从基础资料获取，并插入redis中
-			waybill.setProvinceNameId(order.getProvince());
-			waybill.setProvinceName(GetCityName(waybill.getProvinceNameId()));
-			waybill.setCityNameId(order.getCity());
-			waybill.setCityName(GetCityName(waybill.getCityNameId()));
-			waybill.setCountryNameId(order.getCounty());
-			waybill.setCountryName(GetCityName(waybill.getCountryNameId()));
-			// endregion
-			return waybill;
 		}
-
 		return null;
 	}
 
@@ -164,6 +168,5 @@ public class OrderWebService {
 		}
 		return temp;
 	}
-
 
 }
