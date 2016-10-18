@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,9 +182,12 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             if(StringUtils.isNotBlank(tmsWaybill.getSpareColumn1())&& NumberUtils.isNumber(tmsWaybill.getSpareColumn1().trim())){
                 Integer value=Integer.MIN_VALUE;
                 try {
-                    NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
+                    value= NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
                 }catch (NumberFormatException exception){
                     value=Integer.MIN_VALUE;/*不符合integer*/
+                }
+                if(logger.isInfoEnabled()){
+                    logger.info(MessageFormat.format("原值：{0}转换后:{1}",tmsWaybill.getSpareColumn1(),value));
                 }
                 switch (value){
                     case 1:
@@ -195,6 +199,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                     default:
                         break;
                 }
+            }
+            if(logger.isInfoEnabled()){
+                logger.info(commonWaybill.getNormalText());
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
