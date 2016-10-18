@@ -177,8 +177,14 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 值=2,4,8，或字段为空，打“无”
 */
             commonWaybill.setNormalText(INVOICE_TYPE_NULL_TEXT);
+
             if(StringUtils.isNotBlank(tmsWaybill.getSpareColumn1())&& NumberUtils.isNumber(tmsWaybill.getSpareColumn1().trim())){
-                Integer value= NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
+                Integer value=Integer.MIN_VALUE;
+                try {
+                    NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
+                }catch (NumberFormatException exception){
+                    
+                }
                 switch (value){
                     case 1:
                         commonWaybill.setNormalText(INVOICE_TYPE_COMMON_TEXT);
