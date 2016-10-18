@@ -128,16 +128,20 @@ public class SiteServiceImpl implements SiteService {
 					domain.setCarrierName(String.valueOf(dto.getCarrierName()));
 					// 目的站
 					domain.setRcode(String.valueOf(dto.getEndNodeId()));
+                    domain.setRname(dto.getEndNodeName());
 					// 目的区域
 					domain.setRorgid(String.valueOf(dto.getEndOrgId()));
+                    domain.setRorgName(dto.getEndOrgName());
 					// 线路类型
 					domain.setRouteType(String.valueOf(dto.getRouteType()));
 					// 始发站
 					domain.setScode(String.valueOf(dto.getStartNodeId()));
+                    domain.setSname(dto.getStartNodeName());
 					// 发车时间
 					domain.setSendTime(String.valueOf(dto.getSendCarTime()));
 					// 始发区域
 					domain.setSorgid(String.valueOf(dto.getStartOrgId()));
+                    domain.setSorgName(dto.getStartOrgName());
 					// 运力编码
 					domain.setTranCode(String.valueOf(dto.getTransCode()));
 					// 运输方式
