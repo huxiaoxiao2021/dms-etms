@@ -183,7 +183,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 try {
                     NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
                 }catch (NumberFormatException exception){
-                    
+                    value=Integer.MIN_VALUE;/*不符合integer*/
                 }
                 switch (value){
                     case 1:
