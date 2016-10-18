@@ -277,8 +277,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
                                 + tSendDetail.getPackageBarcode());
                 logger.error("推送售后MQ" + body);
-                bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
-                        + tSendDetail.getPackageBarcode(), body);
+                bdDmsReverseSendMQ.send(tSendDetail.getPackageBarcode(), body);
                 try {
                     //业务流程监控, 售后埋点
                     Map<String, String> data = new HashMap<String, String>();
