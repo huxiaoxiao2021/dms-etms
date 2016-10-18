@@ -10,6 +10,8 @@ public class Spare {
     public static final String TYPE_CHENGDU = "PC"; // 成都
     public static final String TYPE_WUHAN = "PW"; // 武汉
     public static final String TYPE_SHENYANG = "PY"; // 沈阳
+    public static final String TYPE_XIAN = "PX"; //西安
+    public static final String TYPE_XIANGGANG = "PI"; //香港
 
     public static final Integer STATUS_DEFAULT = 0; // 未使用
     public static final Integer STATUS_USED = 1; // 使用
