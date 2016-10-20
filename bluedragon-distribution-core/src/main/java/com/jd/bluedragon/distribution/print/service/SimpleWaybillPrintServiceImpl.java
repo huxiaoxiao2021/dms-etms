@@ -109,6 +109,13 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      */
     private static final String INVOICE_TYPE_NULL_TEXT="无";
 
+    private static  final String USER_LEVEL_VIP="V";
+
+    private static  final String USER_LEVEL_COMPANY="企";
+
+    private static final String USER_PLUS_FLAG_A="101";
+    private static final String USER_PLUS_FLAG_B="201";
+
     @Override
     public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -202,6 +209,30 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             if(logger.isInfoEnabled()){
                 logger.info(commonWaybill.getNormalText());
+            }
+            /*，62=金牌用户，105=钻石会员，110=VIP会员，在面单上展示“V”。
+90=企业用户，面单上展示“企”。
+*/
+            commonWaybill.setUserLevel(StringUtils.EMPTY);
+            if(null!=tmsWaybill.getUserLevel()){
+                switch (tmsWaybill.getUserLevel()){
+                    case 62:
+                    case 105:
+                    case 110:
+                        commonWaybill.setUserLevel(USER_LEVEL_VIP);
+                        break;
+                    case 90:
+                        commonWaybill.setUserLevel(USER_LEVEL_COMPANY);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if(StringUtils.isNotBlank(tmsWaybill.getFlagInfo())&&tmsWaybill.getFlagInfo().length()>19){
+                String plusFlag=tmsWaybill.getFlagInfo().substring(16,19);
+                if(plusFlag.equals(USER_PLUS_FLAG_A)||plusFlag.equals(USER_PLUS_FLAG_B)){
+                    commonWaybill.setUserLevel(USER_LEVEL_VIP);
+                }
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
