@@ -16,10 +16,10 @@ public interface ReverseSendService {
 
 	boolean sendReverseMessageToWms(SendM sendM, BaseStaffSiteOrgDto bDto) throws Exception;
 	
-	public void sendAsiaWMS(ReverseSendAsiaWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
+	public boolean sendAsiaWMS(ReverseSendAsiaWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
 			BaseStaffSiteOrgDto bDto, Map<String, String> isPackageFullMap) throws Exception;
 	
-	public void sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
+	public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
 			BaseStaffSiteOrgDto bDto) throws Exception;
 
 }

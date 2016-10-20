@@ -277,8 +277,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
                                 + tSendDetail.getPackageBarcode());
                 logger.error("推送售后MQ" + body);
-                bdDmsReverseSendMQ.send(MessageConstant.ReverseSend.getName()
-                        + tSendDetail.getPackageBarcode(), body);
+                bdDmsReverseSendMQ.send(tSendDetail.getPackageBarcode(), body);
                 try {
                     //业务流程监控, 售后埋点
                     Map<String, String> data = new HashMap<String, String>();
@@ -455,6 +454,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             Iterator<Entry<String, String>> iter = orderpackMap.entrySet()
                     .iterator();
+            boolean ifSendSuccess = true;
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String wallBillCode = (String) entry.getKey();
@@ -466,7 +466,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
                 newsend.setBusiOrderCode(operCodeMap.get(wallBillCode));
-                sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
+                ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
             }
 
             // 包丢订单发车
@@ -528,9 +528,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
                 newsend.setBusiOrderCode(operCodeMap.get(wallBillCode));
-                sendAsiaWMS(newsend, wallBillCode, sendM, entry, lossCount, bDto, orderpackMap);
+                ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, lossCount, bDto, orderpackMap);
             }
-            return true;
+            return ifSendSuccess;
         } catch (Exception e) {
             this.logger.error(sendM.getSendCode() + "wms发货库房失败", e);
             return false;
@@ -584,7 +584,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             Iterator<Entry<String, String>> iter = orderpackMap.entrySet()
                     .iterator();
-
+            boolean ifSendSuccess = true;
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String wayBillCode = (String) entry.getKey();
@@ -599,7 +599,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wayBillCode)) {
                 	send.setBusiOrderCode(operCodeMap.get(wayBillCode));
-                    sendWMS(send, wayBillCode, sendM, entry, 0, bDto);
+                	ifSendSuccess&=sendWMS(send, wayBillCode, sendM, entry, 0, bDto);
                 }
             }
 
@@ -666,9 +666,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     send.setProList(sendLossProducts);
                 }
                 send.setBusiOrderCode(operCodeMap.get(wayBillCode));
-                sendWMS(send, wayBillCode, sendM, entry, lossCount, bDto);
+                ifSendSuccess&=sendWMS(send, wayBillCode, sendM, entry, lossCount, bDto);
             }
-            return true;
+            return ifSendSuccess;
         } catch (Exception e) {
             this.logger.error(sendM.getSendCode() + "wms发货库房失败", e);
             return false;
@@ -677,7 +677,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     @SuppressWarnings("rawtypes")
-    public void sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
+    public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
                         BaseStaffSiteOrgDto bDto) throws Exception {
         Integer orgId = bDto.getOrgId();
         String dmdStoreId = bDto.getStoreCode();
@@ -729,8 +729,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             this.logger.info(result.getResultMessage());
             this.logger.info(result.getResultValue());
         } catch (Exception e) {
-            this.logger.error("青龙发货至仓储WS消息异常", e);
-            throw new Exception("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            this.logger.error("青龙发货至仓储WS消息失败，运单号为" + wallBillCode, e);
+            return false;
         } finally {
             //增加系统日志
             SystemLog sLogDetail = new SystemLog();
@@ -755,13 +755,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             this.logger.error("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
             this.logger.error("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
             this.logger.error("青龙发货至仓储WS消息失败，result.getResultValue()=" + result.getResultValue());
-            throw new Exception("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            this.logger.error("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            return false;
         }
+        
+        return true;
     }
 
 
     @SuppressWarnings("rawtypes")
-    public void sendAsiaWMS(ReverseSendAsiaWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
+    public boolean sendAsiaWMS(ReverseSendAsiaWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
                             BaseStaffSiteOrgDto bDto, Map<String, String> isPackageFullMap) throws Exception {
         Integer orgId = bDto.getOrgId();
         String dmdStoreId = bDto.getStoreCode();
@@ -816,8 +819,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             this.logger.info(result.getResultMessage());
             this.logger.info(result.getResultValue());
         } catch (Exception e) {
-            this.logger.error("青龙发货至仓储WS消息异常", e);
-            throw new Exception("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            this.logger.error("青龙发货至仓储WS消息失败，运单号为" + wallBillCode, e);
+            return false;
         } finally {
             //增加系统日志
             SystemLog sLogDetail = new SystemLog();
@@ -841,8 +844,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             this.logger.error("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
             this.logger.error("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
             this.logger.error("青龙发货至仓储WS消息失败，result.getResultValue()=" + result.getResultValue());
-            throw new Exception("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            this.logger.error("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            return false;
         }
+        
+        return true;
     }
 
     public static void addMapWms(Map<String, String> m, String a, String b) {

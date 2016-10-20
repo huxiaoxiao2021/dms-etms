@@ -219,7 +219,7 @@ public class Constants {
      */
     public static final String BEI_ZHU = "备注";
     /**
-     * 加载订单全部信息
+     * 加载订单全部信息(已废弃)
      */
     public static final String QUAN_BU = "全部";
     
@@ -227,6 +227,11 @@ public class Constants {
      * 加载订单配送区域信息
      */
     public static final String POP = "POP";
+
+    /**
+     * 加载订单其他信息
+     */
+    public static final String OTHER = "其他";
     
     /******************* 订单查询参数中的加载明细参数,可以多个 end ******************/
 
