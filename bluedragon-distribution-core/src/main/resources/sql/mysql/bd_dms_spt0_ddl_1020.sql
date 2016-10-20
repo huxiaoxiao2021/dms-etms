@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.6.26, for Linux (x86_64)
 --
--- Host: localhost    Database: bd_dms_sub
+-- Host: localhost    Database: bd_dms_spt0
 -- ------------------------------------------------------
 -- Server version	5.6.26-log
 
@@ -14,6 +14,41 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `box`
+--
+
+DROP TABLE IF EXISTS `box`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `box` (
+  `BOX_ID` bigint(20) unsigned NOT NULL,
+  `BOX_CODE` varchar(50) DEFAULT NULL,
+  `BOX_TYPE` varchar(2) DEFAULT NULL,
+  `CREATE_SITE_CODE` bigint(20) unsigned DEFAULT NULL,
+  `CREATE_SITE_NAME` varchar(100) DEFAULT NULL,
+  `RECEIVE_SITE_CODE` bigint(20) unsigned DEFAULT NULL,
+  `RECEIVE_SITE_NAME` varchar(100) DEFAULT NULL,
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `CREATE_USER_CODE` bigint(20) unsigned DEFAULT NULL,
+  `CREATE_USER` varchar(16) DEFAULT NULL,
+  `UPDATE_USER_CODE` bigint(20) unsigned DEFAULT NULL,
+  `UPDATE_USER` varchar(16) DEFAULT NULL,
+  `UPDATE_TIME` datetime DEFAULT NULL,
+  `TIMES` bigint(20) unsigned DEFAULT NULL,
+  `BOX_STATUS` bigint(20) DEFAULT NULL,
+  `YN` bigint(20) DEFAULT NULL,
+  `TRANSPORT_TYPE` bigint(20) DEFAULT NULL,
+  `MIX_BOX_TYPE` bigint(20) DEFAULT NULL COMMENT '混包类型0不混1可混',
+  `LENGTH` bigint(20) DEFAULT NULL COMMENT '箱号长度',
+  `WIDTH` bigint(20) DEFAULT NULL COMMENT '箱号宽度',
+  `HEIGHT` bigint(20) DEFAULT NULL COMMENT '箱号高度',
+  PRIMARY KEY (`BOX_ID`),
+  KEY `IND_BOX_BC` (`BOX_CODE`),
+  KEY `IND_BOX_CRSITE_P` (`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `cen_confirm`
@@ -111,6 +146,23 @@ CREATE TABLE `inspection` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `kv_index`
+--
+
+DROP TABLE IF EXISTS `kv_index`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `kv_index` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `keyword` varchar(255) NOT NULL COMMENT 'key运单、包裹或者箱号',
+  `value` varchar(255) NOT NULL COMMENT '始发分拣中心ID',
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '时间戳',
+  PRIMARY KEY (`id`),
+  KEY `idx_key` (`keyword`)
+) ENGINE=InnoDB AUTO_INCREMENT=1043177 DEFAULT CHARSET=utf8 COMMENT='分库索引表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `send_d`
 --
 
@@ -130,7 +182,7 @@ CREATE TABLE `send_d` (
   `CREATE_TIME` datetime DEFAULT NULL,
   `CREATE_USER` varchar(50) DEFAULT NULL,
   `CREATE_USER_CODE` bigint(20) DEFAULT NULL,
-  `UPDATE_TIME` date DEFAULT NULL,
+  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
   `WEIGHT` bigint(20) DEFAULT NULL,
   `YN` bigint(20) DEFAULT '1',
   `IS_CANCEL` bigint(20) DEFAULT '0',
@@ -236,7 +288,7 @@ CREATE TABLE `sorting` (
   KEY `IND_SORTING_BSCODE_P` (`BSEND_CODE`),
   KEY `IND_SORTING_PCODE_P` (`PACKAGE_CODE`),
   KEY `IND_SORTING_WCODE_P` (`WAYBILL_CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2326378216 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -248,4 +300,4 @@ CREATE TABLE `sorting` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-20  9:47:29
+-- Dump completed on 2016-10-20 11:05:11
