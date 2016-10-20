@@ -106,6 +106,10 @@ public class PrintWaybill implements Serializable {
     private String newAddress;
 
     /**
+     * 会员级别 V 企
+     */
+    private String userLevel;
+    /**
     * 目的分拣中心
     */
     
@@ -629,5 +633,13 @@ public class PrintWaybill implements Serializable {
 
     public void setBusiOrderCode(String busiOrderCode) {
         this.busiOrderCode = busiOrderCode;
+    }
+
+    public String getUserLevel() {
+        return userLevel;
+    }
+
+    public void setUserLevel(String userLevel) {
+        this.userLevel = userLevel;
     }
 }
