@@ -13,6 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * Created by wuzuxiang on 2016/10/14.
@@ -23,13 +26,10 @@ public class SortingCenterQueryController {
 
     private final Log logger = LogFactory.getLog(SortingCenterQueryController.class);
 
-    private final static String HTTP = "http//";
+    private final static String HTTP = "http://";
 
-    private final static String prefixKey = "localdmsIp&";
+    private final static String prefixKey = "localdmsIp$";
 
-    private final static int FILE_SIZE_LIMIT = 2 * 1024 * 1024;
-
-    private final static int EXPORT_ROW_LIMIT = 50000;
 
     @Autowired
     SortingCenterQueryService sortingCenterQueryService;
@@ -40,7 +40,8 @@ public class SortingCenterQueryController {
     }
 
     @RequestMapping(value = "/query" ,method = RequestMethod.POST)
-    public InvokeResult<Long> queryDataFromThreeTables(@RequestBody SortingCenterQueryRequest request){
+    @ResponseBody
+    public InvokeResult<Long> queryDataFromThreeTables(@RequestBody SortingCenterQueryRequest<List<String>> request){
         InvokeResult<Long> result = new InvokeResult<Long>();
         try{
             if(StringUtils.isBlank(request.getSiteNo())){
@@ -56,7 +57,7 @@ public class SortingCenterQueryController {
                 return result;
             }
 
-            InvokeResult<Long> remoteResult = sortingCenterQueryService.countNumFromThreeTables(request,url);
+            InvokeResult<Long> remoteResult = sortingCenterQueryService.countNumFromThreeTables(request,HTTP + url + "/sortingCenter/query");
             if (remoteResult != null && remoteResult.getCode() == JdResponse.CODE_OK){
                 result.setCode(JdResponse.CODE_OK);
                 result.setMessage("区域数据查询成功");

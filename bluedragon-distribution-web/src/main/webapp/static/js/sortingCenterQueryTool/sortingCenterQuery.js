@@ -3,12 +3,27 @@
  * Created by wuzuxiang on 2016/10/14.
  */
 $(document).ready(function(){
-    $("#expTypeList").multiselect();
+    $("#expTypeList").niceForm({
+        eventType:'click',  //默认为单击事件
+        change:function(){} //下拉菜单发生change事件时触发的回调函数
+});
 
+    /** 初始化分拣中心 **/
     siteOrgInit();
 
+    /** EXP_TYPE控件隐藏与显示 **/
+    // $("#tableName").click(function(){
+    //     if($(this).val()=="scan_lists"){
+    //         $("#type").visibility = "visible";
+    //     }
+    // })
+
     $("#query").click(function(){
-        doQuery();
+        if(formCheck()){
+            doQuery();
+        }else{
+            return;
+        }
     })
 })
 
@@ -19,13 +34,14 @@ function doQuery(){
 
 function goQuery(params){
     var url = $("#contextPath").val() + "/sortingCenter/query";
-    CommonClient.postJson(url,params,function(data){
+    CommonClient.postJson(url, params, function (data){
         if(data.code == 200){
             var countNum = data.data;
-            var temp = "<tr><td>" + countNum + "</td></tr>";
-            $("#numTable tbody").append(temp);
+            var temp = "<tr title='select count(*) from " + params.tableName
+                + " where create_time &gt; " + params.startTime + " AND create_time &lt; " + params.endTime + "'><td>" + countNum + "</td></tr>";
+            $("#numTable tbody").html(temp);
         }else{
-            $("#numTable tbody").append("<tr>查询数据失败</tr>");
+            $("#numTable tbody").html("<tr><td>查询数据失败</td></tr>");
             jQuery.messager.alert("提示：",data.message,'info');
         }
     })
@@ -33,15 +49,15 @@ function goQuery(params){
 
 function getQueryParams(){
     var params = {};
-    params.siteCode = $("#siteNo").val();
+    var expTypeList = [];
+    params.siteNo = $("#siteNo").val();
     params.tableName = $("#tableName").val();
     params.startTime = $("#startTime").val();
-    params.endTime = $("#endTime").val;
-    params.exptypeList = [];
-
-    $("#expTypeList:selected").each(function () {
-        exptypeList.push(this.val());
+    params.endTime = $("#endTime").val();
+    $("#expTypeList option:selected").each(function () {
+        expTypeList.push($(this).val());
     })
+    params.expTypeList = expTypeList;
     return params;
 }
 
@@ -75,4 +91,31 @@ function loadDmsList(dmsList, selectId) {
         optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
     }
     dmsObj.append(optionList);
+}
+
+/** 检查表单的有效性 **/
+function formCheck(){
+    var siteNo = $("#siteNo").val(); /** 获取分拣中心ID **/
+    var tableName = $("#tableName").val(); /** 获取表名 **/
+    var startTime = $("#startTime").val(); /** 获取开始时间 **/
+    var endTime = $("#endTime").val(); /** 获取结束时间 **/
+
+    if("" == siteNo){
+        alert("请选择分拣中心!!");
+        return false;
+    }else if("" == tableName){
+        alert("请选择表名!!");
+        return false;
+    }else if("" == startTime && "" == endTime){
+        alert("请至少选择一个时间!!");
+        return false;
+    }
+    return true;
+}
+
+/** 将时间字符串转化为时间对象 **/
+function stringTimeToDate(str){
+    var time = str.toString().replace(/-/g,"/");
+    var date = new Date(time);
+    return date;
 }

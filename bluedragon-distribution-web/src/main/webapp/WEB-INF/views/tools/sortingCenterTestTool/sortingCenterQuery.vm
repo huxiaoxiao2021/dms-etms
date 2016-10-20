@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
-    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/jquery-plugins/ui.multiselect.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/sortingCenterQueryTool/jquery.niceForm.css')">
     <script type="application/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
@@ -18,8 +18,15 @@
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/ui.multiselect.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.niceForm.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/sortingCenterQueryTool/sortingCenterQuery.js')"></script>
+
+    <style type="text/css">
+        .queryF{
+            float: left;
+        }
+        .queryCondition
+    </style>
 </head>
 
 <body>
@@ -30,40 +37,36 @@
 	</div>
 
 	<div id="content">
-		<div class="m">
+		<div>
 			<div class="tbl-n">
                 <div style="color: #B61D1D;">/** 注意：在选择收容表和箱号表的时候，请选好类型：（收容表：'DE','ID','MB','MJ','MR','MT','NR','UP'；扫描表：'SC'）**/</div>
-                <form id="form1" name="form1">
-                    <input type="hidden" id="contextPath" value="#springUrl()">
-					<table border="0" cellpadding="0" cellspacing="0" style="width: auto;">
-						<tbody>
-							<tr>
-								<th width="72px">分拣中心ID：</th>
-                                <td width="130px">
-									<select name="siteNo" id="siteNo">
+                <form id="form1" name="form1" style="margin-top: 30px;">
+                    <input type="hidden" id="contextPath" value="#springUrl('')">
+					<div style="margin-bottom: 30px;">
+                        <div id="queryCondition">
+                            <div style="margin-bottom: 10px;">
+                                <span class="queryF">分拣中心：</span>
+                                <div class="">
+                                    <select name="siteNo" id="siteNo" class="select20">
                                         <option value="">所有分拣中心</option>
-									</select>
-								</td>
-								<th width="72px">查询表:</th>
-								<td width="130px">
-									<select name="tableName" id="tableName" class="select20">
-										<option value="">请选择查询表</option>
-										<option value="box">箱号表</option>
-										<option value="scan_lists">收容和扫描表</option>
-										<option value="sorting">分拣表</option>
-									</select>
-								</td>
-								<th width="72px">开始时间：</th>
-								<td><input type="text" id="startTime" name="startTime" style="width: 130px;" class="Wdate"
-                                           onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})"></td>
-								<td width="20px" align="center">--</td>
-								<th width="72px">结束时间：</th>
-								<td><input type="text" id="endTime" name="endTime" style="width: 130px;"  class="Wdate"
-                                           onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})"></td>
-                                <th width="72px" name="expType">参数类型：</th>
-                                <td name="expType">
-                                    <select name="expTypeList" id="expTypeList" multiple>
-                                        <optgroup label="收容表类型">收容表类型</optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <span class="queryF">查询表名：</span>
+                                <div class="queryF" style="margin-right: 50px;">
+                                    <select name="tableName" id="tableName" class="select20">
+                                        <option value="">请选择查询表</option>
+                                        <option value="box">箱号表</option>
+                                        <option value="scan_lists">收容和扫描表</option>
+                                        <option value="sorting">分拣表</option>
+                                    </select>
+                                </div>
+                                <div id="type" >
+                                    <select name="expTypeList" id="expTypeList" multiple="multiple" >
+                                        <option value="">选择EXP_TYPE</option>
+                                        <optgroup label="recieving">收容表类型</optgroup>
                                         <option value="DE">DE</option>
                                         <option value="ID">ID</option>
                                         <option value="MB">MB</option>
@@ -71,18 +74,34 @@
                                         <option value="MR">MR</option>
                                         <option value="MT">MT</option>
                                         <option value="NR">NR</option>
+                                        <optgroup label="scaning">扫描表类型</optgroup>
                                         <option value="UP">UP</option>
-                                        <optgroup label="扫描表类型">扫描表类型</optgroup>
                                         <option value="SC">SC</option>
                                     </select>
-                                </td>
-							</tr>
-							<tr id="expType">
-                                <td><input type="button" id="query" class="btn_c" value="查询"></td>
-                                <td><input type="reset" id="reset" class="btn_c" value="重置"></td>
-							</tr>
-						</tbody>
-					</table>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <span class="queryF">开始时间：</span>
+                                <div class=""><input type="text" id="startTime" name="startTime" style="width: 150px;" class="Wdate"
+                                                     onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})"></div>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <span class="queryF">结束时间：</span>
+                                <div class=""><input type="text" id="endTime" name="endTime" style="width: 150px;" class="Wdate"
+                                                     onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})"></div>
+                            </div>
+
+                        </div>
+                        <div style="margin-bottom: 10px;">
+
+                        </div>
+                        <div>
+                            <input type="button" id="query" class="btn_c" value="查询">
+                            <input type="reset" id="reset" class="btn_c" value="重置">
+                        </div>
+                    </div>
 				</form>
 			</div>
 		</div>
