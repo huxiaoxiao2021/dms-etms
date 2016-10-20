@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
@@ -150,6 +151,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         wChoice.setQueryWaybillM(true);
         wChoice.setQueryPackList(true);
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+        if(logger.isDebugEnabled()){
+            logger.debug("获取运单信息为"+ JsonHelper.toJson(baseEntity));
+        }
         if (baseEntity != null
                 && baseEntity.getData() != null
                 &&null!=baseEntity.getData().getWaybill()) {
