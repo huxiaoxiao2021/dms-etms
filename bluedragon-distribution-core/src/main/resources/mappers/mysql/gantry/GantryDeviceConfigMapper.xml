@@ -44,12 +44,12 @@
         1)
     </insert>
     <insert id="addUseJavaTime" parameterType="gantryDeviceConfig">
-        INSERT INTO gantry_device_config (id,
+        INSERT INTO gantry_device_config (
         machine_id,operate_user_id,operate_user_erp,operate_user_name,
         update_user_erp,update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
         yn)
-        VALUES (SEQ_GANTRY_DEVICE_CONFIG.NEXTVAL,
+        VALUES (
         #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
         #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
         #{businessTypeRemark,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},
