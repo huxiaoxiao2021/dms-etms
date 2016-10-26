@@ -897,7 +897,8 @@ public class SortingServiceImpl implements SortingService {
                 //bd_blocker_complete的MQ
 				this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
 				//【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
-				fastRefundService.execRefund(sorting);
+				//这里需要暂时注释掉 逆向取件单不应该发送快退的mq,属于售后的范围  modified by zhanglei 20161025
+//				fastRefundService.execRefund(sorting);
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
