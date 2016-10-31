@@ -93,7 +93,7 @@
                  execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
             FROM ${tableName}
             WHERE yn = 1 AND execute_count < 5 
-                AND  (execute_time < SYSDATE OR execute_time IS NULL) AND task_status IN (0, 3) 
+                AND  (execute_time < SYSDATE OR execute_time IS NULL) AND task_status IN (0, 3)
                 AND ROWNUM <= #{fetchNum}
         ]]>
 	</select>
@@ -131,7 +131,7 @@
 			5
 			AND (execute_time <![CDATA[<]]>
 			SYSDATE OR execute_time IS NULL)
-			AND task_status IN (0, 3) AND
+			AND task_status IN (0, 3,4) AND
 			task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
