@@ -815,9 +815,11 @@ public class SortingServiceImpl implements SortingService {
 
 	private BaseEntity<PickupTask> getPickup(String packageCode) {
 		BaseEntity<PickupTask> pickup = this.waybillPickupTaskApi.getDataBySfCode(packageCode);
-		if (pickup != null) {
-			this.logger.info("取件单号码为：" + pickup.getData().getPickupCode());
-			this.logger.info("取件单对应运单号码为：" + pickup.getData().getOldWaybillCode());
+		if (pickup != null&&pickup.getData()!=null) {
+            if(logger.isInfoEnabled()) {
+                this.logger.info("取件单号码为：" + pickup.getData().getPickupCode());
+                this.logger.info("取件单对应运单号码为：" + pickup.getData().getOldWaybillCode());
+            }
 		}
 		return pickup;
 	}
