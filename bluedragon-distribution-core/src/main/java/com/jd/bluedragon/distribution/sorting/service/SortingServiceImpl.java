@@ -514,7 +514,7 @@ public class SortingServiceImpl implements SortingService {
                 sorting.setWaybillCode(sorting.getPackageCode());
 			} else {
 			BaseEntity<PickupTask> pickup = this.getPickup(sorting.getPackageCode());
-			if (pickup != null) {
+			if (pickup != null&&pickup.getData()!=null) {
 				sorting.setPickupCode(pickup.getData().getPickupCode());
 				sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
 			}}
@@ -805,7 +805,7 @@ public class SortingServiceImpl implements SortingService {
                 sendDetail.setWaybillCode(sendDetail.getPackageBarcode());
 			} else {
 			BaseEntity<PickupTask> pickup = this.getPickup(sendDetail.getPackageBarcode());
-			if (pickup != null) {
+			if (pickup != null&&pickup.getData()!=null) {
 				sendDetail.setPickupCode(pickup.getData().getPickupCode());
 				sendDetail.setWaybillCode(pickup.getData().getOldWaybillCode());
 				}
