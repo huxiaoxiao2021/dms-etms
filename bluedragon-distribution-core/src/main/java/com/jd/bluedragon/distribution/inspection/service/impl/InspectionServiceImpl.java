@@ -152,7 +152,8 @@ public class InspectionServiceImpl implements InspectionService {
 
     public boolean isExists(Integer Storeid)
     {
-        switch (Storeid){
+        int value=(null==Storeid)?0:Storeid.intValue();
+        switch (value){
             case 52:
                 return true;
             case 54:
