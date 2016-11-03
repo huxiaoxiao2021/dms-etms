@@ -13,6 +13,8 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
 import com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
      * @param waybillCode
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.QuickProduceServiceImpl.getQuickProduceWabill",mState = {JProEnum.TP})
     @Override
     public QuickProduceWabill getQuickProduceWabill(String waybillCode) {
         if(StringHelper.isEmpty(waybillCode))
