@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,8 +85,9 @@ public class WeightServiceImpl implements WeightService {
                     this.dmsWeightSendMQ.send(ope.getPackageCode(), JsonHelper.toJson(opeSend));
                 }
             }
-        } catch (JMQException e) {
-            this.logger.error("向运单系统发送称重MQ消息失败，异常信息为：", e);
+        } catch (Exception e) {
+            Profiler.businessAlarm("DmsWorker.send_weight_mq_error",(new Date()).getTime(),"向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：" + e.getMessage());
+            this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
         }
     }
 
