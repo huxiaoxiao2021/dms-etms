@@ -25,80 +25,86 @@ import java.util.Map;
 @Service("weightService")
 public class WeightServiceImpl implements WeightService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+    private final Log logger = LogFactory.getLog(this.getClass());
 
-	@Autowired
-	@Qualifier("dmsWeightSendMQ")
-	private DefaultJMQProducer dmsWeightSendMQ;
+    @Autowired
+    @Qualifier("dmsWeightSendMQ")
+    private DefaultJMQProducer dmsWeightSendMQ;
 
-	@Autowired
-	private  WaybillPackageApi waybillPackageApiJsf;
+    @Autowired
+    private WaybillPackageApi waybillPackageApiJsf;
 
-	public boolean doWeightTrack(Task task) {
-		this.logger.info("向运单系统回传包裹称重信息: ");
-		//WeightResponse response = null;
-		try {
-			String body = task.getBody();
-			if (!StringUtils.isNotBlank(body)) {
-				return false;
-			}
-			//response = WeightClient.weightTrack(body.substring(1, body.length() - 1));
-			Map<String, Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
-			this.sendMQ(body);
-			if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
-				this.logger.info("向运单系统回传包裹称重信息成功");
-				return true;
-			} else {
-                this.logger.error("向运单系统回传包裹称重信息失败 : " +(null!=map? JsonHelper.toJson(map):" result null"));
-				return false;
-			}
-		} catch (Exception e) {
-			this.logger.error("处理称重回传任务发生异常，异常信息为：", e);
-		}
-		return false;
-	}
+    public boolean doWeightTrack(Task task) {
+        this.logger.info("向运单系统回传包裹称重信息: ");
+        //WeightResponse response = null;
+        try {
+            String body = task.getBody();
+            if (!StringUtils.isNotBlank(body)) {
+                return false;
+            }
+            //response = WeightClient.weightTrack(body.substring(1, body.length() - 1));
+            Map<String, Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
+            this.sendMQ(body);
 
-	/**
-	 * 发送包裹称重、体积信息MQ
-	 *
-	 * @param body 数据内容
-	 * @throws JMQException
-	 */
-	private void sendMQ(String body) throws JMQException {
-		List<OpeObject> opeDetails = JsonHelper.jsonToArray(body.substring(1, body.length() - 1), OpeEntity.class).getOpeDetails();
-		if (opeDetails != null && opeDetails.size() > 0) {
-			for (OpeObject ope : opeDetails) {
-				OpeSendObject opeSend = new OpeSendObject();
-				opeSend.setPackage_code(ope.getPackageCode());
-				opeSend.setDms_site_id(ope.getOpeSiteId());
-				opeSend.setThisUpdateTime(this.getDateLong(ope.getOpeTime()));
-				if (ope.getpWeight() != null) {
-					opeSend.setWeight(ope.getpWeight());
-				} else {
-					opeSend.setWeight(0f);
-				}
-				if (ope.getpHigh() != null && ope.getpLength() != null && ope.getpWidth() != null) {
-					//计算体积
-					opeSend.setVolume(ope.getpHigh() * ope.getpLength() * ope.getpWidth());
-				} else {
-					opeSend.setVolume(0f);
-				}
-				this.dmsWeightSendMQ.send(ope.getPackageCode(), opeSend.toString());
-			}
-		}
-	}
+            if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
+                this.logger.info("向运单系统回传包裹称重信息成功");
+                return true;
+            } else {
+                this.logger.error("向运单系统回传包裹称重信息失败 : " + (null != map ? JsonHelper.toJson(map) : " result null"));
+                return false;
+            }
+        } catch (Exception e) {
+            this.logger.error("处理称重回传任务发生异常，异常信息为：", e);
+        }
+        return false;
+    }
 
-	private Long getDateLong(String dateStr) {
-		if (dateStr != null && !dateStr.isEmpty()) {
-			try {
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				Date date = format.parse(dateStr);
-				return date.getTime();
-			} catch (ParseException e) {
-				this.logger.error("无效的日期格式：" + dateStr, e);
-				return null;
-			}
-		}
-		return null;
-	}
+    /**
+     * 发送包裹称重、体积信息MQ
+     *
+     * @param body 数据内容
+     * @throws JMQException
+     */
+    private void sendMQ(String body) {
+        try {
+            List<OpeObject> opeDetails = JsonHelper.jsonToArray(body.substring(1, body.length() - 1), OpeEntity.class).getOpeDetails();
+            if (opeDetails != null && opeDetails.size() > 0) {
+                for (OpeObject ope : opeDetails) {
+                    OpeSendObject opeSend = new OpeSendObject();
+                    opeSend.setPackage_code(ope.getPackageCode());
+                    opeSend.setDms_site_id(ope.getOpeSiteId());
+                    opeSend.setThisUpdateTime(this.getDateLong(ope.getOpeTime()));
+                    opeSend.setWeight(ope.getpWeight());
+                    if (ope.getpHigh() != null && ope.getpLength() != null && ope.getpWidth() != null) {
+                        //计算体积
+                        opeSend.setVolume(ope.getpHigh() * ope.getpLength() * ope.getpWidth());
+                    } else {
+                        opeSend.setVolume(null);
+                    }
+                    this.dmsWeightSendMQ.send(ope.getPackageCode(), JsonHelper.toJson(opeSend));
+                }
+            }
+        } catch (JMQException e) {
+            this.logger.error("向运单系统发送称重MQ消息失败，异常信息为：", e);
+        }
+    }
+
+    /**
+     * 根据字符串类型日期转换为时间戳
+     * @param dateStr
+     * @return
+     */
+    private Long getDateLong(String dateStr) {
+        if (dateStr != null && !dateStr.isEmpty()) {
+            try {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = format.parse(dateStr);
+                return date.getTime();
+            } catch (ParseException e) {
+                this.logger.error("无效的日期格式：" + dateStr, e);
+                return null;
+            }
+        }
+        return null;
+    }
 }
