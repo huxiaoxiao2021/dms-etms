@@ -11,7 +11,9 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 public class SortingTask extends DBSingleScheduler {
     
     private final Log logger = LogFactory.getLog(this.getClass());
-    
+
+    private static final String SPLIT_CHAR="$";
+
     @Autowired
     private SortingService sortingService;
     
@@ -22,7 +24,12 @@ public class SortingTask extends DBSingleScheduler {
             this.logger.info("task id is " + task.getId());
             result = this.sortingService.doSorting(task);
         } catch (Exception e) {
-            this.logger.error("task id is" + task.getId());
+            StringBuilder builder=new StringBuilder("task id is");
+            builder.append(task.getId());
+            builder.append(SPLIT_CHAR).append(task.getBoxCode());
+            builder.append(SPLIT_CHAR).append(task.getKeyword1());
+            builder.append(SPLIT_CHAR).append(task.getKeyword2());
+            this.logger.error(builder.toString());
             this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
             return Boolean.FALSE;
         }
