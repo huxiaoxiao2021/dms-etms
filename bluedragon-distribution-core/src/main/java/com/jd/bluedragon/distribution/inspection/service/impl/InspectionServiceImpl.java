@@ -52,9 +52,6 @@ public class InspectionServiceImpl implements InspectionService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	// name space
-	public static final String inspectionDaoNamespace = InspectionDao.class
-			.getName();
 
 	@Autowired
 	private InspectionDao inspectionDao;
@@ -152,7 +149,8 @@ public class InspectionServiceImpl implements InspectionService {
 
     public boolean isExists(Integer Storeid)
     {
-        switch (Storeid){
+        int value=(null==Storeid)?0:Storeid.intValue();
+        switch (value){
             case 52:
                 return true;
             case 54:
