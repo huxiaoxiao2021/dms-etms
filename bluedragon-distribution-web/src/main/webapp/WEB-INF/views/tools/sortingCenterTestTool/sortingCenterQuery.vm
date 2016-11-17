@@ -25,7 +25,6 @@
         .queryF{
             float: left;
         }
-        .queryCondition
     </style>
 </head>
 
@@ -44,7 +43,7 @@
                     <input type="hidden" id="contextPath" value="#springUrl('')">
 					<div style="margin-bottom: 30px;">
                         <div id="queryCondition">
-                            <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 15px;">
                                 <span class="queryF">分拣中心：</span>
                                 <div class="">
                                     <select name="siteNo" id="siteNo" class="select20">
@@ -53,7 +52,7 @@
                                 </div>
                             </div>
 
-                            <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 15px;">
                                 <span class="queryF">查询表名：</span>
                                 <div class="queryF" style="margin-right: 50px;">
                                     <select name="tableName" id="tableName" class="select20">
@@ -64,39 +63,24 @@
                                     </select>
                                 </div>
                                 <div id="type" >
-                                    <select name="expTypeList" id="expTypeList" multiple="multiple" >
-                                        <option value="">选择EXP_TYPE</option>
-                                        <optgroup label="recieving">收容表类型</optgroup>
-                                        <option value="DE">DE</option>
-                                        <option value="ID">ID</option>
-                                        <option value="MB">MB</option>
-                                        <option value="MJ">MJ</option>
-                                        <option value="MR">MR</option>
-                                        <option value="MT">MT</option>
-                                        <option value="NR">NR</option>
-                                        <optgroup label="scaning">扫描表类型</optgroup>
-                                        <option value="UP">UP</option>
-                                        <option value="SC">SC</option>
-                                    </select>
+                                    <input type="text" style='visibility: hidden'>
                                 </div>
                             </div>
 
-                            <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 15px;">
                                 <span class="queryF">开始时间：</span>
                                 <div class=""><input type="text" id="startTime" name="startTime" style="width: 150px;" class="Wdate"
                                                      onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})"></div>
                             </div>
 
-                            <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 15px;">
                                 <span class="queryF">结束时间：</span>
                                 <div class=""><input type="text" id="endTime" name="endTime" style="width: 150px;" class="Wdate"
                                                      onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})"></div>
                             </div>
 
                         </div>
-                        <div style="margin-bottom: 10px;">
 
-                        </div>
                         <div>
                             <input type="button" id="query" class="btn_c" value="查询">
                             <input type="reset" id="reset" class="btn_c" value="重置">
