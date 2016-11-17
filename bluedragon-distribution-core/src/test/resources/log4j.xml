@@ -19,7 +19,7 @@
 
     <appender name="bluedragon.error" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="d:/logs/dms.web/bluedragon-distribution-web-error.log" />
-        <param name="Threshold" value="ERROR"/>
+        <param name="Threshold" value="DEBUG"/>
         <param name="Append" value="true" />
         <param name="MaxFileSize" value="20MB" />
         <param name="MaxBackupIndex" value="100"/>
@@ -51,7 +51,7 @@
 
     <appender name="bluedragon.loghub" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="d:/logs/dms.web/bluedragon-distribution-worker-loghub.log" />
-        <param name="Threshold" value="WARN"/>
+        <param name="Threshold" value="DEBUG"/>
         <param name="Append" value="true" />
         <param name="MaxFileSize" value="20MB" />
         <param name="MaxBackupIndex" value="100"/>
@@ -63,7 +63,7 @@
 
     <appender name="bluedragon.task" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="d:/logs/dms.web/bluedragon-distribution-web-task.log" />
-        <param name="Threshold" value="WARN"/>
+        <param name="Threshold" value="DEBUG"/>
         <param name="Append" value="true" />
         <param name="MaxFileSize" value="100MB" />
         <param name="MaxBackupIndex" value="100"/>
@@ -90,7 +90,7 @@
     </logger>
 
     <logger name="com.jd.etms.basic.cache">
-        <level value="ERROR" />
+        <level value="DEBUG" />
     </logger>
 
     <logger name="com.jd.etms.message">
@@ -99,24 +99,24 @@
     </logger>
 
     <logger name="com.jd.bluedragon.distribution.loghub">
-        <level value="WARN"/>
+        <level value="DEBUG"/>
         <appender-ref ref="bluedragon.loghub"/>
         <appender-ref ref="console"/>
     </logger>
 
     <logger name="com.jd.bluedragon">
-        <level value="ERROR"/>
+        <level value="DEBUG"/>
         <appender-ref ref="bluedragon.error"/>
         <appender-ref ref="console"/>
     </logger>
 
     <logger name="com.jd.bluedragon.distribution.rest.task.TaskResource">
-        <level value="WARN"/>
+        <level value="DEBUG"/>
         <appender-ref ref="bluedragon.task"/>
     </logger>
 
     <root>
-        <priority value="INFO" />
+        <priority value="DEBUG" />
         <appender-ref ref="console" />
         <appender-ref ref="bluedragon" />
         <!--<appender-ref ref="CoalescingStatistics" />-->

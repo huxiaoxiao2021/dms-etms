@@ -308,8 +308,8 @@
 
     <bean id="userVerifyService" class="com.jd.bluedragon.distribution.base.service.impl.UserVerifyServiceImpl">
         <!-- <property name="deptWebService" ref="deptWebService" />  -->
-        <property name="appPlatform" value="${login.passport.appplatform}" />
-        <property name="passportUrl" value="${login.passport.passporturl}" />
-        <property name="token" value="${login.passport.token}" />
-    </bean> 
+        <!--<property name="appPlatform" value="${login.passport.appplatform}" />-->
+        <!--<property name="passportUrl" value="${login.passport.passporturl}" />-->
+        <!--<property name="token" value="${login.passport.token}" />-->
+    </bean>
 </beans>

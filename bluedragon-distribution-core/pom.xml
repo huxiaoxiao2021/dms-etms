@@ -627,6 +627,13 @@
 			<artifactId>jss-sdk-java</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
+
+        <!-- 用户组接口 -->
+        <dependency>
+            <groupId>com.jd.user.sdk</groupId>
+            <artifactId>user-sdk-export</artifactId>
+            <version>0.5.7-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 
 	<build>
