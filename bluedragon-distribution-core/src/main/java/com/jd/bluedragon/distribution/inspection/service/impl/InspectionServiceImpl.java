@@ -52,9 +52,6 @@ public class InspectionServiceImpl implements InspectionService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	// name space
-	public static final String inspectionDaoNamespace = InspectionDao.class
-			.getName();
 
 	@Autowired
 	private InspectionDao inspectionDao;
