@@ -9,7 +9,22 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 
 public interface WaybillQueryManager{
-
+	
+	/**
+	 * 反调度操作—操作反调度
+	 */
+	public static final Integer REDISPATCH_YES = 1;
+	
+	/**
+	 * 反调度操作—未操作反调度
+	 */
+	public static final Integer REDISPATCH_NO = 2;
+	
+	/**
+	 * 反调度操作—查询异常
+	 */
+	public static final Integer REDISPATCH_ERROR = 3;
+	
 
 	public abstract BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice  wChoice);
 
@@ -68,4 +83,18 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode);
+
+	/**
+	 * 适配,查询包裹是否进行过站点发调度操作
+	 * @param packageCode
+	 * @return Integer
+	 */
+	public Integer checkReDispatch(String packageCode);
+
+	/**
+	 * 获取取件单对应的面单号W单
+	 * @param oldWaybillCode
+	 * @return
+	 */
+	public String getChangeWaybillCode(String oldWaybillCode);
 }
