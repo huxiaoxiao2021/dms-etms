@@ -147,6 +147,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.checkReDispatch", false, true);
 		BaseEntity<List<PackageState>> baseEntity = null;
 		try {
+			// http://cf.jd.com/pages/viewpage.action?pageId=73834851 取件单批量查询接口
 			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(packageCode, "140");
 			if (baseEntity != null) {
 				if (baseEntity.getResultCode() != 1) {
@@ -182,6 +183,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		try {
 			List<String> waybillCodes = new ArrayList<String>();
 			waybillCodes.add(oldWaybillCode);
+			//http://cf.jd.com/pages/viewpage.action?pageId=74538367 运单指查询面单接口
 			baseEntity = waybillPickupTaskApi.batchQuerySurfaceCodes(waybillCodes);
 			if (baseEntity != null) {
 				if (baseEntity.getResultCode() != 1) {
