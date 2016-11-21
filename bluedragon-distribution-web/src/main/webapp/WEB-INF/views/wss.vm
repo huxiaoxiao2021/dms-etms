@@ -1,1 +1,17 @@
-HessianServiceExporter only supports POST requests
+<html>
+<head>
+
+</head>
+<body>
+
+    <h1>HessianServiceExporter only supports POST requests</h1>
+    <div style="display: none">
+        $!exception.message
+    </div>
+    <div style="display: none">
+       #foreach($item in $!exception.stackTrace)
+       <div>$item</div>
+       #end
+    </div>
+</body>
+</html>

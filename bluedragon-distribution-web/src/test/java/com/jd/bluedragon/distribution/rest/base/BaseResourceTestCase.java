@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.rest.base;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,7 +29,21 @@ public class BaseResourceTestCase {
 		test_errorList();
 	}
 	
-	
+
+	@Test
+	public void test_login() {
+        String loginUrl = "http://localhost:8080/services/bases/login";
+        RestTemplate template = new RestTemplate();
+        BaseRequest bq = new BaseRequest();
+        bq.setErpAccount("3pl_test");
+        bq.setPassword("1234abcd");
+        BaseResponse br = template.postForObject(loginUrl, bq, BaseResponse.class);
+        Assert.assertTrue(br.getCode() == 500);
+        System.out.println(JsonHelper.toJson(br));
+
+
+    }
+
 	
 	public static void test_login(String use,String pwd){
 		String urlRoot =baseUrl + "login";

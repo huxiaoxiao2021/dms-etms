@@ -233,18 +233,7 @@ public class SerialRuleUtil
         {
             String waybillNo = match.group(1).trim();
             result.setResult(waybillNo);
-            String digitWaybillNo = waybillNo;
-            int index=0;
-            for (int i=0; i < digitWaybillNo.length(); i++)
-            {
-                if ((digitWaybillNo.charAt(i) > 57 || digitWaybillNo.charAt(i) < 48))
-                {
-                    index=i;
-                }
-            }
-            digitWaybillNo=digitWaybillNo.substring(++index,digitWaybillNo.length());
-            result.setMatch(Long.valueOf(digitWaybillNo.substring(0, digitWaybillNo.length()-1)) % 7 == Integer.valueOf(digitWaybillNo.substring(digitWaybillNo.length() - 1))
-                    && Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)));
+            result.setMatch(Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)));
 
         }
         return result;
