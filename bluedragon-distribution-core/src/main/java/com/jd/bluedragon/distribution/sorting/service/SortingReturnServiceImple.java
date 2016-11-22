@@ -100,8 +100,8 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	@Autowired
 	private IPushPackageToMqService pushMqService;
 	
-	@Autowired
-	private BizServiceInterface bizService;
+//	@Autowired
+//	private BizServiceInterface bizService;
 	
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;

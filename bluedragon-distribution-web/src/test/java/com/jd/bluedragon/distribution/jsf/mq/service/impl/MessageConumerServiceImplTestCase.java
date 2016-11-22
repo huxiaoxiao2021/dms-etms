@@ -132,6 +132,7 @@ public class MessageConumerServiceImplTestCase {
 		ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 				"/distribution-web-jsf-client-test.xml");
 
+		//FIXME:接口已过期
 		com.jd.etms.erp.ws.BizServiceInterface bizServiceInterfaceJsf = (com.jd.etms.erp.ws.BizServiceInterface) appContext
 				.getBean("bizServiceInterfaceJsf");
 		
