@@ -142,16 +142,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	}
 
 	@Override
-	public Integer checkReDispatch(String packageCode) {
+	public Integer checkReDispatch(String waybillCode) {
 		Integer result = REDISPATCH_NO;
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.checkReDispatch", false, true);
 		BaseEntity<List<PackageState>> baseEntity = null;
 		try {
 			// http://cf.jd.com/pages/viewpage.action?pageId=73834851 取件单批量查询接口
-			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(packageCode, WAYBILL_STATUS_REDISPATCH);
+			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, WAYBILL_STATUS_REDISPATCH);
 			if (baseEntity != null) {
 				if (baseEntity.getResultCode() != 1) {
-					this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + packageCode + ","
+					this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode + ","
 							+ baseEntity.getResultCode() + "," + baseEntity.getMessage());
 					result = REDISPATCH_ERROR;
 				} else{
@@ -162,12 +162,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 					}
 				}
 			} else {
-				this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：" + packageCode);
+				this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：" + waybillCode);
 				result = REDISPATCH_ERROR;
 			}
 		} catch (Exception e) {
 			Profiler.functionError(info);
-			this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + packageCode, e);
+			this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode, e);
 			result = REDISPATCH_ERROR;
 		} finally {
 			Profiler.registerInfoEnd(info);

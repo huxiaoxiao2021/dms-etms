@@ -514,6 +514,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @return
 	 */
 	public Integer checkReDispatch(String packageCode){
-		return this.waybillQueryManager.checkReDispatch(packageCode);
+		String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+		return this.waybillQueryManager.checkReDispatch(waybillCode);
 	}
 }
