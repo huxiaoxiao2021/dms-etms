@@ -148,7 +148,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		BaseEntity<List<PackageState>> baseEntity = null;
 		try {
 			// http://cf.jd.com/pages/viewpage.action?pageId=73834851 取件单批量查询接口
-			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(packageCode, "140");
+			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(packageCode, WAYBILL_STATUS_REDISPATCH);
 			if (baseEntity != null) {
 				if (baseEntity.getResultCode() != 1) {
 					this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + packageCode + ","

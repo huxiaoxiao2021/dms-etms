@@ -25,6 +25,11 @@ public interface WaybillQueryManager{
 	 */
 	public static final Integer REDISPATCH_ERROR = 3;
 	
+	/**
+	 * 运单反调度状态
+	 */
+	public static final String WAYBILL_STATUS_REDISPATCH = "140";
+	
 
 	public abstract BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice  wChoice);
 
