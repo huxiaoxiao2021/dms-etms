@@ -98,9 +98,10 @@
 
 	<insert id="add">
 		INSERT INTO operation_log_0(
-		<include refid="Base_Insert_Column_List" />
+		<include refid="Base_Column_List" />
 		)
 		VALUES(
+		#{logId,jdbcType=BIGINT},
 		#{boxCode,jdbcType=VARCHAR},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{pickupCode,jdbcType=VARCHAR},

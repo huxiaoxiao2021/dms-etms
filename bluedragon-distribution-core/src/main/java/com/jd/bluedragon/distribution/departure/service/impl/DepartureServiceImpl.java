@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -98,6 +99,8 @@ public class DepartureServiceImpl implements DepartureService {
     @Qualifier("receiveArteryInfoMQ")
     private DefaultJMQProducer receiveArteryInfoMQ;
 
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
 	public static final String CARCODE_MARK = "0";  // 按车次号查询
 
@@ -122,7 +125,7 @@ public class DepartureServiceImpl implements DepartureService {
 			return result;
 		}
 
-		long shieldsCarId = departureCarDao.getSeqNextVal();
+		long shieldsCarId = sequenceGenAdaptor.newId(DepartureCar.class.getSimpleName());
 		if (Departure.DEPARTRUE_TYPE_TURNTABLE == departure.getType()) {
 			/*
 			 * 转车(type=2) 1.生成发车表数据 2.插[DepartureSend]中间表

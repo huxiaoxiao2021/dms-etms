@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jd.bluedragon.distribution.departure.dao.DepartureSendDao">
 	<resultMap id="BaseResultMap" type="DepartureSend">
+        	<result column="departure_send_id" jdbcType="BIGINT" property="departureSendId" />
 		<result column="departure_car_id" jdbcType="BIGINT" property="shieldsCarId" />
 		<result column="send_code" property="sendCode"  jdbcType="VARCHAR"/>
 		<result column="create_site_code" jdbcType="INTEGER" property="createSiteCode" />
@@ -14,9 +15,9 @@
 		<result column="capacity_Code" jdbcType="VARCHAR" property="capacityCode" />
 	</resultMap>
 	<insert id="insert" parameterType="DepartureSend">
-		insert into DEPARTURE_SEND (departure_send_ID,departure_car_id,send_code,create_site_code,create_time,create_user,
+		insert into DEPARTURE_SEND (departure_send_id,departure_car_id,send_code,create_site_code,create_time,create_user,
 		create_user_code,update_time,yn,third_waybill_code,capacity_Code)
-		values (SEQ_DEPARTURE_SEND.NEXTVAL,#{shieldsCarId,jdbcType=BIGINT},#{sendCode,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},
+		values (#{departureSendId,jdbcType=BIGINT},#{shieldsCarId,jdbcType=BIGINT},#{sendCode,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},
 		sysdate, #{createUser,jdbcType=VARCHAR},
 		#{createUserCode,jdbcType=INTEGER}, sysdate,1,#{thirdWaybillCode,jdbcType=VARCHAR},#{capacityCode,jdbcType=VARCHAR})
 	</insert>

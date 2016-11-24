@@ -32,7 +32,7 @@
             arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
             arrt_code4, arrt_desc4, create_time, update_time, yn, product_price, spare_tran_code)
 		VALUES (
-			SEQ_REVERSE_SPARE.NEXTVAL, 
+			#{systemId,jdbcType=BIGINT}, 
 			#{spareCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR},#{productId,jdbcType=VARCHAR},
 			#{productCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR},

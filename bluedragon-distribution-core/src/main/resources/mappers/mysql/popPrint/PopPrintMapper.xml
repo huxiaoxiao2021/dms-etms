@@ -37,7 +37,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-		waybill_code, create_site_code, print_pack_code,
+		id, waybill_code, create_site_code, print_pack_code,
 		print_pack_time,print_invoice_code, print_invoice_time, 
 		create_time, update_time, yn, print_pack_user, 
 		print_invoice_user, pop_sup_id, pop_sup_name, quantity,
@@ -183,6 +183,7 @@
         <include refid="Base_Column_List"/>
         )
         values (
+	#{popPrintId, jdbcType=BIGINT},
         #{waybillCode, jdbcType=VARCHAR},
         #{createSiteCode, jdbcType=INTEGER}, #{printPackCode, jdbcType=INTEGER},
         #{printPackTime, jdbcType=TIMESTAMP}, #{printInvoiceCode, jdbcType=INTEGER},

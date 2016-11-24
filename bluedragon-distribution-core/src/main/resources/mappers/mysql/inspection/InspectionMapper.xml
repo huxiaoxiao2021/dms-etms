@@ -298,9 +298,9 @@
 	</select>
   
   <insert id="add" parameterType="Inspection" >
-  	<selectKey resultType="long"  keyProperty="inspectionId" order="BEFORE" statementType="PREPARED">      
-		<![CDATA[select dms_core_inspection.nextval]]>
-    </selectKey>
+  	<!--<selectKey resultType="long"  keyProperty="inspectionId" order="BEFORE" statementType="PREPARED">      -->
+		<!--<![CDATA[select dms_core_inspection.nextval]]>-->
+    <!--</selectKey>-->
     INSERT into inspection (
     <include refid="Base_Column_List"/>
     )

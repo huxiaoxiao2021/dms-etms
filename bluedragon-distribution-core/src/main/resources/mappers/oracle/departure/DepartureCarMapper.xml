@@ -112,10 +112,10 @@
 		create_user_code, update_time, yn, weight, volume, send_user_type
 	</sql>
 
-	<select id="getSeqNextVal" resultType="Long">
+<!--	<select id="getSeqNextVal" resultType="Long">
 		select SEQ_DEPARTURE_CAR.NEXTVAL as id from dual
 	</select>
-	
+-->	
 	<select id="findDepartureCarByFingerprint" resultMap="BaseResultMap" parameterType="map" >
         SELECT departure_car_id
         FROM departure_car
