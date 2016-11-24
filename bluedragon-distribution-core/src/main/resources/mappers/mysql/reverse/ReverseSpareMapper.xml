@@ -23,6 +23,7 @@
 		<result column="yn" property="yn" />
 		<result column="product_price" property="productPrice" />
 		<result column="spare_tran_code"  property="spareTranCode" />
+		<result column="waybill_send_code"  property="waybillSendCode" />
 	</resultMap>
 	
 	<insert id="add" parameterType="reverseSpare" >
@@ -30,7 +31,8 @@
 			spare_code, send_code, waybill_code, product_id,
 		    product_code, product_name, arrt_code1, arrt_desc1,
             arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
-            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price, spare_tran_code)
+            arrt_code4, arrt_desc4, create_time, update_time,
+            yn, product_price, spare_tran_code, waybill_send_code)
 		VALUES (
 			#{spareCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR},#{productId,jdbcType=VARCHAR},
@@ -39,7 +41,8 @@
 			#{arrtCode2,jdbcType=INTEGER}, #{arrtDesc2,jdbcType=VARCHAR},
 			#{arrtCode3,jdbcType=INTEGER}, #{arrtDesc3,jdbcType=VARCHAR},
 			#{arrtCode4,jdbcType=INTEGER}, #{arrtDesc4,jdbcType=VARCHAR},
-			NOW(), NOW(), 1, #{productPrice,jdbcType=DOUBLE}, #{spareTranCode,jdbcType=VARCHAR})
+			NOW(), NOW(), 1, #{productPrice,jdbcType=DOUBLE},
+			#{spareTranCode,jdbcType=VARCHAR}, #{waybillSendCode,jdbcType=VARCHAR})
 	</insert>
 	
 	<select id="queryBySpareCode" resultMap="reverseSpare" parameterType="String" >
@@ -56,7 +59,8 @@
 		SELECT system_id, spare_code, send_code, waybill_code, product_id,
 		    product_code, product_name, arrt_code1, arrt_desc1,
             arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
-            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price,spare_tran_code
+            arrt_code4, arrt_desc4, create_time, update_time,
+            yn, product_price, spare_tran_code, waybill_send_code
 		FROM reverse_spare
 		WHERE yn = 1 AND waybill_code = #{waybillCode,jdbcType=VARCHAR} AND send_code = #{sendCode,jdbcType=VARCHAR}
 	</select>
@@ -65,7 +69,8 @@
 		SELECT system_id, spare_code, send_code, waybill_code, product_id,
 		    product_code, product_name, arrt_code1, arrt_desc1,
             arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
-            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price,spare_tran_code
+            arrt_code4, arrt_desc4, create_time, update_time,
+            yn, product_price,spare_tran_code, waybill_send_code
 		FROM reverse_spare
 		WHERE yn = 1 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
@@ -118,6 +123,9 @@
             <if test="spareTranCode != null">
 				spare_tran_code = #{spareTranCode,jdbcType=VARCHAR},
 			</if>
+			<if test="waybillSendCode != null">
+				waybill_send_code = #{waybillSendCode,jdbcType=VARCHAR},
+			</if>
             update_time = NOW()
         </set>
         <where>
@@ -135,13 +143,14 @@
 		</where>
 	</update>
 	
-		<select id="queryBySpareTranCode" resultMap="reverseSpare" parameterType="reverseSpare" >
+	<select id="queryBySpareTranCode" resultMap="reverseSpare" parameterType="reverseSpare" >
 		SELECT system_id, spare_code, send_code, waybill_code, product_id,
 		    product_code, product_name, arrt_code1, arrt_desc1,
             arrt_code2, arrt_desc2, arrt_code3, arrt_desc3,
-            arrt_code4, arrt_desc4, create_time, update_time, yn, product_price,spare_tran_code
+            arrt_code4, arrt_desc4, create_time, update_time,
+            yn, product_price, spare_tran_code, waybill_send_code
 		FROM reverse_spare
-		WHERE yn = 1 AND spare_tran_code = #{spareTranCode,jdbcType=VARCHAR}
+		WHERE yn = 1 AND (spare_tran_code = #{spareTranCode,jdbcType=VARCHAR} OR waybill_send_code = #{spareTranCode,jdbcType=VARCHAR})
 	</select>
 	
 </mapper>

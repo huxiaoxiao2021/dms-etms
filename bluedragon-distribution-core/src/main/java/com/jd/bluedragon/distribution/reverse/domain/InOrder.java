@@ -32,6 +32,11 @@ public class InOrder implements Serializable {
     private Integer flashOrgId;
     
     private Integer flashStoreId;
+
+	/**
+	 * 用于对接备件库的唯一标识
+	 */
+	private String waybillSendCode;
     
     public Integer getFlashStoreId() {
 		return flashStoreId;
@@ -119,6 +124,14 @@ public class InOrder implements Serializable {
 
 	public void setOrderId(Long orderId) {
 		this.orderId = orderId;
+	}
+
+	public String getWaybillSendCode() {
+		return waybillSendCode;
+	}
+
+	public void setWaybillSendCode(String waybillSendCode) {
+		this.waybillSendCode = waybillSendCode;
 	}
 
 }
