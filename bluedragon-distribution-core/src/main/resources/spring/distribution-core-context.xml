@@ -62,7 +62,7 @@
     <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor">
         <constructor-arg index="0">
             <bean class="com.jd.coo.sa.sequence.snowflake.impl.PropertiesFileSnowflakeSequenceGen">
-               <constructor-arg index="0" value="/configured/app.properties"/>
+               <constructor-arg index="0" value="/configured/snowflake.properties"/>
             </bean>
         </constructor-arg>
     </bean>
