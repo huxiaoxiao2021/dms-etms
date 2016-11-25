@@ -129,7 +129,7 @@
 		<include refid="Base_Column_List"/>
 		from pop_pickup
 		<include refid="Pop_Pickup_Where_List"/>
-		order by pickup_id
+		order by operate_time
 		<if test="startIndex != null">
 			LIMIT #{startIndex},#{pageSize}
 		</if>

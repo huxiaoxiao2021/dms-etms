@@ -3,20 +3,25 @@
  * Created by wuzuxiang on 2016/10/14.
  */
 $(document).ready(function(){
-    $("#expTypeList").niceForm({
-        eventType:'click',  //默认为单击事件
-        change:function(){} //下拉菜单发生change事件时触发的回调函数
-});
+    var multiSelectTemp = multiSelectShow();//下拉列表多选
 
     /** 初始化分拣中心 **/
     siteOrgInit();
 
     /** EXP_TYPE控件隐藏与显示 **/
-    // $("#tableName").click(function(){
-    //     if($(this).val()=="scan_lists"){
-    //         $("#type").visibility = "visible";
-    //     }
-    // })
+    $("#tableName").bind("change",function () {
+        $("#type").html("<input type='text' style='visibility: hidden'>");
+
+        /** 联动效果 **/
+        if($("#tableName option:selected").val() == "scan_lists"){
+            $("#type").html(multiSelectTemp);
+            $("#expTypeList").niceForm({
+                eventType:'click',  //默认为单击事件
+                change:function(){} //下拉菜单发生change事件时触发的回调函数
+            });
+        }
+
+    });
 
     $("#query").click(function(){
         if(formCheck()){
@@ -35,18 +40,19 @@ function doQuery(){
 function goQuery(params){
     var url = $("#contextPath").val() + "/sortingCenter/query";
     CommonClient.postJson(url, params, function (data){
+        var titleTemp = sqlSyntax(params);/** 拼接sql **/
         if(data.code == 200){
             var countNum = data.data;
-            var temp = "<tr title='select count(*) from " + params.tableName
-                + " where create_time &gt; " + params.startTime + " AND create_time &lt; " + params.endTime + "'><td>" + countNum + "</td></tr>";
+            var temp = "<tr title='" + titleTemp + "'><td>" + countNum + "</td></tr>";
             $("#numTable tbody").html(temp);
         }else{
-            $("#numTable tbody").html("<tr><td>查询数据失败</td></tr>");
+            $("#numTable tbody").html("<tr title='" + titleTemp + "'><td>查询数据失败</td></tr>");
             jQuery.messager.alert("提示：",data.message,'info');
         }
     })
 }
 
+/** 获得查询参数 **/
 function getQueryParams(){
     var params = {};
     var expTypeList = [];
@@ -118,4 +124,45 @@ function stringTimeToDate(str){
     var time = str.toString().replace(/-/g,"/");
     var date = new Date(time);
     return date;
+}
+
+/** 复选框下拉列表 **/
+function multiSelectShow(){
+    var temp = "";
+    temp += "<select name='expTypeList' id='expTypeList' multiple='multiple' >";
+    temp += "<option value=''>选择EXP_TYPE</option>";
+    temp += "<option value='DE'>DE</option>";
+    temp += "<option value='ID'>ID</option>";
+    temp += "<option value='MB'>MB</option>";
+    temp += "<option value='MJ'>MJ</option>";
+    temp += "<option value='MR'>MR</option>";
+    temp += "<option value='MT'>MT</option>";
+    temp += "<option value='NR'>NR</option>";
+    temp += "<option value='UP'>UP</option>";
+    temp += "<option value='SC'>SC</option>";
+    temp += "</select>";
+    return temp;
+}
+
+/** 拼写sql语句 **/
+function sqlSyntax(params){
+    var temp = "select count(*) from " + params.tableName + " where 1=1";
+    if(params.startTime != ""){
+        temp += " AND create_time > ";
+        temp += params.startTime;
+    }
+    if(params.endTime != ""){
+        temp += " AND endTime < ";
+        temp += params.endTime;
+    }
+    if(params.expTypeList.length > 0){
+        var plist = params.expTypeList;
+        var length = plist.length;
+        temp += " AND exp_type IN (";
+        for (var i = 0;i < length-1;i++){
+            temp += "&quot;"+ plist[i] +"&quot;,";
+        }
+        temp += "&quot;" + plist[length-1] + "&quot;)";
+    }
+    return temp;
 }
