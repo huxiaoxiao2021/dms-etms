@@ -991,6 +991,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     }
                 }
                 dealWithWaybillCode(sendDetails);
+
+                String waybillSendCode = sendM.getSendCode() + "-" + waybillCode;
                 // 开始包装发货对象
                 InOrder order = new InOrder();
                 order.setSourceId(sendDetail.getCreateSiteCode());
@@ -1000,6 +1002,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 order.setOrderId(Long.parseLong(sendDetail.getWaybillCode()));
                 order.setCreateReason(sendDetail.getSpareReason());
                 order.setAimOrgId(baseOrgId);
+                // 逆向退备件库报文兼容性更改，唯一标识，用于备件库新老系统兼容并行
+                order.setWaybillSendCode(waybillSendCode);
 
                 try {
                     order.setAimStoreId(Integer.parseInt(baseStoreId));
@@ -1129,6 +1133,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     for (ReverseSpare aReverseSpare : sendReverseSpare) {
                         if (null == aReverseSpare.getSpareTranCode()) {
                             aReverseSpare.setSpareTranCode(transferId);
+                            aReverseSpare.setWaybillSendCode(waybillSendCode);
                             reverseSpares.add(aReverseSpare);
                         }
                     }

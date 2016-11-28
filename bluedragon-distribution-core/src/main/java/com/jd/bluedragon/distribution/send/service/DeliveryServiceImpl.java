@@ -2685,7 +2685,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         private final List<SendThreeDetail> computeUsePackage(List<SendDetail> list) {
             String lastWaybillCode = null;
             int scanCount = 0;
-            int counter = 0;
+            int pacageSumShoudBe = 0;
             int hasDiff = 0;
             ;
             List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
@@ -2696,15 +2696,15 @@ public class DeliveryServiceImpl implements DeliveryService {
                 diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
                 diff.setIsWaybillFull(1);
                 if (!item.getWaybillCode().equals(lastWaybillCode)) {
-                    hasDiff += invoke(counter, scanCount, diffrenceList);
+                    hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
                     lastWaybillCode = item.getWaybillCode();
-                    counter = BusinessHelper.getPackageNum(item.getPackageBarcode());
+                    pacageSumShoudBe = BusinessHelper.getPackageNum(item.getPackageBarcode());
                     scanCount = 0;
                 }
-                ++scanCount;
+                ++scanCount;//扫描计数器
                 diffrenceList.add(diff);
             }
-            hasDiff += invoke(counter, scanCount, diffrenceList);
+            hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
             if (hasDiff > 0) {
                 List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
                 Integer createSiteCode = list.get(0).getCreateSiteCode();

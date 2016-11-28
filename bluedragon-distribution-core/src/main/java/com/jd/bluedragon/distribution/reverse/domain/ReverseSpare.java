@@ -110,6 +110,11 @@ public class ReverseSpare {
      */
     private String spareTranCode;
 
+	/**
+	 * 用于对接备件库的唯一标识
+	 */
+	private String waybillSendCode;
+
 	public String getSpareTranCode() {
 		return spareTranCode;
 	}
@@ -268,5 +273,13 @@ public class ReverseSpare {
 
 	public void setYn(Integer yn) {
 		this.yn = yn;
+	}
+
+	public String getWaybillSendCode() {
+		return waybillSendCode;
+	}
+
+	public void setWaybillSendCode(String waybillSendCode) {
+		this.waybillSendCode = waybillSendCode;
 	}
 }

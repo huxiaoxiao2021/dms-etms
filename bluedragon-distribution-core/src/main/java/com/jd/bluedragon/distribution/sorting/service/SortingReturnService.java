@@ -21,21 +21,6 @@ public interface SortingReturnService {
 	public static final Integer ADDRETURN_ERROR = -1;
 
 	/**
-	 * 反调度操作—操作反调度
-	 */
-	public static final Integer REDISPATCH_YES = 1;
-	
-	/**
-	 * 反调度操作—未操作反调度
-	 */
-	public static final Integer REDISPATCH_NO = 2;
-	
-	/**
-	 * 反调度操作—查询异常
-	 */
-	public static final Integer REDISPATCH_ERROR = 3;
-	
-	/**
 	 * 根据分拣任务数据生成分拣退货操作信息
 	 *
 	 * @param task
