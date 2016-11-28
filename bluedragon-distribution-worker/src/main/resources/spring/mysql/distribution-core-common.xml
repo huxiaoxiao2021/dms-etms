@@ -158,13 +158,13 @@
     <!--异步双写线程池配置, 线上注意配置线程池大小 pool-size属性-->
     <task:executor id="doubleWriteExecutor" pool-size="0-8"/>
 
-    <bean id="transactionManager"
+<!--    <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dms_main"/>
         <qualifier value="main"></qualifier>
     </bean>
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <tx:annotation-driven transaction-manager="transactionManager"/>-->
 
     <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="dwSqlSessionFactory"/>
