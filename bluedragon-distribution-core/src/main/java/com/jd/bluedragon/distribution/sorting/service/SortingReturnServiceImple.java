@@ -1,7 +1,21 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -14,23 +28,20 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BaseInfoHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.erp.ws.BizServiceInterface;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 @Service("sortingReturnService")
 public class SortingReturnServiceImple implements SortingReturnService {
@@ -89,8 +100,11 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	@Autowired
 	private IPushPackageToMqService pushMqService;
 	
+//	@Autowired
+//	private BizServiceInterface bizService;
+	
 	@Autowired
-	private BizServiceInterface bizService;
+	private WaybillQueryManager waybillQueryManager;
 
 	@JProfiler(jKey= "DMSWORKER.SortingReturnService.doSortingReturnForTask",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -500,16 +514,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @return
 	 */
 	public Integer checkReDispatch(String packageCode){
-		com.jd.etms.erp.service.domain.BaseEntity<java.lang.Boolean> result = bizService.checkReDispatch(packageCode);
-		if(result.getResultCode() == 1){
-			if(result.getData()){
-				return REDISPATCH_YES;
-			}else{
-				return REDISPATCH_NO;
-			}
-		}else{
-			return REDISPATCH_ERROR;
-		}
-		
+		String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+		return this.waybillQueryManager.checkReDispatch(waybillCode);
 	}
 }

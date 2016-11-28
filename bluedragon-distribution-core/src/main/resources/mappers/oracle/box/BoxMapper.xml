@@ -33,7 +33,7 @@
 			update_user_code, update_user, transport_type,mix_box_type,
 			create_time, update_time, times, box_status, yn)
 		VALUES (
-			SEQ_BOX.NEXTVAL, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+			#{id,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
 			#{receiveSiteCode,jdbcType=VARCHAR}, #{receiveSiteName,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},

@@ -84,9 +84,10 @@
   
   <insert id="add" parameterType="PopPickup" >
     INSERT INTO pop_pickup (
-    <include refid="Base_Insert_Column_List"/>
+    <include refid="Base_Column_List"/>
     )
     VALUES (
+    #{pickupId,jdbcType=BIGINT},
        #{waybillCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{pickupType,jdbcType=INTEGER},
 		#{packageNumber,jdbcType=INTEGER}, #{popBusinessCode,jdbcType=VARCHAR}, #{popBusinessName,jdbcType=VARCHAR},#{carCode,jdbcType=VARCHAR},
@@ -128,7 +129,7 @@
 		<include refid="Base_Column_List"/>
 		from pop_pickup
 		<include refid="Pop_Pickup_Where_List"/>
-		order by pickup_id
+		order by operate_time
 		<if test="startIndex != null">
 			LIMIT #{startIndex},#{pageSize}
 		</if>

@@ -377,5 +377,9 @@ public class BusinessHelper {
 	public static Boolean checkIntNumNotInRange(Integer intNum) {
 		return !BusinessHelper.checkIntNumRange(intNum);
 	}
+	
+	public static void main(String[] args){
+		System.out.println(BusinessHelper.getWaybillCode("45464367033-1-1-2"));
+	}
 
 }

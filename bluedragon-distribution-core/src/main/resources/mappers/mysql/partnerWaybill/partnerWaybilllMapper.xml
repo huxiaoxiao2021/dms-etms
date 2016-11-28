@@ -94,10 +94,11 @@
 	<insert id="add" parameterType="list">
 		insert into partner_waybill
 		(
-		<include refid="Base_Insert_Column_List" />
+		<include refid="Base_Column_List" />
 		)
 		values
 		(
+		#{relationId,jdbcType=BIGINT},
 		#{partnerWaybillCode,jdbcType=VARCHAR},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{partnerSiteCode,jdbcType=INTEGER},

@@ -54,9 +54,10 @@
   <insert id="add"  parameterType="InspectionEC">
   	INSERT INTO  inspection_e_c
   	(  
-	<include refid="Base_Column_ListNoID"/>
+	<include refid="Base_Column_List"/>
   	)
   	VALUES(
+	#{checkId,jdbcType=BIGINT},
   		#{waybillCode,jdbcType=VARCHAR},
   		#{boxCode,jdbcType=VARCHAR},#{packageBarcode,jdbcType=VARCHAR},
   		#{inspectionECType,jdbcType=INTEGER},#{status,jdbcType=INTEGER},#{inspectionType,jdbcType=INTEGER},

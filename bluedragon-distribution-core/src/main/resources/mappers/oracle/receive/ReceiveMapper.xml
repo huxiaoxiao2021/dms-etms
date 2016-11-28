@@ -56,7 +56,7 @@
 		queueNo,departure_car_id, shields_car_time
 		)
 		values
-		(SEQ_RECEIVE.NEXTVAL, #{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
+		(#{receiveId,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
 		#{createTime,jdbcType=TIMESTAMP}, #{createSiteCode,jdbcType=INTEGER},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{receiveType,jdbcType=SMALLINT},

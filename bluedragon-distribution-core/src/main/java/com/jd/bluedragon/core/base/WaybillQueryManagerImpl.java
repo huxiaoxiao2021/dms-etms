@@ -1,25 +1,31 @@
 package com.jd.bluedragon.core.base;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.utils.JsonUtil;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderTraceDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -31,6 +37,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
 	@Autowired
 	private WaybillTraceApi waybillTraceApi;
+	
+	@Autowired
+	private WaybillPickupTaskApi waybillPickupTaskApi;
 	
 	@Override
 	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -132,19 +141,75 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return true;
 	}
 
-
+	@Override
+	public Integer checkReDispatch(String waybillCode) {
+		Integer result = REDISPATCH_NO;
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.checkReDispatch", false, true);
+		BaseEntity<List<PackageState>> baseEntity = null;
+		try {
+			// http://cf.jd.com/pages/viewpage.action?pageId=73834851 取件单批量查询接口
+			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, WAYBILL_STATUS_REDISPATCH);
+			if (baseEntity != null) {
+				if (baseEntity.getResultCode() != 1) {
+					this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode + ","
+							+ baseEntity.getResultCode() + "," + baseEntity.getMessage());
+					result = REDISPATCH_ERROR;
+				} else{
+					if(baseEntity.getData() != null && baseEntity.getData().size()>0){
+						result = REDISPATCH_YES;
+					}else{
+						result = REDISPATCH_NO;
+					}
+				}
+			} else {
+				this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：" + waybillCode);
+				result = REDISPATCH_ERROR;
+			}
+		} catch (Exception e) {
+			Profiler.functionError(info);
+			this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode, e);
+			result = REDISPATCH_ERROR;
+		} finally {
+			Profiler.registerInfoEnd(info);
+		}
+		return result;
+	}
+	
+	@Override
+	public String getChangeWaybillCode(String oldWaybillCode) {
+		String changedWaybillCode = null;
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.checkReDispatch", false, true);
+		BaseEntity<Map<String, String>> baseEntity = null;
+		try {
+			List<String> waybillCodes = new ArrayList<String>();
+			waybillCodes.add(oldWaybillCode);
+			//http://cf.jd.com/pages/viewpage.action?pageId=74538367 运单指查询面单接口
+			baseEntity = waybillPickupTaskApi.batchQuerySurfaceCodes(waybillCodes);
+			if (baseEntity != null) {
+				if (baseEntity.getResultCode() != 1) {
+					this.logger.error("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState异常：" + oldWaybillCode + ","
+							+ baseEntity.getResultCode() + "," + baseEntity.getMessage());
+				} else if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
+					changedWaybillCode = baseEntity.getData().get(oldWaybillCode);
+				}
+			} else {
+				this.logger.error("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState返回空：" + oldWaybillCode);
+			}
+		} catch (Exception e) {
+			Profiler.functionError(info);
+			this.logger.error("获取取件单对应的面单号W单号WaybillQueryManagerImpl.checkReDispatch异常：" + oldWaybillCode, e);
+		} finally {
+			Profiler.registerInfoEnd(info);
+		}
+		return changedWaybillCode;
+	}
+	
+	
 	public static void main(String [] args){
-		WChoice wChoice = new WChoice();
-		wChoice.setQueryWaybillC(true);
-		wChoice.setQueryWaybillE(true);
-		wChoice.setQueryWaybillM(true);
-		wChoice.setQueryGoodList(true);
-		wChoice.setQueryPackList(true);
-		wChoice.setQueryPickupTask(true);
-		wChoice.setQueryServiceBillPay(true);
-
-		System.out.println(JsonHelper.toJson(wChoice));
-
-
+//		WaybillQueryManagerImpl manager = new WaybillQueryManagerImpl();
+//		Integer changedWaybill = manager.checkReDispatchtest("1460638776");
+//		
+//		
+//		System.out.println(changedWaybill);
 	}
 }

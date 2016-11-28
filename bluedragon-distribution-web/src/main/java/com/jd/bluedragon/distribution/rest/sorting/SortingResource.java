@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -402,11 +403,11 @@ public class SortingResource {
 			this.logger.info("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[" + packageCode + "]");
 			Integer result = returnsService.checkReDispatch(packageCode);
 			SortingResponse response = null;
-			if (result.equals(SortingReturnService.REDISPATCH_ERROR)) {
+			if (result.equals(WaybillQueryManager.REDISPATCH_ERROR)) {
 				this.logger.info("调用SortingResource.checkReDispatch WSS接口操作失败[" + packageCode + "]");
 				response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 						SortingResponse.MESSAGE_SERVICE_ERROR);
-			} else if (result.equals(SortingReturnService.REDISPATCH_NO)) {
+			} else if (result.equals(WaybillQueryManager.REDISPATCH_NO)) {
 				this.logger.info("调用SortingResource.checkReDispatch 未操作站点反调度[" + packageCode + "]");
 				response = this.ok();
 			} else {

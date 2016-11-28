@@ -10,7 +10,7 @@ import java.util.Date;
 * 版本号： v1.0
  */
 public class PopQueue {
-	public Integer id;
+	public Long id;
 	public String queueNo;
 	public Integer createSiteCode;
 	public String createSiteName;
@@ -27,10 +27,10 @@ public class PopQueue {
 	public Date createTime;
 	public Date updateTime;
 	public Integer yn;
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getQueueNo() {

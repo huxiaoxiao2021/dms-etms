@@ -37,7 +37,7 @@
 			create_time, update_time, operate_time, is_cancel, excute_count, excute_time, 
 			sorting_status, yn, spare_reason, is_loss, feature_type)
 		VALUES (
-			SEQ_SORTING.NEXTVAL, #{bsendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
+			#{id,jdbcType=BIGINT}, #{bsendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR}, #{pickupCode,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
 			#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},

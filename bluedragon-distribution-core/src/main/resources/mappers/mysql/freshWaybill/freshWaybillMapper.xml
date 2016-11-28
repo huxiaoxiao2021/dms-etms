@@ -29,10 +29,12 @@
 
     <insert id="addFreshWaybill" parameterType="freshWaybill">
         INSERT INTO FRESH_WAYBILL(
+	id,
         PACKAGE_CODE, BOX_TYPE, SLAB_TYPE,SLAB_NUM,PACKAGE_TEMP,SLAB_TEMP,
         CREATE_TIME,UPDATE_TIME,USER_CODE,USER_NAME,USER_DMS_CODE,USER_DMS_NAME,
         USER_ORG_CODE,USER_ORG_NAME,YN
         )VALUES(
+	#{id,jdbcType=BIGINT},
         #{packageCode,jdbcType=VARCHAR},#{boxType,jdbcType=INTEGER},#{slabType,jdbcType=INTEGER},
         #{slabNum,jdbcType=INTEGER},#{packageTemp,jdbcType=FLOAT},#{slabTemp,jdbcType=FLOAT},
         now(),now(),#{userCode,jdbcType=INTEGER},#{userName,jdbcType=VARCHAR},#{userDmsId,jdbcType=INTEGER},

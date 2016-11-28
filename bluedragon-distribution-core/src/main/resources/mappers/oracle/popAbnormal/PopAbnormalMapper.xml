@@ -128,7 +128,7 @@
 		<include refid="Base_Column_List" />
 		)
 		values (
-		SEQ_POP_ABNORMAL_ORDER.NEXTVAL, #{serialNumber, jdbcType=VARCHAR},
+		#{id,jdbcType=BIGINT}, #{serialNumber, jdbcType=VARCHAR},
 		#{abnormalType, jdbcType=INTEGER},
 		#{waybillCode, jdbcType=VARCHAR},
 		#{orderCode, jdbcType=VARCHAR}, 

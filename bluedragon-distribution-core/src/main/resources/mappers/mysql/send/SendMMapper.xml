@@ -131,9 +131,9 @@
 	</select>
 
 	<insert id="insertSendM" parameterType="SendM">
-		<selectKey resultType="long"  keyProperty="sendMId" order="BEFORE" statementType="PREPARED">      
+		<!--<selectKey resultType="long"  keyProperty="sendMId" order="BEFORE" statementType="PREPARED">      
 			<![CDATA[select dms_core_send_m.nextval]]>
-	    </selectKey>
+	    </selectKey>-->
 	
 		INSERT INTO send_m (
 		send_m_id, send_code, send_user, send_user_code,box_code,turnoverBox_Code,
@@ -146,7 +146,7 @@
 		)
 		VALUES
 			(
-			#{sendMId},
+			#{sendMId,jdbcType=BIGINT},
 			#{sendCode,jdbcType=VARCHAR},#{sendUser,jdbcType=VARCHAR},#{sendUserCode,jdbcType=INTEGER},#{boxCode,jdbcType=VARCHAR},#{turnoverBoxCode,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{carCode,jdbcType=INTEGER},#{sendType,jdbcType=INTEGER},
 			#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},NOW(),#{operateTime,jdbcType=TIMESTAMP},
