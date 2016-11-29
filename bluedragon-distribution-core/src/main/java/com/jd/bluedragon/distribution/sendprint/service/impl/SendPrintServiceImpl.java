@@ -701,7 +701,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 						SendDetail itemUseless = sendDMap.get(packageBarCodeNoT);//找到原单的数据，标记无效
 						sendDMap.remove(packageBarCodeNoT);//从map中剔除原单数据
 						sendDMap.put(packageBarCodeNoT,item);//更新为新的T单数据
-						result.remove(sendDMap.get(packageBarCodeNoT));//从list中去除原单
+						result.remove(itemUseless);//从list中去除原单
 						result.add(item);//将此T单添加至结果集中
 					}
 				}
