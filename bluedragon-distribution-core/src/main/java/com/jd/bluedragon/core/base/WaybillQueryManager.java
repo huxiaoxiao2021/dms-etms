@@ -25,6 +25,11 @@ public interface WaybillQueryManager{
 	 */
 	public static final Integer REDISPATCH_ERROR = 3;
 	
+	/**
+	 * 运单反调度状态
+	 */
+	public static final String WAYBILL_STATUS_REDISPATCH = "140";
+	
 
 	public abstract BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice  wChoice);
 
@@ -86,10 +91,10 @@ public interface WaybillQueryManager{
 
 	/**
 	 * 适配,查询包裹是否进行过站点发调度操作
-	 * @param packageCode
+	 * @param waybillCode
 	 * @return Integer
 	 */
-	public Integer checkReDispatch(String packageCode);
+	public Integer checkReDispatch(String waybillCode);
 
 	/**
 	 * 获取取件单对应的面单号W单
