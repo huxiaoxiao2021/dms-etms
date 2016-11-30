@@ -729,7 +729,7 @@ public class SendPrintServiceImpl implements SendPrintService{
             tSendDatail.setReceiveSiteCode(dendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(1);
 	        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
-			sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
+
 	        if (sendDetails != null && !sendDetails.isEmpty()) {
 	        	for (SendDetail dSendDatail : sendDetails) {
                     if(criteria.getWaybillcode()==null || "".equals(criteria.getWaybillcode()) 
@@ -846,7 +846,6 @@ public class SendPrintServiceImpl implements SendPrintService{
 			tSendDatail.setIsCancel(1);
 
 			List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
-			sendDetails = selectUniquesSendDetails(sendDetails);//create by wzx 打印交接清单去重 T单去除原单
 
 			if (sendDetails != null && !sendDetails.isEmpty()) {
 				try {
