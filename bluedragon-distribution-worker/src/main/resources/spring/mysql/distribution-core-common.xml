@@ -147,6 +147,22 @@
             <list>
                 <value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
                 <value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.add</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.update</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateFail</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateSuccess</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateLock</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.add</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.update</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.addWithStatus</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateTaskById</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateBatchTask</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateTaskStatus</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.updateLoadBillStatus</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.add</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.update</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.updatePreLoadBillById</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.updateCancelLoadBillStatus</value>
             </list>
         </property>
 
