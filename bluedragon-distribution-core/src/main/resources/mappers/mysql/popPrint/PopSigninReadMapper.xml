@@ -21,7 +21,7 @@
 		resultMap="PopSigninMap">
 		SELECT * FROM dms.POP_SIGNIN  t1
 		<include refid="where" />
-		GROUP BY third_waybill_code ORDER BY id
+		GROUP BY third_waybill_code,queue_no ORDER BY id
 		<if test="start!=null">
 		     LIMIT #{start} ,50 
 		</if>

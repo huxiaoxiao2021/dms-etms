@@ -63,7 +63,7 @@
 		resultMap="PopSigninMap">
 		SELECT * FROM POP_SIGNIN  t1
 		<include refid="where" />
-		GROUP BY third_waybill_code,queue_no
+		GROUP BY third_waybill_code,queue_no ORDER BY id
 		<if test="start!=null">
 		     LIMIT #{start} ,#{end} 
 		</if>
