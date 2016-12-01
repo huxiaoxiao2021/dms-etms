@@ -692,12 +692,12 @@ public class SendPrintServiceImpl implements SendPrintService{
 		if(null != sendDetailList){
 			for (SendDetail item : sendDetailList){
 				String packageBarCode = item.getPackageBarcode();
-				String packageBarCodeNoT = packageBarCode.contains("T")? packageBarCode.replace("T","") : packageBarCode;
+				String packageBarCodeNoT = packageBarCode.startsWith("T")? packageBarCode.substring(1) : packageBarCode;//如果单号以T开始，则从index=1开始截取子字符串
 				if(!sendDMap.containsKey(packageBarCodeNoT)){
 					sendDMap.put(packageBarCodeNoT,item);
 					result.add(item);
 				}else{
-					if(packageBarCode.contains("T")){
+					if(packageBarCode.startsWith("T")){
 						SendDetail itemUseless = sendDMap.get(packageBarCodeNoT);//找到原单的数据，标记无效
 						sendDMap.remove(packageBarCodeNoT);//从map中剔除原单数据
 						sendDMap.put(packageBarCodeNoT,item);//更新为新的T单数据
