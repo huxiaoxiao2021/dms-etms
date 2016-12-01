@@ -58,8 +58,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private ReceiveManager receiveManager;
 
     @Autowired
-    @Qualifier("bdBlockerCompleteMQ")
-    private DefaultJMQProducer bdBlockerCompleteMQ;
+    private DefaultJMQProducer reverseChangeWaybillCodeMQ;
 
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -122,7 +121,15 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
         //  这里将要下掉  modified by zhanglei 20161025
 //        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
+        /**
+         * 逆向换单打印发送换单mq added by zhanglei 20161123
+         */
 
+        try {
+            reverseChangeWaybillCodeMQ.sendOnFailPersistent(domain.getNewCode(), getReversePrintMqBody(domain));
+        }catch (Exception e){
+            logger.error("发送逆向换单mq失败,新单号为："+domain.getNewCode(),e);
+        }
         OperationLog operationLog=new OperationLog();
         operationLog.setCreateTime(new Date());
         operationLog.setRemark("【外单逆向换单打印】原单号："+domain.getOldCode()+"新单号："+domain.getNewCode());
@@ -133,6 +140,29 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         operationLog.setCreateSiteName(domain.getSiteName());
         operationLogService.add(operationLog);
         return true;
+    }
+
+    /**
+     * added by zhanglei
+     * 获取换单打印mq消息体 消息体中增加dmsDisCode字段  当在分拣中心换单打印时 值为siteCode 当在站点换单打印时 值为站点对应的分拣中心code
+     * 增加字段原因是为了兼容性 以后如果有别的业务消费这个mq 不会覆盖掉原始换单地点
+     * @param domain
+     * @return
+     */
+    private String getReversePrintMqBody(ReversePrintRequest domain){
+        Integer siteCode = domain.getSiteCode();
+        BaseStaffSiteOrgDto siteDomain = siteService.getSite(siteCode);
+        if(siteDomain == null){
+            return JsonHelper.toJsonUseGson(domain);
+        }
+        int siteType = siteDomain.getSiteType();
+        if(siteType == 64){
+            domain.setDmsDisCode(domain.getSiteCode());
+            return JsonHelper.toJsonUseGson(domain);
+        }else{
+            domain.setDmsDisCode(siteDomain.getDmsId());
+            return JsonHelper.toJsonUseGson(domain);
+        }
     }
 
     /**

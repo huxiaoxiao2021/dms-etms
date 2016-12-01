@@ -10,7 +10,7 @@ import java.util.Date;
 * 版本号： v1.0
  */
 public class PopSignin {
-	public Integer id;
+	public Long id;
 	public String queueNo;
 	public String thirdWaybillCode;
 	public Integer createUserCode;
@@ -29,10 +29,10 @@ public class PopSignin {
 	public void setYn(Integer yn) {
 		this.yn = yn;
 	}
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getQueueNo() {

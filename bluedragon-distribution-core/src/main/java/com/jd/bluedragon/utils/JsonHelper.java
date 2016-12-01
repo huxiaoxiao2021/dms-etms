@@ -211,4 +211,13 @@ public class JsonHelper {
             return null;
         }
     }
+
+    /**
+     * added by zhanglei  统一对时间的处理
+     * @param object
+     * @return
+     */
+    public static String toJsonUseGson(Object object) {
+        return GSON_COMMON.toJson(object);
+    }
 }
