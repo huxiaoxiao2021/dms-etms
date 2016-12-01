@@ -63,6 +63,7 @@
 		resultMap="PopSigninMap">
 		SELECT * FROM POP_SIGNIN  t1
 		<include refid="where" />
+		GROUP BY third_waybill_code,queue_no
 		<if test="start!=null">
 		     LIMIT #{start} ,#{end} 
 		</if>
@@ -71,7 +72,7 @@
 	<select id="getCount"
 		parameterType="com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto"
 		resultType="int">
-		select count(1) from POP_SIGNIN t1
+		select count(DISTINCT third_waybill_code) ct from POP_SIGNIN t1
 		<include refid="where" />
 	</select>
 	<sql id="where">
