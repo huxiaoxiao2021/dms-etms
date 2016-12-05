@@ -195,7 +195,7 @@
         <include refid="Base_Column_List"/>
         )
         values (
-        SEQ_POP_PRINT.NEXTVAL, #{waybillCode, jdbcType=VARCHAR},
+        #{popPrintId, jdbcType=BIGINT}, #{waybillCode, jdbcType=VARCHAR},
         #{createSiteCode, jdbcType=INTEGER}, #{printPackCode, jdbcType=INTEGER},
         #{printPackTime, jdbcType=TIMESTAMP}, #{printInvoiceCode, jdbcType=INTEGER},
         #{printInvoiceTime, jdbcType=TIMESTAMP},

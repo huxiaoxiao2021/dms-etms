@@ -106,9 +106,10 @@
 	
 	<insert id="add" parameterType="PopReceive">
 		insert into pop_receive (
-		<include refid="Base_Column_ListNo" />
+		<include refid="Base_Column_List" />
 		)
 		values (
+		#{systemId,jdbcType=BIGINT},
 		#{receiveType, jdbcType=INTEGER}, #{waybillCode, jdbcType=VARCHAR}, 
 		#{thirdWaybillCode, jdbcType=VARCHAR}, #{originalNum, jdbcType=INTEGER}, #{actualNum, jdbcType=INTEGER}, 
 		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR}, #{operatorCode, jdbcType=INTEGER}, 

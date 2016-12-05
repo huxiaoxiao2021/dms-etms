@@ -150,7 +150,7 @@
 		)
 		VALUES
 			(
-			SEQ_SEND_M.NEXTVAL,#{sendCode,jdbcType=VARCHAR},#{sendUser,jdbcType=VARCHAR},#{sendUserCode,jdbcType=INTEGER},#{boxCode,jdbcType=VARCHAR},#{turnoverBoxCode,jdbcType=VARCHAR},
+			#{sendMId,jdbcType=BIGINT},#{sendCode,jdbcType=VARCHAR},#{sendUser,jdbcType=VARCHAR},#{sendUserCode,jdbcType=INTEGER},#{boxCode,jdbcType=VARCHAR},#{turnoverBoxCode,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{carCode,jdbcType=INTEGER},#{sendType,jdbcType=INTEGER},
 			#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},SYSDATE,#{operateTime,jdbcType=TIMESTAMP},
 			#{updateUserCode,jdbcType=INTEGER},#{updaterUser,jdbcType=VARCHAR},1,#{updateTime,jdbcType=TIMESTAMP},#{yn,jdbcType=TINYINT},#{shieldsCarId,jdbcType=INTEGER}

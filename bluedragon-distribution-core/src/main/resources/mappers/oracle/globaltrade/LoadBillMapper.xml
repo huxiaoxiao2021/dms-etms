@@ -120,9 +120,9 @@
         </foreach>
     </select>
 
-    <select id="selectPreLoadBillId" resultType="java.lang.Long">
+<!--    <select id="selectPreLoadBillId" resultType="java.lang.Long">
         SELECT SEQ_PRE_LOAD_BILL.NEXTVAL FROM dual
-    </select>
+    </select>-->
 
 	<insert id="addBatch" parameterType="list">
 		INSERT INTO load_bill ( 

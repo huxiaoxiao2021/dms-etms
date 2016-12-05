@@ -88,7 +88,7 @@
 		)
 		values
 		(
-		SEQ_PARTNER_WAYBILL.NEXTVAL, #{partnerWaybillCode,jdbcType=VARCHAR},
+		#{relationId,jdbcType=BIGINT}, #{partnerWaybillCode,jdbcType=VARCHAR},
 		#{waybillCode,jdbcType=VARCHAR},
 		#{packageBarcode,jdbcType=VARCHAR}, 1, #{partnerSiteCode,jdbcType=INTEGER},
 		#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=VARCHAR},

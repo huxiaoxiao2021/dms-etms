@@ -42,9 +42,6 @@
   </sql>
   
   <insert id="add"  parameterType="InspectionEC">
-  	<selectKey resultType="long"  keyProperty="checkId" order="BEFORE" statementType="PREPARED">      
-		<![CDATA[SELECT SEQ_INSPECTION_E_C.NEXTVAL FROM DUAL]]>
-    </selectKey>
   	INSERT INTO  inspection_e_c
   	(  
 	<include refid="Base_Column_List"/>

@@ -36,7 +36,7 @@
 			create_site_code, receive_site_code, create_user, create_user_code,create_time, operate_time, update_time,
 			sendd_status, is_cancel,excute_count, excute_time,  weight, yn, spare_reason, is_loss, feature_type)
 	    VALUES (
-	    	SEQ_SEND_D.NEXTVAL, #{sendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
+	    	#{sendDId,jdbcType=BIGINT}, #{sendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
 		    #{packageBarcode,jdbcType=VARCHAR}, #{packageNum,jdbcType=INTEGER}, #{waybillCode,jdbcType=VARCHAR},
 			#{pickupCode,jdbcType=VARCHAR}, #{sendType,jdbcType=INTEGER},
 			#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},

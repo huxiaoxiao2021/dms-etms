@@ -306,9 +306,9 @@
 	</select>
 
 	<insert id="add" parameterType="Inspection" >
-		<selectKey resultType="long"  keyProperty="inspectionId" order="BEFORE" statementType="PREPARED">
+		<!--<selectKey resultType="long"  keyProperty="inspectionId" order="BEFORE" statementType="PREPARED">
 			<![CDATA[SELECT SEQ_INSPECTION.NEXTVAL FROM DUAL]]>
-		</selectKey>
+		</selectKey>-->
 		INSERT into inspection (
 		<include refid="Base_Column_List"/>
 		)

@@ -119,9 +119,9 @@
         </foreach>
     </select>
 
-    <select id="selectPreLoadBillId" resultType="java.lang.Long">
-       select dms_core_box.nextval
-    </select>
+    <!--<select id="selectPreLoadBillId" resultType="java.lang.Long">-->
+       <!--select dms_core_box.nextval-->
+    <!--</select>-->
 
 	<update id="updateLoadBillStatus" parameterType="map">
 		UPDATE load_bill
