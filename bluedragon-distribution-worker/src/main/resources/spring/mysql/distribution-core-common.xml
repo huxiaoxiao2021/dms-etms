@@ -172,15 +172,23 @@
         <!-- 启动异步双写结束 -->
     </bean>
     <!--异步双写线程池配置, 线上注意配置线程池大小 pool-size属性-->
-    <task:executor id="doubleWriteExecutor" pool-size="0-8"/>
+    <task:executor id="doubleWriteExecutor" pool-size="0-15"/>
+
+    <bean name="transactionManager" class="com.jd.coo.sa.mybatis.plugins.dwr.TransactionManager">
+        <!--class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <property name="daoContext" ref="daoContext"/>
+        <property name="dataSource" ref="dms_main" />
+        <property name="rollbackOnCommitFailure" value="true" />
+        <qualifier value="main"></qualifier>
+    </bean>
 
 <!--    <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dms_main"/>
         <qualifier value="main"></qualifier>
     </bean>
-
-    <tx:annotation-driven transaction-manager="transactionManager"/>-->
+-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="dwSqlSessionFactory"/>
