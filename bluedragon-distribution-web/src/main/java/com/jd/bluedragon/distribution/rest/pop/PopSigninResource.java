@@ -86,6 +86,7 @@ public class PopSigninResource {
 			pager.setTotalSize(count);
 			popSigninDto.setStart(pager.getStartIndex());
 			popSigninDto.setEnd(pager.getEndIndex());
+            popSigninDto.setPageSize(pager.getPageSize());
 			response.setPageNo(popSigninRequest.getPageNo());
 			response.setTotalSize(count);
 			response.setTotalNo(pager.getTotalNo()==null?0:pager.getTotalNo());

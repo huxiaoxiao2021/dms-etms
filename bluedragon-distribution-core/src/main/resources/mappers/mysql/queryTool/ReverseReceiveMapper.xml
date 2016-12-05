@@ -33,7 +33,7 @@
 		<include refid="selectWhere"/>
 		order by system_id desc
 		<if test="startIndex !=null and endIndex!=null">
-			limit ${startIndex},${endIndex}
+			limit ${startIndex},${pageSize}
 		</if>
 	</select>
 
