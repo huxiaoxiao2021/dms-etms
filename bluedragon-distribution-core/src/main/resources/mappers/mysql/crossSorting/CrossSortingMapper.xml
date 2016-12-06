@@ -161,7 +161,7 @@
 		<include refid="Base_Where_List" />
 		ORDER BY CREATE_TIME
 		<if test="startIndex != null">
-			LIMIT #{startIndex},#{endIndex}
+			LIMIT #{startIndex},#{pageSize}
 		</if>
 	</select>
 

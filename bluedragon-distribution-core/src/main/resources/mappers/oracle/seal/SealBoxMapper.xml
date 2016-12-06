@@ -25,7 +25,7 @@
 		create_user_code, create_user, update_user_code, update_user,
 		create_time, update_time, yn)
 		VALUES (
-		SEQ_SEAL_BOX.NEXTVAL,
+		#{id,jdbcType=BIGINT},
 		#{boxCode,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{receiveSiteCode,jdbcType=INTEGER},
@@ -41,7 +41,7 @@
 		create_user_code, create_user, update_user_code, update_user,
 		create_time, update_time, yn)
 		VALUES (
-		SEQ_SEAL_BOX.NEXTVAL,
+		#{id,jdbcType=BIGINT},
 		#{boxCode,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER},
 		#{receiveSiteCode,jdbcType=INTEGER},

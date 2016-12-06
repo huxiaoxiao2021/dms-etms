@@ -100,6 +100,7 @@ public class PopReceiveController {
 		pager.setTotalSize(count);
 		queryMap.put("start", pager.getStartIndex());
 		queryMap.put("end", pager.getEndIndex());
+        queryMap.put("pageSize",pager.getPageSize());
 		List<PopReceive> dataList =this.popReceiveService.findPopReceiveList(queryMap);
 		logger.info("count:"+count);
 		model.addAttribute("dataList", dataList);

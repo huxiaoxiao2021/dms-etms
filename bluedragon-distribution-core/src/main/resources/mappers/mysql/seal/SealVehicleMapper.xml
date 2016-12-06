@@ -27,11 +27,11 @@
 	<insert id="add" parameterType="sealVehicle">
 		INSERT INTO
 		seal_vehicle (
-		vehicle_code, seal_code, driver_code, driver,
+		system_id, vehicle_code, seal_code, driver_code, driver,
 		create_site_code, receive_site_code, create_user_code, create_user,
 		update_user_code, update_user, create_time, update_time, yn)
 		VALUES (
-		#{vehicleCode,jdbcType=VARCHAR},
+		#{id,jdbcType=BIGINT},#{vehicleCode,jdbcType=VARCHAR},
 		#{code,jdbcType=VARCHAR},
 		#{driverCode,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
@@ -43,12 +43,12 @@
 	<insert id="add2" parameterType="sealVehicle">
 		INSERT INTO
 		seal_vehicle (
-		vehicle_code, seal_code, driver_code, driver,
+		system_id, vehicle_code, seal_code, driver_code, driver,
 		create_site_code, receive_site_code, create_user_code, create_user,
 		update_user_code, update_user, create_time, update_time, yn,
 		send_code, volume, weight, package_num)
 		VALUES (
-		#{vehicleCode,jdbcType=VARCHAR},
+		#{id,jdbcType=BIGINT},#{vehicleCode,jdbcType=VARCHAR},
 		#{code,jdbcType=VARCHAR},
 		#{driverCode,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},

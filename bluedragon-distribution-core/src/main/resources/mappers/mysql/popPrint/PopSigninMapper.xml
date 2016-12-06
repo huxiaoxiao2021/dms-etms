@@ -17,8 +17,9 @@
 	</resultMap>
 	<insert id="insert" parameterType="PopSignin">
 		INSERT INTO
-		POP_SIGNIN(QUEUE_NO,THIRD_WAYBILL_CODE,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,EXPRESS_CODE,EXPRESS_NAME,CREATE_SITE_CODE,CREATE_SITE_NAME,CREATE_TIME,UPDATE_TIME,YN)
+		POP_SIGNIN(ID,QUEUE_NO,THIRD_WAYBILL_CODE,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,EXPRESS_CODE,EXPRESS_NAME,CREATE_SITE_CODE,CREATE_SITE_NAME,CREATE_TIME,UPDATE_TIME,YN)
 		VALUES(
+		#{id,jdbcType=BIGINT},
 		#{queueNo,jdbcType=VARCHAR},
 		#{thirdWaybillCode,jdbcType=VARCHAR},
 		#{createUserCode,jdbcType=INTEGER},
@@ -63,15 +64,16 @@
 		resultMap="PopSigninMap">
 		SELECT * FROM POP_SIGNIN  t1
 		<include refid="where" />
+		GROUP BY third_waybill_code,queue_no ORDER BY id
 		<if test="start!=null">
-		     LIMIT #{start} ,#{end} 
+		     LIMIT #{start} ,#{pageSize}
 		</if>
 		
 	</select>
 	<select id="getCount"
 		parameterType="com.jd.bluedragon.distribution.popPrint.dto.PopSigninDto"
 		resultType="int">
-		select count(1) from POP_SIGNIN t1
+		select count(DISTINCT third_waybill_code) ct from POP_SIGNIN t1
 		<include refid="where" />
 	</select>
 	<sql id="where">

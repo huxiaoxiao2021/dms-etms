@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.globaltrade.service;
 
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -84,6 +85,10 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     @Autowired
     private LoadBillReadDao loadBillReadDao;
+
+    @Autowired
+    private IGenerateObjectId genObjectId;
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int initialLoadBill(String sendCode, Integer userId, String userName) {
@@ -212,7 +217,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 			preLoadIds.add(loadBill.getId());
 		}
 
-		String preLoadBillId = String.valueOf(loadBillDao.selectPreLoadBillId());
+		String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
 		PreLoadBill preLoadBill = toPreLoadBill(loadBIlls, trunkNo, preLoadBillId);
 
 		logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));

@@ -85,10 +85,7 @@
 	</sql>
 
 	<insert id="add">
-		<selectKey resultType="long" keyProperty="logId" order="BEFORE"
-			statementType="PREPARED">      
-			<![CDATA[SELECT SEQ_OPERATION_LOG.NEXTVAL FROM DUAL]]>
-		</selectKey>
+
 		INSERT INTO operation_log_0(
 		<include refid="Base_Column_List" />
 		)

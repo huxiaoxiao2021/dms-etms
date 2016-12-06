@@ -44,22 +44,39 @@
 	    </constructor-arg>
 	    <constructor-arg index="1" ref="backupWriteDataSource"/>
   	</bean> -->
-  	
-	
-	<!-- 备份写数据源的sqlSession -->
-	<bean id="backupWriteSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="backupWriteDataSource" />
-		<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />
-	</bean>
-	
-	<!-- 备份写数据源的sqlTemplate -->
-	<bean id="backupWriteSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-		<constructor-arg index="0" ref="backupWriteSqlSessionFactory" />
-	</bean>
-	
-	<bean id="backupWriteDataSourceDbStatementProcessor" class="com.jd.ql.framework.migration.replication.support.AsyncMirrorDbStatementProcessor">
-	   	<constructor-arg index="0" ref="backupWriteSqlSessionTemplate"></constructor-arg>
-		<constructor-arg index="1" value="${backup.db.replication.aysn.threadNum}"></constructor-arg>
-	</bean>
-	
+
+    <!-- 数据库双写主数据源配置  王进思  开始 -->
+
+    <!-- 备份写数据源的sqlSession -->
+	<!--<bean id="backupWriteSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+		<!--<property name="dataSource" ref="backupWriteDataSource" />-->
+		<!--<property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />-->
+	<!--</bean>-->
+	<!---->
+	<!--&lt;!&ndash; 备份写数据源的sqlTemplate &ndash;&gt;-->
+	<!--<bean id="backupWriteSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">-->
+		<!--<constructor-arg index="0" ref="backupWriteSqlSessionFactory" />-->
+	<!--</bean>-->
+	<!---->
+	<!--<bean id="backupWriteDataSourceDbStatementProcessor" class="com.jd.ql.framework.migration.replication.support.AsyncMirrorDbStatementProcessor">-->
+	   	<!--<constructor-arg index="0" ref="backupWriteSqlSessionTemplate"></constructor-arg>-->
+		<!--<constructor-arg index="1" value="${backup.db.replication.aysn.threadNum}"></constructor-arg>-->
+	<!--</bean>-->
+    <!-- 数据库双写主数据源配置  王进思  结束 -->
+
+
+    <!-- 数据库双写主数据源配置  赵玉开  开始 -->
+    <bean id="sqlSessionFactorySlave" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="backupWriteDataSource"/>
+        <property name="configLocation" value="classpath:config/oracle/mybatis-config.xml" />
+    </bean>
+    <!-- 配置从数据源的事务管理器 -->
+    <bean name="transactionManagerSlave"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="backupWriteDataSource" />
+        <property name="rollbackOnCommitFailure" value="true" />
+    </bean>
+
+    <!-- 数据库双写主数据源配置  赵玉开  结束 -->
+
 </beans>

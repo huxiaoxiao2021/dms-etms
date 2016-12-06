@@ -31,7 +31,7 @@
 		create_site_code, receive_site_code, create_user_code, create_user,
 		update_user_code, update_user, create_time, update_time, yn)
 		VALUES (
-		SEQ_SEAL_VEHICLE.NEXTVAL, #{vehicleCode,jdbcType=VARCHAR},
+		#{id,jdbcType=BIGINT},#{vehicleCode,jdbcType=VARCHAR},
 		#{code,jdbcType=VARCHAR},
 		#{driverCode,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
@@ -48,7 +48,7 @@
 		update_user_code, update_user, create_time, update_time, yn,
 		send_code, volume, weight, package_num)
 		VALUES (
-		SEQ_SEAL_VEHICLE.NEXTVAL, #{vehicleCode,jdbcType=VARCHAR},
+		#{id,jdbcType=BIGINT},#{vehicleCode,jdbcType=VARCHAR},
 		#{code,jdbcType=VARCHAR},
 		#{driverCode,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},

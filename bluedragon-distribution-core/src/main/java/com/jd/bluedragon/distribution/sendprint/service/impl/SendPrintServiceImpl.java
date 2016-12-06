@@ -1,24 +1,8 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -32,32 +16,26 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BatchSendResult;
-import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service
 public class SendPrintServiceImpl implements SendPrintService{
@@ -198,16 +176,17 @@ public class SendPrintServiceImpl implements SendPrintService{
 		    tSendDatail.setIsCancel(0);
 		    logger.info("打印交接清单-批次汇总箱子信息"+dendM.getBoxCode());
 		    List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+			sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
 //		    if(sendDetails!=null && !sendDetails.isEmpty()){ 使打印交接汇总清单时带出空箱，之前不打印空箱
 		    for (SendDetail sendDatail : sendDetails) {
 	            String packageBarcode = sendDatail.getPackageBarcode();
 	            if(criteria.getPackageBarcode()!=null && !"".equals(criteria.getPackageBarcode()) &&
 	            		!criteria.getPackageBarcode().equals(packageBarcode)){
-	                	continue;
-	            }
-	            String waybillCode = sendDatail.getWaybillCode();
-	            packageBarcodeSet.add(packageBarcode);
-	            waybillCodeSet.add(waybillCode);
+					continue;
+				}
+				String waybillCode = sendDatail.getWaybillCode();
+				packageBarcodeSet.add(packageBarcode);
+				waybillCodeSet.add(waybillCode);
 	        }
 		    SummaryPrintBoxEntity detail = new SummaryPrintBoxEntity();
 		    detail.setBoxCode(dendM.getBoxCode());
@@ -307,6 +286,7 @@ public class SendPrintServiceImpl implements SendPrintService{
             }
             
 	        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+			sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
 	        
 	        if (sendDetails != null && !sendDetails.isEmpty()) {
 	            List<String> waybillCodes = new ArrayList<String>();
@@ -701,6 +681,36 @@ public class SendPrintServiceImpl implements SendPrintService{
     }
 
     /**
+	 * 对sendD列表进行去重【按包裹号对T单进行去重】
+	 * create By wuzuxiang at 2016年11月24日18:20:05
+	 * @param sendDetailList send列表
+	 * @return 返回去重后的结果
+     */
+    private final List<SendDetail> selectUniquesSendDetails(List<SendDetail> sendDetailList){
+    	List<SendDetail> result = new ArrayList<SendDetail>();
+    	Map<String,SendDetail> sendDMap = new HashMap<String, SendDetail>();
+		if(null != sendDetailList){
+			for (SendDetail item : sendDetailList){
+				String packageBarCode = item.getPackageBarcode();
+				String packageBarCodeNoT = packageBarCode.startsWith("T")? packageBarCode.substring(1) : packageBarCode;//如果单号以T开始，则从index=1开始截取子字符串
+				if(!sendDMap.containsKey(packageBarCodeNoT)){
+					sendDMap.put(packageBarCodeNoT,item);
+					result.add(item);
+				}else{
+					if(packageBarCode.startsWith("T")){
+						SendDetail itemUseless = sendDMap.get(packageBarCodeNoT);//找到原单的数据，标记无效
+						sendDMap.remove(packageBarCodeNoT);//从map中剔除原单数据
+						sendDMap.put(packageBarCodeNoT,item);//更新为新的T单数据
+						result.remove(itemUseless);//从list中去除原单
+						result.add(item);//将此T单添加至结果集中
+					}
+				}
+			}
+		}
+    	return result;
+	}
+
+    /**
 	 * 明细打印
 	 */
 	public BasicQueryEntityResponse detailPrintQuerySop(List<SendM> sendMs,PrintQueryCriteria criteria) {
@@ -719,7 +729,7 @@ public class SendPrintServiceImpl implements SendPrintService{
             tSendDatail.setReceiveSiteCode(dendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(1);
 	        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
-	        
+
 	        if (sendDetails != null && !sendDetails.isEmpty()) {
 	        	for (SendDetail dSendDatail : sendDetails) {
                     if(criteria.getWaybillcode()==null || "".equals(criteria.getWaybillcode()) 

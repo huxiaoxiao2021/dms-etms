@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.reassignWaybill.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	private ReassignWaybillDao reassignWaybillDao;
 	@Autowired
 	private CenConfirmService cenConfirmService;
+	@Autowired
+	private DefaultJMQProducer reassignWaybillMQ;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean add(ReassignWaybill packTagPrint) {
@@ -34,7 +38,26 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		cenConfirm.setOperateUserCode(packTagPrint.getUserCode());
 		cenConfirm.setReceiveSiteCode(packTagPrint.getChangeSiteCode());
 		cenConfirmService.syncWaybillStatusTask(cenConfirm);
+		//添加返调度运单信息到本地库
+		sendReassignWaybillMq(packTagPrint);
+
 		return reassignWaybillDao.add(packTagPrint);
+	}
+
+	/**
+	 * 添加返调度运单信息到运单本地库
+	 * 这里需要添加try catch 为了防止报错之后 后边的不能用
+	 *
+	 * 只有在分拣中心返调度的才会正常落数据 站点返调度不处理
+	 * */
+	private boolean sendReassignWaybillMq(ReassignWaybill packTagPrint){
+		try {
+			String json = JsonHelper.toJsonUseGson(packTagPrint);
+			reassignWaybillMQ.sendOnFailPersistent(packTagPrint.getWaybillCode(), json);
+		}catch (Exception e){
+			return false;
+		}
+		return true;
 	}
 
     @Override

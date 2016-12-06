@@ -25,7 +25,7 @@
 			send_code,package_barcode,can_receive,reject_code,reject_message,
             create_time, update_time, yn,business_type)
 		VALUES (
-			SEQ_REVERSE_Receive.NEXTVAL, 
+			#{id,jdbcType=BIGINT}, 
 			#{operatorId,jdbcType=VARCHAR},			
 			#{operatorName,jdbcType=VARCHAR},			
 			#{receiveTime,jdbcType=TIMESTAMP},			

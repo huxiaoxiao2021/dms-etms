@@ -128,9 +128,10 @@
 
 	<insert id="add" parameterType="PopAbnormal">
 		insert into pop_abnormal_order (
-		<include refid="Base_Insert_Column_List" />
+		<include refid="Base_Column_List" />
 		)
 		values (
+		#{id,jdbcType=BIGINT},
 		#{serialNumber, jdbcType=VARCHAR},
 		#{abnormalType, jdbcType=INTEGER},
 		#{waybillCode, jdbcType=VARCHAR},

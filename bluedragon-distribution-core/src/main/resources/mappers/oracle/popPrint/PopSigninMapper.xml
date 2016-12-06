@@ -18,7 +18,8 @@
 	<insert id="insert" parameterType="PopSignin">
 		INSERT INTO
 		POP_SIGNIN(ID,QUEUE_NO,THIRD_WAYBILL_CODE,CREATE_USER_CODE,CREATE_USER,OPERATE_TIME,EXPRESS_CODE,EXPRESS_NAME,CREATE_SITE_CODE,CREATE_SITE_NAME,CREATE_TIME,UPDATE_TIME,YN)
-		VALUES(SEQ_POP_SIGNIN.Nextval,
+		VALUES(
+		#{id,jdbcType=BIGINT},
 		#{queueNo,jdbcType=VARCHAR},
 		#{thirdWaybillCode,jdbcType=VARCHAR},
 		#{createUserCode,jdbcType=INTEGER},
@@ -33,7 +34,7 @@
 		1)
 	</insert>
 	<update id="update" parameterType="PopSignin" timeout="8">
-	update POP_SIGNIN　
+	update POP_SIGNIN
 	<set>
 	<if test="queueNo!=null and queueNo!=''">
 				 QUEUE_NO = #{queueNo,jdbcType=VARCHAR },

@@ -23,11 +23,11 @@
 	
 	<insert id="add" parameterType="sortingReturn" >
 		INSERT INTO sorting_ret (
-			waybill_code, package_code, create_user_code, create_user_name,
+			sorting_ret_id, waybill_code, package_code, create_user_code, create_user_name,
 			create_site_code, create_site_name, create_time, update_time, ret_status,
 			yn,ret_type, shields_error, shields_type, excute_count, excute_time)
 		VALUES (
-			#{waybillCode,jdbcType=VARCHAR},
+			#{id,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR},
 			#{packageCode,jdbcType=VARCHAR}, #{userCode,jdbcType=INTEGER},
 			#{userName,jdbcType=VARCHAR}, #{siteCode,jdbcType=INTEGER},
 			#{siteName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},

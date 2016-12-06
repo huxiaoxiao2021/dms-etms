@@ -25,6 +25,7 @@
 	
 	<insert id="add" parameterType="abnormalOrder" >
 		INSERT INTO abnormal_order(
+		    system_id,
 			fingerprint,order_id,
 			abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
 			create_user_code,create_user_erp,create_user,
@@ -32,6 +33,7 @@
 			create_site_code,create_site_name,
 			is_cancel,memo,yn)
 		VALUES(
+		    #{systemId,jdbcType=BIGINT},
 			#{fingerprint,jdbcType=VARCHAR},#{orderId,jdbcType=VARCHAR},
 			#{abnormalCode1,jdbcType=INTEGER},#{abnormalReason1,jdbcType=VARCHAR},#{abnormalCode2,jdbcType=INTEGER},#{abnormalReason2,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER},#{createUserErp,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},

@@ -27,7 +27,7 @@
 			create_site_code, create_site_name, create_time, update_time, ret_status,
 			yn,ret_type, shields_error, shields_type, excute_count, excute_time)
 		VALUES (
-			SEQ_CEN_CONFIRM.NEXTVAL, #{waybillCode,jdbcType=VARCHAR},
+			#{id,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR},
 			#{packageCode,jdbcType=VARCHAR}, #{userCode,jdbcType=INTEGER},
 			#{userName,jdbcType=VARCHAR}, #{siteCode,jdbcType=INTEGER},
 			#{siteName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},

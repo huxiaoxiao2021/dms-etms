@@ -46,6 +46,11 @@ public class ReversePrintRequest extends JdObject {
      */
     private long operateUnixTime;
 
+    /**
+     * 分拣中心id
+     * */
+    private Integer dmsDisCode;
+
     public String getOldCode() {
         return oldCode;
     }
@@ -100,6 +105,14 @@ public class ReversePrintRequest extends JdObject {
 
     public void setOperateUnixTime(long operateUnixTime) {
         this.operateUnixTime = operateUnixTime;
+    }
+
+    public Integer getDmsDisCode() {
+        return dmsDisCode;
+    }
+
+    public void setDmsDisCode(Integer dmsDisCode) {
+        this.dmsDisCode = dmsDisCode;
     }
 
     @Override

@@ -74,9 +74,6 @@
   
   
   <insert id="add" parameterType="PopPickup" >
-  	<selectKey resultType="long"  keyProperty="pickupId" order="BEFORE" statementType="PREPARED">      
-		<![CDATA[SELECT SEQ_POP_PICKUP.NEXTVAL FROM DUAL]]>
-    </selectKey>
     INSERT INTO pop_pickup (
     <include refid="Base_Column_List"/>
     )

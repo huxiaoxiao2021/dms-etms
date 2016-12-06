@@ -32,7 +32,7 @@
 			create_site_code,create_site_name,
 			is_cancel,memo,yn)
 		VALUES(
-			SEQ_ABNORMALORDER.NEXTVAL,#{fingerprint,jdbcType=VARCHAR},#{orderId,jdbcType=VARCHAR},
+			#{systemId,jdbcType=BIGINT},#{fingerprint,jdbcType=VARCHAR},#{orderId,jdbcType=VARCHAR},
 			#{abnormalCode1,jdbcType=INTEGER},#{abnormalReason1,jdbcType=VARCHAR},#{abnormalCode2,jdbcType=INTEGER},#{abnormalReason2,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER},#{createUserErp,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},
 			#{operateTime,jdbcType=TIMESTAMP},SYSDATE,SYSDATE,

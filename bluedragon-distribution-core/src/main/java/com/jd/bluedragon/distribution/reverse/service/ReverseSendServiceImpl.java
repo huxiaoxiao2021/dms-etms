@@ -481,7 +481,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
             }
 
-            // 包丢订单发车
+            // 报丢订单发货
             Iterator iterator = orderpackMapLoss.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
@@ -615,7 +615,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
             }
 
-            // 报丢订单发车
+            // 报丢订单发货
             Iterator iterator = orderpackMapLoss.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
@@ -1395,20 +1395,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			// ECLP订单 不推送wms ， 发mq
 			// 发MQ-->开发平台
 			logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
-			com.jd.etms.waybill.domain.BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
-			String oldWaybillCode = null;
-			if(oldWaybill!=null&&oldWaybill.getData()!=null){
-				oldWaybillCode = oldWaybill.getData().getWaybillCode();
-			}
-			
-			if(StringHelper.isEmpty(oldWaybillCode)) oldWaybillCode = wayBillCode;
-			
+
 			// 给eclp发送mq, eclp然后自己组装逆向报文
 			ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
 			sendmodel.setJdOrderCode(send.getBusiOrderCode());
 			sendmodel.setSendCode(send.getSendCode());
 			sendmodel.setSourceCode("ECLP");
-			sendmodel.setWaybillCode(oldWaybillCode);
+			sendmodel.setWaybillCode(wayBillCode);
 			sendmodel.setRejType(3);
 			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
 			String jsonStr = JsonHelper.toJson(sendmodel);
@@ -1423,7 +1416,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			sLogDetail.setContent(jsonStr);
 
 			try {
-				bdDmsReverseSendEclp.send(oldWaybillCode, jsonStr);
+				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
 				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
 			} catch (Exception e) {
 				logger.error("推送ECLP MQ 发生异常.", e);
