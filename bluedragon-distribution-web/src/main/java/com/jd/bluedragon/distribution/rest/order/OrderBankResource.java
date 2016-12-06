@@ -26,12 +26,6 @@ public class OrderBankResource {
 	private OrderBankService orderBankService;
 
 	@GET
-	@Path("/orderbank/discount")
-	public BigDecimal getDiscount(@QueryParam("orderId") String orderId) {
-		return this.orderBankService.getDiscount(orderId);
-	}
-
-	@GET
 	@Path("/orderbank/shouldpay")
 	public BigDecimal getShouldPay(@QueryParam("orderId") String orderId, @QueryParam("pin") String pin) {
 		return this.orderBankService.getShouldPay(orderId, pin);
