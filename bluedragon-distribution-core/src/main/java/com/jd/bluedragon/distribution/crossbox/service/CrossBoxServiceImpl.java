@@ -75,7 +75,9 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             page.init();
             crossBoxRequest.setStartIndex(page.getStartIndex());
             crossBoxRequest.setEndIndex(page.getEndIndex());
+
             params = ObjectMapHelper.makeObject2Map(crossBoxRequest);
+            params.put("pageSize",page.getPageSize());
             list = crossBoxDao.queryByCondition(params);
         }
         return list;

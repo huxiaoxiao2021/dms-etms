@@ -95,7 +95,7 @@
 		FROM pop_receive
 		<include refid="Base_Where_List" />
 		<if test="start!=null">
-		 LIMIT #{start},#{end}
+		 LIMIT #{start},#{pageSize}
 		</if>
 	</select>
 	<select id="count" resultType="int"

@@ -16,9 +16,15 @@ public class PopQueueQuery {
 	public String printStartTime;
 	public String printEndTime;
 	public Integer orgCode;
+
 	
 	public Integer start;
 	public Integer end;
+    /**
+     * 每页记录条数
+     */
+    private Integer pageSize;
+
 	public String getQueueNo() {
 		return queueNo;
 	}
@@ -109,6 +115,12 @@ public class PopQueueQuery {
 	public void setOrgCode(Integer orgCode) {
 		this.orgCode = orgCode;
 	}
-	
 
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 }
