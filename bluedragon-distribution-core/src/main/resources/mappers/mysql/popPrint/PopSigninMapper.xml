@@ -66,7 +66,7 @@
 		<include refid="where" />
 		GROUP BY third_waybill_code,queue_no ORDER BY id
 		<if test="start!=null">
-		     LIMIT #{start} ,#{end} 
+		     LIMIT #{start} ,#{pageSize}
 		</if>
 		
 	</select>

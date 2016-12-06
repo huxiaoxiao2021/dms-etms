@@ -58,6 +58,7 @@ public class PopQueueController {
 			}
 			popQueueQuery.setStart(pager.getStartIndex());
 			popQueueQuery.setEnd(pager.getEndIndex());
+            popQueueQuery.setPageSize(pager.getPageSize());
 			try {
 				count = this.popQueueService.getCount(popQueueQuery);
 			} catch (Exception e) {

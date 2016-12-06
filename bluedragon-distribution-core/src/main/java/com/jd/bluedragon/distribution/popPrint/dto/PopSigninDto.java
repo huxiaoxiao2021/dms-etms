@@ -11,6 +11,7 @@ public class PopSigninDto {
 	public String expressCode;
 	public Integer start;
 	public Integer end;
+    private Integer pageSize;
 	public String getQueueNo() {
 		return queueNo;
 	}
@@ -71,6 +72,12 @@ public class PopSigninDto {
 	public void setEnd(Integer end) {
 		this.end = end;
 	}
-	
 
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 }

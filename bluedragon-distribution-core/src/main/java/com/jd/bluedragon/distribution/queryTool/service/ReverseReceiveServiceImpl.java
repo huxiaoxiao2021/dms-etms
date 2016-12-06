@@ -31,6 +31,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 
             params.put("startIndex",page.getStartIndex());
             params.put("endIndex",page.getEndIndex());
+            params.put("pageSize",page.getPageSize());
             list = queryReverseReceiveDao.queryByCondition(params);
         }
         return list;
