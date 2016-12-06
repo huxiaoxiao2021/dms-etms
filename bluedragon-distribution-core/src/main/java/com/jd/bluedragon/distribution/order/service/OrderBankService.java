@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -15,8 +14,6 @@ import com.jd.orderbank.export.vo.OrderShouldPayResVo;
 
 @Service
 public class OrderBankService {
-
-	private final RestTemplate template = new RestTemplate();
 
 	private static final String ORDER_BANK_APP_ID = "orderBank.appId";
 	private static final String ORDER_BANK_APP_TOKEN = "orderBank.appToken";
@@ -30,6 +27,7 @@ public class OrderBankService {
 		OrderShouldPayReqVo reqVo = new OrderShouldPayReqVo();
 		reqVo.setAppId(appId);
 		reqVo.setAppToken(appToken);
+		reqVo.setOrderId(orderId);
 		reqVo.setPin(pin);
 		
 		OrderShouldPayResVo  resVo = orderQueryResource.getShouldPay(reqVo);
