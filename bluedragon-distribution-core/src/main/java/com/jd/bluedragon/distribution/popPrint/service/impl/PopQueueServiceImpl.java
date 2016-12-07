@@ -35,7 +35,7 @@ public class PopQueueServiceImpl implements PopQueueService {
 	}
 	@Override
 	public List<PopQueue> getPopQueueList(PopQueueQuery popQueueQuery) {
-		
+
 		return this.popQueueDao.getPopQueueList(popQueueQuery);
 	}
 	@Override

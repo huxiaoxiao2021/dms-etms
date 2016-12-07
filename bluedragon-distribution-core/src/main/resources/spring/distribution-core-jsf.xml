@@ -190,5 +190,9 @@
                   filter="userSdkConsumerFilter" retries="${user.export.retries}" timeout="${user.export.timeout}">
         <jsf:parameter  key="source" value="${user.export.sourceId}" hide="true" />
     </jsf:consumer>
-
+    
+    <!-- 台账 宏亮 张子敬-->
+	<jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
+				alias="${orderBank.jsf.alias}" timeout="${orderBank.jsf.timeout}">
+</jsf:consumer>
 </beans>
