@@ -645,9 +645,9 @@
 
 		<!-- 台账接口 -->
 		<dependency>
-		    <groupId>com.jd.orderbank</groupId>
-		    <artifactId>order-bank-export</artifactId>
-		    <version>1.0-SNAPSHOT</version>
+			<groupId>com.jd.orderBank</groupId>
+			<artifactId>order-bank-export</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
