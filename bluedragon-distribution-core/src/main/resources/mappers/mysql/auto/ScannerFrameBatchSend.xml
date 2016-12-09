@@ -73,7 +73,7 @@
         )
 	</insert>
 
-    <select id="selectCurrentBatchSend" parameterMap="argumentMap" resultMap="resultListMap">
+    <select id="selectCurrentBatchSend" parameterType="java.util.Map" resultMap="resultListMap">
         SELECT ID , <include refid="allFields"/> ,TS FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=DATE}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=DATE}
