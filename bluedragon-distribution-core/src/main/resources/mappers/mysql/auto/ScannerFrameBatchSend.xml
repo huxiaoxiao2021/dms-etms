@@ -2,19 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.auto.dao.ScannerFramwBatchSendDao" >
 
-	<resultMap id="resultMap" type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" >
-		<result column="id" property="id" />
-		<result column="batch_code" property="sendCode" />
-		<result column="create_site_code" property="createSiteCode" />
-		<result column="create_user" property="createUser" />
-		<result column="create_user_code" property="createUserCode" />
-		<result column="update_user_code" property="updateUserCode" />
-		<result column="update_user" property="updateUser" />
-		<result column="create_time" property="createTime" />
-		<result column="update_time" property="updateTime" />
-		<result column="yn" property="yn" />
+	<resultMap id="resultListMap" type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" >
+		<result column="id"                 property="id" />
+		<result column="MACHINE_ID"         property="machineId" />
+		<result column="CREATE_SITE_CODE"   property="createSiteCode"/>
+		<result column="CREATE_SITE_NAME"   property="createSiteName"/>
+		<result column="RECEIVE_SITE_CODE"  property="receiveSiteCode"/>
+		<result column="RECEIVE_SITE_NAME"  property="receiveSiteName"/>
+		<result column="SEND_CODE"          property="sendCode"/>
+		<result column="PRINT_TIMES"        property="printTimes"/>
+		<result column="LAST_PRINT_TIME"    property="lastPrintTime"/>
+        <result column="CREATE_USER_CODE"   property="createUserCode"/>
+        <result column="CREATE_USER_NAME"   property="createUserName"/>
+        <result column="UPDATE_USER_CODE"   property="updateUserCode"/>
+        <result column="UPDATE_USER_NAME"   property="updateUserName"/>
+        <result column="CREATE_TIME"        property="createTime"/>
+        <result column="UPDATE_TIME"        property="updateTime"/>
+        <result column="TS"                 property="ts"/>
+		<result column="yn"                 property="yn"/>
 		
 	</resultMap>
+
     <sql id="createTable">
     <![CDATA[
         CREATE TABLE `scanner_frame_batch_send` (
@@ -26,9 +34,9 @@
   `RECEIVE_SITE_NAME` VARCHAR(32) DEFAULT NULL COMMENT '接收站点名称',
   `SEND_CODE` VARCHAR(50) NOT NULL COMMENT '发货批次号',
   `PRINT_TIMES` TINYINT NOT NULL DEFAULT 0 COMMENT '打印次数',
-  `CREATE_USER_ID` bigint(20) NOT NULL COMMENT '创建用户ID',
+  `CREATE_USER_CODE` bigint(20) NOT NULL COMMENT '创建用户ID',
   `CREATE_USER_NAME` varchar(32) DEFAULT NULL COMMENT '创建用户姓名',
-  `UPDATE_USER_ID` bigint(20) DEFAULT NULL COMMENT '更新用户ID',
+  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '更新用户ID',
   `UPDATE_USER_NAME` varchar(32) DEFAULT NULL COMMENT '更新用户姓名',
   `LAST_PRINT_IIME` DATETIME DEFAULT NULL COMMENT '最近一次打印时间',
   `CREATE_TIME` datetime NOT NULL COMMENT '创建时间',
@@ -39,19 +47,40 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ]]>
     </sql>
-	<sql id="allFields">
-
+	<sql id="allFieldsExcludeIdAndTs">
+         MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODe, CREATE_USER_NAME,
+        UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
-	<insert id="add" parameterType="scannerFrameBatchSend" >
-
+	<insert id="add" parameterType="scannerFrameBatchSend"  >
+        INSERT INTO SCANNER_FRAME_BATCH_SEND( <include refid="allFieldsExcludeIdAndTs>"/> )
+        VALUES (
+        #{machineId,jdbcType=BIGINT},
+        #{createSiteCode,jdbcType=BIGINT},
+        #{createSiteName,jdbcType=VARCHAR},
+        #{receiveSiteCode,jdbcType=BIGINT},
+        #{receiveSiteName,jdbcType=VARCHAR},
+        #{sendCode,jdbcType=VARCHAR},
+        #{printTimes,jdbcType=TINYINT},
+        #{createUserCode,jdbcType=BIGINT},
+        #{createUserName,jdbcType=VARCHAR},
+        #{updateUserCode,jdbcType=BIGINT},
+        #{updateUserName,jdbcType=VARCHAR},
+        #{lastPrintTime,jdbcType=DATE},
+        #{CREATE_TIME,jdbcType=DATE},
+        #{updateTime,jdbcType=DATE},
+        #{yn,jdbcType=TINYINT}
+        )
 	</insert>
 
-    <select id="selectCurrentBatchSend">
-        SELECT <include refid="allFields"/> FROM scanner_frame_batch_send
-        WHERE     create_time>=#{startTime,jdbcType=TIMESTAMP}
-              AND create_time<![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
-              AND machine_id=#{'machineId',jdbcType.LONG}
-              AND receive_site_code=#{receiveSiteCode.jdbcType.LONG} limit 1
+    <select id="selectCurrentBatchSend" parameterMap="argumentMap" resultMap="resultListMap">
+        SELECT ID , <include refid="allFields"/> ,TS FROM scanner_frame_batch_send
+        WHERE     create_time>#{operateTimeSub24Hours,jdbcType=DATE}
+              AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=DATE}
+              AND machine_id=#{machineId,jdbcType=LONG}
+              AND receive_site_code=#{receiveSiteCode.jdbcType.LONG}
+        order by CREATE_TIME DESC
+        limit 1
     </select>
 
 </mapper>
