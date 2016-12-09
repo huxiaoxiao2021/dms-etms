@@ -9,8 +9,8 @@ import java.util.*;
 /**
  * Created by wangtingwei on 2016/12/8.
  */
-public class ScannerFramwBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
-    private static final String NAMESPACE=ScannerFramwBatchSendDao.class.getName();
+public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
+    private static final String NAMESPACE=ScannerFrameBatchSendDao.class.getName();
     private static final String selectCurrentBatchSend_ID = NAMESPACE + ".selectCurrentBatchSend";
     private static final String MACHINE_ID = "machineId";
     private static final String RECEIVE_SITE_CODE = "receiveSiteCode";

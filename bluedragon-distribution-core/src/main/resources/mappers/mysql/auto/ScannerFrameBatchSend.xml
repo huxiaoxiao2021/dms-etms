@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.auto.dao.ScannerFramwBatchSendDao" >
+<mapper namespace="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao" >
 
 	<resultMap id="resultListMap" type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" >
 		<result column="id"                 property="id" />

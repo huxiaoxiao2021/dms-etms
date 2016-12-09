@@ -1,24 +1,25 @@
 package com.jd.bluedragon.distribution.auto.service;
 
-import com.jd.bluedragon.common.domain.SiteEntity;
-import com.jd.bluedragon.distribution.auto.dao.ScannerFramwBatchSendDao;
+import com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 /**
  * Created by wangtingwei on 2016/12/8.
  */
+@Service("scannerFrameBatchSendService")
 public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendService {
 
     private static final byte YN_DEFAULT=1;
     @Autowired
-    private ScannerFramwBatchSendDao scannerFramwBatchSendDao;
+    private ScannerFrameBatchSendDao scannerFrameBatchSendDao;
 
     @Autowired
     private SiteService siteService;
@@ -29,7 +30,7 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
             throw new RuntimeException("the parameter of config can not be null");
         }
 
-        ScannerFrameBatchSend batchSend=scannerFramwBatchSendDao.selectCurrentBatchSend(config.getMachineId(),receiveSiteCode,operateTime);
+        ScannerFrameBatchSend batchSend= scannerFrameBatchSendDao.selectCurrentBatchSend(config.getMachineId(),receiveSiteCode,operateTime);
         if(null==batchSend){
             batchSend=new ScannerFrameBatchSend();
             batchSend.setCreateSiteCode(config.getCreateSiteCode());
@@ -53,6 +54,6 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
 
     @Override
     public boolean generateSend(ScannerFrameBatchSend domain) {
-        return scannerFramwBatchSendDao.add(domain)>0;
+        return scannerFrameBatchSendDao.add(domain)>0;
     }
 }
