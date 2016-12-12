@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 
 import java.util.*;
@@ -27,5 +29,26 @@ public interface ScannerFrameBatchSendService {
      */
     boolean generateSend(ScannerFrameBatchSend domain);
 
+    /**
+     * 提交打印数据
+     * @param id 主键
+     * @param operateUserId 打印用户ID
+     * @param operateUserName 打印用户名称
+     * @return
+     */
+    boolean submitPrint(long id,Integer operateUserId,String operateUserName);
 
+    /**
+     * 分页获取批次记录
+     * @param argumentPager 分页查询对象
+     * @return
+     */
+    Pager<List<ScannerFrameBatchSend>> getSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager);
+
+    /**
+     * 获取龙门架当前发货批次
+     * @param argumentPager 收货站点参数
+     * @return
+     */
+    Pager<List<ScannerFrameBatchSend>> getCurrentSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager);
 }
