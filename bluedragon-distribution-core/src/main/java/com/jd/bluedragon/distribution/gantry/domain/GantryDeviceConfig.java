@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.gantry.domain;
 
+import com.jd.bluedragon.utils.JsonHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.Date;
 
 /**
@@ -276,5 +279,10 @@ public class GantryDeviceConfig {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    @Override
+    public String toString(){
+        return JsonHelper.toJson(this);
     }
 }

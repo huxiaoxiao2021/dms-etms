@@ -4,11 +4,15 @@ import com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.Date;
 
 /**
@@ -16,6 +20,8 @@ import java.util.Date;
  */
 @Service("scannerFrameBatchSendService")
 public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendService {
+
+    private static final Log LOGGER= LogFactory.getLog(SimpleScannerFrameDispatchServiceImpl.class);
 
     private static final byte YN_DEFAULT=1;
     @Autowired
@@ -29,7 +35,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         if(null==config){
             throw new RuntimeException("the parameter of config can not be null");
         }
-
+        if(LOGGER.isInfoEnabled()){
+            LOGGER.info(MessageFormat.format("parameters is opeateTime:{0} receiveSiteCode:{1} config:{2}",operateTime,receiveSiteCode, config.toString()));
+        }
         ScannerFrameBatchSend batchSend= scannerFrameBatchSendDao.selectCurrentBatchSend(config.getMachineId(),receiveSiteCode,operateTime);
         if(null==batchSend){
             batchSend=new ScannerFrameBatchSend();
@@ -48,7 +56,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
             batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(),batchSend.getReceiveSiteCode(),batchSend.getCreateTime()));
             generateSend(batchSend);
         }
-
+        if(LOGGER.isInfoEnabled()){
+            LOGGER.info(MessageFormat.format("result:{0}",batchSend.toString()));
+        }
         return batchSend;
     }
 
