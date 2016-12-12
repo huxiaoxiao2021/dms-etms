@@ -45,7 +45,7 @@
         .gantry_column_list_div_text {
             float: right;
             width: 70%;
-            text-align: left;
+            text-align: left;vertical-align: middle;
         }
 
         .gantry_column_list_div_input {
@@ -138,6 +138,27 @@
             </div>
             <div class="gantry_column_list_div_text">
                 <span><input type="text" value="$!gantryDevice.type" id="gantry_add_column_type" class="gantry_column_list_div_input"/></span>
+            </div>
+        </div>
+        <div id="gantry_model_version_div" class="gantry_column_list_div">
+            <div class="gantry_column_list_div_title">
+                <span>版本号：</span>
+            </div>
+            <div class="gantry_column_list_div_text">
+                <span>
+                    #if($!gantryDevice.version==0)
+                        <input type="radio" value="0" name="gantry_add_column_version" id="gantry_add_column_version_id_0" checked="checked" />
+                        <label for="gantry_add_column_version_id_0">支持单目的地发货</label>
+                        <input type="radio" value="1" name="gantry_add_column_version" id="gantry_add_column_version_id_1" />
+                        <label for="gantry_add_column_version_id_1">支持多目的地发货</label>
+                    #else
+                        <input type="radio" value="0" name="gantry_add_column_version" id="gantry_add_column_version_id_0"  />
+                        <label for="gantry_add_column_version_id_0">支持单目的地发货</label>
+                        <input type="radio" value="1" name="gantry_add_column_version" id="gantry_add_column_version_id_1" checked="checked" />
+                        <label for="gantry_add_column_version_id_1">支持多目的地发货</label>
+                    #end
+
+                </span>
             </div>
         </div>
         <div id="gantry_mark_div" class="gantry_column_list_div">

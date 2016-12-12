@@ -22,38 +22,15 @@
 		<result column="yn"                 property="yn"/>
 		
 	</resultMap>
-
-    <sql id="createTable">
-    <![CDATA[
-        CREATE TABLE `scanner_frame_batch_send` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `MACHINE_ID` bigint(20) NOT NULL COMMENT '龙门加注册号',
-  `CREATE_SITE_CODE` BIGINT(20) NOT NULL COMMENT '发货分拣中心ID',
-  `CREATE_SITE_NAME` VARCHAR(32) DEFAULT NULL COMMENT '发货分拣中心名称',
-  `RECEIVE_SITE_CODE` BIGINT(20) NOT NULL COMMENT '接收站点ID',
-  `RECEIVE_SITE_NAME` VARCHAR(32) DEFAULT NULL COMMENT '接收站点名称',
-  `SEND_CODE` VARCHAR(50) NOT NULL COMMENT '发货批次号',
-  `PRINT_TIMES` TINYINT NOT NULL DEFAULT 0 COMMENT '打印次数',
-  `CREATE_USER_CODE` bigint(20) NOT NULL COMMENT '创建用户ID',
-  `CREATE_USER_NAME` varchar(32) DEFAULT NULL COMMENT '创建用户姓名',
-  `UPDATE_USER_CODE` bigint(20) DEFAULT NULL COMMENT '更新用户ID',
-  `UPDATE_USER_NAME` varchar(32) DEFAULT NULL COMMENT '更新用户姓名',
-  `LAST_PRINT_IIME` DATETIME DEFAULT NULL COMMENT '最近一次打印时间',
-  `CREATE_TIME` datetime NOT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime NOT NULL COMMENT '更新时间',
-  `YN` TINYINT NOT NULL DEFAULT 1,
-  `TS` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '时间截',
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-]]>
-    </sql>
-	<sql id="allFieldsExcludeIdAndTs">
-         MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
+    <sql id="allFieldsExcludeIdAndTs">
+        MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
         RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODe, CREATE_USER_NAME,
         UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
 	<insert id="add" parameterType="scannerFrameBatchSend"  >
-        INSERT INTO SCANNER_FRAME_BATCH_SEND( <include refid="allFieldsExcludeIdAndTs>"/> )
+        INSERT INTO SCANNER_FRAME_BATCH_SEND(
+        <include refid="allFieldsExcludeIdAndTs"/>
+        )
         VALUES (
         #{machineId,jdbcType=BIGINT},
         #{createSiteCode,jdbcType=BIGINT},
@@ -74,7 +51,9 @@
 	</insert>
 
     <select id="selectCurrentBatchSend" parameterType="java.util.Map" resultMap="resultListMap">
-        SELECT ID , <include refid="allFields"/> ,TS FROM scanner_frame_batch_send
+        SELECT ID ,
+        <include refid="allFieldsExcludeIdAndTs"/>
+        ,TS FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=DATE}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=DATE}
               AND machine_id=#{machineId,jdbcType=LONG}

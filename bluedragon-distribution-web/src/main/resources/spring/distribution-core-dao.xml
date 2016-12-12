@@ -13,9 +13,7 @@
 	<bean id="boxDao" class="com.jd.bluedragon.distribution.box.dao.BoxDao">
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
-    <bean id="scannerFrameBatchSendDao" class="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao">
-        <property name="sqlSession" ref="sessionTemplate"/>
-    </bean>
+
 	<bean id="taskDao" class="com.jd.bluedragon.distribution.task.dao.TaskDao">
 		<property name="sqlSession" ref="sessionTemplate" />
 		<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
@@ -305,5 +303,8 @@
     
    	<bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
        	<property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="scannerFrameBatchSendDao" class="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 </beans>

@@ -56,6 +56,11 @@ public class GantryDevice {
     /**是否有效*/
     private Integer yn;
 
+    /**
+     * 龙门架版本号
+     */
+    private int version;
+
     public Long getMachineId() {
         return machineId;
     }
@@ -176,6 +181,14 @@ public class GantryDevice {
         this.token = token;
     }
 
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
     public static GantryDevice fromGantryRequest(GantryDeviceRequest request){
         GantryDevice device = new GantryDevice();
         device.setMachineId(request.getMachineId());
@@ -191,6 +204,7 @@ public class GantryDevice {
         device.setCreateTime(request.getCreateTime());
         device.setUpdateTime(request.getUpdateTime());
         device.setOperateName(request.getOperateName());
+        device.setVersion(request.getVersion());
         return device;
     }
 }
