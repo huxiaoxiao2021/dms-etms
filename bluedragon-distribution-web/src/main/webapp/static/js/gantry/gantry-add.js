@@ -80,7 +80,7 @@ function check_Build_Param(){
     params.modelNumber = $.trim($("#gantry_add_column_model_num").val());
     params.type = $.trim($("#gantry_add_column_type").val());
     params.mark = $.trim($("#gantry_add_column_mark").val());
-    params.version= $("gantry_add_column_version").val();
+    params.version= $(".gantry_column_list_div_text input[name='gantry_add_column_version']:checked").val();
     return params;
 }
 
