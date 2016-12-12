@@ -54,7 +54,7 @@ public class GantryDeviceRequest implements Serializable{
     /**
      * 龙门架版本号
      */
-    private int version;
+    private byte version;
 
     public Long getMachineId() {
         return machineId;
@@ -168,11 +168,11 @@ public class GantryDeviceRequest implements Serializable{
         this.yn = yn;
     }
 
-    public int getVersion() {
+    public byte getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(byte version) {
         this.version = version;
     }
 }

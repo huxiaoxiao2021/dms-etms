@@ -59,7 +59,7 @@ public class GantryDevice {
     /**
      * 龙门架版本号
      */
-    private int version;
+    private byte version;
 
     public Long getMachineId() {
         return machineId;
@@ -181,11 +181,11 @@ public class GantryDevice {
         this.token = token;
     }
 
-    public int getVersion() {
+    public byte getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(byte version) {
         this.version = version;
     }
 

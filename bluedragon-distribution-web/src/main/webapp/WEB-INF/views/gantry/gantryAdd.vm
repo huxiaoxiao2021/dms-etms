@@ -136,7 +136,7 @@
                 <span>
                     <input type="radio" value="0" name="gantry_add_column_version" id="gantry_add_column_version_id_0" />
                     <label for="gantry_add_column_version_id_0">支持单目的地发货</label>
-                    <input type="radio" value="1" name="gantry_add_column_version" id="gantry_add_column_version_id_1" />
+                    <input type="radio" value="1" name="gantry_add_column_version" checked="checked" id="gantry_add_column_version_id_1" />
                     <label for="gantry_add_column_version_id_1">支持多目的地发货</label>
                 </span>
             </div>
