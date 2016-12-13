@@ -34,7 +34,7 @@ public interface ScannerFrameBatchSendService {
      * @param id 主键
      * @param operateUserId 打印用户ID
      * @param operateUserName 打印用户名称
-     * @return
+     * @return CC7151SMA05
      */
     boolean submitPrint(long id,Integer operateUserId,String operateUserName);
 
