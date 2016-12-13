@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wangtingwei on 2016/12/8.
@@ -65,5 +68,20 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     @Override
     public boolean generateSend(ScannerFrameBatchSend domain) {
         return scannerFrameBatchSendDao.add(domain)>0;
+    }
+
+    @Override
+    public boolean submitPrint(long id, Integer operateUserId, String operateUserName) {
+        return false;
+    }
+
+    @Override
+    public Pager<List<ScannerFrameBatchSend>> getSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
+        return null;
+    }
+
+    @Override
+    public Pager<List<ScannerFrameBatchSend>> getCurrentSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
+        return null;
     }
 }
