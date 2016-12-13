@@ -75,14 +75,28 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         return scannerFrameBatchSendDao.updatePrintTimes(id)>0;
     }
 
+    /**
+     * 查询历史记录
+     * @param argumentPager 分页查询对象
+     * @return
+     */
     @Override
     public Pager<List<ScannerFrameBatchSend>> getSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
-        //scannerFrameBatchSendDao.getSplitPageListCount()
-        return null;
+        argumentPager.init();
+        long count= scannerFrameBatchSendDao.getSplitPageListCount(argumentPager);
+        Pager<List<ScannerFrameBatchSend>> result=new Pager<List<ScannerFrameBatchSend>>(argumentPager.getPageNo(),argumentPager.getPageSize());
+        result.setTotalSize((int)count);
+        result.setData(scannerFrameBatchSendDao.getSplitPageList(argumentPager));
+        return result;
     }
 
     @Override
     public Pager<List<ScannerFrameBatchSend>> getCurrentSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
-        return null;
+        argumentPager.init();
+        long count= scannerFrameBatchSendDao.getCurrentSplitPageListCount(argumentPager);
+        Pager<List<ScannerFrameBatchSend>> result=new Pager<List<ScannerFrameBatchSend>>(argumentPager.getPageNo(),argumentPager.getPageSize());
+        result.setTotalSize((int)count);
+        result.setData(scannerFrameBatchSendDao.getCurrentSplitPageList(argumentPager));
+        return result;
     }
 }

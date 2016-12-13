@@ -22,7 +22,7 @@ public class ScannerFrameBatchDaoTest extends AbstractDaoIntegrationTest {
     public void testgetSplitPageList() throws Exception {
         ScannerFrameBatchSendSearchArgument argument=new ScannerFrameBatchSendSearchArgument();
         argument.setMachineId(1L);
-        argument.setStartTime(DateHelper.add(new Date(), Calendar.HOUR,-10));
+        argument.setStartTime(DateHelper.add(new Date(), Calendar.HOUR, -10));
         argument.setEndTime(new Date());
         argument.setHasPrinted(true);
         Pager<ScannerFrameBatchSendSearchArgument> pager=new Pager<ScannerFrameBatchSendSearchArgument>(1,10);
@@ -30,6 +30,23 @@ public class ScannerFrameBatchDaoTest extends AbstractDaoIntegrationTest {
         pager.setPageNo(1);
         pager.setData(argument);
         List<ScannerFrameBatchSend> resultList= scannerFrameBatchSendDao.getSplitPageList(pager);
-        Assert.assertEquals(resultList.size(),10);
+        long count=scannerFrameBatchSendDao.getSplitPageListCount(pager);
+        Assert.assertEquals(count,0);
+    }
+
+    @Test
+    public void testgetCurrentSplitPageList() throws Exception {
+        ScannerFrameBatchSendSearchArgument argument=new ScannerFrameBatchSendSearchArgument();
+        argument.setMachineId(1L);
+        argument.setStartTime(DateHelper.add(new Date(), Calendar.HOUR, -10));
+        argument.setEndTime(new Date());
+        argument.setHasPrinted(true);
+        Pager<ScannerFrameBatchSendSearchArgument> pager=new Pager<ScannerFrameBatchSendSearchArgument>(1,10);
+        pager.setPageSize(10);
+        pager.setPageNo(1);
+        pager.setData(argument);
+        List<ScannerFrameBatchSend> resultList= scannerFrameBatchSendDao.getCurrentSplitPageList(pager);
+        long count=scannerFrameBatchSendDao.getCurrentSplitPageListCount(pager);
+        Assert.assertEquals(count,0);
     }
 }

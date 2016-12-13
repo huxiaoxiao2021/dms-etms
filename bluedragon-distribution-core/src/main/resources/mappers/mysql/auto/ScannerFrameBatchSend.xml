@@ -96,4 +96,20 @@
         FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
     </select>
+    <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
+        SELECT
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        WHERE Id IN(SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
+        <include refid="getSplitPageListWhere"/>
+        GROUP BY RECEIVE_SITE_CODE)
+        ORDER BY Id ASC
+        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+    <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
+        <include refid="getSplitPageListWhere"/>
+        GROUP BY RECEIVE_SITE_CODE)T
+    </select>
 </mapper>
