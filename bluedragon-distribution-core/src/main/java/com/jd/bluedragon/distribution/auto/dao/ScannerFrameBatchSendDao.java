@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.auto.dao;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.utils.DateHelper;
 
 import java.util.*;
@@ -16,6 +18,9 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
     private static final String RECEIVE_SITE_CODE = "receiveSiteCode";
     private static final String OPERATE_TIME = "operateTime";
     private static final String OPERATE_TIME_SUB_24_HOURS = "operateTimeSub24Hours";
+    private static final String UPDATE_PRINT_TIMES_SQL=NAMESPACE+".updatePrintTimes";
+    public static final String GET_SPLIT_PAGE_LIST =NAMESPACE+".getSplitPageList";
+    public static final String GET_SPLIT_PAGE_LIST_COUNT =NAMESPACE+".getSplitPageListCount";
 
     public Integer add(ScannerFrameBatchSend entity) {
         return super.add(NAMESPACE, entity);
@@ -35,5 +40,22 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
         map.put(OPERATE_TIME,operateTime);
         map.put(OPERATE_TIME_SUB_24_HOURS,DateHelper.add(operateTime,Calendar.HOUR,-24));
         return super.getSqlSession().selectOne(selectCurrentBatchSend_ID,map);
+    }
+
+    /**
+     * 更新打印记录
+     * @param id
+     * @return
+     */
+    public Integer updatePrintTimes(long id){
+        return getSqlSession().update(UPDATE_PRINT_TIMES_SQL,id);
+    }
+
+    public List<ScannerFrameBatchSend> getSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
+        return getSqlSession().selectList(GET_SPLIT_PAGE_LIST,argumentPager);
+    }
+
+    public long getSplitPageListCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
+        return getSqlSession().selectOne(GET_SPLIT_PAGE_LIST_COUNT,argumentPager);
     }
 }

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.auto.domain;
 
+import com.jd.bluedragon.utils.JsonHelper;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -28,6 +30,11 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
      * 收货站点
      */
     private Integer receiveSiteCode;
+
+    /**
+     * 是否已打印
+     */
+    private Boolean hasPrinted;
 
     public long getMachineId() {
         return machineId;
@@ -59,5 +66,18 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
 
     public void setReceiveSiteCode(Integer receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public Boolean getHasPrinted() {
+        return hasPrinted;
+    }
+
+    public void setHasPrinted(Boolean hasPrinted) {
+        this.hasPrinted = hasPrinted;
+    }
+
+    @Override
+    public String toString(){
+        return JsonHelper.toJson(this);
     }
 }

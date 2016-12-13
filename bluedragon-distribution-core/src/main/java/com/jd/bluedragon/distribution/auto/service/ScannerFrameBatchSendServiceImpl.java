@@ -72,11 +72,12 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
 
     @Override
     public boolean submitPrint(long id, Integer operateUserId, String operateUserName) {
-        return false;
+        return scannerFrameBatchSendDao.updatePrintTimes(id)>0;
     }
 
     @Override
     public Pager<List<ScannerFrameBatchSend>> getSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
+        //scannerFrameBatchSendDao.getSplitPageListCount()
         return null;
     }
 
