@@ -304,4 +304,9 @@
    	<bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
        	<property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
+	<bean id="waybillPackageDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillPackageDao">
+		<property name="sqlSession" ref="sessionTemplate_waybill"/>
+	</bean>
+
 </beans>

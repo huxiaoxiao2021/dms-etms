@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
 public interface WaybillService {
@@ -27,4 +28,11 @@ public interface WaybillService {
      * @return
      */
     Boolean doWaybillTraceTask(Task task);
+
+    /**
+     * 根据包裹号获取包裹体积重量信息
+     * @param packageCode
+     * @return
+     */
+    public WaybillPackageDTO getWaybillPackage(String packageCode);
 }
