@@ -72,7 +72,7 @@ public class GantryDeviceConfig {
     private String createSiteName;
 
     /*
-    操作类型,按位求于,1验货，2发货，4量方。5验货+量方。6发货+量方
+    操作类型,按位求于,1验货，2发货，4量方、称重。5验货+量方、称重。6发货+量方、称重
      */
     private Integer businessType;
 
