@@ -312,4 +312,8 @@
 		<property name="sqlSession" ref="sessionTemplate_waybill"/>
 	</bean>
 
+	<bean id="areaDestDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+
 </beans>
