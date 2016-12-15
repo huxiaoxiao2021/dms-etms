@@ -304,7 +304,17 @@
    	<bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
        	<property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
 	<bean id="gantryExceptionDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryExceptionDao">
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
+
+    <bean id="scannerFrameBatchSendDao" class="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+
+	<bean id="waybillPackageDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillPackageDao">
+		<property name="sqlSession" ref="sessionTemplate_waybill"/>
+	</bean>
+
 </beans>

@@ -55,6 +55,18 @@ public class TaskDao extends BaseDao<Task> {
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasksByType", request);
 	}
 
+
+    @SuppressWarnings("unchecked")
+    public List<Task> findLimitedTasksWithoutFailed(Integer type, Integer fetchNum, String ownSign) {
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("type", type);
+        request.put("tableName", Task.getTableName(type));
+        request.put("fetchNum", fetchNum);
+        request.put("ownSign", ownSign);
+        return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasksWithoutFailedByType", request);
+    }
+
+
 	@SuppressWarnings("unchecked")
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
 		Map<String, Object> request = new HashMap<String, Object>();

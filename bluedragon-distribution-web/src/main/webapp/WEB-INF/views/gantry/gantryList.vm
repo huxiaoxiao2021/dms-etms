@@ -112,6 +112,7 @@
                             <th style="width:50px;">创建时间</th>
                             <th style="width:50px;">修改时间</th>
                             <th style="width:50px;">操作人</th>
+                            <th style="width: 30px">版本号</th>
                             <th style="width:50px;">处理</th>
                         </tr>
                         </thead>
