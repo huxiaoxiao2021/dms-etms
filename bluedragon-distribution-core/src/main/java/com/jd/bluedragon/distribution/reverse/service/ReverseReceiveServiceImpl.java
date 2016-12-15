@@ -125,10 +125,12 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
             } 
         }else if(source.getReceiveType()==1||source.getReceiveType()==5){
+        	String orignalPackageCode = source.getPackageCode();
+        	source.setPackageCode(source.getOrderId());
             ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getPackageCode(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {
             	this.logger.info("reverseReceivePO is null");
-                this.appentPickwareInfo(source, source.getPackageCode());
+            	source.setPackageCode(source.getOrderId());
                 this.add(source);
                 this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
             } else {
@@ -138,10 +140,10 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setId(reverseReceivePO.getId());
                 reverseReceiveVO.setReceiveType(source.getReceiveType());
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
-                this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
                 this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
             } 
+            source.setPackageCode(orignalPackageCode);
         }  else if(source.getReceiveType()==3) {
         	ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getOrderId(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {

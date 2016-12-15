@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dcam.config.ConfigManager;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -39,6 +40,7 @@ public class TaskServiceImpl implements TaskService {
 
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
+	private static final String WORKER_FETCH_WITHOUT_FAILED_TABLE = "worker.fetch.without.failed.table";
 
 	@Autowired
     private TaskDao taskDao;
@@ -60,6 +62,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private DmsDynamicProducer dynamicProducer;
+
+    @Autowired
+    private ConfigManager configManager;
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -204,8 +209,38 @@ public class TaskServiceImpl implements TaskService {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
+        if(isTableWithoutFetchFailed(type)) {
+            return routerDao.findLimitedTasksWithoutFailed(type, fetchNum, ownSign);
+        }
         return routerDao.findLimitedTasks(type, fetchNum, ownSign);
     }
+
+
+    public String getFetchWithoutFailedTableName() {
+	    try {
+            return configManager.getProperty(WORKER_FETCH_WITHOUT_FAILED_TABLE);
+        } catch (Throwable e) {
+	        return null;
+        }
+
+    }
+
+
+    public boolean isTableWithoutFetchFailed(Integer type) {
+	    String tableName = Task.getTableName(type);
+        String withoutFailedTableName = this.getFetchWithoutFailedTableName();
+        if(withoutFailedTableName==null || withoutFailedTableName.length()==0){
+            return false;
+        }
+        String[] sa = withoutFailedTableName.split(";");
+        for(String s:sa){
+            if(s.equals(tableName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
