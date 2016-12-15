@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>龙门架异常数据查询</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="text/javascript" src="#springUrl("/static/js/gantryException/gantry-exception.js")"></script>
+    <style type="text/css">
+        #content {
+            margin: 0 auto;
+        }
+
+        .gantry_exception_query_span {
+            display: block;
+            float: left;
+            width: 250px;
+            margin-left: 5px;;
+        }
+
+        .gantry_exception_query_text {
+            width: 150px;
+        }
+
+        .gantry_exception_query_select {
+            width: 120px;;
+        }
+
+        #pager table {
+            width: 80%;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+    function getMaxDate(){
+        var beginDateStr = $.trim($("#gantry_exception_startTime").val());
+        var endDateStr = $.trim($("#gantry_exception_endTime").val());
+        var now = new Date();
+        if (beginDateStr == null || beginDateStr == "") {
+            return now.format('yyyy-MM-dd HH:mm:ss');
+        }
+        var beginDate = new Date(beginDateStr);
+
+        //timestamp
+        var maxDate = new Date();
+        maxDate = maxDate.setDate(beginDate.getDate() + 1);
+        var maxDateStr = new Date(maxDate).format('yyyy-MM-dd HH:mm:ss');
+        if (endDateStr != "" && endDateStr != null) {
+            var endDate = new Date(endDateStr);
+            if (endDate > maxDate) {
+                $("#gantry_exception_startTime").val(maxDateStr);
+            }
+        }
+
+        if (maxDate > now) {
+            return now.format('yyyy-MM-dd HH:mm:ss');
+        }
+
+        return maxDate;
+
+    }
+
+    function getMaxDate(){
+        var beginDateStr = $.trim($("#gantry_exception_startTime").val());
+
+        var now = new Date();
+        if (beginDateStr == null || beginDateStr == "") {
+            return now.format('yyyy-MM-dd HH:mm:ss');
+        }
+        var beginDate = new Date(beginDateStr);
+
+        //timestamp
+        var maxDate = new Date();
+        maxDate = maxDate.setDate(beginDate.getDate() + 1);
+        var maxDateStr = new Date(maxDate).format('yyyy-MM-dd HH:mm:ss');
+
+        if (maxDate > now) {
+            return now.format('yyyy-MM-dd HH:mm:ss');
+        }
+
+        return maxDateStr;
+
+    }
+
+//    window.onload = function(){
+//        if("\v"=="v"){//IE浏览器
+//            $("#gantry_exception_startTime").onpropertychange=changeValue;
+//        }else{ // 其他浏览器
+//            $("#gantry_exception_startTime").addEventListener("input",changeValue(),false);
+//        }
+//    }
+
+//    window.onload = init();
+//    function init(){
+//        var jsDate = "";
+//
+//            $("#gantry_exception_startTime").on("change",function(){
+//                changeValue();
+//            });
+//
+//    }
+//
+//    function changeValue(){
+//        var maxDateStr = getMaxDate();
+//        var maxDate = new Date(maxDateStr);
+//        var endDateStr = $.trim($("#gantry_exception_endTime").val());
+//        if (endDateStr != "" && endDateStr != null) {
+//            var endDate = new Date(endDateStr);
+//            if (endDate > maxDate) {
+//                $("#gantry_exception_endTime").val(maxDateStr);
+//            }
+//        }
+//    }
+
+</script>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">龙门架配置中心</a>
+    </p>
+</div>
+<div id="content">
+    <div id="gantry_exception_query_param">
+        <div id="gantry_exception_query_machine_div" style="padding-top: 10px; height: 30px;" >
+            <span class="gantry_exception_query_span">
+				龙门架编号：
+				<select id="gantry_exception_machine_id" class="gantry_exception_query_select">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+##                    #if(!$null.isNull($!allOrgs))
+##                        #foreach($org in $allOrgs)
+##                            <option value="$org.orgId">$org.orgName</option>
+##                        #end
+##                    #end
+                </select>
+			</span>
+            <span style="width: 250px;">
+                    <input id="gantry_exception_export_sub" value="导出" type="button" class="btn_c">
+			</span>
+        </div>
+        <div id="gantry_exception_query_date_div" style="padding-top: 20px">
+            <span class="gantry_exception_query_span">
+                开始时间：
+                <input type="text" class="Wdate" id="gantry_exception_startTime" name="startTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss')" onfocus="WdatePicker({skin:'whyGreen',maxDate:'%y-%M-%d', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+            </span>
+            <span class="gantry_exception_query_span">
+                结束时间：
+                <input type="text" class="Wdate" id="gantry_exception_endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss')" onfocus="WdatePicker({skin:'whyGreen',maxDate:'#F{getMaxDate();}', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+            </span>
+
+            <span class="gantry_exception_query_span">
+                发货状态：
+                <select id="gantry_exception_isSend" class="gantry_exception_query_select">
+                    <option value="3">全部</option>
+                    <option value="0">已发货</option>
+                    <option value="1">未发货</option>
+                </select>
+            </span>
+
+            <span class="gantry_exception_query_span">
+                <input id="gantry_exception_query_sub" value="查询" type="button" class="btn_c">
+            </span>
+
+        </div>
+
+    </div>
+    <div id="gantry_exception_list_div" style="margin-top: 40px; height: 50px">
+        <div id="gantry_exception_list_table">
+            <div class="tbl-list">
+                <div class="tbl-bg">
+                    <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
+                        <thead>
+                        <tr>
+
+                            <th style="width:50px;">包裹号</th>
+                            <th style="width:50px;">运单号</th>
+                            <th style="width:50px;">体积</th>
+                            <th style="width:50px;">异常原因</th>
+                            <th style="width:50px;">操作时间</th>
+                            <th style="width:50px;">发货状态</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="pager" class="tbl-n">
+
+            </div>
+        </div>
+    </div>
+    <div id="pager" class="tbl-n">
+    </div>
+</div>
+</div>
+</body>
+</html>
