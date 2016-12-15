@@ -179,6 +179,8 @@
                 <value>com.jd.bluedragon.distribution.globaltrade.dao.update</value>
                 <value>com.jd.bluedragon.distribution.globaltrade.dao.updatePreLoadBillById</value>
                 <value>com.jd.bluedragon.distribution.globaltrade.dao.updateCancelLoadBillStatus</value>
+                <value>com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao.add</value>
+                <value>com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao.selectCurrentBatchSend</value>
             </list>
         </property>
 

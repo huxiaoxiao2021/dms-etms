@@ -16,6 +16,7 @@ public class DateHelper {
     public static final long TEN_MINUTES = 10 * 60 * 1000;
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS="yyyyMMddHHmmssSSS";
+    public static final String DATE_FORMAT_YYYYMMDDHHmmssSS="yyyyMMddHHmmssSS";
     public static Date add(final Date date, Integer field, Integer amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

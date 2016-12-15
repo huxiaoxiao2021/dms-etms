@@ -92,6 +92,7 @@
 
         <!-- xumei -->
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
+        <typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
     </typeAliases>
     <!--<plugins>-->
 
@@ -270,6 +271,7 @@
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
         <mapper resource="mappers/mysql/dbs/objectIdMapper.xml"/>
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
+        <mapper resource="mappers/mysql/auto/ScannerFrameBatchSend.xml"/>
     </mappers>
 
 </configuration>

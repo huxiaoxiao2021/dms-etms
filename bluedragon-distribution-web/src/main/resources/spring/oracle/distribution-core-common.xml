@@ -109,6 +109,8 @@
 				<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
 				<value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
 				<value>com.jd.bluedragon.distribution.box.dao.BaseDao.reprint</value>
+                <value>com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao.add</value>
+                <value>com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao.selectCurrentBatchSend</value>
 			</list>
 		</property>
 	</bean>
