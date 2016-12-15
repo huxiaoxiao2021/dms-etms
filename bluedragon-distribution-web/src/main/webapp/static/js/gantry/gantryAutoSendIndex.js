@@ -283,10 +283,10 @@ function queryBatchSendCodes(params){
     CommonClient.postJson(url,params,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("错误：","HTTP请求无返回数据！！","error");
-            return;
         }
         if(data.code == 200 && data.data != null) {
-            var list = data.data;
+            var page = data.data;
+            var list = page.data;
             var temp = "";
             for (var i = 0;i < list.length;i++) {
                 temp += "<tr id='" + i + "'>";
@@ -299,6 +299,8 @@ function queryBatchSendCodes(params){
                 temp += "</tr>";
             }
             $("#paperTable tbody").html(temp);
+            // 添加分页显示
+            $("#pager").html(PageBar.getHtml("queryBatchSendSub", page.totalSize, page.pageNo, page.totalNo));
 
         }else if(data.code == 200 && data.data ==null){
             jQuery.messager.alert("提示：","服务器请求成功，无数据返回!","info");

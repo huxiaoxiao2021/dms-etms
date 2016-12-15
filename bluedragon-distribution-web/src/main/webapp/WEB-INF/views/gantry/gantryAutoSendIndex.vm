@@ -17,6 +17,7 @@
     <script type="application/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/popUp/popUp.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/gantry/gantryAutoSendIndex.js')"></script>
     <style  type="text/css">
         .part {
