@@ -270,6 +270,9 @@
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
         <mapper resource="mappers/mysql/dbs/objectIdMapper.xml"/>
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
+
+        <!-- hanjiaxing -->
+        <mapper resource="mappers/mysql/gantry/GantryExceptionMapper.xml"/>
     </mappers>
 
 </configuration>

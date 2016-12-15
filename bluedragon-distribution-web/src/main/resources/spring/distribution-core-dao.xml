@@ -304,4 +304,7 @@
    	<bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
        	<property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+	<bean id="gantryExceptionDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryExceptionDao">
+		<property name="sqlSession" ref="sessionTemplate" />
+	</bean>
 </beans>
