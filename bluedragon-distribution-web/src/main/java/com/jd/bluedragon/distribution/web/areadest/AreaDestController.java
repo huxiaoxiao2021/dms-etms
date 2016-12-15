@@ -49,16 +49,10 @@ public class AreaDestController {
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         try {
-            /*
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
             model.addAttribute("createSiteCode", dto.getSiteCode());
             model.addAttribute("createSiteName", dto.getSiteName());
-            */
-            Integer createSiteCode = 910;
-            String createSiteName = "马驹桥分拣站中心";
-            model.addAttribute("createSiteCode", createSiteCode);
-            model.addAttribute("createSiteName", createSiteName);
         } catch (Exception e) {
             logger.error("获取始发分拣中心信息失败", e);
         }
@@ -100,20 +94,11 @@ public class AreaDestController {
      */
     @RequestMapping(value = "/addview", method = RequestMethod.GET)
     public String addView(Model model) {
-        /*
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         model.addAttribute("createSiteCode", dto.getSiteCode());
         model.addAttribute("createSiteName", dto.getSiteName());
-        */
-        List<BaseOrg> allOrgs = baseService.getAllOrg();
-
-        Integer createSiteCode = 910;
-        String createSiteName = "马驹桥分拣站中心";
-
-        model.addAttribute("allOrgs", removeInvalidOrg(allOrgs));
-        model.addAttribute("createSiteCode", createSiteCode);
-        model.addAttribute("createSiteName", createSiteName);
+        model.addAttribute("allOrgs", removeInvalidOrg(baseService.getAllOrg()));
         return "areaDest/add";
     }
 
@@ -183,10 +168,7 @@ public class AreaDestController {
     public AreaDestResponse save(@RequestBody AreaDestRequest request) {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
-            /*ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();*/
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(32024600);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (request.getCreateSiteCode() != null && request.getCreateSiteCode() > 0 && request.getTransferSiteCode() != null && request.getTransferSiteCode() > 0) {
                 // 设置所有目的分拣中心站点无效
                 boolean isSuccess = areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), null, erpUser.getUserCode(), erpUser.getUserId());
