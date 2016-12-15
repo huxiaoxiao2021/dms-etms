@@ -304,4 +304,8 @@
    	<bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
        	<property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
+	<bean id="areaDestDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
 </beans>

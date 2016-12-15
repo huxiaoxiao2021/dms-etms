@@ -92,6 +92,8 @@
 
         <!-- xumei -->
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
+
+        <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDest" alias="AreaDest"/>
     </typeAliases>
     <!--<plugins>-->
 
@@ -270,6 +272,8 @@
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
         <mapper resource="mappers/mysql/dbs/objectIdMapper.xml"/>
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
+
+        <mapper resource="mappers/mysql/areadest/AreaDestMapper.xml"/>
     </mappers>
 
 </configuration>
