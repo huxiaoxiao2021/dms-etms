@@ -228,7 +228,7 @@ function doQueryCrossSorting(params) {
                 temp += "<td>" + (dataList[i].yn == 1 ? '<font color="red">激活</font>' : '未激活') + "</td>";
                 temp += "<td>" + "<input type='button' value='导入' onclick='goImportExcel(" + dataList[i].id + ")' style='margin-right:5px;'>"
                     + "<input type='button' value='导出' onclick='exportExcel(" + dataList[i].id + ")' style='margin-right:5px;'>"
-                    + "<input type='button' value='删除' onclick='sortSchemeDelete(" + dataList[i].id + ")' style='margin-right:5px;'>"
+                    // + "<input type='button' value='删除' onclick='sortSchemeDelete(" + dataList[i].id + ")' style='margin-right:5px;'>"
                     + "<input type='button' value='明细' onclick='goDetailClick(" + dataList[i].id + ")'>" + "</td>";
                 temp += "</tr>";
             }

@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao;
+import com.jd.bluedragon.distribution.waybill.dao.WaybillPackageDao;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -23,6 +26,9 @@ public class WaybillServiceImpl implements WaybillService {
     private WaybillStatusService waybillStatusService;
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
+
+    @Autowired
+    private WaybillPackageDao waybillPackageDao;
 
 	public BigWaybillDto getWaybill(String waybillCode) {
 		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
@@ -91,5 +97,10 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public WaybillPackageDTO getWaybillPackage(String packageCode) {
+        return waybillPackageDao.get(packageCode);
     }
 }

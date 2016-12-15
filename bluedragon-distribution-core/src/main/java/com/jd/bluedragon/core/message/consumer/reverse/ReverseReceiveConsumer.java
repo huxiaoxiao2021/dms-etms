@@ -1,8 +1,6 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +39,6 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.waybill.api.WaybillSyncApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
