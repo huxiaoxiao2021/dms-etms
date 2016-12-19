@@ -3,12 +3,10 @@ package com.jd.bluedragon.distribution.rest.gantry;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
-import com.jd.bluedragon.distribution.api.response.GantryDeviceConfigResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
-import com.jd.bluedragon.utils.BeanHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,7 +18,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -215,4 +212,34 @@ public class GantryConfigResource {
 
         return response;
     }
+
+    @POST
+    @Path("/gantryConfig/findMaxStartTimeGantryDeviceConfigByMachineId")
+    public InvokeResult<GantryDeviceConfig> findMaxStartTimeGantryDeviceConfigByMachineId(GantryDeviceConfigRequest request){
+        logger.debug("获取龙门架的最新的状态 --> findMaxStartTimeGantryDeviceConfigByMachineId --> 设备名：" + request.getMachineId());
+        InvokeResult<GantryDeviceConfig> result = new InvokeResult<GantryDeviceConfig>();
+        result.setCode(200);
+        result.setMessage("服务调用成功");
+        try{
+            GantryDeviceConfig  gantryDeviceConfig = null;
+            if(request.getMachineId() != null){
+                gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
+            }
+            if(gantryDeviceConfig == null){
+                result.setCode(500);
+                result.setMessage("没有查到相关的龙门架设备信息");
+                result.setData(gantryDeviceConfig);
+                logger.error("没有查询ID为" + request.getMachineId() + "的龙门架设备信息");
+            }else{
+                result.setData(gantryDeviceConfig);
+            }
+        }catch(Exception e){
+            logger.error("服务调用异常。machineID为" + request.getMachineId(),e);
+            result.setCode(400);
+            result.setMessage("服务调用异常");
+            result.setData(null);
+        }
+        return result;
+    }
+
 }
