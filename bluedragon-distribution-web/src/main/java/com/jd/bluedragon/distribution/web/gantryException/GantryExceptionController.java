@@ -3,9 +3,12 @@ package com.jd.bluedragon.distribution.web.gantryException;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceRequest;
+import com.jd.bluedragon.distribution.api.request.GantryExceptionRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -36,53 +39,47 @@ import java.util.Map;
 @RequestMapping("/gantryException")
 public class GantryExceptionController {
     private static final Log logger = LogFactory.getLog(GantryExceptionController.class);
+
     @Autowired
-    private BaseService baseService;
-    @Autowired
-    private BaseMajorManager baseMajorManager;
+    private GantryDeviceService gantryDeviceService;
     @Autowired
     private GantryExceptionService gantryExceptionService;
 
-    @Autowired
-    private RestAuthorization restAuthorization;
-
     @RequestMapping(value = "/gantryExceptionList", method = RequestMethod.GET)
-    public String gantryExceptionPageList(Model model) {
+    public String gantryExceptionPageList(GantryExceptionRequest request, Model model) {
+
         try {
-            List<BaseOrg> allOrgs = baseService.getAllOrg();
-            model.addAttribute("allOrgs", allOrgs);
+            if (request.getSiteCode() != null) {
+                List<GantryDevice> allDevice = gantryDeviceService.getGantryByDmsCode(request.getSiteCode());
+                model.addAttribute("allDevice", allDevice);
+            }
         } catch (Exception e){
-            logger.error("获取所有机构失败",e);
+            logger.error("获取分拣中心编号为" +request.getSiteCode() + "的龙门架失败",e);
         }
+        model.addAttribute("queryParam", request);
+
         return "gantryException/gantryExceptionList";
     }
 
 
-    private void checkAddParam(HttpServletRequest request) throws IllegalArgumentException{
-        if(null == request.getParameter("machineId")) {
-            throw new IllegalArgumentException("请选择龙门架");
-        }
-        if(null == request.getParameter("beginTime")) {
+    private void checkAddParam(GantryExceptionRequest request) throws IllegalArgumentException{
+        if(! StringHelper.isNotEmpty(request.getStartTime())) {
             throw new IllegalArgumentException("请选择开始时间");
+        }
+        if(! StringHelper.isNotEmpty(request.getEndTime())) {
+            throw new IllegalArgumentException("请选择结束时间");
         }
     }
 
 
     @RequestMapping(value = "/doQuery", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Pager<List<GantryException>>> queryGantryExceptionByParam(HttpServletRequest request
+    public InvokeResult<Pager<List<GantryException>>> queryGantryExceptionByParam(GantryExceptionRequest request
                                             , Pager<List<GantryException>> pager){
         InvokeResult<Pager<List<GantryException>>> result = new InvokeResult<Pager<List<GantryException>>>();
         try{
-            String machineId = request.getParameter("machineId");
-            String beginTime = request.getParameter("beginTime");
-            String endTime = request.getParameter("endTime");
-            String isSend = request.getParameter("isSend");
-            Map<String, Object> params = new HashedMap();
-            params.put("machineId", machineId);
-            params.put("beginTime", beginTime);
-            params.put("endTime", endTime);
-            params.put("isSend", isSend);
+//            checkAddParam(request);
+            Map<String, Object> params = this.buildParam(request);
 
             if(null == pager){
                 pager = new Pager<List<GantryException>>(Pager.DEFAULT_PAGE_NO);
@@ -108,17 +105,18 @@ public class GantryExceptionController {
     }
 
 
-//    private Map<String, Object> buildParam(GantryExceptionRequest request){
-//        Map<String, Object> param = new HashMap<String, Object>();
-//        if (null == request) {
-//            return param;
-//        }
-//        param.put("machineId", request.getMachineId());
-//        param.put("e", request.getOrgCode());
-//        param.put("siteCode", request.getSiteCode());
-//        if (StringHelper.isNotEmpty(request.getSupplier())) {
-//            param.put("supplier", request.getSupplier());
-//        }
-//        return param;
-//    }
+    private Map<String, Object> buildParam(GantryExceptionRequest request){
+        Map<String, Object> param = new HashMap<String, Object>();
+        if (null == request) {
+            return param;
+        }
+        param.put("machineId", request.getMachineId());
+
+        param.put("startTime", request.getStartTime());
+        param.put("endTime", request.getEndTime());
+        param.put("isSend", request.getIsSend());
+        Integer siteCodeInteger = new Integer(910);
+        param.put("siteCode", siteCodeInteger);
+        return param;
+    }
 }

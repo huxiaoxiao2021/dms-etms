@@ -141,13 +141,18 @@
             <span class="gantry_exception_query_span">
 				龙门架编号：
 				<select id="gantry_exception_machine_id" class="gantry_exception_query_select">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-##                    #if(!$null.isNull($!allOrgs))
-##                        #foreach($org in $allOrgs)
-##                            <option value="$org.orgId">$org.orgName</option>
-##                        #end
-##                    #end
+                    #if(!$null.isNull($!allDevice))
+                        #foreach($device in $allDevice)
+                            #if ($!queryParam.machineId == $device.machineId)
+                                <option value="$device.machineId" selected = "selected">$device.machineId</option>
+                            #end
+                            #if ($!queryParam.machineId != $device.machineId)
+                                <option value="$device.machineId">$device.machineId</option>
+                            #end
+
+
+                        #end
+                    #end
                 </select>
 			</span>
             <span style="width: 250px;">
@@ -157,11 +162,11 @@
         <div id="gantry_exception_query_date_div" style="padding-top: 20px">
             <span class="gantry_exception_query_span">
                 开始时间：
-                <input type="text" class="Wdate" id="gantry_exception_startTime" name="startTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss')" onfocus="WdatePicker({skin:'whyGreen',maxDate:'%y-%M-%d', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+                <input type="text" class="Wdate" id="gantry_exception_startTime" name="startTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!queryParam.startTime)" onfocus="WdatePicker({skin:'whyGreen',maxDate:'%y-%M-%d', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
             </span>
             <span class="gantry_exception_query_span">
                 结束时间：
-                <input type="text" class="Wdate" id="gantry_exception_endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss')" onfocus="WdatePicker({skin:'whyGreen',maxDate:'#F{getMaxDate();}', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+                <input type="text" class="Wdate" id="gantry_exception_endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!queryParam.endTime)" onfocus="WdatePicker({skin:'whyGreen',maxDate:'#F{getMaxDate();}', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
             </span>
 
             <span class="gantry_exception_query_span">

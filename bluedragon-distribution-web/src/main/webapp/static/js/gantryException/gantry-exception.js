@@ -36,7 +36,7 @@ function gantry_exception_query_sub(pageNo) {
 function getParams() {
     var params = {};
     params.machineId = $.trim($("#gantry_exception_machine_id").val());
-    params.beginTime = $.trim($("#gantry_exception_startTime").val());
+    params.startTime = $.trim($("#gantry_exception_startTime").val());
     params.endTime = $.trim($("#gantry_exception_endTime").val());
     var isSendValue = $.trim($("#gantry_exception_isSend").val());
     if (isSendValue < 3) {
