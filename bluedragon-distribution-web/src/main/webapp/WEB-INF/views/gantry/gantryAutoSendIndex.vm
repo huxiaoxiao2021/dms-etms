@@ -106,7 +106,7 @@
                             </tr>
                             <tr>
                                 <td colspan="3" id="gantryBtn">
-                                    <input type="button" id="enOrDisGantryBtn" value="启用龙门架" class="btn_c">
+                                    <input type="button" id="enOrDisGantryBtn" value="释放龙门架" class="btn_c">
                                 </td>
                             </tr>
                             <tr class="blankTr">

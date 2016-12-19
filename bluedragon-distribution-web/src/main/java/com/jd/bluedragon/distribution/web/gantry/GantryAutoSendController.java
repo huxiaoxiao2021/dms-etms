@@ -7,8 +7,14 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -38,6 +45,15 @@ public class GantryAutoSendController {
     @Autowired
     GantryDeviceConfigService gantryDeviceConfigService;
 
+    @Autowired
+    GantryExceptionService gantryExceptionService;
+
+    @Autowired
+    WaybillService waybillService;
+
+    @Autowired
+    DepartureService departureService;
+
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
         this.logger.debug("龙门架自动发货 --> index");
@@ -51,18 +67,6 @@ public class GantryAutoSendController {
             model.addAttribute("userName", userName);
         }
         return "gantry/gantryAutoSendIndex";
-    }
-
-    @RequestMapping(value = "/gantryStatus" , method = RequestMethod.POST)
-    public InvokeResult<String> changeGantryStatus(GantryDeviceConfigRequest request) {
-        this.logger.debug("龙门架启动/释放 --> changeGantryStatus");
-        InvokeResult<String> result = new InvokeResult<String>();
-
-
-
-
-
-        return result;
     }
 
     @RequestMapping(value = "/updateOrInsertGantryDeviceStatus", method = RequestMethod.POST)
@@ -117,8 +121,9 @@ public class GantryAutoSendController {
         return null;
     }
 
-    @RequestMapping(value = "/getCurrentSplitPageList",method = RequestMethod.POST)
-    public InvokeResult<Pager<List<ScannerFrameBatchSend>>> getCurrentSplitPageList(GantryDeviceConfigRequest request ,Pager<GantryDeviceConfig> pager){
+    @RequestMapping(value = "/pageList",method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<Pager<List<ScannerFrameBatchSend>>> currentSplitPageList(GantryDeviceConfigRequest request , Pager<GantryDeviceConfigRequest> pager){
         InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
         result.setCode(500);
         result.setMessage("服务调用异常");
@@ -148,6 +153,42 @@ public class GantryAutoSendController {
         return result;
     }
 
+    @RequestMapping(value = "/summaryBySendCode", method = RequestMethod.POST)
+    public InvokeResult<GantryBatchSendResult> summaryBySendCode(String sendCode){
+        InvokeResult<GantryBatchSendResult> result = new InvokeResult<GantryBatchSendResult>();
+        result.setCode(500);
+        result.setMessage("服务器处理异常");
+        if(sendCode != null){
+            List<SendDetail> sendDetailList = null;
+            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
+            Integer packageSum = 0;//批次总包裹数量
+            Double volumeSum = 0.00;//取分拣体积
+            if(sendDetailList != null && sendDetailList.size() > 0){
+                for (SendDetail sendD : sendDetailList){
+                    try{
+                        packageSum += sendD.getPackageNum();
+                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getPackageBarcode());
+                        volumeSum += waybillPackageDTO.getVolume() == 0? waybillPackageDTO.getOriginalVolume():waybillPackageDTO.getVolume();
+                    }catch(Exception e){
+                        logger.error("获取批次的总数量和总体积失败：批次号为"+sendCode,e);
+                    }
+                }
+            }
+            sendBoxSum.setSendCode(sendCode);
+            sendBoxSum.setPackageSum(packageSum);
+            sendBoxSum.setVolumeSum(volumeSum);
+            result.setCode(200);
+            result.setData(sendBoxSum);
+            result.setMessage("获取批次号的总数量和总体积成功");
+        }else{
+            logger.error("获取参数批次的总体积和总数量失败：批次号为空");
+            result.setCode(400);
+            result.setMessage("参数错误");
+            result.setData(null);
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/generateSendCode" , method = RequestMethod.POST)
     public InvokeResult<Integer> generateSendCode(GantryDeviceConfigRequest request){
         this.logger.debug("龙门架自动换批次 --> changeSendCode");
@@ -171,10 +212,24 @@ public class GantryAutoSendController {
     public InvokeResult<Integer> queryExceptionNum(GantryDeviceConfigRequest request){
         this.logger.debug("获取龙门架异常信息 --> queryExceptionNum");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
-        result.setCode(200);
-        result.setMessage("服务调用成功");
+        result.setCode(400);
+        result.setMessage("服务处理异常");
         result.setData(0);
-        // FIXME: 2016/12/12 直接调用嘉兴的接口获取异常数据
+        if(null == request){
+            logger.error("龙门架参数异常，获取异常数据失败");
+        }
+        try{
+            if(null != request.getMachineId()){
+                Integer count = gantryExceptionService.getGantryExceptionCount((long)request.getMachineId(),request.getStartTime(),request.getEndTime());
+                result.setCode(200);
+                result.setMessage("龙门架异常数据获取成功");
+                result.setData(count);
+            }else{
+                logger.error("龙门架ID参数错误");
+            }
+        }catch(NullPointerException e){
+            logger.error("获取龙门架自动发货异常数据失败，龙门架ID为：" + request.getMachineId());
+        }
 
         return result;
     }

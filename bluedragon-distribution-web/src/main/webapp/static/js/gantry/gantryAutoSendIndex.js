@@ -15,18 +15,25 @@ $(document).ready(function(){
 
     /** 龙门架配置信息联动显示 **/
     $("#gantryDevice").change(function(){
+        clearInfo();
         gantryLockStatusShow();
         queryBatchSendSub(1)
     });
 
     /** 启用释放龙门架按钮点击事件 **/
-    $("#enOrDisGantryBtn").click(getGantryParams);
+    $("#enOrDisGantryBtn").click(function () {
+        getGantryParams();
+    });
 
     /** 设置打印机的保存点击事件 **/
-    $("#printSettingSaveBtn").click(printSettingSave());
+    $("#printSettingSaveBtn").click(function () {
+        printSettingSave();
+    });
 
     /** 换批次按钮点击事件 **/
-    $("#generateSendCodeBtn").click(generateSendCode());
+    $("#generateSendCodeBtn").click(function () {
+        generateSendCode();
+    });
 
 })
 
@@ -67,11 +74,15 @@ function loadDmsList(dmsList, selectId) {
  * 分拣中心与龙门架设备联动
  */
 function gantryDeviceItemShow(){
-    var temp = "<option value=''>请选择龙门架<option/>";
+    var temp = "<option>选择龙门架</option>";
     $("#gantryDevice").html(temp);//清空龙门架信息
     var siteNo = parseInt($("#siteOrg option:selected").val());//获取分拣中心ID
     var param= {};
     param.createSiteCode = siteNo;
+    // if(siteNo == null || siteNo == ""){
+    //     loadGantryList("", "gantryDevice");
+    //     return;
+    // }
     var url = $("#contextPath").val() + "/services/gantryDevice/findAllGantryDevice";
     CommonClient.postJson(url,param,function (data) {
         var gantryList = data.data;
@@ -92,12 +103,11 @@ function gantryDeviceItemShow(){
 }
 function loadGantryList(gantryList,selectId){
     var gantryObj = $('#' + selectId);
-    gantryObj.html("");
-    var optionList = "<option value=''>请选择龙门架</option>";
+    var optionList = "<option value=''>选择龙门架</option>";
     for (var i = 0; i < gantryList.length; i++) {
         optionList += "<option value='" + gantryList[i].machineId + "'>" + gantryList[i].machineId + " " + gantryList[i].serialNumber + "</option>";
     }
-    gantryObj.append(optionList);
+    gantryObj.html(optionList);
     $("#paperTable tbody").html("");
 }
 
@@ -109,26 +119,59 @@ function gantryLockStatusShow(){
     var param= {};
     param.machineId = machineId;
     var url = $("#contextPath").val() + "/services/gantryConfig/findMaxStartTimeGantryDeviceConfigByMachineId";
-    CommonClient.postJson(url,param,function (data) {
-        var gantryConfig = data.data;
-        if (data == undefined || data == null) {
-            jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
-            return;
-        }
-        if (data.code == 200) {
-            gantryStateInit(gantryConfig);
-        } else if (data.code == 500) {
-            jQuery.messager.alert("提示：", "获取该龙门架设备信息失败!", "info");
-        } else {
-            jQuery.messager.alert("提示：", "服务器异常!", "info");
+    $.ajax({
+        url: url,
+        data: JSON.stringify(param),
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        async: false,//同步获取ajax数据
+        beforeSend: function(jqXHR, settings){
+            $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
+        },
+        success: function (data) {
+            if (data == undefined || data == null) {
+                jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
+                return;
+            }
+            var gantryConfig = data.data;
+            gantryParams = gantryConfig;//储存龙门设备信息的全局变量
+            if (data.code == 200) {
+                gantryStateInit(gantryConfig);
+            } else if (data.code == 500) {
+                jQuery.messager.alert("提示：", "获取该龙门架设备信息失败!", "info");
+            } else {
+                jQuery.messager.alert("提示：", "服务器异常!", "info");
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            alert("Error:status["+jqXHR.status+"],statusText["+ jqXHR.statusText +"]");
+        },
+        complete: function(jqXHR, textStatus){
+            $.unblockUI();
         }
     })
+
+    // CommonClient.postJson(url,param,function (data) {
+    //     if (data == undefined || data == null) {
+    //         jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
+    //         return;
+    //     }
+    //     var gantryConfig = data.data;
+    //     gantryParams = gantryConfig;//储存龙门设备信息的全局变量
+    //     if (data.code == 200) {
+    //         gantryStateInit(gantryConfig);
+    //     } else if (data.code == 500) {
+    //         jQuery.messager.alert("提示：", "获取该龙门架设备信息失败!", "info");
+    //     } else {
+    //         jQuery.messager.alert("提示：", "服务器异常!", "info");
+    //     }
+    // })
 }
 /**
  * 初始化龙门架的锁定状态以及操作模式
  */
 function gantryStateInit(gantryConfig) {
-    gantryParams = gantryConfig;//储存龙门设备信息的全局变量
     var inspectionObj = $("#inspection");   //验货复选框
     var sendObj = $("#send");               //发货复选框
     var measureObj = $("#measure");         //量方复选框
@@ -205,7 +248,7 @@ function enOrDisGantry(params){
             return;
         }
     }
-    var url = $("#contextPath").val() + "/gantryAutoSend/gantryStatus";
+    var url = $("#contextPath").val() + "/gantryAutoSend/updateOrInsertGantryDeviceStatus";
     CommonClient.postJson(url,params,function(data){
         if (data == undefined && data == null){
             jQuery.messager.alert("提示：","HTTP请求无返回数据！","info");
@@ -257,10 +300,12 @@ function queryExceptionNum(){
     var url = $("#contextPath").val() + "/gantryAutoSend/queryExceptionNum";
     CommonClient.postJson(url,gantryParams,function (data) {
         if(data.data == undefined || data.data == null){
-            return;
+            jQuery.messager.alert("提示：","HTTP请求无数据返回!!","info")
         }
         if(data.code == 200){
             $("#exceptionNum").text(data.data);
+        }else{
+            jQuery.messager.alert("提示","获取龙门架自动发货异常数据失败!!","info");
         }
     })
 }
@@ -269,7 +314,12 @@ function queryExceptionNum(){
  * 查询分页数据
  */
 function queryBatchSendSub(pageNo){
-    var params = gantryParams;
+    var params = {};
+    if(gantryParams != undefined && gantryParams != null ){
+        params.machineId = gantryParams.machineId;
+        params.startTime = new Date(gantryParams.startTime);
+        params.endTime = new Date(gantryParams.endTime);
+    }
     params.pageNo = pageNo;
     queryBatchSendCodes(params);
 }
@@ -279,8 +329,9 @@ function queryBatchSendSub(pageNo){
  * @param params
  */
 function queryBatchSendCodes(params){
-    var url = $("#contextPath").val() + "/";
-    CommonClient.postJson(url,params,function (data) {
+    var url = $("#contextPath").val() + "/gantryAutoSend/pageList";
+    var url2 = $("#contextPath").val() + "/gantryAutoSend/summaryBySendCode";
+    CommonClient.post(url,params,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("错误：","HTTP请求无返回数据！！","error");
         }
@@ -289,12 +340,23 @@ function queryBatchSendCodes(params){
             var list = page.data;
             var temp = "";
             for (var i = 0;i < list.length;i++) {
+                var packageSum = 0.00;//总数量
+                var volumeSum = 0.00;//总体积
+                CommonClient.postJson(url2,list[i].sendCode,function (data) {
+                    if (data != undefined && data != null){
+                        var sum = data.data;
+                        if(sum.packageSum != null && sum.volumeSum != null){
+                            packageSum = sum.packageSum;
+                            volumeSum = sum.volumeSum;
+                        }
+                    }
+                })
                 temp += "<tr id='" + i + "'>";
                 temp += "<td><input type='checkbox' name='item'></td>";
                 temp += "<td title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                 temp += "<td>" + list[i].sendCode + "</td>";
-                temp += "<td>数量</td>";
-                temp += "<td>总体积</td>";
+                temp += "<td>packageSum</td>";
+                temp += "<td>weightSum</td>";
                 temp += "<td>" + list[i].createTime + "</td>";
                 temp += "</tr>";
             }
@@ -316,9 +378,9 @@ function queryBatchSendCodes(params){
  * 设置打印机弹出层事件
  */
 function printSettingPopUp() {
-    var printSettingParams = $.cookie("printSettingParams");
-    $("#labelPrinter").get(0).selectedIndex = printSettingParams.labelPrinterValue;
-    $("#listPrinter").get(0).selectedIndex = printSettingParams.listPrinterValue;
+    // var printSettingParams = $.cookie.get("printSettingParams");
+    // $("#labelPrinter").get(0).selectedIndex = printSettingParams.labelPrinterValue;
+    // $("#listPrinter").get(0).selectedIndex = printSettingParams.listPrinterValue;
     popUp('printSettingPopUp',333,206);
 }
 
@@ -331,11 +393,11 @@ function printSettingSave(){
     var printSettingParams = {};//保存设置的打印机参数
     printSettingParams.labelPrinterValue = labelPrinterValue;
     printSettingParams.listPrinterValue = listPrinterValue;
-    $.cookie(
-        "printSettingParams",
-        JSON.stringify(printSettingParams),
-        {expires:1}
-    )
+    // $.cookie(
+    //     "printSettingParams",
+    //     JSON.stringify(printSettingParams),
+    //     {expires:1}
+    // )
 }
 
 /**
@@ -346,9 +408,9 @@ function generateSendCode() {
     $.ajax({
         url: url,
         data:gantryParams,
-        type: "get",
+        type: "post",
         dataType: "json",
-        contentType: "application/x-www-form-urlencoded; charset=utf-8",
+        contentType: "application/json; charset=utf-8",
         async: false,
         beforeSend: function(jqXHR, settings){
             $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
@@ -373,5 +435,17 @@ function generateSendCode() {
             $.unblockUI();
         }
     })
+}
+
+/**
+ * 联动效果前清空信息
+ */
+function clearInfo(){
+    $("input[name='businessType']").each(function () {
+        $(this).prop("checked",false);//清空龙门架的配置信息
+    });
+    gantryParams = {};//清空龙门架参数信息
+    $("#pagerTable tbody").html("");//清空列表
+    $("#pager").html("");//清空分页信息
 }
 
