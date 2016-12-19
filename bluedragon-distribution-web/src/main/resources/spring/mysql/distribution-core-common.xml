@@ -18,9 +18,7 @@
 			</list>
 		</property>
 	</bean>
-	
-	<import resource="classpath:spring/mysql/distribution-core-datasource-backup.xml"/>
-	
+
 	<bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
 	    <property name="driverClassName" value="${db.mysql.driverClassName}"/>
 		<property name="defaultAutoCommit" value="true"/>
@@ -72,129 +70,24 @@
 		<property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
 	</bean>
 
-    <!-- 数据库双写主数据源配置  王进思  开始 -->
-    <!--<bean id="dmsMainSequenceDataSource" class="com.jd.ql.framework.ddf.jdbc.sequence.SequenceDataSource">-->
-        <!--<constructor-arg index="0">-->
-            <!--<bean class="com.jd.ql.framework.idgenerator.support.DdfSequenceGenerator">-->
-                <!--<property name="jsfAlias" value="${sequenceService.alias}"/>-->
-                <!--<property name="jsfTimeout" value="${sequenceService.timeout}"/>-->
-            <!--</bean>-->
-        <!--</constructor-arg>-->
-        <!--<constructor-arg index="1" ref="dms_main"/>-->
-    <!--</bean>-->
-
-
-    <!--<bean id="mainWriteSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-		<!--<property name="dataSource" ref="dmsMainSequenceDataSource" />-->
-		<!--<property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />-->
-	<!--</bean>-->
-
-	<!--<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory">-->
-		<!--<constructor-arg index="0" ref="mainWriteSessionFactory"/>-->
-		<!--<property name="enable" value="${db.backup.replicate.enable}" />-->
-		<!--<property name="statementDecider">-->
-			<!--<bean class="com.jd.bluedragon.common.dao.migration.DmsBackupDataSourceStatementDecider" />-->
-		<!--</property>-->
-		<!--<property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />-->
-		<!--<property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />-->
-		<!--<property name="excludedStatements">-->
-			<!--<list>-->
-				<!--<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>-->
-				<!--<value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>-->
-			<!--</list>-->
-		<!--</property>-->
-	<!--</bean>-->
-
-    <!--<bean id="transactionManager"-->
-          <!--class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-        <!--<property name="dataSource" ref="dms_main" />-->
-        <!--<qualifier value="main"></qualifier>-->
-    <!--</bean>-->
-
-    <!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
-
-	<!--<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">-->
-		<!--<constructor-arg index="0" ref="mainWriteReplicationSqlSessionFactory" />-->
-	<!--</bean>-->
-
-    <!-- 数据库双写主数据源配置  王进思  结束 -->
-
-
-
-
-
-    <!-- 数据库双写主数据源配置  赵玉开  开始 -->
-
-    <bean id="sqlSessionFactoryMaster" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <!-- dms写库 数据源  -start-->
+    <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dms_main" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
     </bean>
 
-    <bean id="dwSqlSessionFactory" class="com.jd.coo.sa.mybatis.plugins.dwr.SqlSessionFactoryBean">
-        <property name="masterSqlSessionFactory" ref="sqlSessionFactoryMaster"/>
-        <property name="daoContext" ref="daoContext"/>
-    </bean>
-
-    <bean class="com.jd.coo.sa.mybatis.plugins.dwr.ContextWithTransaction" name="daoContext">
-        <property name="swallowException" value="false"/>
-        <property name="slaveSqlSessionFactory" ref="sqlSessionFactorySlave"/>
-        <property name="slaveTransactionManager" ref="transactionManagerSlave"/>
-        <!-- set transaction isolation level as read-committed -->
-        <property name="slaveTransactionIsolationLevel" value="2"/>
-
-        <!-- 设置指定sqlId在master mybatis中存在而在slave中不存在 -->
-        <property name="knownMissingSqlIds">
-            <list>
-                <value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
-                <value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
-                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.add</value>
-                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.update</value>
-                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateFail</value>
-                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateSuccess</value>
-                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateLock</value>
-                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.add</value>
-                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.update</value>
-                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.addWithStatus</value>
-                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateTaskById</value>
-                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateBatchTask</value>
-                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateTaskStatus</value>
-                <value>com.jd.bluedragon.distribution.globaltrade.dao.updateLoadBillStatus</value>
-                <value>com.jd.bluedragon.distribution.globaltrade.dao.add</value>
-                <value>com.jd.bluedragon.distribution.globaltrade.dao.update</value>
-                <value>com.jd.bluedragon.distribution.globaltrade.dao.updatePreLoadBillById</value>
-                <value>com.jd.bluedragon.distribution.globaltrade.dao.updateCancelLoadBillStatus</value>
-            </list>
-        </property>
-
-        <!-- 启动异步双写配置 -->
-        <property name="enableAsync" value="true"/>
-        <property name="taskExecutor" ref="doubleWriteExecutor"/>
-        <!-- 启动异步双写结束 -->
-    </bean>
-    <!--异步双写线程池配置, 线上注意配置线程池大小 pool-size属性-->
-    <task:executor id="doubleWriteExecutor" pool-size="0-15"/>
-
-    <bean name="transactionManager" class="com.jd.coo.sa.mybatis.plugins.dwr.TransactionManager">
-        <!--class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-        <property name="daoContext" ref="daoContext"/>
-        <property name="dataSource" ref="dms_main" />
-        <property name="rollbackOnCommitFailure" value="true" />
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_main"/>
         <qualifier value="main"></qualifier>
     </bean>
 
-    <!--    <bean id="transactionManager"
-              class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-            <property name="dataSource" ref="dms_main"/>
-            <qualifier value="main"></qualifier>
-        </bean>
-    -->
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="dwSqlSessionFactory"/>
+        <constructor-arg index="0" ref="mainSqlSessionFactory"/>
     </bean>
-
-    <!-- 数据库双写主数据源配置  赵玉开  结束 -->
+    <!-- dms写库 数据源  -end-->
 
 
     <!-- dms读库 数据源  -start-->
