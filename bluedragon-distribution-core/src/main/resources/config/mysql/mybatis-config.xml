@@ -267,13 +267,17 @@
         <mapper resource="mappers/mysql/gantry/GantryDeviceMapper.xml"/>
         <mapper resource="mappers/mysql/gantry/GantryDeviceConfigMapper.xml"/>
         <mapper resource="mappers/mysql/freshWaybill/freshWaybillMapper.xml"/>
-
         <!-- xumei -->
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
         <mapper resource="mappers/mysql/dbs/objectIdMapper.xml"/>
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
-		<mapper resource="mappers/mysql/auto/ScannerFrameBatchSend.xml"/>
+
+        <!-- hanjiaxing -->
+        <mapper resource="mappers/mysql/gantry/GantryExceptionMapper.xml"/>
+        <mapper resource="mappers/mysql/auto/ScannerFrameBatchSend.xml"/>
+
         <mapper resource="mappers/mysql/areadest/AreaDestMapper.xml"/>
+
     </mappers>
 
 </configuration>
