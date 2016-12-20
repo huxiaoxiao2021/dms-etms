@@ -77,6 +77,28 @@ public class GantryBatchSendReplenishPrintController {
         return result;
     }
 
+    @RequestMapping(value = "/querySubSiteNo",method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<List<ScannerFrameBatchSend>> querySubSiteNo(ScannerFrameBatchSendSearchArgument request){
+        InvokeResult<List<ScannerFrameBatchSend>> result = new InvokeResult<List<ScannerFrameBatchSend>>();
+        result.setCode(400);
+        result.setMessage("服务调用异常");
+        result.setData(null);
+        if(request == null){
+            return null;
+        }
+        try{
+            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryByMachineIdAndTime(request);
+            result.setCode(200);
+            result.setData(list);
+            result.setMessage("获取龙门架的目的站点成功");
+        }catch(Exception e){
+            result.setMessage("获取龙门架的目的站点失败");
+            logger.error("加载龙门架的目的站点失败。。",e);
+        }
+        return result;
+    }
+
     /**
      * domain 类型转换
      * @param request
