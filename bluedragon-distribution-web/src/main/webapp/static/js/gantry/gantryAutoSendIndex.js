@@ -507,7 +507,7 @@ function toReplenishPrintPage(){
  */
 function toGantryExceptionPage(){
     var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
-    if(gantryParams == undefined || gantryParams == null || gantryParams.machasineId == null || gantryParams.machineId == 0){
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
         return;
     }
     location.href = url + "?machineId=" + gantryParams.machineId + "&siteCode=" + gantryParams.createSiteCode
