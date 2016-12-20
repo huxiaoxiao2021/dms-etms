@@ -280,8 +280,8 @@ function enOrDisGantry(params){
         }
     }else if(params.lockStatus == 0){
         /** 释放校验 **/
-        if(params.operateUserErp != gantryParams.operateUserErp){
-            jQuery.messager.alert("警告：","释放该龙门架请联系锁定人:" + gantryParams.operateUserName,"warning");
+        if(params.operateUserErp != gantryParams.lockUserErp){
+            jQuery.messager.alert("警告：","释放该龙门架请联系锁定人:" + gantryParams.lockUserName,"warning");
             return;
         }
     }
@@ -503,8 +503,7 @@ function toReplenishPrintPage(){
     }
     location.href = url + "?machineId=" + gantryParams.machineId + "&createSiteCode=" + gantryParams.createSiteCode
         + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
-        + new Date(gantryParams.startTime*1000).toLocaleString().replace("[\u4e00-\u9fa5]","-")
-        + "&endTime=" + new Date(gantryParams.endTime*1000).toLocaleString().replace("[\u4e00-\u9fa5]","-");
+        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }
 
 /**
@@ -512,10 +511,6 @@ function toReplenishPrintPage(){
  */
 function toGantryExceptionPage(){
     var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
-    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null){
-        jQuery.messager.alert("提示：","请选择有效的补打信息","info");
-        return;
-    }
     if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
         return;
     }
