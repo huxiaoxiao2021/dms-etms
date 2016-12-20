@@ -39,7 +39,7 @@
           <if test="endTime != null and endTime != ''" >
               AND OPERATE_TIME <![CDATA[<=]]> #{endTime, jdbcType=TIMESTAMP}
           </if>
-          <if test="isSend != null">
+          <if test="isSend != null and isSend != ''">
               AND YN = #{isSend, jdbcType=TINYINT}
           </if>
       </where>
