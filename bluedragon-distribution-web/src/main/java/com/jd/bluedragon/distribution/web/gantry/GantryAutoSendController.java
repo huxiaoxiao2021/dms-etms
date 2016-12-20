@@ -73,6 +73,7 @@ public class GantryAutoSendController {
     }
 
     @RequestMapping(value = "/updateOrInsertGantryDeviceStatus", method = RequestMethod.POST)
+    @ResponseBody
     public InvokeResult<GantryDeviceConfig> UpsertGantryDeviceBusinessOrStatus(GantryDeviceConfigRequest request){
         InvokeResult<GantryDeviceConfig> result = new InvokeResult<GantryDeviceConfig>();
         result.setCode(500);
@@ -84,8 +85,8 @@ public class GantryAutoSendController {
         String userName = "";//姓名
         Integer userId = null;//员工ID
         if(erpUser != null){
-            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
-            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+            userCode = erpUser.getUserCode() == null ? null:erpUser.getUserCode();
+            userName = erpUser.getUserName() == null ? null:erpUser.getUserName();
             userId = erpUser.getUserId() == null ? null:erpUser.getUserId();
         }
         logger.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
@@ -93,17 +94,17 @@ public class GantryAutoSendController {
             logger.error("没有需要修改的龙门架设备信息");
             return null;
         }
+        GantryDeviceConfig  gantryDeviceConfig = null;
+        gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
         if(request.getLockStatus() == 0){/** 解锁龙门架操作 **/
             /** 第一步：找到gantry_device_config最新的一条龙门架记录 **/
-            logger.info("用户：" + request.getLockUserErp() + "正在尝试解锁龙门架，ID为" + request.getMachineId());
+            logger.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
             try{
-                GantryDeviceConfig  gantryDeviceConfig = null;
-                gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
                 if(gantryDeviceConfig.getLockUserErp().equals(userCode)){
                     //只更新该龙门架的锁定状态为0解锁
                     gantryDeviceConfig.setLockStatus(request.getLockStatus());
                     int i = gantryDeviceConfigService.updateLockStatus(gantryDeviceConfig);
-                    if( i != -1){
+                    if( i > -1){
                         result.setCode(200);
                         result.setMessage("释放龙门架状态成功");
                         result.setData(gantryDeviceConfig);
@@ -124,14 +125,29 @@ public class GantryAutoSendController {
         }else if(request.getLockStatus() == 1){/** 锁定龙门架操作 **/
             logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为："
                     + request.getMachineId() + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
-            /** 转换类型 请求对象装换成gantryDeviceConfig对象 **/
-            GantryDeviceConfig oldRecord = toGantryDeviceConfig(request,userCode,userName,userId);
-            int count = gantryDeviceConfigService.add(oldRecord);
+            /** 转换类型 修改最近的一条龙门设备的信息：操作人，更新人，锁定人，业务类型，锁定状态，startTime为now，endTime置为空 新插入 **/
+            int count = 0;
+            try{
+                gantryDeviceConfig.setOperateUserErp(userCode);
+                gantryDeviceConfig.setOperateUserId(userId);
+                gantryDeviceConfig.setOperateUserName(userName);
+                gantryDeviceConfig.setUpdateUserErp(userCode);
+                gantryDeviceConfig.setUpdateUserName(userName);
+                gantryDeviceConfig.setLockUserErp(userCode);
+                gantryDeviceConfig.setLockUserName(userName);
+                gantryDeviceConfig.setBusinessType(request.getBusinessType());
+                gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
+                gantryDeviceConfig.setLockStatus(request.getLockStatus());
+                gantryDeviceConfig.setStartTime(new Date());
+                count = gantryDeviceConfigService.add(gantryDeviceConfig);
+            }catch(Exception e){
+                logger.error("锁定龙门架操作失败..",e);
+            }
             if (count >= 1) {
                 logger.error("用户正在尝试的启用龙门架操作状态成功，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
                 result.setCode(200);
                 result.setMessage("用户锁定龙门架操作成功");
-                result.setData(oldRecord);
+                result.setData(gantryDeviceConfig);
             }else{
                 logger.error("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
                 result.setCode(400);

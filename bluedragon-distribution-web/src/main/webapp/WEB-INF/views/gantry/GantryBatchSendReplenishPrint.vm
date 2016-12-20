@@ -29,7 +29,7 @@
     <script type="application/javascript">
         $(document).ready(function () {
             var siteNo = $("#createSiteCode").val();
-            querySubSite(siteNo);//初始化子站点
+            querySubSite();//初始化子站点
 
             query(1);//默认加载首页
 
@@ -54,9 +54,22 @@
         /**
          * 执行子站点的初始化
          */
-        function querySubSite(siteNo) {
-            //通过站点查询未打印的子站点的信息列表
-//            TODO 2016-12-20 14:53:54
+        function querySubSite() {
+            var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/querySubSiteNo"
+            CommonClient.post(url,getParams(),function(data){
+                if(data == undefined && data == null){
+                    return;
+                }
+                if(data.code == 200 && data.data != null ){
+                    var list = data.data;
+                    var temp = "<option value = ''>请选择目的站点</option>";
+                    for(var i = 0;i < list.length;i++){
+                        temp += "<option value = " + list[i].receiveSiteCode + ">" + list[i].receiveSiteCode + " " + list[i].receiveSiteName + "</option>";
+                    }
+                    $("#receiveSiteCode").html(temp);
+                }
+            })
+
         }
 
         /**
