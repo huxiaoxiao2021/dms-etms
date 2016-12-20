@@ -47,7 +47,7 @@ public class GantryException {
     /**
      * 失败类型
      */
-    private int type;
+    private Integer type;
 
     /**
      * 操作时间
@@ -72,7 +72,7 @@ public class GantryException {
     /**
      * 是否有效
      */
-    private int yn;
+    private Integer yn;
 
     public Long getId() {
         return id;
@@ -130,11 +130,11 @@ public class GantryException {
         this.volume = volume;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
@@ -171,11 +171,11 @@ public class GantryException {
         this.ts = ts;
     }
 
-    public int getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(int yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 }

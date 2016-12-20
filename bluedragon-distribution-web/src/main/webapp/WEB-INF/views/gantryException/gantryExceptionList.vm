@@ -46,88 +46,7 @@
         }
     </style>
 </head>
-<script type="text/javascript">
-    function getMaxDate(){
-        var beginDateStr = $.trim($("#gantry_exception_startTime").val());
-        var endDateStr = $.trim($("#gantry_exception_endTime").val());
-        var now = new Date();
-        if (beginDateStr == null || beginDateStr == "") {
-            return now.format('yyyy-MM-dd HH:mm:ss');
-        }
-        var beginDate = new Date(beginDateStr);
 
-        //timestamp
-        var maxDate = new Date();
-        maxDate = maxDate.setDate(beginDate.getDate() + 1);
-        var maxDateStr = new Date(maxDate).format('yyyy-MM-dd HH:mm:ss');
-        if (endDateStr != "" && endDateStr != null) {
-            var endDate = new Date(endDateStr);
-            if (endDate > maxDate) {
-                $("#gantry_exception_startTime").val(maxDateStr);
-            }
-        }
-
-        if (maxDate > now) {
-            return now.format('yyyy-MM-dd HH:mm:ss');
-        }
-
-        return maxDate;
-
-    }
-
-    function getMaxDate(){
-        var beginDateStr = $.trim($("#gantry_exception_startTime").val());
-
-        var now = new Date();
-        if (beginDateStr == null || beginDateStr == "") {
-            return now.format('yyyy-MM-dd HH:mm:ss');
-        }
-        var beginDate = new Date(beginDateStr);
-
-        //timestamp
-        var maxDate = new Date();
-        maxDate = maxDate.setDate(beginDate.getDate() + 1);
-        var maxDateStr = new Date(maxDate).format('yyyy-MM-dd HH:mm:ss');
-
-        if (maxDate > now) {
-            return now.format('yyyy-MM-dd HH:mm:ss');
-        }
-
-        return maxDateStr;
-
-    }
-
-//    window.onload = function(){
-//        if("\v"=="v"){//IE浏览器
-//            $("#gantry_exception_startTime").onpropertychange=changeValue;
-//        }else{ // 其他浏览器
-//            $("#gantry_exception_startTime").addEventListener("input",changeValue(),false);
-//        }
-//    }
-
-//    window.onload = init();
-//    function init(){
-//        var jsDate = "";
-//
-//            $("#gantry_exception_startTime").on("change",function(){
-//                changeValue();
-//            });
-//
-//    }
-//
-//    function changeValue(){
-//        var maxDateStr = getMaxDate();
-//        var maxDate = new Date(maxDateStr);
-//        var endDateStr = $.trim($("#gantry_exception_endTime").val());
-//        if (endDateStr != "" && endDateStr != null) {
-//            var endDate = new Date(endDateStr);
-//            if (endDate > maxDate) {
-//                $("#gantry_exception_endTime").val(maxDateStr);
-//            }
-//        }
-//    }
-
-</script>
 <body>
 <input type="hidden" id="contextPath" value="#springUrl('')"/>
 <div id="breadcrumb">
@@ -149,8 +68,6 @@
                             #if ($!queryParam.machineId != $device.machineId)
                                 <option value="$device.machineId">$device.machineId</option>
                             #end
-
-
                         #end
                     #end
                 </select>

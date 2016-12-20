@@ -1,5 +1,5 @@
 /**
- * Created by dudong on 2016/3/14.
+ * Created by hanjiaxing on 2016/12/14.
  */
 $(document).ready(init);
 
@@ -13,10 +13,8 @@ function init() {
     })
 
     $("#gantry_exception_export_sub").click(function () {
-        to_add_page();
+        gantry_exception_export_sub();
     });
-
-    gantry_exception_query_sub(1);
 }
 
 
@@ -25,13 +23,33 @@ function init() {
  * */
 function gantry_exception_query_sub(pageNo) {
     var params = getParams();
+
     params.pageNo = pageNo;
-    doQuery(params);
+    if (params != false) {
+        doQuery(params);
+    }
+
 }
 
 
 /**
+ *
+ * 数据导出
+ *
+ * */
+function gantry_exception_export_sub() {
+    var params = getParams();
+
+    if (params != false) {
+        exportData(params);
+    }
+
+}
+
+/**
+ *
  * 组装参数
+ *
  * */
 function getParams() {
     var params = {};
@@ -41,18 +59,43 @@ function getParams() {
     var isSendValue = $.trim($("#gantry_exception_isSend").val());
     if (isSendValue < 3) {
         params.isSend = isSendValue;
+    } else {
+        params.isSend = null;
+    }
+    if (params.machineId == null || params.machineId == "") {
+        alert("请选择龙门架");
+        return false;
+    }
+    if (params.startTime == null || params.startTime == "") {
+        alert("请选择起始时间");
+        return false;
+    }
+    if (params.endTime == null || params.endTime == "") {
+        alert("请选择结束时间");
+        return false;
+    }
+    var result = checkDate(params.startTime, params.endTime);
+    if (result == 1) {
+        alert("查询日期间隔不能超过24小时");
+        return false;
+    }
+    else if (result == 2) {
+        alert("开始日期不能大于结束日期");
+        return false;
     }
     return params;
 }
 
 /**
+ *
  *查询请求
+ *
  * */
 function doQuery(params) {
     var url = $("#contextPath").val() + "/gantryException/doQuery";
     CommonClient.post(url, params, function (data) {
         if (data == undefined || data == null) {
-            alert("没有符合条件的龙门架设备");
+            alert("没有符合条件的结果");
             return;
         }
         if (data.code == 200) {
@@ -83,6 +126,38 @@ function doQuery(params) {
     });
 }
 
+/**
+ *
+ *导出数据
+ *
+ * */
+function exportData(params) {
+
+    var url = $("#contextPath").val() + "/gantryException/doQueryCount";
+    CommonClient.post(url, params, function (result) {
+        if (result == undefined || result == null || result.data == 0) {
+            alert("没有符合条件的结果");
+            return;
+        }
+        if (result.code == 200 && result.data > 0) {
+            var url = $("#contextPath").val() + "/gantryException/doExport?machineId="
+                + params.machineId + "&startTime="
+                + params.startTime + "&endTime="
+                + params.endTime;
+            if (params.isSend != null)
+                url += "&isSend=" + params.isSend;
+            window.open (url,"_parent");
+        } else {
+            alert(result.message);
+        }
+    });
+}
+
+/**
+ *
+ * 规范时间格式
+ *
+ */
 function getDateString(millis) {
     if (null == millis) {
         return "";
@@ -91,6 +166,28 @@ function getDateString(millis) {
     date.setTime(millis);
     return date.format('yyyy-MM-dd HH:mm:ss');
 }
+
+/**
+ *
+ * 检测两个日期不超过24小时、开始日期不大于结束日期
+ * @param startDate 开始日期
+ * @param endDate   结束日期
+ * @returns 1，大于24小时，2，开始日期大于结束日期
+ *
+ */
+function checkDate(startDateStr, endDateStr){
+    var gap = 1000 * 60 * 60 * 24.5;
+    var startDate = new Date(startDateStr.replace('-','/'));
+    var endDate = new Date(endDateStr.replace('-','/'));
+    if(startDate.getTime() > endDate.getTime()){
+        return 2;
+    }
+    if(endDate.getTime() - startDate.getTime() > gap){
+        return 1;
+    }
+    return 0;
+}
+
 
 Date.prototype.format = function (f) {
     var o = {
@@ -109,5 +206,32 @@ Date.prototype.format = function (f) {
         if (new RegExp("(" + k + ")").test(f))
             f = f.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));
     return f
+}
+
+/**
+ *
+ * 当选择起始日期后，规定结束日期不能超过起始日期24小时
+ *
+ */
+function getMaxDate(){
+    var startDateStr = $.trim($("#gantry_exception_startTime").val());
+
+    var now = new Date();
+    if (startDateStr == null || startDateStr == "") {
+        return now.format('yyyy-MM-dd HH:mm:ss');
+    }
+    var startDate = new Date(startDateStr.replace('-','/'));
+
+    //timestamp
+    var maxDate = new Date();
+    maxDate = maxDate.setDate(startDate.getDate() + 1);
+    var maxDateStr = new Date(maxDate).format('yyyy-MM-dd HH:mm:ss');
+
+    if (maxDate > now) {
+        return now.format('yyyy-MM-dd HH:mm:ss');
+    }
+
+    return maxDateStr;
+
 }
 
