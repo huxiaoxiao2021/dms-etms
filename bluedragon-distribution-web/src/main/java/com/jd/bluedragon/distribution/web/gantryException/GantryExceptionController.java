@@ -96,6 +96,8 @@ public class GantryExceptionController {
                 logger.error("查询龙门架异常信息失败", e);
             }
         } else {
+            result.setCode(10000);
+            result.setMessage("查询参数不能为空且时间间隔不能超过24小时");
             this.logger
                     .error("GantryExceptionController gantryExceptionPageList PARAM ERROR --> 传入参数非法");
         }
@@ -119,10 +121,12 @@ public class GantryExceptionController {
                 logger.error("查询龙门架异常信息失败", e);
             }
         } else {
+            result.setCode(10000);
+            result.setMessage("查询参数不能为空且时间间隔不能超过24小时");
             this.logger
                     .error("GantryExceptionController queryGantryExceptionCountByParam PARAM ERROR --> 传入参数非法");
         }
-            return result;
+        return result;
     }
 
     /**
@@ -161,7 +165,7 @@ public class GantryExceptionController {
                     } else {
                         gantryExceptionExports = gantryExceptions;
                     }
-                    String filename = "龙门架编号" + request.getSiteCode() + "的异常信息"
+                    String filename = "龙门架编号" + request.getMachineId() + "的异常信息"
                             + DateHelper.formatDate(new Date(), Constants.DATE_TIME_MS_STRING) + ".xls";
                     response.setContentType("application/vnd.ms-excel");
                     response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
@@ -191,7 +195,7 @@ public class GantryExceptionController {
     }
 
     private Boolean checkAddParam(GantryExceptionRequest request) {
-        if(request.getSiteCode() == null ||
+        if(request.getMachineId() == null ||
                 ! StringHelper.isNotEmpty(request.getStartTime()) ||
                 ! StringHelper.isNotEmpty(request.getEndTime())) {
             return false;
@@ -235,13 +239,12 @@ public class GantryExceptionController {
         // create sheet
         HSSFSheet sheet = wb.createSheet("Sheet1");
         HSSFRow row = sheet.createRow(0);
-
-        // create two colors
+        //create two colors
 //        HSSFPalette customPalette = wb.getCustomPalette();
 //        customPalette.setColorAtIndex((short) 9, (byte) 220, (byte) 230, (byte) 241);
 //        customPalette.setColorAtIndex((short) 10, (byte) 217, (byte) 217, (byte) 217);
 
-        // create cell style with font and colors
+        //create cell style with font and colors
         HSSFCellStyle style = wb.createCellStyle();
         style.setFillForegroundColor((short) 9);
         style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);

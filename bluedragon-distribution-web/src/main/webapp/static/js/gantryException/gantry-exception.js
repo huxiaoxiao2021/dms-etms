@@ -15,6 +15,7 @@ function init() {
     $("#gantry_exception_export_sub").click(function () {
         gantry_exception_export_sub();
     });
+    gantry_exception_query_sub(1);
 }
 
 
@@ -169,14 +170,14 @@ function getDateString(millis) {
 
 /**
  *
- * 检测两个日期不超过24小时、开始日期不大于结束日期
+ * 检测两个日期不超过24小时、开始日期不大于结束日期，多加1分钟为了避免对秒进行精确
  * @param startDate 开始日期
  * @param endDate   结束日期
  * @returns 1，大于24小时，2，开始日期大于结束日期
  *
  */
 function checkDate(startDateStr, endDateStr){
-    var gap = 1000 * 60 * 60 * 24.5;
+    var gap = 1000 * 60 * (60 * 24 + 1);
     var startDate = new Date(startDateStr.replace('-','/'));
     var endDate = new Date(endDateStr.replace('-','/'));
     if(startDate.getTime() > endDate.getTime()){
