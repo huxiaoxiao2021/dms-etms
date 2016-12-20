@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -25,12 +27,17 @@ public class GantryBatchSendReplenishPrintController {
     @Autowired
     ScannerFrameBatchSendService scannerFrameBatchSendService;
 
-    @RequestMapping(value = "/index",method = RequestMethod.POST)
+    @RequestMapping(value = "/index")
     public String index(Model model,GantryDeviceConfigRequest request){
         if (request != null){
             model.addAttribute("machineId",request.getMachineId());
             model.addAttribute("createSiteCode",request.getCreateSiteCode());
-            model.addAttribute("createSiteName",request.getCreateSiteName());
+            try{
+                model.addAttribute("createSiteName", URLDecoder.decode(request.getCreateSiteName(),"UTF-8"));
+            }catch (UnsupportedEncodingException e){
+                logger.info("补打界面跳转参数解码异常",e);
+                model.addAttribute("createSiteName", "未知分拣中心");
+            }
             model.addAttribute("startTime",request.getStartTime());
             model.addAttribute("endTime",request.getEndTime());
         }

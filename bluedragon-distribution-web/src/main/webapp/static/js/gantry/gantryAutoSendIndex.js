@@ -11,12 +11,16 @@ $(document).ready(function(){
     dmsInit();
 
     /** 龙门架设备联动显示 **/
-    $("#siteOrg").change(gantryDeviceItemShow);
+    $("#siteOrg").change(function () {
+        clearInfo();
+        gantryDeviceItemShow();
+    });
 
     /** 龙门架配置信息联动显示 **/
     $("#gantryDevice").change(function(){
         clearInfo();
         gantryLockStatusShow();
+        queryExceptionNum();
         queryBatchSendSub(1)
     });
 
@@ -32,8 +36,41 @@ $(document).ready(function(){
 
     /** 换批次按钮点击事件 **/
     $("#generateSendCodeBtn").click(function () {
-        generateSendCode();
+        //得到勾选框的值
+        var ids = []
+        $("input[name=item]:checked").each(function () {
+            ids.push($(this).parents("tr").attr("id"));
+        });
+        if(ids.length == 0){
+            return;
+        }
+        generateSendCode(ids);
     });
+
+    /** 补打印按钮点击事件 **/
+    $("#replenishPrint").click(function () {
+        toReplenishPrintPage();
+    })
+
+    /** 异常数据点击事件 **/
+    $("#exceptionNum").click(function(){
+        toGantryExceptionPage();
+    })
+
+    /**
+     * 全选/取消
+     */
+    $("#all").click(function () {
+        if($(this).prop("checked")){
+            $("input[name=item]").each(function(){
+                $(this).prop("checked",true);
+            })
+        }else{
+            $("input[name=item]:checked").each(function(){
+                $(this).prop("checked",false);
+            })
+        }
+    })
 
 })
 
@@ -298,7 +335,13 @@ function getGantryParams(lockStatus){
  */
 function queryExceptionNum(){
     var url = $("#contextPath").val() + "/gantryAutoSend/queryExceptionNum";
-    CommonClient.postJson(url,gantryParams,function (data) {
+    var params = {};
+    if(gantryParams != undefined && gantryParams != null ){
+        params.machineId = gantryParams.machineId;
+        params.startTime = new Date(gantryParams.startTime);
+        params.endTime = new Date(gantryParams.endTime);
+    }
+    CommonClient.post(url,params,function (data) {
         if(data.data == undefined || data.data == null){
             jQuery.messager.alert("提示：","HTTP请求无数据返回!!","info")
         }
@@ -342,7 +385,7 @@ function queryBatchSendCodes(params){
             for (var i = 0;i < list.length;i++) {
                 var packageSum = 0.00;//总数量
                 var volumeSum = 0.00;//总体积
-                CommonClient.postJson(url2,list[i].sendCode,function (data) {
+                CommonClient.syncPost(url2,{"sendCode":list[i].sendCode},function (data) {
                     if (data != undefined && data != null){
                         var sum = data.data;
                         if(sum.packageSum != null && sum.volumeSum != null){
@@ -351,16 +394,16 @@ function queryBatchSendCodes(params){
                         }
                     }
                 })
-                temp += "<tr id='" + i + "'>";
+                temp += "<tr id='" + (i+1) + "'>";
                 temp += "<td><input type='checkbox' name='item'></td>";
                 temp += "<td title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                 temp += "<td>" + list[i].sendCode + "</td>";
-                temp += "<td>packageSum</td>";
-                temp += "<td>weightSum</td>";
-                temp += "<td>" + list[i].createTime + "</td>";
+                temp += "<td>"+packageSum+"</td>";
+                temp += "<td>"+volumeSum+"</td>";
+                temp += "<td>" + timeStampToDate(list[i].createTime) + "</td>";
                 temp += "</tr>";
             }
-            $("#paperTable tbody").html(temp);
+            $("#pagerTable tbody").html(temp);
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("queryBatchSendSub", page.totalSize, page.pageNo, page.totalNo));
 
@@ -403,11 +446,11 @@ function printSettingSave(){
 /**
  * 换批次点击事件
  */
-function generateSendCode() {
+function generateSendCode(ids) {
     var url = $("#contextPath").val() + "/gantryAutoSend/generateSendCode";
     $.ajax({
         url: url,
-        data:gantryParams,
+        data:JSON.stringify(ids),
         type: "post",
         dataType: "json",
         contentType: "application/json; charset=utf-8",
@@ -421,7 +464,6 @@ function generateSendCode() {
                 return;
             }
             if(data.code == 200){
-                //fixme 刷新数据
                 queryBatchSendSub(1);
             }else{
                 jQuery.messager.alert("错误：","本次换批次失败！！","error");
@@ -447,5 +489,53 @@ function clearInfo(){
     gantryParams = {};//清空龙门架参数信息
     $("#pagerTable tbody").html("");//清空列表
     $("#pager").html("");//清空分页信息
+}
+
+/**
+ * 点击补打印跳转到补打印界面
+ */
+function toReplenishPrintPage(){
+    var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/index";
+    var param = {};
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null){
+        jQuery.messager.alert("提示：","请选择有效的补打信息","info");
+        return;
+    }
+    location.href = url + "?machineId=" + gantryParams.machineId + "&createSiteCode=" + gantryParams.createSiteCode
+        + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
+        + new Date(gantryParams.startTime*1000).toLocaleString().replace("[\u4e00-\u9fa5]","-")
+        + "&endTime=" + new Date(gantryParams.endTime*1000).toLocaleString().replace("[\u4e00-\u9fa5]","-");
+}
+
+/**
+ * 点击异常数据跳转到异常发货界面
+ */
+function toGantryExceptionPage(){
+    var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null){
+        jQuery.messager.alert("提示：","请选择有效的补打信息","info");
+        return;
+    }
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
+        return;
+    }
+    location.href = url + "?machineId=" + gantryParams.machineId + "&siteCode=" + gantryParams.createSiteCode
+        + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+}
+
+/**
+ * 将时间戳转换为时间对象 如2016-12-19 20:13:03
+ * @param ts
+ */
+function timeStampToDate(ts){
+    var date = new Date(ts);
+    var Y = date.getFullYear() + "-";
+    var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + "-";
+    var D = date.getDate() < 10? "0"+date.getDate() : date.getDate();
+    var h = date.getHours() + ":";
+    var m = date.getMinutes() + ":";
+    var s = date.getSeconds();
+    var timeStr = Y + M + D + " " + h + m + s;
+    return timeStr;
 }
 

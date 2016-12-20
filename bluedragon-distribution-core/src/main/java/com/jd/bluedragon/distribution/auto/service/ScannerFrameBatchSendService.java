@@ -51,4 +51,9 @@ public interface ScannerFrameBatchSendService {
      * @return
      */
     Pager<List<ScannerFrameBatchSend>> getCurrentSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager);
+
+    /**
+     * 手动进行换批次操作
+     */
+    boolean transSendCode(long userCode,String userName,List<Long> ids);
 }

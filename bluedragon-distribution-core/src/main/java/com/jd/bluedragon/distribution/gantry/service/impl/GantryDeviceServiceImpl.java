@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.gantry.service.impl;
 import com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
 
     @Autowired
     private GantryDeviceDao gantryDeviceDao;
+
+    @Autowired
+    private SendDatailDao sendDatailDao;
 
     @Override
     public List<GantryDevice> getGantryByDmsCode(Integer dmsCode) {
@@ -59,5 +64,11 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
     @Override
     public int updateGantryById(GantryDevice device) {
         return gantryDeviceDao.updateGantryById(device);
+    }
+
+    @Override
+    public List<SendDetail> queryWaybillsBySendCode(String sendCode) {
+        List<SendDetail> list = sendDatailDao.queryWaybillsBySendCode(sendCode);
+        return list;
     }
 }
