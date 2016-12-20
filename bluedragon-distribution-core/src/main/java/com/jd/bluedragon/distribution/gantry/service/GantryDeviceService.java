@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.gantry.service;
 
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
 import java.util.List;
 import java.util.Map;
@@ -58,4 +59,9 @@ public interface GantryDeviceService {
      * @return
      */
     public int updateGantryById(GantryDevice device);
+
+    /**
+     * 通过批次号 获取sendD的列表
+     */
+    public List<SendDetail> queryWaybillsBySendCode(String sendCode);
 }

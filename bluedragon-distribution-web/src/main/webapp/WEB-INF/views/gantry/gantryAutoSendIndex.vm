@@ -145,7 +145,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td><input type="button" value="补打印" class="btn_c"></td>
+                                <td><input type="button" value="补打印" id="replenishPrint" class="btn_c"></td>
                                 <td></td>
                             </tr>
                         </table>
@@ -183,7 +183,7 @@
         </div>
     </div>
     <div id="food" width="300px" align="center" style="margin-right: auto;margin-left: auto;">
-        <a href="javascript:void(0)" id="warning"">提示：一个批次最多用24个小时！超过24小时将自动触发换批次</a>
+        <a href="javascript:void(0)" id="warning"">提示：一个批次最多用24个小时!</a>
     </div>
     <div class="popup_block" id="printSettingPopUp">
         <div style="border:1px solid black;width:300px;height: 180px;padding30px;margin-left: auto;margin-top: auto;margin-right: auto;margin-bottom: auto;">

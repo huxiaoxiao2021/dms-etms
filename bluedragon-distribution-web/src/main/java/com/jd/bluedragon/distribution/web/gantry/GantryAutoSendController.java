@@ -7,10 +7,10 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
@@ -21,10 +21,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,7 +54,7 @@ public class GantryAutoSendController {
     WaybillService waybillService;
 
     @Autowired
-    DepartureService departureService;
+    GantryDeviceService gantryDeviceService;
 
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
@@ -111,7 +113,7 @@ public class GantryAutoSendController {
         }else if(request.getLockStatus() == 1){/** 锁定龙门架操作 **/
             logger.info("用户：" + request.getLockUserErp() + "正在锁定龙门架，龙门架ID为："
                     + request.getMachineId() + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
-
+//             TODO: 2016/12/19 锁定龙门架进行插入操作 不插入endTime
 
 
 
@@ -154,25 +156,26 @@ public class GantryAutoSendController {
     }
 
     @RequestMapping(value = "/summaryBySendCode", method = RequestMethod.POST)
+    @ResponseBody
     public InvokeResult<GantryBatchSendResult> summaryBySendCode(String sendCode){
         InvokeResult<GantryBatchSendResult> result = new InvokeResult<GantryBatchSendResult>();
         result.setCode(500);
         result.setMessage("服务器处理异常");
         if(sendCode != null){
-            List<SendDetail> sendDetailList = null;
+            List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(sendCode);
             GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
             Integer packageSum = 0;//批次总包裹数量
             Double volumeSum = 0.00;//取分拣体积
             if(sendDetailList != null && sendDetailList.size() > 0){
                 for (SendDetail sendD : sendDetailList){
                     try{
-                        packageSum += sendD.getPackageNum();
                         WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getPackageBarcode());
                         volumeSum += waybillPackageDTO.getVolume() == 0? waybillPackageDTO.getOriginalVolume():waybillPackageDTO.getVolume();
                     }catch(Exception e){
                         logger.error("获取批次的总数量和总体积失败：批次号为"+sendCode,e);
                     }
                 }
+                packageSum = sendDetailList.size();//获取包裹的数量
             }
             sendBoxSum.setSendCode(sendCode);
             sendBoxSum.setPackageSum(packageSum);
@@ -190,14 +193,21 @@ public class GantryAutoSendController {
     }
 
     @RequestMapping(value = "/generateSendCode" , method = RequestMethod.POST)
-    public InvokeResult<Integer> generateSendCode(GantryDeviceConfigRequest request){
+    @ResponseBody
+    public InvokeResult<Integer> generateSendCode(@RequestBody ArrayList<Long> ids){
         this.logger.debug("龙门架自动换批次 --> changeSendCode");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
         result.setMessage("服务器处理异常，换批次失败！");
-        ScannerFrameBatchSend scannerFrameBatchSend = toScannerFrameBatchSend(request);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        String userCode = "0";
+        String userName = "none";
+        if(erpUser != null){
+            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
+            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+        }
         try {
-            boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
+            boolean bool = scannerFrameBatchSendService.transSendCode(Long.valueOf(userCode),userName,ids);
             if(bool){
                 result.setCode(200);
                 result.setMessage("换批次成功");
@@ -209,6 +219,7 @@ public class GantryAutoSendController {
     }
 
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
+    @ResponseBody
     public InvokeResult<Integer> queryExceptionNum(GantryDeviceConfigRequest request){
         this.logger.debug("获取龙门架异常信息 --> queryExceptionNum");
         InvokeResult<Integer> result = new InvokeResult<Integer>();

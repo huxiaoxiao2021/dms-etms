@@ -23,6 +23,7 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
     public static final String GET_SPLIT_PAGE_LIST_COUNT =NAMESPACE+".getSplitPageListCount";
     public static final String GET_CURRENT_SPLIT_PAGE_LIST =NAMESPACE+".getCurrentSplitPageList";
     public static final String GET_CURRENT_SPLIT_PAGE_LIST_COUNT =NAMESPACE+".getCurrentSplitPageListCount";
+    public static final String QUERY_DOMAIN_BY_IDS = NAMESPACE+".queryByIds";
     public Integer add(ScannerFrameBatchSend entity) {
         return super.add(NAMESPACE, entity);
     }
@@ -65,5 +66,9 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
 
     public long getCurrentSplitPageListCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
         return getSqlSession().selectOne(GET_CURRENT_SPLIT_PAGE_LIST_COUNT,argumentPager);
+    }
+
+    public List<ScannerFrameBatchSend> queryByIds(List<Long> ids){
+        return getSqlSession().selectList(QUERY_DOMAIN_BY_IDS,ids);
     }
 }
