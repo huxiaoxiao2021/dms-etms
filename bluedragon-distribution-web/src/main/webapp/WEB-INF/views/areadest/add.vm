@@ -54,7 +54,7 @@
                                style="width:150px" value="$!{createSiteName}"/>
                         <input type="hidden" id="createSiteCode" name="createSiteCode" value="$!{createSiteCode}"/>
                     </td>
-                    <td align="right">所在机构：</td>
+                    <td align="right">中转分拣中心机构：</td>
                     <td>
                         <select id="deviceOrg" style="width:150px">
                             <option value="">所有机构</option>
@@ -72,7 +72,7 @@
                                 <option value="$!{transferSiteCode}">$!{transferSiteCode}
                                     &nbsp$!{transferSiteName}</option>
                             #else
-                                <option value="-1">所有分拣中心</option>
+                                <option value="">所有分拣中心</option>
                             #end
                         </select>
                     </td>
@@ -89,15 +89,22 @@
     <div id="opening">
         <div class="tbl-list">
             <div class="tbl-bg">
+                <input type="hidden" id="selectedOrg" name="selectedOrg" value=""/>
+                <div>
+                    <div id="myAlert" class="alert alert-warning">
+                        <a href="#" class="close" data-dismiss="alert">&times;</a>
+                        <strong>警告！</strong>请每个机构页签分别保存！
+                    </div>
+                </div>
                 <div class="tbl-left" style="width:30%;float:left">
                     <ul id="myTab" class="nav nav-pills nav-stacked" style="display:block;width:30%;float:right;padding-top:30px;">
-                        #*<li class="active">
+                        <li class="active" onclick="loadSelected('all');">
                             <a href="#all" data-toggle="tab">全国</a>
-                        </li>*#
+                        </li>
                         #if(!$null.isNull($!allOrgs))
                             #foreach($org in $allOrgs)
-                                <li >
-                                    <a href="#$org.orgId" data-toggle="tab">$org.orgName</a>
+                                <li onclick="loadSelected($org.orgId);">
+                                    <a href="" data-toggle="tab">$org.orgName</a>
                                 </li>
                             #end
                         #end
@@ -105,7 +112,7 @@
                 </div>
                 <div class="tbl-right" style="width:70%;float:right;">
                     <div class="tab-content">
-                        #*<div id="all" class="tab-pane fade in active">
+                        <div id="multiselect" class="tab-pane fade in active">
                             <table class="display" style="width:70%;float:left;margin:0 auto">
                                 <tbody>
                                 <tr>
@@ -115,7 +122,7 @@
                                 </tr>
                                 <tr>
                                     <td width="500px">
-                                        <select id="from_all" name="from[]" size=20 class="multiselect form-control" multiple="multiple" data-right="#to_all" data-right-all="#right_all" data-right-selected="#right_selected" data-left-all="#left_all" data-left-selected="#left_selected">
+                                        <select id="multiSelect_from" name="from[]" size=20 class="multiselect form-control" multiple="multiple" data-right="#multiSelect_to" data-right-all="#right_all" data-right-selected="#right_selected" data-left-all="#left_all" data-left-selected="#left_selected">
                                         </select>
                                     </td>
                                     <td width="18px" align="center" valign="middle">
@@ -125,43 +132,13 @@
                                         <i id="left_all" class="glyphicon glyphicon-backward"></i><br/><br/><br/>
                                     </td>
                                     <td width="500px">
-                                        <select id="to_all" name="to[]" size=20 class="form-control" multiple="multiple">
+                                        <select id="multiSelect_to" name="to[]" size=20 class="form-control" multiple="multiple">
                                         </select>
                                     </td>
                                 </tr>
                                 </tbody>
                             </table>
-                        </div>*#
-                        #if(!$null.isNull($!allOrgs))
-                            #foreach($org in $allOrgs)
-                                <div id="$org.orgId" class="tab-pane fade">
-                                    <table class="display" style="width:70%;float:left;margin:0 auto">
-                                        <tbody>
-                                        <tr>
-                                            <td>可选目的分拣中心：</td>
-                                            <td></td>
-                                            <td>已选目的分拣中心：</td>
-                                        </tr>
-                                        <tr>
-                                            <td width="500px">
-                                                <select id="from_$org.orgId" name="from[]" size=20 class="multiselect form-control" multiple="multiple" data-right="#to_$org.orgId" data-right-all="#right_all_$org.orgId" data-right-selected="#right_selected_$org.orgId" data-left-all="#left_all_$org.orgId" data-left-selected="#left_selected_$org.orgId">
-                                                </select>
-                                            </td>
-                                            <td width="18px" align="center" valign="middle">
-                                                <i id="right_all_$org.orgId" class="glyphicon glyphicon-forward"></i><br/><br/><br/>
-                                                <i id="right_selected_$org.orgId" class="glyphicon glyphicon-chevron-right"></i><br/><br/><br/>
-                                                <i id="left_selected_$org.orgId" class="glyphicon glyphicon-chevron-left"></i><br/><br/><br/>
-                                                <i id="left_all_$org.orgId" class="glyphicon glyphicon-backward"></i><br/><br/><br/>
-                                            </td>
-                                            <td width="500px">
-                                                <select id="to_$org.orgId" name="to[]" size=20 class="form-control" multiple="multiple"></select>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            #end
-                        #end
+                        </div>
                     </div>
                 </div>
             </div>
@@ -170,7 +147,6 @@
 </div>
 <script type="text/javascript">
     jQuery(document).ready(function($) {
-        $('#myTab li:eq(0) a').tab('show');
         $('.multiselect').multiselect();
     });
 </script>

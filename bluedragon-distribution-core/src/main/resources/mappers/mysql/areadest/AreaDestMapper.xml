@@ -49,17 +49,17 @@
 
     <insert id="addBatch" parameterType="java.util.List">
         INSERT INTO AREA_DEST_CONFIG(
-            CREATE_SITE_CODE,
-            CREATE_SITE_NAME,
-            TRANSFER_SITE_CODE,
-            TRANSFER_SITE_NAME,
-            RECEIVE_SITE_CODE,
-            RECEIVE_SITE_NAME,
-            CREATE_USER,
-            CREATE_USER_CODE,
-            CREATE_TIME,
-            UPDATE_TIME,
-            YN
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        TRANSFER_SITE_CODE,
+        TRANSFER_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        CREATE_TIME,
+        UPDATE_TIME,
+        YN
         )
         VALUES
         <foreach collection="list" item="areaDest" index="index" separator=",">
@@ -81,19 +81,19 @@
 
     <select id="getList" resultMap="areaDest" parameterType="java.util.Map">
         SELECT
-            ID,
-            CREATE_SITE_CODE,
-            CREATE_SITE_NAME,
-            TRANSFER_SITE_CODE,
-            TRANSFER_SITE_NAME,
-            RECEIVE_SITE_CODE,
-            RECEIVE_SITE_NAME,
-            CREATE_USER,
-            CREATE_USER_CODE,
-            UPDATE_USER,
-            UPDATE_USER_CODE,
-            CREATE_TIME,
-            UPDATE_TIME
+        ID,
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        TRANSFER_SITE_CODE,
+        TRANSFER_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        UPDATE_USER,
+        UPDATE_USER_CODE,
+        CREATE_TIME,
+        UPDATE_TIME
         FROM AREA_DEST_CONFIG
         WHERE YN = 1
         <if test="createSiteCode != null">
@@ -140,17 +140,18 @@
     </update>
 
     <update id="disableById" parameterType="java.util.Map">
-		UPDATE AREA_DEST_CONFIG
-		SET
+        UPDATE AREA_DEST_CONFIG
+        SET
         <if test="updateUser != null">
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
-		<if test="updateUserCode != null">
+        <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
-            YN = 0
-		WHERE ID = #{id, jdbcType=BIGINT}
-	</update>
+        YN = 0,
+        UPDATE_TIME = NOW()
+        WHERE ID = #{id, jdbcType=BIGINT} AND YN = 1
+    </update>
 
     <update id="disableByParams" parameterType="java.util.Map">
         UPDATE AREA_DEST_CONFIG
@@ -161,9 +162,11 @@
         <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
-            YN = 0
+        YN = 0,
+        UPDATE_TIME = NOW()
         WHERE
-            CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
+        YN = 1 AND
+        CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
         <if test="transferSiteCode != null">
             AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
         </if>

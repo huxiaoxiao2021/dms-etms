@@ -171,7 +171,7 @@ public class AreaDestController {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (request.getCreateSiteCode() != null && request.getCreateSiteCode() > 0 && request.getTransferSiteCode() != null && request.getTransferSiteCode() > 0) {
                 // 设置所有目的分拣中心站点无效
-                boolean isSuccess = areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), null, erpUser.getUserCode(), erpUser.getUserId());
+                boolean isSuccess = doDisable(request, erpUser.getUserCode(), erpUser.getUserId());
                 if (isSuccess && this.doSave(request, erpUser)) {
                     response.setCode(JdResponse.CODE_OK);
                     response.setMessage(JdResponse.MESSAGE_OK);
@@ -189,6 +189,19 @@ public class AreaDestController {
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return response;
+    }
+
+    private boolean doDisable(AreaDestRequest request, String updateUser, Integer updateUserCode) {
+        boolean isSuccess = true;
+        if (request.getReceiveSiteOrg() != null && request.getReceiveSiteOrg() > 0) {
+            List<SimpleBaseSite> siteList = baseMajorManager.getDmsListByOrgId(request.getReceiveSiteOrg());
+            for (SimpleBaseSite site : siteList) {
+                areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), site.getSiteCode(), updateUser, updateUserCode);
+            }
+        } else {
+            isSuccess = areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), null, updateUser, updateUserCode);
+        }
+        return isSuccess;
     }
 
     /**
