@@ -57,11 +57,11 @@ function getParams() {
     params.machineId = $.trim($("#gantry_exception_machine_id").val());
     params.startTime = $.trim($("#gantry_exception_startTime").val());
     params.endTime = $.trim($("#gantry_exception_endTime").val());
-    var isSendValue = $.trim($("#gantry_exception_isSend").val());
-    if (isSendValue < 3) {
-        params.isSend = isSendValue;
+    var sendStatusValue = $.trim($("#gantry_exception_sendStatus").val());
+    if (sendStatusValue < 3) {
+        params.sendStatus = sendStatusValue;
     } else {
-        params.isSend = null;
+        params.sendStatus = null;
     }
     if (params.machineId == null || params.machineId == "") {
         alert("请选择龙门架");
@@ -106,16 +106,18 @@ function doQuery(params) {
             var reason = "";
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
-                temp += "<td>" + (dataList[i].packageCode) + "</td>";
+                temp += "<td>" + (dataList[i].barCode) + "</td>";
                 temp += "<td>" + (dataList[i].waybillCode) + "</td>";
                 temp += "<td>" + (dataList[i].volume) + "</td>";
                 if (dataList[i].type == 1)
                     reason = "没有预分拣站点";
                 else if (dataList[i].type == 2)
-                    reason = "分拣信息乱码";
+                    reason = "没有运单信息";
+                else if (dataList[i].type == 3)
+                    reason = "没有箱号信息";
                 temp += "<td>" + reason + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].operateTime)) + "</td>";
-                temp += "<td>" + (dataList[i].yn ? "未发货" : "已发货") + "</td>";
+                temp += "<td>" + (dataList[i].sendStatus ? "已发货" : "未发货") + "</td>";
                 temp += "</tr>";
             }
             $("#paperTable tbody").html(temp);
@@ -145,8 +147,8 @@ function exportData(params) {
                 + params.machineId + "&startTime="
                 + params.startTime + "&endTime="
                 + params.endTime;
-            if (params.isSend != null)
-                url += "&isSend=" + params.isSend;
+            if (params.SendStatus != null)
+                url += "&SendStatus=" + params.SendStatus;
             window.open (url,"_parent");
         } else {
             alert(result.message);

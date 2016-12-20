@@ -45,6 +45,10 @@ public class GantryExceptionController {
     @Autowired
     private GantryExceptionService gantryExceptionService;
 
+    /**
+     * 初始化
+     *
+     */
     @RequestMapping(value = "/gantryExceptionList", method = RequestMethod.GET)
     public String gantryExceptionPageList(GantryExceptionRequest request, Model model) {
 
@@ -67,6 +71,10 @@ public class GantryExceptionController {
         return "gantryException/gantryExceptionList";
     }
 
+    /**
+     * 查询符合条件的异常数据
+     *
+     */
     @RequestMapping(value = "/doQuery", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<List<GantryException>>> queryGantryExceptionByParam(GantryExceptionRequest request
@@ -104,6 +112,10 @@ public class GantryExceptionController {
         return result;
     }
 
+    /**
+     * 查询符合条件的数量
+     *
+     */
     @RequestMapping(value = "/doQueryCount", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> queryGantryExceptionCountByParam(GantryExceptionRequest request){
@@ -194,6 +206,10 @@ public class GantryExceptionController {
 
     }
 
+    /**
+     * 检查参数，防止跳过js直接发送访问请求
+     *
+     */
     private Boolean checkAddParam(GantryExceptionRequest request) {
         if(request.getMachineId() == null ||
                 ! StringHelper.isNotEmpty(request.getStartTime()) ||
@@ -203,6 +219,10 @@ public class GantryExceptionController {
         return true;
     }
 
+    /**
+     * 检查开始和截止时间
+     *
+     */
     private Boolean checkDateGap(GantryExceptionRequest request) {
         int gap = 1000 * 60 * 60 * 25;
         if(! StringHelper.isNotEmpty(request.getStartTime()) || ! StringHelper.isNotEmpty(request.getEndTime())) {
@@ -229,9 +249,8 @@ public class GantryExceptionController {
     }
 
     /**
-     * 根据给定的跨分拣规则创建工作薄
-     * @param
-     * @return
+     * 创建excel
+     *
      */
     private HSSFWorkbook createWorkbook(List<GantryException> gantryExceptions){
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -253,7 +272,7 @@ public class GantryExceptionController {
 
 //        createCellOfRow(row, 0, "规则类型", style);
 
-        createCellOfRow(row, 0, "包裹号", style);
+        createCellOfRow(row, 0, "条码号", style);
         createCellOfRow(row, 1, "运单号", style);
         createCellOfRow(row, 2, "体积", style);
         createCellOfRow(row, 3, "异常原因", style);
@@ -271,12 +290,12 @@ public class GantryExceptionController {
             GantryException gantryException = gantryExceptions.get(i);
             HSSFRow row1 = sheet.createRow(i + 1);
 
-            createCellOfRow(row1, 0, gantryException.getPackageCode(), styleContent);
+            createCellOfRow(row1, 0, gantryException.getBarCode(), styleContent);
             createCellOfRow(row1, 1, gantryException.getWaybillCode(),styleContent);
             createCellOfRow(row1, 2, String.valueOf(gantryException.getVolume()), styleContent);
             createCellOfRow(row1, 3, replaceExceptionType(gantryException.getType()), styleContent);
             createCellOfRow(row1, 4, format.format(gantryException.getOperateTime()), styleContent);
-            createCellOfRow(row1, 5, (gantryException.getYn() == 1 ? "未发货" : "已发货"), styleContent);
+            createCellOfRow(row1, 5, (gantryException.getSendStatus() == 1 ? "已发货" : "未发货"), styleContent);
         }
 
         // set auto size column
@@ -289,6 +308,10 @@ public class GantryExceptionController {
         return wb;
     }
 
+    /**
+     * 替换异常类型为异常原因
+     *
+     */
     private String replaceExceptionType(Integer type) {
         String exceptionReasonStr = "";
         if (type == 1) {
@@ -314,6 +337,10 @@ public class GantryExceptionController {
         cell.setCellValue(cellValue);
     }
 
+    /**
+     * 构造参数
+     *
+     */
     private Map<String, Object> buildParam(GantryExceptionRequest request){
         Map<String, Object> param = new HashMap<String, Object>();
         if (null == request) {
@@ -322,7 +349,7 @@ public class GantryExceptionController {
         param.put("machineId", request.getMachineId());
         param.put("startTime", request.getStartTime());
         param.put("endTime", request.getEndTime());
-        param.put("isSend", request.getIsSend());
+        param.put("sendStatus", request.getSendStatus());
         param.put("siteCode", request.getSiteCode());
         return param;
     }

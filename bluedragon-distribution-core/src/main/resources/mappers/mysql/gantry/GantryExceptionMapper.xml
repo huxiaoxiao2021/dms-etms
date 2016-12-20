@@ -5,7 +5,7 @@
     <resultMap id="gantryExceptionMap" type="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         <id column="ID" property="id" jdbcType="BIGINT"/>
         <id column="MACHINE_ID" property="machineId" jdbcType="BIGINT"/>
-        <result column="PACKAGE_CODE" property="packageCode" jdbcType="VARCHAR"/>
+        <result column="BAR_CODE" property="barCode" jdbcType="VARCHAR"/>
         <result column="WAYBILL_CODE" property="waybillCode" jdbcType="VARCHAR"/>
         <result column="CREATE_SITE_CODE" property="createSiteCode" jdbcType="BIGINT"/>
         <result column="CREATE_SITE_NAME" property="createSiteName" jdbcType="VARCHAR"/>
@@ -15,17 +15,18 @@
         <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
         <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="YN" property="yn" jdbcType="TINYINT"/>
+        <result column="SEND_STATUS" property="sendStatus" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="gantryExceptionColumn" >
-        ID, MACHINE_ID, PACKAGE_CODE, WAYBILL_CODE,
+        ID, MACHINE_ID, BAR_CODE, WAYBILL_CODE,
         CREATE_SITE_CODE, CREATE_SITE_NAME, VOLUME,
-        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS
     </sql>
     <sql id="gantryExceptionColumnNoID" >
-        MACHINE_ID, PACKAGE_CODE, WAYBILL_CODE,
+        MACHINE_ID, BAR_CODE, WAYBILL_CODE,
         CREATE_SITE_CODE, CREATE_SITE_NAME, VOLUME,
-        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS
     </sql>
 
     <sql id="gantryExceptionQueryParam" >
@@ -39,17 +40,24 @@
           <if test="endTime != null and endTime != ''" >
               AND OPERATE_TIME <![CDATA[<=]]> #{endTime, jdbcType=TIMESTAMP}
           </if>
-          <if test="isSend != null and isSend != ''">
-              AND YN = #{isSend, jdbcType=TINYINT}
+          <if test="sendStatus != null">
+              AND SEND_STATUS = #{sendStatus, jdbcType=TINYINT}
           </if>
       </where>
     </sql>
+
+    <sql id="updateParam" >
+        <where>
+            BAR_CODE = #{barCode, jdbcType=VARCHAR}
+        </where>
+    </sql>
+
 
     <insert id="addGantryException" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         INSERT INTO GANTRY_EXCEPTION
           (<include refid="gantryExceptionColumnNoID" />)
         VALUES (
-          #{machineId, jdbcType=BIGINT}, #{packageCode, jdbcType=VARCHAR},
+          #{machineId, jdbcType=BIGINT}, #{barCode, jdbcType=VARCHAR},
           #{waybillCode, jdbcType=VARCHAR}, #{createSiteCode, jdbcType=BIGINT}, #{createSiteName, jdbcType=VARCHAR},
           #{volume, jdbcType=DECIMAL}, #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
           now(), now()
@@ -81,4 +89,9 @@
         FROM GANTRY_EXCEPTION
         <include refid="gantryExceptionQueryParam"/>
     </select>
+
+    <update id="updateSendStatus" parameterType="java.util.Map">
+        UPDATE GANTRY_EXCEPTION SET SEND_STATUS = 1
+        <include refid="updateParam"/>
+    </update>
 </mapper>

@@ -29,10 +29,11 @@ public class GantryExceptionRequest implements Serializable {
 
 
 
+
     /**
-     * 是否有效
+     * 发货状态
      */
-    private Integer isSend;
+    private Integer sendStatus;
 
     /**
      * 开始时间
@@ -92,11 +93,12 @@ public class GantryExceptionRequest implements Serializable {
         this.startTime = startTime;
     }
 
-    public Integer getIsSend() {
-        return isSend;
+    public Integer getSendStatus() {
+        return sendStatus;
     }
 
-    public void setIsSend(Integer isSend) {
-        this.isSend = isSend;
+    public void setSendStatus(Integer sendStatus) {
+        this.sendStatus = sendStatus;
     }
+
 }

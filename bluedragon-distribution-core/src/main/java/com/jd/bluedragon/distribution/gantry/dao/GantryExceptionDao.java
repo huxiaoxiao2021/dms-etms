@@ -30,5 +30,8 @@ public class GantryExceptionDao extends BaseDao<GantryException>{
         return this.getSqlSession().insert(GantryExceptionDao.namespace + ".addGantryException", gantryException);
     }
 
+    public int updateSendStatus(Map<String, Object> param){
+        return this.getSqlSession().update(GantryExceptionDao.namespace + ".updateSendStatus", param);
+    }
 
 }

@@ -20,9 +20,9 @@ public class GantryException {
     private Long machineId;
 
     /**
-     * 包裹号
+     * 条码
      */
-    private String packageCode;
+    private String barCode;
 
     /**
      * 运单号
@@ -74,6 +74,11 @@ public class GantryException {
      */
     private Integer yn;
 
+    /**
+     * 发货状态
+     */
+    private Integer sendStatus;
+
     public Long getId() {
         return id;
     }
@@ -88,14 +93,6 @@ public class GantryException {
 
     public void setMachineId(Long machineId) {
         this.machineId = machineId;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
     }
 
     public String getWaybillCode() {
@@ -167,7 +164,7 @@ public class GantryException {
         return ts;
     }
 
-    public void setTs(java.sql.Timestamp ts) {
+    public void setTs(Date ts) {
         this.ts = ts;
     }
 
@@ -177,5 +174,21 @@ public class GantryException {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Integer getSendStatus() {
+        return sendStatus;
+    }
+
+    public void setSendStatus(Integer sendStatus) {
+        this.sendStatus = sendStatus;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 }

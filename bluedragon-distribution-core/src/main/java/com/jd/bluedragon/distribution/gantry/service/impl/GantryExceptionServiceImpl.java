@@ -41,6 +41,16 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
 
     @Override
     public int addGantryException(GantryException gantryException) {
+        if (gantryException.getMachineId() == null) {
+            return 0;
+        }
+        if (gantryException.getVolume() == null) {
+            gantryException.setVolume(0.0);
+        }
+
+        if (gantryException.getCreateSiteCode() == null) {
+            gantryException.setCreateSiteCode(0L);
+        }
         return gantryExceptionDao.addGantryException(gantryException);
     }
 
@@ -52,5 +62,12 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
         param.put("endTime", endTime);
 
         return gantryExceptionDao.getGantryExceptionCount(param);
+    }
+
+    @Override
+    public int updateSendStatus(String barCode) {
+        HashMap<String, Object> param = new HashMap();
+        param.put("barCode", barCode);
+        return gantryExceptionDao.updateSendStatus(param);
     }
 }

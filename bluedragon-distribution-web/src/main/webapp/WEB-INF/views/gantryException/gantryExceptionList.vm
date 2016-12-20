@@ -88,10 +88,10 @@
 
             <span class="gantry_exception_query_span">
                 发货状态：
-                <select id="gantry_exception_isSend" class="gantry_exception_query_select">
+                <select id="gantry_exception_sendStatus" class="gantry_exception_query_select">
                     <option value="3">全部</option>
-                    <option value="0">已发货</option>
-                    <option value="1">未发货</option>
+                    <option value="0">未发货</option>
+                    <option value="1">已发货</option>
                 </select>
             </span>
 
@@ -110,7 +110,7 @@
                         <thead>
                         <tr>
 
-                            <th style="width:50px;">包裹号</th>
+                            <th style="width:50px;">条码号</th>
                             <th style="width:50px;">运单号</th>
                             <th style="width:50px;">体积</th>
                             <th style="width:50px;">异常原因</th>

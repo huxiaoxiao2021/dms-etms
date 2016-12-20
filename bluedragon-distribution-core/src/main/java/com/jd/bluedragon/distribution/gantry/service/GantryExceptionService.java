@@ -46,4 +46,12 @@ public interface GantryExceptionService {
      */
     public Integer getGantryExceptionCount(Long machineId, Date beginTime, Date endTime);
 
+    /***
+     * 更新发货状态
+     * @param barCode 条码
+     * @return
+     */
+    public int updateSendStatus(String barCode);
+
+
 }
