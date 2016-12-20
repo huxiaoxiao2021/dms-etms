@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -99,4 +99,44 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         result.setData(scannerFrameBatchSendDao.getCurrentSplitPageList(argumentPager));
         return result;
     }
+
+    @Override
+    public boolean transSendCode(long userCode,String userName,List<Long> ids) {
+        if(null == ids && ids.size() == 0){
+            throw new RuntimeException("the parameter of list can not be null");
+        }
+        if(LOGGER.isInfoEnabled()){
+            LOGGER.info("换批次动作开始...换批次的条数为" + ids.size());
+        }
+        List<ScannerFrameBatchSend> batchSends = queryByIds(ids);
+        for(ScannerFrameBatchSend batchSend : batchSends){
+            batchSend.setCreateSiteCode(batchSend.getCreateSiteCode());
+            batchSend.setCreateSiteName(batchSend.getCreateSiteName());
+            batchSend.setReceiveSiteCode(batchSend.getReceiveSiteCode());
+            batchSend.setReceiveSiteName(batchSend.getReceiveSiteName());
+            batchSend.setCreateTime(new Date());
+            batchSend.setCreateUserCode(userCode);
+            batchSend.setCreateUserName(userName);
+            batchSend.setYn(YN_DEFAULT);
+            batchSend.setUpdateTime(new Date());
+            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(),batchSend.getReceiveSiteCode(),batchSend.getCreateTime()));
+            generateSend(batchSend);
+
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(MessageFormat.format("result:{0}",batchSend.toString()));
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 通过ID获取其domain的方法
+     */
+    private List<ScannerFrameBatchSend> queryByIds(List<Long> ids){
+        List<ScannerFrameBatchSend> result = new ArrayList<ScannerFrameBatchSend>();
+        result = scannerFrameBatchSendDao.queryByIds(ids);
+        return result;
+    }
+
+
 }

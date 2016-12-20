@@ -112,4 +112,16 @@
         <include refid="getSplitPageListWhere"/>
         GROUP BY RECEIVE_SITE_CODE)T
     </select>
+
+    <select id="queryByIds" parameterType="java.util.List" resultMap="resultListMap">
+        SELECT
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        WHERE ID in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY CREATE_TIME desc
+    </select>
 </mapper>

@@ -14,16 +14,50 @@
     <script type="application/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <style  type="text/css">
         .textField {
             width: 150px;
         }
+
+        .checkboxArea .checkbox , label {
+            vertical-align: middle;
+        }
+
     </style>
     <script type="application/javascript">
         $(document).ready(function () {
-            main();
+            var siteNo = $("#createSiteCode").val();
+            querySubSite(siteNo);//初始化子站点
+
+            query(1);//默认加载首页
+
+
+
+            /**
+             * 全选/取消
+             */
+            $("#all").click(function () {
+                if($(this).prop("checked")){
+                    $("input[name=item]").each(function(){
+                        $(this).prop("checked",true);
+                    })
+                }else{
+                    $("input[name=item]:checked").each(function(){
+                        $(this).prop("checked",false);
+                    })
+                }
+            })
         })
+
+        /**
+         * 执行子站点的初始化
+         */
+        function querySubSite(siteNo) {
+            //通过站点查询未打印的子站点的信息列表
+//            TODO 2016-12-20 14:53:54
+        }
 
         /**
          * 执行查询事件
@@ -38,8 +72,9 @@
          * 提交查询参数
          */
         function doQuery(params) {
-            var url = $("#contextPath").val();
-            CommonClient.postJson(url;params;function (data) {
+            var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/query";
+            var url2 = $("#contextPath").val() + "/gantryAutoSend/summaryBySendCode";
+            CommonClient.post(url,params,function (data) {
                 if(data == undefined && data == null){
                     jQuery.messager.alert("提示：","HTTP请求没有数据返回!!","info");
                 }
@@ -48,16 +83,27 @@
                     var list = page.data;
                     var temp = "";
                     for (var i = 0;i < list.length;i++) {
-                        temp += "<tr id='" + i + "'>";
+                        var packageSum = 0.00;//总数量
+                        var volumeSum = 0.00;//总体积
+                        CommonClient.syncPost(url2,{"sendCode":list[i].sendCode},function (data) {
+                            if (data != undefined && data != null){
+                                var sum = data.data;
+                                if(sum.packageSum != null && sum.volumeSum != null){
+                                    packageSum = sum.packageSum;
+                                    volumeSum = sum.volumeSum;
+                                }
+                            }
+                        })
+                        temp += "<tr id='" + (i+1) + "'>";
                         temp += "<td><input type='checkbox' name='item'></td>";
                         temp += "<td title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                         temp += "<td>" + list[i].sendCode + "</td>";
-                        temp += "<td>数量</td>";
-                        temp += "<td>总体积</td>";
-                        temp += "<td>" + list[i].createTime + "</td>";
+                        temp += "<td>"+packageSum+"</td>";
+                        temp += "<td>"+volumeSum+"</td>";
+                        temp += "<td>" + timeStampToDate(list[i].createTime) + "</td>";
                         temp += "</tr>";
                     }
-                    $("#paperTable tbody").html(temp);
+                    $("#pagerTable tbody").html(temp);
                     //添加分页显示
                     $("#pager").html(PageBar.getHtml("query",page.totalSize,page.pageNo,page.totalNo));
 
@@ -80,10 +126,27 @@
             params.createSiteCode = $("#createSiteCode").val();
             params.createSiteName = $("#createSiteName").val();
             params.receiveSiteCode = $("#receiveSiteCode").val();
-            params.startTime = $("#startTime").val();
-            params.endTime = $("#endTime").val();
+            params.startTime = new Date($("#startTime").val());
+            params.endTime = new Date($("#endTime").val());
             return params;
         }
+
+        /**
+         * 将时间戳转换为时间对象 如2016-12-19 20:13:03
+         * @param ts
+         */
+        function timeStampToDate(ts){
+            var date = new Date(ts);
+            var Y = date.getFullYear() + "-";
+            var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + "-";
+            var D = date.getDate() < 10? "0"+date.getDate() : date.getDate();
+            var h = date.getHours() + ":";
+            var m = date.getMinutes() + ":";
+            var s = date.getSeconds();
+            var timeStr = Y + M + D + " " + h + m + s;
+            return timeStr;
+        }
+
     </script>
 </head>
 <body>
@@ -107,12 +170,12 @@
                     <option value="">请选择站点</option>
                 </select>
                 <span>起始时间：</span>
-                <input type="text" id= "startDate"  name="startDate" style="width: 130px" class="Wdate"
-                                        onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!{queryInfo.startDate}"/>
+                <input type="text" id= "startTime"  name="startTime" style="width: 130px" class="Wdate"
+                                        onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!{startTime}"/>
                 --
                 <span>结束时间：</span>
-                <input type="text" id= "startDate"  name="startDate" style="width: 130px" class="Wdate"
-                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!{queryInfo.endDate}"/>
+                <input type="text" id= "endTime"  name="endTime" style="width: 130px" class="Wdate"
+                       onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!{endTime}"/>
                 <input type="button" class="btn_c" value="查询" onclick="query(1)">
                 <input type="button" class="btn_c" value="打印" onclick=""/>
             </div>

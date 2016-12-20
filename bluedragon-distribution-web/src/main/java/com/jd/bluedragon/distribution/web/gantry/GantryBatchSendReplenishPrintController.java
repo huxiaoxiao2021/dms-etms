@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.web.gantry;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import org.apache.commons.logging.Log;
@@ -11,7 +13,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -25,29 +30,50 @@ public class GantryBatchSendReplenishPrintController {
     @Autowired
     ScannerFrameBatchSendService scannerFrameBatchSendService;
 
-    @RequestMapping(value = "/index",method = RequestMethod.POST)
-    public String index(Model model,GantryDeviceConfigRequest request){
-        if (request != null){
-            model.addAttribute("machineId",request.getMachineId());
-            model.addAttribute("createSiteCode",request.getCreateSiteCode());
-            model.addAttribute("createSiteName",request.getCreateSiteName());
-            model.addAttribute("startTime",request.getStartTime());
-            model.addAttribute("endTime",request.getEndTime());
+    @RequestMapping(value = "/index")
+    public String index(Model model,Integer machineId,Integer createSiteCode,String createSiteName,String startTime ,String endTime){
+        if (machineId != null && createSiteCode != null){
+            model.addAttribute("machineId",machineId);
+            model.addAttribute("createSiteCode",createSiteCode);
+            try{
+                model.addAttribute("createSiteName", URLDecoder.decode(createSiteName,"UTF-8"));
+            }catch (UnsupportedEncodingException e){
+                logger.info("补打界面跳转参数解码异常",e);
+                model.addAttribute("createSiteName", "未知分拣中心");
+            }
+            model.addAttribute("startTime",startTime);
+            model.addAttribute("endTime",endTime);
         }
         return "/gantry/GantryBatchSendReplenishPrint";
     }
 
     @RequestMapping(value = "/query",method = RequestMethod.POST)
-    public InvokeResult<List<?>> query(GantryDeviceConfigRequest request){
+    @ResponseBody
+    public InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager){
         logger.debug("获取补打印数据 --> ");
-        InvokeResult<List<?>> result = new InvokeResult<List<?>>();
+        InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
         result.setCode(400);
         result.setMessage("服务器处理信息异常，查询补打印数据失败!!");
         result.setData(null);
         if (request != null){
-//            scannerFrameBatchSendService.getCurrentSplitPageList()
+            Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
+            if(pager.getPageNo() != null){
+                argumentPager.setPageNo(pager.getPageNo());
+                argumentPager.init();
+            }
+            request.setHasPrinted(false);//未打印标示
+            argumentPager.setData(request);
+            try{
+                result.setData(scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager));
+                result.setCode(200);
+                result.setMessage("补打数据获取成功");
+            }catch(Exception e){
+                result.setCode(200);
+                result.setMessage("补打数据获取成功");
+                result.setData(null);
+                logger.error("补打数据获取失败..",e);
+            }
         }
-
         return result;
     }
 
@@ -56,12 +82,14 @@ public class GantryBatchSendReplenishPrintController {
      * @param request
      * @return
      */
-    private ScannerFrameBatchSend toScannerFrameBatchSend (GantryDeviceConfigRequest request){
-        ScannerFrameBatchSend result = new ScannerFrameBatchSend();
+    private ScannerFrameBatchSendSearchArgument toScannerFrameBatchSend (GantryDeviceConfigRequest request,Integer receiveSiteCode,String receiveSiteName){
+        ScannerFrameBatchSendSearchArgument result = new ScannerFrameBatchSendSearchArgument();
         if(request != null){
             result.setMachineId(request.getMachineId());
-            result.setCreateSiteCode(request.getCreateSiteCode());
-            result.setCreateSiteName(request.getCreateSiteName());
+            result.setStartTime(request.getStartTime());
+            result.setEndTime(request.getEndTime());
+            result.setReceiveSiteCode(receiveSiteCode);
+            result.setHasPrinted(false);
         }
         return result;
     }
