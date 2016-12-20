@@ -58,14 +58,14 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
     }
 
     public long getSplitPageListCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
-        return getSqlSession().selectOne(GET_SPLIT_PAGE_LIST_COUNT,argumentPager);
+        return (Long)getSqlSession().selectOne(GET_SPLIT_PAGE_LIST_COUNT,argumentPager);
     }
     public List<ScannerFrameBatchSend> getCurrentSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
         return getSqlSession().selectList(GET_CURRENT_SPLIT_PAGE_LIST,argumentPager);
     }
 
     public long getCurrentSplitPageListCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
-        return getSqlSession().selectOne(GET_CURRENT_SPLIT_PAGE_LIST_COUNT,argumentPager);
+        return (Long)getSqlSession().selectOne(GET_CURRENT_SPLIT_PAGE_LIST_COUNT,argumentPager);
     }
 
     public List<ScannerFrameBatchSend> queryByIds(List<Long> ids){
