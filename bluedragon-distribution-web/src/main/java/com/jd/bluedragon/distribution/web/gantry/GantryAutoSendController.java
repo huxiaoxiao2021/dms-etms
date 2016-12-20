@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -77,7 +78,17 @@ public class GantryAutoSendController {
         result.setCode(500);
         result.setMessage("参数异常");
         result.setData(null);
-        logger.debug("修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus");
+        /** 获取操作人的信息 **/
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        String userCode = "";//erp账号
+        String userName = "";//姓名
+        Integer userId = null;//员工ID
+        if(erpUser != null){
+            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
+            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+            userId = erpUser.getUserId() == null ? null:erpUser.getUserId();
+        }
+        logger.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
         if(null == request && request.getMachineId() == null){
             logger.error("没有需要修改的龙门架设备信息");
             return null;
@@ -88,7 +99,7 @@ public class GantryAutoSendController {
             try{
                 GantryDeviceConfig  gantryDeviceConfig = null;
                 gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
-                if(gantryDeviceConfig.getLockUserErp().equals(request.getLockUserErp())){
+                if(gantryDeviceConfig.getLockUserErp().equals(userCode)){
                     //只更新该龙门架的锁定状态为0解锁
                     gantryDeviceConfig.setLockStatus(request.getLockStatus());
                     int i = gantryDeviceConfigService.updateLockStatus(gantryDeviceConfig);
@@ -102,7 +113,7 @@ public class GantryAutoSendController {
                         result.setData(gantryDeviceConfig);
                     }
                 }else{
-                    logger.info("此用户无法解锁由别人锁定的龙门架设备；解锁人"+request.getLockUserName()+"锁定人"+request.getLockUserName());
+                    logger.info("此用户无法解锁由别人锁定的龙门架设备；解锁人"+ userName +"锁定人"+gantryDeviceConfig.getLockUserName());
                     result.setCode(1000);
                     result.setMessage("解锁失败，请联系锁定人" + gantryDeviceConfig.getLockUserErp() + "解锁" );
                     result.setData(gantryDeviceConfig);
@@ -111,16 +122,26 @@ public class GantryAutoSendController {
                 logger.error("服务器处理异常：",e);
             }
         }else if(request.getLockStatus() == 1){/** 锁定龙门架操作 **/
-            logger.info("用户：" + request.getLockUserErp() + "正在锁定龙门架，龙门架ID为："
+            logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为："
                     + request.getMachineId() + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
-//             TODO: 2016/12/19 锁定龙门架进行插入操作 不插入endTime
-
-
-
+            /** 转换类型 请求对象装换成gantryDeviceConfig对象 **/
+            GantryDeviceConfig oldRecord = toGantryDeviceConfig(request,userCode,userName,userId);
+            int count = gantryDeviceConfigService.add(oldRecord);
+            if (count >= 1) {
+                logger.error("用户正在尝试的启用龙门架操作状态成功，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
+                result.setCode(200);
+                result.setMessage("用户锁定龙门架操作成功");
+                result.setData(oldRecord);
+            }else{
+                logger.error("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
+                result.setCode(400);
+                result.setMessage("用户锁定龙门架失败");
+                result.setData(null);
+            }
         }else{
             logger.error("用户正在尝试的启用、释放龙门架操作状态异常，已经终止..");
         }
-        return null;
+        return result;
     }
 
     @RequestMapping(value = "/pageList",method = RequestMethod.POST)
@@ -260,5 +281,28 @@ public class GantryAutoSendController {
         return result;
     }
 
+    /** 请求对象转换成domain对象，并赋予操作人 **/
+    private GantryDeviceConfig toGantryDeviceConfig(GantryDeviceConfigRequest request,String userCode,String userName,Integer userId) {
+        GantryDeviceConfig gantryDeviceConfig = new GantryDeviceConfig();
+//        gantryDeviceConfig.setId(Long.parseLong(request.getId().toString()));
+        gantryDeviceConfig.setMachineId(request.getMachineId());
+        gantryDeviceConfig.setBusinessType(request.getBusinessType());
+        gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
+        gantryDeviceConfig.setCreateSiteName(request.getCreateSiteName());
+        gantryDeviceConfig.setGantrySerialNumber(request.getGantrySerialNumber());
+        gantryDeviceConfig.setLockStatus(request.getLockStatus());
+        gantryDeviceConfig.setLockUserErp(userCode);
+        gantryDeviceConfig.setLockUserName(userName);
+        gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
+        gantryDeviceConfig.setOperateUserErp(userCode);
+        gantryDeviceConfig.setOperateUserId(userId);
+        gantryDeviceConfig.setOperateUserName(userName);
+        gantryDeviceConfig.setSendCode("");//无发货批次
+        gantryDeviceConfig.setStartTime(new Date());
+        //        gantryDeviceConfig.setEndTime(request.getEndTime()); 不需要endtime
+        gantryDeviceConfig.setUpdateUserErp(userCode);
+        gantryDeviceConfig.setUpdateUserName(userName);
+        return gantryDeviceConfig;
+    }
 
 }

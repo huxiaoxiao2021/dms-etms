@@ -512,13 +512,15 @@ function toReplenishPrintPage(){
  */
 function toGantryExceptionPage(){
     var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
-    var param = {};
     if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null){
         jQuery.messager.alert("提示：","请选择有效的补打信息","info");
         return;
     }
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
+        return;
+    }
     location.href = url + "?machineId=" + gantryParams.machineId + "&siteCode=" + gantryParams.createSiteCode
-        + "&startTime=" + new Date(timeStampToDate(gantryParams.startTime)) + "&endTime=" + new Date(timeStampToDate(gantryParams.endTime));
+        + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }
 
 /**
