@@ -8,7 +8,7 @@ function main() {
     });
 
     $("#transferSite").change(function () {
-        siteChange($(this).val());
+        siteChange();
     });
 
     // 保存提交按钮
@@ -21,24 +21,37 @@ function main() {
         goBack();
     });
 
+    $("#multiSelect_from").multiselect({
+        afterMoveToRight: function ($left, $right, $options) {
+            /*alert($options.length);
+             alert($options[0].value);*/
+        }
+    });
+
+    $("#multiSelect_to").multiselect({
+        afterMoveToLeft: function ($left, $right, $options) {
+            /*alert($options.length);
+             alert($options[0].value);*/
+        }
+    });
+
 }
 
 function doSave() {
     var params = getParams();
-    if (checkParams(params)){
+    if (checkParams(params)) {
         var contextPath = $("#contextPath").val();
         var url = contextPath + "/areadest/save";
-        CommonClient.postJson(url, params, function(data) {
+        CommonClient.postJson(url, params, function (data) {
             if (data.code == 200) {
-                alert("添加成功");
-                document.location.href = contextPath + "/areadest/index";
+                alert("保存成功！");
+                //document.location.href = contextPath + "/areadest/index";
             } else {
                 if (data.message) {
                     alert('提示:' + data.message);
                 } else {
                     alert('提示:添加异常');
                 }
-
             }
         });
     }
@@ -46,13 +59,13 @@ function doSave() {
 
 function getParams() {
     var arr = new Array();
-    $("#deviceOrg option").each(function () {
-        var val = $(this).val(); //获取单个value
-        $('#to_' + val + ' option').each(function () {
-            arr.push($(this).text());
-        });
+
+    $('#multiSelect_to option').each(function () {
+        arr.push($(this).text());
     });
+
     var params = {};
+    params.receiveSiteOrg = $("#selectedOrg").val();
     params.createSiteName = $("#createSiteName").val();
     params.createSiteCode = $("#createSiteCode").val();
     params.transferSiteCode = $("#transferSite").val();
@@ -65,11 +78,11 @@ function checkParams(params) {
     if (null == params) {
         return false;
     }
-    if (params.createSiteCode == null || params.createSiteCode <= 0){
+    if (params.createSiteCode == null || params.createSiteCode <= 0) {
         alert("参数错误，请退出重新登录！");
         return false;
     }
-    if (params.transferSiteCode == null || params.transferSiteCode <= 0){
+    if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
         alert("请选择中转分拣站中心！")
         return false;
     }
@@ -85,7 +98,6 @@ function goBack() {
  * 机构变更，实现分拣中心联动
  */
 function orgChange(orgId) {
-    clearMultiSelect();
     if ($.trim(orgId).length <= 0) {
         initDmsSelect();
         return;
@@ -97,59 +109,17 @@ function orgChange(orgId) {
     });
 }
 
-function siteChange(siteId) {
-    $.blockUI({ message:"<span class='pl20 icon-loading'>正在加载,请稍后...</span>"});
-    clearMultiSelect();
-    var url = $("#contextPath").val() + "/services/bases/dms";
-    $.getJSON(url, function (data) {
-        var createSiteCode = $("#createSiteCode").val();
-        var params = {"createSiteCode": createSiteCode, "transferSiteCode": siteId};
-        var getUrl = $("#contextPath").val() + "/areadest/dmsselected";
-        $.getJSON(getUrl, params, function (selectedData) {
-            loadMultiSelect(data, selectedData);
-        });
-    });
+function siteChange() {
+    $('#myTab li:eq(0) a').tab('show');
+    loadSelected("all");
 }
 
 /**
  * 清空多选框
  */
-function clearMultiSelect(){
-    /*$('#from_all').empty();
-    $('#to_all').empty();*/
-
-    $("#deviceOrg option").each(function () {
-        var val = $(this).val(); //获取单个value
-        $('#from_' + val).empty();
-        $('#to_' + val).empty();
-    });
-}
-
-function loadMultiSelect(dmsList, selectedList) {
-   /* var optionFromAll = "";
-    var optionToAll = "";*/
-    for (var i = 0; i < dmsList.length; i++) {
-        var flag = false;
-        if (selectedList != null && selectedList.length > 0){
-            for (var j = 0; j < selectedList.length; j++) {
-                if (dmsList[i].siteCode == selectedList[j].receiveSiteCode){
-                    flag = true;
-                    var toOption = "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
-                    /*optionToAll += toOption;*/
-                    $('#to_' + dmsList[i].orgId).append(toOption);
-                    break;
-                }
-            }
-        }
-        if (!flag){
-            var option = "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
-            /*optionFromAll += option;*/
-            $('#from_' + dmsList[i].orgId).append(option);
-        }
-    }
-    /*$('#from_all').append(optionFromAll);
-    $('#to_all').append(optionToAll);*/
-    $.unblockUI();
+function clearMultiSelect() {
+    $('#multiSelect_from').empty();
+    $('#multiSelect_to').empty();
 }
 
 /**
@@ -167,5 +137,60 @@ function initDmsSelect(data) {
         }
     }
     $("#transferSite").html(optionList);
+}
+
+function loadSelected(orgId) {
+    $.blockUI({message: "<span class='pl20 icon-loading'>正在加载,请稍后...</span>"});
+    clearMultiSelect();
+    if (orgId == 'all') {
+        $("#selectedOrg").val("");
+        var url = $("#contextPath").val() + "/services/bases/dms";
+    } else {
+        $("#selectedOrg").val(orgId);
+        var url = $("#contextPath").val() + "/areadest/dmslist";
+    }
+    var createSiteCode = $("#createSiteCode").val();
+    var transferSiteCode = $("#transferSite").find("option:selected").val();
+    if (createSiteCode != "" && transferSiteCode != "") {
+        var param = {"orgId": orgId};
+        $.getJSON(url, param, function (data) {
+            if (data != null && data.length > 0) {
+                var innerParams = {"createSiteCode": createSiteCode, "transferSiteCode": transferSiteCode};
+                var getUrl = $("#contextPath").val() + "/areadest/dmsselected";
+                $.getJSON(getUrl, innerParams, function (selectedData) {
+                    addOptions(data, selectedData);
+                });
+            } else {
+                $.unblockUI();
+            }
+        });
+    } else {
+        $.unblockUI();
+    }
+}
+
+function addOptions(data, selectedData) {
+    var fromOption = "";
+    var toOption = "";
+    for (var i = 0; i < data.length; i++) {
+        var flag = false;
+        if (selectedData != null && selectedData.length > 0) {
+            for (var j = 0; j < selectedData.length; j++) {
+                if (data[i].siteCode == selectedData[j].receiveSiteCode) {
+                    flag = true;
+                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + " " + data[i].siteName + "</option>";
+                    toOption += option;
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + " " + data[i].siteName + "</option>";
+            fromOption += option;
+        }
+    }
+    $('#multiSelect_to').append(toOption);
+    $('#multiSelect_from').append(fromOption);
+    $.unblockUI();
 }
 
