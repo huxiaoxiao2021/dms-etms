@@ -7,6 +7,7 @@ function main() {
         orgChange($(this).val());
     });
 
+    // 中转分拣中心变更
     $("#transferSite").change(function () {
         siteChange();
     });
@@ -23,15 +24,13 @@ function main() {
 
     $("#multiSelect_from").multiselect({
         afterMoveToRight: function ($left, $right, $options) {
-            /*alert($options.length);
-             alert($options[0].value);*/
+
         }
     });
 
     $("#multiSelect_to").multiselect({
         afterMoveToLeft: function ($left, $right, $options) {
-            /*alert($options.length);
-             alert($options[0].value);*/
+
         }
     });
 
@@ -45,7 +44,6 @@ function doSave() {
         CommonClient.postJson(url, params, function (data) {
             if (data.code == 200) {
                 alert("保存成功！");
-                //document.location.href = contextPath + "/areadest/index";
             } else {
                 if (data.message) {
                     alert('提示:' + data.message);
@@ -79,7 +77,7 @@ function checkParams(params) {
         return false;
     }
     if (params.createSiteCode == null || params.createSiteCode <= 0) {
-        alert("参数错误，请退出重新登录！");
+        alert("获取始发分拣中心失败，请确认用户是否关联分拣中心！");
         return false;
     }
     if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
@@ -102,7 +100,7 @@ function orgChange(orgId) {
         initDmsSelect();
         return;
     }
-    var url = $("#contextPath").val() + "/areadest/dmslist";
+    var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
     var param = {"orgId": orgId};
     $.getJSON(url, param, function (data) {
         initDmsSelect(data);
@@ -144,10 +142,10 @@ function loadSelected(orgId) {
     clearMultiSelect();
     if (orgId == 'all') {
         $("#selectedOrg").val("");
-        var url = $("#contextPath").val() + "/services/bases/dms";
+        var url = $("#contextPath").val() + "/services/bases/dms?" + Math.random();
     } else {
         $("#selectedOrg").val(orgId);
-        var url = $("#contextPath").val() + "/areadest/dmslist";
+        var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
     }
     var createSiteCode = $("#createSiteCode").val();
     var transferSiteCode = $("#transferSite").find("option:selected").val();
@@ -156,7 +154,7 @@ function loadSelected(orgId) {
         $.getJSON(url, param, function (data) {
             if (data != null && data.length > 0) {
                 var innerParams = {"createSiteCode": createSiteCode, "transferSiteCode": transferSiteCode};
-                var getUrl = $("#contextPath").val() + "/areadest/dmsselected";
+                var getUrl = $("#contextPath").val() + "/areadest/dmsselected?" + Math.random();
                 $.getJSON(getUrl, innerParams, function (selectedData) {
                     addOptions(data, selectedData);
                 });
