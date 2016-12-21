@@ -62,4 +62,8 @@ public interface ScannerFrameBatchSendService {
      */
     public List<ScannerFrameBatchSend> queryByMachineIdAndTime(ScannerFrameBatchSendSearchArgument request);
 
+    /** 通过龙门架ID，目的站点，创建时间获取列表 **/
+
+    ScannerFrameBatchSend selectCurrentBatchSend(long machineId,long receiveSiteCode,Date operateTime);
+
 }

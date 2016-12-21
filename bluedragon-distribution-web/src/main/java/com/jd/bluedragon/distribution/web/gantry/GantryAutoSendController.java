@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -231,23 +231,41 @@ public class GantryAutoSendController {
 
     @RequestMapping(value = "/generateSendCode" , method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Integer> generateSendCode(@RequestBody ArrayList<Long> ids){
+    public InvokeResult<Integer> generateSendCode( @RequestBody ScannerFrameBatchSend[] lists){
         this.logger.debug("龙门架自动换批次 --> changeSendCode");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
         result.setMessage("服务器处理异常，换批次失败！");
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String userCode = "0";
-        String userName = "none";
+        Integer userCode = 0;//用户编号
+        String userName = "none";//用户姓名
         if(erpUser != null){
-            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
+            userCode = erpUser.getUserId() == null ? 0:erpUser.getUserId();
             userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
         }
         try {
-            boolean bool = scannerFrameBatchSendService.transSendCode(Long.valueOf(userCode),userName,ids);
-            if(bool){
-                result.setCode(200);
-                result.setMessage("换批次成功");
+            for(ScannerFrameBatchSend item:lists){
+                // // FIXME: 2016/12/21  是否可以不读库，读库为了保险
+                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(),item.getReceiveSiteCode(),item.getCreateTime());
+                scannerFrameBatchSend.setPrintTimes((byte)0);
+                scannerFrameBatchSend.setLastPrintTime(null);
+                scannerFrameBatchSend.setCreateUserCode(userCode);
+                scannerFrameBatchSend.setCreateUserName(userName);
+                scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
+                scannerFrameBatchSend.setUpdateUserName(userName);
+                scannerFrameBatchSend.setCreateTime(new Date());
+                scannerFrameBatchSend.setUpdateTime(new Date());
+                scannerFrameBatchSend.setYn((byte)1);
+                scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(),scannerFrameBatchSend.getReceiveSiteCode(),scannerFrameBatchSend.getCreateTime()));
+                boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
+                if(!bool){
+                    result.setCode(500);
+                    result.setMessage("部分批次转换失败，失败原始批次为：" + item.getSendCode());
+                    return result;
+                }else{
+                    result.setCode(200);
+                    result.setMessage("换批次成功");
+                }
             }
         }catch(Exception e){
             logger.error("生产新的批次号失败",e);

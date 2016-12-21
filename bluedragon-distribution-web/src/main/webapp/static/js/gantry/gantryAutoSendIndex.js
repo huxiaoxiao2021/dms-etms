@@ -32,14 +32,19 @@ $(document).ready(function(){
     /** 换批次按钮点击事件 **/
     $("#generateSendCodeBtn").click(function () {
         //得到勾选框的值
-        var ids = []
+        var list = [];
         $("input[name=item]:checked").each(function () {
-            ids.push($(this).parents("tr").attr("id"));
+            var param = {}
+            param.machineId = gantryParams.machineId;
+            param.receiveSiteCode = $(this).parents("tr").find("[name=receiveSite]").attr("title");
+            param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
+            param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
+            list.push(param);
         });
-        if(ids.length == 0){
+        if(list.length == 0){
             return;
         }
-        generateSendCode(ids);
+        generateSendCode(list);
     });
 
     /** 补打印按钮点击事件 **/
@@ -392,11 +397,11 @@ function queryBatchSendCodes(params){
                 })
                 temp += "<tr id='" + (i+1) + "'>";
                 temp += "<td><input type='checkbox' name='item'></td>";
-                temp += "<td title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
-                temp += "<td>" + list[i].sendCode + "</td>";
+                temp += "<td name='receiveSite' title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
+                temp += "<td name='sendCode'>" + list[i].sendCode + "</td>";
                 temp += "<td>"+packageSum+"</td>";
                 temp += "<td>"+volumeSum+"</td>";
-                temp += "<td>" + timeStampToDate(list[i].createTime) + "</td>";
+                temp += "<td name='createTime'>" + timeStampToDate(list[i].createTime) + "</td>";
                 temp += "</tr>";
             }
             $("#pagerTable tbody").html(temp);
@@ -442,37 +447,50 @@ function printSettingSave(){
 /**
  * 换批次点击事件
  */
-function generateSendCode(ids) {
+function generateSendCode(list) {
     var url = $("#contextPath").val() + "/gantryAutoSend/generateSendCode";
-    $.ajax({
-        url: url,
-        data:JSON.stringify(ids),
-        type: "post",
-        dataType: "json",
-        contentType: "application/json; charset=utf-8",
-        async: false,
-        beforeSend: function(jqXHR, settings){
-            $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
-        },
-        success: function (data) {
-            if(data == undefined && data == null){
-                jQuery.messager.alert("提示：","HTTP请求无返回数据！！","info");
-                return;
-            }
-            if(data.code == 200){
-                queryBatchSendSub(1);
-            }else{
-                jQuery.messager.alert("错误：","本次换批次失败！！","error");
-                return;
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            alert("Error:status["+jqXHR.status+"],statusText["+ jqXHR.statusText +"]");
-        },
-        complete: function(jqXHR, textStatus){
-            $.unblockUI();
+    CommonClient.postJson(url,list,function (data) {
+        if(data == undefined && data == null){
+            jQuery.messager.alert("提示：","HTTP请求无返回数据！！","info");
+            return;
+        }
+        if(data.code == 200){
+            queryBatchSendSub(1);
+        }else{
+            jQuery.messager.alert("错误：","本次换批次失败！！","error");
+            return;
         }
     })
+
+    // $.ajax({
+    //     url: url,
+    //     data:JSON.stringify(list),
+    //     type: "post",
+    //     dataType: "json",
+    //     contentType: "application/json; charset=utf-8",
+    //     async: false,
+    //     beforeSend: function(jqXHR, settings){
+    //         $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
+    //     },
+    //     success: function (data) {
+    //         if(data == undefined && data == null){
+    //             jQuery.messager.alert("提示：","HTTP请求无返回数据！！","info");
+    //             return;
+    //         }
+    //         if(data.code == 200){
+    //             queryBatchSendSub(1);
+    //         }else{
+    //             jQuery.messager.alert("错误：","本次换批次失败！！","error");
+    //             return;
+    //         }
+    //     },
+    //     error: function(jqXHR, textStatus, errorThrown){
+    //         alert("Error:status["+jqXHR.status+"],statusText["+ jqXHR.statusText +"]");
+    //     },
+    //     complete: function(jqXHR, textStatus){
+    //         $.unblockUI();
+    //     }
+    // })
 }
 
 /**

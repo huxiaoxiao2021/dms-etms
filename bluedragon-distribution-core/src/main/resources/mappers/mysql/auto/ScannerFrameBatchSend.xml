@@ -53,11 +53,11 @@
     <select id="selectCurrentBatchSend" parameterType="java.util.Map" resultMap="resultListMap">
         SELECT ID ,
         <include refid="allFieldsExcludeIdAndTs"/>
-        ,TS FROM scanner_frame_batch_send
+        FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=TIMESTAMP}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
-              AND machine_id=#{machineId,jdbcType=LONG}
-              AND receive_site_code=#{receiveSiteCode.jdbcType.LONG}
+              AND machine_id=#{machineId,jdbcType=INTEGER}
+              AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
         order by CREATE_TIME DESC
         limit 1
     </select>
