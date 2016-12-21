@@ -60,7 +60,7 @@
           #{machineId, jdbcType=BIGINT}, #{barCode, jdbcType=VARCHAR},
           #{waybillCode, jdbcType=VARCHAR}, #{createSiteCode, jdbcType=BIGINT}, #{createSiteName, jdbcType=VARCHAR},
           #{volume, jdbcType=DECIMAL}, #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
-          now(), now()
+          now(), now(), 1, 0
         )
     </insert>
     
