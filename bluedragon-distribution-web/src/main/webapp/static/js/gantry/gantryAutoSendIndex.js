@@ -24,11 +24,6 @@ $(document).ready(function(){
         queryBatchSendSub(1)
     });
 
-    /** 启用释放龙门架按钮点击事件 **/
-    $("#enOrDisGantryBtn").click(function () {
-        getGantryParams();
-    });
-
     /** 设置打印机的保存点击事件 **/
     $("#printSettingSaveBtn").click(function () {
         printSettingSave();
@@ -286,12 +281,13 @@ function enOrDisGantry(params){
         }
     }
     var url = $("#contextPath").val() + "/gantryAutoSend/updateOrInsertGantryDeviceStatus";
-    CommonClient.postJson(url,params,function(data){
+    CommonClient.post(url,params,function(data){
         if (data == undefined && data == null){
             jQuery.messager.alert("提示：","HTTP请求无返回数据！","info");
         }
         if (data.code == 200){
             gantryStateInit(data.data);
+            gantryParams = data.data;
         }else{
             jQuery.messager.alert("提示：","数据请求失败！","info");
         }
