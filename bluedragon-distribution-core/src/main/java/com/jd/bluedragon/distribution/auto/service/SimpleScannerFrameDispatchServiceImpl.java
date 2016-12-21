@@ -275,7 +275,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         try {
             GantryException gantryException = new GantryException();
             gantryException.setMachineId(Long.valueOf(config.getMachineId()));
-            gantryException.setPackageCode(domain.getBarCode());
+            gantryException.setBarCode(domain.getBarCode());
             gantryException.setCreateSiteCode(Long.valueOf(config.getCreateSiteCode()));
             gantryException.setCreateSiteName(config.getCreateSiteName());
             gantryException.setType(type);

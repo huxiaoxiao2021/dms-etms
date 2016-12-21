@@ -56,4 +56,14 @@ public interface ScannerFrameBatchSendService {
      * 手动进行换批次操作
      */
     boolean transSendCode(long userCode,String userName,List<Long> ids);
+
+    /**
+     * 通过machineId 以及开始结束时间获取这段时间内此龙门架的发货目的列表
+     */
+    public List<ScannerFrameBatchSend> queryByMachineIdAndTime(ScannerFrameBatchSendSearchArgument request);
+
+    /** 通过龙门架ID，目的站点，创建时间获取列表 **/
+
+    ScannerFrameBatchSend selectCurrentBatchSend(long machineId,long receiveSiteCode,Date operateTime);
+
 }

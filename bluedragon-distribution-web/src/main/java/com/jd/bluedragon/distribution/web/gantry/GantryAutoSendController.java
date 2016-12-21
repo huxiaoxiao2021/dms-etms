@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +73,7 @@ public class GantryAutoSendController {
     }
 
     @RequestMapping(value = "/updateOrInsertGantryDeviceStatus", method = RequestMethod.POST)
+    @ResponseBody
     public InvokeResult<GantryDeviceConfig> UpsertGantryDeviceBusinessOrStatus(GantryDeviceConfigRequest request){
         InvokeResult<GantryDeviceConfig> result = new InvokeResult<GantryDeviceConfig>();
         result.setCode(500);
@@ -84,8 +85,8 @@ public class GantryAutoSendController {
         String userName = "";//姓名
         Integer userId = null;//员工ID
         if(erpUser != null){
-            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
-            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+            userCode = erpUser.getUserCode() == null ? null:erpUser.getUserCode();
+            userName = erpUser.getUserName() == null ? null:erpUser.getUserName();
             userId = erpUser.getUserId() == null ? null:erpUser.getUserId();
         }
         logger.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
@@ -93,17 +94,17 @@ public class GantryAutoSendController {
             logger.error("没有需要修改的龙门架设备信息");
             return null;
         }
+        GantryDeviceConfig  gantryDeviceConfig = null;
+        gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
         if(request.getLockStatus() == 0){/** 解锁龙门架操作 **/
             /** 第一步：找到gantry_device_config最新的一条龙门架记录 **/
-            logger.info("用户：" + request.getLockUserErp() + "正在尝试解锁龙门架，ID为" + request.getMachineId());
+            logger.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
             try{
-                GantryDeviceConfig  gantryDeviceConfig = null;
-                gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
                 if(gantryDeviceConfig.getLockUserErp().equals(userCode)){
                     //只更新该龙门架的锁定状态为0解锁
                     gantryDeviceConfig.setLockStatus(request.getLockStatus());
                     int i = gantryDeviceConfigService.updateLockStatus(gantryDeviceConfig);
-                    if( i != -1){
+                    if( i > -1){
                         result.setCode(200);
                         result.setMessage("释放龙门架状态成功");
                         result.setData(gantryDeviceConfig);
@@ -124,14 +125,29 @@ public class GantryAutoSendController {
         }else if(request.getLockStatus() == 1){/** 锁定龙门架操作 **/
             logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为："
                     + request.getMachineId() + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
-            /** 转换类型 请求对象装换成gantryDeviceConfig对象 **/
-            GantryDeviceConfig oldRecord = toGantryDeviceConfig(request,userCode,userName,userId);
-            int count = gantryDeviceConfigService.add(oldRecord);
+            /** 转换类型 修改最近的一条龙门设备的信息：操作人，更新人，锁定人，业务类型，锁定状态，startTime为now，endTime置为空 新插入 **/
+            int count = 0;
+            try{
+                gantryDeviceConfig.setOperateUserErp(userCode);
+                gantryDeviceConfig.setOperateUserId(userId);
+                gantryDeviceConfig.setOperateUserName(userName);
+                gantryDeviceConfig.setUpdateUserErp(userCode);
+                gantryDeviceConfig.setUpdateUserName(userName);
+                gantryDeviceConfig.setLockUserErp(userCode);
+                gantryDeviceConfig.setLockUserName(userName);
+                gantryDeviceConfig.setBusinessType(request.getBusinessType());
+                gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
+                gantryDeviceConfig.setLockStatus(request.getLockStatus());
+                gantryDeviceConfig.setStartTime(new Date());
+                count = gantryDeviceConfigService.add(gantryDeviceConfig);
+            }catch(Exception e){
+                logger.error("锁定龙门架操作失败..",e);
+            }
             if (count >= 1) {
                 logger.error("用户正在尝试的启用龙门架操作状态成功，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
                 result.setCode(200);
                 result.setMessage("用户锁定龙门架操作成功");
-                result.setData(oldRecord);
+                result.setData(gantryDeviceConfig);
             }else{
                 logger.error("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
                 result.setCode(400);
@@ -215,23 +231,41 @@ public class GantryAutoSendController {
 
     @RequestMapping(value = "/generateSendCode" , method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Integer> generateSendCode(@RequestBody ArrayList<Long> ids){
+    public InvokeResult<Integer> generateSendCode( @RequestBody ScannerFrameBatchSend[] lists){
         this.logger.debug("龙门架自动换批次 --> changeSendCode");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
         result.setMessage("服务器处理异常，换批次失败！");
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String userCode = "0";
-        String userName = "none";
+        Integer userCode = 0;//用户编号
+        String userName = "none";//用户姓名
         if(erpUser != null){
-            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
+            userCode = erpUser.getUserId() == null ? 0:erpUser.getUserId();
             userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
         }
         try {
-            boolean bool = scannerFrameBatchSendService.transSendCode(Long.valueOf(userCode),userName,ids);
-            if(bool){
-                result.setCode(200);
-                result.setMessage("换批次成功");
+            for(ScannerFrameBatchSend item:lists){
+                // // FIXME: 2016/12/21  是否可以不读库，读库为了保险
+                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(),item.getReceiveSiteCode(),item.getCreateTime());
+                scannerFrameBatchSend.setPrintTimes((byte)0);
+                scannerFrameBatchSend.setLastPrintTime(null);
+                scannerFrameBatchSend.setCreateUserCode(userCode);
+                scannerFrameBatchSend.setCreateUserName(userName);
+                scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
+                scannerFrameBatchSend.setUpdateUserName(userName);
+                scannerFrameBatchSend.setCreateTime(new Date());
+                scannerFrameBatchSend.setUpdateTime(new Date());
+                scannerFrameBatchSend.setYn((byte)1);
+                scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(),scannerFrameBatchSend.getReceiveSiteCode(),scannerFrameBatchSend.getCreateTime()));
+                boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
+                if(!bool){
+                    result.setCode(500);
+                    result.setMessage("部分批次转换失败，失败原始批次为：" + item.getSendCode());
+                    return result;
+                }else{
+                    result.setCode(200);
+                    result.setMessage("换批次成功");
+                }
             }
         }catch(Exception e){
             logger.error("生产新的批次号失败",e);

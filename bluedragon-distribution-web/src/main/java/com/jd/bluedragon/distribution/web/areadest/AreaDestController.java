@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
@@ -50,13 +51,17 @@ public class AreaDestController {
     public String index(Model model) {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-            model.addAttribute("createSiteCode", dto.getSiteCode());
-            model.addAttribute("createSiteName", dto.getSiteName());
+            if (erpUser != null) {
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                model.addAttribute("createSiteCode", dto.getSiteCode());
+                model.addAttribute("createSiteName", dto.getSiteName());
+            } else {
+                logger.error("获取erp用户信息失败，结果为null");
+            }
         } catch (Exception e) {
             logger.error("获取始发分拣中心信息失败", e);
         }
-        return "areaDest/list";
+        return "areadest/list";
     }
 
     /**
@@ -94,12 +99,25 @@ public class AreaDestController {
      */
     @RequestMapping(value = "/addview", method = RequestMethod.GET)
     public String addView(Model model) {
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-        model.addAttribute("createSiteCode", dto.getSiteCode());
-        model.addAttribute("createSiteName", dto.getSiteName());
-        model.addAttribute("allOrgs", removeInvalidOrg(baseService.getAllOrg()));
-        return "areaDest/add";
+        try {
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            logger.info("erp用户信息：" + JsonHelper.toJson(erpUser));
+            if (erpUser != null) {
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                if (dto != null){
+                    model.addAttribute("createSiteCode", dto.getSiteCode());
+                    model.addAttribute("createSiteName", dto.getSiteName());
+                } else {
+                    logger.error("根据erp用户信息获取基础信息失败，结果为null");
+                }
+                model.addAttribute("allOrgs", removeInvalidOrg(baseService.getAllOrg()));
+            } else {
+                logger.error("获取erp用户信息失败，结果为null");
+            }
+        } catch (Exception e) {
+            logger.error("跳转新增页面失败", e);
+        }
+        return "areadest/add";
     }
 
     /**
@@ -191,6 +209,14 @@ public class AreaDestController {
         return response;
     }
 
+    /**
+     * 设置目的地为无效
+     *
+     * @param request
+     * @param updateUser
+     * @param updateUserCode
+     * @return
+     */
     private boolean doDisable(AreaDestRequest request, String updateUser, Integer updateUserCode) {
         boolean isSuccess = true;
         if (request.getReceiveSiteOrg() != null && request.getReceiveSiteOrg() > 0) {
