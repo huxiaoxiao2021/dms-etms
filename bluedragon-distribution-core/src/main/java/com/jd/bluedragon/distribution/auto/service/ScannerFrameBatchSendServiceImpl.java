@@ -144,4 +144,11 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         result = scannerFrameBatchSendDao.queryByMachineIdAndTime(request);
         return result;
     }
+
+    @Override
+    public ScannerFrameBatchSend selectCurrentBatchSend(long machineId, long receiveSiteCode, Date operateTime) {
+        ScannerFrameBatchSend result = new ScannerFrameBatchSend();
+        result = scannerFrameBatchSendDao.selectCurrentBatchSend(machineId,receiveSiteCode,operateTime);
+        return result;
+    }
 }
