@@ -117,7 +117,7 @@ function doQueryAreaDest(params) {
             color: "#428bca",
             data: data.data
         });
-        if (data.code != 200) {
+        if (data.code != 200 && data.code != 2200) {
             alert('提示:' + data.message);
         }
     });

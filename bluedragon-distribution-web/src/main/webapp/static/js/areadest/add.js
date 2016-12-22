@@ -20,6 +20,7 @@ function main() {
     });
 
     $('.multiselect').multiselect({
+        sort: false,
         beforeMoveToRight: function ($left, $right, $options) {
             delTimeout();
             return doSave("add", $options);
