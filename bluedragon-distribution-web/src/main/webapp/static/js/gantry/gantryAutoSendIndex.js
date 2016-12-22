@@ -148,7 +148,7 @@ function loadGantryList(gantryList,selectId){
     var gantryObj = $('#' + selectId);
     var optionList = "<option value=''>选择龙门架</option>";
     for (var i = 0; i < gantryList.length; i++) {
-        optionList += "<option value='" + gantryList[i].machineId + "'>" + gantryList[i].machineId + " " + gantryList[i].serialNumber + "</option>";
+        optionList += "<option value='" + gantryList[i].machineId + "'>" + gantryList[i].machineId + "</option>";
     }
     gantryObj.html(optionList);
     $("#paperTable tbody").html("");
@@ -265,12 +265,14 @@ function gantryStateInit(gantryConfig) {
             sendObj.attr("disabled",true);
             measureObj.attr("disabled",true);
             $("#gantryBtn").html("<input  type='button' value='释放龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(endGantry))'>");//释放龙门架只需要传入的机器编号参数？！
-        }else{
-            jQuery.messager.alert("提示","龙门架状态读取失败","info");
         }
-    }else{
-        jQuery.messager.alert("提示","龙门架配置信息错误！","info");
+        // else{
+        //     jQuery.messager.alert("提示","龙门架状态读取失败","info");
+        // }
     }
+    // else{
+    //     jQuery.messager.alert("提示","龙门架配置信息错误！","info");
+    // }
 }
 
 /**
@@ -292,6 +294,9 @@ function enOrDisGantry(params){
         if(params.operateUserErp != gantryParams.lockUserErp){
             jQuery.messager.alert("警告：","释放该龙门架请联系锁定人:" + gantryParams.lockUserName,"warning");
             return;
+        }else{
+            /** 释放龙门架时清空异常数据 **/
+            $("#exceptionNum").text(0);
         }
     }
     var url = $("#contextPath").val() + "/gantryAutoSend/updateOrInsertGantryDeviceStatus";
@@ -357,9 +362,10 @@ function queryExceptionNum(){
         }
         if(data.code == 200){
             $("#exceptionNum").text(data.data);
-        }else{
-            jQuery.messager.alert("提示","获取龙门架自动发货异常数据失败!!","info");
         }
+        // else{
+        //     jQuery.messager.alert("提示","获取龙门架自动发货异常数据失败!!","info");
+        // }
     })
 }
 
@@ -370,8 +376,8 @@ function queryBatchSendSub(pageNo){
     var params = {};
     if(gantryParams != undefined && gantryParams != null ){
         params.machineId = gantryParams.machineId;
-        params.startTime = new Date(gantryParams.startTime);
-        params.endTime = new Date(gantryParams.endTime);
+        // params.startTime = new Date(gantryParams.startTime);
+        // params.endTime = new Date(gantryParams.endTime);
     }
     params.pageNo = pageNo;
     queryBatchSendCodes(params);
@@ -419,11 +425,13 @@ function queryBatchSendCodes(params){
 
         }else if(data.code == 200 && data.data ==null){
             jQuery.messager.alert("提示：","服务器请求成功，无数据返回!","info");
-        }else if(data.code == 500){
-            jQuery.messager.alert("提示：","服务器请求数据处理异常","info");
-        }else{
-            jQuery.messager.alert("提示：","服务器请求数据处理异常","info");
         }
+        // else if(data.code == 500){
+        //     jQuery.messager.alert("提示：","服务器请求数据处理异常","info");
+        // }
+        // else{
+        //     jQuery.messager.alert("提示：","服务器请求数据处理异常","info");
+        // }
     })
 }
 
@@ -535,6 +543,15 @@ function toReplenishPrintPage(){
 function toGantryExceptionPage(){
     var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
     if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
+        var machineId = $("#gantryDevice option:selected").val();
+        var siteCode = $("#siteOrg option:selected").val();
+        if(machineId != "" || machineId != 0){
+            url += "?machineId=" + gantryParams.machineId;
+        }
+        if(siteCode != "" || siteCode != 0){
+            url += "&siteCode=" + siteCode;
+        }
+        location.href = url;
         return;
     }
     location.href = url + "?machineId=" + gantryParams.machineId + "&siteCode=" + gantryParams.createSiteCode
