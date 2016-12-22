@@ -8,17 +8,23 @@ var gantryParams = {};//保存龙门架的参数信息
 $(document).ready(function(){
 
     /** 初始化分拣中心 **/
-    dmsInit();
+    // dmsInit();
 
     /** 龙门架设备联动显示 **/
-    $("#siteOrg").change(function () {
-        clearInfo();
-        gantryDeviceItemShow();
-    });
+    // $("#siteOrg").change(function () {
+    //     clearInfo();
+    //     gantryDeviceItemShow();
+    // });
+
+    /** 初始化龙门架设备下拉列表 **/
+    gantryDeviceItemShow();
 
     /** 龙门架配置信息联动显示 **/
     $("#gantryDevice").change(function(){
         clearInfo();
+        if($(this).val() == null || $(this).val() == ""){
+            return;
+        }
         gantryLockStatusShow();
         queryExceptionNum();
         queryBatchSendSub(1)
@@ -111,7 +117,7 @@ function loadDmsList(dmsList, selectId) {
  * 分拣中心与龙门架设备联动
  */
 function gantryDeviceItemShow(){
-    var temp = "<option>选择龙门架</option>";
+    var temp = "<option value=''>选择龙门架</option>";
     $("#gantryDevice").html(temp);//清空龙门架信息
     var siteNo = parseInt($("#siteOrg option:selected").val());//获取分拣中心ID
     var param= {};
@@ -276,6 +282,9 @@ function enOrDisGantry(params){
         /** 启用校验 **/
         if(params.businessType == 4){
             jQuery.messager.alert("错误：","‘量方’不可单独使用！！！","error");
+            return;
+        }else if(params.businessType == 3 || params.businessType == 7){
+            jQuery.messager.alert("错误：","‘发货’、‘验货’不可同时使用！！！","error");
             return;
         }
     }else if(params.lockStatus == 0){
