@@ -101,10 +101,9 @@ public class AreaDestController {
     public String addView(Model model) {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            logger.info("erp用户信息：" + JsonHelper.toJson(erpUser));
             if (erpUser != null) {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                if (dto != null){
+                if (dto != null) {
                     model.addAttribute("createSiteCode", dto.getSiteCode());
                     model.addAttribute("createSiteName", dto.getSiteName());
                 } else {
@@ -188,9 +187,7 @@ public class AreaDestController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (request.getCreateSiteCode() != null && request.getCreateSiteCode() > 0 && request.getTransferSiteCode() != null && request.getTransferSiteCode() > 0) {
-                // 设置所有目的分拣中心站点无效
-                boolean isSuccess = doDisable(request, erpUser.getUserCode(), erpUser.getUserId());
-                if (isSuccess && this.doSave(request, erpUser)) {
+                if (areaDestService.saveOrUpdate(request, erpUser.getUserCode(), erpUser.getUserId())) {
                     response.setCode(JdResponse.CODE_OK);
                     response.setMessage(JdResponse.MESSAGE_OK);
                 } else {
@@ -210,6 +207,38 @@ public class AreaDestController {
     }
 
     /**
+     * 批量移除
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/remove", method = RequestMethod.POST)
+    @ResponseBody
+    public AreaDestResponse remove(@RequestBody AreaDestRequest request) {
+        AreaDestResponse<String> response = new AreaDestResponse<String>();
+        try {
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (request.getCreateSiteCode() != null && request.getCreateSiteCode() > 0 && request.getTransferSiteCode() != null && request.getTransferSiteCode() > 0) {
+                if (doDisable(request, erpUser.getUserCode(), erpUser.getUserId())) {
+                    response.setCode(JdResponse.CODE_OK);
+                    response.setMessage(JdResponse.MESSAGE_OK);
+                } else {
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                }
+            } else {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            }
+        } catch (Exception e) {
+            logger.error("批量设置目的分拣中心为无效失败", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+        return response;
+    }
+
+    /**
      * 设置目的地为无效
      *
      * @param request
@@ -218,46 +247,13 @@ public class AreaDestController {
      * @return
      */
     private boolean doDisable(AreaDestRequest request, String updateUser, Integer updateUserCode) {
-        boolean isSuccess = true;
-        if (request.getReceiveSiteOrg() != null && request.getReceiveSiteOrg() > 0) {
-            List<SimpleBaseSite> siteList = baseMajorManager.getDmsListByOrgId(request.getReceiveSiteOrg());
-            for (SimpleBaseSite site : siteList) {
-                areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), site.getSiteCode(), updateUser, updateUserCode);
+        List<String> codeNameList = request.getReceiveSiteCodeName();
+        if (codeNameList != null && codeNameList.size() > 0) {
+            List<Integer> siteCodeList = new ArrayList<Integer>();
+            for (String code : codeNameList) {
+                siteCodeList.add(Integer.valueOf(code));
             }
-        } else {
-            isSuccess = areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), null, updateUser, updateUserCode);
-        }
-        return isSuccess;
-    }
-
-    /**
-     * 保存
-     *
-     * @param request
-     * @param erpUser
-     * @return
-     */
-    private boolean doSave(AreaDestRequest request, ErpUserClient.ErpUser erpUser) {
-        if (request.getReceiveSiteCodeName() != null && request.getReceiveSiteCodeName().size() > 0) {
-            List<AreaDest> areaDests = new ArrayList<AreaDest>();
-            for (String codeName : request.getReceiveSiteCodeName()) {
-                if (codeName != null && !"".equals(codeName)) {
-                    String[] arr = codeName.split(" ");
-                    if (arr.length > 1) {
-                        AreaDest area = new AreaDest();
-                        area.setCreateSiteCode(request.getCreateSiteCode());
-                        area.setCreateSiteName(request.getCreateSiteName());
-                        area.setTransferSiteCode(request.getTransferSiteCode());
-                        area.setTransferSiteName(request.getTransferSiteName());
-                        area.setReceiveSiteCode(Integer.valueOf(arr[0]));
-                        area.setReceiveSiteName(arr[1]);
-                        area.setCreateUser(erpUser.getUserCode());
-                        area.setCreateUserCode(erpUser.getUserId());
-                        areaDests.add(area);
-                    }
-                }
-            }
-            return areaDestService.add(areaDests);
+            return areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), siteCodeList, updateUser, updateUserCode);
         }
         return true;
     }

@@ -44,21 +44,39 @@ public class AreaDestDao extends BaseDao<AreaDest> {
     }
 
     /**
-     * 根据主键id逻辑删除
-     *
-     * @param id
-     */
-    public void disableById(Integer id) {
-        this.getSqlSession().update(AreaDestDao.namespace + ".disableById", id);
-    }
-
-    /**
-     * 根据参数逻辑删除
+     * 根据主键id设置为无效
      *
      * @param params
      */
-    public void disableByParams(Map<String, Object> params) {
-        this.getSqlSession().update(AreaDestDao.namespace + ".disableByParams", params);
+    public int disableById(Map<String, Object> params) {
+        return this.getSqlSession().update(AreaDestDao.namespace + ".disableById", params);
+    }
+
+    /**
+     * 根据参数设置为无效
+     *
+     * @param params
+     */
+    public int disableByParams(Map<String, Object> params) {
+        return this.getSqlSession().update(AreaDestDao.namespace + ".disableByParams", params);
+    }
+
+    /**
+     * 根据主键id设置为有效
+     *
+     * @param params
+     */
+    public int enableById(Map<String, Object> params) {
+        return this.getSqlSession().update(AreaDestDao.namespace + ".enableById", params);
+    }
+
+    /**
+     * 根据参数设置为有效
+     *
+     * @param params
+     */
+    public int enableByParams(Map<String, Object> params) {
+        return this.getSqlSession().update(AreaDestDao.namespace + ".enableByParams", params);
     }
 
     /**

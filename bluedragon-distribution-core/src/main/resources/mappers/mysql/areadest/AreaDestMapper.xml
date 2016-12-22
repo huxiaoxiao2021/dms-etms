@@ -171,6 +171,46 @@
             AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
         </if>
         <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE in
+            <foreach item="item" index="index" collection="receiveSiteCode"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="enableById" parameterType="java.util.Map">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 1,
+        UPDATE_TIME = NOW()
+        WHERE ID = #{id, jdbcType=BIGINT} AND YN = 0
+    </update>
+
+    <update id="enableByParams" parameterType="java.util.Map">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 1,
+        UPDATE_TIME = NOW()
+        WHERE
+        YN = 0 AND
+        CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
             AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
         </if>
     </update>

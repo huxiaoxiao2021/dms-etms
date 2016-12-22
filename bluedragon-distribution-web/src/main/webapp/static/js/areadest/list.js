@@ -113,12 +113,11 @@ function doQueryAreaDest(params) {
             alert('提示:HTTP请求无数据返回！');
             return;
         }
-        if (data.code == 200) {
-            $('#treeview').treeview({
-                color: "#428bca",
-                data: data.data
-            });
-        } else {
+        $('#treeview').treeview({
+            color: "#428bca",
+            data: data.data
+        });
+        if (data.code != 200) {
             alert('提示:' + data.message);
         }
     });

@@ -1,6 +1,8 @@
 //初始化
 $(document).ready(main);
 
+var timeId = null;
+
 function main() {
     // 机构变更
     $("#deviceOrg").change(function () {
@@ -12,58 +14,74 @@ function main() {
         siteChange();
     });
 
-    // 保存提交按钮
-    $('#saveBtn').click(function () {
-        doSave();
-    });
-
     // 返回按钮
     $('#goBackBtn').click(function () {
         goBack();
     });
 
-    $("#multiSelect_from").multiselect({
-        afterMoveToRight: function ($left, $right, $options) {
-
+    $('.multiselect').multiselect({
+        beforeMoveToRight: function ($left, $right, $options) {
+            delTimeout();
+            return doSave("add", $options);
+        },
+        beforeMoveToLeft: function ($left, $right, $options) {
+            delTimeout();
+            return doSave("remove", $options);
         }
     });
-
-    $("#multiSelect_to").multiselect({
-        afterMoveToLeft: function ($left, $right, $options) {
-
-        }
-    });
-
 }
 
-function doSave() {
-    var params = getParams();
+function doSave(type, $options) {
+    var params = getParams(type, $options);
     if (checkParams(params)) {
         var contextPath = $("#contextPath").val();
-        var url = contextPath + "/areadest/save";
-        CommonClient.postJson(url, params, function (data) {
+        if (type == "add") {
+            var url = contextPath + "/areadest/save";
+        } else {
+            var url = contextPath + "/areadest/remove";
+        }
+        var result = false;
+        syncAjaxJson("POST", url, params, function (data) {
             if (data.code == 200) {
-                alert("保存成功！");
+                showAlert("successAlert");
+                result = true;
             } else {
-                if (data.message) {
-                    alert('提示:' + data.message);
-                } else {
-                    alert('提示:添加异常');
-                }
+                showAlert("failureAlert");
+                result = false;
             }
         });
+        return result;
     }
+    return false;
 }
 
-function getParams() {
+function showAlert(id) {
+    $("#" + id).show();
+    timeId = setTimeout(function () {
+        $("#" + id).hide();
+    }, 1000);
+}
+
+function delTimeout() {
+    window.clearTimeout(timeId);
+    $("#successAlert").hide();
+    $("#failureAlert").hide();
+}
+
+function getParams(type, $options) {
     var arr = new Array();
-
-    $('#multiSelect_to option').each(function () {
-        arr.push($(this).text());
-    });
-
+    if ($options != null && $options.length > 0) {
+        if (type == "add") {
+            for (var i = 0; i < $options.length; i++) {
+                arr.push($options[i].value + "," + $options[i].text);
+            }
+        } else {
+            for (var i = 0; i < $options.length; i++) {
+                arr.push($options[i].value);
+            }
+        }
+    }
     var params = {};
-    params.receiveSiteOrg = $("#selectedOrg").val();
     params.createSiteName = $("#createSiteName").val();
     params.createSiteCode = $("#createSiteCode").val();
     params.transferSiteCode = $("#transferSite").val();
@@ -141,10 +159,8 @@ function loadSelected(orgId) {
     $.blockUI({message: "<span class='pl20 icon-loading'>正在加载,请稍后...</span>"});
     clearMultiSelect();
     if (orgId == 'all') {
-        $("#selectedOrg").val("");
         var url = $("#contextPath").val() + "/services/bases/dms?" + Math.random();
     } else {
-        $("#selectedOrg").val(orgId);
         var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
     }
     var createSiteCode = $("#createSiteCode").val();
@@ -157,6 +173,7 @@ function loadSelected(orgId) {
                 var getUrl = $("#contextPath").val() + "/areadest/dmsselected?" + Math.random();
                 $.getJSON(getUrl, innerParams, function (selectedData) {
                     addOptions(data, selectedData);
+                    $.unblockUI();
                 });
             } else {
                 $.unblockUI();
@@ -176,19 +193,38 @@ function addOptions(data, selectedData) {
             for (var j = 0; j < selectedData.length; j++) {
                 if (data[i].siteCode == selectedData[j].receiveSiteCode) {
                     flag = true;
-                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + " " + data[i].siteName + "</option>";
+                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteName + "</option>";
                     toOption += option;
                     break;
                 }
             }
         }
         if (!flag) {
-            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + " " + data[i].siteName + "</option>";
+            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteName + "</option>";
             fromOption += option;
         }
     }
     $('#multiSelect_to').append(toOption);
     $('#multiSelect_from').append(fromOption);
-    $.unblockUI();
 }
 
+function syncAjaxJson(type, url, param, successFunction) {
+    jQuery.ajax({
+        type: type,
+        url: url,
+        data: JSON.stringify(param),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        async: false,
+        beforeSend: function (jqXHR, settings) {
+            /*$.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});*/
+        },
+        success: successFunction,
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error:status[" + jqXHR.status + "],statusText[" + jqXHR.statusText + "]");
+        },
+        complete: function (jqXHR, textStatus) {
+            /*$.unblockUI();*/
+        }
+    });
+};
