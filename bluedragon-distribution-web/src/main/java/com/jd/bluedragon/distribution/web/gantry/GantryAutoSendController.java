@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +65,17 @@ public class GantryAutoSendController {
         if(erpUser != null){
             String userCode = "";
             String userName = "";
+            Integer siteCode = 0;
+            String siteName = "";
             userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
             userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+            if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                siteCode = bssod.getSiteCode();
+                siteName = bssod.getSiteName();
+            }
+            model.addAttribute("siteCode",String.valueOf(siteCode));
+            model.addAttribute("siteName",siteName);
             model.addAttribute("userCode", userCode);
             model.addAttribute("userName", userName);
         }
@@ -126,6 +136,13 @@ public class GantryAutoSendController {
             logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为："
                     + request.getMachineId() + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
             /** 转换类型 修改最近的一条龙门设备的信息：操作人，更新人，锁定人，业务类型，锁定状态，startTime为now，endTime置为空 新插入 **/
+            if(request.getBusinessType() == 4 || request.getBusinessType() == 3 || request.getBusinessType() == 7){
+                //龙门架操作类型错误
+                result.setCode(400);
+                result.setMessage("龙门架功能配置错误，发货验货不可同时使用、量方不可单独使用");
+                result.setData(null);
+                return result;
+            }
             int count = 0;
             try{
                 gantryDeviceConfig.setOperateUserErp(userCode);
@@ -178,8 +195,8 @@ public class GantryAutoSendController {
             argumentPager.init();
         }
         sfbssa.setMachineId(request.getMachineId());
-        sfbssa.setStartTime(request.getStartTime());
-        sfbssa.setEndTime(request.getEndTime());
+//        sfbssa.setStartTime(request.getStartTime());
+//        sfbssa.setEndTime(request.getEndTime());
         argumentPager.setData(sfbssa);
         try{
             Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);
