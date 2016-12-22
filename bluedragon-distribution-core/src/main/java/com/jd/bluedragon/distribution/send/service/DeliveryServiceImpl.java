@@ -1365,7 +1365,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
 
                                 //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
-                                int updateCount = gantryExceptionService.updateSendStatus(tSendDatail.getBoxCode());
+                                int updateCount = gantryExceptionService.updateSendStatus(tSendDatail.getBoxCode(), Long.valueOf(tSendDatail.getCreateSiteCode()));
                                 if (updateCount > 0) {
                                     this.logger.info("更新异常信息发货状态，箱号：" + tSendDatail.getBoxCode());
                                 }

@@ -51,7 +51,7 @@ public interface GantryExceptionService {
      * @param barCode 条码
      * @return
      */
-    public int updateSendStatus(String barCode);
+    public int updateSendStatus(String barCode, Long createSiteCode);
 
 
 }

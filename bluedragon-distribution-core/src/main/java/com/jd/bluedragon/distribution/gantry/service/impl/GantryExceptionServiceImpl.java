@@ -75,15 +75,17 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
      * 插入异常
      *
      * @param barCode 条码编号 不能为空
+     * @param createSiteCode 始发分拣中心编号 不能为空
      *
      */
     @Override
-    public int updateSendStatus(String barCode) {
-        if (StringHelper.isEmpty(barCode)) {
+    public int updateSendStatus(String barCode, Long createSiteCode) {
+        if (StringHelper.isEmpty(barCode) || createSiteCode == null) {
             return 0;
         }
         HashMap<String, Object> param = new HashMap();
         param.put("barCode", barCode);
+        param.put("createSiteCode", createSiteCode);
         return gantryExceptionDao.updateSendStatus(param);
     }
 }

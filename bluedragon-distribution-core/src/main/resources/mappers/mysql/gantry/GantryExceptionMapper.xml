@@ -60,7 +60,7 @@
 
     <sql id="updateParam" >
         <where>
-            BAR_CODE = #{barCode, jdbcType=VARCHAR}
+            BAR_CODE = #{barCode, jdbcType=VARCHAR} AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
         </where>
     </sql>
 
