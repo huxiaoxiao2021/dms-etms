@@ -6,8 +6,13 @@ import com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao;
 import com.jd.bluedragon.distribution.waybill.dao.WaybillPackageDao;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.logging.Log;
@@ -101,6 +106,53 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Override
     public WaybillPackageDTO getWaybillPackage(String packageCode) {
-        return waybillPackageDao.get(packageCode);
+        WaybillPackageDTO waybillPackageDTO = null;
+        try{
+            waybillPackageDTO = waybillPackageDao.get(packageCode);
+        }catch(Exception e){
+            this.logger.warn("获取总部运单包裹缓存表信息出现异常,包裹号：" + packageCode , e);
+            return getPackageByWaybillInterface(packageCode);
+        }
+
+        if(waybillPackageDTO == null){
+            return getPackageByWaybillInterface(packageCode);
+        }else{
+            return waybillPackageDTO;
+        }
+    }
+
+    private WaybillPackageDTO getPackageByWaybillInterface(String packageCode){
+        String waybillCode = SerialRuleUtil.getWaybillCode(packageCode);
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryPackList(true);
+
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+
+        if(baseEntity == null || baseEntity.getData() == null){
+            return null;
+        }
+
+        List<DeliveryPackageD> packageList = baseEntity.getData().getPackageList();
+
+        if(packageList == null || packageList.size() < 1){
+            return null;
+        }
+
+        for (DeliveryPackageD deliverPackageD : packageList) {
+            if(packageCode.equals(deliverPackageD.getPackageBarcode())){
+                WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
+                waybillPackageDTOTemp.setWaybillCode(deliverPackageD.getWaybillCode());
+                waybillPackageDTOTemp.setPackageCode(deliverPackageD.getPackageBarcode());
+                waybillPackageDTOTemp.setOriginalWeight(deliverPackageD.getGoodWeight());
+                waybillPackageDTOTemp.setWeight(deliverPackageD.getAgainWeight());
+                waybillPackageDTOTemp.setOriginalVolume(StringHelper.isDouble(deliverPackageD.getGoodVolume()) ? Double.parseDouble(deliverPackageD.getGoodVolume()) : 0);
+                waybillPackageDTOTemp.setVolume(StringHelper.isDouble(deliverPackageD.getGoodVolume()) ? Double.parseDouble(deliverPackageD.getGoodVolume()) : 0);
+                return waybillPackageDTOTemp;
+            }
+        }
+        return null;
     }
 }
