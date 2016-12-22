@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.areadest.service;
 
+import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.api.response.AreaDestTree;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
@@ -49,6 +50,46 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
+    public boolean saveOrUpdate(AreaDestRequest request, String user, Integer userCode) {
+        try {
+            if (request.getReceiveSiteCodeName() != null && request.getReceiveSiteCodeName().size() > 0) {
+                Integer createSiteCode = request.getCreateSiteCode();
+                Integer transferSiteCode = request.getTransferSiteCode();
+                List<AreaDest> areaDestList = new ArrayList<AreaDest>();
+
+                for (String codeName : request.getReceiveSiteCodeName()) {
+                    if (codeName != null && !"".equals(codeName)) {
+                        String[] arr = codeName.split(",");
+                        if (arr.length > 1) {
+                            Integer receiveSiteCode = Integer.valueOf(arr[0]);
+                            int result = this.doEnable(createSiteCode, transferSiteCode, receiveSiteCode, user, userCode);
+                            if (result <= 0) {
+                                AreaDest area = new AreaDest();
+                                area.setCreateSiteCode(createSiteCode);
+                                area.setCreateSiteName(request.getCreateSiteName());
+                                area.setTransferSiteCode(transferSiteCode);
+                                area.setTransferSiteName(request.getTransferSiteName());
+                                area.setReceiveSiteCode(Integer.valueOf(arr[0]));
+                                area.setReceiveSiteName(arr[1]);
+                                area.setCreateUser(user);
+                                area.setCreateUserCode(userCode);
+                                areaDestList.add(area);
+                            }
+                        }
+                    }
+                }
+                if (areaDestList.size() > 0) {
+                    return add(areaDestList);
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("区域批次目的地配置保存更新失败！", e);
+        }
+        return false;
+    }
+
+    @Override
     public boolean update(AreaDest areaDest) {
         try {
             areaDestDao.update(areaDest);
@@ -60,7 +101,22 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
-    public boolean disable(Integer createSiteCode, Integer transferSiteCode, Integer receiveSiteCode, String updateUser, Integer updateUserCode) {
+    public boolean disable(Integer id, String updateUser, Integer updateUserCode) {
+        try {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("updateUser", updateUser);
+            params.put("updateUserCode", updateUserCode);
+            params.put("id", id);
+            areaDestDao.disableById(params);
+            return true;
+        } catch (Exception e) {
+            logger.error("区域批次目的地配置逻辑删除失败！", e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean disable(Integer createSiteCode, Integer transferSiteCode, List<Integer> receiveSiteCode, String updateUser, Integer updateUserCode) {
         try {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("createSiteCode", createSiteCode);
@@ -77,14 +133,39 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
-    public boolean disable(Integer id) {
+    public boolean enable(Integer id, String updateUser, Integer updateUserCode) {
         try {
-            areaDestDao.disableById(id);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("updateUser", updateUser);
+            params.put("updateUserCode", updateUserCode);
+            params.put("id", id);
+            areaDestDao.enableById(params);
             return true;
         } catch (Exception e) {
-            logger.error("区域批次目的地配置逻辑删除失败！", e);
+            logger.error("区域批次目的地配置设置为有效失败！", e);
         }
         return false;
+    }
+
+    @Override
+    public boolean enable(Integer createSiteCode, Integer transferSiteCode, Integer receiveSiteCode, String updateUser, Integer updateUserCode) {
+        try {
+            doEnable(createSiteCode, transferSiteCode, receiveSiteCode, updateUser, updateUserCode);
+            return true;
+        } catch (Exception e) {
+            logger.error("区域批次目的地配置设置为有效失败！", e);
+        }
+        return false;
+    }
+
+    private int doEnable(Integer createSiteCode, Integer transferSiteCode, Integer receiveSiteCode, String updateUser, Integer updateUserCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("createSiteCode", createSiteCode);
+        params.put("transferSiteCode", transferSiteCode);
+        params.put("receiveSiteCode", receiveSiteCode);
+        params.put("updateUser", updateUser);
+        params.put("updateUserCode", updateUserCode);
+        return areaDestDao.enableByParams(params);
     }
 
     @Override

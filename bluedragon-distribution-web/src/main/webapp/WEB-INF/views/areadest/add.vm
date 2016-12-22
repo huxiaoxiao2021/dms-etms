@@ -28,7 +28,10 @@
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
-    <style type="text/css"></style>
+    <style type="text/css">
+        h1, option { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; font-size:17px;}
+        .myfont { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; font-size:17px;}
+    </style>
 </head>
 
 <body>
@@ -77,7 +80,6 @@
                         </select>
                     </td>
                     <td>
-                        <input type="button" id="saveBtn" name="search" value="保存" class="btn_c"/>
                         <input type="button" id="goBackBtn" name="goback" value="返回" class="btn_c"/>
                     </td>
                 </tr>
@@ -89,22 +91,25 @@
     <div id="opening">
         <div class="tbl-list">
             <div class="tbl-bg">
-                <input type="hidden" id="selectedOrg" name="selectedOrg" value=""/>
-                <div>
-                    <div id="myAlert" class="alert alert-warning">
-                        <a href="#" class="close" data-dismiss="alert">&times;</a>
-                        <strong>警告！</strong>请每个机构页签分别保存！
+                <div style="height: 50px">
+                    <div id="successAlert" class="alert alert-success alert-dismissable" style="display:none">
+                        #*<a href="#" class="close" data-dismiss="alert">&times;</a>*#
+                        <strong class="myfont">保存成功！</strong>
+                    </div>
+                    <div id="failureAlert" class="alert alert-danger alert-dismissable" style="display:none">
+                        #*<a href="#" class="close" data-dismiss="alert">&times;</a>*#
+                        <strong class="myfont">保存失败！</strong>
                     </div>
                 </div>
                 <div class="tbl-left" style="width:30%;float:left">
-                    <ul id="myTab" class="nav nav-pills nav-stacked" style="display:block;width:30%;float:right;padding-top:30px;">
+                    <ul id="myTab" class="nav nav-pills nav-stacked" style="display:block;width:30%;float:right;padding-top:50px;">
                         <li class="active" onclick="loadSelected('all');">
-                            <a href="#all" data-toggle="tab">全国</a>
+                            <a href="#all" class="myfont" data-toggle="tab">全国</a>
                         </li>
                         #if(!$null.isNull($!allOrgs))
                             #foreach($org in $allOrgs)
                                 <li onclick="loadSelected($org.orgId);">
-                                    <a href="" data-toggle="tab">$org.orgName</a>
+                                    <a href="" class="myfont" data-toggle="tab">$org.orgName</a>
                                 </li>
                             #end
                         #end
@@ -116,13 +121,17 @@
                             <table class="display" style="width:70%;float:left;margin:0 auto">
                                 <tbody>
                                 <tr>
-                                    <td>可选目的分拣中心：</td>
+                                    <td><h1>可选目的分拣中心：</h1></td>
                                     <td></td>
-                                    <td>已选目的分拣中心：</td>
+                                    <td><h1>已选目的分拣中心：</h1></td>
                                 </tr>
                                 <tr>
                                     <td width="500px">
-                                        <select id="multiSelect_from" name="from[]" size=20 class="multiselect form-control" multiple="multiple" data-right="#multiSelect_to" data-right-all="#right_all" data-right-selected="#right_selected" data-left-all="#left_all" data-left-selected="#left_selected">
+                                        <select id="multiSelect_from" name="from[]" size=20
+                                                class="multiselect form-control" multiple="multiple"
+                                                data-right="#multiSelect_to" data-right-all="#right_all"
+                                                data-right-selected="#right_selected" data-left-all="#left_all"
+                                                data-left-selected="#left_selected" style="height: 430px">
                                         </select>
                                     </td>
                                     <td width="18px" align="center" valign="middle">
@@ -132,7 +141,8 @@
                                         <i id="left_all" class="glyphicon glyphicon-backward"></i><br/><br/><br/>
                                     </td>
                                     <td width="500px">
-                                        <select id="multiSelect_to" name="to[]" size=20 class="form-control" multiple="multiple">
+                                        <select id="multiSelect_to" name="to[]" size=20 class="multiselect form-control"
+                                                multiple="multiple" style="height: 430px">
                                         </select>
                                     </td>
                                 </tr>
@@ -145,10 +155,5 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    jQuery(document).ready(function($) {
-        $('.multiselect').multiselect();
-    });
-</script>
 </body>
 </html>

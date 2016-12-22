@@ -1,19 +1,17 @@
 //初始化
 $(document).ready(main);
 
+var timeId = null;
+
 function main() {
     // 机构变更
     $("#deviceOrg").change(function () {
         orgChange($(this).val());
     });
 
+    // 中转分拣中心变更
     $("#transferSite").change(function () {
         siteChange();
-    });
-
-    // 保存提交按钮
-    $('#saveBtn').click(function () {
-        doSave();
     });
 
     // 返回按钮
@@ -21,51 +19,70 @@ function main() {
         goBack();
     });
 
-    $("#multiSelect_from").multiselect({
-        afterMoveToRight: function ($left, $right, $options) {
-            /*alert($options.length);
-             alert($options[0].value);*/
+    $('.multiselect').multiselect({
+        sort: false,
+        beforeMoveToRight: function ($left, $right, $options) {
+            delTimeout();
+            return doSave("add", $options);
+        },
+        beforeMoveToLeft: function ($left, $right, $options) {
+            delTimeout();
+            return doSave("remove", $options);
         }
     });
-
-    $("#multiSelect_to").multiselect({
-        afterMoveToLeft: function ($left, $right, $options) {
-            /*alert($options.length);
-             alert($options[0].value);*/
-        }
-    });
-
 }
 
-function doSave() {
-    var params = getParams();
+function doSave(type, $options) {
+    var params = getParams(type, $options);
     if (checkParams(params)) {
         var contextPath = $("#contextPath").val();
-        var url = contextPath + "/areadest/save";
-        CommonClient.postJson(url, params, function (data) {
+        if (type == "add") {
+            var url = contextPath + "/areadest/save";
+        } else {
+            var url = contextPath + "/areadest/remove";
+        }
+        var result = false;
+        syncAjaxJson("POST", url, params, function (data) {
             if (data.code == 200) {
-                alert("保存成功！");
-                //document.location.href = contextPath + "/areadest/index";
+                showAlert("successAlert");
+                result = true;
             } else {
-                if (data.message) {
-                    alert('提示:' + data.message);
-                } else {
-                    alert('提示:添加异常');
-                }
+                showAlert("failureAlert");
+                result = false;
             }
         });
+        return result;
     }
+    return false;
 }
 
-function getParams() {
+function showAlert(id) {
+    $("#" + id).show();
+    timeId = setTimeout(function () {
+        $("#" + id).hide();
+    }, 1000);
+}
+
+function delTimeout() {
+    window.clearTimeout(timeId);
+    $("#successAlert").hide();
+    $("#failureAlert").hide();
+}
+
+function getParams(type, $options) {
     var arr = new Array();
-
-    $('#multiSelect_to option').each(function () {
-        arr.push($(this).text());
-    });
-
+    if ($options != null && $options.length > 0) {
+        if (type == "add") {
+            for (var i = 0; i < $options.length; i++) {
+                arr.push($options[i].value + "," + $options[i].text);
+            }
+        } else {
+            for (var i = 0; i < $options.length; i++) {
+                arr.push($options[i].value);
+            }
+        }
+    }
     var params = {};
-    params.receiveSiteOrg = $("#selectedOrg").val();
     params.createSiteName = $("#createSiteName").val();
     params.createSiteCode = $("#createSiteCode").val();
     params.transferSiteCode = $("#transferSite").val();
@@ -79,7 +96,7 @@ function checkParams(params) {
         return false;
     }
     if (params.createSiteCode == null || params.createSiteCode <= 0) {
-        alert("参数错误，请退出重新登录！");
+        alert("获取始发分拣中心失败，请确认用户是否关联分拣中心！");
         return false;
     }
     if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
@@ -102,7 +119,7 @@ function orgChange(orgId) {
         initDmsSelect();
         return;
     }
-    var url = $("#contextPath").val() + "/areadest/dmslist";
+    var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
     var param = {"orgId": orgId};
     $.getJSON(url, param, function (data) {
         initDmsSelect(data);
@@ -143,11 +160,9 @@ function loadSelected(orgId) {
     $.blockUI({message: "<span class='pl20 icon-loading'>正在加载,请稍后...</span>"});
     clearMultiSelect();
     if (orgId == 'all') {
-        $("#selectedOrg").val("");
-        var url = $("#contextPath").val() + "/services/bases/dms";
+        var url = $("#contextPath").val() + "/services/bases/dms?" + Math.random();
     } else {
-        $("#selectedOrg").val(orgId);
-        var url = $("#contextPath").val() + "/areadest/dmslist";
+        var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
     }
     var createSiteCode = $("#createSiteCode").val();
     var transferSiteCode = $("#transferSite").find("option:selected").val();
@@ -156,9 +171,10 @@ function loadSelected(orgId) {
         $.getJSON(url, param, function (data) {
             if (data != null && data.length > 0) {
                 var innerParams = {"createSiteCode": createSiteCode, "transferSiteCode": transferSiteCode};
-                var getUrl = $("#contextPath").val() + "/areadest/dmsselected";
+                var getUrl = $("#contextPath").val() + "/areadest/dmsselected?" + Math.random();
                 $.getJSON(getUrl, innerParams, function (selectedData) {
                     addOptions(data, selectedData);
+                    $.unblockUI();
                 });
             } else {
                 $.unblockUI();
@@ -178,19 +194,38 @@ function addOptions(data, selectedData) {
             for (var j = 0; j < selectedData.length; j++) {
                 if (data[i].siteCode == selectedData[j].receiveSiteCode) {
                     flag = true;
-                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + " " + data[i].siteName + "</option>";
+                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteName + "</option>";
                     toOption += option;
                     break;
                 }
             }
         }
         if (!flag) {
-            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + " " + data[i].siteName + "</option>";
+            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteName + "</option>";
             fromOption += option;
         }
     }
     $('#multiSelect_to').append(toOption);
     $('#multiSelect_from').append(fromOption);
-    $.unblockUI();
 }
 
+function syncAjaxJson(type, url, param, successFunction) {
+    jQuery.ajax({
+        type: type,
+        url: url,
+        data: JSON.stringify(param),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        async: false,
+        beforeSend: function (jqXHR, settings) {
+            /*$.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});*/
+        },
+        success: successFunction,
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error:status[" + jqXHR.status + "],statusText[" + jqXHR.statusText + "]");
+        },
+        complete: function (jqXHR, textStatus) {
+            /*$.unblockUI();*/
+        }
+    });
+};
