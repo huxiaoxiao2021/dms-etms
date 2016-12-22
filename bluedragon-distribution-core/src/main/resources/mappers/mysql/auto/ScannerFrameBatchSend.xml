@@ -71,8 +71,12 @@
     <sql id="getSplitPageListWhere">
         WHERE
         MACHINE_ID=#{data.machineId,jdbcType=BIGINT}
-        AND CREATE_TIME>=#{data.startTime,jdbcType=TIMESTAMP}
-        AND CREATE_TIME<![CDATA[<]]>#{data.endTime,jdbcType=TIMESTAMP}
+        <if test="data.startTime != null">
+            AND CREATE_TIME>=#{data.startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="data.endTime != null">
+            AND CREATE_TIME<![CDATA[<]]>#{data.endTime,jdbcType=TIMESTAMP}
+        </if>
         <if test="data.receiveSiteCode!=null">
             AND  RECEIVE_SITE_CODE=#{receiveSiteCode,jdbcType=INTEGER}
         </if>
