@@ -147,8 +147,8 @@ function exportData(params) {
                 + params.machineId + "&startTime="
                 + params.startTime + "&endTime="
                 + params.endTime;
-            if (params.SendStatus != null)
-                url += "&SendStatus=" + params.SendStatus;
+            if (params.sendStatus != null)
+                url += "&sendStatus=" + params.sendStatus;
             window.open (url,"_parent");
         } else {
             alert(result.message);
