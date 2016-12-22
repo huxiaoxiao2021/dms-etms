@@ -84,7 +84,7 @@
                     <span>分拣中心：
                     </span><select name="siteOrg" id="siteOrg" value="" class="textField" readonly="readonly">
                         #if($!{siteCode})
-                            <option value="siteCode">$!{siteCode}&nbsp;$!{siteName}</option>
+                            <option value="$!{siteCode}">$!{siteCode}&nbsp;$!{siteName}</option>
                         #else
                             <option value="">（分拣中心加载失败）</option>
                         #end
