@@ -22,12 +22,13 @@
         <result column="lock_user_name" property="lockUserName"/>
         <result column="SYSDATE" property="dbTime"/>
         <result column="yn" property="yn"/>
+        <result column="is_new" property="isNew"/>
     </resultMap>
     <sql id="fields">
         id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn,SYSDATE
+        yn,is_new,SYSDATE
     </sql>
 
     <insert id="add" parameterType="gantryDeviceConfig">
@@ -35,12 +36,12 @@
         machine_id,operate_user_id,operate_user_erp,operate_user_name,
         update_user_erp,update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn)
+        yn,is_new)
         VALUES (SEQ_GANTRY_DEVICE_CONFIG.NEXTVAL,
         #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
         #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
         #{businessTypeRemark,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},SYSDATE,SYSDATE+1 ,1,#{lockUserErp,jdbcType=VARCHAR},#{lockUserName,jdbcType=VARCHAR},
-        1)
+        1,1)
     </insert>
 
     <insert id="addUseJavaTime" parameterType="gantryDeviceConfig">
@@ -48,7 +49,7 @@
         machine_id,operate_user_id,operate_user_erp,operate_user_name,
         update_user_erp,update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn)
+        yn,is_new)
         VALUES (SEQ_GANTRY_DEVICE_CONFIG.NEXTVAL,
         #{machineId,jdbcType=INTEGER},#{operateUserId,jdbcType=INTEGER},#{operateUserErp,jdbcType=VARCHAR},#{operateUserName,jdbcType=VARCHAR},
         #{updateUserErp,jdbcType=VARCHAR},#{updateUserName,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},#{businessType,jdbcType=INTEGER},
@@ -56,7 +57,7 @@
         to_date(to_char(#{startTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss'),
         to_date(to_char(#{endTime,jdbcType=TIMESTAMP},'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:ss') ,
         1,#{lockUserErp,jdbcType=VARCHAR},#{lockUserName,jdbcType=VARCHAR},
-        1)
+        1,1)
     </insert>
 
     <select id="findMaxStartTimeGantryDeviceConfigByMachineId" resultMap="gantryDeviceConfig"
@@ -64,7 +65,7 @@
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn,SYSDATE
+        yn,is_new,SYSDATE
         FROM gantry_device_config WHERE machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
         AND yn = 1
@@ -78,7 +79,7 @@
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn,SYSDATE
+        yn,is_new,SYSDATE
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND ROWNUM <![CDATA[<=]]> 1
@@ -89,7 +90,7 @@
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn,SYSDATE
+        yn,is_new,SYSDATE
         FROM gantry_device_config
         WHERE  machine_id = #{machineId,jdbcType=INTEGER}
         AND yn = 1
@@ -99,7 +100,7 @@
         SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
-        yn,SYSDATE
+        yn,is_new,SYSDATE
         FROM gantry_device_config
         WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND yn = 1

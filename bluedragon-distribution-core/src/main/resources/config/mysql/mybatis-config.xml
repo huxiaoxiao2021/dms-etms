@@ -92,7 +92,8 @@
 
         <!-- xumei -->
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
-        <typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
+		<typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
+        <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDest" alias="AreaDest"/>
     </typeAliases>
     <!--<plugins>-->
 
@@ -266,12 +267,17 @@
         <mapper resource="mappers/mysql/gantry/GantryDeviceMapper.xml"/>
         <mapper resource="mappers/mysql/gantry/GantryDeviceConfigMapper.xml"/>
         <mapper resource="mappers/mysql/freshWaybill/freshWaybillMapper.xml"/>
-
         <!-- xumei -->
         <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
         <mapper resource="mappers/mysql/dbs/objectIdMapper.xml"/>
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
+
+        <!-- hanjiaxing -->
+        <mapper resource="mappers/mysql/gantry/GantryExceptionMapper.xml"/>
         <mapper resource="mappers/mysql/auto/ScannerFrameBatchSend.xml"/>
+
+        <mapper resource="mappers/mysql/areadest/AreaDestMapper.xml"/>
+
     </mappers>
 
 </configuration>

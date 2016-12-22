@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -218,6 +219,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
     private DefaultJMQProducer dmsWorkSendDetailMQ;
+
+    //added by hanjiaxing 2016.12.20
+    @Autowired
+    private GantryExceptionService gantryExceptionService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -1358,6 +1363,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 Message sendMessage = parseSendDetailToMessage(tSendDatail);
                                 this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+
+                                //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
+                                int updateCount = gantryExceptionService.updateSendStatus(tSendDatail.getBoxCode());
+                                if (updateCount > 0) {
+                                    this.logger.info("更新异常信息发货状态，箱号：" + tSendDatail.getBoxCode());
+                                }
 
 
                             } else if (tSendDatail.getYn().equals(0) && tSendDatail.getIsCancel().equals(2)) {

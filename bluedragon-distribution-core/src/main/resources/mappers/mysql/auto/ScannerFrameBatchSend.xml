@@ -24,7 +24,7 @@
 	</resultMap>
     <sql id="allFieldsExcludeIdAndTs">
         MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
-        RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODe, CREATE_USER_NAME,
+        RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODE, CREATE_USER_NAME,
         UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
 	<insert id="add" parameterType="scannerFrameBatchSend"  >
@@ -53,11 +53,11 @@
     <select id="selectCurrentBatchSend" parameterType="java.util.Map" resultMap="resultListMap">
         SELECT ID ,
         <include refid="allFieldsExcludeIdAndTs"/>
-        ,TS FROM scanner_frame_batch_send
+        FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=TIMESTAMP}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
-              AND machine_id=#{machineId,jdbcType=LONG}
-              AND receive_site_code=#{receiveSiteCode.jdbcType.LONG}
+              AND machine_id=#{machineId,jdbcType=INTEGER}
+              AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
         order by CREATE_TIME DESC
         limit 1
     </select>
@@ -111,5 +111,34 @@
         FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
         GROUP BY RECEIVE_SITE_CODE)T
+    </select>
+
+    <select id="queryByIds" parameterType="java.util.List" resultMap="resultListMap">
+        SELECT
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        WHERE ID in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY CREATE_TIME desc
+    </select>
+
+    <select id="queryByMachineIdAndTime" parameterType="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument" resultMap="resultListMap">
+        SELECT
+          <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        <where>
+          <if test="machineId != null">
+            MACHINE_ID = #{machineId,jdbcType=BIGINT}
+          </if>
+          <if test="startTime != null">
+            AND CREATE_TIME > #{startTime,jdbcType=TIMESTAMP}
+          </if>
+          <if test="endTime != null">
+            AND CREATE_TIME <![CDATA[<=]]> #{endTime,jdbcType=TIMESTAMP}
+          </if>
+        </where>
     </select>
 </mapper>
