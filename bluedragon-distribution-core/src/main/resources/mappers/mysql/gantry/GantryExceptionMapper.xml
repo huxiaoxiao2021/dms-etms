@@ -24,8 +24,20 @@
         TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS
     </sql>
     <sql id="gantryExceptionColumnNoID" >
-        MACHINE_ID, BAR_CODE, WAYBILL_CODE,
-        CREATE_SITE_CODE, CREATE_SITE_NAME, VOLUME,
+            MACHINE_ID,
+            BAR_CODE,
+        <if test = "waybillCode != null">
+            WAYBILL_CODE,
+        </if>
+        <if test = "createSiteCode != null">
+            CREATE_SITE_CODE,
+        </if>
+        <if test = "createSiteName != null">
+            CREATE_SITE_NAME,
+        </if>
+        <if test = "volume != null">
+            VOLUME,
+        </if>
         TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS
     </sql>
 
@@ -57,9 +69,20 @@
         INSERT INTO GANTRY_EXCEPTION
           (<include refid="gantryExceptionColumnNoID" />)
         VALUES (
-          #{machineId, jdbcType=BIGINT}, #{barCode, jdbcType=VARCHAR},
-          #{waybillCode, jdbcType=VARCHAR}, #{createSiteCode, jdbcType=BIGINT}, #{createSiteName, jdbcType=VARCHAR},
-          #{volume, jdbcType=DECIMAL}, #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
+        #{machineId, jdbcType=BIGINT}, #{barCode, jdbcType=VARCHAR},
+        <if test = "waybillCode != null">
+            #{waybillCode, jdbcType=VARCHAR},
+        </if>
+        <if test = "createSiteCode != null">
+            #{createSiteCode, jdbcType=BIGINT},
+        </if>
+        <if test = "createSiteName != null">
+            #{createSiteName, jdbcType=VARCHAR},
+        </if>
+        <if test = "volume != null">
+            #{volume, jdbcType=DECIMAL},
+        </if>
+           #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
           now(), now(), 1, 0
         )
     </insert>

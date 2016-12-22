@@ -24,8 +24,6 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
 
     private static final Log logger = LogFactory.getLog(GantryExceptionServiceImpl.class);
 
-    static final Double VOLUME_DEFAULT = 0.0;
-
     @Autowired
     GantryExceptionDao gantryExceptionDao;
 
@@ -48,32 +46,25 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
     /**
      * 插入异常
      *
-     * @param gantryException machineId、barCode、waybillCode、createSiteCode、createSiteName、operateTime和type不能为空
+     * @param gantryException machineId、barCode、operateTime和type不能为空
      *
      */
     @Override
     public int addGantryException(GantryException gantryException) {
-        if (gantryException.getMachineId() == null ||
-                StringHelper.isEmpty(gantryException.getBarCode()) ||
-                StringHelper.isEmpty(gantryException.getWaybillCode()) ||
-                gantryException.getCreateSiteCode() == null ||
-                StringHelper.isEmpty(gantryException.getCreateSiteName()) ||
-                gantryException.getOperateTime() == null) {
-            return 0;
-        }
-
-        if (gantryException.getVolume() == null) {
-            gantryException.setVolume(VOLUME_DEFAULT);
-        }
+//        if (gantryException.getMachineId() == null ||
+//                StringHelper.isEmpty(gantryException.getBarCode()) ||
+//                gantryException.getOperateTime() == null) {
+//            return 0;
+//        }
 
         return gantryExceptionDao.addGantryException(gantryException);
     }
 
     @Override
-    public Integer getGantryExceptionCount(Long machineId, Date beginTime, Date endTime) {
+    public Integer getGantryExceptionCount(Long machineId, Date startTime, Date endTime) {
         HashMap<String, Object> param = new HashMap();
         param.put("machineId", machineId);
-        param.put("beginTime", beginTime);
+        param.put("startTime", startTime);
         param.put("endTime", endTime);
 
         return gantryExceptionDao.getGantryExceptionCount(param);
