@@ -9,9 +9,11 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -27,10 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2016/3/10.
@@ -42,6 +41,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Autowired
     private GantryDeviceConfigService gantryDeviceConfigService;
+
+    @Autowired
+    private GantryDeviceService gantryDeviceService;
 
     @Autowired
     private WaybillService waybillService;
@@ -89,8 +91,10 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         }
         boolean result = false;
         domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
+
         // 判断操作类型是否为发货并且龙门架为新设备
-        if (config.getIsNew() == 1) {
+        Byte version = getVersion(config.getMachineId());
+        if (version != null && version == 1) {
             String sendCode = getSendCode(domain, config);
             if (sendCode != null && !"".equals(sendCode)) {
                 config.setSendCode(sendCode);
@@ -108,9 +112,24 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 }
                 result = consume.getValue().onMessage(domain, config);
             }
-
         }
         return result;
+    }
+
+    /**
+     * 获取设备版本
+     *
+     * @param machineId
+     * @return
+     */
+    private Byte getVersion(Integer machineId) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("machineId", machineId);
+        List<GantryDevice> gantryDevice = gantryDeviceService.getGantry(param);
+        if (gantryDevice != null && gantryDevice.size() > 0) {
+            return gantryDevice.get(0).getVersion();
+        }
+        return null;
     }
 
     /**

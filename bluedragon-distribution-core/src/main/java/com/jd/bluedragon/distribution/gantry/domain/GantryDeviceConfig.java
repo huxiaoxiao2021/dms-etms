@@ -121,11 +121,6 @@ public class GantryDeviceConfig {
 
     private Integer yn;
 
-    /**
-     * 是否是新设备，0-老设备，1-新设备
-     */
-    private Integer isNew;
-
     public Long getId() {
         return id;
     }
@@ -284,14 +279,6 @@ public class GantryDeviceConfig {
 
     public void setYn(Integer yn) {
         this.yn = yn;
-    }
-
-    public Integer getIsNew() {
-        return isNew;
-    }
-
-    public void setIsNew(Integer isNew) {
-        this.isNew = isNew;
     }
 
     @Override
