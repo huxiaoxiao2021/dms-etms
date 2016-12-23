@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.web.gantry;
 
+import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
+import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
@@ -16,6 +19,8 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.RestHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -28,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +45,10 @@ import java.util.List;
 public class GantryAutoSendController {
 
     private static final Log logger = LogFactory.getLog(GantryAutoSendController.class);
+
+    private final static String HTTP = "http://";
+
+    private final static String prefixKey = "HeadquartersIp";
 
     @Autowired
     BaseMajorManager baseMajorManager;
@@ -316,6 +326,62 @@ public class GantryAutoSendController {
 
         return result;
     }
+
+    /**
+     * 批次号打印
+     */
+    @RequestMapping(value = "/sendCodePrint" ,method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(GantryDeviceConfigRequest request){
+        this.logger.info("龙门架打印数据开始-->需要打印的龙门架ID为" + request.getMachineId());
+        InvokeResult<List<BatchSendPrintImageResponse>> result = new InvokeResult<List<BatchSendPrintImageResponse>>();
+        result.setCode(400);
+        result.setMessage("服务调用成功，数据为空");
+
+        if(request.getMachineId() == null){
+            result.setCode(200);
+            result.setMessage("服务调用成功，龙门架参数错误");
+            return result;
+        }
+
+        ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
+        sfbssa.setMachineId(request.getMachineId());//查询参数只有龙门架ID
+        Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
+        argumentPager.setStartIndex(0);
+        argumentPager.setPageSize(500);//最多一次打印500条
+        argumentPager.setData(sfbssa);
+        try{
+            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询批次信息
+            List<ScannerFrameBatchSend> dataRequest = pagerResult.getData();//取所有批次信息
+            List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
+            String url =HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
+            for(ScannerFrameBatchSend item : dataRequest){
+                BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
+                itemRequest.setSendCode(item.getSendCode());
+                itemRequest.setCreateSiteCode((int)item.getCreateSiteCode());
+                itemRequest.setCreateSiteName(item.getCreateSiteName());
+                itemRequest.setReceiveSiteCode((int)item.getReceiveSiteCode());
+                itemRequest.setReceiveSiteName(item.getReceiveSiteName());
+                itemRequest.setPackageNum(100);
+
+                BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url,itemRequest,new TypeReference<BatchSendPrintImageResponse>(){});
+                results.add(itemResponse);
+
+                result.setCode(200);
+                result.setMessage("服务调用成功");
+                result.setData(results);
+            }
+        }catch(Exception e) {
+            logger.error("获取数据异常");
+            result.setCode(500);
+            result.setMessage("服务调用异常");
+        }
+        return result;
+    }
+
+
+
+
 
     /**
      * domain 类型转换
