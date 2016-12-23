@@ -473,6 +473,8 @@ public class BaseServiceImpl implements BaseService {
 
 
 	@Override
+	@Cache(key = "BaseService.getAllOrg", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseOrg> getAllOrg() {
 		try {
 			List<BaseOrg> orgal = basicPrimaryWS.getBaseOrgAll();
