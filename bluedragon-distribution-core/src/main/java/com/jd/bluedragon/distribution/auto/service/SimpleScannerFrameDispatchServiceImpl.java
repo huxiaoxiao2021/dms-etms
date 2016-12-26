@@ -94,7 +94,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
         // 判断操作类型是否为发货并且龙门架为新设备
         Byte version = getVersion(config.getMachineId());
-        if (version != null && version == 1) {
+        if (version != null && version.intValue() == 1) {
             String sendCode = getSendCode(domain, config);
             if (sendCode != null && !"".equals(sendCode)) {
                 config.setSendCode(sendCode);
@@ -215,7 +215,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             Waybill waybill = waybillDto.getWaybill();
             // 预分拣站点
             Integer siteCode = waybill.getOldSiteId();
-            if (siteCode != null && siteCode != 0) {
+            if (siteCode != null && siteCode.intValue() != 0) {
                 // 判断是否为自提柜
                 if (isZiTiGui(waybill)) {
                     // 获取自提柜所属站点编号
@@ -225,7 +225,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 // 根据所属站点获取对应目的分拣中心
                 Integer destSiteCode = baseStaffSiteOrgDto.getDmsId();
                 // 判断当前分拣中心与目的分拣中心是否一致
-                if (destSiteCode != config.getCreateSiteCode()) {
+                if (destSiteCode.intValue() != config.getCreateSiteCode().intValue()) {
                     String sendCode = getSendCodeSortingCenter(baseStaffSiteOrgDto.getDmsId(), domain.getScannerTime(), config);
                     if (logger.isInfoEnabled()) {
                         logger.info(MessageFormat.format("龙门架自动发货,跨分拣,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode));
