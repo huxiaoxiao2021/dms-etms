@@ -9,9 +9,11 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -27,10 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2016/3/10.
@@ -42,6 +41,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Autowired
     private GantryDeviceConfigService gantryDeviceConfigService;
+
+    @Autowired
+    private GantryDeviceService gantryDeviceService;
 
     @Autowired
     private WaybillService waybillService;
@@ -89,8 +91,10 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         }
         boolean result = false;
         domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
+
         // 判断操作类型是否为发货并且龙门架为新设备
-        if (config.getIsNew() == 1) {
+        Byte version = getVersion(config.getMachineId());
+        if (version != null && version.intValue() == 1) {
             String sendCode = getSendCode(domain, config);
             if (sendCode != null && !"".equals(sendCode)) {
                 config.setSendCode(sendCode);
@@ -108,9 +112,24 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 }
                 result = consume.getValue().onMessage(domain, config);
             }
-
         }
         return result;
+    }
+
+    /**
+     * 获取设备版本
+     *
+     * @param machineId
+     * @return
+     */
+    private Byte getVersion(Integer machineId) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("machineId", machineId);
+        List<GantryDevice> gantryDevice = gantryDeviceService.getGantry(param);
+        if (gantryDevice != null && gantryDevice.size() > 0) {
+            return gantryDevice.get(0).getVersion();
+        }
+        return null;
     }
 
     /**
@@ -196,7 +215,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             Waybill waybill = waybillDto.getWaybill();
             // 预分拣站点
             Integer siteCode = waybill.getOldSiteId();
-            if (siteCode != null && siteCode != 0) {
+            if (siteCode != null && siteCode.intValue() != 0) {
                 // 判断是否为自提柜
                 if (isZiTiGui(waybill)) {
                     // 获取自提柜所属站点编号
@@ -206,7 +225,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 // 根据所属站点获取对应目的分拣中心
                 Integer destSiteCode = baseStaffSiteOrgDto.getDmsId();
                 // 判断当前分拣中心与目的分拣中心是否一致
-                if (destSiteCode != config.getCreateSiteCode()) {
+                if (destSiteCode.intValue() != config.getCreateSiteCode().intValue()) {
                     String sendCode = getSendCodeSortingCenter(baseStaffSiteOrgDto.getDmsId(), domain.getScannerTime(), config);
                     if (logger.isInfoEnabled()) {
                         logger.info(MessageFormat.format("龙门架自动发货,跨分拣,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode));
