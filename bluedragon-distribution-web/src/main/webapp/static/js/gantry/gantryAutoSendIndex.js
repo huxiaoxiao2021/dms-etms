@@ -40,7 +40,7 @@ $(document).ready(function(){
 
         /** 第一步：读取需要打印的方式(逻辑与)：1.打批次号 2.打汇总单 3.both**/
         var type = 0;
-        $("input[name=printstyle] :checked").each(function () {
+        $("input[name=printStyle]:checked").each(function () {
             type |= $(this).val();
         });
 
@@ -56,21 +56,27 @@ $(document).ready(function(){
         var list = [];
         var param = {};
         list.push({"machineId":$("#gantryDevice :selected").val()});
-        $("input[name=item] :checked").each(function () {
+        $("input[name=item]:checked").each(function () {
             param.machineId = $("#gantryDevice :selected").val();
             param.createSiteCode = $("#siteOrg :selected").val();
             param.receiveSiteCode = $(this).parent("tr").find("[name=receiveSite]").attr("title");
+            param.packageSum = $(this).parent("tr").find("[name=packageSum]").text();
             param.createTime = new Date($(this).parent("tr").find("[name=createTime]").text());
             list.push(param);
         });
 
         /** 第三步：判断需要哪些类型的打印(逻辑求和是否等于3) **/
         if((type&1) == 3){//处理 '批次号 打印
-            printAndEndSendCodeBtn(paramsWithID,printerSettingNames.labelPrinterValue);//打印事件
+            printAndEndSendCodeBtn(list,labelPrinterValue);//打印事件
         }
         if((type&2) == 3){//处理 '汇总单' 打印
             //todo 处理汇总单打印
         }
+
+        /** 刷新当前页面 **/
+        var currentPage = $(".current").text();
+        queryBatchSendSub(currentPage);
+
     });
 
     /** 换批次按钮点击事件 **/
@@ -452,8 +458,8 @@ function queryBatchSendCodes(params){
                 temp += "<td><input type='checkbox' name='item'></td>";
                 temp += "<td name='receiveSite' title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                 temp += "<td name='sendCode'>" + list[i].sendCode + "</td>";
-                temp += "<td>"+packageSum+"</td>";
-                temp += "<td>"+volumeSum+"</td>";
+                temp += "<td name='packageSum'>"+packageSum+"</td>";
+                temp += "<td name='volumeSum'>"+volumeSum+"</td>";
                 temp += "<td name='createTime'>" + timeStampToDate(list[i].createTime) + "</td>";
                 temp += "</tr>";
             }
