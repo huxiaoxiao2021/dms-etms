@@ -224,20 +224,26 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(siteCode);
                 // 根据所属站点获取对应目的分拣中心
                 Integer destSiteCode = baseStaffSiteOrgDto.getDmsId();
-                // 判断当前分拣中心与目的分拣中心是否一致
-                if (destSiteCode.intValue() != config.getCreateSiteCode().intValue()) {
-                    String sendCode = getSendCodeSortingCenter(baseStaffSiteOrgDto.getDmsId(), domain.getScannerTime(), config);
-                    if (logger.isInfoEnabled()) {
-                        logger.info(MessageFormat.format("龙门架自动发货,跨分拣,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode));
+                if (destSiteCode != null && config.getCreateSiteCode() != null) {
+                    // 判断当前分拣中心与目的分拣中心是否一致
+                    if (destSiteCode.intValue() != config.getCreateSiteCode().intValue()) {
+                        String sendCode = getSendCodeSortingCenter(baseStaffSiteOrgDto.getDmsId(), domain.getScannerTime(), config);
+                        if (logger.isInfoEnabled()) {
+                            logger.info(MessageFormat.format("龙门架自动发货,跨分拣,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode));
+                        }
+                        return sendCode;
+                    } else {
+                        // 直发站点 直接生成批次号
+                        ScannerFrameBatchSend batchSend = scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), waybill.getOldSiteId(), config);
+                        if (logger.isInfoEnabled()) {
+                            logger.info(MessageFormat.format("龙门架自动发货,直发站点,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), batchSend.getSendCode()));
+                        }
+                        return batchSend.getSendCode();
                     }
-                    return sendCode;
                 } else {
-                    // 直发站点 直接生成批次号
-                    ScannerFrameBatchSend batchSend = scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), waybill.getOldSiteId(), config);
-                    if (logger.isInfoEnabled()) {
-                        logger.info(MessageFormat.format("龙门架自动发货,直发站点,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), batchSend.getSendCode()));
+                    if (logger.isWarnEnabled()) {
+                        logger.warn(MessageFormat.format("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|获取站点对应分拣中心结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode));
                     }
-                    return batchSend.getSendCode();
                 }
             }
             this.addGantryException(domain, config, 1);
