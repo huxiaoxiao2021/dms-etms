@@ -92,6 +92,9 @@
               AND (SUPPLIER like   concat('%',#{supplier,jdbcType=VARCHAR})
 			  or SUPPLIER like   concat(#{supplier,jdbcType=VARCHAR},'%'))
           </if>
+          <if test="version != null">
+              AND VERSION = #{version, jdbcType=TINYINT}
+          </if>
       </where>
     </sql>
 

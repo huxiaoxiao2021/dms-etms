@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
@@ -67,6 +68,9 @@ public class GantryAutoSendController {
 
     @Autowired
     GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    private SiteService siteService;
 
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
@@ -155,6 +159,10 @@ public class GantryAutoSendController {
             }
             int count = 0;
             try{
+                BaseStaffSiteOrgDto site=siteService.getSite(request.getCreateSiteCode());
+                if(null!=site) {
+                    gantryDeviceConfig.setCreateSiteName(site.getSiteName());//根据createSiteName 读取一次分拣中心的名字(优化代码)
+                }
                 gantryDeviceConfig.setOperateUserErp(userCode);
                 gantryDeviceConfig.setOperateUserId(userId);
                 gantryDeviceConfig.setOperateUserName(userName);
@@ -332,30 +340,80 @@ public class GantryAutoSendController {
      */
     @RequestMapping(value = "/sendCodePrint" ,method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(GantryDeviceConfigRequest request){
-        this.logger.info("龙门架打印数据开始-->需要打印的龙门架ID为" + request.getMachineId());
+    public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSend[] requests){
+        this.logger.info("龙门架打印数据开始-->需要打印的龙门架ID为" + requests[0].getMachineId());
         InvokeResult<List<BatchSendPrintImageResponse>> result = new InvokeResult<List<BatchSendPrintImageResponse>>();
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
 
-        if(request.getMachineId() == null){
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        Integer userCode = 0;//用户编号
+        String userName = "none";//用户姓名
+        if(erpUser != null){
+            userCode = erpUser.getUserId() == null ? 0:erpUser.getUserId();
+            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+        }
+
+        Integer machineId = (int)requests[0].getMachineId();
+        if(machineId == null || machineId == 0){
             result.setCode(200);
             result.setMessage("服务调用成功，龙门架参数错误");
             return result;
         }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
-        sfbssa.setMachineId(request.getMachineId());//查询参数只有龙门架ID
+        sfbssa.setMachineId(machineId);//查询参数只有龙门架ID
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(500);//最多一次打印500条
         argumentPager.setData(sfbssa);
         try{
-            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询批次信息
+            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该龙门架的所有批次信息
             List<ScannerFrameBatchSend> dataRequest = pagerResult.getData();//取所有批次信息
+            if(requests.length > 0){
+                logger.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：" + requests.length);
+                /** 通过request判断是否有选中打印事件 **/
+                for(ScannerFrameBatchSend data : dataRequest){
+                    Integer itemReceiveSiteCode = (int)data.getReceiveSiteCode();
+                    boolean bool = false;
+                    for(ScannerFrameBatchSend itemRequest : requests){
+                        if (itemReceiveSiteCode == itemRequest.getReceiveSiteCode()){
+                            bool = true;
+                        }
+                    }
+                    if(!bool){
+                        dataRequest.remove(data);/** 不是请求的打印数据，则剔除 **/
+                    }
+                }
+                /** 判断结束，过滤出将要打印的List **/
+            }
+
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String url =HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
             for(ScannerFrameBatchSend item : dataRequest){
+                if(item.getReceiveSiteCode() == 0){
+                    //没有目的站点，自动退出循环
+                    continue;
+                }
+                /** 1.执行换批次动作 **/
+                logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
+                item.setPrintTimes((byte)0);
+                item.setLastPrintTime(null);
+                item.setCreateUserCode(userCode);
+                item.setCreateUserName(userName);
+                item.setUpdateUserCode(Long.valueOf(userCode));
+                item.setUpdateUserName(userName);
+                item.setCreateTime(new Date());
+                item.setUpdateTime(new Date());
+                item.setYn((byte)1);
+                item.setSendCode(SerialRuleUtil.generateSendCode(item.getCreateSiteCode(),item.getReceiveSiteCode(),item.getCreateTime()));
+                boolean bool = scannerFrameBatchSendService.generateSend(item);
+                /** 换批次动作执行完毕 **/
+                if(!bool){
+                    logger.error("换批次动作失败：打印跳过该批次：" + item.toString());
+                    continue;
+                }
+                /** 2. 获取打印图片 **/
                 BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
                 itemRequest.setSendCode(item.getSendCode());
                 itemRequest.setCreateSiteCode((int)item.getCreateSiteCode());
@@ -366,7 +424,7 @@ public class GantryAutoSendController {
 
                 BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url,itemRequest,new TypeReference<BatchSendPrintImageResponse>(){});
                 results.add(itemResponse);
-
+                /** 获取打印图片结束 **/
                 result.setCode(200);
                 result.setMessage("服务调用成功");
                 result.setData(results);
