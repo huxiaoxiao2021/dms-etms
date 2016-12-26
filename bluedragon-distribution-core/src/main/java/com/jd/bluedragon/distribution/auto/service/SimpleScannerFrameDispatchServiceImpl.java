@@ -186,7 +186,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 return sendCode;
             }
             // 直发站点 直接生成批次号
-            ScannerFrameBatchSend batchSend = scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), box.getReceiveSiteCode(), config);
+            ScannerFrameBatchSend batchSend = scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), baseStaffSiteOrgDto.getSiteCode(), config);
             if (logger.isInfoEnabled()) {
                 logger.info(MessageFormat.format("龙门架自动发货,直发站点,根据箱号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), batchSend.getSendCode()));
             }
