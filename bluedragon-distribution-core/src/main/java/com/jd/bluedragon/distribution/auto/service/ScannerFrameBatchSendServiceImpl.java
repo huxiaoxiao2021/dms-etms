@@ -24,9 +24,9 @@ import java.util.List;
 @Service("scannerFrameBatchSendService")
 public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendService {
 
-    private static final Log LOGGER= LogFactory.getLog(SimpleScannerFrameDispatchServiceImpl.class);
+    private static final Log LOGGER = LogFactory.getLog(SimpleScannerFrameDispatchServiceImpl.class);
 
-    private static final byte YN_DEFAULT=1;
+    private static final byte YN_DEFAULT = 1;
     @Autowired
     private ScannerFrameBatchSendDao scannerFrameBatchSendDao;
 
@@ -35,20 +35,21 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
 
     @Override
     public ScannerFrameBatchSend getAndGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config) {
-        if(null==config){
+        if (null == config) {
             throw new RuntimeException("the parameter of config can not be null");
         }
-        if(LOGGER.isInfoEnabled()){
-            LOGGER.info(MessageFormat.format("parameters is opeateTime:{0} receiveSiteCode:{1} config:{2}",operateTime,receiveSiteCode, config.toString()));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(MessageFormat.format("parameters is opeateTime:{0} receiveSiteCode:{1} config:{2}", operateTime, receiveSiteCode, config.toString()));
         }
-        ScannerFrameBatchSend batchSend= scannerFrameBatchSendDao.selectCurrentBatchSend(config.getMachineId(),receiveSiteCode,operateTime);
-        if(null==batchSend){
-            batchSend=new ScannerFrameBatchSend();
+        ScannerFrameBatchSend batchSend = scannerFrameBatchSendDao.selectCurrentBatchSend(config.getMachineId(), receiveSiteCode, operateTime);
+        if (null == batchSend) {
+            batchSend = new ScannerFrameBatchSend();
+            batchSend.setMachineId(config.getMachineId());
             batchSend.setCreateSiteCode(config.getCreateSiteCode());
             batchSend.setCreateSiteName(config.getCreateSiteName());
             batchSend.setReceiveSiteCode(receiveSiteCode);
-            BaseStaffSiteOrgDto site=siteService.getSite(receiveSiteCode);
-            if(null!=site) {
+            BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+            if (null != site) {
                 batchSend.setReceiveSiteName(site.getSiteName());
             }
             batchSend.setCreateTime(operateTime);
@@ -56,36 +57,37 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
             batchSend.setCreateUserName(config.getOperateUserName());
             batchSend.setYn(YN_DEFAULT);
             batchSend.setUpdateTime(batchSend.getCreateTime());
-            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(),batchSend.getReceiveSiteCode(),batchSend.getCreateTime()));
+            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
             generateSend(batchSend);
         }
-        if(LOGGER.isInfoEnabled()){
-            LOGGER.info(MessageFormat.format("result:{0}",batchSend.toString()));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(MessageFormat.format("result:{0}", batchSend.toString()));
         }
         return batchSend;
     }
 
     @Override
     public boolean generateSend(ScannerFrameBatchSend domain) {
-        return scannerFrameBatchSendDao.add(domain)>0;
+        return scannerFrameBatchSendDao.add(domain) > 0;
     }
 
     @Override
     public boolean submitPrint(long id, Integer operateUserId, String operateUserName) {
-        return scannerFrameBatchSendDao.updatePrintTimes(id)>0;
+        return scannerFrameBatchSendDao.updatePrintTimes(id) > 0;
     }
 
     /**
      * 查询历史记录
+     *
      * @param argumentPager 分页查询对象
      * @return
      */
     @Override
     public Pager<List<ScannerFrameBatchSend>> getSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
         argumentPager.init();
-        long count= scannerFrameBatchSendDao.getSplitPageListCount(argumentPager);
-        Pager<List<ScannerFrameBatchSend>> result=new Pager<List<ScannerFrameBatchSend>>(argumentPager.getPageNo(),argumentPager.getPageSize());
-        result.setTotalSize((int)count);
+        long count = scannerFrameBatchSendDao.getSplitPageListCount(argumentPager);
+        Pager<List<ScannerFrameBatchSend>> result = new Pager<List<ScannerFrameBatchSend>>(argumentPager.getPageNo(), argumentPager.getPageSize());
+        result.setTotalSize((int) count);
         result.setData(scannerFrameBatchSendDao.getSplitPageList(argumentPager));
         return result;
     }
@@ -93,23 +95,23 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     @Override
     public Pager<List<ScannerFrameBatchSend>> getCurrentSplitPageList(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
         argumentPager.init();
-        long count= scannerFrameBatchSendDao.getCurrentSplitPageListCount(argumentPager);
-        Pager<List<ScannerFrameBatchSend>> result=new Pager<List<ScannerFrameBatchSend>>(argumentPager.getPageNo(),argumentPager.getPageSize());
-        result.setTotalSize((int)count);
+        long count = scannerFrameBatchSendDao.getCurrentSplitPageListCount(argumentPager);
+        Pager<List<ScannerFrameBatchSend>> result = new Pager<List<ScannerFrameBatchSend>>(argumentPager.getPageNo(), argumentPager.getPageSize());
+        result.setTotalSize((int) count);
         result.setData(scannerFrameBatchSendDao.getCurrentSplitPageList(argumentPager));
         return result;
     }
 
     @Override
-    public boolean transSendCode(long userCode,String userName,List<Long> ids) {
-        if(null == ids && ids.size() == 0){
+    public boolean transSendCode(long userCode, String userName, List<Long> ids) {
+        if (null == ids && ids.size() == 0) {
             throw new RuntimeException("the parameter of list can not be null");
         }
-        if(LOGGER.isInfoEnabled()){
+        if (LOGGER.isInfoEnabled()) {
             LOGGER.info("换批次动作开始...换批次的条数为" + ids.size());
         }
         List<ScannerFrameBatchSend> batchSends = queryByIds(ids);
-        for(ScannerFrameBatchSend batchSend : batchSends){
+        for (ScannerFrameBatchSend batchSend : batchSends) {
             batchSend.setCreateSiteCode(batchSend.getCreateSiteCode());
             batchSend.setCreateSiteName(batchSend.getCreateSiteName());
             batchSend.setReceiveSiteCode(batchSend.getReceiveSiteCode());
@@ -119,11 +121,11 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
             batchSend.setCreateUserName(userName);
             batchSend.setYn(YN_DEFAULT);
             batchSend.setUpdateTime(new Date());
-            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(),batchSend.getReceiveSiteCode(),batchSend.getCreateTime()));
+            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
             generateSend(batchSend);
 
-            if(LOGGER.isInfoEnabled()){
-                LOGGER.info(MessageFormat.format("result:{0}",batchSend.toString()));
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(MessageFormat.format("result:{0}", batchSend.toString()));
             }
         }
         return true;
@@ -132,7 +134,7 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     /**
      * 通过ID获取其domain的方法
      */
-    private List<ScannerFrameBatchSend> queryByIds(List<Long> ids){
+    private List<ScannerFrameBatchSend> queryByIds(List<Long> ids) {
         List<ScannerFrameBatchSend> result = new ArrayList<ScannerFrameBatchSend>();
         result = scannerFrameBatchSendDao.queryByIds(ids);
         return result;
@@ -148,7 +150,7 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     @Override
     public ScannerFrameBatchSend selectCurrentBatchSend(long machineId, long receiveSiteCode, Date operateTime) {
         ScannerFrameBatchSend result = new ScannerFrameBatchSend();
-        result = scannerFrameBatchSendDao.selectCurrentBatchSend(machineId,receiveSiteCode,operateTime);
+        result = scannerFrameBatchSendDao.selectCurrentBatchSend(machineId, receiveSiteCode, operateTime);
         return result;
     }
 }
