@@ -107,12 +107,12 @@ public class WaybillServiceImpl implements WaybillService {
     @Override
     public WaybillPackageDTO getWaybillPackage(String packageCode) {
         WaybillPackageDTO waybillPackageDTO = null;
-        try{
-            waybillPackageDTO = waybillPackageDao.get(packageCode);
-        }catch(Exception e){
-            this.logger.warn("获取总部运单包裹缓存表信息出现异常,包裹号：" + packageCode , e);
-            return getPackageByWaybillInterface(packageCode);
-        }
+//        try{
+//            waybillPackageDTO = waybillPackageDao.get(packageCode);
+//        }catch(Exception e){
+//            this.logger.warn("获取总部运单包裹缓存表信息出现异常,包裹号：" + packageCode , e);
+//            return getPackageByWaybillInterface(packageCode);
+//        }
 
         if(waybillPackageDTO == null){
             return getPackageByWaybillInterface(packageCode);
