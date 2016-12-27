@@ -4,18 +4,15 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.common.base.Function;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.core.cassandra.*;
+import com.jd.bluedragon.core.cassandra.BaseCassandraDao;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.utils.JsonHelper;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.Resource;
+import java.util.*;
 
 public class OperationlogCassandra {
 
@@ -47,7 +44,7 @@ public class OperationlogCassandra {
 
 	private PreparedStatement preparedwaybill() {
 		RegularStatement toPrepare = new SimpleStatement(
-				"insert into operationlogwaybill ( code , uu_id  , body,time) values ( ?,?,?,?) USING TTL " + ttl
+                "insert into operationlogwaybill ( code , uu_id  , body,time) values ( ?,?,?,?) USING TTL " + ttl
 						+ ";");
 		toPrepare.setConsistencyLevel(consistencyLevel);
 		return baseCassandraDao.getSession().prepare(toPrepare);
@@ -91,28 +88,28 @@ public class OperationlogCassandra {
 				if (preparedwaybill == null)
 					preparedwaybill = preparedwaybill();
 				BoundStatement bStatement = preparedwaybill.bind(log.getWaybillCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), operateTime);
+						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getBoxCode() != null && !log.getBoxCode().isEmpty()) {
 				if (preparedbox == null)
 					preparedbox = preparedbox();
 				BoundStatement bStatement = preparedbox.bind(log.getBoxCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), operateTime);
+						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getPackageCode() != null && !log.getPackageCode().isEmpty()) {
 				if (preparedpackage == null)
 					preparedpackage = preparedpackage();
 				BoundStatement bStatement = preparedpackage.bind(log.getPackageCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), operateTime);
+						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getPickupCode() != null && !log.getPickupCode().isEmpty()) {
 				if (preparedpickCode == null)
 					preparedpickCode = preparedpickCode();
 				BoundStatement bStatement = preparedpickCode().bind(log.getPickupCode(), UUIDs.timeBased().toString(),
-						JsonHelper.toJson(log), operateTime);
+						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 
