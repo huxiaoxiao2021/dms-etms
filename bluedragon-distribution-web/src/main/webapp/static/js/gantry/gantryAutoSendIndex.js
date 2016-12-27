@@ -111,6 +111,19 @@ $(document).ready(function(){
         toGantryExceptionPage();
     })
 
+    /** 定时刷新数据 **/
+    var flashT;
+    $("#flash").click(function () {
+        if($(this).is(":checked")){
+            // $(function() {
+            flashT = setInterval("flashByFiveM()",5000);
+            // })
+        }else{
+            flashT = window.clearInterval(flashT);
+        }
+    })
+
+
     /**
      * 全选/取消
      */
@@ -656,4 +669,19 @@ function getPrintersCallBack(printerNames){
     }
     labelPrinterHtml.innerHTML = temp;
     listPrinterHtml.innerHTML = temp;
+}
+
+/**
+ * 页面定时刷新函数(设置5秒刷新一次)
+ */
+function flashByFiveM(){
+    var machineId = $("#gantryDevice option:selected").val();
+    if(machineId == undefined || machineId == 0 || machineId == null || machineId == ""){
+        return;
+    }
+    /** 刷新异常数据 **/
+    queryExceptionNum();
+    /** 刷新当前页面 **/
+    var currentPage = $(".current").text();
+    queryBatchSendSub(currentPage);
 }
