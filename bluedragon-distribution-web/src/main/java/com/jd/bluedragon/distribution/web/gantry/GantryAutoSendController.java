@@ -391,6 +391,8 @@ public class GantryAutoSendController {
                     }
                 }
                 /** ==============判断结束，过滤出将要打印的List===================**/
+            }else{
+                dataRequest = dataRequestOld;
             }
             logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();

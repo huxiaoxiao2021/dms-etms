@@ -614,7 +614,7 @@ function printAndEndSendCodeBtn(param,printerName){
     var height = 200;
     var imageStr = "";
     var url = $("#contextPath").val() + "/gantryAutoSend/sendCodePrint";
-    CommonClient.postJson(url,param,function (data) {
+    CommonClient.syncPostJson(url,param,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("提示：","获取打印内容异常，请稍后再试","info");
             return;
