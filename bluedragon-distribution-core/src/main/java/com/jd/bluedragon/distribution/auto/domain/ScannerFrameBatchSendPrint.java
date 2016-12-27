@@ -11,6 +11,7 @@ public class ScannerFrameBatchSendPrint implements Serializable{
     private static final long serialVersionUID = 147883762545714549L;
 
     private Integer machineId;
+    private String SendCode;
     private Integer createSiteCode;
     private String createSiteName;
     private Integer receiveSiteCode;
@@ -24,6 +25,14 @@ public class ScannerFrameBatchSendPrint implements Serializable{
 
     public void setMachineId(Integer machineId) {
         this.machineId = machineId;
+    }
+
+    public String getSendCode() {
+        return SendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        SendCode = sendCode;
     }
 
     public Integer getCreateSiteCode() {

@@ -37,6 +37,10 @@ $(document).ready(function(){
 
     /** 打印并完结批次点击事件 **/
     $("#printAndEndSend").click(function () {
+        var machineId = $("#gantryDevice :selected").val();
+        if(machineId == undefined || machineId == "" || machineId == 0 ){
+            return;
+        }
 
         /** 第一步：读取需要打印的方式(逻辑与)：1.打批次号 2.打汇总单 3.both**/
         var type = 0;
@@ -59,17 +63,17 @@ $(document).ready(function(){
         $("input[name=item]:checked").each(function () {
             param.machineId = $("#gantryDevice :selected").val();
             param.createSiteCode = $("#siteOrg :selected").val();
-            param.receiveSiteCode = $(this).parent("tr").find("[name=receiveSite]").attr("title");
-            param.packageSum = $(this).parent("tr").find("[name=packageSum]").text();
-            param.createTime = new Date($(this).parent("tr").find("[name=createTime]").text());
+            param.receiveSiteCode = $(this).parents("tr").find("[name=receiveSite]").attr("title");
+            param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+            param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
             list.push(param);
         });
 
         /** 第三步：判断需要哪些类型的打印(逻辑求和是否等于3) **/
-        if((type&1) == 3){//处理 '批次号 打印
+        if((type&1) == 1){//处理 '批次号 打印
             printAndEndSendCodeBtn(list,labelPrinterValue);//打印事件
         }
-        if((type&2) == 3){//处理 '汇总单' 打印
+        if((type&2) == 2){//处理 '汇总单' 打印
             //todo 处理汇总单打印
         }
 
@@ -496,12 +500,12 @@ function printSettingSave(){
     $.cookie(
         "labelPrinterValue",
         JSON.stringify(labelPrinterValue),
-        {expires:1}//设置一天的保存时间
+        {expires:1,path:"/"}//设置一天的保存时间
     );
     $.cookie(
         "listPrinterValue",
         JSON.stringify(listPrinterValue),
-        {expires:1}//设置一天的保存时间
+        {expires:1,path:"/"}//设置一天的保存时间
     );
     popClose('printSettingPopUp');//关闭弹出层
 }
@@ -610,6 +614,8 @@ function printAndEndSendCodeBtn(param,printerName){
                 printPic(printerName,imageStr,width,height);
             }
             $.unblockUI();
+        }else{
+            jQuery.messager.alert("警告：","打印完结批次失败!","warning");
         }
     })
 }
@@ -618,20 +624,26 @@ function printAndEndSendCodeBtn(param,printerName){
  * 打印机列表展示
  */
 function printerShow(){
-    /** 读取cookie中设置的打印机的值 **/
-    var labelPrinterValue = $.cookie("labelPrinterValue");
-    var listPrinterValue = $.cookie("listPrinterValue");
-    if(labelPrinterValue != null && listPrinterValue != null){
-        $("#labelPrinter").html("<option value='" + labelPrinterValue + "'>" + labelPrinterValue  + "</option>" );
-        $("#listPrinter").html("<option value='" + listPrinterValue + "'>" + listPrinterValue  + "</option>" );
-
-        $("#labelPrinter").click(function () {
-            getPrinters(getPrintersCallBack)
-        });
-        $("#listPrinter").click(function () {
-            getPrinters(getPrintersCallBack)
-        });
-    }else{
+    // /** 读取cookie中设置的打印机的值 **/
+    // var labelPrinterValue = $.cookie("labelPrinterValue");
+    // var listPrinterValue = $.cookie("listPrinterValue");
+    // if(labelPrinterValue != null && listPrinterValue != null){
+    //     $("#labelPrinter").html("<option value='" + labelPrinterValue + "'>" + labelPrinterValue  + "</option>" );
+    //     $("#listPrinter").html("<option value='" + listPrinterValue + "'>" + listPrinterValue  + "</option>" );
+    //
+    //     $("#labelPrinter").click(function () {
+    //         getPrinters(getPrintersCallBack)
+    //     });
+    //     $("#listPrinter").click(function () {
+    //         getPrinters(getPrintersCallBack)
+    //     });
+    // }else{
+    //     getPrinters(getPrintersCallBack);
+    // }
+    // =========version 2.0
+    var labelPrinterValue = $("#labelPrinter option:selected").val();
+    var listPrinterValue = $("#listPrinter option:selected").val();
+    if(labelPrinterValue == null || listPrinterValue == null || labelPrinterValue == "" || listPrinterValue == ""){
         getPrinters(getPrintersCallBack);
     }
 }

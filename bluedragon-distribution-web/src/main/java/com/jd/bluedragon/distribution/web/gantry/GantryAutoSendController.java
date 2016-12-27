@@ -216,6 +216,7 @@ public class GantryAutoSendController {
         sfbssa.setMachineId(request.getMachineId());
 //        sfbssa.setStartTime(request.getStartTime());
 //        sfbssa.setEndTime(request.getEndTime());
+        sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try{
             Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);
@@ -348,11 +349,11 @@ public class GantryAutoSendController {
         result.setMessage("服务调用成功，数据为空");
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String userCode = "";//用户编号
+        String userCode = "none";//用户编号
         Integer userId = 0;
         String userName = "none";//用户姓名
         if(erpUser != null){
-            userCode = erpUser.getUserCode() == null ? "":erpUser.getUserCode();
+            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
             userId = erpUser.getUserId() == null ? 0:erpUser.getUserId();
             userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
         }
@@ -372,30 +373,32 @@ public class GantryAutoSendController {
         argumentPager.setData(sfbssa);
         try{
             Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该龙门架的所有批次信息
-            List<ScannerFrameBatchSend> dataRequest = pagerResult.getData();//取所有批次信息
-            if(requests.length > 0){
+            List<ScannerFrameBatchSend> dataRequestOld = pagerResult.getData();//取所有批次信息
+            List<ScannerFrameBatchSend> dataRequest = new ArrayList<ScannerFrameBatchSend>();//取所有批次信息
+            if(requests.length > 1){
                 logger.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：" + requests.length);
                 /** ==============通过request判断是否有选中打印事件=============== **/
-                for(ScannerFrameBatchSend data : dataRequest){
+                for(ScannerFrameBatchSend data : dataRequestOld){
                     Integer itemReceiveSiteCode = (int)data.getReceiveSiteCode();
                     boolean bool = false;
                     for(ScannerFrameBatchSendPrint itemRequest : requests){
-                        if (itemReceiveSiteCode == itemRequest.getReceiveSiteCode()){
+                        if (itemRequest.getReceiveSiteCode()!= null && itemReceiveSiteCode.intValue() == itemRequest.getReceiveSiteCode().intValue()){
                             bool = true;
                         }
                     }
-                    if(!bool){
-                        dataRequest.remove(data);/** 不是请求的打印数据，则剔除 **/
+                    if(bool){
+                        dataRequest.add(data);/** 不是请求的打印数据，则剔除 **/
                     }
                 }
                 /** ==============判断结束，过滤出将要打印的List===================**/
             }
-
+            logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String url =HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
             for(ScannerFrameBatchSend item : dataRequest){
                 if(item.getReceiveSiteCode() == 0){
                     //没有目的站点，自动退出循环
+                    logger.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** ===============1.执行换批次动作================== **/
@@ -403,9 +406,9 @@ public class GantryAutoSendController {
                 logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
                 itemtoEndSend.setPrintTimes((byte)0);
                 itemtoEndSend.setLastPrintTime(null);
-                itemtoEndSend.setCreateUserCode(userId);
+                itemtoEndSend.setCreateUserCode((long)userId);
                 itemtoEndSend.setCreateUserName(userName);
-                itemtoEndSend.setUpdateUserCode(Long.valueOf(userCode));
+                itemtoEndSend.setUpdateUserCode((long)userId);
                 itemtoEndSend.setUpdateUserName(userName);
                 itemtoEndSend.setCreateTime(new Date());
                 itemtoEndSend.setUpdateTime(new Date());
@@ -416,6 +419,7 @@ public class GantryAutoSendController {
                     logger.error("换批次动作失败：打印跳过该批次：" + item.toString());
                     continue;
                 }
+                logger.info("换批次动作实心成功，执行打印获取base64。");
                 /** ==================换批次动作执行完毕================ **/
                 /** 2. ==================获取打印图片================= **/
                 BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
@@ -434,9 +438,11 @@ public class GantryAutoSendController {
 
                 BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url,itemRequest,new TypeReference<BatchSendPrintImageResponse>(){});
                 results.add(itemResponse);
+                logger.info("获取图片的base64结束。");
                 /** ===================获取打印图片获取base64图片码结束================= **/
                 /** =======================3.更新scanner_frame_batch_send表打印时间，打印次数开始================== **/
                 scannerFrameBatchSendService.submitPrint(item.getId(),userId,userName);
+                logger.info("更新打印时间次数结束。返回结果");
                 result.setCode(200);
                 result.setMessage("服务调用成功");
                 result.setData(results);

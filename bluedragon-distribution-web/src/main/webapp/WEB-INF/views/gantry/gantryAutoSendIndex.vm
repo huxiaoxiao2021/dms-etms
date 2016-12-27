@@ -204,14 +204,14 @@
                     <td></td>
                     <td>标签打印机：</td>
                     <td><select name="" id="labelPrinter" class="textField">
-                        <option value="0">(读取打印机失败)</option>
+                        <option value="">(读取打印机失败)</option>
                     </select></td>
                 </tr>
                 <tr class="trHeight">
                     <td></td>
                     <td>清单打印机：</td>
                     <td><select name="" id="listPrinter" class="textField">
-                        <option value="0">(读取打印机失败)</option>
+                        <option value="">(读取打印机失败)</option>
                     </select></td>
                 </tr>
                 <tr class="trHeight">
