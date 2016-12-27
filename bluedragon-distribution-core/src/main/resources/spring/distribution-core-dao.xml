@@ -203,7 +203,7 @@
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 	
-	<bean id="SendDatailReadDao" class="com.jd.bluedragon.distribution.send.dao.SendDatailReadDao" depends-on="sessionTemplate">
+	<bean id="SendDatailReadDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailReadRouterDao" depends-on="sessionTemplate">
 		<property name="sqlSession" ref="sessionTemplate" />
 		<property name="sqlSessionRead" ref="readSqlSessionTemplate" />
 	</bean>
