@@ -96,6 +96,11 @@ public class GantryDeviceConfigRequest extends JdRequest {
 
     private Integer yn;
 
+    /**
+     * 新增字段 ，用于区分龙门架的新增字段：1新的 0旧的
+     */
+    private byte version;
+
     public Integer getMachineId() {
         return machineId;
     }
@@ -240,5 +245,13 @@ public class GantryDeviceConfigRequest extends JdRequest {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public byte getVersion() {
+        return version;
+    }
+
+    public void setVersion(byte version) {
+        this.version = version;
     }
 }

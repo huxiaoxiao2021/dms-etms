@@ -34,6 +34,14 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
     }
 
     @Override
+    public List<GantryDevice> getGantryByDmsCode(Integer dmsCode,byte version) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("siteCode", dmsCode);
+        param.put("version",version);
+        return gantryDeviceDao.getGantry(param);
+    }
+
+    @Override
     public Integer getGantryCount(Map<String, Object> param) {
         return gantryDeviceDao.getGantryCount(param);
     }

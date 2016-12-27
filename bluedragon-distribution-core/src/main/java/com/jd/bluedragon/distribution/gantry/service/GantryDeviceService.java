@@ -18,6 +18,13 @@ public interface GantryDeviceService {
      * */
     public List<GantryDevice> getGantryByDmsCode(Integer dmsCode);
 
+    /**
+     * 根据分拣中心编号获取该分拣下面的所有新的龙门架（2016-12-26 14:58:36 by wzx）
+     * @param dmsCode 分拣中心ID
+     * @param version 新老版本
+     * */
+    public List<GantryDevice> getGantryByDmsCode(Integer dmsCode,byte version);
+
     /***
      * 根据条件查询符合条件的龙门架数量
      * @param param 条件

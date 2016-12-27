@@ -81,6 +81,9 @@
           <if test="supplier != null">
               AND SUPPLIER LIKE '%' || #{supplier, jdbcType=VARCHAR} || '%'
           </if>
+          <if test="version != null">
+              AND VERSION = #{version, jdbcType=TINYINT}
+          </if>
       </where>
     </sql>
 

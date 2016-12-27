@@ -37,37 +37,50 @@ $(document).ready(function(){
 
     /** 打印并完结批次点击事件 **/
     $("#printAndEndSend").click(function () {
-        /** 第一步：读取cookie中设置的打印机 **/
-        //todo ***
+        var machineId = $("#gantryDevice :selected").val();
+        if(machineId == undefined || machineId == "" || machineId == 0 ){
+            return;
+        }
 
-        /** 第二步：读取需要打印的方式(逻辑与)：1.打批次号 2.打汇总单 3.both**/
+        /** 第一步：读取需要打印的方式(逻辑与)：1.打批次号 2.打汇总单 3.both**/
         var type = 0;
-        $("input[name=printstyle] :checked").each(function () {
+        $("input[name=printStyle]:checked").each(function () {
             type |= $(this).val();
         });
 
-        /** 第三步判断是否有选中单个进行打印并完结的事件 **/
+        /** 读取cookie中设置的打印机的值 **/
+        var labelPrinterValue = $.cookie("labelPrinterValue");
+        var listPrinterValue = $.cookie("listPrinterValue");
+        if(labelPrinterValue == null || listPrinterValue == null){
+            jQuery.messager.alert("提示","没有设置打印机，请前往设置","info");
+            return;
+        }
+
+        /** 第二步判断是否有选中单个进行打印并完结的事件 **/
         var list = [];
         var param = {};
-        $("input[name=item] :checked").each(function () {
+        list.push({"machineId":$("#gantryDevice :selected").val()});
+        $("input[name=item]:checked").each(function () {
             param.machineId = $("#gantryDevice :selected").val();
             param.createSiteCode = $("#siteOrg :selected").val();
-            param.receiveSiteCode = $(this).parent("tr").find("[name=receiveSite]").attr("title");
-            param.createTime = new Date($(this).parent("tr").find("[name=createTime]").text());
+            param.receiveSiteCode = $(this).parents("tr").find("[name=receiveSite]").attr("title");
+            param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+            param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
             list.push(param);
         });
 
-        /** 第四步：判断需要哪些类型的打印(逻辑求和是否等于3) **/
-        var machineId = $("#gantryDevice :selected").val();
-        var paramsWithID = {};
-        paramsWithID.machineId = 643;
-        printBtn(paramsWithID);//打印回调函数
-        if((type&1) == 3){//处理 '批次号 打印
-            printBtn(paramsWithID);//打印回调函数
+        /** 第三步：判断需要哪些类型的打印(逻辑求和是否等于3) **/
+        if((type&1) == 1){//处理 '批次号 打印
+            printAndEndSendCodeBtn(list,labelPrinterValue);//打印事件
         }
-        if((type&2) == 3){//处理 '汇总单' 打印
+        if((type&2) == 2){//处理 '汇总单' 打印
+            //todo 处理汇总单打印
+        }
 
-        }
+        /** 刷新当前页面 **/
+        var currentPage = $(".current").text();
+        queryBatchSendSub(currentPage);
+
     });
 
     /** 换批次按钮点击事件 **/
@@ -157,10 +170,11 @@ function gantryDeviceItemShow(){
     var siteNo = parseInt($("#siteOrg option:selected").val());//获取分拣中心ID
     var param= {};
     param.createSiteCode = siteNo;
+    param.version = 1;//表示只读取新的龙门架设备
     if(siteNo == null || siteNo == ""|| isNaN(siteNo)){
         return;
     }
-    var url = $("#contextPath").val() + "/services/gantryDevice/findAllGantryDevice";
+    var url = $("#contextPath").val() + "/services/gantryDevice/findAllNewGantryDevice";
     CommonClient.postJson(url,param,function (data) {
         var gantryList = data.data;
         if (data == undefined || data == null) {
@@ -448,8 +462,8 @@ function queryBatchSendCodes(params){
                 temp += "<td><input type='checkbox' name='item'></td>";
                 temp += "<td name='receiveSite' title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                 temp += "<td name='sendCode'>" + list[i].sendCode + "</td>";
-                temp += "<td>"+packageSum+"</td>";
-                temp += "<td>"+volumeSum+"</td>";
+                temp += "<td name='packageSum'>"+packageSum+"</td>";
+                temp += "<td name='volumeSum'>"+volumeSum+"</td>";
                 temp += "<td name='createTime'>" + timeStampToDate(list[i].createTime) + "</td>";
                 temp += "</tr>";
             }
@@ -473,9 +487,6 @@ function queryBatchSendCodes(params){
  * 设置打印机弹出层事件
  */
 function printSettingPopUp() {
-    // var printSettingParams = $.cookie.get("printSettingParams");
-    // $("#labelPrinter").get(0).selectedIndex = printSettingParams.labelPrinterValue;
-    // $("#listPrinter").get(0).selectedIndex = printSettingParams.listPrinterValue;
     printerShow();
     popUp('printSettingPopUp',333,206);
 }
@@ -486,14 +497,17 @@ function printSettingPopUp() {
 function printSettingSave(){
     var labelPrinterValue = $("#labelPrinter option:selected").val();//标签打印机参数
     var listPrinterValue = $("#listPrinter option:selected").val();//清单打印机参数
-    var printSettingParams = {};//保存设置的打印机参数
-    printSettingParams.labelPrinterValue = labelPrinterValue;
-    printSettingParams.listPrinterValue = listPrinterValue;
-    // $.cookie(
-    //     "printSettingParams",
-    //     JSON.stringify(printSettingParams),
-    //     {expires:1}
-    // )
+    $.cookie(
+        "labelPrinterValue",
+        JSON.stringify(labelPrinterValue),
+        {expires:1,path:"/"}//设置一天的保存时间
+    );
+    $.cookie(
+        "listPrinterValue",
+        JSON.stringify(listPrinterValue),
+        {expires:1,path:"/"}//设置一天的保存时间
+    );
+    popClose('printSettingPopUp');//关闭弹出层
 }
 
 /**
@@ -513,36 +527,6 @@ function generateSendCode(list) {
             return;
         }
     })
-
-    // $.ajax({
-    //     url: url,
-    //     data:JSON.stringify(list),
-    //     type: "post",
-    //     dataType: "json",
-    //     contentType: "application/json; charset=utf-8",
-    //     async: false,
-    //     beforeSend: function(jqXHR, settings){
-    //         $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
-    //     },
-    //     success: function (data) {
-    //         if(data == undefined && data == null){
-    //             jQuery.messager.alert("提示：","HTTP请求无返回数据！！","info");
-    //             return;
-    //         }
-    //         if(data.code == 200){
-    //             queryBatchSendSub(1);
-    //         }else{
-    //             jQuery.messager.alert("错误：","本次换批次失败！！","error");
-    //             return;
-    //         }
-    //     },
-    //     error: function(jqXHR, textStatus, errorThrown){
-    //         alert("Error:status["+jqXHR.status+"],statusText["+ jqXHR.statusText +"]");
-    //     },
-    //     complete: function(jqXHR, textStatus){
-    //         $.unblockUI();
-    //     }
-    // })
 }
 
 /**
@@ -610,16 +594,14 @@ function timeStampToDate(ts){
 }
 
 /**
- * 打印事件
+ * 打印并完结批次事件
  */
-function printBtn(param){
-    var printerName = $("#labelPrinter :selected").val();
-    var width = 500;//fixme 此处应该是从后台获取
-    var height = 500;
-    var imagedate = "";//base64的图片格式
+function printAndEndSendCodeBtn(param,printerName){
+    var width = 200;
+    var height = 200;
+    var imageStr = "";
     var url = $("#contextPath").val() + "/gantryAutoSend/sendCodePrint";
-    alert(printerName);
-    CommonClient.post(url,param,function (data) {
+    CommonClient.postJson(url,param,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("提示：","获取打印内容异常，请稍后再试","info");
             return;
@@ -628,41 +610,42 @@ function printBtn(param){
         if(data.code==200){
             $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理打印,请不要关闭页面...</span>"});
             for(var i = 0;i<responseList.length;i++){
-                imagedate = responseList[i].sendCodeImgStr;
-                // imagedate = $("#imagedate").val();
-                // alert(imagedate);
-                printPic(printerName,imagedate,width,height);
+                imageStr = responseList[i].sendCodeImgStr;
+                printPic(printerName,imageStr,width,height);
             }
             $.unblockUI();
+        }else{
+            jQuery.messager.alert("警告：","打印完结批次失败!","warning");
         }
-
-
     })
-    // imagedate = $("#imagedate").val();
-    // alert(imagedate);
-    // printPic(printerName,imagedate,width,height);
 }
-
-// /**
-//  * 打印提交事件
-//  */
-// function printEvent(printerName,imageData,width,height){
-//     var messageId = "ADD_PRINT_IMAGE" + new Date();
-//     var msg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \<Message><Version>1.0</Version><Command>ADD_PRINT_IMAGE</Command><MessageId>"+messageId+"</MessageId><PrinterName>"+printerName+"</PrinterName><TaskName>打印图片</TaskName><ImageData>"+imageData+"</ImageData><Width>"+width+"</Width><Height>"+height+"</Height><Zoon>1.0</Zoon></Message>";
-//     if(!bInit){
-//         msgTobeSend.push(msg);
-//         initWebSocket();
-//     }else{
-//         websocket.send(msg);
-//         console.log("string sent :",'"'+msg+'"');
-//     }
-// }
 
 /**
  * 打印机列表展示
  */
 function printerShow(){
-    getPrinters(getPrintersCallBack);
+    // /** 读取cookie中设置的打印机的值 **/
+    // var labelPrinterValue = $.cookie("labelPrinterValue");
+    // var listPrinterValue = $.cookie("listPrinterValue");
+    // if(labelPrinterValue != null && listPrinterValue != null){
+    //     $("#labelPrinter").html("<option value='" + labelPrinterValue + "'>" + labelPrinterValue  + "</option>" );
+    //     $("#listPrinter").html("<option value='" + listPrinterValue + "'>" + listPrinterValue  + "</option>" );
+    //
+    //     $("#labelPrinter").click(function () {
+    //         getPrinters(getPrintersCallBack)
+    //     });
+    //     $("#listPrinter").click(function () {
+    //         getPrinters(getPrintersCallBack)
+    //     });
+    // }else{
+    //     getPrinters(getPrintersCallBack);
+    // }
+    // =========version 2.0
+    var labelPrinterValue = $("#labelPrinter option:selected").val();
+    var listPrinterValue = $("#listPrinter option:selected").val();
+    if(labelPrinterValue == null || listPrinterValue == null || labelPrinterValue == "" || listPrinterValue == ""){
+        getPrinters(getPrintersCallBack);
+    }
 }
 function getPrintersCallBack(printerNames){
     var labelPrinterHtml = document.getElementById("labelPrinter");
