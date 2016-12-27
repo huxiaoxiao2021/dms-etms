@@ -11,43 +11,10 @@
     http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 	
-<!-- 	<context:property-placeholder location="classpath:configured/wss-service.properties" ignore-unresolvable="false"/> -->
-	
-<!-- 	<bean id="serviceSetting" class="com.jd.wss.rpc.ServiceSetting">
-		<property name="centerDataSource" ref="centerDataSource"/>
-		<property name="application" value="${serviceSetting.application}"/>
-		<property name="baseUri" value="${serviceSetting.baseUri}"/>
-		<property name="token" value="${serviceSetting.token}"/>
-		<property name="domain" value="${serviceSetting.domain}" />
-		<property name="ownSign" value="${serviceSetting.ownSign}" />		
-	</bean> -->
-	
 	<bean id="distributionService" class="com.jd.bluedragon.distribution.wss.service.impl.DistributionWssServiceImpl" />
 
-<!-- 	<bean name="/distributionService" class="com.jd.wss.rpc.factory.ServiceExproterFactory">
-		<property name="setting" ref="serviceSetting"/>
-		<property name="protocols" value="${distributionService.protocols}"/>
-		<property name="ports" value="${distributionService.ports}"/>
-		<property name="version" value="${distributionService.version}"/>
-		<property name="serviceName" value="distributionService"/>
-		<property name="service" ref="distributionService"/>
-		<property name="serviceInterface" value="com.jd.bluedragon.distribution.wss.service.DistributionWssService"/>
-		<property name="remark" value="分拣中心相关服务"/>
-	</bean> -->
-	
 	<bean id="vehicleBoxService" class="com.jd.bluedragon.distribution.wss.service.impl.SealVehicleBoxServiceImpl" />
 
-<!-- 	<bean name="/vehicleBoxService" class="com.jd.wss.rpc.factory.ServiceExproterFactory">
-		<property name="setting" ref="serviceSetting"/>
-		<property name="protocols" value="${vehicleBoxService.protocols}"/>
-		<property name="ports" value="${vehicleBoxService.ports}"/>
-		<property name="version" value="${vehicleBoxService.version}"/>
-		<property name="serviceName" value="vehicleBoxService"/>
-		<property name="service" ref="vehicleBoxService"/>
-		<property name="serviceInterface" value="com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService"/>
-		<property name="remark" value="封车封箱相关服务"/>
-	</bean> -->
-	
 	<bean id="reverseWssService" class="com.jd.bluedragon.distribution.wss.service.impl.ReverseWssServiceImpl" />
 	
 	<bean id="popWssService" class="com.jd.bluedragon.distribution.wss.service.impl.PopAbnormalWssServiceImpl" />

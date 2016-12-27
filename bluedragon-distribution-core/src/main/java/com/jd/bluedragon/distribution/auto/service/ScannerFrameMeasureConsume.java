@@ -40,7 +40,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
         if(SerialRuleUtil.isMatchAllPackageNo(uploadData.getBarCode())) { // 如果是包裹号，添加称重任务
             OpeEntity opeEntity = new OpeEntity();
-            opeEntity.setOpeType(1);//分拣中心称重
+            opeEntity.setOpeType(1);//分拣中心称重、长宽高
             opeEntity.setWaybillCode(SerialRuleUtil.getWaybillCode(uploadData.getBarCode()));
             opeEntity.setOpeDetails(new ArrayList<OpeObject>());
 
@@ -54,7 +54,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             obj.setOpeUserId(config.getOperateUserId());
             obj.setOpeUserName(config.getUpdateUserName());
             obj.setOpeTime(DateHelper.formatDateTime(uploadData.getScannerTime()));
-
+            obj.setpWeight(uploadData.getWeight());//增加称重  2016年12月12日10:54:53  by guoyongzhi
             opeEntity.getOpeDetails().add(obj);
             String body = "[" + JsonHelper.toJson(opeEntity) + "]";
             Task task = new Task();
@@ -63,7 +63,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             task.setTableName(Task.getTableName(Task.TASK_TYPE_WEIGHT));
             task.setCreateSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
             task.setKeyword1(String.valueOf(opeEntity.getOpeDetails().get(0).getOpeSiteId()));
-            task.setKeyword2("上传长宽高");
+            task.setKeyword2("上传长宽高、重量");
             task.setBody(body);
             task.setBoxCode("");
             task.setSequenceName(Task.getSequenceName(task.getTableName()));

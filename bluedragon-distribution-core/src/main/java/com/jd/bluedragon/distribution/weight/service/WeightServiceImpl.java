@@ -38,9 +38,11 @@ public class WeightServiceImpl implements WeightService {
     public boolean doWeightTrack(Task task) {
         this.logger.info("向运单系统回传包裹称重信息: ");
         //WeightResponse response = null;
+        String body = null;
         try {
-            String body = task.getBody();
+             body = task.getBody();
             if (!StringUtils.isNotBlank(body)) {
+                logger.error("向运单回传包裹称重信息失败，称重信息为空");
                 return false;
             }
             //response = WeightClient.weightTrack(body.substring(1, body.length() - 1));
@@ -48,13 +50,16 @@ public class WeightServiceImpl implements WeightService {
             this.sendMQ(body);
 
             if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
-                this.logger.info("向运单系统回传包裹称重信息成功");
+                this.logger.info("向运单系统回传包裹称重信息：\n" + body);
+                this.logger.info("向运单系统回传包裹称重信息成功：" + (null != map ? JsonHelper.toJson(map) : " result null"));
                 return true;
             } else {
-                this.logger.error("向运单系统回传包裹称重信息失败 : " + (null != map ? JsonHelper.toJson(map) : " result null"));
+                this.logger.info("向运单系统回传包裹称重信息：\n" + body);
+                this.logger.error("向运单系统回传包裹称重信息失败： " + (null != map ? JsonHelper.toJson(map) : " result null"));
                 return false;
             }
         } catch (Exception e) {
+            this.logger.info("向运单系统回传包裹称重信息：\n" + body);
             this.logger.error("处理称重回传任务发生异常，异常信息为：", e);
         }
         return false;

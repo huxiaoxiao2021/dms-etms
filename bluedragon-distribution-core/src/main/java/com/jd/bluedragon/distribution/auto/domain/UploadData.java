@@ -35,6 +35,16 @@ public class UploadData implements Serializable {
      */
     private Float length;
 
+    private Float weight;
+
+    public Float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Float weight) {
+        this.weight = weight;
+    }
+
     /**
      * 龙门架注册号
      */
