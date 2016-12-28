@@ -11,10 +11,10 @@ import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.uim.annotation.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,6 +47,12 @@ public class AreaDestController {
     @Autowired
     private BaseService baseService;
 
+    /**
+     * 功能首页
+     *
+     * @param model
+     * @return
+     */
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         try {
@@ -95,8 +101,10 @@ public class AreaDestController {
     /**
      * 跳转新增页
      *
+     * @param model
      * @return
      */
+    @Authorization("DMS-WEB-ADD-AREA-DEST")
     @RequestMapping(value = "/addview", method = RequestMethod.GET)
     public String addView(Model model) {
         try {
@@ -120,14 +128,14 @@ public class AreaDestController {
     }
 
     /**
-     * 移除无效的机构
+     * 移除无分拣中心的机构
      *
-     * @param allOrgs
+     * @param allOrg
      * @return
      */
-    private List<BaseOrg> removeInvalidOrg(List<BaseOrg> allOrgs) {
-        if (allOrgs != null && allOrgs.size() > 0) {
-            Iterator<BaseOrg> iterator = allOrgs.iterator();
+    private List<BaseOrg> removeInvalidOrg(List<BaseOrg> allOrg) {
+        if (allOrg != null && allOrg.size() > 0) {
+            Iterator<BaseOrg> iterator = allOrg.iterator();
             while (iterator.hasNext()) {
                 BaseOrg org = iterator.next();
                 List<SimpleBaseSite> sites = baseMajorManager.getDmsListByOrgId(org.orgId);
@@ -136,7 +144,7 @@ public class AreaDestController {
                 }
             }
         }
-        return allOrgs;
+        return allOrg;
     }
 
     /**
@@ -231,7 +239,7 @@ public class AreaDestController {
                 response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             }
         } catch (Exception e) {
-            logger.error("批量设置目的分拣中心为无效失败", e);
+            logger.error("批量移除目的分拣中心失败", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
