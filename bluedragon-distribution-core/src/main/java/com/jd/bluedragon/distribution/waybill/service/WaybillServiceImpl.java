@@ -32,8 +32,8 @@ public class WaybillServiceImpl implements WaybillService {
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
 
-    @Autowired
-    private WaybillPackageDao waybillPackageDao;
+//    @Autowired
+//    private WaybillPackageDao waybillPackageDao;
 
 	public BigWaybillDto getWaybill(String waybillCode) {
 		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
