@@ -243,7 +243,11 @@ function gantryLockStatusShow(){
             if (data.code == 200) {
                 gantryStateInit(gantryConfig);
             } else if (data.code == 500) {
-                jQuery.messager.alert("提示：", "获取该龙门架设备信息失败!", "info");
+                $("#inspection").attr("disabled",false);
+                $("#send").attr("disabled",false);
+                $("#measure").attr("disabled",false);
+                $("#gantryBtn").html("<input  type='button' value='启用龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(startGantry))'>");//启用龙门架需要传入的参数
+                jQuery.messager.alert("提示：", "暂无龙门架配置信息，请先配置", "info");
             } else {
                 jQuery.messager.alert("提示：", "服务器异常!", "info");
             }
@@ -512,12 +516,12 @@ function printSettingSave(){
     var listPrinterValue = $("#listPrinter option:selected").val();//清单打印机参数
     $.cookie(
         "labelPrinterValue",
-        JSON.stringify(labelPrinterValue),
+        labelPrinterValue,
         {expires:1,path:"/"}//设置一天的保存时间
     );
     $.cookie(
         "listPrinterValue",
-        JSON.stringify(listPrinterValue),
+        listPrinterValue,
         {expires:1,path:"/"}//设置一天的保存时间
     );
     popClose('printSettingPopUp');//关闭弹出层
