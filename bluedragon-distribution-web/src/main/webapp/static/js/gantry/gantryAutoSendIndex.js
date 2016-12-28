@@ -69,6 +69,12 @@ $(document).ready(function(){
             list.push(param);
         });
 
+        if(list.length == 1){
+            if(!confirm("您将要打印并完结当前所有批次，是否继续？")){
+                return;
+            }
+        }
+
         /** 第三步：判断需要哪些类型的打印(逻辑求和是否等于3) **/
         if((type&1) == 1){//处理 '批次号 打印
             printAndEndSendCodeBtn(list,labelPrinterValue);//打印事件

@@ -76,23 +76,28 @@ public class GantryAutoSendController {
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
         this.logger.debug("龙门架自动发货 --> index");
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        if(erpUser != null){
-            String userCode = "";
-            String userName = "";
-            Integer siteCode = 0;
-            String siteName = "";
-            userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
-            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
-            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-            if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
-                siteCode = bssod.getSiteCode();
-                siteName = bssod.getSiteName();
+        try{
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+
+            if(erpUser != null){
+                String userCode = "";
+                String userName = "";
+                Integer siteCode = 0;
+                String siteName = "";
+                userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
+                userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+                if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                    siteCode = bssod.getSiteCode();
+                    siteName = bssod.getSiteName();
+                }
+                model.addAttribute("siteCode",String.valueOf(siteCode));
+                model.addAttribute("siteName",siteName);
+                model.addAttribute("userCode", userCode);
+                model.addAttribute("userName", userName);
             }
-            model.addAttribute("siteCode",String.valueOf(siteCode));
-            model.addAttribute("siteName",siteName);
-            model.addAttribute("userCode", userCode);
-            model.addAttribute("userName", userName);
+        }catch(Exception e){
+            logger.info("没有维护分拣中心，初始化加载失败");
         }
         return "gantry/gantryAutoSendIndex";
     }
