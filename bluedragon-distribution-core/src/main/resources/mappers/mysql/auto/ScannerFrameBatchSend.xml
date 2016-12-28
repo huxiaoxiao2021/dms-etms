@@ -107,7 +107,7 @@
         WHERE Id IN(SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
         GROUP BY RECEIVE_SITE_CODE)
-        ORDER BY Id ASC
+        ORDER BY Id DESC
         LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
     </select>
     <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.gantry;
 
+import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
@@ -22,7 +23,6 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.RestHelper;
-import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -151,6 +151,15 @@ public class GantryAutoSendController {
             logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为："
                     + request.getMachineId() + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
             /** 转换类型 修改最近的一条龙门设备的信息：操作人，更新人，锁定人，业务类型，锁定状态，startTime为now，endTime置为空 新插入 **/
+            if(gantryDeviceConfig == null){
+                /**  config表中没有数据说明此龙门架是第一次添加，需要进行初始化所有字段数据数据 **/
+                if(logger.isInfoEnabled()){
+                    logger.info("用户" + userName + "正在尝试第一次配置该龙门架设备ID：" + request.getMachineId());
+                }
+                gantryDeviceConfig.setMachineId(request.getMachineId());
+                gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
+                gantryDeviceConfig.setYn(1);
+            }
             if(request.getBusinessType() == 4 || request.getBusinessType() == 3 || request.getBusinessType() == 7){
                 //龙门架操作类型错误
                 result.setCode(400);
@@ -455,6 +464,14 @@ public class GantryAutoSendController {
             result.setMessage("服务调用异常");
         }
         return result;
+    }
+
+    @RequestMapping(value = "/summaryPrint",method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<List<BatchSendPrintImageResponse>> summaryPrint(){
+
+
+        return null;
     }
 
 
