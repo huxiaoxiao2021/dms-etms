@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -266,9 +268,10 @@ public class GantryAutoSendController {
                 }
                 packageSum = sendDetailList.size();//获取包裹的数量
             }
+            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
             sendBoxSum.setSendCode(sendCode);
             sendBoxSum.setPackageSum(packageSum);
-            sendBoxSum.setVolumeSum(volumeSum);
+            sendBoxSum.setVolumeSum(bg.doubleValue());
             result.setCode(200);
             result.setData(sendBoxSum);
             result.setMessage("获取批次号的总数量和总体积成功");
