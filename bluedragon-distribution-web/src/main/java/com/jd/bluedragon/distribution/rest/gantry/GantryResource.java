@@ -55,6 +55,30 @@ public class GantryResource {
         return response;
     }
 
+    /**
+     * 2016-12-26 14:49:33 by wzx 没有覆盖原来的老逻辑，需要review
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/gantryDevice/findAllNewGantryDevice")
+    public GantryDeviceResponse findAllNewGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
+        GantryDeviceResponse response=new GantryDeviceResponse();
+        logger.info("查找所有新的龙门架设备：" + request.toString());
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+        try {
+            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());
+            response.setData(this.ok(list));
+        } catch (Throwable ex) {
+            String message = "获取新的龙门架异常：" + request.toString() + ex.toString();
+            logger.error(message);
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(message);
+        }
+        return response;
+    }
+
     private List<com.jd.bluedragon.distribution.api.response.GantryDevice> ok(List<GantryDevice> list) {
         List<com.jd.bluedragon.distribution.api.response.GantryDevice> listGantryDevice=new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDevice>();
         for (GantryDevice gantryDevice : list) {

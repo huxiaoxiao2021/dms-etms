@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao" >
+
+	<resultMap id="resultListMap" type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" >
+		<result column="id"                 property="id" />
+		<result column="MACHINE_ID"         property="machineId" />
+		<result column="CREATE_SITE_CODE"   property="createSiteCode"/>
+		<result column="CREATE_SITE_NAME"   property="createSiteName"/>
+		<result column="RECEIVE_SITE_CODE"  property="receiveSiteCode"/>
+		<result column="RECEIVE_SITE_NAME"  property="receiveSiteName"/>
+		<result column="SEND_CODE"          property="sendCode"/>
+		<result column="PRINT_TIMES"        property="printTimes"/>
+		<result column="LAST_PRINT_TIME"    property="lastPrintTime"/>
+        <result column="CREATE_USER_CODE"   property="createUserCode"/>
+        <result column="CREATE_USER_NAME"   property="createUserName"/>
+        <result column="UPDATE_USER_CODE"   property="updateUserCode"/>
+        <result column="UPDATE_USER_NAME"   property="updateUserName"/>
+        <result column="CREATE_TIME"        property="createTime"/>
+        <result column="UPDATE_TIME"        property="updateTime"/>
+        <result column="TS"                 property="ts"/>
+		<result column="yn"                 property="yn"/>
+		
+	</resultMap>
+    <sql id="allFieldsExcludeIdAndTs">
+        MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODE, CREATE_USER_NAME,
+        UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
+    </sql>
+	<insert id="add" parameterType="scannerFrameBatchSend"  >
+        INSERT INTO SCANNER_FRAME_BATCH_SEND(
+        <include refid="allFieldsExcludeIdAndTs"/>
+        )
+        VALUES (
+        #{machineId,jdbcType=BIGINT},
+        #{createSiteCode,jdbcType=BIGINT},
+        #{createSiteName,jdbcType=VARCHAR},
+        #{receiveSiteCode,jdbcType=BIGINT},
+        #{receiveSiteName,jdbcType=VARCHAR},
+        #{sendCode,jdbcType=VARCHAR},
+        #{printTimes,jdbcType=TINYINT},
+        #{createUserCode,jdbcType=BIGINT},
+        #{createUserName,jdbcType=VARCHAR},
+        #{updateUserCode,jdbcType=BIGINT},
+        #{updateUserName,jdbcType=VARCHAR},
+        #{lastPrintTime,jdbcType=TIMESTAMP},
+        #{createTime,jdbcType=TIMESTAMP},
+        #{updateTime,jdbcType=TIMESTAMP},
+        #{yn,jdbcType=TINYINT}
+        )
+	</insert>
+
+    <select id="selectCurrentBatchSend" parameterType="java.util.Map" resultMap="resultListMap">
+        SELECT ID ,
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM scanner_frame_batch_send
+        WHERE     create_time>#{operateTimeSub24Hours,jdbcType=TIMESTAMP}
+              AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
+              AND machine_id=#{machineId,jdbcType=INTEGER}
+              AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
+        order by CREATE_TIME DESC
+        limit 1
+    </select>
+
+    <update id="updatePrintTimes" parameterType="java.lang.Long">
+        UPDATE SCANNER_FRAME_BATCH_SEND
+        SET PRINT_TIMES=PRINT_TIMES+1,LAST_PRINT_TIME=now(),UPDATE_TIME=now()
+        WHERE ID=#{id}
+    </update>
+
+    <sql id="getSplitPageListWhere">
+        WHERE
+        MACHINE_ID=#{data.machineId,jdbcType=BIGINT}
+        <if test="data.startTime != null">
+            AND CREATE_TIME>=#{data.startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="data.endTime != null">
+            AND CREATE_TIME<![CDATA[<]]>#{data.endTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="data.receiveSiteCode!=null">
+            AND  RECEIVE_SITE_CODE=#{data.receiveSiteCode,jdbcType=INTEGER}
+        </if>
+        <if test=" data.hasPrinted !=null and data.hasPrinted==true ">
+            AND  PRINT_TIMES>0
+        </if>
+        <if test=" data.hasPrinted !=null and data.hasPrinted==false ">
+            AND  PRINT_TIMES=0
+        </if>
+    </sql>
+    <select id="getSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
+        SELECT
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        <include refid="getSplitPageListWhere"/>
+        ORDER BY CREATE_TIME desc
+        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+    <select id="getSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM SCANNER_FRAME_BATCH_SEND
+        <include refid="getSplitPageListWhere"/>
+    </select>
+    <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
+        SELECT
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        WHERE Id IN(SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
+        <include refid="getSplitPageListWhere"/>
+        GROUP BY RECEIVE_SITE_CODE)
+        ORDER BY Id DESC
+        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+    <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
+        <include refid="getSplitPageListWhere"/>
+        GROUP BY RECEIVE_SITE_CODE)T
+    </select>
+
+    <select id="queryByIds" parameterType="java.util.List" resultMap="resultListMap">
+        SELECT
+        <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        WHERE ID in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY CREATE_TIME desc
+    </select>
+
+    <select id="queryByMachineIdAndTime" parameterType="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument" resultMap="resultListMap">
+        SELECT
+          <include refid="allFieldsExcludeIdAndTs"/>
+        FROM SCANNER_FRAME_BATCH_SEND
+        <where>
+          <if test="machineId != null">
+            MACHINE_ID = #{machineId,jdbcType=BIGINT}
+          </if>
+          <if test="startTime != null">
+            AND CREATE_TIME > #{startTime,jdbcType=TIMESTAMP}
+          </if>
+          <if test="endTime != null">
+            AND CREATE_TIME <![CDATA[<=]]> #{endTime,jdbcType=TIMESTAMP}
+          </if>
+        </where>
+    </select>
+</mapper>

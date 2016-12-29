@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -268,4 +269,18 @@ public class StringHelper {
         return  str;
     }
 
+    /**
+     * 判断字符串是否为double数值 added by zhanglei 2016/12/21
+     * @param str
+     * @return
+     */
+    public static boolean isDouble(String str) {
+
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        Pattern pattern = Pattern.compile("^[-\\+]?\\d+(\\.\\d*)?|\\.\\d+$");
+        return pattern.matcher(str).matches();
+    }
 }

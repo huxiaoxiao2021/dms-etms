@@ -95,13 +95,15 @@
         AND start_time <![CDATA[<=]]> str_to_date(date_format(#{operateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s'),'%Y-%m-%d %H:%i:%s')
     </select>
     <select id="findAllGantryDeviceCurrentConfig" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
-        SELECT id,machine_id,operate_user_id,operate_user_erp,operate_user_name,update_user_erp,
+        SELECT id,machine_id,operate_user_id,op
+        erate_user_erp,operate_user_name,update_user_erp,
         update_user_name,create_site_code,create_site_name,business_type,
         business_type_remark,send_code,start_time,end_time,lock_status,lock_user_erp,lock_user_name,
         yn,NOW() AS SYSDATE
         FROM gantry_device_config
         WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND yn = 1
+--         AND exists (select 1 from gantry_device_info where gantry_device_config.MACHINE_ID  =gantry_device_info.MACHINE_ID  and gantry_device_info.version=0)
     </select>
     <select id="checkSendCode" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
         SELECT <include refid="fields"/>

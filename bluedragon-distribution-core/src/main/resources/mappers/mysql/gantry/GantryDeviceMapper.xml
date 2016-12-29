@@ -17,6 +17,7 @@
         <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="OPERATE_NAME" property="operateName" jdbcType="VARCHAR"/>
         <result column="YN" property="yn" jdbcType="INTEGER"/>
+        <result column="VERSION" property="version"/>
     </resultMap>
 
 
@@ -53,6 +54,7 @@
             <if test="operateName != null">
                 OPERATE_NAME = #{operateName, jdbcType=VARCHAR},
             </if>
+            VERSION=#{version,jdbcType=TINYINT},
             UPDATE_TIME = NOW()
         </set>
         WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}
@@ -63,7 +65,7 @@
         ORG_NAME, SITE_CODE, SITE_NAME,
         SUPPLIER, MODEL_NUMBER, MODEL_TYPE,
         MARK, CREATE_TIME,UPDATE_TIME,
-        OPERATE_NAME ,YN
+        OPERATE_NAME ,YN,VERSION
     </sql>
     
     <sql id="gantryDeviceColumnNoID" >
@@ -71,7 +73,7 @@
         ORG_NAME, SITE_CODE, SITE_NAME,
         SUPPLIER, MODEL_NUMBER, MODEL_TYPE,
         MARK, CREATE_TIME,UPDATE_TIME,
-        OPERATE_NAME ,YN
+        OPERATE_NAME ,YN,VERSION
     </sql>
 
     <sql id="gantryQueryParam" >
@@ -90,6 +92,9 @@
               AND (SUPPLIER like   concat('%',#{supplier,jdbcType=VARCHAR})
 			  or SUPPLIER like   concat(#{supplier,jdbcType=VARCHAR},'%'))
           </if>
+          <if test="version != null">
+              AND VERSION = #{version, jdbcType=TINYINT}
+          </if>
       </where>
     </sql>
 
@@ -100,7 +105,7 @@
           #{serialNumber, jdbcType=VARCHAR}, #{orgCode, jdbcType=INTEGER},
           #{orgName, jdbcType=VARCHAR}, #{siteCode, jdbcType=INTEGER}, #{siteName, jdbcType=VARCHAR},
           #{supplier, jdbcType=VARCHAR}, #{modelNumber, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR},
-          #{mark, jdbcType=VARCHAR}, now(), now(), #{operateName, jdbcType=VARCHAR}, 1
+          #{mark, jdbcType=VARCHAR}, now(), now(), #{operateName, jdbcType=VARCHAR}, 1,#{version,jdbcType=TINYINT}
         )
     </insert>
 

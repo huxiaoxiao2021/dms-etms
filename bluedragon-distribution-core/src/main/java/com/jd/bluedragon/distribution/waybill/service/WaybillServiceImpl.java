@@ -2,10 +2,20 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao;
+import com.jd.bluedragon.distribution.waybill.dao.WaybillPackageDao;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.util.StringUtils;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -23,6 +35,11 @@ public class WaybillServiceImpl implements WaybillService {
     private WaybillStatusService waybillStatusService;
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
+    @Autowired
+    private WaybillPackageApi waybillPackageApi;
+
+//    @Autowired
+//    private WaybillPackageDao waybillPackageDao;
 
 	public BigWaybillDto getWaybill(String waybillCode) {
 		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
@@ -91,5 +108,46 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public WaybillPackageDTO getWaybillPackage(String packageCode) {
+        WaybillPackageDTO waybillPackageDTO = null;
+//        try{
+//            waybillPackageDTO = waybillPackageDao.get(packageCode);
+//        }catch(Exception e){
+//            this.logger.warn("获取总部运单包裹缓存表信息出现异常,包裹号：" + packageCode , e);
+//            return getPackageByWaybillInterface(packageCode);
+//        }
+
+        if(waybillPackageDTO == null){
+            return getPackageByWaybillInterface(packageCode);
+        }else{
+            return waybillPackageDTO;
+        }
+    }
+
+    private WaybillPackageDTO getPackageByWaybillInterface(String packageCode){
+        String waybillCode = SerialRuleUtil.getWaybillCode(packageCode);
+        BaseEntity<List<PackOpeFlowDto>> dtoList= waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+        if(dtoList!=null && dtoList.getResultCode()==1){
+            List<PackOpeFlowDto> dto = dtoList.getData();
+            if(dto!=null && !dto.isEmpty()) {
+                for(PackOpeFlowDto pack :dto){
+                    if(packageCode.equals(pack.getPackageCode())){
+                        WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
+                        waybillPackageDTOTemp.setWaybillCode(pack.getWaybillCode());
+                        waybillPackageDTOTemp.setPackageCode(pack.getPackageCode());
+                        waybillPackageDTOTemp.setWeight(pack.getpWeight());
+                        waybillPackageDTOTemp.setOriginalVolume(pack.getpLength()*pack.getpWeight()*pack.getpHigh());
+                        waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWeight()*pack.getpHigh());
+                        waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
+                        waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
+                        return waybillPackageDTOTemp;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
