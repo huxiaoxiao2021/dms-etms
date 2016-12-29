@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.box.dao.BoxDao;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.dao.FreshWaybillDao;
 import com.jd.bluedragon.distribution.waybill.dao.WaybillPackageDao;
@@ -37,6 +40,8 @@ public class WaybillServiceImpl implements WaybillService {
 	WaybillQueryApi waybillQueryApi;
     @Autowired
     private WaybillPackageApi waybillPackageApi;
+    @Autowired
+    private BoxService boxService;
 
 //    @Autowired
 //    private WaybillPackageDao waybillPackageDao;
@@ -128,26 +133,57 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     private WaybillPackageDTO getPackageByWaybillInterface(String packageCode){
-        String waybillCode = SerialRuleUtil.getWaybillCode(packageCode);
-        BaseEntity<List<PackOpeFlowDto>> dtoList= waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
-        if(dtoList!=null && dtoList.getResultCode()==1){
-            List<PackOpeFlowDto> dto = dtoList.getData();
-            if(dto!=null && !dto.isEmpty()) {
-                for(PackOpeFlowDto pack :dto){
-                    if(packageCode.equals(pack.getPackageCode())){
-                        WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
-                        waybillPackageDTOTemp.setWaybillCode(pack.getWaybillCode());
-                        waybillPackageDTOTemp.setPackageCode(pack.getPackageCode());
-                        waybillPackageDTOTemp.setWeight(pack.getpWeight());
-                        waybillPackageDTOTemp.setOriginalVolume(pack.getpLength()*pack.getpWeight()*pack.getpHigh());
-                        waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWeight()*pack.getpHigh());
-                        waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
-                        waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
-                        return waybillPackageDTOTemp;
+
+        if(packageCode == null || packageCode.length() == 0){
+            return null;
+        }
+
+        //判断是否为包裹号，如果不是包裹号，先从箱号里边取值
+        if(BusinessHelper.isPackageCode(packageCode)){
+            Box box = boxService.findBoxByCode(packageCode);
+            if(box == null){
+                return null;
+            }
+            double length = box.getLength();
+            double width = box.getWidth();
+            double height = box.getHeight();
+            WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
+            waybillPackageDTOTemp.setPackageCode(packageCode);
+            //长宽高
+            waybillPackageDTOTemp.setLength(length);
+            waybillPackageDTOTemp.setWidth(width);
+            waybillPackageDTOTemp.setHeight(height);
+            waybillPackageDTOTemp.setOriginalVolume(length*width*height);
+            waybillPackageDTOTemp.setVolume(length*width*height);
+            return waybillPackageDTOTemp;
+        }else{
+            String waybillCode = SerialRuleUtil.getWaybillCode(packageCode);
+            BaseEntity<List<PackOpeFlowDto>> dtoList= waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+            if(dtoList!=null && dtoList.getResultCode()==1){
+                List<PackOpeFlowDto> dto = dtoList.getData();
+                if(dto!=null && !dto.isEmpty()) {
+                    for(PackOpeFlowDto pack :dto){
+                        if(packageCode.equals(pack.getPackageCode())){
+                            WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
+                            waybillPackageDTOTemp.setWaybillCode(pack.getWaybillCode());
+                            waybillPackageDTOTemp.setPackageCode(pack.getPackageCode());
+                            waybillPackageDTOTemp.setWeight(pack.getpWeight());
+                            //长宽高
+                            waybillPackageDTOTemp.setLength(pack.getpLength());
+                            waybillPackageDTOTemp.setWidth(pack.getpWidth());
+                            waybillPackageDTOTemp.setHeight(pack.getpHigh());
+
+                            waybillPackageDTOTemp.setOriginalVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
+                            waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
+                            waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
+                            waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
+                            return waybillPackageDTOTemp;
+                        }
                     }
                 }
             }
         }
+
         return null;
     }
 }
