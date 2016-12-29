@@ -71,4 +71,9 @@ public interface GantryDeviceService {
      * 通过批次号 获取sendD的列表
      */
     public List<SendDetail> queryWaybillsBySendCode(String sendCode);
+
+    /**
+     * 通过批次号 获取sendD 箱号的列表
+     */
+    public List<SendDetail> queryBoxCodeBySendCode(String sendCode);
 }

@@ -130,7 +130,7 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         //判断是否为包裹号，如果不是包裹号，先从箱号里边取值
-        if(BusinessHelper.isPackageCode(packageCode)){
+        if(!BusinessHelper.isPackageCode(packageCode)){
             Box box = boxService.findBoxByCode(packageCode);
             if(box == null){
                 return null;
