@@ -419,8 +419,13 @@ public class GantryAutoSendController {
                     continue;
                 }
                 /** ===============1.执行换批次动作================== **/
-                ScannerFrameBatchSend itemtoEndSend = item;
+                ScannerFrameBatchSend itemtoEndSend = new ScannerFrameBatchSend();
                 logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
+                itemtoEndSend.setMachineId(item.getMachineId());
+                itemtoEndSend.setCreateSiteCode(item.getCreateSiteCode());
+                itemtoEndSend.setCreateSiteName(item.getCreateSiteName());
+                itemtoEndSend.setReceiveSiteCode(item.getReceiveSiteCode());
+                itemtoEndSend.setReceiveSiteName(item.getReceiveSiteName());
                 itemtoEndSend.setPrintTimes((byte)0);
                 itemtoEndSend.setLastPrintTime(null);
                 itemtoEndSend.setCreateUserCode((long)userId);

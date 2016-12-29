@@ -51,7 +51,7 @@ $(document).ready(function(){
         /** 读取cookie中设置的打印机的值 **/
         var labelPrinterValue = $.cookie("labelPrinterValue");
         var listPrinterValue = $.cookie("listPrinterValue");
-        if(labelPrinterValue == null || listPrinterValue == null){
+        if(labelPrinterValue == null ){
             jQuery.messager.alert("提示","没有设置打印机，请前往设置","info");
             return;
         }
