@@ -9,11 +9,13 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -31,6 +35,8 @@ public class WaybillServiceImpl implements WaybillService {
     private WaybillStatusService waybillStatusService;
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
+    @Autowired
+    private WaybillPackageApi waybillPackageApi;
 
 //    @Autowired
 //    private WaybillPackageDao waybillPackageDao;
@@ -123,34 +129,23 @@ public class WaybillServiceImpl implements WaybillService {
 
     private WaybillPackageDTO getPackageByWaybillInterface(String packageCode){
         String waybillCode = SerialRuleUtil.getWaybillCode(packageCode);
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryPackList(true);
-
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
-
-        if(baseEntity == null || baseEntity.getData() == null){
-            return null;
-        }
-
-        List<DeliveryPackageD> packageList = baseEntity.getData().getPackageList();
-
-        if(packageList == null || packageList.size() < 1){
-            return null;
-        }
-
-        for (DeliveryPackageD deliverPackageD : packageList) {
-            if(packageCode.equals(deliverPackageD.getPackageBarcode())){
-                WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
-                waybillPackageDTOTemp.setWaybillCode(deliverPackageD.getWaybillCode());
-                waybillPackageDTOTemp.setPackageCode(deliverPackageD.getPackageBarcode());
-                waybillPackageDTOTemp.setOriginalWeight(deliverPackageD.getGoodWeight());
-                waybillPackageDTOTemp.setWeight(deliverPackageD.getAgainWeight());
-                waybillPackageDTOTemp.setOriginalVolume(StringHelper.isDouble(deliverPackageD.getGoodVolume()) ? Double.parseDouble(deliverPackageD.getGoodVolume()) : 0);
-                waybillPackageDTOTemp.setVolume(StringHelper.isDouble(deliverPackageD.getGoodVolume()) ? Double.parseDouble(deliverPackageD.getGoodVolume()) : 0);
-                return waybillPackageDTOTemp;
+        BaseEntity<List<PackOpeFlowDto>> dtoList= waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+        if(dtoList!=null && dtoList.getResultCode()==1){
+            List<PackOpeFlowDto> dto = dtoList.getData();
+            if(dto!=null && !dto.isEmpty()) {
+                for(PackOpeFlowDto pack :dto){
+                    if(packageCode.equals(pack.getPackageCode())){
+                        WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
+                        waybillPackageDTOTemp.setWaybillCode(pack.getWaybillCode());
+                        waybillPackageDTOTemp.setPackageCode(pack.getPackageCode());
+                        waybillPackageDTOTemp.setWeight(pack.getpWeight());
+                        waybillPackageDTOTemp.setOriginalVolume(pack.getpLength()*pack.getpWeight()*pack.getpHigh());
+                        waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWeight()*pack.getpHigh());
+                        waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
+                        waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
+                        return waybillPackageDTOTemp;
+                    }
+                }
             }
         }
         return null;
