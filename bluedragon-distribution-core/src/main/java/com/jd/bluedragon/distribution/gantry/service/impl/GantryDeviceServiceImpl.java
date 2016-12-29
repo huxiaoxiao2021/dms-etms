@@ -79,4 +79,10 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
         List<SendDetail> list = sendDatailDao.queryWaybillsBySendCode(sendCode);
         return list;
     }
+
+    @Override
+    public List<SendDetail> queryBoxCodeBySendCode(String sendCode) {
+        List<SendDetail> list = sendDatailDao.queryBoxCodeBySendCode(sendCode);
+        return list;
+    }
 }

@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -251,24 +253,29 @@ public class GantryAutoSendController {
         result.setCode(500);
         result.setMessage("服务器处理异常");
         if(sendCode != null){
-            List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(sendCode);
+            List<SendDetail> ls = gantryDeviceService.queryWaybillsBySendCode(sendCode);
+            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
             GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
             Integer packageSum = 0;//批次总包裹数量
             Double volumeSum = 0.00;//取分拣体积
             if(sendDetailList != null && sendDetailList.size() > 0){
                 for (SendDetail sendD : sendDetailList){
                     try{
-                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getPackageBarcode());
+                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
+                        if(waybillPackageDTO == null){
+                            continue;
+                        }
                         volumeSum += waybillPackageDTO.getVolume() == 0? waybillPackageDTO.getOriginalVolume():waybillPackageDTO.getVolume();
                     }catch(Exception e){
                         logger.error("获取批次的总数量和总体积失败：批次号为"+sendCode,e);
                     }
                 }
-                packageSum = sendDetailList.size();//获取包裹的数量
+                packageSum = ls.size();//获取包裹的数量
             }
+            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
             sendBoxSum.setSendCode(sendCode);
             sendBoxSum.setPackageSum(packageSum);
-            sendBoxSum.setVolumeSum(volumeSum);
+            sendBoxSum.setVolumeSum(bg.doubleValue());
             result.setCode(200);
             result.setData(sendBoxSum);
             result.setMessage("获取批次号的总数量和总体积成功");
