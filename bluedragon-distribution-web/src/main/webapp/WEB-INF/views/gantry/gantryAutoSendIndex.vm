@@ -90,7 +90,7 @@
                         #if($!{siteCode})
                             <option value="$!{siteCode}">$!{siteCode}&nbsp;$!{siteName}</option>
                         #else
-                            <option value="910">（没有维护分拣中心）</option>
+                            <option value="">（没有维护分拣中心）</option>
                         #end
                     </select>
                     <span>设备名：</span><select name="gantryDevice" id="gantryDevice" value="" class="textField">
@@ -172,7 +172,7 @@
                             <th>批次目的地</th>
                             <th>批次号</th>
                             <th>包裹数量</th>
-                            <th>总体积（m³）</th>
+                            <th>总体积（cm³）</th>
                             <th>批次创建时间</th>
                         </tr>
                         </thead>
