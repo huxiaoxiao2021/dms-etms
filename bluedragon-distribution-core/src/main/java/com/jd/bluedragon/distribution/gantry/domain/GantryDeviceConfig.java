@@ -15,16 +15,16 @@ public class GantryDeviceConfig {
     /**
      * 自动发货
      */
-    public static final int AUTO_INSPECTION=1;
+    public static final int AUTO_INSPECTION = 1;
 
     /**
      * 自动发货
      */
-    public static final int AUTO_SEND=2;
+    public static final int AUTO_SEND = 2;
     /**
      * 测量体积
      */
-    public static final int AUTO_MEASURE=4;
+    public static final int AUTO_MEASURE = 4;
 
     public Long id;
 
@@ -107,7 +107,7 @@ public class GantryDeviceConfig {
     /*
     锁定人ERP帐户
      */
-    private  String lockUserErp;
+    private String lockUserErp;
 
     /*
     锁定人姓名
@@ -120,6 +120,11 @@ public class GantryDeviceConfig {
     private Date dbTime;
 
     private Integer yn;
+
+    /*
+    龙门架新老版本，0-老版本，1-新版本
+    */
+    private Byte version;
 
     public Long getId() {
         return id;
@@ -281,8 +286,16 @@ public class GantryDeviceConfig {
         this.yn = yn;
     }
 
+    public Byte getVersion() {
+        return version;
+    }
+
+    public void setVersion(Byte version) {
+        this.version = version;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return JsonHelper.toJson(this);
     }
 }

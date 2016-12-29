@@ -92,8 +92,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         boolean result = false;
         domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
 
-        // 判断操作类型是否为发货并且龙门架为新设备
         Byte version = getVersion(config.getMachineId());
+        config.setVersion(version);
+        // 判断操作类型是否为发货并且龙门架为新设备
         if (version != null && version.intValue() == 1) {
             String sendCode = getSendCode(domain, config);
             if (sendCode != null && !"".equals(sendCode)) {
