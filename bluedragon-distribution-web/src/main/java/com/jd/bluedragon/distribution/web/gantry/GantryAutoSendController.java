@@ -260,7 +260,7 @@ public class GantryAutoSendController {
             if(sendDetailList != null && sendDetailList.size() > 0){
                 for (SendDetail sendD : sendDetailList){
                     try{
-                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getPackageBarcode());
+                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
                         volumeSum += waybillPackageDTO.getVolume() == 0? waybillPackageDTO.getOriginalVolume():waybillPackageDTO.getVolume();
                     }catch(Exception e){
                         logger.error("获取批次的总数量和总体积失败：批次号为"+sendCode,e);
