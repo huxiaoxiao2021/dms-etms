@@ -58,9 +58,9 @@ $(document).ready(function(){
 
         /** 第二步判断是否有选中单个进行打印并完结的事件 **/
         var list = [];
-        var param = {};
         list.push({"machineId":$("#gantryDevice :selected").val()});
         $("input[name=item]:checked").each(function () {
+            var param = {};
             param.machineId = $("#gantryDevice :selected").val();
             param.createSiteCode = $("#siteOrg :selected").val();
             param.receiveSiteCode = $(this).parents("tr").find("[name=receiveSite]").attr("title");
