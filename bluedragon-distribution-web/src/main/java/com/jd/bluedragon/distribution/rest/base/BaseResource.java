@@ -1373,7 +1373,6 @@ public class BaseResource {
 			BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 			br.setSiteCode(sbs.getSiteCode());
 			br.setSiteName(sbs.getSiteName());
-			br.setOrgId(sbs.getOrgId());
 			ll.add(br);
 		}
 		return ll;
