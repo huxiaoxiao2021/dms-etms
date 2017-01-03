@@ -359,6 +359,8 @@ function enOrDisGantry(params){
         }else if(params.businessType == 3 || params.businessType == 7){
             jQuery.messager.alert("错误：","‘发货’、‘验货’不可同时使用！！！","error");
             return;
+        }else if(params.businessType == 0){
+            return;
         }
     }else if(params.lockStatus == 0){
         /** 释放校验 **/
