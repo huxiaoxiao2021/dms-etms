@@ -397,8 +397,10 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setWhReverse(request.getWhReverse());
         sorting.setBsendCode(request.getBsendCode());
         
-        if (!BusinessHelper.isPickupCode(aPackageCode)) {
-            sorting.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+        //扫W及WA的包裹号时  下面的包裹号判断 会覆盖运单号的赋值
+        if (BusinessHelper.isPickupCode(aPackageCode)) {
+//            sorting.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+        	sorting.setWaybillCode(aPackageCode);
         }
         if (BusinessHelper.isPackageCode(aPackageCode)) {
             sorting.setPackageCode(aPackageCode);

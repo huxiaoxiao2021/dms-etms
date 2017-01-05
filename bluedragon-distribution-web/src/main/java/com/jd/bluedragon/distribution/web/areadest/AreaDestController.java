@@ -108,23 +108,43 @@ public class AreaDestController {
     @RequestMapping(value = "/addview", method = RequestMethod.GET)
     public String addView(Model model) {
         try {
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (erpUser != null) {
-                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                if (dto != null) {
-                    model.addAttribute("createSiteCode", dto.getSiteCode());
-                    model.addAttribute("createSiteName", dto.getSiteName());
-                } else {
-                    logger.error("根据erp用户信息获取基础信息失败，结果为null");
-                }
-                model.addAttribute("allOrgs", removeInvalidOrg(baseService.getAllOrg()));
-            } else {
-                logger.error("获取erp用户信息失败，结果为null");
-            }
+            this.buildAddView(model);
         } catch (Exception e) {
             logger.error("跳转新增页面失败", e);
         }
         return "areadest/add";
+    }
+
+    /**
+     * 无权限控制跳转新增页
+     *
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/addviewunauth", method = RequestMethod.GET)
+    public String addViewUnAuth(Model model) {
+        try {
+            this.buildAddView(model);
+        } catch (Exception e) {
+            logger.error("跳转无权限新增页面失败", e);
+        }
+        return "areadest/add";
+    }
+
+    private void buildAddView(Model model) {
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser != null) {
+            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+            if (dto != null) {
+                model.addAttribute("createSiteCode", dto.getSiteCode());
+                model.addAttribute("createSiteName", dto.getSiteName());
+            } else {
+                logger.error("根据erp用户信息获取基础信息失败，结果为null");
+            }
+            model.addAttribute("allOrgs", removeInvalidOrg(baseService.getAllOrg()));
+        } else {
+            logger.error("获取erp用户信息失败，结果为null");
+        }
     }
 
     /**
