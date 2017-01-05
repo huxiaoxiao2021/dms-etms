@@ -54,6 +54,12 @@ public class GantryAutoSendController {
 
     private final static String prefixKey = "HeadquartersIp";
 
+    private final static int MAX_DATA_TO_PRINT = 500;//最大打印的数据条数
+
+    private final static int SENDCODE_PRINT_TYPE = 1;//批次打印
+
+    private final static int SUMMARY_PRINT_TYPE = 2;//汇总单打印
+
     @Autowired
     BaseMajorManager baseMajorManager;
 
@@ -484,55 +490,132 @@ public class GantryAutoSendController {
         return result;
     }
 
-    @RequestMapping(value = "/summaryPrint",method = RequestMethod.POST)
+    @RequestMapping(value = "/sendEndAndPrint",method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<List<BatchSendPrintImageResponse>> summaryPrint(){
+    public InvokeResult<List<BatchSendPrintImageResponse>> sendEndAndPrint(@RequestBody ScannerFrameBatchSendPrint[] requests) {
+        InvokeResult<List<BatchSendPrintImageResponse>> result = new InvokeResult<List<BatchSendPrintImageResponse>>();
+        logger.info("已打印并完结批次动作开始-->打印的龙门架ID为："+requests[0].getMachineId());
+        result.setCode(400);
+        result.setMessage("服务调用成功，数据为空");
+        result.setData(null);
 
+        Integer machineId = requests[0].getMachineId();
+        Integer printType = requests[0].getPrintType();//打印方式逻辑与：1 批次号打印 2 汇总单 3 两者
+        if(machineId == null || machineId == 0 || printType == null ){
+            result.setCode(200);
+            result.setMessage("龙门架参数错误");
+            return result;
+        }
 
-        return null;
-    }
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        String userCode = "none";//用户erp
+        Integer userId = 0;
+        String userName = "none";//用户姓名
+        if(erpUser != null){
+            try{
+                userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
+                userId = erpUser.getUserId() == null ? 0:erpUser.getUserId();
+                userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+            }catch(Exception e){
+                logger.info("没有在基础资料中维护此erp信息");
+                result.setCode(500);
+                result.setMessage("没有在基础资料中维护您的登录信息");
+                result.setData(null);
+                return result;
+            }
+        }
 
-
-
-
-
-    /**
-     * domain 类型转换
-     * @param request
-     * @return
-     */
-    private ScannerFrameBatchSend toScannerFrameBatchSend (GantryDeviceConfigRequest request){
-        ScannerFrameBatchSend result = new ScannerFrameBatchSend();
-        if(request != null){
-            result.setMachineId(request.getMachineId());
-            result.setCreateSiteCode(request.getCreateSiteCode());
-            result.setCreateSiteName(request.getCreateSiteName());
+        ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
+        sfbssa.setMachineId(machineId);//查询参数只有龙门架ID
+        Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
+        argumentPager.setStartIndex(0);
+        argumentPager.setPageSize(MAX_DATA_TO_PRINT);
+        argumentPager.setData(sfbssa);
+        try {
+            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该龙门架的所有批次信息
+            List<ScannerFrameBatchSend> dataRequestOld = pagerResult.getData();//取所有批次信息
+            List<ScannerFrameBatchSend> dataRequest = new ArrayList<ScannerFrameBatchSend>();//取所有批次信息
+            if (requests.length > 1) {
+                logger.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：" + (requests.length -1));
+                /** ==============通过request判断是否有选中打印事件=============== **/
+                for (ScannerFrameBatchSend data : dataRequestOld) {
+                    long itemReceiveSiteCode = data.getReceiveSiteCode();
+                    boolean bool = false;
+                    for (ScannerFrameBatchSendPrint itemRequest : requests) {
+                        if (itemRequest.getReceiveSiteCode() != null
+                                && itemReceiveSiteCode == itemRequest.getReceiveSiteCode().longValue()) {
+                            bool = true;
+                        }
+                    }
+                    if (bool) {
+                        dataRequest.add(data);/** 不是请求的打印数据，则剔除 **/
+                    }
+                }
+                /** ==============判断结束，过滤出将要打印的List===================**/
+            } else {
+                dataRequest = dataRequestOld;
+            }
+            logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
+            List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
+            String urlBatchPrint =HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
+            String urlSummaryPrint = HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/summaryPrint";
+            for(ScannerFrameBatchSend item : dataRequest){
+                if(item.getReceiveSiteCode() == 0){
+                    //没有目的站点，自动退出循环
+                    logger.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
+                    continue;
+                }
+                /** ===============1.执行换批次动作================== **/
+                ScannerFrameBatchSend itemtoEndSend = new ScannerFrameBatchSend();
+                logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
+                itemtoEndSend.setMachineId(item.getMachineId());
+                itemtoEndSend.setCreateSiteCode(item.getCreateSiteCode());
+                itemtoEndSend.setCreateSiteName(item.getCreateSiteName());
+                itemtoEndSend.setReceiveSiteCode(item.getReceiveSiteCode());
+                itemtoEndSend.setReceiveSiteName(item.getReceiveSiteName());
+                itemtoEndSend.setPrintTimes((byte)0);
+                itemtoEndSend.setLastPrintTime(null);
+                itemtoEndSend.setCreateUserCode((long)userId);
+                itemtoEndSend.setCreateUserName(userName);
+                itemtoEndSend.setUpdateUserCode((long)userId);
+                itemtoEndSend.setUpdateUserName(userName);
+                itemtoEndSend.setCreateTime(new Date());
+                itemtoEndSend.setUpdateTime(new Date());
+                itemtoEndSend.setYn((byte)1);
+                itemtoEndSend.setSendCode(SerialRuleUtil.generateSendCode(itemtoEndSend.getCreateSiteCode(),itemtoEndSend.getReceiveSiteCode(),itemtoEndSend.getCreateTime()));
+                boolean bool = scannerFrameBatchSendService.generateSend(itemtoEndSend);
+                if(!bool){
+                    logger.error("换批次动作失败：打印跳过该批次：" + item.toString());
+                    continue;
+                }
+                result.setCode(300);
+                result.setMessage("服务调用成功,换批次成功，打印失败");
+                result.setData(results);
+                logger.info("换批次动作实心成功，执行打印获取base64。");
+                /** ==================换批次动作执行完毕================ **/
+                if((printType&1) == 1){//批次打印逻辑
+                    logger.info("龙门架自动发货页面--批次打印开始");
+                    BatchSendPrintImageResponse itemSendCodeResponse = scannerFrameBatchSendService.batchPrint(urlBatchPrint,item,userId,userName);
+                    itemSendCodeResponse.setPrintType(SENDCODE_PRINT_TYPE);//批次打印单
+                    results.add(itemSendCodeResponse);
+                }
+                if((printType&2) == 2){//汇总打印逻辑
+                    logger.info("龙门架自动发货页面-打印汇总单开始");
+                    BatchSendPrintImageResponse itemSummaryResponse = scannerFrameBatchSendService.summaryPrint(urlSummaryPrint,item,userId,userName);
+                    itemSummaryResponse.setPrintType(SUMMARY_PRINT_TYPE);//汇总打印单
+                    results.add(itemSummaryResponse);
+                }
+                logger.info("本次打印结束，获取的图片个数为：" + results.size());
+            }
+            result.setCode(200);
+            result.setMessage("服务调用成功");
+            result.setData(results);
+        }catch(Exception e){
+            logger.error("获取数据异常");
+            result.setCode(500);
+            result.setMessage("服务调用异常");
         }
         return result;
-    }
-
-    /** 请求对象转换成domain对象，并赋予操作人 **/
-    private GantryDeviceConfig toGantryDeviceConfig(GantryDeviceConfigRequest request,String userCode,String userName,Integer userId) {
-        GantryDeviceConfig gantryDeviceConfig = new GantryDeviceConfig();
-//        gantryDeviceConfig.setId(Long.parseLong(request.getId().toString()));
-        gantryDeviceConfig.setMachineId(request.getMachineId());
-        gantryDeviceConfig.setBusinessType(request.getBusinessType());
-        gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
-        gantryDeviceConfig.setCreateSiteName(request.getCreateSiteName());
-        gantryDeviceConfig.setGantrySerialNumber(request.getGantrySerialNumber());
-        gantryDeviceConfig.setLockStatus(request.getLockStatus());
-        gantryDeviceConfig.setLockUserErp(userCode);
-        gantryDeviceConfig.setLockUserName(userName);
-        gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
-        gantryDeviceConfig.setOperateUserErp(userCode);
-        gantryDeviceConfig.setOperateUserId(userId);
-        gantryDeviceConfig.setOperateUserName(userName);
-        gantryDeviceConfig.setSendCode("");//无发货批次
-        gantryDeviceConfig.setStartTime(new Date());
-        //        gantryDeviceConfig.setEndTime(request.getEndTime()); 不需要endtime
-        gantryDeviceConfig.setUpdateUserErp(userCode);
-        gantryDeviceConfig.setUpdateUserName(userName);
-        return gantryDeviceConfig;
     }
 
 }

@@ -55,10 +55,14 @@ $(document).ready(function(){
             jQuery.messager.alert("提示","没有设置打印机，请前往设置","info");
             return;
         }
+        var printerNames = {"labelPrinter":labelPrinterValue,"listPrinter":listPrinterValue};
 
         /** 第二步判断是否有选中单个进行打印并完结的事件 **/
         var list = [];
-        list.push({"machineId":$("#gantryDevice :selected").val()});
+        list.push({"machineId":$("#gantryDevice :selected").val(),
+            "printType": type,
+            "createSiteCode":$("#siteOrg :selected").val()
+        });
         $("input[name=item]:checked").each(function () {
             var param = {};
             param.machineId = $("#gantryDevice :selected").val();
@@ -75,13 +79,8 @@ $(document).ready(function(){
             }
         }
 
-        /** 第三步：判断需要哪些类型的打印(逻辑求和是否等于3) **/
-        if((type&1) == 1){//处理 '批次号 打印
-            printAndEndSendCodeBtn(list,labelPrinterValue);//打印事件
-        }
-        if((type&2) == 2){//处理 '汇总单' 打印
-            //todo 处理汇总单打印
-        }
+        /** 第三步：打印，批次打印和汇总打印 **/
+        printAndEndSendCodeBtn(list,printerNames);//打印事件
 
         /** 刷新当前页面 **/
         var currentPage = $(".current").text();
@@ -621,11 +620,10 @@ function timeStampToDate(ts){
 /**
  * 打印并完结批次事件
  */
-function printAndEndSendCodeBtn(param,printerName){
+function printAndEndSendCodeBtn(param,printerNames){
     var width = 200;
-    var height = 200;
-    var imageStr = "";
-    var url = $("#contextPath").val() + "/gantryAutoSend/sendCodePrint";
+    var height = 100;
+    var url = $("#contextPath").val() + "/gantryAutoSend/sendEndAndPrint";
     CommonClient.syncPostJson(url,param,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("提示：","获取打印内容异常，请稍后再试","info");
@@ -635,12 +633,20 @@ function printAndEndSendCodeBtn(param,printerName){
         if(data.code==200){
             $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理打印,请不要关闭页面...</span>"});
             for(var i = 0;i<responseList.length;i++){
-                imageStr = responseList[i].sendCodeImgStr;
+                var printerName = "";
+                var imageStr = responseList[i].sendCodeImgStr;
+                if(responseList[i].printType == 1){
+                    printerName = printerNames.labelPrinter;
+                }else if(responseList[i].printType == 2){
+                    printerName = printerNames.listPrinter;
+                }
                 printPic(printerName,imageStr,width,height);
             }
             $.unblockUI();
+        }else if(data.code == 300){
+            jQuery.messager.alert("警告：",data.message,"warning");
         }else{
-            jQuery.messager.alert("警告：","打印完结批次失败!","warning");
+            jQuery.messager.alert("警告：","打印完结批次失败","warning");
         }
     })
 }
