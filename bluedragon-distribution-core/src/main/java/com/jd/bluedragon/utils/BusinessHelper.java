@@ -111,9 +111,10 @@ public class BusinessHelper {
         } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
                 && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
             return Boolean.TRUE;
-        } else if (BusinessHelper.isPickupCode(s)) {
-            return Boolean.TRUE;
-        }
+        } 
+//        else if (BusinessHelper.isPickupCode(s)) {
+//            return Boolean.TRUE;
+//        }
 
         return Boolean.FALSE;
     }
@@ -379,7 +380,22 @@ public class BusinessHelper {
 	}
 	
 	public static void main(String[] args){
-		System.out.println(BusinessHelper.getWaybillCode("45464367033-1-1-2"));
+		System.out.println(!BusinessHelper.isPickupCode("46666748985"));
+		System.out.println(BusinessHelper.isPackageCode("46666748985"));
+		System.out.println(BusinessHelper.isWaybillCode("46666748985"));
+		System.out.println("----------");
+		System.out.println(!BusinessHelper.isPickupCode("46666748985-1-1-"));
+		System.out.println(BusinessHelper.isPackageCode("46666748985-1-1-"));
+		System.out.println(BusinessHelper.isWaybillCode("46666748985-1-1-"));
+		System.out.println("----------");
+		System.out.println(BusinessHelper.isPickupCode("WA814409699876159488"));
+		System.out.println(BusinessHelper.isPackageCode("WA814409699876159488"));
+		System.out.println(BusinessHelper.isWaybillCode("WA814409699876159488"));
+		System.out.println(BusinessHelper.getWaybillCode("WA814409699876159488"));
+		System.out.println("----------");
+		System.out.println(BusinessHelper.isPickupCode("WA814409699876159488-1-1-"));
+		System.out.println(BusinessHelper.isPackageCode("WA814409699876159488-1-1-"));
+		System.out.println(BusinessHelper.isWaybillCode("WA814409699876159488-1-1-"));
 	}
 
 }
