@@ -125,5 +125,5 @@ function doQueryAreaDest(params) {
 
 function goAddBtnClick() {
     var contextPath = $("#contextPath").val();
-    location.href = contextPath + "/areadest/addview";
+    location.href = contextPath + "/areadest/addviewunauth";
 }
