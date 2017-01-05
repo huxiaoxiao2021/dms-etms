@@ -162,6 +162,7 @@
                 jQuery.messager.alert("提示","没有设置打印机，请前往设置","info");
                 return;
             }
+            var printerNames = {"labelPrinter":labelPrinterValue,"listPrinter":listPrinterValue};
 
             /** 第二步判断是否有选中单个进行打印并完结的事件 **/
             var list = [];
@@ -179,7 +180,7 @@
                 return;
             }
 
-            printEvent(list,labelPrinterValue);//打印事件
+            printEvent(list,printerNames);//打印事件
 
 
             /** 刷新当前页面 **/
@@ -190,9 +191,9 @@
         /**
          * 打印提交事件
          */
-        function printEvent(param,printerName){
+        function printEvent(param,printerNames){
             var width = 200;
-            var height = 200;
+            var height = 100;
             var imageStr = "";
             var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/sendCodePrint";
             CommonClient.postJson(url,param,function (data) {
@@ -205,7 +206,8 @@
                     $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理打印,请不要关闭页面...</span>"});
                     for(var i = 0;i<responseList.length;i++){
                         imageStr = responseList[i].sendCodeImgStr;
-                        printPic(printerName,imageStr,width,height);
+                        printPic(printerNames.labelPrinter,imageStr,width,height);
+                        printPic(printerNames.listPrinter,imageStr,width,height);
                     }
                     $.unblockUI();
                 }else{
