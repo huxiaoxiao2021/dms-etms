@@ -1,11 +1,24 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
+import com.jd.bluedragon.distribution.api.request.BatchSummaryPrintImageRequest;
+import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.RestHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -27,11 +40,22 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     private static final Log LOGGER = LogFactory.getLog(SimpleScannerFrameDispatchServiceImpl.class);
 
     private static final byte YN_DEFAULT = 1;
+
+    private final static int SENDCODE_PRINT_TYPE = 1;//批次打印
+
+    private final static int SUMMARY_PRINT_TYPE = 2;//汇总单打印
+
     @Autowired
     private ScannerFrameBatchSendDao scannerFrameBatchSendDao;
 
     @Autowired
     private SiteService siteService;
+
+    @Autowired
+    private SendPrintService sendPrintService;
+
+    @Autowired
+    GantryDeviceService gantryDeviceService;
 
     @Override
     public ScannerFrameBatchSend getAndGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config) {
@@ -152,5 +176,76 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         ScannerFrameBatchSend result = new ScannerFrameBatchSend();
         result = scannerFrameBatchSendDao.selectCurrentBatchSend(machineId, receiveSiteCode, operateTime);
         return result;
+    }
+
+    @Override
+    public BatchSendPrintImageResponse batchPrint(String url, ScannerFrameBatchSend scannerFrameBatchSend, Integer userId, String userName) {
+        BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
+        itemRequest.setSendCode(scannerFrameBatchSend.getSendCode());
+        itemRequest.setCreateSiteCode((int)scannerFrameBatchSend.getCreateSiteCode());
+        itemRequest.setCreateSiteName(scannerFrameBatchSend.getCreateSiteName());
+        itemRequest.setReceiveSiteCode((int)scannerFrameBatchSend.getReceiveSiteCode());
+        itemRequest.setReceiveSiteName(scannerFrameBatchSend.getReceiveSiteName());
+        Integer packageSum = 0;
+        /** 获取包裹的数据量 **/
+        List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(scannerFrameBatchSend.getSendCode());
+        if(sendDetailList != null && sendDetailList.size() > 0){
+            packageSum = sendDetailList.size();//获取包裹的数量
+        }
+        itemRequest.setPackageNum(packageSum);
+        BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url,itemRequest,new TypeReference<BatchSendPrintImageResponse>(){});
+        itemResponse.setPrintType(SENDCODE_PRINT_TYPE);//批次打印单
+        /** ===================获取批次打印图片base64码结束================= **/
+        /** =======================3.更新scanner_frame_batch_send表打印时间，打印次数开始================== **/
+        this.submitPrint(scannerFrameBatchSend.getId(),userId,userName);
+        return itemResponse;
+    }
+
+    @Override
+    public BatchSendPrintImageResponse summaryPrint(String url,ScannerFrameBatchSend scannerFrameBatchSend,Integer userId,String userName) {
+        PrintQueryCriteria criteria = new PrintQueryCriteria();
+        criteria.setSendCode(scannerFrameBatchSend.getSendCode());
+        criteria.setReceiveSiteCode((int)scannerFrameBatchSend.getReceiveSiteCode());
+        criteria.setSiteCode((int)scannerFrameBatchSend.getCreateSiteCode());
+        SummaryPrintResultResponse summaryPrintResultResponse =  sendPrintService.batchSummaryPrintQuery(criteria);
+        if(summaryPrintResultResponse.getCode() != 200 ){
+            return null;
+        }
+        List<SummaryPrintResult> summaryPrintResults = summaryPrintResultResponse.getData();//根据一个目的地一个批次号取出来的汇总合集 ，这个list应该只有一条数据
+        SummaryPrintResult itemResult = new SummaryPrintResult();
+        if(summaryPrintResults.size() == 1){
+            itemResult = summaryPrintResults.get(0);
+        }
+        BatchSummaryPrintImageRequest summaryRequest = new BatchSummaryPrintImageRequest();//请求的打印数据类
+        summaryRequest.setCreateSiteNo((int)scannerFrameBatchSend.getCreateSiteCode());
+        summaryRequest.setCreateSiteName(scannerFrameBatchSend.getCreateSiteName());
+        summaryRequest.setReceiveSiteNo((int)scannerFrameBatchSend.getReceiveSiteCode());
+        summaryRequest.setReceiveSiteName(scannerFrameBatchSend.getReceiveSiteName());
+        summaryRequest.setPrintTime(DateHelper.formatDateTime(new Date()));
+        summaryRequest.setSendCode(scannerFrameBatchSend.getSendCode());
+        summaryRequest.setSendTime(itemResult.getSendTime());
+        summaryRequest.setTotalBoxNum(itemResult.getTotalBoxNum());//周转箱
+        summaryRequest.setTotalPackageBarNum(itemResult.getTotalpackageBarNum());//原包个数
+        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalpackageBarNum());//合计 fixme
+        List<SummaryPrintBoxEntity> itemBoxEntitys = new ArrayList<SummaryPrintBoxEntity>();
+        itemBoxEntitys = itemResult.getDetails();
+        int packageBarRecNum = 0;//应发
+        int packageBarNum = 0;  //实发
+        double volume = 0.00;  //体积
+        if(itemBoxEntitys != null){
+            for(int i=0 ;i< itemBoxEntitys.size();i++){
+                packageBarRecNum += itemBoxEntitys.get(i).getPackageBarRecNum();//应发
+                packageBarNum += itemBoxEntitys.get(i).getPackageBarNum();//实发
+                volume += itemBoxEntitys.get(i).getVolume();//体积
+            }
+        }
+        summaryRequest.setPackageBarRecNum(packageBarRecNum);
+        summaryRequest.setPackageBarNum(packageBarNum);
+        summaryRequest.setVolume(volume);
+        BatchSendPrintImageResponse result = RestHelper.jsonPostForEntity(url,summaryRequest,new TypeReference<BatchSendPrintImageResponse>(){});
+        result.setPrintType(SUMMARY_PRINT_TYPE);
+        this.submitPrint(scannerFrameBatchSend.getId(),userId,userName);
+        return result;
+
     }
 }

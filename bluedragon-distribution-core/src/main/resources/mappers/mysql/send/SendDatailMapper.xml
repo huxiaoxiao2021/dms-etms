@@ -733,7 +733,7 @@
     </select>
 	<!-- wzx 2016-12-29 15:10:43 -->
 	<select id="queryBoxCodeBySendCode" parameterType="SendDetail" resultMap="SendDetail">
-		SELECT DISTINCT box_code
+		SELECT waybill_code,package_barcode,box_code
 		FROM send_d
 		WHERE is_cancel=0
 		AND yn = 1

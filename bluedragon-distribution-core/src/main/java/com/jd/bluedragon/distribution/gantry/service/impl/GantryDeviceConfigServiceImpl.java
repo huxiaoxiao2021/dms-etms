@@ -111,5 +111,13 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
         return gantryDeviceConfigDao.updateBusinessType(gantryDeviceConfig);
     }
 
+    @Override
+    public int unlockDevice(GantryDeviceConfig gantryDeviceConfig) {
+        return gantryDeviceConfigDao.unlockDevice(gantryDeviceConfig);
+    }
 
+    @Override
+    public int lockDevice(GantryDeviceConfig gantryDeviceConfig) {
+        return gantryDeviceConfigDao.lockDevice(gantryDeviceConfig);
+    }
 }

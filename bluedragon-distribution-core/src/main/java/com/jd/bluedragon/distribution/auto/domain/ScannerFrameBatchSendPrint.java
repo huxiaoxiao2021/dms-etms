@@ -19,6 +19,8 @@ public class ScannerFrameBatchSendPrint implements Serializable{
     private Integer packageSum;
     private Date createTime;
 
+    private Integer printType;//新增打印方式求逻辑与 1 批次打印, 2 汇总单, 3 both
+
     public Integer getMachineId() {
         return machineId;
     }
@@ -81,5 +83,13 @@ public class ScannerFrameBatchSendPrint implements Serializable{
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getPrintType() {
+        return printType;
+    }
+
+    public void setPrintType(Integer printType) {
+        this.printType = printType;
     }
 }
