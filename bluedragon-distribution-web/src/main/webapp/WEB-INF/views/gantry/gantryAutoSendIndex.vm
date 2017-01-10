@@ -90,7 +90,7 @@
                         #if($!{siteCode})
                             <option value="$!{siteCode}">$!{siteCode}&nbsp;$!{siteName}</option>
                         #else
-                            <option value="">（没有维护分拣中心）</option>
+                            <option value="910">（没有维护分拣中心）</option>
                         #end
                     </select>
                     <span>设备名：</span><select name="gantryDevice" id="gantryDevice" value="" class="textField">
@@ -138,7 +138,7 @@
                             <tr>
                                 <td></td>
                                 <td class="checkboxArea">
-                                    <label style="display: none;">
+                                    <label>
                                         <input type="checkbox" name="printStyle" value="2" class="checkbox" checked="checked"><span>汇总单</span>
                                     </label>
                                 </td>
@@ -208,7 +208,7 @@
                         <option value="">(读取打印机失败)</option>
                     </select></td>
                 </tr>
-                <tr class="trHeight" style="display: none;">
+                <tr class="trHeight">
                     <td></td>
                     <td>清单打印机：</td>
                     <td><select name="" id="listPrinter" class="textField">

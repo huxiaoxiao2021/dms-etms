@@ -52,4 +52,12 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
         return super.getSqlSession().update(namespace + ".updateBusinessType", gantryDeviceConfig);
     }
 
+    public int unlockDevice(GantryDeviceConfig gantryDeviceConfig){
+        return  super.getSqlSession().update(namespace + ".unlockDevice", gantryDeviceConfig);
+    }
+
+    public int lockDevice(GantryDeviceConfig gantryDeviceConfig){
+        return  super.getSqlSession().update(namespace + ".lockDevice", gantryDeviceConfig);
+    }
+
 }

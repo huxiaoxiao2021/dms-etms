@@ -32,6 +32,11 @@ public class BatchSendPrintImageResponse extends JdResponse {
      */
     private String sendCode;
 
+    /**
+     * 打印方式：1 批次打印, 2 汇总打印
+     */
+    private Integer printType;
+
     public String getSendCodeImgStr() {
         return sendCodeImgStr;
     }
@@ -46,5 +51,13 @@ public class BatchSendPrintImageResponse extends JdResponse {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public Integer getPrintType() {
+        return printType;
+    }
+
+    public void setPrintType(Integer printType) {
+        this.printType = printType;
     }
 }

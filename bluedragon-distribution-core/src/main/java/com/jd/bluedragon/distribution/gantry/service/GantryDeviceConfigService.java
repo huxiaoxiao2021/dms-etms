@@ -37,4 +37,14 @@ public interface GantryDeviceConfigService {
     int updateBusinessType(GantryDeviceConfig gantryDeviceConfig);
 
     GantryDeviceConfig checkSendCode(String sendCode);
+
+    /**
+     * 新龙门架的解锁逻辑 by zuxiangWu
+     */
+    int unlockDevice(GantryDeviceConfig gantryDeviceConfig);
+
+    /**
+     * 新龙门架的锁定逻辑 by zuxiangWu
+     */
+    int lockDevice(GantryDeviceConfig gantryDeviceConfig);
 }
