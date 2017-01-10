@@ -34,9 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wuzuxiang on 2016/12/7.
@@ -291,14 +289,20 @@ public class GantryAutoSendController {
         result.setCode(500);
         result.setMessage("服务器处理异常");
         if(sendCode != null){
-            List<SendDetail> ls = gantryDeviceService.queryWaybillsBySendCode(sendCode);
+//            List<SendDetail> ls = gantryDeviceService.queryWaybillsBySendCode(sendCode);
             List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
             GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
             Integer packageSum = 0;//批次总包裹数量
             Double volumeSum = 0.00;//取分拣体积
             if(sendDetailList != null && sendDetailList.size() > 0){
+                HashSet<String> sendDByBoxCode = new HashSet<String>();
                 for (SendDetail sendD : sendDetailList){
+                    //根据sendD的boxCode去重
                     try{
+                        if(sendDByBoxCode.contains(sendD.getBoxCode())){
+                            continue;
+                        }
+                        sendDByBoxCode.add(sendD.getBoxCode());
                         WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
                         if(waybillPackageDTO == null){
                             continue;
@@ -308,7 +312,7 @@ public class GantryAutoSendController {
                         logger.error("获取批次的总数量和总体积失败：批次号为"+sendCode,e);
                     }
                 }
-                packageSum = ls.size();//获取包裹的数量
+                packageSum = sendDetailList.size();//获取包裹的数量
             }
             BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
             sendBoxSum.setSendCode(sendCode);
@@ -523,6 +527,19 @@ public class GantryAutoSendController {
             result.setMessage("服务调用异常");
         }
         return result;
+    }
+
+    /**
+     * 根据sendDetail的boxCode去重
+     * @param sendDetails
+     * @return
+     */
+    private List<SendDetail> selectSendDetailsByBoxCode(List<SendDetail> sendDetails){
+        List<SendDetail> results = new ArrayList<SendDetail>();
+        HashMap<String,Double> hashMap = new HashMap<String, Double>();
+
+
+        return results;
     }
 
 }
