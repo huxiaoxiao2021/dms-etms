@@ -649,6 +649,13 @@
 			<artifactId>order-bank-export</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
+		<!-- staig 接口 -->
+		<dependency>
+			<groupId>com.jd.staig</groupId>
+			<artifactId>receiver-rpc</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

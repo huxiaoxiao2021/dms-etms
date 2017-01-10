@@ -194,5 +194,9 @@
     <!-- 台账 宏亮 张子敬-->
 	<jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
 				alias="${orderBank.jsf.alias}" timeout="${orderBank.jsf.timeout}">
-</jsf:consumer>
+    </jsf:consumer>
+
+    <!-- staig接入 create by wzx -->
+    <jsf:consumer id="dataReceiverJSFService" interface="com.jd.staig.receiver.rpc.DataReceiver" alias="STAIG_RVR" protocol="jsf" timeout="10000" >
+    </jsf:consumer>
 </beans>
