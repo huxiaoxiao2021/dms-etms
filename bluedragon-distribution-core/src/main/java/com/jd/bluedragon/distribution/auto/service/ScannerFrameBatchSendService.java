@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.auto.service;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
@@ -65,5 +66,15 @@ public interface ScannerFrameBatchSendService {
     /** 通过龙门架ID，目的站点，创建时间获取列表 **/
 
     ScannerFrameBatchSend selectCurrentBatchSend(long machineId,long receiveSiteCode,Date operateTime);
+
+    /**
+     * 批次打印：转发到华中的ver获取批次打印的base64编码
+     */
+    BatchSendPrintImageResponse batchPrint(String url,ScannerFrameBatchSend scannerFrameBatchSend,Integer userId,String userName);
+
+    /**
+     * 汇总打印：转发到华中的ver获取打印图片的base64编码
+     */
+    BatchSendPrintImageResponse summaryPrint(String url,ScannerFrameBatchSend scannerFrameBatchSend,Integer userId,String userName);
 
 }

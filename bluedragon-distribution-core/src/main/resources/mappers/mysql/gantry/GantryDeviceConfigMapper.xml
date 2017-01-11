@@ -123,4 +123,70 @@
         WHERE  id =  #{id,jdbcType=INTEGER}
     </update>
 
+    <!-- 新龙门架的锁定与解锁操作 by zuxiangWu  -->
+    <update id="unlockDevice" parameterType="gantryDeviceConfig">
+        UPDATE gantry_device_config
+        <set>
+          lock_status = #{lockStatus,jdbcType=INTEGER},
+          <if test="endTime != null">
+              end_time = #{endTime},
+          </if>
+          <if test="operateUserId != null">
+              OPERATE_USER_ID = #{operateUserId,jdbcType=INTEGER},
+          </if>
+          <if test="operateUserErp != null">
+              OPERATE_USER_ERP = #{operateUserErp,jdbcType=VARCHAR},
+          </if>
+          <if test="operateUserName != null">
+              OPERATE_USER_NAME = #{operateUserName,jdbcType=VARCHAR},
+          </if>
+          <if test="updateUserErp != null">
+              UPDATE_USER_ERP = #{updateUserErp,jdbcType=VARCHAR},
+          </if>
+          <if test="updateUserName != null">
+              UPDATE_USER_NAME=#{updateUserName,jdbcType=VARCHAR},
+          </if>
+        </set>
+        WHERE  id =  #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="lockDevice" parameterType="gantryDeviceConfig">
+        UPDATE gantry_device_config
+        <set>
+            lock_status = #{lockStatus,jdbcType=INTEGER},
+            business_type = #{businessType,jdbcType=INTEGER},
+            <if test="businessTypeRemark != null">
+                BUSINESS_TYPE_REMARK = #{businessTypeRemark,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime == null">
+                end_time = #{endTime},
+            </if>
+            <if test="operateUserId != null">
+                OPERATE_USER_ID = #{operateUserId,jdbcType=INTEGER},
+            </if>
+            <if test="operateUserErp != null">
+                OPERATE_USER_ERP = #{operateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateUserName != null">
+                OPERATE_USER_NAME = #{operateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                UPDATE_USER_ERP = #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                UPDATE_USER_NAME = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="lockUserErp != null">
+                lock_user_erp = #{lockUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="lockUserName != null">
+                lock_user_name=#{lockUserName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE  id =  #{id,jdbcType=INTEGER}
+    </update>
+
 </mapper>
