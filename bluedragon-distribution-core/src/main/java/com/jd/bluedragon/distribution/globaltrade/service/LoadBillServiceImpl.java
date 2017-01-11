@@ -20,10 +20,10 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +89,9 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Autowired
     private IGenerateObjectId genObjectId;
 
+    @Autowired
+    private WaybillService waybillService;
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int initialLoadBill(String sendCode, Integer userId, String userName) {
@@ -128,6 +131,13 @@ public class LoadBillServiceImpl implements LoadBillService {
 			lb.setPackageBarcode(sd.getPackageBarcode());
 			lb.setPackageAmount(sd.getPackageNum());
 			lb.setOrderId(sd.getWaybillCode());
+			// 如果是ECLP订单，则获取商家订单号
+            if(SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
+                String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
+                if(null != vendorOrderId) {
+                    lb.setOrderId(vendorOrderId);
+                }
+            }
 			lb.setBoxCode(sd.getBoxCode());
 			lb.setDmsCode(sd.getCreateSiteCode());
 			lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
@@ -157,6 +167,17 @@ public class LoadBillServiceImpl implements LoadBillService {
 		}
 		return loadBillList;
 	}
+
+
+	private String getVendorOrderId(String waybillCode) {
+	    try {
+	        return waybillService.getWaybill(waybillCode).getWaybill().getVendorId();
+        } catch (Exception e) {
+	        logger.error(String.format("获取运单[%s]的订单号失败，原因",waybillCode), e);
+	        return null;
+        }
+    }
+
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
