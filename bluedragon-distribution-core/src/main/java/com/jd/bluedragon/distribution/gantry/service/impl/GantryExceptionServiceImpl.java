@@ -68,6 +68,16 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
         return gantryExceptionDao.getGantryExceptionCount(param);
     }
 
+    @Override
+    public Integer getGantryExceptionCountForUpdate(String barCode, Long createSiteCode) {
+        if (StringHelper.isEmpty(barCode) || createSiteCode == null) {
+            return 0;
+        }
+        HashMap<String, Object> param = new HashMap();
+        param.put("barCode", barCode);
+        param.put("createSiteCode", createSiteCode);
+        return gantryExceptionDao.getGantryExceptionCountForUpdate(param);
+    }
 
     /**
      * 插入异常

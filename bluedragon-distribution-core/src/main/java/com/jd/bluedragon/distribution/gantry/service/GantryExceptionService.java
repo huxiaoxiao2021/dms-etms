@@ -49,9 +49,17 @@ public interface GantryExceptionService {
     /***
      * 更新发货状态
      * @param barCode 条码
+     * @param createSiteCode 始发分拣中心
      * @return
      */
     public int updateSendStatus(String barCode, Long createSiteCode);
 
 
+    /***
+     * 根据条码和始发分拣中心查询记录数量
+     * @param barCode 条码
+     * @param createSiteCode 始发分拣中心
+     * @return
+     */
+    public Integer getGantryExceptionCountForUpdate(String barCode, Long createSiteCode);
 }
