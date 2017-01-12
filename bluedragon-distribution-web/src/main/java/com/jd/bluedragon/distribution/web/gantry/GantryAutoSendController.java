@@ -45,9 +45,7 @@ public class GantryAutoSendController {
 
     private static final Log logger = LogFactory.getLog(GantryAutoSendController.class);
 
-    private final static String HTTP = "http://";
-
-    private final static String prefixKey = "HeadquartersIp";
+    private final static String PREFIX_VER_URL = "DMSVER_ADDRESS";
 
     private final static int MAX_DATA_TO_PRINT = 500;//最大打印的数据条数
 
@@ -468,8 +466,8 @@ public class GantryAutoSendController {
             }
             logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
-            String urlBatchPrint =HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
-            String urlSummaryPrint = HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/summaryPrint";
+            String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/print";
+            String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/summaryPrint";
             for(ScannerFrameBatchSend item : dataRequest){
                 if(item.getReceiveSiteCode() == 0){
                     //没有目的站点，自动退出循环

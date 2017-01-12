@@ -22,6 +22,9 @@ public class GantryExceptionDao extends BaseDao<GantryException>{
         return (Integer) this.getSqlSession().selectOne(GantryExceptionDao.namespace + ".queryGantryExceptionCount", param);
     }
 
+    public Integer getGantryExceptionCountForUpdate(Map<String, Object> param){
+        return (Integer) this.getSqlSession().selectOne(GantryExceptionDao.namespace + ".getGantryExceptionCountForUpdate", param);
+    }
     public List<GantryException> getGantryExceptionPage(Map<String, Object> param){
         return this.getSqlSession().selectList(GantryExceptionDao.namespace + ".queryGantryExceptionPage", param);
     }
