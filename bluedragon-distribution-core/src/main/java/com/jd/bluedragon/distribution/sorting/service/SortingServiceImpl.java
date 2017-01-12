@@ -42,6 +42,8 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -301,6 +303,21 @@ public class SortingServiceImpl implements SortingService {
 
 		List<Sorting> sortings = new ArrayList<Sorting>();
 		Sorting sorting = this.toSorting(task);
+
+		//added by hanjiaxing
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.ReceiveSiteCodeMismatch", false, true);
+		Box box = boxService.findBoxByCode(sorting.getBoxCode());
+		if (box != null) {
+			int boxReceiveSiteCode = box.getReceiveSiteCode();
+			if (sorting.getReceiveSiteCode() != boxReceiveSiteCode) {
+				logger.warn("sorting报文中的ReceiveSiteCode不匹配，报文内容：" + task.getBody());
+				logger.warn("错误的ReceiveSiteCode：" + sorting.getReceiveSiteCode() + " 正确的ReceiveSiteCode：" + boxReceiveSiteCode);
+				sorting.setReceiveSiteCode(boxReceiveSiteCode);
+			}
+		}
+		Profiler.registerInfoEnd(info);
+		//added end
+
 
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());

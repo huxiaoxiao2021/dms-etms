@@ -114,7 +114,14 @@
     </select>
 
     <update id="updateSendStatus" parameterType="java.util.Map">
-        UPDATE GANTRY_EXCEPTION SET SEND_STATUS = 1
+        UPDATE GANTRY_EXCEPTION SET SEND_STATUS = 1, UPDATE_TIME = NOW()
         <include refid="updateParam"/>
     </update>
+
+    <select id="getGantryExceptionCountForUpdate" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT
+        COUNT(1)
+        FROM GANTRY_EXCEPTION
+        <include refid="updateParam"/>
+    </select>
 </mapper>
