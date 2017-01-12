@@ -309,7 +309,7 @@ public class SortingServiceImpl implements SortingService {
 		Box box = boxService.findBoxByCode(sorting.getBoxCode());
 		if (box != null) {
 			int boxReceiveSiteCode = box.getReceiveSiteCode();
-			if (sorting.getReceiveSiteCode() != boxReceiveSiteCode) {
+			if (sorting.getReceiveSiteCode() != boxReceiveSiteCode) { //FIXME 可以不通过比较 直接使用box的receive_site_code
 				logger.warn("sorting报文中的ReceiveSiteCode不匹配，报文内容：" + task.getBody());
 				logger.warn("错误的ReceiveSiteCode：" + sorting.getReceiveSiteCode() + " 正确的ReceiveSiteCode：" + boxReceiveSiteCode);
 				sorting.setReceiveSiteCode(boxReceiveSiteCode);

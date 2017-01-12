@@ -41,30 +41,6 @@
         TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS
     </sql>
 
-    <sql id="gantryExceptionQueryParam" >
-      <where>
-          <if test="machineId != null">
-              AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
-          </if>
-          <if test="startTime != null and startTime != ''">
-              AND OPERATE_TIME <![CDATA[>=]]> #{startTime, jdbcType=TIMESTAMP}
-          </if>
-          <if test="endTime != null and endTime != ''" >
-              AND OPERATE_TIME <![CDATA[<=]]> #{endTime, jdbcType=TIMESTAMP}
-          </if>
-          <if test="sendStatus != null">
-              AND SEND_STATUS = #{sendStatus, jdbcType=TINYINT}
-          </if>
-      </where>
-    </sql>
-
-    <sql id="updateParam" >
-        <where>
-            BAR_CODE = #{barCode, jdbcType=VARCHAR} AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
-        </where>
-    </sql>
-
-
     <insert id="addGantryException" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         INSERT INTO GANTRY_EXCEPTION
           (<include refid="gantryExceptionColumnNoID" />)
@@ -86,7 +62,24 @@
           now(), now(), 1, 0
         )
     </insert>
-    
+
+    <sql id="gantryExceptionQueryParam" >
+        <where>
+            <if test="machineId != null">
+                AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND OPERATE_TIME <![CDATA[>=]]> #{startTime, jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null and endTime != ''" >
+                AND OPERATE_TIME <![CDATA[<=]]> #{endTime, jdbcType=TIMESTAMP}
+            </if>
+            <if test="sendStatus != null">
+                AND SEND_STATUS = #{sendStatus, jdbcType=TINYINT}
+            </if>
+        </where>
+    </sql>
+
     <select id="queryGantryException" resultMap="gantryExceptionMap" parameterType="java.util.Map">
         SELECT 
         <include refid="gantryExceptionColumn"/>
@@ -112,6 +105,12 @@
         FROM GANTRY_EXCEPTION
         <include refid="gantryExceptionQueryParam"/>
     </select>
+
+    <sql id="updateParam" >
+        <where>
+            BAR_CODE = #{barCode, jdbcType=VARCHAR} AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </where>
+    </sql>
 
     <update id="updateSendStatus" parameterType="java.util.Map">
         UPDATE GANTRY_EXCEPTION SET SEND_STATUS = 1, UPDATE_TIME = NOW()
