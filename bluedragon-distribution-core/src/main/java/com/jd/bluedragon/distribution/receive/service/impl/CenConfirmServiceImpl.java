@@ -68,6 +68,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         inspectionMQBody.setWaybillCode(null!=cenConfirm.getWaybillCode()?cenConfirm.getWaybillCode(): SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
         inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
         try {
+            /**
+             * fix wtw 任务监控
+             */
             inspectionNotifyService.send(inspectionMQBody);
         }catch (Throwable throwable){
             log.error("推送验货MQ异常",throwable);
@@ -76,6 +79,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
 			if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {
 				cenConfirm = FillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
+                /**
+                 * fix wtw 外部接口包装，及UMP
+                 */
 				cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);
 			} else {
 				cenConfirm = fillOperateType(cenConfirm);// 根据运单号调用运单接口判断操作类型
@@ -87,6 +93,10 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         }
 		if (Constants.NO_MATCH_DATA == cenConfirmDao
 				.updateFillField(cenConfirm)) {
+            /**
+             * Fix wtw
+             */
+
 			cenConfirmDao.add(CenConfirmDao.namespace, cenConfirm);// 不存在添加
 			// 插入回传运单状态任务表/全程跟踪任务表
 			syncWaybillStatusTask(cenConfirm);

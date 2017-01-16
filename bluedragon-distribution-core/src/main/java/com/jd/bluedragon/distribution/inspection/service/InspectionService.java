@@ -97,4 +97,11 @@ public interface InspectionService {
 	 * @param  Inspection
 	 * */
 	public void saveData(Inspection inspection);
+
+    /**
+     * 更新或插入数据
+     * @param inspection
+     * @return
+     */
+    public  Integer insertOrUpdate(Inspection inspection);
 }

@@ -236,6 +236,9 @@ public class InspectionServiceImpl implements InspectionService {
 		inspectionEC
 				.setStatus(InspectionEC.INSPECTION_EXCEPTION_STATUS_HANDLED);
 		// update表示该记录已经存在，为分拣时插入，在此更新验货异常状态为正常
+        /**
+         * Fix wtw
+         */
 		int updateResult = inspectionECDao.updateOne(inspectionEC);
 		if (Constants.NO_MATCH_DATA == updateResult
 				&& preInspectionEC.isEmpty()) {
@@ -261,6 +264,9 @@ public class InspectionServiceImpl implements InspectionService {
     }
 
 	public Integer insertOrUpdate(Inspection inspection) {
+        /**
+         * Fix wtw
+         */
 		int result = inspectionDao.update(InspectionDao.namespace, inspection);
 		if (Constants.NO_MATCH_DATA == result) {
 			result = inspectionDao.add(InspectionDao.namespace, inspection);
