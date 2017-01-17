@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.framework;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -19,6 +23,8 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private BaseService baseService;
     /**
      * 获取运单信息
      * @param waybillCode 运单号
@@ -26,6 +32,10 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
      */
     protected BigWaybillDto getWaybill(String waybillCode){
         return waybillService.getWaybill(waybillCode);
+    }
+
+    protected BaseStaffSiteOrgDto  getSite(Integer siteCode){
+        return  baseService.getSiteBySiteID(siteCode);
     }
 
     /**

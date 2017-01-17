@@ -104,4 +104,8 @@ public interface InspectionService {
      * @return
      */
     public  Integer insertOrUpdate(Inspection inspection);
+
+    public void thirdPartyWorker(Inspection inspection);
+
+    public void pushOEMToWMS(Inspection inspection);
 }

@@ -211,7 +211,7 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 	}
 
-	private void thirdPartyWorker(Inspection inspection){
+	public void thirdPartyWorker(Inspection inspection){
 		InspectionEC inspectionECSel = new InspectionEC.Builder(
 				inspection.getPackageBarcode(),
 				inspection.getCreateSiteCode())
@@ -421,7 +421,7 @@ public class InspectionServiceImpl implements InspectionService {
 		return this.inspectionDao.findPopByWaybillCodes(waybillCodes);
 	}
 
-	private void pushOEMToWMS(Inspection inspection) {
+	public void pushOEMToWMS(Inspection inspection) {
 		DmsRouter dmsRouter = new DmsRouter();
 		Order order = orderWebService.getOrder(Long.parseLong(inspection
 				.getWaybillCode()));
