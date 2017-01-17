@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
+import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.IntegerHelper;
@@ -64,6 +65,9 @@ public class SortSchemeController {
 
     @Resource
     private SortSchemeDetailService sortSchemeDetailService;
+
+    @Resource
+    private SortSchemeSyncService sortSchemeSyncService;
 
     @Resource
     private BaseMajorManager baseMajorManager;
@@ -366,7 +370,22 @@ public class SortSchemeController {
     @ResponseBody
     public SortSchemeResponse<String> ableSortSchemeById(@RequestBody SortSchemeRequest request) {
         SortSchemeResponse<String> response = new SortSchemeResponse<String>();
+        String siteName = "";
+        Integer siteCode = 910;
+        try{
+            ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+
+            logger.info("获取用户ERP："+ user.getUserCode());
+            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+            if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                siteCode = bssod.getSiteCode();
+                siteName = bssod.getSiteName();
+            }
+        }catch(Exception e){
+            logger.error("登录人没有维护基础资料信息");
+        }
         try {
+
             if (request == null || request.getId() == null || request.getId() < 1 || request.getSiteNo() == null) {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage("参数不能为空！");
@@ -380,8 +399,15 @@ public class SortSchemeController {
             }
             SortSchemeResponse remoteResponse = sortSchemeService.ableById2(request, HTTP + url + "/autosorting/sortScheme/update/able/id");
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage("分拣计划激活成功!");
+                boolean bool = sortSchemeSyncService.sendDtc(request,HTTP + url,siteCode);
+                if(bool){
+                    response.setCode(JdResponse.CODE_OK);
+                    response.setMessage("分拣计划激活成功!");
+                }else{
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage("分拣计划激活成功!仓库分拣方案同步失败");
+                }
+
             }
         } catch (Exception e) {
             logger.error("SortSchemeResource.deleteSortSchemeById-error!", e);

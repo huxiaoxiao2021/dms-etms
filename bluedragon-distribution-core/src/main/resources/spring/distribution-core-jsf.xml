@@ -196,7 +196,4 @@
 				alias="${orderBank.jsf.alias}" timeout="${orderBank.jsf.timeout}">
     </jsf:consumer>
 
-    <!-- staig接入 create by wzx -->
-    <jsf:consumer id="dataReceiverJSFService" interface="com.jd.staig.receiver.rpc.DataReceiver" alias="STAIG_RVR" protocol="jsf" timeout="10000" >
-    </jsf:consumer>
 </beans>

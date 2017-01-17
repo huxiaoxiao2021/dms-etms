@@ -656,7 +656,12 @@
 			<artifactId>receiver-rpc</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
