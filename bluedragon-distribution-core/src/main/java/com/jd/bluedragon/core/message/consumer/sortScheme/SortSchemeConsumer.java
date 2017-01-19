@@ -38,8 +38,8 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
             logger.warn(MessageFormat.format("分拣方案推送DTC消息——非JSON格式，消息体内容为{0}",message.getText()));
             return;
         }
-        DmsSortSchemeRouter dmsSortScheme = JsonHelper.fromJson(message.getText(),DmsSortSchemeRouter.class);
         Map schemeMq = JsonHelper.json2Map(message.getText());
+        DmsSortSchemeRouter dmsSortScheme = JsonHelper.fromJson(schemeMq.get("messageValue").toString(),DmsSortSchemeRouter.class);
         if(null == dmsSortScheme.getType() || !"scheme".equals(dmsSortScheme.getType()) || !"schemeDetail".equals(dmsSortScheme.getType())){
             logger.info(MessageFormat.format("分拣中心推送DTC分拣方案消息抛弃，内容为：{0}",message.getText()));
             return;
@@ -61,7 +61,7 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()=" + result.getResultCode());
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultValue()=" + result.getResultValue());
-                if (result.getResultCode()== 1) {
+                if (result.getResultCode()!= 1) {
                     this.logger.error("[分拣中心分拣方案推送DTC]消息失败，消息体为" + messageValue);
                 }
             }

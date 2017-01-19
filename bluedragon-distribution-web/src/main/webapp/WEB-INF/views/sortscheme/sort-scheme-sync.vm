@@ -36,7 +36,7 @@
                     #if($!{siteCode})
                         <option value="$!{siteCode}">$!{siteCode}&nbsp;$!{siteName}</option>
                     #else
-                        <option value="841">（没有维护分拣中心）</option>
+                        <option value="910">（没有维护分拣中心）</option>
                     #end
                 </select>
             </div>

@@ -404,7 +404,7 @@ public class SortSchemeController {
                     response.setCode(JdResponse.CODE_OK);
                     response.setMessage("分拣计划激活成功!");
                 }else{
-                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setCode(JdResponse.CODE_OK);
                     response.setMessage("分拣计划激活成功!仓库分拣方案同步失败");
                 }
 

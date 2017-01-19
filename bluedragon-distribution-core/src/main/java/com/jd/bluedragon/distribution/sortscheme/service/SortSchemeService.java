@@ -27,6 +27,6 @@ public interface SortSchemeService {
 
     SortSchemeResponse importSortSchemeDetail2(SortSchemeRequest request, String url);
 
-    SortSchemeResponse<SortScheme> queryBySiteCode(SortSchemeRequest request,String url);
+    SortSchemeResponse<List<SortScheme>> queryBySiteCode(SortSchemeRequest request,String url);
 
 }

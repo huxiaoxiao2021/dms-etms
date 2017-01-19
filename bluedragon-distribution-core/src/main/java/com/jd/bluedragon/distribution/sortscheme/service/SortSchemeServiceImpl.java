@@ -66,9 +66,9 @@ public class SortSchemeServiceImpl implements SortSchemeService {
     }
 
     @Override
-    public SortSchemeResponse<SortScheme> queryBySiteCode(SortSchemeRequest request, String url) {
+    public SortSchemeResponse<List<SortScheme>> queryBySiteCode(SortSchemeRequest request, String url) {
         return RestHelper.jsonPostForEntity(url, request, //
-                new TypeReference<SortSchemeResponse<SortScheme>>() {
+                new TypeReference<SortSchemeResponse<List<SortScheme>>>() {
                 });
     }
 }

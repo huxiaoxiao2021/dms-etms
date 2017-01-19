@@ -16,7 +16,8 @@ $(document).ready(function(){
  **/
 function syncFunc(siteCode){
     var url = $("#contextPath").val() + "/sortSchemeSync/sync";
-    CommonClient.post(url,siteCode,function (data) {
+    var param = {"siteCode":siteCode};
+    CommonClient.post(url,param,function (data) {
         if(undefined == data || null == data){
             jQuery.messager.alert("警告","HTTP请求无响应","warning");
             return;

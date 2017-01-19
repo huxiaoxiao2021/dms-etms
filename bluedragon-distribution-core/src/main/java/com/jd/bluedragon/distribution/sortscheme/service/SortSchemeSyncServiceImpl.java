@@ -35,8 +35,8 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 
     private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,53", "10,10,51");
 
-    private static final String sortSchemeUrl = "/sortScheme/find/id";
-    private static final String sortSchemeDetailUrl = "/sortSchemeDetail/list/schemeId";
+    private static final String sortSchemeUrl = "/autosorting/sortScheme/find/id";
+    private static final String sortSchemeDetailUrl = "/autosorting/sortSchemeDetail/list/schemeId";
 
     @Autowired
     SortSchemeService sortSchemeService;
@@ -59,7 +59,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         boolean bool = false;
         SortSchemeResponse<SortScheme> sortScheme = sortSchemeService.findById2(request,url + sortSchemeUrl);//获取激活的方案的主表
         SortSchemeDetailRequest sortSchemeDetailRequest = new SortSchemeDetailRequest();
-        sortSchemeDetailRequest.setId(request.getId());
+        sortSchemeDetailRequest.setSchemeId(request.getId().toString());
         SortSchemeDetailResponse<java.util.List<SortSchemeDetail>> sortSchemeDetail = sortSchemeDetailService.findBySchemeId2(sortSchemeDetailRequest,url + sortSchemeDetailUrl);//获取激活的方案的明细表
         SortScheme sortSchemeData = sortScheme.getData();//分拣方案主表数据
         List<SortSchemeDetail> sortSchemeDetailDatas = sortSchemeDetail.getData();//分拣方案明细表数据
@@ -74,7 +74,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 
         /** 发送MQ到DTC系统 **/
         List<String> jsonMQs = new ArrayList<String>();
-        jsonMQs = this.sortSchemeToJson(jsonMQs,sortSchemeData,sortSchemeDetailDatas,bDto);
+        jsonMQs = this.sortSchemeToJson(jsonMQs,sortSchemeDetailDatas,bDto,sortSchemeData);
         this.logger.info("分拣中心已激活的分拣方案推送DTC:MQ[" + jsonMQs + "]");
         String businessId = siteCode + "_" + sortSchemeData.getMachineCode();//分拣中心加分拣机代码，例如：1086_PX-SHYK-JD
 
@@ -98,7 +98,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         boolean bool = false;
         BaseStaffSiteOrgDto bDto = null;
         try{
-            bDto = baseMajorManager.getBaseSiteByDmsCode(siteCode);
+            bDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(siteCode));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -106,13 +106,19 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         //通过siteCode得到分拣中心本地的激活的分拣方案
         SortSchemeRequest request =  new SortSchemeRequest();
         request.setSiteNo(siteCode);
-        SortScheme sortScheme = sortSchemeService.queryBySiteCode(request,url + "/sortScheme/find/siteCode").getData();
+        List<SortScheme> sortSchemes = sortSchemeService.queryBySiteCode(request,url + "/autosorting/sortScheme/find/siteCode").getData();
+        List<SortSchemeDetail> sortSchemeDetails = new ArrayList<SortSchemeDetail>();
+        if(sortSchemes == null || sortSchemes.size() <= 0){
+            return bool;
+        }
+        for(int i = 0;i<sortSchemes.size();i++ ){
+            SortSchemeDetailRequest request1 = new SortSchemeDetailRequest();
+            request1.setSchemeId(sortSchemes.get(i).getId().toString());
+            sortSchemeDetails.addAll(sortSchemeDetailService.queryBySiteCode(request1,url + "/autosorting/sortSchemeDetail/list/schemeId").getData());
 
-        SortSchemeDetailRequest request1 = new SortSchemeDetailRequest();
-        request1.setSchemeId(sortScheme.getId().toString());
-        List<SortSchemeDetail> sortSchemeDetails = sortSchemeDetailService.queryBySiteCode(request1,url + "/sortSchemeDetail/list/schemeId").getData();
+        }
         List<String> jsonMqs = new ArrayList<String>();
-        jsonMqs = this.sortSchemeToJson(jsonMqs,sortScheme,sortSchemeDetails,bDto);
+        jsonMqs = this.sortSchemeToJson(jsonMqs,sortSchemeDetails,bDto,sortSchemes.toArray(new SortScheme[sortSchemes.size()]));
         for(int i = 0;i<jsonMqs.size();i++ ){
             Map mapMq = new HashMap();
             mapMq = JsonHelper.json2Map(jsonMqs.get(i));
@@ -138,27 +144,28 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     /**
      * 分拣计划转化为Json格式
      * @param mapMQs
-     * @param sortScheme
+     * @param sortSchemes
      * @param sortSchemeDetails
      * @return
      */
-    private List<String> sortSchemeToJson(List<String> mapMQs, SortScheme sortScheme, List<SortSchemeDetail> sortSchemeDetails, BaseStaffSiteOrgDto bDto){
+    private List<String> sortSchemeToJson(List<String> mapMQs, List<SortSchemeDetail> sortSchemeDetails, BaseStaffSiteOrgDto bDto,SortScheme... sortSchemes ){
         Integer orgId = bDto.getOrgId();
         String dmsStoreId = bDto.getDmsSiteCode();
-        String[] cky2AndStoreId = dmsStoreId.split("-");
+        String[] cky2AndStoreId = dmsStoreId.split("F");
         String cky2 = cky2AndStoreId[0];
         String storeId = cky2AndStoreId[1];
-        if(sortScheme != null){
+        if(sortSchemes != null && sortSchemes.length > 0){
+            for (int i = 0;i<sortSchemes.length;i++){
             DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
             Map<String,String> mapMq = new HashMap<String, String>();
             logger.info("分拣方案主表的数据消息体转化");
 
             StringBuffer jsonBuffer = new StringBuffer();
-            jsonBuffer.append("{\"machineCode\":").append(sortScheme.getMachineCode())
-                    .append(",\"siteNo\":").append(sortScheme.getSiteNo())
-                    .append(",\"yn\":").append(sortScheme.getYn())
-                    .append(",\"name\":").append(sortScheme.getName())
-                    .append(",\"id\":\"").append(sortScheme.getId());
+            jsonBuffer.append("{\"machineCode\":").append(sortSchemes[i].getMachineCode())
+                    .append(",\"siteNo\":").append(sortSchemes[i].getSiteNo())
+                    .append(",\"yn\":").append(sortSchemes[i].getYn())
+                    .append(",\"name\":").append(sortSchemes[i].getName())
+                    .append(",\"id\":\"").append(sortSchemes[i].getId());
             dmsSortSchemeRouter.setBody(jsonBuffer.toString());
             dmsSortSchemeRouter.setType("SortScheme");
             String json = JsonHelper.toJson(dmsSortSchemeRouter);
@@ -170,6 +177,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 
             String mqStr = JsonHelper.toJson(mapMq);
             mapMQs.add(mqStr);//消息池
+            }
         }
 
         if(sortSchemeDetails.size() > 0){

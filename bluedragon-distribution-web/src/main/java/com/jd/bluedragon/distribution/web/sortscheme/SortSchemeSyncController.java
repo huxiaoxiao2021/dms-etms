@@ -77,30 +77,29 @@ public class SortSchemeSyncController {
         InvokeResult<String> result = new InvokeResult<String>();
         result.setCode(400);
         result.setMessage("请求成功无法响应");
-        if("".equals(siteCode)){
+        if("".equals(siteCode) || null == siteCode ){
             logger.error("正在同步的分拣中心ID为空");
             return  result;
         }
         logger.info("分拣计划配置同步导入开始-->分拣中心ID:" + siteCode);
         String url = PropertiesHelper.newInstance().getValue(prefixKey + siteCode);
-        BaseStaffSiteOrgDto bssod = baseService.getSiteBySiteID(Integer.valueOf(siteCode));
 
         boolean bool = false;
         try{
             bool = sortSchemeSyncService.sync(HTTP + url,siteCode);
+            if(bool){
+                logger.info("分拣中心分拣计划执行同步成功");
+                result.setCode(200);
+                result.setMessage("分拣中心分拣计划执行同步成功");
+            }else{
+                logger.info("分拣中心分拣计划执行同步失败");
+                result.setCode(10000);
+                result.setMessage("分拣中心分拣计划执行同步失败");
+            }
         }catch (Exception e){
             logger.error("程序执行异常:",e);
             result.setCode(500);
             result.setMessage("程序执行异常，稍后再试");
-        }
-        if(bool){
-            logger.info("分拣中心分拣计划执行同步成功");
-            result.setCode(200);
-            result.setMessage("分拣中心分拣计划执行同步成功");
-        }else{
-            logger.info("分拣中心分拣计划执行同步失败");
-            result.setCode(10000);
-            result.setMessage("分拣中心分拣计划执行同步失败");
         }
         return result;
     }
