@@ -18,7 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Autowired
     private CenConfirmService cenConfirmService;
 
-    @Autowired
+    @Resource(name="storeIdSet")
     private Set<Integer> storeIdSet;
 
     @Override
@@ -74,6 +76,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         resetStoreId(request, bigWaybillDto);
         builderInspectionList(request,context);
         builderCenConfirmList(context);
+        context.setPassCheck(true);
         return context;
     }
 
@@ -139,6 +142,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      */
     private final void builderInspectionList(InspectionRequest request,InspectionTaskExecuteContext context){
         List<Inspection> inspectionList=new ArrayList<Inspection>();
+        context.setInspectionList(inspectionList);
         BigWaybillDto bigWaybillDto=context.getBigWaybillDto();
         if (StringUtils.isNotBlank(request.getWaybillCode())) {
             if (null == bigWaybillDto||null==bigWaybillDto.getPackageList()||bigWaybillDto.getPackageList().size()==0) {

@@ -7,7 +7,9 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Set;
 
@@ -19,8 +21,10 @@ public class InspectionLogHook implements TaskHook<InspectionTaskExecuteContext>
 
     @Autowired
     private OperationLogService operationLogService;
-    @Autowired
+
+    @Resource( name = "storeIdSet")
     private Set<Integer> storeIdSet;
+
     @Override
     @JProfiler( jKey = "dmsworker.InspectionLogHook.hook")
     public int hook(InspectionTaskExecuteContext context) {

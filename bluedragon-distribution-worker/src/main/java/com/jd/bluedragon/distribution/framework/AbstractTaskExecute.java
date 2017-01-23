@@ -17,7 +17,7 @@ import java.util.List;
  */
 public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
 
-    @Autowired
+
     private List<TaskHook<T>> hooks;
 
     @Autowired
@@ -66,4 +66,11 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
         return  true;
     }
 
+    public List<TaskHook<T>> getHooks() {
+        return hooks;
+    }
+
+    public void setHooks(List<TaskHook<T>> hooks) {
+        this.hooks = hooks;
+    }
 }
