@@ -72,6 +72,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
         BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
+        context.setBigWaybillDto(bigWaybillDto);
         resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
         resetStoreId(request, bigWaybillDto);
         builderInspectionList(request,context);
@@ -168,7 +169,9 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         Collections.sort(inspectionList);
         context.setInspectionList(inspectionList);
-
+        if(logger.isInfoEnabled()){
+            logger.info(MessageFormat.format("验货明细为{0}",JsonHelper.toJson(inspectionList)));
+        }
     }
 
 
