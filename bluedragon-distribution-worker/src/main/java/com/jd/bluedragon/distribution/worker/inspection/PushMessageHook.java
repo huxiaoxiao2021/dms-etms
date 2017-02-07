@@ -28,14 +28,7 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
             InspectionMQBody inspectionMQBody = new InspectionMQBody();
             inspectionMQBody.setWaybillCode(null != cenConfirm.getWaybillCode() ? cenConfirm.getWaybillCode() : SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
             inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
-            try {
-                /**
-                 * fix wtw 任务监控
-                 */
-                inspectionNotifyService.send(inspectionMQBody);
-            } catch (Throwable throwable) {
-                log.error("推送验货MQ异常", throwable);
-            }
+            inspectionNotifyService.send(inspectionMQBody);/*此处MQ推送时，失败将添加任务，以确保MQ发送成功*/
         }
         return 0;
     }

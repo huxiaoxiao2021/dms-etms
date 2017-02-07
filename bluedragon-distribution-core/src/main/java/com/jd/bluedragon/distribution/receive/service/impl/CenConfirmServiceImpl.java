@@ -19,6 +19,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,6 +194,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return cenConfirm;
 	}
 
+    @JProfiler(jKey = "CenConfirmServiceImpl.fillPickupCode")
 	public CenConfirm fillPickupCode(CenConfirm cenConfirm) {
 		BaseEntity<PickupTask> baseEntity = waybillPickupTaskApi
 				.getDataBySfCode(cenConfirm.getPackageBarcode());

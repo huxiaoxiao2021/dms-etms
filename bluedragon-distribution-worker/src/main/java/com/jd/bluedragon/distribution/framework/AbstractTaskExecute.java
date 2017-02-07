@@ -52,11 +52,16 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
 
     /**
      * 实现任务JSON解析，远程接口调用补全数据,数据验证
-     * @param domain Fix wtw 远程调用 添加条件判断
+     * @param domain 任务数据
      * @return    任务执行上下文
      */
     protected abstract T prepare(Task domain);
 
+    /**
+     * 执行核心业务流程
+     * @param t
+     * @return
+     */
     protected abstract boolean executeCoreFlow(T t);
 
     /**

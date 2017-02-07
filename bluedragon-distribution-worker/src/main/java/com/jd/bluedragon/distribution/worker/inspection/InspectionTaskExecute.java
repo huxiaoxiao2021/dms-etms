@@ -49,12 +49,13 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Override
     protected InspectionTaskExecuteContext prepare(Task domain) {
         InspectionTaskExecuteContext context=new InspectionTaskExecuteContext();
-        context.setPassCheck(false);
+        context.setPassCheck(true);
         InspectionRequest request= JsonHelper.fromJsonUseGson(domain.getBody(),InspectionRequest.class);
         if(null==request){
             if(logger.isWarnEnabled()){
                 logger.warn(MessageFormat.format("验货JSON解析后对象为空{0}",domain.getBody()));
             }
+            context.setPassCheck(false);
             return context;
         }
         builderSite(request,context);
@@ -68,6 +69,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             if(logger.isErrorEnabled()){
                 logger.error(MessageFormat.format("验货条码不符合规则{0}",code));
             }
+            context.setPassCheck(false);
             return context;
         }
         String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
@@ -75,9 +77,8 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         context.setBigWaybillDto(bigWaybillDto);
         resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
         resetStoreId(request, bigWaybillDto);
-        builderInspectionList(request,context);
+        builderInspectionList(request, context);
         builderCenConfirmList(context);
-        context.setPassCheck(true);
         return context;
     }
 
@@ -184,9 +185,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
                     || Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
                 if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {
                     cenConfirm =cenConfirmService.fillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
-                    /**
-                     * fix wtw 外部接口包装，及UMP
-                     */
+
                     cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);
                 } else {
                     cenConfirm = cenConfirmService.fillOperateType(cenConfirm);// 根据运单号调用运单接口判断操作类型
@@ -205,8 +204,14 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     private final void builderSite(InspectionRequest request,InspectionTaskExecuteContext context){
         BaseStaffSiteOrgDto site=this.getSite(request.getSiteCode());
         context.setCreateSite(site);
+        if(null==site||null==site.getSiteCode()){
+            context.setPassCheck(false);
+        }
         if(request.getReceiveSiteCode()!=null&&request.getReceiveSiteCode()>0){
             BaseStaffSiteOrgDto rsite=this.getSite(request.getReceiveSiteCode());
+            if(null==rsite||null==rsite.getSiteCode()){
+                context.setPassCheck(false);
+            }
             context.setReceiveSite(rsite);
         }
     }
