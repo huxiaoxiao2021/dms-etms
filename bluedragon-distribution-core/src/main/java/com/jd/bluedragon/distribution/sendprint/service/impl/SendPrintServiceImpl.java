@@ -585,7 +585,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 	        	tBasicQueryEntityResponse = detailPrintQuery(sendMs,criteria);
 	        }
 	    } catch (Exception e) {
-            logger.error("打印明细基本查询异常");
+            logger.error("打印明细基本查询异常", e);
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
