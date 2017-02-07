@@ -70,7 +70,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("tableName", new Object());
         parameter.put("type", new Object());
         parameter.put("ownSign", new Object());
-        taskDao.findFailTasksNumsByType(1120,"James");
+        taskDao.findFailTasksNumsByType(1120,"James",3);
     }
 	
 	@Test

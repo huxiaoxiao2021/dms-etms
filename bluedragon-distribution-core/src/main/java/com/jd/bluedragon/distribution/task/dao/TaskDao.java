@@ -124,11 +124,12 @@ public class TaskDao extends BaseDao<Task> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
+	public Integer findFailTasksNumsByType(Integer type, String ownSign,Integer keyword1) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("ownSign", ownSign);
+		request.put("keyword1", keyword1);
 		return (Integer) super.getSqlSession().selectOne(TaskDao.namespace + ".findFailTasksNumsByType", request);
 	}
 

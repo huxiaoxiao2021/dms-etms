@@ -152,9 +152,10 @@ public class TaskResource {
 	public TaskResponse findFailTasksNumsByType(
 			@QueryParam("type") Integer type,
 			@QueryParam("fetchNum") Integer fetchNum,
-			@QueryParam("ownSign") String ownSign) {
+			@QueryParam("ownSign") String ownSign,
+			@QueryParam("keyword1") Integer keyword1) {
 
-		Integer queryNum = this.taskService.findFailTasksNumsByType(type, ownSign);
+		Integer queryNum = this.taskService.findFailTasksNumsByType(type, ownSign,keyword1);
 		if (queryNum.compareTo(fetchNum) == 1) {
 			return new TaskResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
