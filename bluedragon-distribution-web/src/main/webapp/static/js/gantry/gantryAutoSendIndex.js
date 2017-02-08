@@ -197,7 +197,7 @@ function gantryDeviceItemShow(){
     if(siteNo == null || siteNo == ""|| isNaN(siteNo)){
         return;
     }
-    var url = $("#contextPath").val() + "/services/gantryDevice/findAllNewGantryDevice";
+    var url = $("#contextPath").val() + "/services/gantryDevice/findAllNewOrOldGantryDevice";
     CommonClient.postJson(url,param,function (data) {
         var gantryList = data.data;
         if (data == undefined || data == null) {

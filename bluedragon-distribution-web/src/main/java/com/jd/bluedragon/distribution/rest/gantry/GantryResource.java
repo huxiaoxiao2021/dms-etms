@@ -79,6 +79,30 @@ public class GantryResource {
         return response;
     }
 
+    /**
+     * 2017-2-8 14:59:49 by wzx 新的龙门架设备读取逻辑，区分新老龙门架version==1？"新":"老"
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/gantryDevice/findAllNewOrOldGantryDevice")
+    public GantryDeviceResponse findAllNewOrOldGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
+        GantryDeviceResponse response=new GantryDeviceResponse();
+        logger.info("查找所有" + (request.getVersion() == 1?"新的":"老的") + "龙门架设备：" + request.toString());
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+        try {
+            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());
+            response.setData(this.ok(list));
+        } catch (Throwable ex) {
+            String message = "获取龙门架设备信息异常：" + request.toString() + ex.toString();
+            logger.error(message);
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(message);
+        }
+        return response;
+    }
+
     private List<com.jd.bluedragon.distribution.api.response.GantryDevice> ok(List<GantryDevice> list) {
         List<com.jd.bluedragon.distribution.api.response.GantryDevice> listGantryDevice=new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDevice>();
         for (GantryDevice gantryDevice : list) {

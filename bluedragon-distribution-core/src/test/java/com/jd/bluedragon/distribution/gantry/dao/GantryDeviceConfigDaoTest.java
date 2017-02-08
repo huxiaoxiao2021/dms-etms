@@ -102,7 +102,7 @@ public class GantryDeviceConfigDaoTest extends AbstractDaoIntegrationTest{
 
     @Test
     public void testFindAllGantryDeviceCurrentConfig() {
-        Assert.assertEquals(2,gantryDeviceConfigDao.findAllGantryDeviceCurrentConfig(697).size());
+        Assert.assertEquals(2,gantryDeviceConfigDao.findAllGantryDeviceCurrentConfig(697,(byte)0).size());
     }
 
 
