@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.core.base.ThirdPartyLogisticManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -29,11 +30,9 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.postal.GetPrintDatasPortType;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +81,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	private BaseService baseService;
 	
 	@Autowired
-	private GetPrintDatasPortType getPrintDatasPortType;
+	private DefaultJMQProducer whSmsSendMq;
+
+	@Autowired
+	private DefaultJMQProducer emsSendMq;
 	
 	// 自营
 	public static final Integer businessTypeONE = 10;
@@ -215,7 +217,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 			List<String> waybillList = new CollectionHelper<String>()
 					.toList(waybillset);
-			toWhsmsServer(waybillList);
+			boolean bool = sendMqToWhsmsServer(waybillList);
+			if(!bool){
+				this.logger.error("武汉邮政推送自消费类型的MQ失败：" + waybillList.toArray());
+			}
 		}
 	}
 
@@ -306,7 +311,8 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	 * 调用邮政接口回传数据
 	 * @param waybillList
 	 */
-	private void toWhsmsServer(List<String> waybillList) {
+	private boolean sendMqToWhsmsServer(List<String> waybillList) {
+		boolean resultBool = false;
 		if (waybillList != null && !waybillList.isEmpty()) {
 			boolean flage = true;
 			List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
@@ -315,7 +321,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					flage =false;
 				}
 			}
-			
+			/** 49个为一个批次发送 **/
 			List<String>[] splitListResultAl = splitList(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				WChoice queryWChoice = new WChoice();
@@ -420,62 +426,23 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					String whEmsKey = PropertiesHelper.newInstance().getValue(
 							"encpKey");
 					if (StringHelper.isEmpty(whEmsKey))
-						return;
+						return resultBool;
 					String body = "<PlaintextData><OrderShipList>"
 							+ buffer.toString()
 							+ "</OrderShipList></PlaintextData>";
-					String md5tempstring = encrypt(body + whEmsKey.trim());
 					this.logger.error("数据报文：" + body);
-					String emsstring = null;
-                    try {
-                       emsstring = whemsClientService
-                                .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                                        + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-                                        + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-                                        + md5tempstring
-                                        + "</ValidationData>"
-                                        + body + "</Response>");
-                    } catch (Throwable e) {
-                        this.logger.error("Dms to Wh_ems error", e);
-                        Profiler.businessAlarm("DmsWorker.pushWh_ems_error", "推送Wh_ems数据失败" + e.getMessage());
-                    }
-
-
-					if (null == emsstring || emsstring.trim().equals("")) {
-						this.logger
-								.error("DmsToTmsTaskImpl!batchProcessOrderInfo2DSF WuHan CXF return null :");
-						return;
-					}
-					this.logger.info("武汉邮政返回" + emsstring);
-					String str = emsstring.substring(55);
-
-					if (str.indexOf("<ResultCode>001</ResultCode>") != -1) {
-						this.logger
-								.error("DmsToTmsTaskImpl!batchProcessOrderInfo2DSF orderinfo 验证失败:");
-						return;
-					}
-
-					if (str.indexOf("<ResultCode>000</ResultCode>") == -1) {
-						this.logger
-								.error("DmsToTmsTaskImpl!batchProcessOrderInfo2DSF orderinfo send fail :");
-						return;
+					try{
+						whSmsSendMq.sendOnFailPersistent("businessId",body);//// TODO: 2017/2/7 businessId 缺少
+						resultBool = true;
+					}catch(Exception e){
+						resultBool = false;
+						this.logger.error("推送武汉邮政的mq消息处理失败:" + e);
 					}
 				}
 			}
 
 		}
-	}
-
-	public static String encrypt(String mingwen) {
-		Base64 base64=new Base64();
-		String result="";
-		try {
-			result = new String(base64.encode(md5(mingwen).getBytes("utf-8")),Charset.forName("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
+		return resultBool;
 	}
 
 	public static String md5(String input) {
@@ -639,7 +606,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	}
 	
 	public void pushWhemsWaybill(List<String> wlist) {
-		toWhsmsServer(wlist);
+		sendMqToWhsmsServer(wlist);
 	}
 
 	public Ems4JingDongPortType getWhemsClientService() {
@@ -721,32 +688,16 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					.append(info.getPayMode())
 					.append("</payMode><insureType></insureType><blank1></blank1><blank2></blank2><blank3></blank3><blank4></blank4><blank5></blank5></printData>");
 				}
-				Base64 base64 = new Base64();
 				String body = buffer.toString();
 				body = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 						+ "<XMLInfo><sysAccount>"+sysAccount+"</sysAccount><passWord>e10adc3949ba59abbe56e057f20f883e</passWord><printKind>2</printKind><printDatas>"
 						+ body + "</printDatas></XMLInfo>";
 				this.logger.error("ems数据报文：" + body);
-				String emsstring=null;
-				try {
-				body =new String(base64.encode(body.getBytes("utf-8")),Charset.forName("UTF-8"));
-				
-					emsstring = getPrintDatasPortType
-							.printEMSDatas(body);
-				} catch (Exception e) {
-					this.logger.error("全国邮政调用异常,订单号为："+waybillCode,e);
-                    Profiler.businessAlarm("DmsWorker.pushEms_error", "推送Ems数据失败" + e.getMessage());
-                    errorWaybill.append(waybillCode+"-");
-				}
-
-				if (null == emsstring || emsstring.trim().equals("")) {
-					this.logger
-							.error("toEmsServer CXF return null :");
-					//return;
-				}else{
-					emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
-					
-					this.logger.error("全国邮政返回" + emsstring);
+				try{
+					emsSendMq.sendOnFailPersistent("businessId",body);//// TODO: 2017/2/7 businessId 缺少
+				}catch(Exception e){
+					this.logger.error("推送全国邮政的mq消息处理失败:" + e);
+					errorWaybill.append(waybillCode+"-");
 				}
 			}
 		}
