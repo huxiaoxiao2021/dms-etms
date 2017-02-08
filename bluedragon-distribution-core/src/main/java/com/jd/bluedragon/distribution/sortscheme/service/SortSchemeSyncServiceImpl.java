@@ -76,7 +76,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         List<String> jsonMQs = new ArrayList<String>();
         jsonMQs = this.sortSchemeToJson(jsonMQs,sortSchemeDetailDatas,bDto,sortSchemeData);
         this.logger.info("分拣中心已激活的分拣方案推送DTC:MQ[" + jsonMQs + "]");
-        String businessId = siteCode + "_" + sortSchemeData.getMachineCode();//分拣中心加分拣机代码，例如：1086_PX-SHYK-JD
+        String businessId = siteCode + "_" + sortSchemeData.getMachineCode() + "_" + sortSchemeData.getName();//分拣中心+分拣机代码+方案名称，例如：1086_PX-SHYK-JD_1月12日生产方案
 
         if(jsonMQs.size()>0){
             try{
@@ -150,10 +150,19 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
      */
     private List<String> sortSchemeToJson(List<String> mapMQs, List<SortSchemeDetail> sortSchemeDetails, BaseStaffSiteOrgDto bDto,SortScheme... sortSchemes ){
         Integer orgId = bDto.getOrgId();
-        String dmsStoreId = bDto.getDmsSiteCode();
-        String[] cky2AndStoreId = dmsStoreId.split("F");
-        String cky2 = cky2AndStoreId[0];
-        String storeId = cky2AndStoreId[1];
+        String dmsStoreId = bDto.getDmsSiteCode();//七位站点编码
+        String cky2;
+        String storeId;
+        if(bDto.getSiteType() == 64){
+            String[] cky2AndStoreId = dmsStoreId.split("F");
+            cky2 = cky2AndStoreId[0];
+            storeId = cky2AndStoreId[1];
+        }else{
+            String[] cky2AndStoreId = dmsStoreId.split(String.valueOf(dmsStoreId.charAt(3)));//自己都觉得有点多余
+            cky2 = cky2AndStoreId[0];
+            storeId = cky2AndStoreId[1];
+        }
+
         if(sortSchemes != null && sortSchemes.length > 0){
             for (int i = 0;i<sortSchemes.length;i++){
             DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
