@@ -79,6 +79,9 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
                 }
             }
         }else{
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("任务执行失败，未通过验证{0}",JsonHelper.toJson(domain)));
+            }
             return false;
         }
         return  true;

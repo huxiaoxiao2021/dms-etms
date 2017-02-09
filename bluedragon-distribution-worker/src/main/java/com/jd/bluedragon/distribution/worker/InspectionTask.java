@@ -55,7 +55,7 @@ public class InspectionTask extends DBSingleScheduler {
                     return true;
                 }
                 /**
-                 * 此处理为消除列表情况，最早任务保存的是数组，此处拆为单条
+                 * 此处理为消除列表情况，最早任务保存的是数组，此处拆为单条，以防万一
                  */
                 List<InspectionRequest> middleRequests=JsonHelper.fromJsonUseGson(task.getBody(),LIST_INSPECTIONREQUEST_TYPE);
                 if(null==middleRequests||middleRequests.size()==0){

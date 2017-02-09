@@ -30,7 +30,7 @@ public class PushOemtoWmsHook implements TaskHook<InspectionTaskExecuteContext> 
                 try {
                     inspectionService.pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
                 } catch (Exception e) {
-                    e.printStackTrace();
+                   // e.printStackTrace();
                     logger.error(" 验货 inspectionCore调用OEM服务异常", e);
                 }
             }

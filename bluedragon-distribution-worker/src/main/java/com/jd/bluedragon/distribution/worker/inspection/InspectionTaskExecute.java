@@ -33,7 +33,6 @@ import java.util.Set;
  */
 public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExecuteContext> {
 
-    private static final Type TYPE_LIST_INSPECTIONREQUEST=new TypeToken<List<InspectionRequest>>(){}.getType();
 
     private static final Log logger= LogFactory.getLog(InspectionTaskExecute.class);
 
