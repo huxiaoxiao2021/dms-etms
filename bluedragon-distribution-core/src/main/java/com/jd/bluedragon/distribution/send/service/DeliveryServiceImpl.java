@@ -17,7 +17,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -48,6 +47,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -85,7 +85,6 @@ import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SendSMSUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
@@ -2972,57 +2971,5 @@ public class DeliveryServiceImpl implements DeliveryService {
             new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-    }
-
-    /**
-     * 根据发货明细发送用户报警短信
-     *
-     * @param sendDetails
-     * @return
-     * @deprecated
-     */
-    public boolean sendSms(List<SendDetail> sendDetails) {
-        logger.debug("=========批量发送预警短信开始==========");
-        if (sendDetails != null && !sendDetails.isEmpty()) {
-
-            // 10.获得所有的运单号
-            Set<String> waybillset = new HashSet<String>();
-            Map<String, SendDetail> sendMap = new HashMap<String, SendDetail>();
-            for (SendDetail dSendDatail : sendDetails) {
-                waybillset.add(dSendDatail.getWaybillCode());
-                sendMap.put(dSendDatail.getWaybillCode(), dSendDatail);
-            }
-            // 20.获得所有的运单信息
-            List<String> waybillList = new CollectionHelper<String>().toList(waybillset);
-            WChoice queryWChoice = new WChoice();
-            queryWChoice.setQueryWaybillC(true);
-            List<BigWaybillDto> tWaybillList = getWaillCodeListMessge(queryWChoice, waybillList);
-
-            // 30.遍历所有的运单发送短信
-            if (tWaybillList != null && !tWaybillList.isEmpty()) {
-                for (BigWaybillDto tWaybill : tWaybillList) {
-                    if (tWaybill != null && tWaybill.getWaybill() != null
-                            && tWaybill.getWaybill().getWaybillCode() != null
-                            && tWaybill.getWaybill().getWaybillType() != null) {
-
-                        //逐一发送短信
-                        String customerMobile = tWaybill.getWaybill().getReceiverMobile();
-                        String redisKey = "SendSMSUtil.sendNotice@" + tWaybill.getWaybill().getWaybillCode();
-                        if (redisManager.getCache(redisKey) == null) {
-                            Boolean result = false;
-                            if (StringHelper.isNotEmpty(customerMobile)) {
-                                result = SendSMSUtil.sendNotice(tWaybill.getWaybill().getWaybillCode(), SMS_MESSAGE, customerMobile);
-                            }
-                            SendDetail sendDetail = sendMap.get(tWaybill.getWaybill().getWaybillCode());
-                            SystemLogUtil.log(tWaybill.getWaybill().getWaybillCode(), sendDetail.getSendCode(), null, null, result.toString(), Long.valueOf(120011));
-                            if (result)
-                                redisManager.setex(redisKey, 8 * 3600, result.toString());
-                        }
-                    }
-                }
-            }
-        }
-        logger.debug("=========批量发送预警短信结束==========");
-        return true;
     }
 }
