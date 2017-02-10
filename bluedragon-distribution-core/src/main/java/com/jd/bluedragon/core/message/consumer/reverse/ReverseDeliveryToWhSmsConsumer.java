@@ -43,13 +43,13 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
         String emsstring = null;
         String md5tempstring = encrypt(body + whEmsKey.trim());
         try {
-//           emsstring = whemsClientService
-//                    .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-//                            + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-//                            + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-//                            + md5tempstring
-//                            + "</ValidationData>"
-//                            + body + "</Response>");
+           emsstring = whemsClientService
+                    .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                            + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
+                            + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
+                            + md5tempstring
+                            + "</ValidationData>"
+                            + body + "</Response>");
             logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
                                                 + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
                                                 + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
