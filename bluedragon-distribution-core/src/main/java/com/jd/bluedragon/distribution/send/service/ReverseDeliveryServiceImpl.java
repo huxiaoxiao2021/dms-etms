@@ -64,43 +64,43 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	@Autowired
 	private Ems4JingDongPortType whemsClientService;
-	
+
 	@Autowired
 	private ThirdPartyLogisticManager thirdPartyLogisticManager;
-	
+
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
-	
+
 	@Autowired
 	private DeliveryService deliveryService;
-	
+
 	@Autowired
 	private WaybillService waybillService;
-	
+
 	@Autowired
 	private BaseService baseService;
-	
+
 	@Autowired
 	private DefaultJMQProducer whSmsSendMq;
 
 	@Autowired
 	private DefaultJMQProducer emsSendMq;
-	
+
 	// 自营
 	public static final Integer businessTypeONE = 10;
 	// 退货
 	public static final Integer businessTypeTWO = 20;
 	// 第三方
 	public static final Integer businessTypeTHR = 30;
-	
+
 	//EMS快递站点信息读取
 	public static final String EMS_SITE = "EMS_SITE";
 
 	private final Integer BATCH_NUM = 49;
-	
+
 	//EMS快生开关
 	public static final String EMS_ONOFF = "EMS_ONOFF";
-	
+
 	@Autowired
     private QuickProduceService quickProduceService;
 
@@ -194,18 +194,29 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
      * @return
      */
     @SuppressWarnings("unchecked")
-	private List<String>[] splitList(List<String> transresult){
-    	List<List<String>> splitList = new ArrayList<List<String>>();
-		for(int i = 0;i<transresult.size();i+=BATCH_NUM){
-			int size = i+BATCH_NUM>transresult.size()?transresult.size():i+BATCH_NUM;
-			List<String> tmp = (List<String>)transresult.subList(i, size);
-			splitList.add(tmp);
-		}
-		return splitList.toArray(new List[0]);
+    private List<String>[] splitList(List<String> transresult){
+        List<List<String>> splitList = new ArrayList<List<String>>();
+        for(int i = 0;i<transresult.size();i+=BATCH_NUM){
+            int size = i+BATCH_NUM>transresult.size()?transresult.size():i+BATCH_NUM;
+            List<String> tmp = (List<String>)transresult.subList(i, size);
+            splitList.add(tmp);
+        }
+        return splitList.toArray(new List[0]);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String>[] splitList1(List<String> transresult){
+        List<List<String>> splitList = new ArrayList<List<String>>();
+        for(int i = 0;i<transresult.size();i+=1){
+            int size = i+1>transresult.size()?transresult.size():i+1;
+            List<String> tmp = (List<String>)transresult.subList(i, size);
+            splitList.add(tmp);
+        }
+        return splitList.toArray(new List[0]);
     }
 
 	public void batchProcessOrderInfo2DSF(List<SendM> tSendMList) {
-		
+
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, sendList);
 		this.logger.info("batchProcessOrderInfo2DSF武汉邮政推送接口sendList长度:"
@@ -225,7 +236,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	}
 
 	public void batchProcesstoEmsServer(List<SendM> tSendMList) {
-		
+
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, sendList);
 		this.logger.info("batchProcesstoEmsServer邮政推送接口sendList长度:"
@@ -272,7 +283,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				for(String waybillCode : wlist){
 					OrderShipsReturnDto returnDto = new OrderShipsReturnDto();
 					returnDto.setClearOld(0);
-					
+
 					this.logger.info("调用运单接口, 订单号为： " + waybillCode);
 					WChoice wChoice = new WChoice();
 					wChoice.setQueryWaybillC(true);
@@ -306,7 +317,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 		}
 	}
-	
+
 	/**
 	 * 调用邮政接口回传数据
 	 * @param waybillList
@@ -321,8 +332,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					flage =false;
 				}
 			}
-			/** 49个为一个批次发送 **/
-			List<String>[] splitListResultAl = splitList(waybillList);
+			List<String>[] splitListResultAl = splitList1(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				WChoice queryWChoice = new WChoice();
 				queryWChoice.setQueryPackList(true);
@@ -332,7 +342,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					tWaybillList = deliveryService.getWaillCodeListMessge(queryWChoice, wlist);
 				else
 					tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
-				
+
 				StringBuffer buffer = new StringBuffer();
 				if (tWaybillList != null && !tWaybillList.isEmpty()) {
 					/*this.logger
@@ -431,8 +441,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							+ buffer.toString()
 							+ "</OrderShipList></PlaintextData>";
 					this.logger.error("数据报文：" + body);
+					String businessId = wlist.get(0);//改为逐条发送的话，只有一条运单数据
 					try{
-						whSmsSendMq.sendOnFailPersistent("businessId",body);//// TODO: 2017/2/7 businessId 缺少
+						whSmsSendMq.sendOnFailPersistent(businessId,body);
 						resultBool = true;
 					}catch(Exception e){
 						resultBool = false;
@@ -498,7 +509,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		WChoice queryWChoice = new WChoice();
 		queryWChoice.setQueryPackList(true);
 		queryWChoice.setQueryWaybillC(true);
-		
+
 		boolean flage = true;
 		List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
 		for(SysConfig sys : configs){
@@ -604,7 +615,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return response;
 	}
-	
+
 	public void pushWhemsWaybill(List<String> wlist) {
 		sendMqToWhsmsServer(wlist);
 	}
@@ -616,7 +627,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	public void setWhemsClientService(Ems4JingDongPortType whemsClientService) {
 		this.whemsClientService = whemsClientService;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public  HashMap getSend3plConfigMap(HashMap send3plConfigMap) {
 		send3plConfigMap.put("487","上海长发物流");
@@ -631,7 +642,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		send3plConfigMap.put("1758","苏州门对门快递");
 		return send3plConfigMap;
 	}
-	
+
 	/**
 	 * 调用全国邮政接口回传数据
 	 * @param waybillList
@@ -693,8 +704,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						+ "<XMLInfo><sysAccount>"+sysAccount+"</sysAccount><passWord>e10adc3949ba59abbe56e057f20f883e</passWord><printKind>2</printKind><printDatas>"
 						+ body + "</printDatas></XMLInfo>";
 				this.logger.error("ems数据报文：" + body);
+				String businessId = waybillCode;
 				try{
-					emsSendMq.sendOnFailPersistent("businessId",body);//// TODO: 2017/2/7 businessId 缺少
+					emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
 				}catch(Exception e){
 					this.logger.error("推送全国邮政的mq消息处理失败:" + e);
 					errorWaybill.append(waybillCode+"-");
@@ -703,7 +715,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return errorWaybill.toString();
 	}
-	
+
 	public static String decrypt(String mingwen) {
 		Base64 base64=new Base64();
 		String result = "";
@@ -715,7 +727,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return result;
 	}
-	
+
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
 		SendDetail send = new SendDetail();
 		send.setWaybillCode(waybillCode);
@@ -735,9 +747,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				}
 			}
 		}
-		
+
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(createSiteCode);
-		
+
 		List<SysConfig> configs = baseService.queryConfigByKeyWithCache(EMS_SITE + "_"+ receiveSiteCode);
 		String sysAccount = "";
 		for (SysConfig sys : configs) {
@@ -750,12 +762,12 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		List<WaybillInfo> list = new ArrayList<WaybillInfo>();
 
 		BigWaybillDto WaybillDto = waybillService.getWaybill(waybillCode);
-		
+
 		//如果订单信息为空咋调用快生运单数据源获取信息
 		if (WaybillDto == null || WaybillDto.getWaybill() == null){
 			WaybillDto = getWaybillQuickProduce(waybillCode);
 		}
-		
+
 		if (WaybillDto != null && WaybillDto.getWaybill() != null) {
 			Waybill waybill = WaybillDto.getWaybill();
 			List<DeliveryPackageD> deliveryPackage = WaybillDto.getPackageList();
@@ -795,17 +807,17 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					info.setTcustTelplus(waybill.getReceiverTel());
 					info.setTcustPost(waybill.getReceiverZipCode());
 					info.setTcustAddr(waybill.getReceiverAddress());
-					
+
 					if(waybill.getProvinceName()!=null)
 						info.setTcustProvince(waybill.getProvinceName());
 					else
 						info.setTcustProvince("");
-					
+
 					if(waybill.getCityName()!=null)
 						info.setTcustCity(waybill.getCityName());
 					else
 						info.setTcustCity("");
-					
+
 					if(waybill.getCountryName()!=null)
 						info.setTcustCounty(waybill.getCountryName());
 					else
@@ -827,7 +839,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						}
 					}
 
-					if (declaredValue == null) 
+					if (declaredValue == null)
 						declaredValue="0.0";
 					info.setFeeUppercase(new CnUpperCaser(declaredValue).getCnString());
 					info.setFee(needFund);
@@ -846,7 +858,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	}
 
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
-		
+
 		logger.error("JOS获取订单信息,订单号为" + waybillCode);
 		List<WaybillInfo> list = null;
 		try {
@@ -868,17 +880,17 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		if (tQuickProduceWabill == null) {
 			return null;
 		}
-		
+
 		JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
 		com.jd.bluedragon.common.domain.Waybill waybillQP = tQuickProduceWabill.getWaybill();
 		if (tJoinDetail == null || waybillQP==null) {
 			return null;
 		}
-		
+
 		BigWaybillDto tBigWaybillDto = toWaybill(waybillQP,tJoinDetail);
 		return tBigWaybillDto;
 	}
-	
+
 	private BigWaybillDto toWaybill(com.jd.bluedragon.common.domain.Waybill waybillQP ,JoinDetail tJoinDetail) {
 		Waybill waybill = new Waybill();
 		BigWaybillDto tBigWaybillDto = new BigWaybillDto();
@@ -894,7 +906,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		waybill.setCityName(tJoinDetail.getCityName());
 		waybill.setCountryName(tJoinDetail.getCountryName());
 		tBigWaybillDto.setWaybill(waybill);
-		
+
 		SendDetail tSendDatail = new SendDetail();
 		tSendDatail.setWaybillCode(waybillQP.getWaybillCode());
 		List<SendDetail> oneList = sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
@@ -905,11 +917,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return tBigWaybillDto;
 	}
-	
+
 	/**
 	* 生产包裹号码
 	*/
-	
+
 	/**
      * 生成包裹列表专用正则
      * 【分组一：运单号】
@@ -921,7 +933,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
      */
     private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
 
-    
+
     private List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail)
 	{
 		List<DeliveryPackageD> packList = new ArrayList<DeliveryPackageD>();
@@ -940,7 +952,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return packList;
 	}
-	
+
     private List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice ,List<String> wlist){
     	BigWaybillDto WaybillDto = new BigWaybillDto();
     	List<BigWaybillDto> list = new ArrayList<BigWaybillDto>();

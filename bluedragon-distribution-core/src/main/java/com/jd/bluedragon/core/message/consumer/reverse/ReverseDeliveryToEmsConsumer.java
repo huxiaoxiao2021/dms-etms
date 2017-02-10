@@ -33,7 +33,8 @@ public class ReverseDeliveryToEmsConsumer extends MessageBaseConsumer{
         String emsstring=null;
         try {
             body =new String(base64.encode(body.getBytes("utf-8")), Charset.forName("UTF-8"));
-            emsstring = getPrintDatasPortType.printEMSDatas(body);
+//            emsstring = getPrintDatasPortType.printEMSDatas(body);
+            logger.info(body);
         } catch (Exception e) {
             this.logger.error("全国邮政消费mq异常,订单号为：" + body,e);
         }

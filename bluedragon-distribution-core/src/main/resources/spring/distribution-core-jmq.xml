@@ -47,7 +47,7 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
-     <!--逆向发ECLP报文TOPIC-->    
+    <!--逆向发ECLP报文TOPIC-->
     <!-- bean id="bdToJoslRejMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_to_josl_rej"/>
         <property name="timeout" value="1000"/>

@@ -106,11 +106,11 @@
 
     <!-- 武汉邮政自消费类型MQ created by wzx -->
     <jmq:consumer id="jmq.ReverseDeliveryToWhSmsConsumer" transport="jmq.bd.transport">
-            <jmq:listener topic="bd_dms_whSms_send" listener="reverseDeliveryToWhSmsConsumer"/>
+            <jmq:listener topic="bd_dms_whSms_mq" listener="reverseDeliveryToWhSmsConsumer"/>
     </jmq:consumer>
 
     <!-- 全国邮政自消费类型MQ created by wzx -->
     <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.bd.transport">
-            <jmq:listener topic="bd_dms_ems_send" listener="reverseDeliveryToEmsConsumer"/>
+            <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
     </jmq:consumer>
 </beans>
