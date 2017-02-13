@@ -45,9 +45,6 @@ public class GantryResource {
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
         try {
-            if(null == Integer.valueOf(request.getVersion())){
-                request.setVersion((byte) 0);
-            }
             List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());//添加version字段，1新  0旧 null默认旧
             response.setData(this.ok(list));
         } catch (Throwable ex) {

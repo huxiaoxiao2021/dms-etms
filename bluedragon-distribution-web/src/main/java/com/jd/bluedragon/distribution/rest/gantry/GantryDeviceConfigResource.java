@@ -48,9 +48,6 @@ public class GantryDeviceConfigResource {
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
         try {
-            if(null == Integer.valueOf(request.getVersion())){
-                request.setVersion((byte)0);//如果调用端没有给version赋值的话，则默认为0旧
-            }
             List<GantryDeviceConfig> list = gantryDeviceConfigService.findAllGantryDeviceCurrentConfig(request.getCreateSiteCode(),request.getVersion());
             response.setData(this.ok(list));
         } catch (Throwable ex) {
