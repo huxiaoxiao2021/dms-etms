@@ -41,13 +41,17 @@ public class GantryResource {
     public GantryDeviceResponse findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
         GantryDeviceResponse response=new GantryDeviceResponse();
         logger.info(request.toString());
+        logger.info("查找所有" + (request.getVersion() == 1?"新的":"老的") + "龙门架设备：" + request.toString());
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
         try {
-            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode());
+            if(null == Integer.valueOf(request.getVersion())){
+                request.setVersion((byte) 0);
+            }
+            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());//添加version字段，1新  0旧 null默认旧
             response.setData(this.ok(list));
         } catch (Throwable ex) {
-            String message = "获取龙门架" + request.toString() + ex.toString();
+            String message = "获取龙门架设备异常" + request.toString() + ex.toString();
             logger.error(message);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
@@ -55,29 +59,53 @@ public class GantryResource {
         return response;
     }
 
-    /**
-     * 2016-12-26 14:49:33 by wzx 没有覆盖原来的老逻辑，需要review
-     * @param request
-     * @return
-     */
-    @POST
-    @Path("/gantryDevice/findAllNewGantryDevice")
-    public GantryDeviceResponse findAllNewGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
-        GantryDeviceResponse response=new GantryDeviceResponse();
-        logger.info("查找所有新的龙门架设备：" + request.toString());
-        response.setCode(JdResponse.CODE_OK);
-        response.setMessage(JdResponse.MESSAGE_OK);
-        try {
-            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());
-            response.setData(this.ok(list));
-        } catch (Throwable ex) {
-            String message = "获取新的龙门架异常：" + request.toString() + ex.toString();
-            logger.error(message);
-            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-            response.setMessage(message);
-        }
-        return response;
-    }
+//    /**
+//     * 2016-12-26 14:49:33 by wzx 没有覆盖原来的老逻辑，需要review
+//     * @param request
+//     * @return
+//     */
+//    @POST
+//    @Path("/gantryDevice/findAllNewGantryDevice")
+//    public GantryDeviceResponse findAllNewGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
+//        GantryDeviceResponse response=new GantryDeviceResponse();
+//        logger.info("查找所有新的龙门架设备：" + request.toString());
+//        response.setCode(JdResponse.CODE_OK);
+//        response.setMessage(JdResponse.MESSAGE_OK);
+//        try {
+//            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());
+//            response.setData(this.ok(list));
+//        } catch (Throwable ex) {
+//            String message = "获取新的龙门架异常：" + request.toString() + ex.toString();
+//            logger.error(message);
+//            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+//            response.setMessage(message);
+//        }
+//        return response;
+//    }
+//
+//    /**
+//     * 2017-2-8 14:59:49 by wzx 新的龙门架设备读取逻辑，区分新老龙门架version==1？"新":"老"
+//     * @param request
+//     * @return
+//     */
+//    @POST
+//    @Path("/gantryDevice/findAllNewOrOldGantryDevice")
+//    public GantryDeviceResponse findAllNewOrOldGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
+//        GantryDeviceResponse response=new GantryDeviceResponse();
+//        logger.info("查找所有" + (request.getVersion() == 1?"新的":"老的") + "龙门架设备：" + request.toString());
+//        response.setCode(JdResponse.CODE_OK);
+//        response.setMessage(JdResponse.MESSAGE_OK);
+//        try {
+//            List<GantryDevice> list = gantryDeviceService.getGantryByDmsCode(request.getCreateSiteCode(),request.getVersion());
+//            response.setData(this.ok(list));
+//        } catch (Throwable ex) {
+//            String message = "获取龙门架设备信息异常：" + request.toString() + ex.toString();
+//            logger.error(message);
+//            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+//            response.setMessage(message);
+//        }
+//        return response;
+//    }
 
     private List<com.jd.bluedragon.distribution.api.response.GantryDevice> ok(List<GantryDevice> list) {
         List<com.jd.bluedragon.distribution.api.response.GantryDevice> listGantryDevice=new ArrayList<com.jd.bluedragon.distribution.api.response.GantryDevice>();

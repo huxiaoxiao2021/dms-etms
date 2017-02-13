@@ -41,7 +41,10 @@ public class GantryConfigResource {
     public InvokeResult<List<GantryDeviceConfig>> findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
         InvokeResult<List<GantryDeviceConfig>> response = new InvokeResult<List<GantryDeviceConfig>>();
         try {
-            List<GantryDeviceConfig> list = gantryDeviceConfigService.findAllGantryDeviceCurrentConfig(request.getCreateSiteCode());
+            if(null == Integer.valueOf(request.getVersion())){
+                request.setVersion((byte) 0);//如果version字段没有赋值初始值的话，则默认为0 老的龙门架设备
+            }
+            List<GantryDeviceConfig> list = gantryDeviceConfigService.findAllGantryDeviceCurrentConfig(request.getCreateSiteCode(),request.getVersion());
             response.setData(list);
         } catch (Throwable ex) {
             String message = "获取龙门架" + request.toString() + ex.toString();
@@ -223,6 +226,9 @@ public class GantryConfigResource {
         try{
             GantryDeviceConfig  gantryDeviceConfig = null;
             if(request.getMachineId() != null){
+                if(null == Integer.valueOf(request.getVersion())){
+                    request.setVersion((byte) 0);//如果调用端没有给version赋值的话，则默认为0旧
+                }
                 gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
             }
             if(gantryDeviceConfig == null){
