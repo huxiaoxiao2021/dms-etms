@@ -26,13 +26,13 @@ public class InspectionNotifyServiceImpl implements InspectionNotifyService {
     private DefaultJMQProducer inspectionDataSyncMQ;
 
     @Override
-    public void send(InspectionMQBody body) throws Throwable{
+    public void send(InspectionMQBody body){
         if(!SerialRuleUtil.isMatchReceiveWaybillNo(body.getWaybillCode())){
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("推送验货MQ至本地分拣机，运单{0}被过滤",body.getWaybillCode()));
             }
             return;
         }
-        inspectionDataSyncMQ.send(body.getWaybillCode(), JsonHelper.toJson(body));
+        inspectionDataSyncMQ.sendOnFailPersistent(body.getWaybillCode(), JsonHelper.toJson(body));
     }
 }
