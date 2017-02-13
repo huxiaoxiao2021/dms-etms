@@ -197,7 +197,7 @@ function gantryDeviceItemShow(){
     if(siteNo == null || siteNo == ""|| isNaN(siteNo)){
         return;
     }
-    var url = $("#contextPath").val() + "/services/gantryDevice/findAllNewOrOldGantryDevice";
+    var url = $("#contextPath").val() + "/services/gantryDevice/findAllGantryDevice";
     CommonClient.postJson(url,param,function (data) {
         var gantryList = data.data;
         if (data == undefined || data == null) {
@@ -431,7 +431,11 @@ function queryExceptionNum(){
     if(gantryParams != undefined && gantryParams != null ){
         params.machineId = gantryParams.machineId;
         params.startTime = new Date(gantryParams.startTime);
-        params.endTime = new Date(gantryParams.endTime);
+        if(null != gantryParams.endTime){
+            params.endTime = new Date(gantryParams.endTime);
+        }else{
+            params.endTime = new Date();
+        }
     }
     CommonClient.post(url,params,function (data) {
         if(data.data == undefined || data.data == null){
