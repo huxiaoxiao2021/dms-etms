@@ -223,9 +223,6 @@ public class GantryConfigResource {
         try{
             GantryDeviceConfig  gantryDeviceConfig = null;
             if(request.getMachineId() != null){
-                if(null == Integer.valueOf(request.getVersion())){
-                    request.setVersion((byte) 0);//如果调用端没有给version赋值的话，则默认为0旧
-                }
                 gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
             }
             if(gantryDeviceConfig == null){
