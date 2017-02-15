@@ -42,23 +42,19 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
             return;
         String emsstring = null;
         String md5tempstring = encrypt(body + whEmsKey.trim());
-        try {
-           emsstring = whemsClientService
-                    .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                            + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-                            + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-                            + md5tempstring
-                            + "</ValidationData>"
-                            + body + "</Response>");
-            logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                                                + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-                                                + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-                                                + md5tempstring
-                                                + "</ValidationData>"
-                                                + body + "</Response>");
-        } catch (Throwable e) {
-            this.logger.error("Dms to Wh_ems error", e);
-        }
+        emsstring = whemsClientService
+                .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                        + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
+                        + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
+                        + md5tempstring
+                        + "</ValidationData>"
+                        + body + "</Response>");
+        logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                                            + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
+                                            + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
+                                            + md5tempstring
+                                            + "</ValidationData>"
+                                            + body + "</Response>");
 
         if (null == emsstring || "".equals(emsstring.trim())) {
             this.logger

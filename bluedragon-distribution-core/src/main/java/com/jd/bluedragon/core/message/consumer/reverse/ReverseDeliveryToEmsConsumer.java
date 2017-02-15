@@ -31,14 +31,9 @@ public class ReverseDeliveryToEmsConsumer extends MessageBaseConsumer{
         String body = message.getText();
         Base64 base64 = new Base64();
         String emsstring=null;
-        try {
-            body =new String(base64.encode(body.getBytes("utf-8")), Charset.forName("UTF-8"));
-            emsstring = getPrintDatasPortType.printEMSDatas(body);
-            logger.info(body);
-        } catch (Exception e) {
-            this.logger.error("全国邮政消费mq异常,订单号为：" + body,e);
-        }
-
+        body =new String(base64.encode(body.getBytes("utf-8")), Charset.forName("UTF-8"));
+        emsstring = getPrintDatasPortType.printEMSDatas(body);
+        logger.info(body);
         if (null == emsstring || "".equals(emsstring.trim())) {
             this.logger
                     .error("toEmsServer CXF return null :");
