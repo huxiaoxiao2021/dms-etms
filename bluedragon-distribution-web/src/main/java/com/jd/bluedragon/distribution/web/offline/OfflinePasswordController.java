@@ -99,7 +99,7 @@ public class OfflinePasswordController {
 				content.append("一单多件不齐发货密码变更为：").append(passwordList.get(0).getConfigContent()).append("。");
 			}
 		}
-		SendMailUtil.send(subject, content.toString(), address);
+		SendMailUtil.sendSimpleEmail(subject, content.toString(), address);
 		return null;
 	}
 	@RequestMapping(value = "/sendDeliverPwdMail")

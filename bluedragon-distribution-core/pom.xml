@@ -645,8 +645,13 @@
 			<artifactId>order-bank-export</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-	</dependencies>
-
+		<!-- 发送邮件 -->	
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-email</artifactId>
+		    <version>1.3</version>
+		</dependency>
+		</dependencies>
 	<build>
 		<plugins>
 			<plugin>
