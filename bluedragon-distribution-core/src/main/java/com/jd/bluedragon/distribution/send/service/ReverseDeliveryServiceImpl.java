@@ -700,12 +700,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						+ body + "</printDatas></XMLInfo>";
 				this.logger.error("ems数据报文：" + body);
 				String businessId = waybillCode;
-				try{
-					emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
-				}catch(Exception e){
-					this.logger.error("推送全国邮政的mq消息处理失败:" + e);
-					errorWaybill.append(waybillCode+"-");
-				}
+                emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
 			}
 		}
 		return errorWaybill.toString();
