@@ -442,13 +442,8 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							+ "</OrderShipList></PlaintextData>";
 					this.logger.error("数据报文：" + body);
 					String businessId = wlist.get(0);//改为逐条发送的话，只有一条运单数据
-					try{
-						whSmsSendMq.sendOnFailPersistent(businessId,body);
-						resultBool = true;
-					}catch(Exception e){
-						resultBool = false;
-						this.logger.error("推送武汉邮政的mq消息处理失败:" + e);
-					}
+					whSmsSendMq.sendOnFailPersistent(businessId,body);
+					resultBool = true;
 				}
 			}
 
