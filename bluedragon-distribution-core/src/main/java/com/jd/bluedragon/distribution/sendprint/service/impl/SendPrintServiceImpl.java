@@ -691,7 +691,12 @@ public class SendPrintServiceImpl implements SendPrintService{
     	Map<String,SendDetail> sendDMap = new HashMap<String, SendDetail>();
 		if(null != sendDetailList){
 			for (SendDetail item : sendDetailList){
-				String packageBarCode = item.getPackageBarcode();
+				String packageBarCode;
+				if(item.getPackageBarcode() == null){
+					packageBarCode = "";
+				}else{
+					packageBarCode = item.getPackageBarcode();
+				}
 				String packageBarCodeNoT = packageBarCode.startsWith("T")? packageBarCode.substring(1) : packageBarCode;//如果单号以T开始，则从index=1开始截取子字符串
 				if(!sendDMap.containsKey(packageBarCodeNoT)){
 					sendDMap.put(packageBarCodeNoT,item);

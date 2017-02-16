@@ -19,6 +19,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,14 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return createCenConfirm(inspection, null);
 	}
 
+
+    public  void updateOrInsert(CenConfirm cenConfirm){
+        if (Constants.NO_MATCH_DATA == cenConfirmDao
+                .updateFillField(cenConfirm)) {
+            cenConfirmDao.add(CenConfirmDao.namespace, cenConfirm);// 不存在添加
+        }
+    }
+
 	public void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {
         //取消同步方法，取消事务（上层调用方已经设置事务为required）
 
@@ -68,6 +77,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         inspectionMQBody.setWaybillCode(null!=cenConfirm.getWaybillCode()?cenConfirm.getWaybillCode(): SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
         inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
         try {
+            /**
+             * fix wtw 任务监控
+             */
             inspectionNotifyService.send(inspectionMQBody);
         }catch (Throwable throwable){
             log.error("推送验货MQ异常",throwable);
@@ -75,7 +87,10 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
 				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
 			if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {
-				cenConfirm = FillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
+				cenConfirm = fillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
+                /**
+                 * fix wtw 外部接口包装，及UMP
+                 */
 				cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);
 			} else {
 				cenConfirm = fillOperateType(cenConfirm);// 根据运单号调用运单接口判断操作类型
@@ -87,6 +102,10 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         }
 		if (Constants.NO_MATCH_DATA == cenConfirmDao
 				.updateFillField(cenConfirm)) {
+            /**
+             * Fix wtw
+             */
+
 			cenConfirmDao.add(CenConfirmDao.namespace, cenConfirm);// 不存在添加
 			// 插入回传运单状态任务表/全程跟踪任务表
 			syncWaybillStatusTask(cenConfirm);
@@ -175,7 +194,8 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return cenConfirm;
 	}
 
-	private CenConfirm FillPickupCode(CenConfirm cenConfirm) {
+    @JProfiler(jKey = "CenConfirmServiceImpl.fillPickupCode")
+	public CenConfirm fillPickupCode(CenConfirm cenConfirm) {
 		BaseEntity<PickupTask> baseEntity = waybillPickupTaskApi
 				.getDataBySfCode(cenConfirm.getPackageBarcode());
 		if (baseEntity.getResultCode() == Constants.INTERFACE_CALL_SUCCESS) {
@@ -213,7 +233,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	 * 站点类型!=64&&业务类型=10(正向)是返调度在投 站点类型!=16&&业务类型=20(逆向)是站点退货
 	 * 操作类型(1.跨分拣中心收货2.库房交接3.pop交接4. 三方验货5.返调度再投6.取件7.站点退货8.三方退货 9.夺宝岛 10.OEM)
 	 */
-	private CenConfirm fillOperateType(CenConfirm cenConfirm) {
+	public CenConfirm fillOperateType(CenConfirm cenConfirm) {
 		SendDetail sendDatail = deliveryService.getSendSiteID(
 				cenConfirm.getPackageBarcode(), cenConfirm.getCreateSiteCode());
 		if (sendDatail == null) {
@@ -293,7 +313,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		}
 	}
 
-	private String getTipsMessage(CenConfirm cenConfirm) {
+	public String getTipsMessage(CenConfirm cenConfirm) {
 		String message="回传运单状态任务表";
 		if(Constants.BUSSINESS_TYPE_FC==cenConfirm.getType().intValue()||
 				Constants.BUSSINESS_TYPE_RCD==cenConfirm.getType().intValue()){
@@ -302,7 +322,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		return message;
 	}
 
-	private WaybillStatus createWaybillStatus(CenConfirm cenConfirm,
+	public WaybillStatus createWaybillStatus(CenConfirm cenConfirm,
 			BaseStaffSiteOrgDto bDto, BaseStaffSiteOrgDto rDto) {
 		WaybillStatus tWaybillStatus = createBasicWaybillStatus(cenConfirm,
 				bDto, rDto);

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.core.base.ThirdPartyLogisticManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -29,11 +30,9 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.postal.GetPrintDatasPortType;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,40 +64,43 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	@Autowired
 	private Ems4JingDongPortType whemsClientService;
-	
+
 	@Autowired
 	private ThirdPartyLogisticManager thirdPartyLogisticManager;
-	
+
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
-	
+
 	@Autowired
 	private DeliveryService deliveryService;
-	
+
 	@Autowired
 	private WaybillService waybillService;
-	
+
 	@Autowired
 	private BaseService baseService;
-	
+
 	@Autowired
-	private GetPrintDatasPortType getPrintDatasPortType;
-	
+	private DefaultJMQProducer whSmsSendMq;
+
+	@Autowired
+	private DefaultJMQProducer emsSendMq;
+
 	// 自营
 	public static final Integer businessTypeONE = 10;
 	// 退货
 	public static final Integer businessTypeTWO = 20;
 	// 第三方
 	public static final Integer businessTypeTHR = 30;
-	
+
 	//EMS快递站点信息读取
 	public static final String EMS_SITE = "EMS_SITE";
 
 	private final Integer BATCH_NUM = 49;
-	
+
 	//EMS快生开关
 	public static final String EMS_ONOFF = "EMS_ONOFF";
-	
+
 	@Autowired
     private QuickProduceService quickProduceService;
 
@@ -192,18 +194,29 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
      * @return
      */
     @SuppressWarnings("unchecked")
-	private List<String>[] splitList(List<String> transresult){
-    	List<List<String>> splitList = new ArrayList<List<String>>();
-		for(int i = 0;i<transresult.size();i+=BATCH_NUM){
-			int size = i+BATCH_NUM>transresult.size()?transresult.size():i+BATCH_NUM;
-			List<String> tmp = (List<String>)transresult.subList(i, size);
-			splitList.add(tmp);
-		}
-		return splitList.toArray(new List[0]);
+    private List<String>[] splitList(List<String> transresult){
+        List<List<String>> splitList = new ArrayList<List<String>>();
+        for(int i = 0;i<transresult.size();i+=BATCH_NUM){
+            int size = i+BATCH_NUM>transresult.size()?transresult.size():i+BATCH_NUM;
+            List<String> tmp = (List<String>)transresult.subList(i, size);
+            splitList.add(tmp);
+        }
+        return splitList.toArray(new List[0]);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String>[] splitList1(List<String> transresult){
+        List<List<String>> splitList = new ArrayList<List<String>>();
+        for(int i = 0;i<transresult.size();i+=1){
+            int size = i+1>transresult.size()?transresult.size():i+1;
+            List<String> tmp = (List<String>)transresult.subList(i, size);
+            splitList.add(tmp);
+        }
+        return splitList.toArray(new List[0]);
     }
 
 	public void batchProcessOrderInfo2DSF(List<SendM> tSendMList) {
-		
+
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, sendList);
 		this.logger.info("batchProcessOrderInfo2DSF武汉邮政推送接口sendList长度:"
@@ -215,12 +228,15 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 			List<String> waybillList = new CollectionHelper<String>()
 					.toList(waybillset);
-			toWhsmsServer(waybillList);
+			boolean bool = sendMqToWhsmsServer(waybillList);
+			if(!bool){
+				this.logger.error("武汉邮政推送自消费类型的MQ失败：" + waybillList.toArray());
+			}
 		}
 	}
 
 	public void batchProcesstoEmsServer(List<SendM> tSendMList) {
-		
+
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, sendList);
 		this.logger.info("batchProcesstoEmsServer邮政推送接口sendList长度:"
@@ -267,7 +283,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				for(String waybillCode : wlist){
 					OrderShipsReturnDto returnDto = new OrderShipsReturnDto();
 					returnDto.setClearOld(0);
-					
+
 					this.logger.info("调用运单接口, 订单号为： " + waybillCode);
 					WChoice wChoice = new WChoice();
 					wChoice.setQueryWaybillC(true);
@@ -301,12 +317,13 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 		}
 	}
-	
+
 	/**
 	 * 调用邮政接口回传数据
 	 * @param waybillList
 	 */
-	private void toWhsmsServer(List<String> waybillList) {
+	private boolean sendMqToWhsmsServer(List<String> waybillList) {
+		boolean resultBool = false;
 		if (waybillList != null && !waybillList.isEmpty()) {
 			boolean flage = true;
 			List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
@@ -315,8 +332,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					flage =false;
 				}
 			}
-			
-			List<String>[] splitListResultAl = splitList(waybillList);
+			List<String>[] splitListResultAl = splitList1(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				WChoice queryWChoice = new WChoice();
 				queryWChoice.setQueryPackList(true);
@@ -326,7 +342,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					tWaybillList = deliveryService.getWaillCodeListMessge(queryWChoice, wlist);
 				else
 					tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
-				
+
 				StringBuffer buffer = new StringBuffer();
 				if (tWaybillList != null && !tWaybillList.isEmpty()) {
 					/*this.logger
@@ -420,62 +436,19 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					String whEmsKey = PropertiesHelper.newInstance().getValue(
 							"encpKey");
 					if (StringHelper.isEmpty(whEmsKey))
-						return;
+						return resultBool;
 					String body = "<PlaintextData><OrderShipList>"
 							+ buffer.toString()
 							+ "</OrderShipList></PlaintextData>";
-					String md5tempstring = encrypt(body + whEmsKey.trim());
 					this.logger.error("数据报文：" + body);
-					String emsstring = null;
-                    try {
-                       emsstring = whemsClientService
-                                .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                                        + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-                                        + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-                                        + md5tempstring
-                                        + "</ValidationData>"
-                                        + body + "</Response>");
-                    } catch (Throwable e) {
-                        this.logger.error("Dms to Wh_ems error", e);
-                        Profiler.businessAlarm("DmsWorker.pushWh_ems_error", "推送Wh_ems数据失败" + e.getMessage());
-                    }
-
-
-					if (null == emsstring || emsstring.trim().equals("")) {
-						this.logger
-								.error("DmsToTmsTaskImpl!batchProcessOrderInfo2DSF WuHan CXF return null :");
-						return;
-					}
-					this.logger.info("武汉邮政返回" + emsstring);
-					String str = emsstring.substring(55);
-
-					if (str.indexOf("<ResultCode>001</ResultCode>") != -1) {
-						this.logger
-								.error("DmsToTmsTaskImpl!batchProcessOrderInfo2DSF orderinfo 验证失败:");
-						return;
-					}
-
-					if (str.indexOf("<ResultCode>000</ResultCode>") == -1) {
-						this.logger
-								.error("DmsToTmsTaskImpl!batchProcessOrderInfo2DSF orderinfo send fail :");
-						return;
-					}
+					String businessId = wlist.get(0);//改为逐条发送的话，只有一条运单数据
+					whSmsSendMq.sendOnFailPersistent(businessId,body);
+					resultBool = true;
 				}
 			}
 
 		}
-	}
-
-	public static String encrypt(String mingwen) {
-		Base64 base64=new Base64();
-		String result="";
-		try {
-			result = new String(base64.encode(md5(mingwen).getBytes("utf-8")),Charset.forName("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
+		return resultBool;
 	}
 
 	public static String md5(String input) {
@@ -531,7 +504,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		WChoice queryWChoice = new WChoice();
 		queryWChoice.setQueryPackList(true);
 		queryWChoice.setQueryWaybillC(true);
-		
+
 		boolean flage = true;
 		List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
 		for(SysConfig sys : configs){
@@ -637,9 +610,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return response;
 	}
-	
+
 	public void pushWhemsWaybill(List<String> wlist) {
-		toWhsmsServer(wlist);
+		sendMqToWhsmsServer(wlist);
 	}
 
 	public Ems4JingDongPortType getWhemsClientService() {
@@ -649,7 +622,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	public void setWhemsClientService(Ems4JingDongPortType whemsClientService) {
 		this.whemsClientService = whemsClientService;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public  HashMap getSend3plConfigMap(HashMap send3plConfigMap) {
 		send3plConfigMap.put("487","上海长发物流");
@@ -664,7 +637,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		send3plConfigMap.put("1758","苏州门对门快递");
 		return send3plConfigMap;
 	}
-	
+
 	/**
 	 * 调用全国邮政接口回传数据
 	 * @param waybillList
@@ -721,38 +694,18 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					.append(info.getPayMode())
 					.append("</payMode><insureType></insureType><blank1></blank1><blank2></blank2><blank3></blank3><blank4></blank4><blank5></blank5></printData>");
 				}
-				Base64 base64 = new Base64();
 				String body = buffer.toString();
 				body = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 						+ "<XMLInfo><sysAccount>"+sysAccount+"</sysAccount><passWord>e10adc3949ba59abbe56e057f20f883e</passWord><printKind>2</printKind><printDatas>"
 						+ body + "</printDatas></XMLInfo>";
 				this.logger.error("ems数据报文：" + body);
-				String emsstring=null;
-				try {
-				body =new String(base64.encode(body.getBytes("utf-8")),Charset.forName("UTF-8"));
-				
-					emsstring = getPrintDatasPortType
-							.printEMSDatas(body);
-				} catch (Exception e) {
-					this.logger.error("全国邮政调用异常,订单号为："+waybillCode,e);
-                    Profiler.businessAlarm("DmsWorker.pushEms_error", "推送Ems数据失败" + e.getMessage());
-                    errorWaybill.append(waybillCode+"-");
-				}
-
-				if (null == emsstring || emsstring.trim().equals("")) {
-					this.logger
-							.error("toEmsServer CXF return null :");
-					//return;
-				}else{
-					emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
-					
-					this.logger.error("全国邮政返回" + emsstring);
-				}
+				String businessId = waybillCode;
+                emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
 			}
 		}
 		return errorWaybill.toString();
 	}
-	
+
 	public static String decrypt(String mingwen) {
 		Base64 base64=new Base64();
 		String result = "";
@@ -764,7 +717,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return result;
 	}
-	
+
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
 		SendDetail send = new SendDetail();
 		send.setWaybillCode(waybillCode);
@@ -784,9 +737,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				}
 			}
 		}
-		
+
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(createSiteCode);
-		
+
 		List<SysConfig> configs = baseService.queryConfigByKeyWithCache(EMS_SITE + "_"+ receiveSiteCode);
 		String sysAccount = "";
 		for (SysConfig sys : configs) {
@@ -799,12 +752,12 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		List<WaybillInfo> list = new ArrayList<WaybillInfo>();
 
 		BigWaybillDto WaybillDto = waybillService.getWaybill(waybillCode);
-		
+
 		//如果订单信息为空咋调用快生运单数据源获取信息
 		if (WaybillDto == null || WaybillDto.getWaybill() == null){
 			WaybillDto = getWaybillQuickProduce(waybillCode);
 		}
-		
+
 		if (WaybillDto != null && WaybillDto.getWaybill() != null) {
 			Waybill waybill = WaybillDto.getWaybill();
 			List<DeliveryPackageD> deliveryPackage = WaybillDto.getPackageList();
@@ -844,17 +797,17 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					info.setTcustTelplus(waybill.getReceiverTel());
 					info.setTcustPost(waybill.getReceiverZipCode());
 					info.setTcustAddr(waybill.getReceiverAddress());
-					
+
 					if(waybill.getProvinceName()!=null)
 						info.setTcustProvince(waybill.getProvinceName());
 					else
 						info.setTcustProvince("");
-					
+
 					if(waybill.getCityName()!=null)
 						info.setTcustCity(waybill.getCityName());
 					else
 						info.setTcustCity("");
-					
+
 					if(waybill.getCountryName()!=null)
 						info.setTcustCounty(waybill.getCountryName());
 					else
@@ -876,7 +829,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 						}
 					}
 
-					if (declaredValue == null) 
+					if (declaredValue == null)
 						declaredValue="0.0";
 					info.setFeeUppercase(new CnUpperCaser(declaredValue).getCnString());
 					info.setFee(needFund);
@@ -895,7 +848,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	}
 
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
-		
+
 		logger.error("JOS获取订单信息,订单号为" + waybillCode);
 		List<WaybillInfo> list = null;
 		try {
@@ -917,17 +870,17 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		if (tQuickProduceWabill == null) {
 			return null;
 		}
-		
+
 		JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
 		com.jd.bluedragon.common.domain.Waybill waybillQP = tQuickProduceWabill.getWaybill();
 		if (tJoinDetail == null || waybillQP==null) {
 			return null;
 		}
-		
+
 		BigWaybillDto tBigWaybillDto = toWaybill(waybillQP,tJoinDetail);
 		return tBigWaybillDto;
 	}
-	
+
 	private BigWaybillDto toWaybill(com.jd.bluedragon.common.domain.Waybill waybillQP ,JoinDetail tJoinDetail) {
 		Waybill waybill = new Waybill();
 		BigWaybillDto tBigWaybillDto = new BigWaybillDto();
@@ -943,7 +896,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		waybill.setCityName(tJoinDetail.getCityName());
 		waybill.setCountryName(tJoinDetail.getCountryName());
 		tBigWaybillDto.setWaybill(waybill);
-		
+
 		SendDetail tSendDatail = new SendDetail();
 		tSendDatail.setWaybillCode(waybillQP.getWaybillCode());
 		List<SendDetail> oneList = sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
@@ -954,11 +907,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return tBigWaybillDto;
 	}
-	
+
 	/**
 	* 生产包裹号码
 	*/
-	
+
 	/**
      * 生成包裹列表专用正则
      * 【分组一：运单号】
@@ -970,7 +923,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
      */
     private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
 
-    
+
     private List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail)
 	{
 		List<DeliveryPackageD> packList = new ArrayList<DeliveryPackageD>();
@@ -989,7 +942,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		return packList;
 	}
-	
+
     private List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice ,List<String> wlist){
     	BigWaybillDto WaybillDto = new BigWaybillDto();
     	List<BigWaybillDto> list = new ArrayList<BigWaybillDto>();

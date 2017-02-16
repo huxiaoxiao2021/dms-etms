@@ -26,7 +26,7 @@ public interface GantryDeviceConfigService {
     /*
     获取当前分拣中心的所有龙门架当前信息
      */
-    List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode);
+    List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode,byte version);
 
 
 

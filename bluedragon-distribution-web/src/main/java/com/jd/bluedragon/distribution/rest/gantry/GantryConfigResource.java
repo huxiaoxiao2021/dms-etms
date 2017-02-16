@@ -41,7 +41,7 @@ public class GantryConfigResource {
     public InvokeResult<List<GantryDeviceConfig>> findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
         InvokeResult<List<GantryDeviceConfig>> response = new InvokeResult<List<GantryDeviceConfig>>();
         try {
-            List<GantryDeviceConfig> list = gantryDeviceConfigService.findAllGantryDeviceCurrentConfig(request.getCreateSiteCode());
+            List<GantryDeviceConfig> list = gantryDeviceConfigService.findAllGantryDeviceCurrentConfig(request.getCreateSiteCode(),request.getVersion());
             response.setData(list);
         } catch (Throwable ex) {
             String message = "获取龙门架" + request.toString() + ex.toString();
