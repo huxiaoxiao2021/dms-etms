@@ -1,5 +1,5 @@
 package com.jd.bluedragon.distribution.systemLog.domain;
-
+import java.util.*;
 /**
  *
  * Created by wangtingwei on 2017/2/16.
@@ -8,6 +8,9 @@ public class Goddess {
 
     private static final long serialVersionUID=1L;
 
+    public Goddess(){
+        dateTime=new Date();
+    }
     /**
      * 关键字
      */
@@ -22,6 +25,8 @@ public class Goddess {
      * 正文
      */
     private String body;
+
+    private Date dateTime;
 
     public String getHead() {
         return head;
@@ -45,5 +50,13 @@ public class Goddess {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Date getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
     }
 }

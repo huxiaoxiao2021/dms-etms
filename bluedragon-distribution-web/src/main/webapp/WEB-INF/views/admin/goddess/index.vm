@@ -41,7 +41,7 @@
             <form id="queryForm" name="queryForm" action="#springUrl('/admin/goddess/index')" method="GET">
                 <table class="pagin">
                     <tr>
-                        <td style="font-size: 14px;">任务名称</td>
+                        <td style="font-size: 14px;">关键字</td>
                         <td><input type="text" name="data" value="$!request.getParameter('data')" style="font-size: 14px; height: 25px;"/> </td>
                         <td><a href="javascript:" onclick="document.queryForm.submit()" >查询</a> </td>
                     </tr>
@@ -63,8 +63,8 @@
                     </tr>
                         #foreach($item in $!model.data)
                         <tr>
-                            <td>$item.key</td>
-                            <td>$item.dateTime</td>
+                            <td>$!item.key</td>
+                            <td>$!dateTool.format('yyyy-MM-dd HH:mm:ss ',$!item.dateTime)</td>
                             <td>$!item.head</td>
                             <td>$!item.body</td>
                         </tr>

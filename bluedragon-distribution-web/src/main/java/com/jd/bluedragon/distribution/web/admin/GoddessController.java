@@ -26,7 +26,7 @@ public class GoddessController {
     @Resource(name = "goddessService")
     private GoddessService goddessService;
 
-    @RequestMapping(value = "/index", method = RequestMethod.POST)
+    @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Pager<String> pager, Model model) {
         pager.init();
         try {
