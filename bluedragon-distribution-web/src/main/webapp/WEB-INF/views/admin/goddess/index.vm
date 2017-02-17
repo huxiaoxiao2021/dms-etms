@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache">
+
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>分拣运行时全程跟踪</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <style type="text/css">
+        h2.pos_left{
+            position:relative;
+            left:-20px
+        }
+        h2.pos_right{
+            position:relative;
+            left:200px
+        }
+    </style>
+</head>
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">运行管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣运行时全程跟踪</a>
+    </p>
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="queryForm" name="queryForm" action="#springUrl('/admin/goddess/index')" method="GET">
+                <table class="pagin">
+                    <tr>
+                        <td style="font-size: 14px;">任务名称</td>
+                        <td><input type="text" name="data" value="$!request.getParameter('data')" style="font-size: 14px; height: 25px;"/> </td>
+                        <td><a href="javascript:" onclick="document.queryForm.submit()" >查询</a> </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg" >
+                <table id="headTable" cellspacing=0 cellpadding=0 style="width:100%;min-width:1300px; overflow-y: auto" class="tb-x1">
+
+                    <tr style="position: relative">
+                        <th style="width:10%;">关键字</th>
+                        <th style="width:10%;">时间</th>
+                        <th style="width:30%;">头部</th>
+                        <th style="width:50%;">正文</th>
+
+                    </tr>
+                        #foreach($item in $!model.data)
+                        <tr>
+                            <td>$item.key</td>
+                            <td>$item.dateTime</td>
+                            <td>$!item.head</td>
+                            <td>$!item.body</td>
+                        </tr>
+                        #end
+
+                </table>
+                <div class="tbl-n">
+                    #pageBar("$!request.getRequestURI()?$!request.getQueryString().replaceAll('&?pageNo=\d+','')", $model.totalSize $model.pageNo $model.totalNo)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
