@@ -25,7 +25,7 @@ public class GoddessDao {
     protected ConsistencyLevel consistencyLevel;
 
     @Value("${cassandra.ttl}")
-    protected long  ttl;
+    protected long ttl;
 
     public static final int SIZE = 2000;
 
@@ -36,16 +36,15 @@ public class GoddessDao {
     private PreparedStatement selectStatement;
 
 
-
     private PreparedStatement getInsertStatement() {
-        if(null==insertStatement){
-            synchronized (this){
-                if(null==insertStatement){
+        if (null == insertStatement) {
+            synchronized (this) {
+                if (null == insertStatement) {
                     RegularStatement toPrepare = new SimpleStatement(
                             "insert into systemlogwaybill ( code , uu_id  , body,time) values ( ?,?,?,?) USING TTL " + ttl
                                     + ";");
                     toPrepare.setConsistencyLevel(consistencyLevel);
-                    insertStatement= baseCassandraDao.getSession().prepare(toPrepare);
+                    insertStatement = baseCassandraDao.getSession().prepare(toPrepare);
                 }
             }
         }
@@ -58,14 +57,11 @@ public class GoddessDao {
             List<BoundStatement> bstatementList = new ArrayList<BoundStatement>(1);
             Map<String, Object> values = new HashMap<String, Object>();
             long operateTime = new Date().getTime();
-                if (insertStatement == null)
-                    insertStatement = getInsertStatement();
-                BoundStatement bStatement = insertStatement.bind(log.getKey(), UUIDs.timeBased().toString(),
-                        JsonHelper.toJson(log), operateTime);
-                bstatementList.add(bStatement);
-
+            BoundStatement bStatement = getInsertStatement().bind(log.getKey(), UUIDs.timeBased().toString(),
+                    JsonHelper.toJson(log), operateTime);
+            bstatementList.add(bStatement);
             baseCassandraDao.batchInsert(bstatementList, values);
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("OperationlogCassandra batchInsert execute success cost:"
                         + (System.currentTimeMillis() - startTime) + "ms");
             }
@@ -75,7 +71,7 @@ public class GoddessDao {
     }
 
     private PreparedStatement getSelectStatement() {
-        if(null==selectStatement) {
+        if (null == selectStatement) {
             synchronized (this) {
                 if (null == selectStatement) {
                     RegularStatement toPrepare = new SimpleStatement(
@@ -89,7 +85,7 @@ public class GoddessDao {
     }
 
     public Pager<List<Goddess>> getSplitPage(Pager<String> pager) {
-        Pager<List<Goddess>> result=new Pager<List<Goddess>>();
+        Pager<List<Goddess>> result = new Pager<List<Goddess>>();
         List<Goddess> list = null;
         result.setData(list);
         result.setPageSize(pager.getPageSize());
@@ -104,20 +100,19 @@ public class GoddessDao {
             result.setTotalSize(rs.getAvailableWithoutFetching());
 
             bs.setFetchSize(pager.getPageSize());
-            if(pager.getPageNo().equals(Integer.valueOf(1))) {
+            if (pager.getPageNo().equals(Integer.valueOf(1))) {
                 rs = baseCassandraDao.preparedSelectBycode(bs);
-            }
-            else{
+            } else {
                 rs = baseCassandraDao.preparedSelectBycode(bs);
-                pagingState =rs.getExecutionInfo().getPagingState();
-                for(int i=2 ;i<=pager.getPageNo();i++){
+                pagingState = rs.getExecutionInfo().getPagingState();
+                for (int i = 2; i <= pager.getPageNo(); i++) {
                     bs.setPagingState(pagingState);
                     rs = baseCassandraDao.preparedSelectBycode(bs);
-                    pagingState =rs.getExecutionInfo().getPagingState();
+                    pagingState = rs.getExecutionInfo().getPagingState();
                 }
             }
             result.setData(rsToList(rs, new RowToOrder()));
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("OperationlogCassandra getPage execute success cost:" + (System.currentTimeMillis() - startTime)
                         + "ms");
             }
@@ -127,7 +122,6 @@ public class GoddessDao {
 
         return result;
     }
-
 
 
     public static ArrayList<Goddess> rsToList(ResultSet rs, Function<Row, Goddess> rowToObject) {
@@ -140,7 +134,7 @@ public class GoddessDao {
         return al;
     }
 
-    private static final String BODY="body";
+    private static final String BODY = "body";
 
     public static final class RowToOrder implements Function<Row, Goddess> {
         @Override
