@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.gantry.service;
 
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,13 @@ public interface GantryDeviceService {
      * @param dmsCode 分拣中心ID
      * */
     public List<GantryDevice> getGantryByDmsCode(Integer dmsCode);
+
+    /**
+     * 根据分拣中心编号获取该分拣下面的所有新的龙门架（2016-12-26 14:58:36 by wzx）
+     * @param dmsCode 分拣中心ID
+     * @param version 新老版本
+     * */
+    public List<GantryDevice> getGantryByDmsCode(Integer dmsCode,byte version);
 
     /***
      * 根据条件查询符合条件的龙门架数量
@@ -58,4 +66,14 @@ public interface GantryDeviceService {
      * @return
      */
     public int updateGantryById(GantryDevice device);
+
+    /**
+     * 通过批次号 获取sendD的列表
+     */
+    public List<SendDetail> queryWaybillsBySendCode(String sendCode);
+
+    /**
+     * 通过批次号 获取sendD 箱号的列表
+     */
+    public List<SendDetail> queryBoxCodeBySendCode(String sendCode);
 }

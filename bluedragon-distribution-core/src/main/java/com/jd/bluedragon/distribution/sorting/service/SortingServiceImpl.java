@@ -507,16 +507,19 @@ public class SortingServiceImpl implements SortingService {
 
 	private void fillSortingIfPickup(Sorting sorting) {
 		if (BusinessHelper.isPickupCode(sorting.getPackageCode())) {
-            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
+//            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
+			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
+			sorting.setPackageCode(sorting.getPackageCode());
             if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
             {
                // sorting.setPickupCode(pickup.getData().getPickupCode());
                 sorting.setWaybillCode(sorting.getPackageCode());
 			} else {
-			BaseEntity<PickupTask> pickup = this.getPickup(sorting.getPackageCode());
+			BaseEntity<PickupTask> pickup = this.getPickup(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			if (pickup != null&&pickup.getData()!=null) {
 				sorting.setPickupCode(pickup.getData().getPickupCode());
-				sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
+//				sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
+				sorting.setWaybillCode(pickup.getData().getSurfaceCode());
 			}}
 		}
 	}
@@ -804,10 +807,13 @@ public class SortingServiceImpl implements SortingService {
             if(BusinessHelper.isPickupCodeWW(sendDetail.getPackageBarcode())) {
                 sendDetail.setWaybillCode(sendDetail.getPackageBarcode());
 			} else {
-			BaseEntity<PickupTask> pickup = this.getPickup(sendDetail.getPackageBarcode());
+//			BaseEntity<PickupTask> pickup = this.getPickup(sendDetail.getPackageBarcode());
+			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
+			BaseEntity<PickupTask> pickup = this.getPickup(SerialRuleUtil.getWaybillCode(sendDetail.getPackageBarcode()));
 			if (pickup != null&&pickup.getData()!=null) {
 				sendDetail.setPickupCode(pickup.getData().getPickupCode());
-				sendDetail.setWaybillCode(pickup.getData().getOldWaybillCode());
+//				sendDetail.setWaybillCode(pickup.getData().getOldWaybillCode());
+				sendDetail.setWaybillCode(pickup.getData().getSurfaceCode());
 				}
 			}
 		}

@@ -165,6 +165,7 @@ function doQuery(params) {
                 temp += "<td>" + (getDateString(dataList[i].createTime)) + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].updateTime)) + "</td>";
                 temp += "<td>" + (null == dataList[i].operateName ? "" : dataList[i].operateName) + "</td>";
+                temp+="<td>"+dataList[i].version+"</td>";
                 temp += "<td>" + ("<a href='javascript:void(0)' onclick='gantry_modify_sub(" + dataList[i].machineId + ")''>修改</a>"
                     + "<a href='javascript:void(0)' onclick='gantry_delete_sub(" + dataList[i].machineId
                     + ")' id='gantry_list_delete'>删除</a>") + "</td>";

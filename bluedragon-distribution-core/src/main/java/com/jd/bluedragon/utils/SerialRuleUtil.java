@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.*;
 
 /**
  * 序列号规则判断
@@ -13,6 +14,9 @@ import java.util.regex.Pattern;
  */
 public class SerialRuleUtil
 {
+
+    public static final String SPLIT_CHAR_STRING = "-";
+
     /**
      * 结果
      */
@@ -467,5 +471,28 @@ public class SerialRuleUtil
     public static boolean isMatchExpressorBoxCode(String boxCode)
     {
         return isMatchBoxCode(boxCode) && boxCode.toUpperCase().trim().startsWith("ZC");
+    }
+
+    /**
+     * 生成批次号
+     * @param createSiteCode        始发站点
+     * @param receiveSiteCode       接收站点
+     * @return
+     */
+    public static String generateSendCode(long createSiteCode,long receiveSiteCode,Date time){
+        if(null==time)
+        {
+            time=new Date();
+        }
+        String timeString = DateHelper.formatDate(time,DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSS);
+        long magic=(createSiteCode%7+receiveSiteCode%7+Long.valueOf(timeString)%7)%7;
+        StringBuilder sendCode=new StringBuilder();
+        sendCode.append(String.valueOf(createSiteCode));
+        sendCode.append(SPLIT_CHAR_STRING);
+        sendCode.append(String.valueOf(receiveSiteCode));
+        sendCode.append(SPLIT_CHAR_STRING);
+        sendCode.append(timeString);
+        sendCode.append(String.valueOf(magic));
+        return sendCode.toString();
     }
 }

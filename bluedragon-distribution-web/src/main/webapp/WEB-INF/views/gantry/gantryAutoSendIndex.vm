@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>龙门架自动发货</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/popUp/popUp.css')">
+    <script type="application/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/popUp/popUp.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/gantry/gantryAutoSendIndex.js')"></script>
+    <style  type="text/css">
+        .part {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            float: none;
+        }
+        #part-2 table {
+            width: 235px;
+        }
+        .divBlock {
+            float: left;
+            border: 1px dotted gray;
+            margin-right: 50px;
+            padding-left: 8px;
+            padding-right: 8px;
+            width: 250px;
+        }
+        .divTitle {
+            font-size: 14px;
+            font-weight: bold;
+            padding-left: 5px;
+        }
+        .blankTr {
+            height: 30px;
+        }
+        .blankTd {
+            width: 80px;
+        }
+        .checkboxArea .checkbox , span {
+            vertical-align: middle;
+        }
+
+        #exceptionNum {
+            text-align: center;
+            font-size: 14px;
+            color: #b81900;
+        }
+        #warning {
+            width: auto;
+            text-align: center;
+            font-family: 微软雅黑;
+            font-size: 16px;
+            color: #be1f1f;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .textField {
+            width: 150px;
+        }
+        .trHeight {
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <input type="hidden" id="contextPath" value="#springUrl('')">
+    <div id="breadcrumb">
+        <P>
+            <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">龙门架自动发货</a>
+        </P>
+    </div>
+    <div id="content">
+        <div class="m">
+            <div class="tbl-n">
+                <div id="part-1" class="part">
+                    <span>分拣中心：
+                    </span><select name="siteOrg" id="siteOrg" value="" readonly="readonly">
+                        #if($!{siteCode})
+                            <option value="$!{siteCode}">$!{siteCode}&nbsp;$!{siteName}</option>
+                        #else
+                            <option value="910">（没有维护分拣中心）</option>
+                        #end
+                    </select>
+                    <span>设备名：</span><select name="gantryDevice" id="gantryDevice" value="" class="textField">
+                    <option value="">选择龙门架</option></select>
+                    <span>操作人：</span><input type="text" id="operator" class="textField" value="$!{userName}||$!{userCode}" placeholder="操作人ERP（登录后不可修改）" readonly="readonly"></input>
+                    <label style="margin-left: 60px;"><input type="checkbox" id="flash" class="checkbox" style="vertical-align: middle"><span>定时刷新</span></label>
+                </div>
+                <div id="part-2" class="part">
+                    <div class="divBlock">
+                        <table>
+                            <tr>
+                                <td colspan="3" class="divTitle">配置龙门架功能：</td>
+                            </tr>
+                            <tr class="checkboxArea">
+                                <td><label><input type="checkbox" name="businessType" id="inspection" value="1" class="checkbox"><span>验货</span></label></td>
+                                <td><label><input type="checkbox" name="businessType" id="send" value="2" class="checkbox"><span>发货</span></label></td>
+                                <td><label><input type="checkbox" name="businessType" id="measure" value="4" class="checkbox"><span>量方</span></label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" id="gantryBtn">
+                                    <input type="button" id="enOrDisGantryBtn" value="释放龙门架" class="btn_c">
+                                </td>
+                            </tr>
+                            <tr class="blankTr">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="divBlock">
+                        <table>
+                            <tr>
+                                <td colspan="3" class="divTitle">打印功能：</td>
+                                <td><input type="button" class="btn_c" value="设置打印机" id="printSetting" onclick="printSettingPopUp()"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="checkboxArea"><label><input type="checkbox" name="printStyle" value="1" class="checkbox" checked="checked"><span>打批次号</span></label></td>
+                                <td></td>
+                                <td><input type="button" id="printAndEndSend" value="打印并完结批次" class="btn_c"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="checkboxArea">
+                                    <label>
+                                        <input type="checkbox" name="printStyle" value="2" class="checkbox" checked="checked"><span>汇总单</span>
+                                    </label>
+                                </td>
+                                <td></td>
+                                <td><input type="button" value="换批次" id="generateSendCodeBtn" class="btn_c"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><input type="button" value="补打印" id="replenishPrint" class="btn_c"></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="clear: both;height: 0;line-height: 0;font-size: 0;"></div>
+                </div>
+                <div id="part-3" style="margin-top: 30px;">
+                    <span>异常数据：</span><a href="#" id="exceptionNum">0</a>
+                </div>
+            </div>
+        </div>
+        <div class="opening">
+            <div class="tbl-list">
+                <div class="tbl-bg">
+                    <table id="pagerTable" class="tb-x1" cellspacing="0" cellpadding="0" style="width: 100%;min-width:1100px;">
+                        <thead>
+                        <tr>
+                            <th class="checkboxArea"><input type="checkbox" id="all" name="all" value="all" class="checkbox"><label for="all">全选</label></th>
+                            <th>批次目的地</th>
+                            <th>批次号</th>
+                            <th>包裹数量</th>
+                            <th>总体积（cm³）</th>
+                            <th>批次创建时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="pager" class="tbl-n">
+
+            </div>
+        </div>
+    </div>
+    <div id="food" width="300px" align="center" style="margin-right: auto;margin-left: auto;">
+        <a href="javascript:void(0)" id="warning"">提示：一个批次最多用24个小时!</a>
+    </div>
+    <div class="popup_block" id="printSettingPopUp">
+        <div style="border:1px solid black;width:300px;height: 180px;padding30px;margin-left: auto;margin-top: auto;margin-right: auto;margin-bottom: auto;">
+            <table>
+                <tr class="trHeight">
+                    <td colspan="3" class="divTitle">打印机设置：</td>
+                </tr>
+                <tr style="height: 5px;">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td>标签打印机：</td>
+                    <td><select name="" id="labelPrinter" class="textField">
+                        <option value="">(读取打印机失败)</option>
+                    </select></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td>清单打印机：</td>
+                    <td><select name="" id="listPrinter" class="textField">
+                        <option value="">(读取打印机失败)</option>
+                    </select></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td></td>
+                    <td><input type="button" id="printSettingSaveBtn" value="保存" class="btn_c"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

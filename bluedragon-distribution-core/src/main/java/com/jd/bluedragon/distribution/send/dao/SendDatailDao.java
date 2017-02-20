@@ -1,16 +1,12 @@
 package com.jd.bluedragon.distribution.send.dao;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+
+import java.util.*;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
 
@@ -255,6 +251,20 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryWaybillsBySendCode", query);
+    }
+
+    //wzx 2016-12-29 15:12:19
+    public List<SendDetail> queryBoxCodeBySendCode(String sendCode) {
+        SendDetail query = new SendDetail();
+        query.setSendCode(sendCode);
+
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+        query.setCreateSiteCode(createSiteCode);
+        if (null == createSiteCode) //为null说明不是合法的批次号,直接返回空List
+            return new ArrayList<SendDetail>();
+
+        return this.getSqlSession().selectList(
+                SendDatailDao.namespace + ".queryBoxCodeBySendCode", query);
     }
 
     public List<SendDetail> queryWaybillsByDepartID(Long departureID) {

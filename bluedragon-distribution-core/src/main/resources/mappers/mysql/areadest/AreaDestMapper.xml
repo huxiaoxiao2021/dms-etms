@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.areadest.dao.AreaDestDao">
+
+    <resultMap id="areaDest" type="com.jd.bluedragon.distribution.areadest.domain.AreaDest">
+        <result column="ID" property="id"/>
+        <result column="CREATE_SITE_CODE" property="createSiteCode"/>
+        <result column="CREATE_SITE_NAME" property="createSiteName"/>
+        <result column="TRANSFER_SITE_CODE" property="transferSiteCode"/>
+        <result column="TRANSFER_SITE_NAME" property="transferSiteName"/>
+        <result column="RECEIVE_SITE_CODE" property="receiveSiteCode"/>
+        <result column="RECEIVE_SITE_NAME" property="receiveSiteName"/>
+        <result column="CREATE_USER" property="createUser"/>
+        <result column="CREATE_USER_CODE" property="createUserCode"/>
+        <result column="UPDATE_USER" property="updateUser"/>
+        <result column="UPDATE_USER_CODE" property="updateUserCode"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+    </resultMap>
+
+    <insert id="add" parameterType="areaDest">
+		INSERT INTO AREA_DEST_CONFIG(
+		    CREATE_SITE_CODE,
+		    CREATE_SITE_NAME,
+		    TRANSFER_SITE_CODE,
+		    TRANSFER_SITE_NAME,
+		    RECEIVE_SITE_CODE,
+		    RECEIVE_SITE_NAME,
+		    CREATE_USER,
+		    CREATE_USER_CODE,
+		    CREATE_TIME,
+		    UPDATE_TIME,
+		    YN
+		    )
+		VALUES(
+		    #{createSiteCode, jdbcType=BIGINT},
+			#{createSiteName, jdbcType=VARCHAR},
+			#{transferSiteCode, jdbcType=BIGINT},
+			#{transferSiteName, jdbcType=VARCHAR},
+			#{receiveSiteCode, jdbcType=BIGINT},
+			#{receiveSiteName, jdbcType=VARCHAR},
+			#{createUser, jdbcType=VARCHAR},
+			#{createUserCode, jdbcType=BIGINT},
+			NOW(),
+			NOW(),
+			1
+		)
+	</insert>
+
+    <insert id="addBatch" parameterType="java.util.List">
+        INSERT INTO AREA_DEST_CONFIG(
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        TRANSFER_SITE_CODE,
+        TRANSFER_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        CREATE_TIME,
+        UPDATE_TIME,
+        YN
+        )
+        VALUES
+        <foreach collection="list" item="areaDest" index="index" separator=",">
+            (
+            #{areaDest.createSiteCode, jdbcType=BIGINT},
+            #{areaDest.createSiteName, jdbcType=VARCHAR},
+            #{areaDest.transferSiteCode, jdbcType=BIGINT},
+            #{areaDest.transferSiteName, jdbcType=VARCHAR},
+            #{areaDest.receiveSiteCode, jdbcType=BIGINT},
+            #{areaDest.receiveSiteName, jdbcType=VARCHAR},
+            #{areaDest.createUser, jdbcType=VARCHAR},
+            #{areaDest.createUserCode, jdbcType=BIGINT},
+            NOW(),
+            NOW(),
+            1
+            )
+        </foreach>
+    </insert>
+
+    <select id="getList" resultMap="areaDest" parameterType="java.util.Map">
+        SELECT
+        ID,
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        TRANSFER_SITE_CODE,
+        TRANSFER_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        UPDATE_USER,
+        UPDATE_USER_CODE,
+        CREATE_TIME,
+        UPDATE_TIME
+        FROM AREA_DEST_CONFIG
+        WHERE YN = 1
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <update id="update" parameterType="areaDest">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="createSiteCode != null">
+            CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT},
+        </if>
+        <if test="createSiteName != null">
+            CREATE_SITE_NAME = #{createSiteName, jdbcType=VARCHAR},
+        </if>
+        <if test="transferSiteCode != null">
+            TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT},
+        </if>
+        <if test="transferSiteName != null">
+            TRANSFER_SITE_NAME = #{transferSiteName, jdbcType=VARCHAR},
+        </if>
+        <if test="receiveSiteCode != null">
+            RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT},
+        </if>
+        <if test="receiveSiteName != null">
+            RECEIVE_SITE_NAME = #{receiveSiteName, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        UPDATE_TIME = NOW()
+        WHERE
+        ID = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="disableById" parameterType="java.util.Map">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 0,
+        UPDATE_TIME = NOW()
+        WHERE ID = #{id, jdbcType=BIGINT} AND YN = 1
+    </update>
+
+    <update id="disableByParams" parameterType="java.util.Map">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 0,
+        UPDATE_TIME = NOW()
+        WHERE
+        YN = 1 AND
+        CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE in
+            <foreach item="item" index="index" collection="receiveSiteCode"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="enableById" parameterType="java.util.Map">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 1,
+        UPDATE_TIME = NOW()
+        WHERE ID = #{id, jdbcType=BIGINT} AND YN = 0
+    </update>
+
+    <update id="enableByParams" parameterType="java.util.Map">
+        UPDATE AREA_DEST_CONFIG
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 1,
+        UPDATE_TIME = NOW()
+        WHERE
+        YN = 0 AND
+        CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+    </update>
+
+</mapper>	

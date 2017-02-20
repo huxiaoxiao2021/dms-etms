@@ -54,25 +54,27 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
             return false;
         }
         domain.setSendCode(config.getSendCode());
-        Calendar now = Calendar.getInstance();
-        now.setTime(config.getStartTime());
-        now.add(Calendar.HOUR,25);
-        Date endTime=now.getTime();
-        if( endTime.before(uploadData.getScannerTime())){/*如果一天后，则进行自动切换批次号*/
-            String sendCode=new StringBuilder()
-                    .append(SerialRuleUtil.getCreateSiteCodeFromSendCode(config.getSendCode()))
-                    .append("-")
-                    .append(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()))
-                    .append("-")
-                    .append( DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)).toString();
-            GantryDeviceConfig model = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(config.getMachineId());
-            model.setSendCode(sendCode);
-            model.setStartTime(new Date(uploadData.getScannerTime().getTime() - 1000));
-            model.setEndTime(new Date(model.getStartTime().getTime()+1000*60*60*24));
-            gantryDeviceConfigService.addUseJavaTime(model);
-            domain.setSendCode(sendCode);
+        // 龙门架老版本超过24小时换批次逻辑
+        if (config.getVersion() == null || config.getVersion().intValue() == 0) {
+            Calendar now = Calendar.getInstance();
+            now.setTime(config.getStartTime());
+            now.add(Calendar.HOUR, 25);
+            Date endTime = now.getTime();
+            if (endTime.before(uploadData.getScannerTime())) {/*如果一天后，则进行自动切换批次号*/
+                String sendCode = new StringBuilder()
+                        .append(SerialRuleUtil.getCreateSiteCodeFromSendCode(config.getSendCode()))
+                        .append("-")
+                        .append(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()))
+                        .append("-")
+                        .append(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)).toString();
+                GantryDeviceConfig model = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(config.getMachineId());
+                model.setSendCode(sendCode);
+                model.setStartTime(new Date(uploadData.getScannerTime().getTime() - 1000));
+                model.setEndTime(new Date(model.getStartTime().getTime() + 1000 * 60 * 60 * 24));
+                gantryDeviceConfigService.addUseJavaTime(model);
+                domain.setSendCode(sendCode);
+            }
         }
-
         domain.setCreateSiteCode(config.getCreateSiteCode());
         domain.setBoxCode(uploadData.getBarCode());
         domain.setCreateUser(config.getOperateUserName());

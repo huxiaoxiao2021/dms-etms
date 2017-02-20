@@ -731,6 +731,17 @@
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		</if>
     </select>
+	<!-- wzx 2016-12-29 15:10:43 -->
+	<select id="queryBoxCodeBySendCode" parameterType="SendDetail" resultMap="SendDetail">
+		SELECT waybill_code,package_barcode,box_code
+		FROM send_d
+		WHERE is_cancel=0
+		AND yn = 1
+		AND send_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="createSiteCode!=null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+	</select>
     
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
         SELECT sd.waybill_code,sd.package_barcode
