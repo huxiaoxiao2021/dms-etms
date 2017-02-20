@@ -35,4 +35,6 @@
     </bean>
     <bean id="systemlogCassandraDao" class="com.jd.bluedragon.distribution.systemLog.dao.SystemlogCassandra">
     </bean>
+    <bean id="goddessDao" class="com.jd.bluedragon.distribution.systemLog.dao.GoddessDao">
+    </bean>
 </beans>
