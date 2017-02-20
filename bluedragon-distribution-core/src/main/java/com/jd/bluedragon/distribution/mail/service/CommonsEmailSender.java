@@ -30,7 +30,7 @@ import com.jd.bluedragon.distribution.mail.dto.ImageMailDto;
 
 
 /**
- * 邮件发送图片
+ * 邮件发送
  * @author huangliang
  */
 

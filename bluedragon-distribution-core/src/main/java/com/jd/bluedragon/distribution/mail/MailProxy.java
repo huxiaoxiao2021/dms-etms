@@ -10,7 +10,7 @@ import com.jd.ump.annotation.JProfiler;
 /**
  * 邮件发送代理
  * 
- * @author ligang
+ * @author huangliang
  * 
  */
 public class MailProxy {

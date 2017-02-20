@@ -35,7 +35,7 @@ public class SendMailUtil {
 				index++;
 				batchUsers.add(user);
 				if (index > Constants.MAX_SEND_SIZE - 1) {
-					mailProxy.sendSimpleEmail(subject, content, users);
+					mailProxy.sendSimpleEmail(subject, content, batchUsers);
 					index = 0;// 计数归零
 					batchUsers.clear();
 				} else {
