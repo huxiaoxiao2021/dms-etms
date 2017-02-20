@@ -81,6 +81,11 @@ public class WeightServiceImpl implements WeightService {
                     opeSend.setDms_site_id(ope.getOpeSiteId());
                     opeSend.setThisUpdateTime(this.getDateLong(ope.getOpeTime()));
                     opeSend.setWeight(ope.getpWeight());
+                    opeSend.setLength(ope.getpLength());
+                    opeSend.setWeight(ope.getpWidth());
+                    opeSend.setHigh(ope.getpHigh());
+                    opeSend.setOpeUserId(ope.getOpeUserId());
+                    opeSend.setOpeUserName(ope.getOpeUserName());
                     if (ope.getpHigh() != null && ope.getpLength() != null && ope.getpWidth() != null) {
                         //计算体积
                         opeSend.setVolume(ope.getpHigh() * ope.getpLength() * ope.getpWidth());
@@ -92,7 +97,7 @@ public class WeightServiceImpl implements WeightService {
             }
         } catch (Exception e) {
             Profiler.businessAlarm("DmsWorker.send_weight_mq_error",(new Date()).getTime(),"向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：" + e.getMessage());
-            this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
+                this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
         }
     }
 
