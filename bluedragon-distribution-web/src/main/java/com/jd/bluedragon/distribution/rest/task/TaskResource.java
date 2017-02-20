@@ -298,7 +298,7 @@ public class TaskResource {
             task.setBusinessType(10);
             task.setKeyword1(domain.getBarCode());
             task.setFingerprint(Md5Helper.encode(task.getBody()));
-            task.setOperateTime(domain.getScannerTime());
+            task.setOperateTime(new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime())));
             task.setBoxCode(domain.getBarCode());
             task.setKeyword2(domain.getRegisterNo());
             task.setTableName(Task.getTableName(task.getType()));
