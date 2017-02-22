@@ -82,7 +82,7 @@ public class WeightServiceImpl implements WeightService {
                     opeSend.setThisUpdateTime(this.getDateLong(ope.getOpeTime()));
                     opeSend.setWeight(ope.getpWeight());
                     opeSend.setLength(ope.getpLength());
-                    opeSend.setWeight(ope.getpWidth());
+                    opeSend.setWidth(ope.getpWidth());
                     opeSend.setHigh(ope.getpHigh());
                     opeSend.setOpeUserId(ope.getOpeUserId());
                     opeSend.setOpeUserName(ope.getOpeUserName());
