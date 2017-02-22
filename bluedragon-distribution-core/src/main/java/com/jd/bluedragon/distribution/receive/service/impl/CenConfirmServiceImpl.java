@@ -234,10 +234,16 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	 * 操作类型(1.跨分拣中心收货2.库房交接3.pop交接4. 三方验货5.返调度再投6.取件7.站点退货8.三方退货 9.夺宝岛 10.OEM)
 	 */
 	public CenConfirm fillOperateType(CenConfirm cenConfirm) {
+		//FIXME:此方法是为了获取分拣中心ID，原代码逻辑需要根据包裹号和当前分拣中心ID查询发货信息中operate_time最新的一条发货记录的receive_site_code，目前对ID的指向不明确
 		SendDetail sendDatail = deliveryService.getSendSiteID(
 				cenConfirm.getPackageBarcode(), cenConfirm.getCreateSiteCode());
 		if (sendDatail == null) {
-			log.error("fillOperateType------->根据[PackageBarcode="
+//			log.error("fillOperateType------->根据[PackageBarcode="
+//					+ cenConfirm.getPackageBarcode() + "]" + "[CreateSiteCode="
+//					+ cenConfirm.getCreateSiteCode()
+//					+ "]调用deliveryService.getSendSiteID返回null");
+			//added by hanjiaxing 2017.02.22
+			log.warn("fillOperateType------->根据[PackageBarcode="
 					+ cenConfirm.getPackageBarcode() + "]" + "[CreateSiteCode="
 					+ cenConfirm.getCreateSiteCode()
 					+ "]调用deliveryService.getSendSiteID返回null");
@@ -247,7 +253,11 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(sendDatail
 				.getReceiveSiteCode());
 		if (bDto == null) {
-			log.error("fillOperateType------>根据[SiteCode="
+//			log.error("fillOperateType------>根据[SiteCode="
+//					+ sendDatail.getReceiveSiteCode()
+//					+ "]获取基础资料[站点类型]baseService.getSiteBySiteID返回null");
+			//added by hanjiaxing 2017.02.22
+			log.warn("fillOperateType------>根据[SiteCode="
 					+ sendDatail.getReceiveSiteCode()
 					+ "]获取基础资料[站点类型]baseService.getSiteBySiteID返回null");
 			cenConfirm.setOperateType(-3);// 失败(根据目的站点调用基础资料获取站点类型返回null)
@@ -256,7 +266,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			if (bDto.getSiteType() != null) {
 				return setOperateTypeByWaybill(cenConfirm, bDto.getSiteType());
 			} else {
-				log.error("fillOperateType------>baseService.getSiteBySiteID返回对象bDto.getSiteType()=null");
+//				log.error("fillOperateType------>baseService.getSiteBySiteID返回对象bDto.getSiteType()=null");
+				//added by hanjiaxing 2017.02.22
+				log.warn("fillOperateType------>baseService.getSiteBySiteID返回对象bDto.getSiteType()=null");
 				cenConfirm.setOperateType(-4);// 失败(根据目的站点调用基础资料获取站点类型返回对象bDto.getSiteType()=null)
 				return cenConfirm;
 			}

@@ -135,10 +135,10 @@
                                         </select>
                                     </td>
                                     <td width="18px" align="center" valign="middle">
-                                        <i id="right_all" class="glyphicon glyphicon-forward"></i><br/><br/><br/>
-                                        <i id="right_selected" class="glyphicon glyphicon-chevron-right"></i><br/><br/><br/>
-                                        <i id="left_selected" class="glyphicon glyphicon-chevron-left"></i><br/><br/><br/>
-                                        <i id="left_all" class="glyphicon glyphicon-backward"></i><br/><br/><br/>
+                                        <i id="right_all" class="glyphicon glyphicon-forward" style="cursor:pointer;"></i><br/><br/><br/>
+                                        <i id="right_selected" class="glyphicon glyphicon-chevron-right" style="cursor:pointer;"></i><br/><br/><br/>
+                                        <i id="left_selected" class="glyphicon glyphicon-chevron-left" style="cursor:pointer;"></i><br/><br/><br/>
+                                        <i id="left_all" class="glyphicon glyphicon-backward" style="cursor:pointer;"></i><br/><br/><br/>
                                     </td>
                                     <td width="500px">
                                         <select id="multiSelect_to" name="to[]" size=20 class="multiselect form-control"
