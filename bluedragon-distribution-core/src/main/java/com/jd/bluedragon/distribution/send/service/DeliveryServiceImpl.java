@@ -269,6 +269,22 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (null != sendMList && sendMList.size() > 0) {
             return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
+
+        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("验证发车时长{0}", System.currentTimeMillis() - startTime));
+            startTime = System.currentTimeMillis();
+        }
+        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
+            return new SendResult(2, "该发货批次已经发车，不能继续发货");
+        }
+
+        /*
+        SendResult checkResult=packageCrosssSendCheck(domain);
+        if(!checkResult.getKey().equals(1)&&!isForceSend){
+            return checkResult;
+        }*/
+
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
             sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
@@ -293,47 +309,34 @@ public class DeliveryServiceImpl implements DeliveryService {
                 logger.info(MessageFormat.format("调用分拣拦截时长{0}", System.currentTimeMillis() - startTime));
                 startTime = System.currentTimeMillis();
             }
-            Integer preSortingSiteCode = null;
-            try {
-                CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
-                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
-                Profiler.registerInfoEnd(infoSendfindByWaybillCode);
-                if (null != waybill) {
-                    preSortingSiteCode = waybill.getSiteCode();
+
+            if (!response.getCode().equals(200)) {//如果校验不OK
+                //获得运单的预分拣站点
+                Integer preSortingSiteCode = null;
+                try {
+                    CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
+                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
+                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
+                    if (null != waybill) {
+                        preSortingSiteCode = waybill.getSiteCode();
+                    }
+                } catch (Throwable e) {
+                    logger.error("一车一单获取预分拣站点异常", e);
+                    if (logger.isInfoEnabled()) {
+                        logger.info(MessageFormat.format("findByWaybillCode时长{0}", System.currentTimeMillis() - startTime));
+                        startTime = System.currentTimeMillis();
+                    }
                 }
-            } catch (Throwable e) {
-                logger.error("一车一单获取预分拣站点异常", e);
-                if (logger.isInfoEnabled()) {
-                    logger.info(MessageFormat.format("findByWaybillCode时长{0}", System.currentTimeMillis() - startTime));
-                    startTime = System.currentTimeMillis();
+
+                if (response.getCode() >= 39000) {
+                    if (!isForceSend)
+                        return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
+                } else {
+                    return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-            if (response.getCode().equals(200)) {
-
-            } else if (response.getCode() >= 39000) {
-                if (!isForceSend)
-                    return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-            } else {
-                return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
-            }
 
         }
-
-
-        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("验证发车时长{0}", System.currentTimeMillis() - startTime));
-            startTime = System.currentTimeMillis();
-        }
-        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-            return new SendResult(2, "该发货批次已经发车，不能继续发货");
-        }
-
-        /*
-        SendResult checkResult=packageCrosssSendCheck(domain);
-        if(!checkResult.getKey().equals(1)&&!isForceSend){
-            return checkResult;
-        }*/
 
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
@@ -353,7 +356,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
             this.updateCancel(tSendDatail);//更新SEND_D状态
-
+this.
             //更新箱号状态为已发货
 //            List<String> boxCodes = new ArrayList<String>();
 //            boxCodes.add(domain.getBoxCode());
