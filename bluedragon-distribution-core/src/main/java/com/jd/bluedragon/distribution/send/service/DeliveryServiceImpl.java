@@ -255,6 +255,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
+        CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -284,7 +285,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkResult.getKey().equals(1)&&!isForceSend){
             return checkResult;
         }*/
-
+        Profiler.registerInfoEnd(temp_info1);
+        CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
             sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
@@ -337,7 +339,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
 
         }
-
+        Profiler.registerInfoEnd(temp_info2);
+        CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         if (logger.isInfoEnabled()) {
@@ -377,6 +380,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.info(MessageFormat.format("回传运单状态任务时长{0}", System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
         }
+        Profiler.registerInfoEnd(temp_info3);
         return new SendResult(1, "发货成功");
     }
 
