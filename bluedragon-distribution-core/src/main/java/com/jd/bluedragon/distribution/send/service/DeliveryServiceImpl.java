@@ -356,7 +356,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
             this.updateCancel(tSendDatail);//更新SEND_D状态
-this.
+
             //更新箱号状态为已发货
 //            List<String> boxCodes = new ArrayList<String>();
 //            boxCodes.add(domain.getBoxCode());
