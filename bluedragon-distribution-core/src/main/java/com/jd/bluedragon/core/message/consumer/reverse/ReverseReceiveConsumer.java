@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.utils.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,19 +26,10 @@ import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -56,10 +48,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
 	@Autowired
 	private TaskService taskService;
-	
-	@Autowired
-    private SendMDao sendMDao;
-	
+
 	@Autowired
     private SendDatailDao sendDatailDao;
 	
@@ -202,17 +191,18 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					return;
 				}
 			}
-			SendM tSendM = sendMDao.selectBySendCode(sendCode);
-			if(tSendM!=null){
+
+			Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+			if(receiveSiteCode!=null){
 				WaybillStatus tWaybillStatus = new WaybillStatus();
 				tWaybillStatus.setOperator(reverseReceive.getOperatorName());
 				tWaybillStatus.setOperateTime(reverseReceive.getReceiveTime());
 				tWaybillStatus.setWaybillCode(reverseReceive.getOrderId());
 				tWaybillStatus.setPackageCode(reverseReceive.getOrderId());
-				tWaybillStatus.setCreateSiteCode(tSendM.getReceiveSiteCode());
+				tWaybillStatus.setCreateSiteCode(receiveSiteCode);
 				tWaybillStatus.setOperatorId(-1);
-				tWaybillStatus.setReceiveSiteCode(tSendM.getReceiveSiteCode());
-				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getReceiveSiteCode());
+				tWaybillStatus.setReceiveSiteCode(receiveSiteCode);
+				BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
 		        if(bDto!=null ){
 		        	tWaybillStatus.setCreateSiteName(bDto.getSiteName());
 		        	tWaybillStatus.setReceiveSiteName(bDto.getSiteName());

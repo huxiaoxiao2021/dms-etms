@@ -490,9 +490,9 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public Integer findFailTasksNumsByType(Integer type, String ownSign) {
+	public Integer findFailTasksNumsByType(Integer type, String ownSign,Integer keyword1) {
 		TaskDao routerDao = taskDao;
-		return routerDao.findFailTasksNumsByType(type, ownSign);
+		return routerDao.findFailTasksNumsByType(type, ownSign,keyword1);
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)

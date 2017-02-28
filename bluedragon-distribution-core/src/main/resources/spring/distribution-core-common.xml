@@ -29,7 +29,7 @@
         <property name="poolPreparedStatements" value="false" />
     </bean>
 
-    <bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    <!-- bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="${wss.dataSource.driverClassName}"/>
         <property name="url" value="${wss.dataSource.new.url}"/>
@@ -43,7 +43,7 @@
         <property name="minIdle" value="${wss.dataSource.minIdle}" />
         <property name="minEvictableIdleTimeMillis" value="${wss.dataSource.minEvictableIdleTimeMillis}" />
         <property name="timeBetweenEvictionRunsMillis" value="${wss.dataSource.timeBetweenEvictionRunsMillis}" />
-    </bean>
+    </bean-->
 
     <bean id="dms_main" parent="parentDataSource">
         <property name="url" value="${db.mysql.url}"/>

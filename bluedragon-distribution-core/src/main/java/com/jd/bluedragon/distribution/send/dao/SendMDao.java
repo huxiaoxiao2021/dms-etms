@@ -7,8 +7,6 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.jboss.marshalling.serial.Serial;
-import org.jboss.netty.handler.codec.http.Cookie;
 
 public  class SendMDao extends BaseDao<SendM>  {
 	

@@ -36,18 +36,18 @@ public class PopPickupResourceTestCase {
 		users.add("zhangsan@jd.com");
 		
 		for (int i = 0; i < 10; i++) {
-			SendMailUtil.send("title" + i, "content" + i, users);
+			SendMailUtil.sendSimpleEmail("title" + i, "content" + i, users);
 		}
 		
 		List<String> users2 = new ArrayList<String>();
 		users2.add("");
 		users2.add(null);
 		
-		SendMailUtil.send("titleNull", "", users2);
-		SendMailUtil.send(null, "contentNull", users2);
-		SendMailUtil.send(null, null, users2);
-		SendMailUtil.send("title", "content", users2);
-		SendMailUtil.send(null, null, null);
+		SendMailUtil.sendSimpleEmail("titleNull", "", users2);
+		SendMailUtil.sendSimpleEmail(null, "contentNull", users2);
+		SendMailUtil.sendSimpleEmail(null, null, users2);
+		SendMailUtil.sendSimpleEmail("title", "content", users2);
+		SendMailUtil.sendSimpleEmail(null, null, null);
 		
 		logger.info("测试发送邮件结束...");
 	}

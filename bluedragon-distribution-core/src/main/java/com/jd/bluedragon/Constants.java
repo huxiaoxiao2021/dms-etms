@@ -1,10 +1,9 @@
 package com.jd.bluedragon;
 
-import com.jd.bluedragon.utils.LogHelper;
-import oracle.sql.CHAR;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.SimpleLog;
+
+import com.jd.bluedragon.utils.LogHelper;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -308,4 +307,7 @@ public class Constants {
 
         LogHelper.errorUseCurrentStackTrace(logger,"test");
     }
+    
+    // 一次邮件发送最大收件人数
+    public static final int MAX_SEND_SIZE = 500;
 }

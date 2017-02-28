@@ -194,5 +194,30 @@
     <!-- 台账 宏亮 张子敬-->
 	<jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
 				alias="${orderBank.jsf.alias}" timeout="${orderBank.jsf.timeout}">
-</jsf:consumer>
+	</jsf:consumer>
+
+	<!-- 公司邮件服务  开始-->
+	<bean id="qlMailAuthenticator" class="org.apache.commons.mail.DefaultAuthenticator">
+		<constructor-arg value="${dms.cmail.username}"></constructor-arg>
+		<constructor-arg value="${dms.cmail.password}"></constructor-arg>
+	</bean>
+	
+	<bean id="commonsEmailSender" class="com.jd.bluedragon.distribution.mail.service.CommonsEmailSender">
+		<property name="hostName" value="${dms.cmail.hostName}" />
+		<property name="charset" value="${dms.cmail.charset}" />
+		<property name="port" value="${dms.cmail.port}" />
+		<property name="ssLOnConnect" value="${dms.cmail.ssLOnConnect}" />
+		<property name="authenticator">
+		   <ref bean="qlMailAuthenticator"/>
+		</property>
+	</bean>
+	
+	<bean id="mailProxy" class="com.jd.bluedragon.distribution.mail.MailProxy">
+		<property name="commonsEmailSender">
+		   <ref bean="commonsEmailSender"/>
+		</property>
+	    <property name="fromEmailAddress" value="${dms.cmail.fromEmailAddress}" />
+	    <property name="fromEmailName" value="青龙服务" />
+	</bean>
+	<!-- 公司邮件服务  结束-->
 </beans>

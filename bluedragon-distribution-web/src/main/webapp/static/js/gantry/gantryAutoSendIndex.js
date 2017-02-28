@@ -4,6 +4,7 @@
 var startGantry = 1; //启用
 var endGantry = 0; // 释放
 var gantryParams = {};//保存龙门架的参数信息
+var flashTime = 10000;//页面刷新时间
 
 $(document).ready(function(){
 
@@ -125,7 +126,7 @@ $(document).ready(function(){
     $("#flash").click(function () {
         if($(this).is(":checked")){
             // $(function() {
-            flashT = setInterval("flashByFiveM()",5000);
+            flashT = setInterval("flashByFiveM()",flashTime);
             // })
         }else{
             flashT = window.clearInterval(flashT);
@@ -196,7 +197,7 @@ function gantryDeviceItemShow(){
     if(siteNo == null || siteNo == ""|| isNaN(siteNo)){
         return;
     }
-    var url = $("#contextPath").val() + "/services/gantryDevice/findAllNewGantryDevice";
+    var url = $("#contextPath").val() + "/services/gantryDevice/findAllGantryDevice";
     CommonClient.postJson(url,param,function (data) {
         var gantryList = data.data;
         if (data == undefined || data == null) {
@@ -430,7 +431,11 @@ function queryExceptionNum(){
     if(gantryParams != undefined && gantryParams != null ){
         params.machineId = gantryParams.machineId;
         params.startTime = new Date(gantryParams.startTime);
-        params.endTime = new Date(gantryParams.endTime);
+        if(null != gantryParams.endTime){
+            params.endTime = new Date(gantryParams.endTime);
+        }else{
+            params.endTime = new Date();
+        }
     }
     CommonClient.post(url,params,function (data) {
         if(data.data == undefined || data.data == null){
@@ -464,6 +469,7 @@ function queryBatchSendSub(pageNo){
  * @param params
  */
 function queryBatchSendCodes(params){
+    $("#pagerTable tbody").html("");
     var url = $("#contextPath").val() + "/gantryAutoSend/pageList";
     var url2 = $("#contextPath").val() + "/gantryAutoSend/summaryBySendCode";
     CommonClient.post(url,params,function (data) {
@@ -473,8 +479,8 @@ function queryBatchSendCodes(params){
         if(data.code == 200 && data.data != null) {
             var page = data.data;
             var list = page.data;
-            var temp = "";
             for (var i = 0;i < list.length;i++) {
+                var temp = "";
                 var packageSum = 0.00;//总数量
                 var volumeSum = 0.00;//总体积
                 CommonClient.syncPost(url2,{"sendCode":list[i].sendCode},function (data) {
@@ -494,8 +500,8 @@ function queryBatchSendCodes(params){
                 temp += "<td name='volumeSum'>"+volumeSum+"</td>";
                 temp += "<td name='createTime'>" + timeStampToDate(list[i].createTime) + "</td>";
                 temp += "</tr>";
+                $("#pagerTable tbody").append(temp);
             }
-            $("#pagerTable tbody").html(temp);
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("queryBatchSendSub", page.totalSize, page.pageNo, page.totalNo));
 

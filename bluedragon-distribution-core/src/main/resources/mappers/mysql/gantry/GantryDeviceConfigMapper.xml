@@ -102,7 +102,9 @@
         FROM gantry_device_config
         WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND yn = 1
---         AND exists (select 1 from gantry_device_info where gantry_device_config.MACHINE_ID  =gantry_device_info.MACHINE_ID  and gantry_device_info.version=0)
+        <if test="version != null">
+        AND exists (select machine_id from gantry_device_info where gantry_device_config.MACHINE_ID=gantry_device_info.MACHINE_ID and gantry_device_info.version=#{version,jdbcType=TINYINT})
+        </if>
     </select>
     <select id="checkSendCode" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
         SELECT <include refid="fields"/>
