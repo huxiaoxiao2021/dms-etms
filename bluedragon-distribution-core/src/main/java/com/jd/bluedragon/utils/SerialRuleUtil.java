@@ -462,22 +462,24 @@ public class SerialRuleUtil {
      * @return
      */
     public static String generateSendCode(long createSiteCode, long receiveSiteCode, Date time) {
-        if (null == time) {
-            time = new Date();
+        if(null==time)
+        {
+            time=new Date();
         }
-        String timeString = DateHelper.formatDate(time, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSS);
-        long magic = (createSiteCode % 7 + receiveSiteCode % 7 + Long.valueOf(timeString) % 7);
-        StringBuilder sendCode = new StringBuilder();
+        String timeString = DateHelper.formatDate(time,DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSS);
+        timeString= timeString.substring(0,timeString.length()-1);
+        long magic=Long.valueOf(String.valueOf(createSiteCode).substring(0,1)+String.valueOf(receiveSiteCode).substring(0,1)+timeString)%7;
+        StringBuilder sendCode=new StringBuilder();
         sendCode.append(String.valueOf(createSiteCode));
         sendCode.append(SPLIT_CHAR_STRING);
         sendCode.append(String.valueOf(receiveSiteCode));
         sendCode.append(SPLIT_CHAR_STRING);
-        sendCode.append(timeString.substring(0,timeString.length()-1));
+        sendCode.append(timeString);
         sendCode.append(String.valueOf(magic));
         return sendCode.toString();
     }
 
-   /* public static void main(String[] args) {
+/*  public static void main(String[] args) {
         System.out.println(generateSendCode(74123, 1087, new Date()));
     }*/
 }
