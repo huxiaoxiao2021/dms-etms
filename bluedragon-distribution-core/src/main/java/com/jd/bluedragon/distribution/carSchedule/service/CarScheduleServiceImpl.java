@@ -8,16 +8,13 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wuzuxiang on 2017/3/6.
@@ -53,7 +50,9 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     @Override
     public Boolean cancelSchedule(CancelScheduleTo cancelScheduleTo) {
         Boolean bool = Boolean.FALSE;
-        bool = carScheduleDao.cancelSend(cancelScheduleTo);
+        if(null == cancelScheduleTo || null == cancelScheduleTo.getSendCarCode() || "".equals(cancelScheduleTo.getSendCarCode())) {
+            bool = carScheduleDao.cancelSend(cancelScheduleTo);
+        }
         return bool;
     }
 
@@ -67,14 +66,10 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     @Override
-    public Integer routeTypeByVehicleNoAndSiteCode(String vehicleNo, String siteCode) {
+    public Integer routeTypeByVehicleNoAndSiteCode(String vehicleNo, Integer siteCode) {
         Integer routeType = null;
-        Integer siteNo = null;
-        if(null != siteCode && !"".equals(siteCode) && NumberUtils.isNumber(siteCode)){
-            siteNo = NumberUtils.toInt(siteCode);
-        }
-        if(null != vehicleNo && !"".equals(vehicleNo)){
-            routeType = carScheduleDao.routeTypeByVehicleNoAndSiteCode(vehicleNo,siteNo);
+        if(null != vehicleNo && !"".equals(vehicleNo) && null != siteCode){
+            routeType = carScheduleDao.routeTypeByVehicleNoAndSiteCode(vehicleNo,siteCode);
         }
         return routeType;
     }
@@ -90,21 +85,16 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     @Override
-    public Integer packageNumByVehicleNoAndSiteCode(String vehicleNo, String siteCode) {
-        // FIXME: 2017/3/7 批次与分拣中心是多对多关系（暂时不考虑）
-        Integer routeType = null;
-        Integer siteNo = null;
-        if(null != siteCode && !"".equals(siteCode) && NumberUtils.isNumber(siteCode)){
-            siteNo = NumberUtils.toInt(siteCode);
-        }
+    public Integer packageNumByVehicleNoAndSiteCode(String vehicleNo, Integer siteCode) {
+        Integer packageNum = null;
         if(null != vehicleNo && !"".equals(vehicleNo)){
-            routeType = carScheduleDao.packageNumByVehicleNoAndSiteCode(vehicleNo,siteNo);
+            packageNum = carScheduleDao.packageNumByVehicleNoAndSiteCode(vehicleNo,siteCode);
         }
-        return routeType;
+        return packageNum;
     }
 
     @Override
-    public List<SendDetail> sendDetailByCar(String vehicleNo ,Integer siteCode) {
+    public List<SendDetail> sendDetailByCarAndSiteCode(String vehicleNo ,Integer siteCode) {
         List<SendDetail> sendD = new ArrayList<SendDetail>();
         if(null != vehicleNo && !"".equals(vehicleNo)){
             String sendCodeJson = carScheduleDao.querySendCodesByVehicleNo(vehicleNo);//以英文逗号隔开的字符串
@@ -128,16 +118,43 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     @Override
-    public CarScheduleTo packageInfoByVehicleNo(String vehicleNo , Integer siteCode) {
-        CarScheduleTo result = new CarScheduleTo();
+    public Integer localPackageNumByVehicleNo(String vehicleNo , Integer siteCode) {
+        Integer localPackageNum = 0;
+        Integer temporaryNum = 0;//临时变量
         if(null != vehicleNo && !"".equals(vehicleNo) && null != siteCode){
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
             if(null != carScheduleTo.getSendCodeList() && !"".equals(carScheduleTo.getSendCodeList())){
+                localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
                 String[] sendCodes = carScheduleTo.getSendCodeList().split(",");
-
+                Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号
+                Set<String> sendCodeInside = new HashSet<String>();//本分拣中心的批次号
+                if(sendCodes.length > 0){
+                    for(String sendCode : sendCodes){
+                        if(!sendCode.substring(sendCode.indexOf("-")+1,sendCode.lastIndexOf("-")).equals(String.valueOf(siteCode)) ){
+                            //排除非本分拣中心的批次
+                            sendCodeOutside.add(sendCode);
+                            continue;
+                        }
+                        sendCodeInside.add(sendCode);
+                    }
+                }
+                if(sendCodeOutside.size() > 0){
+                    if(sendCodeInside.size() > 0){
+                        for(Iterator it = sendCodeInside.iterator();it.hasNext();){
+                            String sendCode1 = String.valueOf(it.next());
+                            SendDetail queryDetail = new SendDetail();
+                            queryDetail.setCreateSiteCode(Integer.valueOf(sendCode1.substring(0,sendCode1.indexOf("-"))));
+                            queryDetail.setSendCode(sendCode1);
+                            temporaryNum += sendDatailDao.queryBySiteCodeAndSendCode(queryDetail).size();//当前分拣中心的包裹总量
+                        }
+                    }
+                }
             }
         }
-        return result;
+        if(temporaryNum < localPackageNum){
+            localPackageNum = temporaryNum;
+        }
+        return localPackageNum;
     }
 
     @Override
@@ -235,33 +252,37 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     public static void main(String[] args){
-        Gson gson = new Gson();
-        List<String> list = new ArrayList<String>();
-        System.out.println(gson.toJson(list));
+        Set<String> list = new HashSet<String>();
+//        Gson gson = new Gson();
+//        List<String> list = new ArrayList<String>();
+//        System.out.println(gson.toJson(list));
         list.add("910-25016-2016112411081001");
         list.add("910-25016-2016112411081002");
         list.add("910-25016-2016112411081003");
         list.add("910-25016-2016112411081004");
         list.add("910-25016-2016112411081005");
-        System.out.println(gson.toJson(list));
-        String[] array = {"910-25016-2016112411081001",
-                "910-25016-2016112411081002",
-                "910-25016-2016112411081003",
-                "910-25016-2016112411081004",
-                "910-25016-2016112411081005"};
-        System.out.println(gson.toJson(array));
-        String[] array2 = list.toArray(new String[5]);
-        System.out.println(gson.toJson(array2));
-        StringBuffer sendCodeList = new StringBuffer();
-        for(int i = 0 ; i < list.size();i++){
-            sendCodeList.append(list.get(i));
-            if(i != list.size()-1){
-                sendCodeList.append(",");
-            }
+//        System.out.println(gson.toJson(list));
+//        String[] array = {"910-25016-2016112411081001",
+//                "910-25016-2016112411081002",
+//                "910-25016-2016112411081003",
+//                "910-25016-2016112411081004",
+//                "910-25016-2016112411081005"};
+//        System.out.println(gson.toJson(array));
+//        String[] array2 = list.toArray(new String[5]);
+//        System.out.println(gson.toJson(array2));
+//        StringBuffer sendCodeList = new StringBuffer();
+//        for(int i = 0 ; i < list.size();i++){
+//            sendCodeList.append(list.get(i));
+//            if(i != list.size()-1){
+//                sendCodeList.append(",");
+//            }
+//        }
+//        System.out.println(sendCodeList.toString());
+//        String sendCode = list.get(1);
+//        System.out.println(sendCode.substring(0,sendCode.lastIndexOf("-")));
+        for(Iterator it = list.iterator();it.hasNext();){
+            System.out.println(it.next());
         }
-        System.out.println(sendCodeList.toString());
-        String sendCode = list.get(1);
-        System.out.println(sendCode.substring(0,sendCode.lastIndexOf("-")));
 
     }
 }
