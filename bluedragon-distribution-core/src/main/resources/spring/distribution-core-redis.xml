@@ -48,4 +48,8 @@
 		<property name="queuePrefix" value="WORKER_QUEUE_JSON"/>
 		<property name="queueNum" value="${task.queue.num}"/>
 	</bean>
+
+	<bean id="redisCommonUtil"  class="com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil">
+		<property name="redisClient" ref="redisClient"></property>
+	</bean>
 </beans>
