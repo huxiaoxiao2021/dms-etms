@@ -19,9 +19,10 @@ public class GantryPackageUtilTest {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String boxCode="2017-03-13 16:48:00";
         try {
+            String gantryNumer = "643";
             Date curDate = simpleDateFormat.parse(boxCode);
-            String key = GantryPackageUtil.getDateRegion(curDate);
-            Assert.assertEquals(key,"201703131610");
+            String key = GantryPackageUtil.getDateRegion(gantryNumer,curDate);
+            Assert.assertEquals(key,"643201703131610");
         } catch (ParseException e) {
             e.printStackTrace();
         }

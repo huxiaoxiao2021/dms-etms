@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.gantry.service.impl;
 
+import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.utils.GantryPackageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +29,9 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
 
     @Autowired
     private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private RedisCommonUtil redisCommonUtil;
 
     @Override
     public List<GantryDevice> getGantryByDmsCode(Integer dmsCode) {
@@ -84,5 +91,60 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
     public List<SendDetail> queryBoxCodeBySendCode(String sendCode) {
         List<SendDetail> list = sendDatailDao.queryBoxCodeBySendCode(sendCode);
         return list;
+    }
+
+    /**
+     * gantry velocity
+     * */
+
+    @Override
+    public Integer getGantryVelocity(Integer dmsCode, String gantryNumber, Date startTime, Date endTime) {
+        //
+        String startKey = GantryPackageUtil.getDateRegion(gantryNumber,startTime);
+        String endKey = GantryPackageUtil.getDateRegion(gantryNumber,endTime);
+
+        if(startKey.equals(endKey)){
+            return 0;
+        }else{
+            int startTimeHour = GantryPackageUtil.getDateHour(startTime);
+            int endTimeHour = GantryPackageUtil.getDateHour(endTime);
+
+            int startTimeRegion = GantryPackageUtil.getDateMinuteRegion(startTime);
+            //
+//            int curTimeRegion = GantryPackageUtil.getDateMinuteRegion(curDate);
+
+            String startTimePrefix = GantryPackageUtil.getDatePrefix(gantryNumber,startTime);
+
+            int packageCount = 0;
+            int regionCount = 0;
+
+
+            for(int i = startTimeHour;i <= endTimeHour;i++){
+                while(startTimeRegion <= 12){
+
+                    String key = startTimePrefix+GantryPackageUtil.fixIntLenth(i)+GantryPackageUtil.fixIntLenth(startTimeRegion);
+
+                    if(key.equals(endKey)){
+                        break;
+                    }
+
+                    int regionPackageNum = redisCommonUtil.getData(key);
+
+                    if(regionPackageNum != 0){
+                        packageCount += regionPackageNum;
+                        regionCount ++;
+                    }
+                    startTimeRegion ++;
+                }
+
+                startTimeRegion = 1;
+            }
+
+            if(regionCount == 0){
+                return 0;
+            }else{
+                return packageCount/regionCount;
+            }
+        }
     }
 }

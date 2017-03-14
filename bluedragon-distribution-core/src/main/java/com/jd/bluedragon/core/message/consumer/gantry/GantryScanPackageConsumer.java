@@ -38,10 +38,7 @@ public class GantryScanPackageConsumer extends MessageBaseConsumer{
 
         UploadData gantryScanPackage = JsonHelper.fromJsonUseGson(body,UploadData.class);
 
-        String redisKey = GantryPackageUtil.getDateRegion(gantryScanPackage.getScannerTime());
-
-        //拼接上龙门架编号
-        redisKey = gantryScanPackage.getRegisterNo()+redisKey;
+        String redisKey = GantryPackageUtil.getDateRegion(gantryScanPackage.getRegisterNo(),gantryScanPackage.getScannerTime());
 
         Integer curCount = redisCommonUtil.getData(redisKey);
 
