@@ -94,8 +94,8 @@ public class GantryAutoSendController {
                 }
                 model.addAttribute("siteCode",String.valueOf(siteCode));
                 model.addAttribute("siteName",siteName);
-                model.addAttribute("userCode", userCode);
-                model.addAttribute("userName", userName);
+//                model.addAttribute("userCode", userCode);
+                model.addAttribute("userNameAndCode", userName + "||" + userCode);
             }
         }catch(Exception e){
             logger.info("没有维护分拣中心，初始化加载失败");

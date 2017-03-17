@@ -133,6 +133,17 @@ $(document).ready(function(){
         }
     })
 
+    /**
+     * 发货方案选择
+     */
+    $("#send").click(function(){
+        if($(this).is(":checked")){
+            $("#planDiv").show();
+        }else{
+            $("#planDiv").hide();
+        }
+    })
+
 
     /**
      * 全选/取消
@@ -348,6 +359,14 @@ function gantryStateInit(gantryConfig) {
     // else{
     //     jQuery.messager.alert("提示","龙门架配置信息错误！","info");
     // }
+}
+
+/**
+ * 龙门架方案初始化(获取该分拣中心该龙门架设备下的所有方案)
+ */
+function planInit(){
+    var url = $("#contextPath").val() + "";
+
 }
 
 /**
