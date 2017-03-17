@@ -18,7 +18,7 @@ import java.util.Map;
 @Service("areaDestPlanService")
 public class AreaDestPlanServiceImpl implements AreaDestPlanService {
 
-    private final Logger logger = Logger.getLogger(AreaDestServiceImpl.class);
+    private final Logger logger = Logger.getLogger(AreaDestPlanServiceImpl.class);
 
     @Autowired
     private AreaDestPlanDao areaDestPlanDao;
