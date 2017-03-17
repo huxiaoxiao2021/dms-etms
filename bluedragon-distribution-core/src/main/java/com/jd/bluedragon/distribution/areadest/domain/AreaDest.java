@@ -18,9 +18,20 @@ public class AreaDest implements Serializable {
     private int id;
 
     /**
+     * 方案ID
+     */
+    private Integer planId;
+
+    /**
+     * 线路类型，1-分拣到站，2-直发分拣，3-多级分拣
+     * {@link com.jd.bluedragon.utils.RouteType}
+     */
+    private Integer routeType;
+
+    /**
      * 始发分拣中心ID
      */
-    private int createSiteCode;
+    private Integer createSiteCode;
 
     /**
      * 始发分拣中心名称
@@ -30,7 +41,7 @@ public class AreaDest implements Serializable {
     /**
      * 中转分拣中心ID
      */
-    private int transferSiteCode;
+    private Integer transferSiteCode;
 
     /**
      * 中转分拣中心名称
@@ -40,7 +51,7 @@ public class AreaDest implements Serializable {
     /**
      * 批次目的地ID
      */
-    private int receiveSiteCode;
+    private Integer receiveSiteCode;
 
     /**
      * 批次目的地名称
@@ -55,7 +66,7 @@ public class AreaDest implements Serializable {
     /**
      * 创建用户编号
      */
-    private int createUserCode;
+    private Integer createUserCode;
 
     /**
      * 修改用户
@@ -65,7 +76,7 @@ public class AreaDest implements Serializable {
     /**
      * 修改用户编号
      */
-    private int updateUserCode;
+    private Integer updateUserCode;
 
     /**
      * 添加时间
@@ -77,7 +88,6 @@ public class AreaDest implements Serializable {
      */
     private Date updateTime;
 
-
     public int getId() {
         return id;
     }
@@ -86,11 +96,27 @@ public class AreaDest implements Serializable {
         this.id = id;
     }
 
-    public int getCreateSiteCode() {
+    public Integer getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(Integer planId) {
+        this.planId = planId;
+    }
+
+    public Integer getRouteType() {
+        return routeType;
+    }
+
+    public void setRouteType(Integer routeType) {
+        this.routeType = routeType;
+    }
+
+    public Integer getCreateSiteCode() {
         return createSiteCode;
     }
 
-    public void setCreateSiteCode(int createSiteCode) {
+    public void setCreateSiteCode(Integer createSiteCode) {
         this.createSiteCode = createSiteCode;
     }
 
@@ -102,11 +128,11 @@ public class AreaDest implements Serializable {
         this.createSiteName = createSiteName;
     }
 
-    public int getTransferSiteCode() {
+    public Integer getTransferSiteCode() {
         return transferSiteCode;
     }
 
-    public void setTransferSiteCode(int transferSiteCode) {
+    public void setTransferSiteCode(Integer transferSiteCode) {
         this.transferSiteCode = transferSiteCode;
     }
 
@@ -118,11 +144,11 @@ public class AreaDest implements Serializable {
         this.transferSiteName = transferSiteName;
     }
 
-    public int getReceiveSiteCode() {
+    public Integer getReceiveSiteCode() {
         return receiveSiteCode;
     }
 
-    public void setReceiveSiteCode(int receiveSiteCode) {
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
     }
 
@@ -142,11 +168,11 @@ public class AreaDest implements Serializable {
         this.createUser = createUser;
     }
 
-    public int getCreateUserCode() {
+    public Integer getCreateUserCode() {
         return createUserCode;
     }
 
-    public void setCreateUserCode(int createUserCode) {
+    public void setCreateUserCode(Integer createUserCode) {
         this.createUserCode = createUserCode;
     }
 
@@ -158,11 +184,11 @@ public class AreaDest implements Serializable {
         this.updateUser = updateUser;
     }
 
-    public int getUpdateUserCode() {
+    public Integer getUpdateUserCode() {
         return updateUserCode;
     }
 
-    public void setUpdateUserCode(int updateUserCode) {
+    public void setUpdateUserCode(Integer updateUserCode) {
         this.updateUserCode = updateUserCode;
     }
 
@@ -186,6 +212,8 @@ public class AreaDest implements Serializable {
     public String toString() {
         return "AreaDest{" +
                 "id=" + id +
+                ", planId=" + planId +
+                ", routeType=" + routeType +
                 ", createSiteCode=" + createSiteCode +
                 ", createSiteName='" + createSiteName + '\'' +
                 ", transferSiteCode=" + transferSiteCode +
@@ -200,5 +228,4 @@ public class AreaDest implements Serializable {
                 ", updateTime=" + updateTime +
                 '}';
     }
-
 }
