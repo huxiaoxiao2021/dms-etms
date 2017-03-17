@@ -2,8 +2,10 @@ package com.jd.bluedragon.distribution.carSchedule.service;
 
 import com.google.gson.Gson;
 import com.jd.bluedragon.distribution.carSchedule.dao.CarScheduleDao;
+import com.jd.bluedragon.distribution.carSchedule.dao.SendCodeToCarNoDao;
 import com.jd.bluedragon.distribution.carSchedule.domain.CancelScheduleTo;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo;
+import com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -12,6 +14,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -28,6 +32,9 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     private CarScheduleDao carScheduleDao;
 
     @Resource
+    private SendCodeToCarNoDao sendCodeToCarNoDao;
+
+    @Resource
     private SendDatailDao sendDatailDao;
 
     @Autowired
@@ -36,6 +43,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     Gson gson = new Gson();
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void persistData(CarScheduleTo carScheduleTo) {
         this.logger.info("CarScheduleService-->persistData方法begin...");
         if(null == carScheduleTo || null == carScheduleTo.getCarSendCode() || "".equals(carScheduleTo.getCarSendCode())){
@@ -44,14 +52,29 @@ public class CarScheduleServiceImpl implements CarScheduleService {
         }
         completeDomain(carScheduleTo);
         carScheduleDao.add(carScheduleTo);
+        String[] sendCodes = carScheduleTo.getSendCodeList().split(",");
+        if(null != sendCodes && sendCodes.length > 0){
+            for(String sendCode : sendCodes){
+                SendCodeToCarCode sendCodeToCarNo = new SendCodeToCarCode();
+                sendCodeToCarNo.setSendCarCode(carScheduleTo.getCarSendCode());//发车条码
+                sendCodeToCarNo.setSendCode(sendCode);//批次号
+                sendCodeToCarNo.setYn(1);
+                sendCodeToCarNoDao.add(sendCodeToCarNo);
+            }
+        }
         return;
     }
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean cancelSchedule(CancelScheduleTo cancelScheduleTo) {
         Boolean bool = Boolean.FALSE;
         if(null == cancelScheduleTo || null == cancelScheduleTo.getSendCarCode() || "".equals(cancelScheduleTo.getSendCarCode())) {
             bool = carScheduleDao.cancelSend(cancelScheduleTo);
+            SendCodeToCarCode sendCodeToCarNo = new SendCodeToCarCode();
+            sendCodeToCarNo.setSendCarCode(cancelScheduleTo.getSendCarCode());//发车条码
+            sendCodeToCarNo.setYn(0);
+            sendCodeToCarNoDao.cancelSendCar(sendCodeToCarNo);
         }
         return bool;
     }
@@ -76,7 +99,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
 
     @Override
     public Integer packageNumByVehicleNo(String vehicleNo) {
-        // FIXME: 2017/3/7 批次与分拣中心是多对多关系（不考虑现场的运营实际情况）
+        // 批次与分拣中心是多对多关系（不考虑现场的运营实际情况）
         Integer routeType = null;
         if(null != vehicleNo || !"".equals(vehicleNo)){
             routeType = carScheduleDao.packageNumByVehicleNo(vehicleNo);
@@ -97,9 +120,9 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     public List<SendDetail> sendDetailByCarAndSiteCode(String vehicleNo ,Integer siteCode) {
         List<SendDetail> sendD = new ArrayList<SendDetail>();
         if(null != vehicleNo && !"".equals(vehicleNo)){
-            String sendCodeJson = carScheduleDao.querySendCodesByVehicleNo(vehicleNo);//以英文逗号隔开的字符串
-            String[] sendCodes = sendCodeJson.split(",");
-            if(sendCodes.length > 0){
+            String sendCarCode = carScheduleDao.sendCarCodeByVehicleNumberAndSiteCode(vehicleNo,siteCode);
+            List<String> sendCodes= sendCodeToCarNoDao.sendCodeBySendCarCode(sendCarCode);
+            if(null != sendCodes && sendCodes.size() > 0){
                 for (String sendCode : sendCodes){
                     if(!sendCode.substring(sendCode.indexOf("-")+1,sendCode.lastIndexOf("-")).equals(String.valueOf(siteCode)) ){
                         //排除非本分拣中心的批次
@@ -125,10 +148,10 @@ public class CarScheduleServiceImpl implements CarScheduleService {
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
             if(null != carScheduleTo.getSendCodeList() && !"".equals(carScheduleTo.getSendCodeList())){
                 localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
-                String[] sendCodes = carScheduleTo.getSendCodeList().split(",");
+                List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getCarSendCode());
                 Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号
                 Set<String> sendCodeInside = new HashSet<String>();//本分拣中心的批次号
-                if(sendCodes.length > 0){
+                if(null != sendCodes && sendCodes.size() > 0){
                     for(String sendCode : sendCodes){
                         if(!sendCode.substring(sendCode.indexOf("-")+1,sendCode.lastIndexOf("-")).equals(String.valueOf(siteCode)) ){
                             //排除非本分拣中心的批次

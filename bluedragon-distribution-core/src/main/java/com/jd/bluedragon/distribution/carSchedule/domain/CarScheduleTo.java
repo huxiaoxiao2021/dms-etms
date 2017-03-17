@@ -132,7 +132,7 @@ public class CarScheduleTo {
      * 车内批次号集合g
      */
     @Expose
-    @SerializedName("sendCode")
+    @SerializedName("batchCodeList")
     private String sendCodeList;
 
     /**

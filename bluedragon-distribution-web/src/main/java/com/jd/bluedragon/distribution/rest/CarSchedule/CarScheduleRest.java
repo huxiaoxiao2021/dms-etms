@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +33,9 @@ public class CarScheduleRest {
 
     @Autowired
     CarScheduleService carScheduleService;
+
+    @Autowired
+    GoddessService goddessService;
 
     /**
      * 暴露一个接口，提供车辆的线路类型routeType,车载总量packageNum,当前分拣中心的货物量localPackageNum,当前分拣中心载货明细localPackageDetail,
@@ -64,12 +69,61 @@ public class CarScheduleRest {
             }
             result.setCode(200);
             result.setMessage("请求成功");
+            result.setVehicleNumber(vehicleNumber);
             result.setRouteType(routeType);
             result.setTotalPackageNum(totalPackageNum);
             result.setLocalPackageNum(localPackageNum);
-            result.setSendDetails(sendDetails);
+//            result.setSendDetails(sendDetails);
         }
         return result;
+    }
+
+    /**
+     * 提供车辆的线路类型routeType
+     * @param vehicleNumber
+     * @param siteCode
+     * @return
+     */
+//    @POST
+//    @Path("/carSchedule/queryCarRouteType")
+//    public Integer queryCarRouteType(String vehicleNumber, String siteCode){
+//        Integer routeType = 0;
+//        if(null != vehicleNumber ){
+//            try{
+//                if(null != siteCode && !"".equals(siteCode) && NumberUtils.isNumber(siteCode)){
+//                    Integer siteNo = NumberUtils.toInt(siteCode);
+//                    routeType = carScheduleService.routeTypeByVehicleNoAndSiteCode(vehicleNumber,siteNo);
+//                }
+//            }catch (Exception e){
+//                this.logger.error("请求接口异常..",e);
+//            }
+//        }
+//        return routeType;
+//    }
+
+    /**
+     * 车辆进出管理，登记记录(cassandra)
+     * @Params vehicleNumber 车辆号；siteCode 站点编号 ; key 进出关键字
+     * key : 1表示进 0表示出
+     */
+    @POST
+    @Path("/carSchedule/InAndOut")
+    public Boolean InAndOut(String vehicleNumber,String siteCode,Integer key){
+        if(null == vehicleNumber || null == siteCode || null == key){
+            this.logger.error("车辆进出管理确少车牌号、站点、关键字基本信息。");
+            return Boolean.FALSE;
+        }
+        Goddess domain = new Goddess();
+        domain.setKey(vehicleNumber);
+        String body = "";
+        if(key.equals(0)){
+            body = "车牌号为：" + vehicleNumber + "的车辆已经到港，站点ID：" + siteCode ;
+        }else if(key.equals(1)){
+            body = "车牌号为：" + vehicleNumber + "的车辆已经出港，站点ID：" + siteCode;
+        }
+        domain.setBody(body);
+        goddessService.save(domain);
+        return Boolean.TRUE;
     }
 
 }

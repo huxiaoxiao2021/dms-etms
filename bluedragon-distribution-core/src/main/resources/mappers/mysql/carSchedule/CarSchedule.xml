@@ -4,7 +4,7 @@
 
     <resultMap id="carSchedule" type="com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo">
         <!--<result column="id" property="id"/>-->
-        <result column="car_send_code" property="carSendCode"/>
+        <result column="send_car_code" property="sendCarCode"/>
         <result column="vehicle_number" property="vehicleNumber"/>
         <result column="create_site_code" property="createSiteCode"/>
         <result column="create_site_name" property="createSiteName"/>
@@ -27,16 +27,16 @@
     </resultMap>
 
     <insert id="add" parameterType="carSchedule">
-      INSERT INTO car_schedule_info ( car_send_code,vehicle_number,create_site_code,create_site_name,receive_site_code,receive_site_name,
+      INSERT INTO car_schedule_info ( send_car_code,vehicle_number,create_site_code,create_site_name,receive_site_code,receive_site_name,
       operate_time,standar_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
       carrier_type,send_code_list,package_num,waybill_num,is_cancel,yn,create_time,ts )
-      VALUES(#{carSendCode},#{vehicleNumber},#{createSiteCode},#{createSiteName},#{receiveSiteCode},#{receiveSiteName},
+      VALUES(#{sendCarCode},#{vehicleNumber},#{createSiteCode},#{createSiteName},#{receiveSiteCode},#{receiveSiteName},
        #{operateTime},#{standarSendTime},#{standarArrivaTime},#{carSendTime},#{carArriveTime},#{routeType},#{routeTypeMark},#{transportWay},
        #{transportWayMark},#{crrierType},#{sendCodeLit},#{packageNum},#{waybillNum},0,1,NOW(),NOW())
     </insert>
 
     <select id="getByVehicleNoAndSiteCode" parameterType="java.util.Map">
-        SELECT car_send_code,vehicle_number,create_site_code,create_site_name,receive_site_code,receive_site_name,
+        SELECT send_car_code,vehicle_number,create_site_code,create_site_name,receive_site_code,receive_site_name,
       operate_time,standar_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
       carrier_type,send_code_list,package_num,waybill_num FROM car_schedule_info
         WHERE is_cancel = 0 AND yn = 1
@@ -53,7 +53,7 @@
     <update id="cancelSendCar" parameterType="CarSchedule">
         UPDATE car_schedule_info
         SET is_cancel = 1,update_time = #{operateTime}
-        WHERE car_send_code = #{carSendCode} AND vihecle_number = #{vihecleNumber}
+        WHERE send_car_code = #{sendCarCode} AND vihecle_number = #{vihecleNumber}
     </update>
 
     <select id="routeTypeByVehicleNo" parameterType="java.lang.String">
@@ -98,6 +98,18 @@
         SELECT send_code_list FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         AND vehicle_number = #{vehicle_number}
+        AND car_send_time = MAX (car_send_time)
+    </select>
+
+    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map">
+        SELECT send_car_code FROM car_schedule_info
+        WHERE yn = 1 AND is_cancel = 0
+        <if test="vehicleNumber != null">
+            AND vehicle_number = #{vehicleNumber}
+        </if>
+        <if test="siteCode != null">
+            AND arrive_site_code = #{siteCode}
+        </if>
         AND car_send_time = MAX (car_send_time)
     </select>
 
