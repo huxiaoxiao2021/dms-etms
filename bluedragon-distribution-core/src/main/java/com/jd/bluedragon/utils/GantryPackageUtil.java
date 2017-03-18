@@ -55,7 +55,7 @@ public class GantryPackageUtil {
     }
 
     /**
-     * hour
+     * 获取当前日期 分钟对应12个区域中的id 返回1-12
      * */
     public static Integer getDateMinuteRegion(Date date){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
@@ -75,7 +75,7 @@ public class GantryPackageUtil {
     }
 
     /**
-     * hour
+     * 获取前缀 龙门架序列号+日期
      * */
     public static String getDatePrefix(String gantryNumber,Date date){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -87,7 +87,7 @@ public class GantryPackageUtil {
     }
 
     /**
-     * hour
+     * 修正长度  一位前面补0
      * */
     public static String fixIntLenth(int num){
         if(num >=0 && num < 10){
