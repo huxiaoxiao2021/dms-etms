@@ -63,5 +63,8 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
         return null;
     }
 
-
+    @Override
+    public Boolean ModifyGantryPlan(Integer machineId, Long planId, Long userCode, Integer siteCode) {
+        return null;
+    }
 }

@@ -44,4 +44,18 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan>{
         return this.getSqlSession().update(AreaDestPlanDao.namespace + ".disableById", parameters);
     }
 
+    /**
+     * 根据主键启用发货方案
+     */
+    public int enableById(Map<String,Object> params){
+        return this.getSqlSession().update(AreaDestPlanDao.namespace + ".enableById",params);
+    }
+
+    /**
+     * 根据龙门架关闭除了选中方案以外的其他方案
+     */
+    public int disableByMachineId(Map<String ,Object> params) {
+        return this.getSqlSession().update(AreaDestPlanDao.namespace + ".disableByMachineId",params);
+    }
+
 }

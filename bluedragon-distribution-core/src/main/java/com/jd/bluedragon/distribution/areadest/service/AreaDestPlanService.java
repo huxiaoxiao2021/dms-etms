@@ -36,4 +36,14 @@ public interface AreaDestPlanService {
      */
     List<AreaDestPlan> getList(Integer operateSiteCode, Integer machineId);
 
+    /**
+     * 龙门架方案切换
+     * @param machineId
+     * @param planId
+     * @param userCode
+     * @param siteCode
+     * @return
+     */
+    Boolean ModifyGantryPlan(Integer machineId,Long planId,Long userCode,Integer siteCode);
+
 }

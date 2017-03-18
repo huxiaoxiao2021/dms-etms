@@ -88,4 +88,32 @@
         WHERE PLAN_ID = #{planId, jdbcType=BIGINT} AND YN = 1
     </update>
 
+    <!-- create by wzx -->
+    <update id="enableById" parameterType="java.util.map">
+        UPDATE AREA_DEST_PLAN
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
+        </if>
+        YN = 1,UPDATE_TIME = NOW()
+        WHERE PLAN_ID = #{planId, jdbcType=BIGINT} AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT}
+    </update>
+
+    <!-- create by wzx -->
+    <update id="disableByMachineId" parameterType="java.util.Map">
+        UPDATE AREA_DEST_PLAN
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
+        </if>
+        YN = 0,UPDATE_TIME = NOW()
+        WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND PLAN_ID != #{planId,jdbcType=BIGINT}
+    </update>
+
 </mapper>	
