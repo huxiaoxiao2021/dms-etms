@@ -137,7 +137,7 @@
                                 <td></td>
                                 <td class="checkboxArea"><label><input type="checkbox" name="printStyle" value="1" class="checkbox" checked="checked"><span>打批次号</span></label></td>
                                 <td></td>
-                                <td><input type="button" id="printAndEndSend" value="完结批次、打印批次、换批次" class="btn_c"></td>
+                                <td><input type="button" id="printAndEndSend" value="完结、打印、换批次" class="btn_c"></td>
                                 <td></td>
                             </tr>
                             <tr>

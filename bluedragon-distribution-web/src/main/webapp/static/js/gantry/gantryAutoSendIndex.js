@@ -27,6 +27,7 @@ $(document).ready(function(){
             return;
         }
         gantryLockStatusShow();
+        planInit();
         queryExceptionNum();
         queryBatchSendSub(1)
     });
@@ -364,8 +365,33 @@ function gantryStateInit(gantryConfig) {
 /**
  * 龙门架方案初始化(获取该分拣中心该龙门架设备下的所有方案)
  */
+function planShow(){
+    var params = {};
+    params.machineId = $("#gantryDevice").val();
+    params.siteCode = $("#siteOrg").val();
+}
+
+
 function planInit(){
     var url = $("#contextPath").val() + "";
+    var params = {};
+    params.machineId = $("#gantryDevice").val();
+    params.siteCode = $("#siteOrg").val();
+    CommonClient.post(url,params,function (data) {
+        if(null == data && undefined == data){
+            return;
+        }
+        if(data.code === 200){
+            var optionList = "";
+            var list = data.data;
+            if(list != null && list.length > 0){
+                for(var i = 0;i<list.length;i++){
+                    optionList += "<option value='data.id'>" + data.planName + "</option>";
+                }
+                $("#GantryPlan").html(optionList);
+            }
+        }
+    })
 
 }
 
