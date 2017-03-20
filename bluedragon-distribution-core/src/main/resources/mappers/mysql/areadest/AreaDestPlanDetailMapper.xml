@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao">
+
+    <resultMap id="areaDestPlanDetail" type="com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail">
+        <result column="ID" property="id"/>
+        <result column="PLAN_ID" property="planId"/>
+        <result column="MACHINE_ID" property="machineId"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="OPERATE_SITE_CODE" property="operateSiteCode"/>
+        <result column="OPERATE_USER_CODE" property="operateUserCode"/>
+    </resultMap>
+
+    <insert id="add" parameterType="areaDestPlan">
+		INSERT INTO AREA_DEST_PLAN_DETAIL(
+		    PLAN_ID,
+		    MACHINE_ID,
+		    START_TIME,
+		    OPERATE_SITE_CODE,
+		    OPERATE_USER_CODE
+		    )
+		VALUES(
+			#{planId, jdbcType=BIGINT},
+			#{machineId, jdbcType=BIGINT},
+			NOW(),
+			#{operateSiteCode, jdbcType=BIGINT},
+			#{operateUserCode, jdbcType=BIGINT}
+		)
+	</insert>
+
+    <select id="getByScannerTime" resultMap="areaDestPlanDetail" parameterType="java.util.Map">
+        SELECT
+        ID,
+        PLAN_ID,
+        MACHINE_ID,
+        MAX(START_TIME),
+        OPERATE_SITE_CODE,
+        OPERATE_USER_CODE
+        FROM AREA_DEST_PLAN_DETAIL
+        WHERE
+            MACHINE_ID = #{machineId, jdbcType=BIGINT}
+            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+            AND START_TIME <![CDATA[<=]]> str_to_date(date_format(#{scannerTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+    </select>
+
+</mapper>	
