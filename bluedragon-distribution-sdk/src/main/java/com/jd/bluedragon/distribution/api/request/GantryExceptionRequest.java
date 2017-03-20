@@ -25,10 +25,7 @@ public class GantryExceptionRequest implements Serializable {
     /**
      * 失败类型
      */
-    private int type;
-
-
-
+    private Integer type;
 
     /**
      * 发货状态
@@ -61,11 +58,11 @@ public class GantryExceptionRequest implements Serializable {
         this.machineId = machineId;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

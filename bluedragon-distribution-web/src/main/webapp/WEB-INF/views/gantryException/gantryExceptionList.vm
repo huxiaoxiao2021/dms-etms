@@ -33,6 +33,13 @@
             margin-left: 5px;;
         }
 
+        .gantry_exception_query_type_span {
+            display: block;
+            float: left;
+            width: 220px;
+            margin-left: 5px;;
+        }
+
         .gantry_exception_query_text {
             width: 150px;
         }
@@ -85,20 +92,30 @@
                 结束时间：
                 <input type="text" class="Wdate" id="gantry_exception_endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!queryParam.endTime)" onfocus="WdatePicker({skin:'whyGreen',maxDate:'#F{getMaxDate();}', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
             </span>
-
-            <span class="gantry_exception_query_span">
+            <span class="gantry_exception_query_type_span">
                 发货状态：
                 <select id="gantry_exception_sendStatus" class="gantry_exception_query_select">
-                    <option value="3">全部</option>
+                    <option value="2">全部</option>
                     <option value="0">未发货</option>
                     <option value="1">已发货</option>
+                </select>
+            </span>
+
+            <span class="gantry_exception_query_type_span">
+                异常类型：
+                <select id="gantry_exception_type" class="gantry_exception_query_select">
+                    <option value="0">全部</option>
+                    <option value="1">无预分拣站点</option>
+                    <option value="2">无运单信息</option>
+                    <option value="3">无箱号信息</option>
+                    <option value="4">拦截订单</option>
+                    <option value="5">龙门架未绑该站点</option>
                 </select>
             </span>
 
             <span class="gantry_exception_query_span">
                 <input id="gantry_exception_query_sub" value="查询" type="button" class="btn_c">
             </span>
-
         </div>
 
     </div>
@@ -109,11 +126,12 @@
                     <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
                         <thead>
                         <tr>
-
+                            <th style="width:50px;">龙门架编号</th>
                             <th style="width:50px;">条码号</th>
                             <th style="width:50px;">运单号</th>
-                            <th style="width:50px;">体积</th>
-                            <th style="width:50px;">异常原因</th>
+                            <th style="width:50px;">批次号</th>
+                            <th style="width:50px;">体积（m³）</th>
+                            <th style="width:50px;">异常类型</th>
                             <th style="width:50px;">操作时间</th>
                             <th style="width:50px;">发货状态</th>
                         </tr>
