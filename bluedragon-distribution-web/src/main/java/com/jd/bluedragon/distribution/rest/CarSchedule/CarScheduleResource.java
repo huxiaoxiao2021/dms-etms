@@ -28,7 +28,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes( { MediaType.APPLICATION_JSON })
 @Produces( { MediaType.APPLICATION_JSON })
-public class CarScheduleRest {
+public class CarScheduleResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
