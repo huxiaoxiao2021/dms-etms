@@ -52,6 +52,23 @@
         <if test="operateSiteCode != null">
             AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
         </if>
+        ORDER BY MACHINE_ID DESC
+        <if test="startIndex != null">
+            LIMIT #{startIndex}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="getCount" resultType="int" parameterType="java.util.Map">
+        SELECT
+        COUNT(*)
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+        <if test="machineId != null">
+            AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+        </if>
+        <if test="operateSiteCode != null">
+            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+        </if>
     </select>
 
     <update id="update" parameterType="areaDestPlan">

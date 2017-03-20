@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.areadest.service;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
+import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
+import com.jd.bluedragon.utils.ObjectMapHelper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,16 +55,50 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
 
     @Override
     public List<AreaDestPlan> getList(Integer operateSiteCode, Integer machineId) {
-        try{
-            Map<String, Object> parameters = new HashMap<String, Object>();
-            parameters.put("operateSiteCode", operateSiteCode);
-            parameters.put("machineId", machineId);
-            return areaDestPlanDao.getList(parameters);
-        }catch (Exception e){
+        List<AreaDestPlan> list = null;
+        try {
+            Map<String, Object> parameter = new HashMap<String, Object>();
+            if (operateSiteCode != null ){
+                parameter.put("operateSiteCode", operateSiteCode);
+            }
+            if(machineId != null){
+                parameter.put("machineId", machineId);
+            }
+            list = areaDestPlanDao.getList(parameter);
+        } catch (Exception e) {
             logger.error("龙门架发货关系方案列表获取失败", e);
         }
-        return null;
+        return list;
     }
 
+    @Override
+    public List<AreaDestPlan> getList(Integer operateSiteCode, Integer machineId, Pager pager) {
+        List<AreaDestPlan> list = null;
+        try {
+            Map<String, Object> parameter = new HashMap<String, Object>();
+            if (operateSiteCode != null ){
+                parameter.put("operateSiteCode", operateSiteCode);
+            }
+            if(machineId != null){
+                parameter.put("machineId", machineId);
+            }
+            int count = areaDestPlanDao.getCount(parameter);
+
+            if (pager == null) {
+                pager = new Pager();
+            }
+
+            if (count > 0) {
+                pager.setTotalSize(count);
+                pager.init();
+                parameter.put("startIndex", pager.getStartIndex());
+                parameter.put("pageSize", pager.getPageSize());
+                list = areaDestPlanDao.getList(parameter);
+            }
+        } catch (Exception e) {
+            logger.error("龙门架发货关系方案列表获取失败", e);
+        }
+        return list;
+    }
 
 }

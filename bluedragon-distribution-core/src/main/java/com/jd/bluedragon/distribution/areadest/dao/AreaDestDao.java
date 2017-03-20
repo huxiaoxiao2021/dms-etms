@@ -89,4 +89,14 @@ public class AreaDestDao extends BaseDao<AreaDest> {
         return this.getSqlSession().selectList(AreaDestDao.namespace + ".getList", params);
     }
 
+    /**
+     * 根据参数获取龙门架发货关系数量
+     *
+     * @param params
+     * @return
+     */
+    public int getCount(Map<String, Object> params) {
+        return this.getSqlSession().selectOne(AreaDestDao.namespace + ".getCount", params);
+    }
+
 }
