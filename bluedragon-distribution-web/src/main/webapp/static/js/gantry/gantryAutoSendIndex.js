@@ -27,7 +27,7 @@ $(document).ready(function(){
             return;
         }
         gantryLockStatusShow();
-        planInit();
+        planShow();
         queryExceptionNum();
         queryBatchSendSub(1)
     });
@@ -345,12 +345,14 @@ function gantryStateInit(gantryConfig) {
             inspectionObj.attr("disabled",false);
             sendObj.attr("disabled",false);
             measureObj.attr("disabled",false);
+            $("#GantryPlan").attr("readonly",false);
             $("#gantryBtn").html("<input  type='button' value='启用龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(startGantry))'>");//启用龙门架需要传入的参数
         }else if (lockStatus == 1){
             //状态锁定 需要点击解锁
             inspectionObj.attr("disabled",true);
             sendObj.attr("disabled",true);
             measureObj.attr("disabled",true);
+            $("#GantryPlan").attr("readonly",true);
             $("#gantryBtn").html("<input  type='button' value='释放龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(endGantry))'>");//释放龙门架只需要传入的机器编号参数？！
         }
         // else{
@@ -369,24 +371,28 @@ function planShow(){
     var params = {};
     params.machineId = $("#gantryDevice").val();
     params.siteCode = $("#siteOrg").val();
+    var url = $("#contextPath").val() + "";//获取当前的planId
+    CommonClient.post(url,params,function (data) {
+        if(undefined != data){
+            var planId = data.data;
+            planInit(params,planId);
+        }
+    })
 }
 
 
-function planInit(){
+function planInit(params,planId){
     var url = $("#contextPath").val() + "";
-    var params = {};
-    params.machineId = $("#gantryDevice").val();
-    params.siteCode = $("#siteOrg").val();
     CommonClient.post(url,params,function (data) {
         if(null == data && undefined == data){
             return;
         }
         if(data.code === 200){
-            var optionList = "";
+            var optionList = "<option value=''>" + "选择分拣方案" + "</option>";
             var list = data.data;
             if(list != null && list.length > 0){
                 for(var i = 0;i<list.length;i++){
-                    optionList += "<option value='data.id'>" + data.planName + "</option>";
+                    optionList += "<option value='data.id' " + (data.id == planId? "selected=selected":"") +">" + data.planName + "</option>";
                 }
                 $("#GantryPlan").html(optionList);
             }
@@ -463,6 +469,9 @@ function getGantryParams(lockStatus){
     var userMarker = $("#operator").val().split("||");//操作人姓名和erp用||分割
     params.operateUserName = userMarker[0];//获取操作人姓名
     params.operateUserErp = userMarker[1];//获取操作人的erp
+    if(businessType & 2 == 2){//是否包含发货功能
+        params.planId = $("#GantryPlan").val() ;//分拣方案ID
+    }
     params.lockStatus = lockStatus == 1? 1:0; //1启用 0释放
     return params;
 }

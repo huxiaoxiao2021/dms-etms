@@ -4,6 +4,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
@@ -73,6 +74,9 @@ public class GantryAutoSendController {
 
     @Autowired
     private SiteService siteService;
+
+    @Autowired
+    private AreaDestPlanService areaDestPlanService;
 
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
@@ -177,6 +181,9 @@ public class GantryAutoSendController {
                     gantryDeviceConfig.setLockUserErp(userCode);
                     gantryDeviceConfig.setLockUserName(userName);
                     int i = gantryDeviceConfigService.lockDevice(gantryDeviceConfig);//锁定龙门架操作
+                    if((request.getBusinessType()&2) == 2){
+                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),Long.valueOf(userId),request.getSiteCode());
+                    }
                     if( i > -1){
                         result.setCode(200);
                         result.setMessage("锁定龙门架状态成功");
