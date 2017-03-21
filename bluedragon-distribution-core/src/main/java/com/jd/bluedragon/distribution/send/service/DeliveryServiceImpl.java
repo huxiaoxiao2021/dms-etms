@@ -17,7 +17,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -48,6 +47,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -85,7 +85,6 @@ import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SendSMSUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
@@ -256,6 +255,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
+        CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -270,6 +270,23 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (null != sendMList && sendMList.size() > 0) {
             return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
+
+        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("验证发车时长{0}", System.currentTimeMillis() - startTime));
+            startTime = System.currentTimeMillis();
+        }
+        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
+            return new SendResult(2, "该发货批次已经发车，不能继续发货");
+        }
+
+        /*
+        SendResult checkResult=packageCrosssSendCheck(domain);
+        if(!checkResult.getKey().equals(1)&&!isForceSend){
+            return checkResult;
+        }*/
+        Profiler.registerInfoEnd(temp_info1);
+        CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
             sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
@@ -294,48 +311,36 @@ public class DeliveryServiceImpl implements DeliveryService {
                 logger.info(MessageFormat.format("调用分拣拦截时长{0}", System.currentTimeMillis() - startTime));
                 startTime = System.currentTimeMillis();
             }
-            Integer preSortingSiteCode = null;
-            try {
-                CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
-                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
-                Profiler.registerInfoEnd(infoSendfindByWaybillCode);
-                if (null != waybill) {
-                    preSortingSiteCode = waybill.getSiteCode();
+
+            if (!response.getCode().equals(200)) {//如果校验不OK
+                //获得运单的预分拣站点
+                Integer preSortingSiteCode = null;
+                try {
+                    CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
+                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
+                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
+                    if (null != waybill) {
+                        preSortingSiteCode = waybill.getSiteCode();
+                    }
+                } catch (Throwable e) {
+                    logger.error("一车一单获取预分拣站点异常", e);
+                    if (logger.isInfoEnabled()) {
+                        logger.info(MessageFormat.format("findByWaybillCode时长{0}", System.currentTimeMillis() - startTime));
+                        startTime = System.currentTimeMillis();
+                    }
                 }
-            } catch (Throwable e) {
-                logger.error("一车一单获取预分拣站点异常", e);
-                if (logger.isInfoEnabled()) {
-                    logger.info(MessageFormat.format("findByWaybillCode时长{0}", System.currentTimeMillis() - startTime));
-                    startTime = System.currentTimeMillis();
+
+                if (response.getCode() >= 39000) {
+                    if (!isForceSend)
+                        return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
+                } else {
+                    return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-            if (response.getCode().equals(200)) {
-
-            } else if (response.getCode() >= 39000) {
-                if (!isForceSend)
-                    return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-            } else {
-                return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
-            }
 
         }
-
-
-        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("验证发车时长{0}", System.currentTimeMillis() - startTime));
-            startTime = System.currentTimeMillis();
-        }
-        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-            return new SendResult(2, "该发货批次已经发车，不能继续发货");
-        }
-
-        /*
-        SendResult checkResult=packageCrosssSendCheck(domain);
-        if(!checkResult.getKey().equals(1)&&!isForceSend){
-            return checkResult;
-        }*/
-
+        Profiler.registerInfoEnd(temp_info2);
+        CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         if (logger.isInfoEnabled()) {
@@ -375,6 +380,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.info(MessageFormat.format("回传运单状态任务时长{0}", System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
         }
+        Profiler.registerInfoEnd(temp_info3);
         return new SendResult(1, "发货成功");
     }
 
@@ -2972,57 +2978,5 @@ public class DeliveryServiceImpl implements DeliveryService {
             new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-    }
-
-    /**
-     * 根据发货明细发送用户报警短信
-     *
-     * @param sendDetails
-     * @return
-     * @deprecated
-     */
-    public boolean sendSms(List<SendDetail> sendDetails) {
-        logger.debug("=========批量发送预警短信开始==========");
-        if (sendDetails != null && !sendDetails.isEmpty()) {
-
-            // 10.获得所有的运单号
-            Set<String> waybillset = new HashSet<String>();
-            Map<String, SendDetail> sendMap = new HashMap<String, SendDetail>();
-            for (SendDetail dSendDatail : sendDetails) {
-                waybillset.add(dSendDatail.getWaybillCode());
-                sendMap.put(dSendDatail.getWaybillCode(), dSendDatail);
-            }
-            // 20.获得所有的运单信息
-            List<String> waybillList = new CollectionHelper<String>().toList(waybillset);
-            WChoice queryWChoice = new WChoice();
-            queryWChoice.setQueryWaybillC(true);
-            List<BigWaybillDto> tWaybillList = getWaillCodeListMessge(queryWChoice, waybillList);
-
-            // 30.遍历所有的运单发送短信
-            if (tWaybillList != null && !tWaybillList.isEmpty()) {
-                for (BigWaybillDto tWaybill : tWaybillList) {
-                    if (tWaybill != null && tWaybill.getWaybill() != null
-                            && tWaybill.getWaybill().getWaybillCode() != null
-                            && tWaybill.getWaybill().getWaybillType() != null) {
-
-                        //逐一发送短信
-                        String customerMobile = tWaybill.getWaybill().getReceiverMobile();
-                        String redisKey = "SendSMSUtil.sendNotice@" + tWaybill.getWaybill().getWaybillCode();
-                        if (redisManager.getCache(redisKey) == null) {
-                            Boolean result = false;
-                            if (StringHelper.isNotEmpty(customerMobile)) {
-                                result = SendSMSUtil.sendNotice(tWaybill.getWaybill().getWaybillCode(), SMS_MESSAGE, customerMobile);
-                            }
-                            SendDetail sendDetail = sendMap.get(tWaybill.getWaybill().getWaybillCode());
-                            SystemLogUtil.log(tWaybill.getWaybill().getWaybillCode(), sendDetail.getSendCode(), null, null, result.toString(), Long.valueOf(120011));
-                            if (result)
-                                redisManager.setex(redisKey, 8 * 3600, result.toString());
-                        }
-                    }
-                }
-            }
-        }
-        logger.debug("=========批量发送预警短信结束==========");
-        return true;
     }
 }

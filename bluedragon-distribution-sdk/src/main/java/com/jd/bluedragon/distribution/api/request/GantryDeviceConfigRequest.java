@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * Created by yanghongqiang on 2016/3/15.
  */
-public class GantryDeviceConfigRequest extends JdRequest {
+public class  GantryDeviceConfigRequest extends JdRequest {
     /*
     龙门架编号全国维一编号
      */

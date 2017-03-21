@@ -69,7 +69,7 @@ public interface TaskService {
      * @param ownSign
      * @return
      */
-    Integer findFailTasksNumsByType(Integer type, String ownSign);
+    Integer findFailTasksNumsByType(Integer type, String ownSign,Integer keyword1);
 
     /**
      * 查询待处理的数据, sql不使用type过滤

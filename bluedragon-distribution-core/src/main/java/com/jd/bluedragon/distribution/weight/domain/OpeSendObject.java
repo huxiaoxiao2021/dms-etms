@@ -21,6 +21,31 @@ public class OpeSendObject {
     private Float volume;
 
     /// <summary>
+    /// 包裹长	单位（CM）
+    /// </summary>
+    private Float length;
+
+    /// <summary>
+    /// 包裹宽	单位（CM）
+    /// </summary>
+    private Float width;
+
+    /// <summary>
+    /// 包裹高	单位（CM）
+    /// </summary>
+    private Float high;
+
+    /// <summary>
+    /// 操作人ID
+    /// </summary>
+    private int opeUserId;
+
+    /// <summary>
+    /// 操作人姓名
+    /// </summary>
+    private String opeUserName;
+
+    /// <summary>
     /// 操作站点ID
     /// </summary>
     private int dms_site_id;
@@ -54,6 +79,46 @@ public class OpeSendObject {
         this.volume = volume;
     }
 
+    public Float getLength() {
+        return length;
+    }
+
+    public void setLength(Float length) {
+        this.length = length;
+    }
+
+    public Float getWidth() {
+        return width;
+    }
+
+    public void setWidth(Float width) {
+        this.width = width;
+    }
+
+    public Float getHigh() {
+        return high;
+    }
+
+    public void setHigh(Float high) {
+        this.high = high;
+    }
+
+    public int getOpeUserId() {
+        return opeUserId;
+    }
+
+    public void setOpeUserId(int opeUserId) {
+        this.opeUserId = opeUserId;
+    }
+
+    public String getOpeUserName() {
+        return opeUserName;
+    }
+
+    public void setOpeUserName(String opeUserName) {
+        this.opeUserName = opeUserName;
+    }
+
     public int getDms_site_id() {
         return dms_site_id;
     }
@@ -76,6 +141,11 @@ public class OpeSendObject {
                 "package_code='" + package_code + '\'' +
                 ", weight=" + weight +
                 ", volume=" + volume +
+                ", length=" + length +
+                ", width=" + width +
+                ", high=" + high +
+                ", opeUserId=" + opeUserId +
+                ", opeUserName='" + opeUserName + '\'' +
                 ", dms_site_id=" + dms_site_id +
                 ", thisUpdateTime=" + thisUpdateTime +
                 '}';

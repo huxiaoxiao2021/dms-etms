@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.receive.domain;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Date;
 
-public class CenConfirm implements java.io.Serializable{
+public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 	/**
 	 * 
 	 */
@@ -284,8 +286,17 @@ public class CenConfirm implements java.io.Serializable{
 	public void setYn(Integer yn) {
 		this.yn = yn;
 	}
-	
-	public static  class Builder{
+
+    @Override
+    public int compareTo(CenConfirm another) {
+        if( null == another || StringUtils.isBlank(another.getPackageBarcode()) || StringUtils.isBlank(this.getPackageBarcode()) ){
+            return 0;
+        }else {
+            return this.getPackageBarcode().compareTo(another.getPackageBarcode());
+        }
+    }
+
+    public static  class Builder{
 		/*Required parameters*/
 	    /*包裹号*/
 	    private String packageBarcode;

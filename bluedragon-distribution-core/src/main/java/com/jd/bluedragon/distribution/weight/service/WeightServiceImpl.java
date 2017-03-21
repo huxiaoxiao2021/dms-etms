@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.weight.service;
 
+import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
@@ -17,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.lang.reflect.Type;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,18 +41,23 @@ public class WeightServiceImpl implements WeightService {
     @Autowired
     private WaybillPackageApi waybillPackageApiJsf;
 
+    @Resource(name = "goddessService")
+    private GoddessService goddessService;
+
+    private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
+
     public boolean doWeightTrack(Task task) {
-        this.logger.info("向运单系统回传包裹称重信息: ");
-        //WeightResponse response = null;
         String body = null;
+        Goddess goddess=builderGoddess(task.getBody());
         try {
              body = task.getBody();
             if (!StringUtils.isNotBlank(body)) {
                 logger.error("向运单回传包裹称重信息失败，称重信息为空");
                 return false;
             }
-            //response = WeightClient.weightTrack(body.substring(1, body.length() - 1));
+
             Map<String, Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
+            goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
             this.sendMQ(body);
 
             if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
@@ -61,6 +72,9 @@ public class WeightServiceImpl implements WeightService {
         } catch (Exception e) {
             this.logger.info("向运单系统回传包裹称重信息：\n" + body);
             this.logger.error("处理称重回传任务发生异常，异常信息为：", e);
+            goddess.setHead(MessageFormat.format("提交称重至运单:异常为{0}",e.getMessage()));
+        }finally {
+            goddessService.save(goddess);
         }
         return false;
     }
@@ -81,6 +95,11 @@ public class WeightServiceImpl implements WeightService {
                     opeSend.setDms_site_id(ope.getOpeSiteId());
                     opeSend.setThisUpdateTime(this.getDateLong(ope.getOpeTime()));
                     opeSend.setWeight(ope.getpWeight());
+                    opeSend.setLength(ope.getpLength());
+                    opeSend.setWidth(ope.getpWidth());
+                    opeSend.setHigh(ope.getpHigh());
+                    opeSend.setOpeUserId(ope.getOpeUserId());
+                    opeSend.setOpeUserName(ope.getOpeUserName());
                     if (ope.getpHigh() != null && ope.getpLength() != null && ope.getpWidth() != null) {
                         //计算体积
                         opeSend.setVolume(ope.getpHigh() * ope.getpLength() * ope.getpWidth());
@@ -92,7 +111,7 @@ public class WeightServiceImpl implements WeightService {
             }
         } catch (Exception e) {
             Profiler.businessAlarm("DmsWorker.send_weight_mq_error",(new Date()).getTime(),"向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：" + e.getMessage());
-            this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
+                this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
         }
     }
 
@@ -113,5 +132,21 @@ public class WeightServiceImpl implements WeightService {
             }
         }
         return null;
+    }
+
+    private Goddess builderGoddess(String body){
+        Goddess domain = new Goddess();
+        try {
+            List<OpeEntity> waybillWeights = JsonHelper.fromJsonUseGson(body, WAYBILL_WEIGHT);
+            if (null != waybillWeights) {
+                for (OpeEntity entity : waybillWeights) {
+                    domain.setKey(entity.getWaybillCode());
+                    domain.setBody(body);
+                }
+            }
+        }catch (Throwable throwable){
+            logger.error("称重JSON解析失败",throwable);
+        }
+        return domain;
     }
 }

@@ -57,7 +57,7 @@ public class DefaultJMQProducer {
         try {
             send(businessId,body);
         }catch (Throwable ex){
-            logger.error("换单失败",ex);
+            logger.error("MQ发送失败，将进行消息队列持久化",ex);
             persistent(businessId,body);
         }
     }

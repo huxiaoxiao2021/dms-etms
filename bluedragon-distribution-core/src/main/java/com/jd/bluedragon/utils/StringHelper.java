@@ -283,4 +283,19 @@ public class StringHelper {
         Pattern pattern = Pattern.compile("^[-\\+]?\\d+(\\.\\d*)?|\\.\\d+$");
         return pattern.matcher(str).matches();
     }
+    
+    /**
+     * 判断字符串是否为邮箱地址****@***.***
+     * @param str
+     * @return true false
+     */
+    public static boolean isMailAddress(String str) {
+
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        Pattern pattern = Pattern.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
+        return pattern.matcher(str).matches();
+    }
 }

@@ -104,6 +104,17 @@
         <jmq:listener topic="bd_dms_reverse_reject" listener="reverseRejectConsumer"/>
     </jmq:consumer>
 
+    <!-- 武汉邮政自消费类型MQ created by wzx -->
+    <jmq:consumer id="jmq.ReverseDeliveryToWhSmsConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="bd_dms_whSms_mq" listener="reverseDeliveryToWhSmsConsumer"/>
+    </jmq:consumer>
+
+    <!-- 全国邮政自消费类型MQ created by wzx -->
+    <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
+    </jmq:consumer>
+</beans>
+
     <!-- 分拣计划发送至DTC，自消费 create by wzx -->
     <jmq:consumer id="jmq.sortSchemeSelfConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="bd_sortScheme_send_DTC" listener="sortSchemeConsumer"/>

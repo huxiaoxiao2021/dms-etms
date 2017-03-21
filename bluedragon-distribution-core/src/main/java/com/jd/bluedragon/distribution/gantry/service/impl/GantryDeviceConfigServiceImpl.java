@@ -81,8 +81,9 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
     }
 
     @Override
-    public List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode) {
-        return gantryDeviceConfigDao.findAllGantryDeviceCurrentConfig(createSiteCode);
+    public List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode,byte version) {
+
+        return gantryDeviceConfigDao.findAllGantryDeviceCurrentConfig(createSiteCode,version);
     }
 
     @Override

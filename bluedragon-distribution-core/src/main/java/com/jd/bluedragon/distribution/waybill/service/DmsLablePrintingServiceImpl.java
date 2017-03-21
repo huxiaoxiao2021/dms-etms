@@ -95,7 +95,7 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             if(waybill.getWaybillSign().charAt(15)=='3')
                 labelPrinting.setTimeCategory("隔日达");
             if(waybill.getWaybillSign().charAt(15)=='4')
-                labelPrinting.setTimeCategory("4日达及以上");
+                labelPrinting.setTimeCategory("次晨达");
         }
 
         try {
