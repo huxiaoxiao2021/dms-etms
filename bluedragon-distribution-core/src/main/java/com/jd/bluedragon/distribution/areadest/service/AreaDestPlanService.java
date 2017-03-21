@@ -50,6 +50,14 @@ public interface AreaDestPlanService {
     List<AreaDestPlan> getList(Integer operateSiteCode, Integer machineId, Pager pager);
 
     /**
+     * 获取当前分拣中心的当前龙门架设备的所有发货方案
+     * @param siteCode
+     * @param machineId
+     * @return
+     */
+    List<AreaDestPlan> getMyPlan(Integer siteCode,Integer machineId);
+
+    /**
      * 龙门架方案切换
      * @param machineId
      * @param planId
@@ -57,6 +65,6 @@ public interface AreaDestPlanService {
      * @param siteCode
      * @return
      */
-    Boolean ModifyGantryPlan(Integer machineId,Long planId,Long userCode,Integer siteCode);
+    Boolean ModifyGantryPlan(Integer machineId,Long planId,Integer userCode,Integer siteCode);
 
 }

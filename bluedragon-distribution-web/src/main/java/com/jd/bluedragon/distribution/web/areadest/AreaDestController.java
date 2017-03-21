@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.api.response.AreaDestResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
-import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;

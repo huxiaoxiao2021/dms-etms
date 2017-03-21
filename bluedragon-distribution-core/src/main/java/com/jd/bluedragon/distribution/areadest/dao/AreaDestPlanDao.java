@@ -46,6 +46,15 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
     }
 
     /**
+     * 获取当前龙门架设备的所有方案
+     * @param params
+     * @return
+     */
+    public List<AreaDestPlan> getMyPlans (Map<String,Object> params){
+        return this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".getMyPlans",params);
+    }
+
+    /**
      * 根据主键id设置为无效
      *
      * @param parameters
@@ -66,6 +75,13 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
      */
     public int disableByMachineId(Map<String ,Object> params) {
         return this.getSqlSession().update(AreaDestPlanDao.namespace + ".disableByMachineId",params);
+    }
+
+    /**
+     * 根据ID查看方案是否存在
+     */
+    public Boolean isExist(Map<String ,Object> params){
+        return this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".isExist",params) == null;
     }
 
 }

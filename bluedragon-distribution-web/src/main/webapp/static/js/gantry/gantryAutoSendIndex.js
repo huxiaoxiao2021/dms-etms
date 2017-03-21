@@ -341,18 +341,21 @@ function gantryStateInit(gantryConfig) {
                 measureObj.prop("checked",true);
                 break;
         }
+        if((businessType & 2) == 2){//是否包含发货功能
+            $("#planDiv").show() ;//分拣方案显示
+        }
         if (lockStatus == 0){
             inspectionObj.attr("disabled",false);
             sendObj.attr("disabled",false);
             measureObj.attr("disabled",false);
-            $("#GantryPlan").attr("readonly",false);
+            $("#GantryPlan").attr("disabled",false);
             $("#gantryBtn").html("<input  type='button' value='启用龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(startGantry))'>");//启用龙门架需要传入的参数
         }else if (lockStatus == 1){
             //状态锁定 需要点击解锁
             inspectionObj.attr("disabled",true);
             sendObj.attr("disabled",true);
             measureObj.attr("disabled",true);
-            $("#GantryPlan").attr("readonly",true);
+            $("#GantryPlan").attr("disabled",true);
             $("#gantryBtn").html("<input  type='button' value='释放龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(endGantry))'>");//释放龙门架只需要传入的机器编号参数？！
         }
         // else{
@@ -370,11 +373,11 @@ function gantryStateInit(gantryConfig) {
 function planShow(){
     var params = {};
     params.machineId = $("#gantryDevice").val();
-    params.siteCode = $("#siteOrg").val();
-    var url = $("#contextPath").val() + "";//获取当前的planId
+    params.operateSiteCode = $("#siteOrg").val();
+    var url = $("#contextPath").val() + "/areaDestPlan/getMayPlan";//获取当前的planId
     CommonClient.post(url,params,function (data) {
-        if(undefined != data){
-            var planId = data.data;
+        if(undefined != data && null != data && null != data.data){
+            var planId = data.data.planId;
             planInit(params,planId);
         }
     })
@@ -382,7 +385,7 @@ function planShow(){
 
 
 function planInit(params,planId){
-    var url = $("#contextPath").val() + "";
+    var url = $("#contextPath").val() + "/areaDestPlan/getAllList";
     CommonClient.post(url,params,function (data) {
         if(null == data && undefined == data){
             return;
@@ -392,7 +395,7 @@ function planInit(params,planId){
             var list = data.data;
             if(list != null && list.length > 0){
                 for(var i = 0;i<list.length;i++){
-                    optionList += "<option value='data.id' " + (data.id == planId? "selected=selected":"") +">" + data.planName + "</option>";
+                    optionList += "<option value='" + list[i].planId + "' " + (list[i].planId == planId? "selected='selected'":"") +">" + list[i].planName + "</option>";
                 }
                 $("#GantryPlan").html(optionList);
             }
@@ -469,7 +472,7 @@ function getGantryParams(lockStatus){
     var userMarker = $("#operator").val().split("||");//操作人姓名和erp用||分割
     params.operateUserName = userMarker[0];//获取操作人姓名
     params.operateUserErp = userMarker[1];//获取操作人的erp
-    if(businessType & 2 == 2){//是否包含发货功能
+    if((businessType & 2) == 2){//是否包含发货功能
         params.planId = $("#GantryPlan").val() ;//分拣方案ID
     }
     params.lockStatus = lockStatus == 1? 1:0; //1启用 0释放
@@ -624,6 +627,8 @@ function clearInfo(){
     $("input[name='businessType']").each(function () {
         $(this).prop("checked",false);//清空龙门架的配置信息
     });
+    $("#planDiv").hide();
+    $("#GantryPlan").html("<option value=''>(无)</option>");//清空龙门架方案信息
     gantryParams = {};//清空龙门架参数信息
     $("#pagerTable tbody").html("");//清空列表
     $("#pager").html("");//清空分页信息
@@ -641,7 +646,7 @@ function toReplenishPrintPage(){
     }
     location.href = url + "?machineId=" + gantryParams.machineId + "&createSiteCode=" + gantryParams.createSiteCode
         + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
-        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
 }
 
 /**
@@ -670,6 +675,9 @@ function toGantryExceptionPage(){
  * @param ts
  */
 function timeStampToDate(ts){
+    if(undefined == ts && ts == null && ts == NaN){
+        return "";
+    }
     var date = new Date(ts);
     var Y = date.getFullYear() + "-";
     var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + "-";

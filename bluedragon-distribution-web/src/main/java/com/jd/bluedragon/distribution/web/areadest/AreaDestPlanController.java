@@ -9,7 +9,10 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AreaDestPlanRequest;
 import com.jd.bluedragon.distribution.api.response.AreaDestPlanResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
+import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +40,9 @@ public class AreaDestPlanController {
 
     @Autowired
     private AreaDestPlanService areaDestPlanService;
+
+    @Autowired
+    private AreaDestPlanDetailService areaDestPlanDetailService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -103,6 +110,33 @@ public class AreaDestPlanController {
         return response;
     }
 
+    /**
+     * 获取方案的所有列表
+     * @return
+     */
+    @RequestMapping(value = "/getAllList", method = RequestMethod.POST)
+    @ResponseBody
+    public AreaDestPlanResponse<List<AreaDestPlan>> getAllList(AreaDestPlanRequest request) {
+        AreaDestPlanResponse<List<AreaDestPlan>> response = new AreaDestPlanResponse<List<AreaDestPlan>>();
+        try {
+            Integer operateSiteCode = request.getOperateSiteCode();
+            if (operateSiteCode == null || operateSiteCode == 0) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("参数错误：获取当前站点编号为null");
+                return response;
+            }
+            List<AreaDestPlan> data = areaDestPlanService.getList(operateSiteCode, request.getMachineId());
+            response.setData(data);
+            response.setCode(JdResponse.CODE_OK);
+            response.setMessage(JdResponse.MESSAGE_OK);
+        } catch (Exception e) {
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            logger.error("查询龙门架发货关系方案列表失败", e);
+        }
+        return response;
+    }
+
     @RequestMapping(value = "/addView", method = RequestMethod.GET)
     public String addView(Model model, Integer machineId) {
         try {
@@ -151,6 +185,34 @@ public class AreaDestPlanController {
             return response;
         }
         return response;
+    }
+
+    /**
+     * 获取当前分拣中心的当前龙门架设备的在用发货方案
+     * @return
+     */
+    @RequestMapping(value = "/getMayPlan",method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<AreaDestPlanDetail> queryMyPlan(AreaDestPlanRequest request){
+        InvokeResult<AreaDestPlanDetail> result = new InvokeResult<AreaDestPlanDetail>();
+        result.setCode(400);
+        result.setMessage("请求成功，无返回结果！！！");
+        result.setData(null);
+
+        if(null != request){
+            if(this.logger.isInfoEnabled()){
+                this.logger.info("分拣中心" + request.getOperateSiteCode() + "的龙门架" + request.getMachineId() + "获取当前的方案--AreaDestPlanController.queryMyPlan");
+            }
+            try{
+                AreaDestPlanDetail plan = areaDestPlanDetailService.getByScannerTime(request.getMachineId(),request.getOperateSiteCode(),new Date());
+                result.setCode(200);
+                result.setMessage("请求成功");
+                result.setData(plan);
+            }catch(Exception e){
+                this.logger.error("获取当前分拣中心当前龙门架设备的发货方案异常，龙门架ID为：" + request.getMachineId(),e);
+            }
+        }
+        return result;
     }
 
     private AreaDestPlan requestToDomain(AreaDestPlanRequest request, ErpUserClient.ErpUser erpUser) {

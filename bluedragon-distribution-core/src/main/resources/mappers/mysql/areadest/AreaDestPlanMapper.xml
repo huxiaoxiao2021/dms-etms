@@ -106,7 +106,7 @@
     </update>
 
     <!-- create by wzx -->
-    <update id="enableById" parameterType="java.util.map">
+    <update id="enableById" parameterType="java.util.Map">
         UPDATE AREA_DEST_PLAN
         SET
         <if test="updateUser != null">
@@ -133,4 +133,25 @@
         WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND PLAN_ID != #{planId,jdbcType=BIGINT}
     </update>
 
-</mapper>	
+    <select id="getMyPlans" parameterType="java.util.Map">
+        SELECT PLAN_ID,PLAN_NAME,MACHINE_ID,OPERATE_SITE_CODE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+        <if test="siteCode != null">
+            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT},
+        </if>
+        <if test="machineId ！= null">
+            AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <select id="isExist" parameterType="java.lang.Long">
+        SELECT PLAN_ID,PLAN_NAME,MACHINE_ID,OPERATE_SITE_CODE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1,
+        AND ID = #{PLAN_ID,jdbcType = BIGINT},
+        AND MACHINE_ID = #{PLAN_ID,jdbcType = BIGINT},
+        AND OPERATE_SITE_CODE = #{siteCode, jdbcType=BIGINT}
+    </select>
+
+</mapper>

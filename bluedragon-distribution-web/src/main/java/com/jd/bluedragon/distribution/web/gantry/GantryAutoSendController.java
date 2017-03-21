@@ -4,6 +4,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
@@ -77,6 +78,10 @@ public class GantryAutoSendController {
 
     @Autowired
     private AreaDestPlanService areaDestPlanService;
+
+    @Autowired
+    private AreaDestPlanDetailService areaDestPlanDetailService;
+
 
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
@@ -182,7 +187,10 @@ public class GantryAutoSendController {
                     gantryDeviceConfig.setLockUserName(userName);
                     int i = gantryDeviceConfigService.lockDevice(gantryDeviceConfig);//锁定龙门架操作
                     if((request.getBusinessType()&2) == 2){
-                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),Long.valueOf(userId),request.getSiteCode());
+                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getSiteCode());
+                        if(!j){
+                            this.logger.error("锁定龙门架的方案失败");
+                        }
                     }
                     if( i > -1){
                         result.setCode(200);

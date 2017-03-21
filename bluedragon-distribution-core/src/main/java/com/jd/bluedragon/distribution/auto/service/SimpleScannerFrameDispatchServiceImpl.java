@@ -270,7 +270,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private String getSendCodeSortingCenter(Integer destSiteCode, Date operateDate, GantryDeviceConfig config) {
         // 获取批次路由分拣中心
-        List<AreaDest> areaDestList = areaDestService.getList(config.getCreateSiteCode(), null, destSiteCode);
+        List<AreaDest> areaDestList = areaDestService.getList(config.getCreateSiteCode(), null, null);
         // 是否存在路由
         if (areaDestList != null && areaDestList.size() > 0) {
             AreaDest areaDest = areaDestList.get(0);
