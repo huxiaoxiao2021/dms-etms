@@ -26,6 +26,16 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
     }
 
     /**
+     * 根据方案编号获取方案信息
+     *
+     * @param planId
+     * @return
+     */
+    public AreaDestPlan get(Integer planId) {
+        return this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".get", planId);
+    }
+
+    /**
      * 获取龙门架发货关系方案列表
      *
      * @param parameters

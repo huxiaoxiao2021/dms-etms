@@ -31,6 +31,14 @@ public interface AreaDestPlanService {
     boolean delete(Integer id, String updateUser, Integer updateUserCode);
 
     /**
+     * 根据方案编号获取方案信息
+     *
+     * @param planId
+     * @return
+     */
+    AreaDestPlan get(Integer planId);
+
+    /**
      * 获取方案列表
      *
      * @param operateSiteCode

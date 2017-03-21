@@ -22,10 +22,14 @@
 <input type="hidden" id="contextPath" value="#springUrl('')"/>
 <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
 <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
-<script type="text/javascript" src="#springUrl('/static/js/areadest/list.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/areadest/detail.js')"></script>
 
 <div id="breadcrumb">
-    <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">龙门架发货关系维护</a></p>
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;
+        <a href="javascript:void(0)">龙门架发货关系维护</a>&nbsp;&gt;&nbsp;
+        <a href="javascript:void(0)">查看方案</a>
+    </p>
 </div>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content" width="100%">
@@ -34,29 +38,27 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody>
                 <tr>
-                    <td align="right">当前分拣中心：</td>
-                    <td>
-                        <input type="text" id="currentSiteName" name="currentSiteName" maxlength="50" disabled="true"
-                               style="width:150px" value="$!{currentSiteName}"/>
-                        <input type="hidden" id="currentSiteCode" name="currentSiteCode" value="$!{currentSiteCode}"/>
-                    </td>
-
                     <td align="right">龙门架编号：</td>
                     <td>
-                        <select id="machineId" style="width:150px">
-                            #if($!{machineId})
-                                <option value="$!{machineId}">$!{machineId}
-                                    &nbsp$!{machineId}</option>
-                            #else
-                                <option value="">请选择龙门架</option>
-                            #end
-                        </select>
+##                        <select id="machineId" style="width:150px" disabled="true">
+##                            #if($!{machineId})
+##                                <option value="$!{machineId}">$!{machineId}
+##                                    &nbsp$!{machineId}</option>
+##                            #else
+##                                <option value="">请选择龙门架</option>
+##                            #end
+##                        </select>
+                        <input type="text" id="machineId" name="machineId" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{machineId}"/>
                     </td>
-
+                    <td align="right">方案名称：</td>
                     <td>
-                        <input type="button" id="queryBtn" name="search" value="查询" class="btn_c"/>
-                        <input type="button" id="funReset" value="重置" class="btn_c"/>
-                        <input type="button" id="addBtn" name="add" value="新增方案" class="btn_c"/>
+                        <input type="text" id="planName" name="planName" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{planName}"/>
+                        <input type="hidden" id="planId" name="planId" value="$!{planId}"/>
+                    </td>
+                    <td>
+                        <input id="backBtn" value="返回" type="button" class="btn_c"/>
                     </td>
                 </tr>
                 </tbody>
@@ -70,9 +72,11 @@
                 <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
                     <thead>
                     <tr>
-                        <th style="width:30px;">龙门架编号</th>
-                        <th style="width:70px;">方案名称</th>
-                        <th style="width:30px;">功能</th>
+                        <th style="width:30px;">属性</th>
+                        <th style="width:50px;">当前分拣中心</th>
+                        <th style="width:50px;">下级分拣中心</th>
+                        <th style="width:50px;">末级分拣中心</th>
+                        <th style="width:70px;">站点</th>
                     </tr>
                     </thead>
                     <tbody>

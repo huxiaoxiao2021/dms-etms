@@ -8,6 +8,11 @@ package com.jd.bluedragon.distribution.api.request;
 public class AreaDestPlanRequest {
 
     /**
+     * 方案编号
+     */
+    private Integer planId;
+
+    /**
      * 分拣中心编号
      */
     private Integer operateSiteCode;
@@ -21,6 +26,14 @@ public class AreaDestPlanRequest {
      * 方案名称
      */
     private String planName;
+
+    public Integer getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(Integer planId) {
+        this.planId = planId;
+    }
 
     public Integer getOperateSiteCode() {
         return operateSiteCode;
@@ -46,12 +59,4 @@ public class AreaDestPlanRequest {
         this.planName = planName;
     }
 
-    @Override
-    public String toString() {
-        return "AreaDestPlanRequest{" +
-                "operateSiteCode=" + operateSiteCode +
-                ", machineId=" + machineId +
-                ", planName='" + planName + '\'' +
-                '}';
-    }
 }
