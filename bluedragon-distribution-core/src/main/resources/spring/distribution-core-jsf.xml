@@ -220,6 +220,4 @@
 	    <property name="fromEmailName" value="青龙服务" />
 	</bean>
 	<!-- 公司邮件服务  结束-->
-</beans>    </jsf:consumer>
-
 </beans>

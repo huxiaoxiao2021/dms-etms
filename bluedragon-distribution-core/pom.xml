@@ -686,14 +686,6 @@
 		    <artifactId>commons-email</artifactId>
 		    <version>1.3</version>
 		</dependency>
-		</dependencies>
-
-		<!-- staig 接口 -->
-		<dependency>
-			<groupId>com.jd.staig</groupId>
-			<artifactId>receiver-rpc</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
