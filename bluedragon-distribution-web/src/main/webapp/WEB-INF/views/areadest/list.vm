@@ -5,32 +5,27 @@
     <meta http-equiv="pragma" content="no-cach"/>
     <meta http-equiv="cache-control" content="no-cache"/>
     <meta http-equiv="expires" content="0"/>
-    <title>区域批次目的地配置表</title>
-    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/bootstrap.min.css" media="all"/>
+    <title>龙门架发货关系维护</title>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all"/>
-
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all"/>
-#*<script type="text/javascript" src="#springUrl('/static/js/bootstrap/jquery.js')"></script>
-<script type="text/javascript">
-    jQuery.browser={};(function(){jQuery.browser.msie=false; jQuery.browser.version=0;if(navigator.userAgent.match(/MSIE ([0-9]+)./)){ jQuery.browser.msie=true;jQuery.browser.version=RegExp.$1;}})();
-</script>*#
+
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
-#*<script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>*#
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <style type="text/css"></style>
 </head>
 
 <body>
 <input type="hidden" id="contextPath" value="#springUrl('')"/>
 <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
-<script type="text/javascript" src="#springUrl('')/static/js/bootstrap/bootstrap-treeview.js"></script>
 <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
 <script type="text/javascript" src="#springUrl('/static/js/areadest/list.js')"></script>
+
 <div id="breadcrumb">
-    <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">区域批次目的地配置表</a></p>
+    <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">龙门架发货关系维护</a></p>
 </div>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content" width="100%">
@@ -39,38 +34,29 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody>
                 <tr>
-                    <td align="right">始发分拣中心：</td>
+                    <td align="right">当前分拣中心：</td>
                     <td>
-                        <input type="text" id="createSiteName" name="createSiteName" maxlength="50" disabled="true"
-                               style="width:150px" value="$!{createSiteName}"/>
-                        <input type="hidden" id="createSiteCode" name="createSiteCode" value="$!{createSiteCode}"/>
+                        <input type="text" id="currentSiteName" name="currentSiteName" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{currentSiteName}"/>
+                        <input type="hidden" id="currentSiteCode" name="currentSiteCode" value="$!{currentSiteCode}"/>
                     </td>
-                    <td align="right">中转分拣中心：</td>
+
+                    <td align="right">龙门架编号：</td>
                     <td>
-                        <select id="transferSite" style="width:150px">
-                            #if($!{transferSiteCode})
-                                <option value="$!{transferSiteCode}">$!{transferSiteCode}
-                                    &nbsp$!{transferSiteName}</option>
+                        <select id="machineId" style="width:150px">
+                            #if($!{machineId})
+                                <option value="$!{machineId}">$!{machineId}
+                                    &nbsp$!{machineId}</option>
                             #else
-                                <option value="-1">所有分拣中心</option>
+                                <option value="-1">请选择龙门架</option>
                             #end
                         </select>
                     </td>
-                    <td align="right">批次目的地：</td>
-                    <td>
-                        <select id="receiveSite" style="width:150px">
-                            #if($!{receiveSiteCode})
-                                <option value="$!{receiveSiteCode}">$!{receiveSiteCode}
-                                    &nbsp$!{receiveSiteName}</option>
-                            #else
-                                <option value="-1">所有分拣中心</option>
-                            #end
-                        </select>
-                    </td>
+
                     <td>
                         <input type="button" id="queryBtn" name="search" value="查询" class="btn_c"/>
                         <input type="button" id="funReset" value="重置" class="btn_c"/>
-                        <input type="button" id="addBtn" name="add" value="新增" class="btn_c"/>
+                        <input type="button" id="addBtn" name="add" value="新增方案" class="btn_c"/>
                     </td>
                 </tr>
                 </tbody>
@@ -81,46 +67,22 @@
     <div id="opening">
         <div class="tbl-list">
             <div class="tbl-bg">
-                <table id="paperTable" cellSpacing=0 cellPadding=0 width="100%">
+                <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th style="width:70px;">龙门架编号</th>
+                        <th style="width:100px;">方案名称</th>
+                        <th style="width:100px;">功能</th>
+                    </tr>
+                    </thead>
                     <tbody>
-                    #*<tr>
-                        <td style="text-align: left;">
-                            <div class="form-group">
-                                <div id="myAlert" class="alert alert-warning">
-                                    <a href="#" class="close" data-dismiss="alert">&times;</a>
-                                    <strong>警告！</strong>您的网络连接有问题。
-                                </div>
-                            </div>
-                        </td>
-                    </tr>*#
-                    <tr>
-                        <td style="text-align: left;">
-                            <div class="form-group">
-                                <button type="button" class="btn btn-success" id="btn-expand-all">展开所有</button>
-                                <button type="button" class="btn btn-danger" id="btn-collapse-all">关闭所有</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="form-group">
-                                <input type="input" class="form-control" id="input-select-node"
-                                       placeholder="输入分拣中心名称..." value="" style="width:500px">
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: left;">
-                            <div class="form-group">
-                                <div id="treeview" class="" style="width:500px"></div>
-                            </div>
-                        </td>
-                    </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+##  分页
+    <div id="pager" class="tbl-n"></div>
 </div>
 </body>
 </html>

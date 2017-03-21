@@ -11,6 +11,7 @@ import java.util.Date;
 public class AreaDestPlanDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     /**
      * 主键id
      */
@@ -88,4 +89,5 @@ public class AreaDestPlanDetail implements Serializable {
     public void setOperateUserCode(Integer operateUserCode) {
         this.operateUserCode = operateUserCode;
     }
+
 }

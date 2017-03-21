@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.areadest.service;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
-import com.jd.bluedragon.distribution.api.response.AreaDestTree;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
+import com.jd.bluedragon.utils.RouteType;
 
 import java.util.List;
 
@@ -88,23 +89,22 @@ public interface AreaDestService {
     boolean enable(Integer createSiteCode, Integer transferSiteCode, Integer receiveSiteCode, String updateUser, Integer updateUserCode);
 
     /**
-     * 获取区域批次目的地信息
+     * 根据方案编号、线路类型获取龙门架发货关系
      *
-     * @param createSiteCode   始发分拣中心ID
-     * @param transferSiteCode 中转分拣中心ID
-     * @param receiveSiteCode  目的地ID
+     * @param planId 方案编号
+     * @param type 线路类型
+     * @param pager 分页
      * @return
      */
-    List<AreaDest> getList(Integer createSiteCode, Integer transferSiteCode, Integer receiveSiteCode);
+    List<AreaDest> getList(Integer planId, RouteType type, Pager pager);
 
     /**
-     * 获取区域批次目的地的树形结构
+     * 根据方案编号、线路类型获取龙门架发货关系数量
      *
-     * @param createSiteCode   始发分拣中心ID
-     * @param transferSiteCode 中转分拣中心ID
-     * @param receiveSiteCode  目的地ID
+     * @param planId
+     * @param type
      * @return
      */
-    List<AreaDestTree> getTree(Integer createSiteCode, Integer transferSiteCode, Integer receiveSiteCode);
+    Integer getCount(Integer planId, RouteType type);
 
 }

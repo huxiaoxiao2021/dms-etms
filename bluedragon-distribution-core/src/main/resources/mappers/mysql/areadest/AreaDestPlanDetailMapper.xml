@@ -28,7 +28,7 @@
 		)
 	</insert>
 
-    <select id="getByStartTime" resultMap="areaDestPlanDetail" parameterType="java.util.Map">
+    <select id="getByScannerTime" resultMap="areaDestPlanDetail" parameterType="java.util.Map">
         SELECT
         ID,
         PLAN_ID,
@@ -40,7 +40,7 @@
         WHERE
             MACHINE_ID = #{machineId, jdbcType=BIGINT}
             AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
-            AND START_TIME <![CDATA[<=]]> str_to_date(date_format(#{operateSiteCode, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+            AND START_TIME <![CDATA[<=]]> str_to_date(date_format(#{scannerTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
     </select>
 
 </mapper>	

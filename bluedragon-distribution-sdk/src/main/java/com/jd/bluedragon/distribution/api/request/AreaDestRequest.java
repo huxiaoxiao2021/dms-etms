@@ -6,12 +6,22 @@ import java.util.List;
 
 /**
  * 区域批次目的地请求
- *
+ * <p>
  * Created by lixin39 on 2016/12/9.
  */
 public class AreaDestRequest extends JdRequest {
 
     private static final long serialVersionUID = 8954054127159816536L;
+
+    /**
+     * 方案编号
+     */
+    private Integer planId;
+
+    /**
+     * 线路类型
+     */
+    private Integer routeType;
 
     /**
      * 始发分拣中心名称
@@ -48,6 +58,21 @@ public class AreaDestRequest extends JdRequest {
      */
     private List<String> receiveSiteCodeName;
 
+    public Integer getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(Integer planId) {
+        this.planId = planId;
+    }
+
+    public Integer getRouteType() {
+        return routeType;
+    }
+
+    public void setRouteType(Integer routeType) {
+        this.routeType = routeType;
+    }
 
     public String getCreateSiteName() {
         return createSiteName;
@@ -108,7 +133,9 @@ public class AreaDestRequest extends JdRequest {
     @Override
     public String toString() {
         return "AreaDestRequest{" +
-                "createSiteName='" + createSiteName + '\'' +
+                "planId=" + planId +
+                ", routeType=" + routeType +
+                ", createSiteName='" + createSiteName + '\'' +
                 ", createSiteCode=" + createSiteCode +
                 ", transferSiteCode=" + transferSiteCode +
                 ", transferSiteName='" + transferSiteName + '\'' +

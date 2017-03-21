@@ -79,6 +79,11 @@ public class GantryException {
      */
     private Integer sendStatus;
 
+    /**
+     * 批次号
+     */
+    private String sendCode;
+
     public Long getId() {
         return id;
     }
@@ -190,5 +195,13 @@ public class GantryException {
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 }

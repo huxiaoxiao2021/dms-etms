@@ -8,10 +8,10 @@ import java.util.Map;
 
 /**
  * 龙门架发货关系方案
- *
+ * <p>
  * Created by lixin39 on 2017/3/16.
  */
-public class AreaDestPlanDao extends BaseDao<AreaDestPlan>{
+public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
 
     private final static String namespace = AreaDestPlanDao.class.getName();
 
@@ -21,7 +21,7 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan>{
      * @param areaDestPlan
      * @return
      */
-    public int add(AreaDestPlan areaDestPlan){
+    public int add(AreaDestPlan areaDestPlan) {
         return this.getSqlSession().insert(AreaDestPlanDao.namespace + ".add", areaDestPlan);
     }
 
@@ -31,8 +31,18 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan>{
      * @param parameters
      * @return
      */
-    public List<AreaDestPlan> getList(Map<String, Object> parameters){
+    public List<AreaDestPlan> getList(Map<String, Object> parameters) {
         return this.getSqlSession().selectList(AreaDestPlanDao.namespace + ".getList", parameters);
+    }
+
+    /**
+     * 获取龙门架发货关系方案数量
+     *
+     * @param parameters
+     * @return
+     */
+    public int getCount(Map<String, Object> parameters) {
+        return this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".getCount", parameters);
     }
 
     /**

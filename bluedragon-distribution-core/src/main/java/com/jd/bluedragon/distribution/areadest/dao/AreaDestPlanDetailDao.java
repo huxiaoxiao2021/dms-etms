@@ -30,8 +30,8 @@ public class AreaDestPlanDetailDao extends BaseDao<AreaDestPlanDetail> {
      * @param parameters
      * @return
      */
-    public AreaDestPlanDetail getByStartTime(Map<String, Object> parameters){
-        return this.getSqlSession().selectOne(AreaDestPlanDetailDao.namespace + ".getByStartTime", parameters);
+    public AreaDestPlanDetail getByScannerTime(Map<String, Object> parameters){
+        return this.getSqlSession().selectOne(AreaDestPlanDetailDao.namespace + ".getByScannerTime", parameters);
     }
 
 }

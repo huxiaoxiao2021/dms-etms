@@ -58,11 +58,21 @@ function getParams() {
     params.startTime = $.trim($("#gantry_exception_startTime").val());
     params.endTime = $.trim($("#gantry_exception_endTime").val());
     var sendStatusValue = $.trim($("#gantry_exception_sendStatus").val());
-    if (sendStatusValue < 3) {
+    var type = $.trim($("#gantry_exception_type").val());
+
+    if (sendStatusValue < 2) {
         params.sendStatus = sendStatusValue;
     } else {
         params.sendStatus = null;
     }
+
+    if (type == 0) {
+        params.type = null;
+
+    } else {
+        params.type = type;
+    }
+
     if (params.machineId == null || params.machineId == "") {
         alert("请选择龙门架");
         return false;
@@ -106,15 +116,21 @@ function doQuery(params) {
             var reason = "";
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
+                temp += "<td>" + (dataList[i].machineId) + "</td>";
                 temp += "<td>" + (dataList[i].barCode) + "</td>";
                 temp += "<td>" + (dataList[i].waybillCode) + "</td>";
+                temp += "<td>" + (dataList[i].sendCode == null ? "" : dataList[i].sendCode) + "</td>";
                 temp += "<td>" + (dataList[i].volume) + "</td>";
                 if (dataList[i].type == 1)
-                    reason = "没有预分拣站点";
+                    reason = "无预分拣站点";
                 else if (dataList[i].type == 2)
-                    reason = "没有运单信息";
+                    reason = "无运单信息";
                 else if (dataList[i].type == 3)
-                    reason = "没有箱号信息";
+                    reason = "无箱号信息";
+                else if (dataList[i].type == 4)
+                    reason = "拦截订单";
+                else if (dataList[i].type == 5)
+                    reason = "龙门架未绑该站点";
                 temp += "<td>" + reason + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].operateTime)) + "</td>";
                 temp += "<td>" + (dataList[i].sendStatus ? "已发货" : "未发货") + "</td>";

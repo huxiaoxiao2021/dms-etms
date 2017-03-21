@@ -51,7 +51,6 @@ public class GantryExceptionController {
      */
     @RequestMapping(value = "/gantryExceptionList", method = RequestMethod.GET)
     public String gantryExceptionPageList(GantryExceptionRequest request, Model model) {
-
         try {
             if (request.getSiteCode() != null) {
                 List<GantryDevice> allDevice = gantryDeviceService.getGantryByDmsCode(request.getSiteCode());
@@ -271,13 +270,14 @@ public class GantryExceptionController {
         style.setRightBorderColor((short) 10);
 
 //        createCellOfRow(row, 0, "规则类型", style);
-
-        createCellOfRow(row, 0, "条码号", style);
-        createCellOfRow(row, 1, "运单号", style);
-        createCellOfRow(row, 2, "体积", style);
-        createCellOfRow(row, 3, "异常原因", style);
-        createCellOfRow(row, 4, "操作时间", style);
-        createCellOfRow(row, 5, "发货状态", style);
+        createCellOfRow(row, 0, "龙门架编号", style);
+        createCellOfRow(row, 1, "条码号", style);
+        createCellOfRow(row, 2, "运单号", style);
+        createCellOfRow(row, 3, "批次号", style);
+        createCellOfRow(row, 4, "体积", style);
+        createCellOfRow(row, 5, "异常类型", style);
+        createCellOfRow(row, 6, "操作时间", style);
+        createCellOfRow(row, 7, "发货状态", style);
 
         // create cell style(border with border color)
         HSSFCellStyle styleContent = wb.createCellStyle();
@@ -289,13 +289,14 @@ public class GantryExceptionController {
         for (int i = 0; i < gantryExceptions.size(); i++) {
             GantryException gantryException = gantryExceptions.get(i);
             HSSFRow row1 = sheet.createRow(i + 1);
-
-            createCellOfRow(row1, 0, gantryException.getBarCode(), styleContent);
-            createCellOfRow(row1, 1, gantryException.getWaybillCode(),styleContent);
-            createCellOfRow(row1, 2, String.valueOf(gantryException.getVolume()), styleContent);
-            createCellOfRow(row1, 3, replaceExceptionType(gantryException.getType()), styleContent);
-            createCellOfRow(row1, 4, format.format(gantryException.getOperateTime()), styleContent);
-            createCellOfRow(row1, 5, (gantryException.getSendStatus() == 1 ? "已发货" : "未发货"), styleContent);
+            createCellOfRow(row1, 0, String.valueOf(gantryException.getMachineId()), styleContent);
+            createCellOfRow(row1, 1, gantryException.getBarCode(), styleContent);
+            createCellOfRow(row1, 2, gantryException.getWaybillCode(),styleContent);
+            createCellOfRow(row1, 3, gantryException.getSendCode(),styleContent);
+            createCellOfRow(row1, 4, String.valueOf(gantryException.getVolume()), styleContent);
+            createCellOfRow(row1, 5, replaceExceptionType(gantryException.getType()), styleContent);
+            createCellOfRow(row1, 6, format.format(gantryException.getOperateTime()), styleContent);
+            createCellOfRow(row1, 7, (gantryException.getSendStatus() == 1 ? "已发货" : "未发货"), styleContent);
         }
 
         // set auto size column
@@ -315,11 +316,15 @@ public class GantryExceptionController {
     private String replaceExceptionType(Integer type) {
         String exceptionReasonStr = "";
         if (type == 1) {
-            exceptionReasonStr = "没有预分拣站点";
+            exceptionReasonStr = "无预分拣站点";
         } else if (type == 2) {
-            exceptionReasonStr = "没有运单信息";
+            exceptionReasonStr = "无运单信息";
         } else if (type == 3) {
-            exceptionReasonStr = "没有箱号信息";
+            exceptionReasonStr = "无箱号信息";
+        } else if (type == 4) {
+            exceptionReasonStr = "拦截订单";
+        } else if (type == 5) {
+            exceptionReasonStr = "龙门架未绑该站点";
         }
         return exceptionReasonStr;
     }
@@ -351,6 +356,7 @@ public class GantryExceptionController {
         param.put("endTime", request.getEndTime());
         param.put("sendStatus", request.getSendStatus());
         param.put("siteCode", request.getSiteCode());
+        param.put("type", request.getType());
         return param;
     }
 }

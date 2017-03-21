@@ -18,64 +18,48 @@ function main() {
         goAddBtnClick();
     });
 
-    // Expand/collapse all
-    $('#btn-expand-all').on('click', function (e) {
-        var levels = $('#select-expand-all-levels').val();
-        $('#treeview').treeview('expandAll', {silent: $('#chk-expand-silent').is(':checked')});
-    });
-
-    $('#btn-collapse-all').on('click', function (e) {
-        $('#treeview').treeview('collapseAll', {silent: $('#chk-expand-silent').is(':checked')});
-    });
-
-    $('#input-select-node').on('keyup', function (e) {
-        var selectableNodes = findSelectableNodes();
-        $('.select-node').prop('disabled', !(selectableNodes.length >= 1));
-    });
-
-    // 加载所有的分拣中心
-    initDms();
-
+    // 加载分拣中心对应龙门架
+    initGantryDevice(parseInt($("#currentSiteCode").val()));//获取当前分拣中心编号
 }
 
-function findSelectableNodes() {
-    return $('#treeview').treeview('search', [$('#input-select-node').val(), {ignoreCase: false, exactMatch: false}]);
-};
-
 function funReset() {
-    $("#transferSite").val(-1);
-    $("#receiveSite").val(-1);
+    $("#machineId").val('');
 }
 
 // 加载分拣中心列表
-function initDms() {
-    var url = $("#contextPath").val() + "/services/bases/dms";
-    $.getJSON(url, function (data) {
-        var dmsList = data;
-        if (data == undefined || data == null) {
-            alert('提示:HTTP请求无数据返回！');
+function initGantryDevice(currentSiteCode) {
+    var param= {};
+    param.createSiteCode = currentSiteCode;
+    param.version = 1; //表示只读取新的龙门架设备
+    if(currentSiteCode == null || currentSiteCode == ""|| isNaN(currentSiteCode)){
+        return;
+    }
+    var url = $("#contextPath").val() + "/services/gantryDevice/findAllGantryDevice";
+    CommonClient.postJson(url,param,function (data) {
+        var gantryList = data.data;
+        if (gantryList == undefined || gantryList == null) {
+            alert("提示：HTTP请求无返回数据！");
             return;
         }
-        if (dmsList.length > 0 && dmsList[0].code == 200) {// 200:normal
-            loadDmsList(dmsList, "transferSite");
-            loadDmsList(dmsList, "receiveSite");
-        } else if (dmsList.length > 0 && dmsList[0].code == 404) {// 404:
-            alert('提示:获取分拣中心列表为空！');
-        } else if (dmsList.length > 0 && dmsList[0].code == 20000) {// 20000:error
-            alert('提示:获取分拣中心列表为空！');
+        if (gantryList.length > 0 && data.code == 200) {
+            loadGantryList(gantryList, "machineId");
+        } else if (gantryList.length <= 0 && data.code == 200){
+            alert("提示：该分拣中心没有可供选择的龙门架设备！");
+        } else if (data.code == 500) {
+            alert("提示：获取该分拣中心的龙门架设备失败!");
         } else {
-            alert('提示:数据异常！');
+            alert("提示：服务器异常!");
         }
     });
 }
 
-function loadDmsList(dmsList, selectId) {
-    var dmsObj = $('#' + selectId);
-    var optionList = "";
-    for (var i = 0; i < dmsList.length; i++) {
-        optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteCode + " " + dmsList[i].siteName + "</option>";
+function loadGantryList(gantryList, selectId){
+    var gantryObj = $('#' + selectId);
+    var optionList = "<option value= ''>选择龙门架</option>";
+    for (var i = 0; i < gantryList.length; i++) {
+        optionList += "<option value='" + gantryList[i].machineId + "'>" + gantryList[i].machineId + "</option>";
     }
-    dmsObj.append(optionList);
+    gantryObj.append(optionList);
 }
 
 function onQueryBtnClick() {
@@ -83,14 +67,13 @@ function onQueryBtnClick() {
     if (!checkParams(params)) {
         return false;
     }
-    doQueryAreaDest(params);
+    doQuery(params);
 }
 
 function getParams() {
     var params = {};
-    params.createSiteCode = $.trim($("#createSiteCode").val());
-    params.transferSiteCode = $.trim($("#transferSite").val());
-    params.receiveSiteCode = $.trim($("#receiveSite").val());
+    params.operateSiteCode = $.trim($("#currentSiteCode").val());
+    params.machineId = $.trim($("#machineId").val());
     return params;
 }
 
@@ -98,32 +81,46 @@ function checkParams(params) {
     if (null == params) {
         return false;
     }
-    if (params.createSiteCode == null || params.createSiteCode <= 0) {
-        alert("获取始发分拣中心失败，请确认用户是否关联分拣中心！");
+    if (params.operateSiteCode == null || params.operateSiteCode <= 0) {
+        alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
         return false;
     }
     return true;
 }
 
 // 查询请求
-function doQueryAreaDest(params) {
-    var url = $("#contextPath").val() + "/areadest/list";
-    CommonClient.postJson(url, params, function (data) {
+function doQuery(params) {
+    var url = $("#contextPath").val() + "/areaDestPlan/getList";
+    CommonClient.post(url, params, function (data) {
         if (data == undefined || data == null) {
-            alert('提示:HTTP请求无数据返回！');
+            alert("未配置方案");
             return;
         }
-        $('#treeview').treeview({
-            color: "#428bca",
-            data: data.data
-        });
-        if (data.code != 200 && data.code != 2200) {
-            alert('提示:' + data.message);
+        if (data.code == 200) {
+            var pager = data.data;
+            var dataList = pager.data;
+            var temp = "";
+            for (var i = 0; i < dataList.length; i++) {
+                temp += "<tr class='a2' style=''>";
+                temp += "<td>" + (dataList[i].machineId) + "</td>";
+                temp += "<td>" + (dataList[i].planName) + "</td>";
+                temp += "<td>"
+                    + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].machineId + ")''>查看</a>"
+                    + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].machineId + ")' id='config'>配置</a>"
+                    + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].machineId + ")' id='delete'>删除</a>")
+                    + "</td>";
+                temp += "</tr>";
+            }
+            $("#paperTable tbody").html(temp);
+            // 添加分页显示
+            $("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
+        } else {
+            alert(data.message);
         }
     });
 }
 
 function goAddBtnClick() {
     var contextPath = $("#contextPath").val();
-    location.href = contextPath + "/areadest/addviewunauth";
+    location.href = contextPath + "/areaDestPlan/addView";
 }
