@@ -38,6 +38,17 @@
 		)
 	</insert>
 
+    <select id="get" resultMap="areaDestPlan" parameterType="int">
+        SELECT
+        PLAN_ID,
+        PLAN_NAME,
+        MACHINE_ID,
+        OPERATE_SITE_CODE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+            AND PLAN_ID = #{planId, jdbcType=BIGINT}
+    </select>
+
     <select id="getList" resultMap="areaDestPlan" parameterType="java.util.Map">
         SELECT
         PLAN_ID,
@@ -98,7 +109,7 @@
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
         <if test="updateUserCode != null">
-            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
         YN = 0,
         UPDATE_TIME = NOW()

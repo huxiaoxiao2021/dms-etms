@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.areadest.service;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao;
@@ -55,14 +56,26 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     }
 
     @Override
+    public AreaDestPlan get(Integer planId) {
+        try {
+            if (planId != null) {
+                return areaDestPlanDao.get(planId);
+            }
+        } catch (Exception e) {
+            logger.error("根据方案编号获取龙门架发货关系方案信息发生异常", e);
+        }
+        return null;
+    }
+
+    @Override
     public List<AreaDestPlan> getList(Integer operateSiteCode, Integer machineId) {
         List<AreaDestPlan> list = null;
         try {
             Map<String, Object> parameter = new HashMap<String, Object>();
-            if (operateSiteCode != null ){
+            if (operateSiteCode != null) {
                 parameter.put("operateSiteCode", operateSiteCode);
             }
-            if(machineId != null){
+            if (machineId != null) {
                 parameter.put("machineId", machineId);
             }
             list = areaDestPlanDao.getList(parameter);
@@ -77,10 +90,10 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
         List<AreaDestPlan> list = null;
         try {
             Map<String, Object> parameter = new HashMap<String, Object>();
-            if (operateSiteCode != null ){
+            if (operateSiteCode != null) {
                 parameter.put("operateSiteCode", operateSiteCode);
             }
-            if(machineId != null){
+            if (machineId != null) {
                 parameter.put("machineId", machineId);
             }
             int count = areaDestPlanDao.getCount(parameter);

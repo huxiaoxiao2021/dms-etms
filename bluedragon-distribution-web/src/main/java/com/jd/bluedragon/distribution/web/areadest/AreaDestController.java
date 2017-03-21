@@ -53,25 +53,31 @@ public class AreaDestController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @RequestMapping(value = "/getList", method = RequestMethod.POST)
     @ResponseBody
-    public AreaDestResponse getList(@RequestBody AreaDestRequest request, Pager<List<AreaDest>> pager) {
+    public AreaDestResponse getList(AreaDestRequest request, Pager<List<AreaDest>> pager) {
         AreaDestResponse<Pager<List<AreaDest>>> response = new AreaDestResponse<Pager<List<AreaDest>>>();
         try {
             Integer planId = request.getPlanId();
+            Integer routeType = request.getRouteType();
             if (planId == null) {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage("参数错误：获取编方案编号为null");
                 return response;
             }
+
             // 设置分页对象
             if (pager == null) {
                 pager = new Pager<List<AreaDest>>(Pager.DEFAULT_PAGE_NO);
             }
 
-            response.setCode(JdResponse.CODE_OK);
-            response.setMessage(JdResponse.MESSAGE_OK);
-            List<AreaDest> result = areaDestService.getList(request.getPlanId(), RouteType.getEnum(request.getRouteType()), pager);
+            List<AreaDest> result;
+            if (routeType != null) {
+                result = areaDestService.getList(planId, RouteType.getEnum(request.getRouteType()), pager);
+            } else {
+                result = areaDestService.getList(planId, null, pager);
+            }
+
             if (result != null && result.size() > 0) {
                 pager.setData(result);
                 response.setData(pager);

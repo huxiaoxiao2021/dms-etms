@@ -3,7 +3,7 @@ $(document).ready(main);
 
 function main() {
     // 返回按钮
-    $('#goBackBtn').click(function () {
+    $('#backBtn').click(function () {
         goBack();
     });
 
@@ -29,7 +29,7 @@ function onAddBtnClick() {
 
 function getParams() {
     var params = {};
-    params.currentSiteCode = $.trim($("#currentSiteCode").val());
+    params.operateSiteCode = $.trim($("#currentSiteCode").val());
     params.machineId = $.trim($("#machineId").val());
     params.planName = $.trim($("#planName").val());
     return params;
@@ -39,7 +39,7 @@ function checkParams(params) {
     if (null == params) {
         return false;
     }
-    if (params.currentSiteCode == null || params.currentSiteCode <= 0) {
+    if (params.operateSiteCode == null || params.operateSiteCode <= 0) {
         alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
         return false;
     }
@@ -55,5 +55,25 @@ function checkParams(params) {
 }
 
 function doSave(params) {
-    alert('保存');
+    var contextPath = $("#contextPath").val();
+    jQuery.ajax({
+        url: contextPath + "/areaDestPlan/save?" + Math.random(),
+        type: "POST",
+        data: JSON.stringify(params),
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        async: false,
+        success: function (data) {
+            if (data && data.code == 0) {
+                if (data.message) {
+                    alert(data.message);
+                } else {
+                    alert("添加异常");
+                }
+            } else {
+                alert("添加成功");
+                document.location.href = contextPath + "/areaDestPlan/index";
+            }
+        }
+    });
 }

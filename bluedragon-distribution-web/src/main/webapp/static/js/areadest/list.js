@@ -5,7 +5,7 @@ function main() {
 
     // 查询按钮提交处理
     $('#queryBtn').click(function () {
-        onQueryBtnClick();
+        onQueryBtnClick(1);
     });
 
     // 重置按钮
@@ -20,6 +20,8 @@ function main() {
 
     // 加载分拣中心对应龙门架
     initGantryDevice(parseInt($("#currentSiteCode").val()));//获取当前分拣中心编号
+
+    onQueryBtnClick();
 }
 
 function funReset() {
@@ -28,14 +30,14 @@ function funReset() {
 
 // 加载分拣中心列表
 function initGantryDevice(currentSiteCode) {
-    var param= {};
+    var param = {};
     param.createSiteCode = currentSiteCode;
     param.version = 1; //表示只读取新的龙门架设备
-    if(currentSiteCode == null || currentSiteCode == ""|| isNaN(currentSiteCode)){
+    if (currentSiteCode == null || currentSiteCode == "" || isNaN(currentSiteCode)) {
         return;
     }
     var url = $("#contextPath").val() + "/services/gantryDevice/findAllGantryDevice";
-    CommonClient.postJson(url,param,function (data) {
+    CommonClient.postJson(url, param, function (data) {
         var gantryList = data.data;
         if (gantryList == undefined || gantryList == null) {
             alert("提示：HTTP请求无返回数据！");
@@ -43,7 +45,7 @@ function initGantryDevice(currentSiteCode) {
         }
         if (gantryList.length > 0 && data.code == 200) {
             loadGantryList(gantryList, "machineId");
-        } else if (gantryList.length <= 0 && data.code == 200){
+        } else if (gantryList.length <= 0 && data.code == 200) {
             alert("提示：该分拣中心没有可供选择的龙门架设备！");
         } else if (data.code == 500) {
             alert("提示：获取该分拣中心的龙门架设备失败!");
@@ -53,20 +55,22 @@ function initGantryDevice(currentSiteCode) {
     });
 }
 
-function loadGantryList(gantryList, selectId){
+function loadGantryList(gantryList, selectId) {
     var gantryObj = $('#' + selectId);
-    var optionList = "<option value= ''>选择龙门架</option>";
+    // var optionList = "<option value= ''>选择龙门架</option>";
+    var optionList = null
     for (var i = 0; i < gantryList.length; i++) {
         optionList += "<option value='" + gantryList[i].machineId + "'>" + gantryList[i].machineId + "</option>";
     }
     gantryObj.append(optionList);
 }
 
-function onQueryBtnClick() {
+function onQueryBtnClick(pageNo) {
     var params = getParams();
     if (!checkParams(params)) {
         return false;
     }
+    params.pageNo = pageNo;
     doQuery(params);
 }
 
@@ -105,9 +109,9 @@ function doQuery(params) {
                 temp += "<td>" + (dataList[i].machineId) + "</td>";
                 temp += "<td>" + (dataList[i].planName) + "</td>";
                 temp += "<td>"
-                    + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].machineId + ")''>查看</a>"
-                    + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].machineId + ")' id='config'>配置</a>"
-                    + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].machineId + ")' id='delete'>删除</a>")
+                    + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].planId + ")''>查看</a>"
+                    + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].planId + ")' id='config'>配置</a>"
+                    + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].planId + ")' id='delete'>删除</a>")
                     + "</td>";
                 temp += "</tr>";
             }
@@ -121,6 +125,43 @@ function doQuery(params) {
 }
 
 function goAddBtnClick() {
+    var machineId = $.trim($("#machineId").val());
+    if (machineId == null || machineId <= 0) {
+        alert("请选择龙门架！");
+        return false;
+    }
     var contextPath = $("#contextPath").val();
-    location.href = contextPath + "/areaDestPlan/addView";
+    location.href = contextPath + "/areaDestPlan/addView?machineId=" + machineId;
+}
+
+/**
+ * 删除方案
+ * */
+function doDelete(id) {
+    if (confirm("删除后无法恢复，确认操作？")) {
+        var url = $("#contextPath").val() + "/areaDestPlan/delete";
+        var params = {};
+        params.planId = id;
+        CommonClient.post(url, params, function (data) {
+            if (data == undefined || data == null) {
+                alert("提示请求无数据返回");
+                return;
+            }
+            if (data.code == 200) {
+                alert(data.message);
+                window.location.reload()
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+function doQueryDetail(id){
+    var contextPath = $("#contextPath").val();
+    location.href = contextPath + "/areaDestPlan/detail?planId=" + id;
+}
+
+function doConfig(id){
+
 }
