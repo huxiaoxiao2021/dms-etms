@@ -51,12 +51,13 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
             String target = schemeMq.get("target").toString();
 
             if (stores.contains(target)) {
+                String methodName = schemeMq.get("methodName").toString();
                 String messageValue = schemeMq.get("messageValue").toString();
                 String outboundNo = schemeMq.get("outboundNo").toString();
                 String outboundType = schemeMq.get("outboundType").toString();
                 String source = schemeMq.get("source").toString();
 
-                com.jd.staig.receiver.rpc.Result result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
+                com.jd.staig.receiver.rpc.Result result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, outboundNo);
 
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()=" + result.getResultCode());
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());

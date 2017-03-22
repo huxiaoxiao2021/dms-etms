@@ -399,13 +399,13 @@ public class SortSchemeController {
             }
             SortSchemeResponse remoteResponse = sortSchemeService.ableById2(request, HTTP + url + "/autosorting/sortScheme/update/able/id");
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
-                boolean bool = sortSchemeSyncService.sendDtc(request,HTTP + url,siteCode);
+                boolean bool = sortSchemeSyncService.sendDtc(request,HTTP + url,siteCode);//添加方案同步到DTC的操作
                 if(bool){
                     response.setCode(JdResponse.CODE_OK);
                     response.setMessage("分拣计划激活成功!");
                 }else{
                     response.setCode(JdResponse.CODE_OK);
-                    response.setMessage("分拣计划激活成功!仓库分拣方案同步失败");
+                    response.setMessage("分拣计划激活成功!仓库分拣方案同步失败，需要手动同步");
                 }
 
             }

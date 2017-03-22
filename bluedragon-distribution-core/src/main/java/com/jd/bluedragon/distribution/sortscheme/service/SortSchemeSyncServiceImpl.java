@@ -86,7 +86,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 bool = true;
             }catch (Exception e) {
                 this.logger.error(
-                        "分拣中心已激活的分拣方案推送DTC失败[" + jsonMQs + "]:" + e.getMessage(), e);
+                        "分拣中心已激活的分拣方案通过MQ推送DTC失败[" + jsonMQs + "]:" + e.getMessage(), e);
                 bool = false;
             }
         }
@@ -133,8 +133,10 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()=" + result.getResultCode());
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());
                 this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultValue()=" + result.getResultValue());
-                if (result.getResultCode()== 1) {
+                if (result.getResultCode()!= 1) {
                     this.logger.error("[分拣中心分拣方案推送DTC]消息失败，消息体为" + messageValue);
+                }else{
+                    bool = Boolean.TRUE;
                 }
             }
         }
@@ -154,40 +156,39 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         String cky2;
         String storeId;
         if(bDto.getSiteType() == 64){
-            String[] cky2AndStoreId = dmsStoreId.split("F");
-            cky2 = cky2AndStoreId[0];
-            storeId = cky2AndStoreId[1];
+            cky2 = dmsStoreId.substring(0,3);
+            storeId = dmsStoreId.substring(4,7);
         }else{
             String[] cky2AndStoreId = dmsStoreId.split(String.valueOf(dmsStoreId.charAt(3)));//自己都觉得有点多余
             cky2 = cky2AndStoreId[0];
             storeId = cky2AndStoreId[1];
         }
-
-        if(sortSchemes != null && sortSchemes.length > 0){
-            for (int i = 0;i<sortSchemes.length;i++){
-            DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
-            Map<String,String> mapMq = new HashMap<String, String>();
-            logger.info("分拣方案主表的数据消息体转化");
-
-            StringBuffer jsonBuffer = new StringBuffer();
-            jsonBuffer.append("{\"machineCode\":").append(sortSchemes[i].getMachineCode())
-                    .append(",\"siteNo\":").append(sortSchemes[i].getSiteNo())
-                    .append(",\"yn\":").append(sortSchemes[i].getYn())
-                    .append(",\"name\":").append(sortSchemes[i].getName())
-                    .append(",\"id\":\"").append(sortSchemes[i].getId());
-            dmsSortSchemeRouter.setBody(jsonBuffer.toString());
-            dmsSortSchemeRouter.setType("SortScheme");
-            String json = JsonHelper.toJson(dmsSortSchemeRouter);
-            mapMq.put("target",orgId + "," + cky2 + "," + storeId);
-            mapMq.put("messageValue",json);
-            mapMq.put("outbountnNo",bDto.getDmsSiteCode());
-            mapMq.put("outbountType","SortSchemeBackDl");
-            mapMq.put("source","DMS");
-
-            String mqStr = JsonHelper.toJson(mapMq);
-            mapMQs.add(mqStr);//消息池
-            }
-        }
+//        取消分拣方案主表的同步
+//        if(sortSchemes != null && sortSchemes.length > 0){
+//            for (int i = 0;i<sortSchemes.length;i++){
+//            DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
+//            Map<String,String> mapMq = new HashMap<String, String>();
+//            logger.info("分拣方案主表的数据消息体转化");
+//
+//            StringBuffer jsonBuffer = new StringBuffer();
+//            jsonBuffer.append("{\"machineCode\":").append(sortSchemes[i].getMachineCode())
+//                    .append(",\"siteNo\":").append(sortSchemes[i].getSiteNo())
+//                    .append(",\"yn\":").append(sortSchemes[i].getYn())
+//                    .append(",\"name\":").append(sortSchemes[i].getName())
+//                    .append(",\"id\":\"").append(sortSchemes[i].getId());
+//            dmsSortSchemeRouter.setBody(jsonBuffer.toString());
+//            dmsSortSchemeRouter.setType("SortScheme");
+//            String json = JsonHelper.toJson(dmsSortSchemeRouter);
+//            mapMq.put("target",orgId + "," + cky2 + "," + storeId);
+//            mapMq.put("messageValue",json);
+//            mapMq.put("outbountnNo",bDto.getDmsSiteCode());
+//            mapMq.put("outbountType","SortSchemeBackDl");
+//            mapMq.put("source","DMS");
+//
+//            String mqStr = JsonHelper.toJson(mapMq);
+//            mapMQs.add(mqStr);//消息池
+//            }
+//        }
 
         if(sortSchemeDetails.size() > 0){
             logger.info("分拣方案明细的数据消息体转化：条数"+sortSchemeDetails.size());
@@ -208,8 +209,8 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 String detailJson = JsonHelper.toJson(dmsSortSchemeRouter);
                 mapMq.put("target",orgId + "," + cky2 + "," + storeId);
                 mapMq.put("messageValue",detailJson);
-                mapMq.put("outboundNo",bDto.getDmsSiteCode());
-                mapMq.put("outboundType","SortSchemeBackDl");
+                mapMq.put("outboundNo",itemDetail.getId().toString());
+                mapMq.put("outboundType","SortSchemeDetail");
                 mapMq.put("source","DMS");
 
                 String mqStr = JsonHelper.toJson(mapMq);
