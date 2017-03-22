@@ -371,7 +371,7 @@ public class SortSchemeController {
     public SortSchemeResponse<String> ableSortSchemeById(@RequestBody SortSchemeRequest request) {
         SortSchemeResponse<String> response = new SortSchemeResponse<String>();
         String siteName = "";
-        Integer siteCode = 910;
+        Integer siteCode = 0;
         try{
             ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
 
