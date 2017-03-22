@@ -33,7 +33,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
-    private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,53", "10,10,51");
+    private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2");
 
     private static final String sortSchemeUrl = "/autosorting/sortScheme/find/id";
     private static final String sortSchemeDetailUrl = "/autosorting/sortSchemeDetail/list/schemeId";
@@ -127,6 +127,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
             if (stores.contains(target)) {
                 String messageValue = mapMq.get("messageValue").toString();
                 String outboundNo = mapMq.get("outboundNo").toString();
+                String methodName = mapMq.get("methodName").toString();
                 String outboundType = mapMq.get("outboundType").toString();
                 String source = mapMq.get("source").toString();
                 Result result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
@@ -153,16 +154,19 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     private List<String> sortSchemeToJson(List<String> mapMQs, List<SortSchemeDetail> sortSchemeDetails, BaseStaffSiteOrgDto bDto,SortScheme... sortSchemes ){
         Integer orgId = bDto.getOrgId();
         String dmsStoreId = bDto.getDmsSiteCode();//七位站点编码
+        if(this.logger.isDebugEnabled()){
+            this.logger.debug(dmsStoreId);
+        }
         String cky2;
         String storeId;
-        if(bDto.getSiteType() == 64){
-            cky2 = dmsStoreId.substring(0,3);
-            storeId = dmsStoreId.substring(4,7);
-        }else{
+//        if(bDto.getSiteType() == 64){
+//            cky2 = dmsStoreId.substring(0,3);
+//            storeId = dmsStoreId.substring(4,7);
+//        }else{
             String[] cky2AndStoreId = dmsStoreId.split(String.valueOf(dmsStoreId.charAt(3)));//自己都觉得有点多余
-            cky2 = cky2AndStoreId[0];
-            storeId = cky2AndStoreId[1];
-        }
+            cky2 = cky2AndStoreId[0].replace("0","");
+            storeId = cky2AndStoreId[1].replace("0","");
+//        }
 //        取消分拣方案主表的同步
 //        if(sortSchemes != null && sortSchemes.length > 0){
 //            for (int i = 0;i<sortSchemes.length;i++){
@@ -210,7 +214,8 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 mapMq.put("target",orgId + "," + cky2 + "," + storeId);
                 mapMq.put("messageValue",detailJson);
                 mapMq.put("outboundNo",itemDetail.getId().toString());
-                mapMq.put("outboundType","SortSchemeDetail");
+                mapMq.put("methodName","sortSchemeDetailDownload");
+                mapMq.put("outboundType","sortSchemeDetailDownload");
                 mapMq.put("source","DMS");
 
                 String mqStr = JsonHelper.toJson(mapMq);
