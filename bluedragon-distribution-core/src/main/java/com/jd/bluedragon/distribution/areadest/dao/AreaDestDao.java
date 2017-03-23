@@ -48,8 +48,8 @@ public class AreaDestDao extends BaseDao<AreaDest> {
      *
      * @param params
      */
-    public int disableById(Map<String, Object> params) {
-        return this.getSqlSession().update(AreaDestDao.namespace + ".disableById", params);
+    public int disableByPlanId(Map<String, Object> params) {
+        return this.getSqlSession().update(AreaDestDao.namespace + ".disableByPlanId", params);
     }
 
     /**

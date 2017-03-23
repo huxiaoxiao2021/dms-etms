@@ -159,9 +159,10 @@ function doDelete(id) {
 
 function doQueryDetail(id){
     var contextPath = $("#contextPath").val();
-    location.href = contextPath + "/areaDestPlan/detail?planId=" + id;
+    location.href = contextPath + "/areaDestPlan/detail?id=" + id;
 }
 
 function doConfig(id){
-
+    var contextPath = $("#contextPath").val();
+    location.href = contextPath + "/areaDestPlan/config?id=" + id;
 }

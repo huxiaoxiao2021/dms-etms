@@ -9,9 +9,14 @@ function main() {
         orgChange($(this).val());
     });
 
-    // 中转分拣中心变更
-    $("#transferSite").change(function () {
-        siteChange();
+    // 多级分拣保存
+    $('#goAddBtn_1').click(function () {
+        doSaveMultiDms();
+    });
+
+    // 直发分拣保存
+    $('#goAddBtn_2').click(function () {
+        doSaveDirectDms();
     });
 
     // 返回按钮
@@ -21,29 +26,126 @@ function main() {
 
     $('#multiSelect_from').multiselect({
         search: {
-            left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
-            right: '<input type="text" name="q" class="form-control" placeholder="Search..." />'
+            left: '<input type="text" name="left" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="Search..." />',
+            right: '<input type="text" name="right" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="Search..." />'
         },
         sort: false,
         beforeMoveToRight: function ($left, $right, $options) {
             delTimeout();
-            return doSave("add", $options);
+            return doSaveOrDel("add", $options);
         },
         beforeMoveToLeft: function ($left, $right, $options) {
             delTimeout();
-            return doSave("remove", $options);
+            return doSaveOrDel("remove", $options);
+        }
+    });
+    //初始化分拣中心下拉框
+    initDms();
+    //初始化站点下拉框
+    intSite();
+    multiDmsLoad(1);
+    directDmsLoad(1);
+}
+
+function initDms() {
+    var url = $("#contextPath").val() + "/services/bases/dms";
+    $.getJSON(url, function (data) {
+        var dmsList = data;
+        if (data == undefined || data == null) {
+            alert("提示:HTTP请求无数据返回！");
+            return;
+        }
+        if (dmsList.length > 0 && dmsList[0].code == 200) {
+            initDmsSelect("receiveSite", data);
+            initDmsSelect("nextSite", data)
+        } else if (dmsList.length > 0 && dmsList[0].code == 404) {
+            alert("提示:获取分拣中心列表为空！");
+        } else if (dmsList.length > 0 && dmsList[0].code == 20000) {
+            alert("提示:获取分拣中心列表为空！");
+        } else {
+            alert("提示:数据异常！");
         }
     });
 }
 
-function doSave(type, $options) {
+function intSite() {
+    var url = $("#contextPath").val() + "/services/bases/allsite";
+    $.getJSON(url, function (data) {
+        var dmsList = data;
+        if (data == undefined || data == null) {
+            alert("提示:HTTP请求无数据返回！");
+            return;
+        }
+        if (dmsList.length > 0 && dmsList[0].code == 200) {
+            initDmsSelect("destSite", data);
+            loadMultiSelect(data);
+        } else if (dmsList.length > 0 && dmsList[0].code == 404) {
+            alert("提示:获取分拣中心列表为空！");
+        } else if (dmsList.length > 0 && dmsList[0].code == 20000) {
+            alert("提示:获取分拣中心列表为空！");
+        } else {
+            alert("提示:数据异常！");
+        }
+    });
+}
+
+function multiDmsLoad(pageNo) {
+    var params = {};
+    //多级分拣
+    params.routeType = 3;
+    params.planId = $("#planId").val();
+    params.pageNo = pageNo;
+    doQuery("multiDms", params);
+}
+
+function directDmsLoad(pageNo) {
+    var params = {};
+    //多级分拣
+    params.routeType = 2;
+    params.planId = $("#planId").val();
+    params.pageNo = pageNo;
+    doQuery("directDms", params);
+}
+
+// 查询请求
+function doQuery(id, params) {
+    var url = $("#contextPath").val() + "/areaDest/getList";
+    CommonClient.post(url, params, function (data) {
+        if (data == undefined || data == null) {
+            alert("未配置方案");
+            return;
+        }
+        if (data.code == 200 || data.code == 2200) {
+            var pager = data.data;
+            var dataList = pager.data;
+            var temp = "";
+            if (dataList != null && dataList.length > 0) {
+                for (var i = 0; i < dataList.length; i++) {
+                    temp += "<tr class='a2' style=''>";
+                    temp += "<td>" + (dataList[i].createSiteName) + "</td>";
+                    temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
+                    temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
+                    temp += "</tr>";
+                }
+                $("#" + id + "PaperTable tbody").html(temp);
+            }
+            // 添加分页显示
+            $("#" + id + "Pager").html(PageBar.getHtml(id + "Load", pager.totalSize, pager.pageNo, pager.totalNo));
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+
+function doSaveOrDel(type, $options) {
     var params = getParams(type, $options);
     if (checkParams(params)) {
         var contextPath = $("#contextPath").val();
         if (type == "add") {
-            var url = contextPath + "/areadest/save";
+            var url = contextPath + "/areaDest/saveBatch";
         } else {
-            var url = contextPath + "/areadest/remove";
+            var url = contextPath + "/areaDest/delBatch";
         }
         var result = false;
         syncAjaxJson("POST", url, params, function (data) {
@@ -78,7 +180,7 @@ function getParams(type, $options) {
     if ($options != null && $options.length > 0) {
         if (type == "add") {
             for (var i = 0; i < $options.length; i++) {
-                arr.push($options[i].value + "," + $options[i].text);
+                arr.push($options[i].text);
             }
         } else {
             for (var i = 0; i < $options.length; i++) {
@@ -87,11 +189,11 @@ function getParams(type, $options) {
         }
     }
     var params = {};
-    params.createSiteName = $("#createSiteName").val();
-    params.createSiteCode = $("#createSiteCode").val();
-    params.transferSiteCode = $("#transferSite").val();
-    params.transferSiteName = $("#transferSite").find("option:selected").text();
-    params.receiveSiteCodeName = arr;
+    params.routeType = 1;
+    params.planId = $("#planId").val();
+    params.createSiteCode = $("#currentSiteCode").val();
+    params.createSiteName = $("#currentSiteName").val();
+    params.receiveSiteList = arr;
     return params;
 }
 
@@ -99,94 +201,99 @@ function checkParams(params) {
     if (null == params) {
         return false;
     }
-    if (params.createSiteCode == null || params.createSiteCode <= 0) {
-        alert("获取始发分拣中心失败，请确认用户是否关联分拣中心！");
+    if (params.planId == null || params.planId <= 0) {
+        alert("获取方案信息失败，请重新登录后重试！");
         return false;
     }
-    if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
-        alert("请选择中转分拣站中心！")
+    if (params.createSiteCode == null || params.createSiteCode <= 0) {
+        alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
         return false;
+    }
+    if (params.routeType != 1) {
+        if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
+            alert("请选择下级分拣中心！")
+            return false;
+        }
+        if (params.receiveSiteCode == null || params.receiveSiteCode <= 0) {
+            if (params.routeType = 2) {
+                alert("请选择预分拣站点！")
+            } else {
+                alert("请选择末级分拣中心！")
+            }
+            return false;
+        }
     }
     return true;
 }
 
 // 返回
 function goBack() {
-    window.location.href = $("#contextPath").val() + "/areaDest/index";
+    window.location.href = $("#contextPath").val() + "/areaDestPlan/index";
 }
 
 /**
  * 机构变更，实现分拣中心联动
  */
 function orgChange(orgId) {
+    var id = "transferSite";
+    clearDmsSelect(id);
     if ($.trim(orgId).length <= 0) {
-        initDmsSelect();
+        initDmsSelect(id);
         return;
     }
-    var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
+    var url = $("#contextPath").val() + "/areaDest/dmsList?" + Math.random();
     var param = {"orgId": orgId};
     $.getJSON(url, param, function (data) {
-        initDmsSelect(data);
+        initDmsSelect(id, data);
     });
 }
 
-function siteChange() {
-    $('#myTab li:eq(0) a').tab('show');
-    loadSelected("all");
-}
-
-/**
- * 清空多选框
- */
-function clearMultiSelect() {
-    $('#multiSelect_from').empty();
-    $('#multiSelect_to').empty();
+function clearDmsSelect(id) {
+    $("#" + id + "Name").val("");
+    $("#" + id + "Code").val("");
+    $("#" + id + "Name").unautocomplete();
 }
 
 /**
  * 初始化分拣中心下拉列表
  */
-function initDmsSelect(data) {
-    var dmsList = data;
-    var optionList = "";
-    if (dmsList == undefined || null == dmsList || $.trim(dmsList).length <= 0) {
-        optionList = "<option value=''>所有分拣中心</option>";
+function initDmsSelect(selectId, data) {
+    if (data == undefined || null == data || $.trim(data).length <= 0) {
+        return;
     } else {
-        optionList = "<option value=''>所有分拣中心</option>";
-        for (var i = 0; i < dmsList.length; i++) {
-            optionList += "<option value='" + dmsList[i].siteCode + "'>" + dmsList[i].siteName + "</option>";
-        }
-    }
-    $("#transferSite").html(optionList);
-}
-
-function loadSelected(orgId) {
-    $.blockUI({message: "<span class='pl20 icon-loading'>正在加载,请稍后...</span>"});
-    clearMultiSelect();
-    if (orgId == 'all') {
-        var url = $("#contextPath").val() + "/services/bases/dms?" + Math.random();
-    } else {
-        var url = $("#contextPath").val() + "/areadest/dmslist?" + Math.random();
-    }
-    var createSiteCode = $("#createSiteCode").val();
-    var transferSiteCode = $("#transferSite").find("option:selected").val();
-    if (createSiteCode != "" && transferSiteCode != "") {
-        var param = {"orgId": orgId};
-        $.getJSON(url, param, function (data) {
-            if (data != null && data.length > 0) {
-                var innerParams = {"createSiteCode": createSiteCode, "transferSiteCode": transferSiteCode};
-                var getUrl = $("#contextPath").val() + "/areadest/dmsselected?" + Math.random();
-                $.getJSON(getUrl, innerParams, function (selectedData) {
-                    addOptions(data, selectedData);
-                    $.unblockUI();
-                });
+        $("#" + selectId + "Name").autocomplete(data, {
+            minChars: 0,
+            max: 0,
+            mustMatch: true,
+            width: 300,
+            matchContains: true,
+            formatItem: function (data, i, max) {//格式化列表中的条目 row:条目对象,i:当前条目数,max:总条目数
+                return data.siteName + "|" + data.siteCode;
+            },
+            formatMatch: function (data, i, max) {//配合formatItem使用，作用在于，由于使用了formatItem，所以条目中的内容有所改变，而我们要匹配的是原始的数据，所以用formatMatch做一个调整，使之匹配原始数据
+                return data.siteName + data.siteCode;
+            },
+            formatResult: function (data) {//定义最终返回的数据，比如我们还是要返回原始数据，而不是formatItem过的数据
+                return data.siteName;
+            }
+        }).result(function (event, data, formatted) {
+            if (data == undefined || data == null) {
+                $("#" + selectId + "Code").val("");
             } else {
-                $.unblockUI();
+                $("#" + selectId + "Code").val(data.siteCode);
             }
         });
-    } else {
-        $.unblockUI();
     }
+}
+
+function loadMultiSelect(data) {
+    var params = {};
+    params.routeType = 1;
+    params.planId = $("#planId").val();
+    var getUrl = $("#contextPath").val() + "/areaDest/getSelected?" + Math.random();
+    $.getJSON(getUrl, params, function (selectedData) {
+        addOptions(data, selectedData);
+    });
 }
 
 function addOptions(data, selectedData) {
@@ -198,14 +305,14 @@ function addOptions(data, selectedData) {
             for (var j = 0; j < selectedData.length; j++) {
                 if (data[i].siteCode == selectedData[j].receiveSiteCode) {
                     flag = true;
-                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteName + "</option>";
+                    var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + "," + data[i].siteName + "</option>";
                     toOption += option;
                     break;
                 }
             }
         }
         if (!flag) {
-            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteName + "</option>";
+            var option = "<option value='" + data[i].siteCode + "'>" + data[i].siteCode + "," + data[i].siteName + "</option>";
             fromOption += option;
         }
     }
@@ -233,3 +340,66 @@ function syncAjaxJson(type, url, param, successFunction) {
         }
     });
 };
+
+function getMultiDmsParams() {
+    var params = {};
+    //多级分拣
+    params.routeType = 3;
+    params.planId = $("#planId").val();
+    params.createSiteCode = $("#currentSiteCode").val();
+    params.createSiteName = $("#currentSiteName").val();
+    params.transferSiteCode = $("#transferSiteCode").val();
+    params.transferSiteName = $("#transferSiteName").val();
+    params.receiveSiteName = $("#receiveSiteName").val();
+    params.receiveSiteCode = $("#receiveSiteCode").val();
+    return params;
+}
+
+
+function doSaveMultiDms() {
+    var params = getMultiDmsParams();
+    if (checkParams(params)) {
+        doDmsSave(params);
+    }
+}
+
+function getDirectDmsParams() {
+    var params = {};
+    //多级分拣
+    params.routeType = 2;
+    params.planId = $("#planId").val();
+    params.createSiteCode = $("#currentSiteCode").val();
+    params.createSiteName = $("#currentSiteName").val();
+    params.transferSiteCode = $("#nextSiteCode").val();
+    params.transferSiteName = $("#nextSiteName").val();
+    params.receiveSiteName = $("#destSiteName").val();
+    params.receiveSiteCode = $("#destSiteCode").val();
+    return params;
+}
+
+function doSaveDirectDms() {
+    var params = getDirectDmsParams();
+    if (checkParams(params)) {
+        doDmsSave(params);
+    }
+}
+
+function doDmsSave(params) {
+    var url = $("#contextPath").val() + "/areaDest/save?" + Math.random()
+    CommonClient.post(url, params, function (data) {
+        if (data && data.code == 200) {
+            alert("添加成功");
+            if (params.routeType == 2) {
+                directDmsLoad(1);
+            } else {
+                multiDmsLoad(1);
+            }
+        } else {
+            if (data.message) {
+                alert(data.message);
+            } else {
+                alert("添加异常");
+            }
+        }
+    });
+}

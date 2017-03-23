@@ -58,7 +58,7 @@
         </div>
         <div class="column_text">
             <input type="text" id="currentSiteName" name="currentSiteName" maxlength="50" disabled="true"
-                   style="width:150px" value="$!{currentSiteName}"/>
+                   style="width:220px" value="$!{currentSiteName}"/>
             <input type="hidden" id="currentSiteCode" name="currentSiteCode" value="$!{currentSiteCode}"/>
         </div>
     </div>
@@ -68,7 +68,7 @@
             <span>龙门架编号：</span>
         </div>
         <div class="column_text">
-            <select id="machineId" style="width:150px" disabled="true">
+            <select id="machineId" style="width:224px" disabled="true">
                 #if($!{machineId})
                     <option value="$!{machineId}">$!{machineId}</option>
                 #else
@@ -83,7 +83,7 @@
             <span>方案名称：</span>
         </div>
         <div class="column_text">
-            <input type="text" id="planName" class="sortscheme_query_text"/>
+            <input type="text" id="planName" style="width:220px" class="sortscheme_query_text"/>
         </div>
     </div>
 

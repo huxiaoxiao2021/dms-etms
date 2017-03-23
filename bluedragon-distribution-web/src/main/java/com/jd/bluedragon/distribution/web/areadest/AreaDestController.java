@@ -12,19 +12,14 @@ import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.RouteType;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -78,15 +73,10 @@ public class AreaDestController {
                 result = areaDestService.getList(planId, null, pager);
             }
 
-            if (result != null && result.size() > 0) {
-                pager.setData(result);
-                response.setData(pager);
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage(JdResponse.MESSAGE_OK);
-            } else {
-                response.setCode(JdResponse.CODE_OK_NULL);
-                response.setMessage(JdResponse.MESSAGE_OK_NULL);
-            }
+            pager.setData(result);
+            response.setData(pager);
+            response.setCode(JdResponse.CODE_OK);
+            response.setMessage(JdResponse.MESSAGE_OK);
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
@@ -96,86 +86,12 @@ public class AreaDestController {
     }
 
     /**
-     * 跳转新增页
-     *
-     * @param model
-     * @return
-     */
-    /*@Authorization("DMS-WEB-ADD-AREA-DEST")*/
-    @RequestMapping(value = "/addview", method = RequestMethod.GET)
-    public String addView(Model model) {
-        try {
-            this.buildAddView(model);
-        } catch (Exception e) {
-            logger.error("跳转新增页面失败", e);
-        }
-        return "areadest/add";
-    }
-
-    /**
-     * 无权限控制跳转新增页
-     *
-     * @param model
-     * @return
-     */
-    @RequestMapping(value = "/addviewunauth", method = RequestMethod.GET)
-    public String addViewUnAuth(Model model) {
-        try {
-            this.buildAddView(model);
-        } catch (Exception e) {
-            logger.error("跳转无权限新增页面失败", e);
-        }
-        return "areadest/add";
-    }
-
-    private void buildAddView(Model model) {
-        //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-        erpUser.setUserCode("lixin456");
-        if (erpUser != null) {
-            //BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-            BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
-            dto.setSiteCode(910);
-            dto.setSiteName("北京马驹桥分拣中心");
-            if (dto != null) {
-                model.addAttribute("createSiteCode", dto.getSiteCode());
-                model.addAttribute("createSiteName", dto.getSiteName());
-            } else {
-                logger.error("根据erp用户信息获取基础信息失败，结果为null");
-            }
-            model.addAttribute("allOrgs", removeInvalidOrg(baseService.getAllOrg()));
-        } else {
-            logger.error("获取erp用户信息失败，结果为null");
-        }
-    }
-
-    /**
-     * 移除无分拣中心的机构
-     *
-     * @param allOrg
-     * @return
-     */
-    private List<BaseOrg> removeInvalidOrg(List<BaseOrg> allOrg) {
-        if (allOrg != null && allOrg.size() > 0) {
-            Iterator<BaseOrg> iterator = allOrg.iterator();
-            while (iterator.hasNext()) {
-                BaseOrg org = iterator.next();
-                List<SimpleBaseSite> sites = baseMajorManager.getDmsListByOrgId(org.orgId);
-                if (sites == null || sites.size() == 0) {
-                    iterator.remove();
-                }
-            }
-        }
-        return allOrg;
-    }
-
-    /**
      * 根据机构id获取对应分拣中心
      *
      * @param orgId
      * @return
      */
-    @RequestMapping(value = "/dmslist", method = RequestMethod.GET)
+    @RequestMapping(value = "/dmsList", method = RequestMethod.GET)
     @ResponseBody
     public List<SimpleBaseSite> queryDmsListByOrg(Integer orgId) {
         try {
@@ -187,22 +103,69 @@ public class AreaDestController {
     }
 
     /**
-     * 根据始发分拣中心、中转分拣中心和目的分拣中心所属机构获取目的分拣中心列表
+     * 根据方案编号和路线类型获取关系列表
      *
-     * @param createSiteCode
-     * @param transferSiteCode
+     * @param planId
+     * @param routeType
      * @return
      */
-    @RequestMapping(value = "/dmsselected", method = RequestMethod.GET)
+    @RequestMapping(value = "/getSelected", method = RequestMethod.GET)
     @ResponseBody
-    public List<AreaDest> queryDmsByTransfer(Integer createSiteCode, Integer transferSiteCode) {
+    public List<AreaDest> getSelected(Integer planId, Integer routeType) {
         try {
-            //return areaDestService.getList(createSiteCode, transferSiteCode, null);
+            return areaDestService.getList(planId, RouteType.getEnum(routeType));
         } catch (Exception e) {
             logger.error("获取机构下的分拣中心失败", e);
-            return null;
         }
         return null;
+    }
+
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @ResponseBody
+    public AreaDestResponse save(AreaDestRequest request) {
+        AreaDestResponse<String> response = new AreaDestResponse<String>();
+        try {
+            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+            erpUser.setUserCode("lixin456");
+            erpUser.setUserId(320246);
+            Integer count = areaDestService.getCount(request);
+            if (count != null) {
+                if (count > 0) {
+                    response.setCode(JdResponse.CODE_SEE_OTHER);
+                    response.setMessage("新增失败，该关系已经存在，请勿重复添加！");
+                    return response;
+                } else {
+                    if (areaDestService.add(buildAreaDestDomain(request, erpUser))) {
+                        response.setCode(JdResponse.CODE_OK);
+                        response.setMessage(JdResponse.MESSAGE_OK);
+                        return response;
+                    }
+                }
+            }
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        } catch (Exception e) {
+            logger.error("新增发货关系时发生异常", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+        return response;
+    }
+
+    private AreaDest buildAreaDestDomain(AreaDestRequest request, ErpUserClient.ErpUser erpUser) {
+        AreaDest areaDest = new AreaDest();
+        areaDest.setPlanId(request.getPlanId());
+        areaDest.setRouteType(request.getRouteType());
+        areaDest.setCreateSiteCode(request.getCreateSiteCode());
+        areaDest.setCreateSiteName(request.getCreateSiteName());
+        areaDest.setTransferSiteCode(request.getTransferSiteCode());
+        areaDest.setTransferSiteName(request.getTransferSiteName());
+        areaDest.setReceiveSiteCode(request.getReceiveSiteCode());
+        areaDest.setReceiveSiteName(request.getReceiveSiteName());
+        areaDest.setCreateUser(erpUser.getUserCode());
+        areaDest.setCreateUserCode(erpUser.getUserId());
+        return areaDest;
     }
 
     /**
@@ -211,26 +174,21 @@ public class AreaDestController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/saveBatch", method = RequestMethod.POST)
     @ResponseBody
-    public AreaDestResponse save(@RequestBody AreaDestRequest request) {
+    public AreaDestResponse saveBatch(@RequestBody AreaDestRequest request) {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
             erpUser.setUserCode("lixin456");
             erpUser.setUserId(00320246);
-            if (request.getCreateSiteCode() != null && request.getCreateSiteCode() > 0 && request.getTransferSiteCode() != null && request.getTransferSiteCode() > 0) {
-                if (areaDestService.saveOrUpdate(request, erpUser.getUserCode(), erpUser.getUserId())) {
-                    response.setCode(JdResponse.CODE_OK);
-                    response.setMessage(JdResponse.MESSAGE_OK);
-                } else {
-                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-                }
+            if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getUserId()) > 0) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage(JdResponse.MESSAGE_OK);
             } else {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             }
         } catch (Exception e) {
             logger.error("批量保存目的分拣中心失败", e);
@@ -246,52 +204,27 @@ public class AreaDestController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/remove", method = RequestMethod.POST)
+    @RequestMapping(value = "/delBatch", method = RequestMethod.POST)
     @ResponseBody
-    public AreaDestResponse remove(@RequestBody AreaDestRequest request) {
+    public AreaDestResponse delBatch(@RequestBody AreaDestRequest request) {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
             erpUser.setUserCode("lixin456");
-            if (request.getCreateSiteCode() != null && request.getCreateSiteCode() > 0 && request.getTransferSiteCode() != null && request.getTransferSiteCode() > 0) {
-                if (doDisable(request, erpUser.getUserCode(), erpUser.getUserId())) {
-                    response.setCode(JdResponse.CODE_OK);
-                    response.setMessage(JdResponse.MESSAGE_OK);
-                } else {
-                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-                }
+            if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getUserId())) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage(JdResponse.MESSAGE_OK);
             } else {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             }
         } catch (Exception e) {
-            logger.error("批量移除目的分拣中心失败", e);
+            logger.error("批量移除目的站点失败", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return response;
-    }
-
-    /**
-     * 设置目的地为无效
-     *
-     * @param request
-     * @param updateUser
-     * @param updateUserCode
-     * @return
-     */
-    private boolean doDisable(AreaDestRequest request, String updateUser, Integer updateUserCode) {
-        List<String> codeNameList = request.getReceiveSiteCodeName();
-        if (codeNameList != null && codeNameList.size() > 0) {
-            List<Integer> siteCodeList = new ArrayList<Integer>();
-            for (String code : codeNameList) {
-                siteCodeList.add(Integer.valueOf(code));
-            }
-            return areaDestService.disable(request.getCreateSiteCode(), request.getTransferSiteCode(), siteCodeList, updateUser, updateUserCode);
-        }
-        return true;
     }
 
 }
