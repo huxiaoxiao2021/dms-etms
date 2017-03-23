@@ -24,7 +24,7 @@ import java.util.Map;
 public class SortSchemeConsumer extends MessageBaseConsumer{
     private static final Log logger = LogFactory.getLog(SortSchemeConsumer.class);
 
-    private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,53", "10,10,51");
+    private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2");
 
     @Autowired
     SortSchemeSyncService sortSchemeSyncService;
@@ -42,8 +42,8 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
         }
         Map schemeMq = JsonHelper.json2Map(message.getText());
         DmsSortSchemeRouter dmsSortScheme = JsonHelper.fromJson(schemeMq.get("messageValue").toString(),DmsSortSchemeRouter.class);
-        if(null == dmsSortScheme.getType() || !"scheme".equalsIgnoreCase(dmsSortScheme.getType()) || !"schemeDetail".equalsIgnoreCase(dmsSortScheme.getType())){
-            logger.info(MessageFormat.format("分拣中心推送DTC分拣方案消息抛弃，内容为：{0}",message.getText()));
+        if(null == dmsSortScheme.getType() && !"SortScheme".equalsIgnoreCase(dmsSortScheme.getType()) && !"SortSchemeDetail".equalsIgnoreCase(dmsSortScheme.getType())){
+            logger.info(MessageFormat.format("分拣中心推送DTC分拣方案消息抛弃，内容为：{0}",dmsSortScheme.toString()));
             return;
         }
 
@@ -52,7 +52,7 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
 
             String target = schemeMq.get("target").toString();
 
-            if (stores.contains(target)) {
+//            if (stores.contains(target)) {
                 String methodName = schemeMq.get("methodName").toString();
                 String messageValue = schemeMq.get("messageValue").toString();
                 String outboundNo = schemeMq.get("outboundNo").toString();
@@ -67,7 +67,9 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
                 if (result.getResultCode()!= 1) {
                     this.logger.error("[分拣中心分拣方案推送DTC]消息失败，消息体为" + messageValue);
                 }
-            }
+//            }else{
+//                this.logger.info("分拣方案推送失败：对应的target信息不符"+target+"{"+ stores +"}");
+//            }
         }
     }
 

@@ -29,4 +29,9 @@ public class DmsSortSchemeRouter implements Serializable{
     public void setBody(String body) {
         this.body = body;
     }
+
+    @Override
+    public String toString() {
+        return "DmsSortSchemeRouter{" + "type='" + type + '\'' + ", body='" + body + '\'' + '}';
+    }
 }
