@@ -35,12 +35,14 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
     @Override
     public void consume(Message message) throws Exception {
         if(!JsonHelper.isJsonString(message.getText())){
-            logger.warn(MessageFormat.format("分拣方案推送DTC消息——非JSON格式，消息体内容为{0}",message.getText()));
+            if(this.logger.isDebugEnabled()){
+                logger.warn(MessageFormat.format("分拣方案推送DTC消息——非JSON格式，消息体内容为{0}",message.getText()));
+            }
             return;
         }
         Map schemeMq = JsonHelper.json2Map(message.getText());
         DmsSortSchemeRouter dmsSortScheme = JsonHelper.fromJson(schemeMq.get("messageValue").toString(),DmsSortSchemeRouter.class);
-        if(null == dmsSortScheme.getType() || !"scheme".equals(dmsSortScheme.getType()) || !"schemeDetail".equals(dmsSortScheme.getType())){
+        if(null == dmsSortScheme.getType() || !"scheme".equalsIgnoreCase(dmsSortScheme.getType()) || !"schemeDetail".equalsIgnoreCase(dmsSortScheme.getType())){
             logger.info(MessageFormat.format("分拣中心推送DTC分拣方案消息抛弃，内容为：{0}",message.getText()));
             return;
         }

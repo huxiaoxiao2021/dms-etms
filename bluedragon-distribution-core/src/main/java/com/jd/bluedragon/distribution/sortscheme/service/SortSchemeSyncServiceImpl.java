@@ -75,7 +75,9 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         /** 发送MQ到DTC系统 **/
         List<String> jsonMQs = new ArrayList<String>();
         jsonMQs = this.sortSchemeToJson(jsonMQs,sortSchemeDetailDatas,bDto,sortSchemeData);
-        this.logger.info("分拣中心已激活的分拣方案推送DTC:MQ[" + jsonMQs + "]");
+        if(this.logger.isDebugEnabled()){
+            this.logger.info("分拣中心已激活的分拣方案推送DTC:MQ[" + jsonMQs + "]");
+        }
         String businessId = siteCode + "_" + sortSchemeData.getMachineCode() + "_" + sortSchemeData.getName();//分拣中心+分拣机代码+方案名称，例如：1086_PX-SHYK-JD_1月12日生产方案
 
         if(jsonMQs.size()>0){
