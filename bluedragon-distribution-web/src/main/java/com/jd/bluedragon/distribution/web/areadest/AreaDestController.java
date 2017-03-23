@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.api.response.AreaDestResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.ql.basic.dto.SimpleBaseSite;
@@ -38,9 +37,6 @@ public class AreaDestController {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    private BaseService baseService;
 
     /**
      * 获取区域批次目的地列表
@@ -125,10 +121,7 @@ public class AreaDestController {
     public AreaDestResponse save(AreaDestRequest request) {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(320246);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             Integer count = areaDestService.getCount(request);
             if (count != null) {
                 if (count > 0) {
@@ -179,10 +172,7 @@ public class AreaDestController {
     public AreaDestResponse saveBatch(@RequestBody AreaDestRequest request) {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(00320246);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getUserId()) > 0) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage(JdResponse.MESSAGE_OK);
@@ -209,9 +199,7 @@ public class AreaDestController {
     public AreaDestResponse delBatch(@RequestBody AreaDestRequest request) {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getUserId())) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage(JdResponse.MESSAGE_OK);

@@ -60,14 +60,9 @@ public class AreaDestPlanController {
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                //BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
-                dto.setSiteCode(910);
-                dto.setSiteName("北京马驹桥分拣中心");
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
             } else {
@@ -155,15 +150,9 @@ public class AreaDestPlanController {
     }
 
     private void buildSiteViewParam(Model model) {
-        //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-        erpUser.setUserCode("lixin456");
-        erpUser.setUserId(320246);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         if (erpUser != null) {
-            //BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-            BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
-            dto.setSiteCode(910);
-            dto.setSiteName("北京马驹桥分拣中心");
+            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
             if (dto != null) {
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
@@ -199,10 +188,7 @@ public class AreaDestPlanController {
             return response;
         }
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(320246);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 if (areaDestPlanService.add(requestToDomain(request, erpUser))) {
                     response.setCode(JdResponse.CODE_OK);
@@ -269,10 +255,7 @@ public class AreaDestPlanController {
             return response;
         }
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(320246);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getUserId())) {
                     response.setCode(JdResponse.CODE_OK);
