@@ -103,19 +103,21 @@ function doQuery(params) {
         if (data.code == 200) {
             var pager = data.data;
             var dataList = pager.data;
-            var temp = "";
-            for (var i = 0; i < dataList.length; i++) {
-                temp += "<tr class='a2' style=''>";
-                temp += "<td>" + (dataList[i].machineId) + "</td>";
-                temp += "<td>" + (dataList[i].planName) + "</td>";
-                temp += "<td>"
-                    + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].planId + ")''>查看</a>"
-                    + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].planId + ")' id='config'>配置</a>"
-                    + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].planId + ")' id='delete'>删除</a>")
-                    + "</td>";
-                temp += "</tr>";
+            if (dataList != null && dataList.length > 0) {
+                var temp = "";
+                for (var i = 0; i < dataList.length; i++) {
+                    temp += "<tr class='a2' style=''>";
+                    temp += "<td>" + (dataList[i].machineId) + "</td>";
+                    temp += "<td>" + (dataList[i].planName) + "</td>";
+                    temp += "<td>"
+                        + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].planId + ")''>查看</a>"
+                        + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].planId + ")' id='config'>配置</a>"
+                        + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].planId + ")' id='delete'>删除</a>")
+                        + "</td>";
+                    temp += "</tr>";
+                }
+                $("#paperTable tbody").html(temp);
             }
-            $("#paperTable tbody").html(temp);
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {
