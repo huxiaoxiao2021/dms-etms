@@ -26,8 +26,8 @@ function main() {
 
     $('#multiSelect_from').multiselect({
         search: {
-            left: '<input type="text" name="left" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="Search..." />',
-            right: '<input type="text" name="right" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="Search..." />'
+            left: '<input type="text" name="left" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="输入站点ID/站点名称..." />',
+            right: '<input type="text" name="right" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="输入站点ID/站点名称..." />'
         },
         sort: false,
         beforeMoveToRight: function ($left, $right, $options) {
@@ -123,7 +123,11 @@ function doQuery(id, params) {
                 for (var i = 0; i < dataList.length; i++) {
                     temp += "<tr class='a2' style=''>";
                     temp += "<td>" + (dataList[i].createSiteName) + "</td>";
-                    temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
+                    if (dataList[i].transferSiteCode == null || dataList[i].transferSiteCode == 0){
+                        temp += "<td>-----</td>";
+                    } else {
+                        temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
+                    }
                     temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
                     temp += "</tr>";
                 }
@@ -210,9 +214,11 @@ function checkParams(params) {
         return false;
     }
     if (params.routeType != 1) {
-        if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
-            alert("请选择下级分拣中心！")
-            return false;
+        if (params.routeType == 2) {
+            if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
+                alert("请选择下级分拣中心！")
+                return false;
+            }
         }
         if (params.receiveSiteCode == null || params.receiveSiteCode <= 0) {
             if (params.routeType = 2) {

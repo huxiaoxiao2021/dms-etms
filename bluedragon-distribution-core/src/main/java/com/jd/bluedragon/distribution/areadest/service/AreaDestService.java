@@ -94,6 +94,16 @@ public interface AreaDestService {
     List<AreaDest> getList(Integer planId, RouteType type);
 
     /**
+     * 根据方案编号、始发分拣中心编号、目的站点编号获取发货线路关系
+     *
+     * @param planId 方案编号
+     * @param createSiteCode 始发分拣中心编号
+     * @param receiveSiteCode 目的站点编号
+     * @return
+     */
+    List<AreaDest> getList(Integer planId, Integer createSiteCode, Integer receiveSiteCode);
+
+    /**
      * 根据方案编号、线路类型获取龙门架发货路线关系数量
      *
      * @param planId

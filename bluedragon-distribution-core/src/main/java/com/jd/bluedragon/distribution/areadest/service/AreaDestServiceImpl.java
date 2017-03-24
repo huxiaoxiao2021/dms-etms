@@ -199,6 +199,20 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
+    public List<AreaDest> getList(Integer planId, Integer createSiteCode, Integer receiveSiteCode) {
+        try {
+            Map<String, Object> parameter = new HashMap<String, Object>();
+            parameter.put("planId", planId);
+            parameter.put("createSiteCode", createSiteCode);
+            parameter.put("receiveSiteCode", receiveSiteCode);
+            return areaDestDao.getList(parameter);
+        } catch (Exception e) {
+            logger.error("获取龙门架发货路线关系列表异常！", e);
+        }
+        return null;
+    }
+
+    @Override
     public Integer getCount(Integer planId, RouteType type) {
         try {
             Map<String, Object> parameter = new HashMap<String, Object>();
@@ -220,9 +234,7 @@ public class AreaDestServiceImpl implements AreaDestService {
         try {
             Map<String, Object> parameter = new HashMap<String, Object>();
             parameter.put("planId", request.getPlanId());
-            parameter.put("routeType", request.getRouteType());
             parameter.put("createSiteCode", request.getCreateSiteCode());
-            parameter.put("transferSiteCode", request.getTransferSiteCode());
             parameter.put("receiveSiteCode", request.getReceiveSiteCode());
             return areaDestDao.getCount(parameter);
         } catch (Exception e) {

@@ -38,7 +38,7 @@ public class AreaDestPlanDetail implements Serializable {
     private Integer operateSiteCode;
 
     /**
-     * 操作
+     * 操作用户编号
      */
     private Integer operateUserCode;
 

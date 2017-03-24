@@ -114,6 +114,15 @@
         <if test="routeType != null">
             AND ROUTE_TYPE = #{routeType, jdbcType=BIGINT}
         </if>
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
         ORDER BY ROUTE_TYPE DESC
         <if test="startIndex != null">
             LIMIT #{startIndex}, #{pageSize}

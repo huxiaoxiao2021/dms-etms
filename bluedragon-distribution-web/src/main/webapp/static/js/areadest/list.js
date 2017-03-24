@@ -110,9 +110,9 @@ function doQuery(params) {
                     temp += "<td>" + (dataList[i].machineId) + "</td>";
                     temp += "<td>" + (dataList[i].planName) + "</td>";
                     temp += "<td>"
-                        + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].planId + ")''>查看</a>"
-                        + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].planId + ")' id='config'>配置</a>"
-                        + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].planId + ")' id='delete'>删除</a>")
+                        + ("<input type='button' onclick='doQueryDetail(" + dataList[i].planId + ")'' value='查看' class='btn_c'/>&nbsp&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doConfig(" + dataList[i].planId + ")'' value='配置' class='btn_c'/>&nbsp;&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doDelete(" + dataList[i].planId + ")'' value='删除' class='btn_c'/>")
                         + "</td>";
                     temp += "</tr>";
                 }
@@ -159,12 +159,12 @@ function doDelete(id) {
     }
 }
 
-function doQueryDetail(id){
+function doQueryDetail(id) {
     var contextPath = $("#contextPath").val();
     location.href = contextPath + "/areaDestPlan/detail?id=" + id;
 }
 
-function doConfig(id){
+function doConfig(id) {
     var contextPath = $("#contextPath").val();
     location.href = contextPath + "/areaDestPlan/config?id=" + id;
 }
