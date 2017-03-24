@@ -201,21 +201,25 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
             for(SortSchemeDetail itemDetail : sortSchemeDetails){
                 Map<String,String> mapMq = new HashMap<String, String>();
                 DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
-                StringBuffer detailJsonBuffer = new StringBuffer();
-                detailJsonBuffer.append("{\"yn\":").append(itemDetail.getYn())
-                        .append(",\"schemeId\":").append(itemDetail.getSchemeId())
-                        .append(",\"siteCode\":").append(itemDetail.getSiteCode())
-                        .append(",\"pkgLabelName\":").append(itemDetail.getPkgLabelName())
-                        .append(",\"boxSiteCode\":\"").append(itemDetail.getBoxSiteCode())
-                        .append(",\"chuteCode1\":").append(itemDetail.getChuteCode1())
-                        .append(",\"currChuteCode\":\"").append(itemDetail.getCurrChuteCode())
-                        .append(",\"id\":\"").append(itemDetail.getId());
-                dmsSortSchemeRouter.setBody(detailJsonBuffer.toString());
+
+                String detailJsonBuffer = new String();
+                Map<String,Object> detailMap = new HashMap<String,Object>();
+                detailMap.put("yn",itemDetail.getYn());
+                detailMap.put("schemeId",itemDetail.getSchemeId());
+                detailMap.put("siteCode",itemDetail.getSiteCode());
+                detailMap.put("pkgLabelName",itemDetail.getPkgLabelName());
+                detailMap.put("boxSiteCode",itemDetail.getBoxSiteCode());
+                detailMap.put("chuteCode1",itemDetail.getChuteCode1());
+                detailMap.put("currChuteCode",itemDetail.getCurrChuteCode());
+                detailMap.put("id",itemDetail.getId());
+                detailJsonBuffer = JsonHelper.toJsonUseGson(detailMap);
+
+                dmsSortSchemeRouter.setBody(detailJsonBuffer);
                 dmsSortSchemeRouter.setType("SortSchemeDetail");
                 String detailJson = JsonHelper.toJson(dmsSortSchemeRouter);
                 mapMq.put("target",orgId + "," + cky2 + "," + storeId);
                 mapMq.put("messageValue",detailJson);
-                mapMq.put("outboundNo",itemDetail.getId().toString());
+                mapMq.put("outboundNo",itemDetail.getSiteCode()+ "-" +itemDetail.getId().toString());
                 mapMq.put("methodName","sortSchemeDetailDownload");
                 mapMq.put("outboundType","sortSchemeDetailDownload");
                 mapMq.put("source","DMS");
