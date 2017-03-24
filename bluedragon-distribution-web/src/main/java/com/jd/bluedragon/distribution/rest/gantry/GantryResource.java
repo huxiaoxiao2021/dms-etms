@@ -78,7 +78,16 @@ public class GantryResource {
 
             Integer velocity = gantryDeviceService.getGantryVelocity(request.getCreateSiteCode(),request.getGantrySerialNumber(),request.getStartTime(),request.getEndTime());
 
-            //这里需要做一个判断  龙门架有个最大流速 和 平均流速
+            //这里需要做一个判断  龙门架有个最大流速3600 和 最大流速 5000
+
+
+            if(velocity == 0){
+                velocity = 3600;
+            }
+
+            if(velocity > 5000){
+                velocity = 5000;
+            }
 
             response.setVelocity(velocity);
         } catch (Throwable ex) {
