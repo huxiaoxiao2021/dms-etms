@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.areadest.service;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao;
