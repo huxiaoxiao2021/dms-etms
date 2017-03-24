@@ -375,12 +375,13 @@ function planShow(){
     params.machineId = $("#gantryDevice").val();
     params.operateSiteCode = $("#siteOrg").val();
     var url = $("#contextPath").val() + "/areaDestPlan/getMayPlan";//获取当前的planId
+    var planId = "";
     CommonClient.post(url,params,function (data) {
         if(undefined != data && null != data && null != data.data){
-            var planId = data.data.planId;
-            planInit(params,planId);
+            planId = data.data.planId;
         }
     })
+    planInit(params,planId);
 }
 
 
