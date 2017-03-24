@@ -123,7 +123,7 @@ function doQuery(id, params) {
                 for (var i = 0; i < dataList.length; i++) {
                     temp += "<tr class='a2' style=''>";
                     temp += "<td>" + (dataList[i].createSiteName) + "</td>";
-                    if (dataList[i].transferSiteCode == null || dataList[i].transferSiteCode == 0){
+                    if (dataList[i].transferSiteCode == null || dataList[i].transferSiteCode == 0) {
                         temp += "<td>-----</td>";
                     } else {
                         temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
@@ -213,19 +213,19 @@ function checkParams(params) {
         alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
         return false;
     }
-    if (params.routeType != 1) {
-        if (params.routeType == 2) {
-            if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
-                alert("请选择下级分拣中心！")
-                return false;
-            }
+    if (params.routeType == 2) {
+        if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
+            alert("请选择下级分拣中心！")
+            return false;
         }
         if (params.receiveSiteCode == null || params.receiveSiteCode <= 0) {
-            if (params.routeType = 2) {
-                alert("请选择预分拣站点！")
-            } else {
-                alert("请选择末级分拣中心！")
-            }
+            alert("请选择预分拣站点！")
+            return false;
+        }
+    }
+    if (params.routeType == 3) {
+        if (params.receiveSiteCode == null || params.receiveSiteCode <= 0) {
+            alert("请选择末级分拣中心！")
             return false;
         }
     }
