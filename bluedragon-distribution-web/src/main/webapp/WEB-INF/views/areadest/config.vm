@@ -5,11 +5,10 @@
     <meta http-equiv="pragma" content="no-cach"/>
     <meta http-equiv="cache-control" content="no-cache"/>
     <meta http-equiv="expires" content="0"/>
-    <title>区域批次目的地配置表</title>
+    <title>龙门架发货关系维护</title>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/bootstrap.min.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all"/>
-
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
 #*<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>*#
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap/jquery.js')"></script>
@@ -29,7 +28,10 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <style type="text/css">
-        h1, option { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; font-size:17px;}
+        *, :after, :before{
+            -webkit-box-sizing: content-box;
+            box-sizing: content-box;
+        }
         .myfont { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; font-size:17px;}
     </style>
 </head>
@@ -42,7 +44,7 @@
 <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
 <script type="text/javascript" src="#springUrl('')/static/js/areadest/config.js"></script>
 <div id="breadcrumb">
-    <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">区域批次目的地配置表新增</a></p>
+    <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">配置发货关系</a></p>
 </div>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content" width="100%">
@@ -51,35 +53,27 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody>
                 <tr>
-                    <td align="right">始发分拣中心：</td>
+                    <td align="right">当前分拣中心：</td>
                     <td>
-                        <input type="text" id="createSiteName" name="createSiteName" maxlength="50" disabled="true"
-                               style="width:150px" value="$!{createSiteName}"/>
-                        <input type="hidden" id="createSiteCode" name="createSiteCode" value="$!{createSiteCode}"/>
+                        <input type="text" id="currentSiteName" name="currentSiteName" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{currentSiteName}"/>
+                        <input type="hidden" id="currentSiteCode" name="currentSiteCode" value="$!{currentSiteCode}"/>
                     </td>
-                    <td align="right">中转分拣中心机构：</td>
+                    <td align="right">龙门架编号：</td>
                     <td>
-                        <select id="deviceOrg" style="width:150px">
-                            <option value="">所有机构</option>
-                            #if(!$null.isNull($!allOrgs))
-                                #foreach($org in $allOrgs)
-                                    <option value="$org.orgId">$org.orgName</option>
-                                #end
-                            #end
-                        </select>
+                        <input type="text" id="machineId" name="machineId" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{machineId}"/>
                     </td>
-                    <td align="right">中转分拣中心：</td>
+                    <td align="right">方案名称：</td>
                     <td>
-                        <select id="transferSite" style="width:150px">
-                            #if($!{transferSiteCode})
-                                <option value="$!{transferSiteCode}">$!{transferSiteCode}
-                                    &nbsp$!{transferSiteName}</option>
-                            #else
-                                <option value="">所有分拣中心</option>
-                            #end
-                        </select>
+                        <input type="text" id="planName" name="planName" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{planName}"/>
+                        <input type="hidden" id="planId" name="planId" value="$!{planId}"/>
                     </td>
                     <td>
+                        <input type="button" id="goDownloadBtn" name="goDownload" value="下载模板" class="btn_c"/>
+                        <input type="button" id="goExportBtn" name="goExport" value="导入" class="btn_c"/>
+                        <input type="button" id="goImportBtn" name="goImport" value="导出" class="btn_c"/>
                         <input type="button" id="goBackBtn" name="goback" value="返回" class="btn_c"/>
                     </td>
                 </tr>
@@ -91,84 +85,151 @@
     <div id="opening">
         <div class="tbl-list">
             <div class="tbl-bg">
-##              <ul id="myTab" class="nav nav-pills">
-                <ul id="myTab" class="nav nav-tabs">
-                    ##分拣到站
-                    <li class="active"><a href="#toOtherArea" data-toggle="tab" class="myfont">当前分拣——跨区分拣</a></li>
-                    ##分拣到本地分拣
-                    <li><a href="#toSortingCenter" data-toggle="tab" class="myfont">当前分拣——本地分拣</a></li>
+            ##  <ul id="myTab" class="nav nav-pills">
+                <ul id="tab" class="nav nav-tabs">
+                    ##多级分拣
+                    <li class="active"><a href="#toMultiDms" data-toggle="tab" class="myfont">多级分拣</a></li>
+                    ##直发分拣
+                    <li><a href="#toDirectDms" data-toggle="tab" class="myfont">直发分拣</a></li>
                     ##跨区分拣
-                    <li><a href="#toSite" data-toggle="tab" class="myfont">当前分拣——站点</a></li>
+                    <li><a href="#toSite" data-toggle="tab" class="myfont">分拣到站</a></li>
                 </ul>
 
-                <div id="myTabContent" class="tab-content">
-                    <div class="tab-pane fade in active" id="toOtherArea">
+                <div id="tabContent" class="tab-content">
+                    <div class="tab-pane fade in active" id="toMultiDms">
+                        <div class="tbl-n">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td align="right">下级分拣区域：</td>
+                                    <td>
+                                        <select id="deviceOrg" style="width:150px">
+                                            <option value="">所有机构</option>
+                                            #if(!$null.isNull($!allOrgs))
+                                                #foreach($org in $allOrgs)
+                                                    <option value="$org.orgId">$org.orgName</option>
+                                                #end
+                                            #end
+                                        </select>
+                                    </td>
+                                    <td align="right">下级分拣中心：</td>
+                                    <td>
+                                        <input type="text" id="transferSiteName" name="transferSiteName" maxlength="50" style="width:150px" value="$!{transferSiteName}"/>
+                                        <input type="hidden" id="transferSiteCode" name="transferSiteCode" value="$!{transferSiteCode}"/>
+                                    </td>
+                                    <td align="right">末级分拣中心：</td>
+                                    <td>
+                                        <input type="text" id="receiveSiteName" name="receiveSiteName" maxlength="50" style="width:150px" value="$!{receiveSiteName}"/>
+                                        <input type="hidden" id="receiveSiteCode" name="receiveSiteCode" value="$!{receiveSiteCode}"/>
+                                    </td>
+                                    <td>
+                                        <input type="button" id="goAddBtn_1" name="goAdd" value="添加" class="btn_c"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="opening">
+                            <div class="tbl-bg" align="center">
+                                <table id="multiDmsPaperTable" border="1" cellspacing=0 cellpadding=0 style="width:70%;min-width:900px;" class="tb-x1">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:30%;text-align:center;">当前分拣中心</th>
+                                        <th style="width:30%;text-align:center;">下级分拣中心</th>
+                                        <th style="width:30%;text-align:center;">末级分拣中心</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="multiDmsPager" class="tbl-n" style="width:85%;"></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="toDirectDms">
+                        <div class="tbl-n">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td align="right">下级分拣中心：</td>
+                                    <td>
+                                        <input type="text" id="nextSiteName" name="nextSiteName" maxlength="50" style="width:150px" value="$!{nextSiteName}"/>
+                                        <input type="hidden" id="nextSiteCode" name="nextSiteCode" value="$!{nextSiteCode}"/>
+                                    </td>
+                                    <td align="right">预分拣站点：</td>
+                                    <td>
+                                        <input type="text" id="destSiteName" name="destSiteName" maxlength="50" style="width:150px" value="$!{destSiteName}"/>
+                                        <input type="hidden" id="destSiteCode" name="destSiteCode" value="$!{destSiteCode}"/>
+                                    </td>
+                                    <td>
+                                        <input type="button" id="goAddBtn_2" name="goAdd" value="添加" class="btn_c"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="opening">
+                            <div class="tbl-bg" align="center">
+                                <table id="directDmsPaperTable" cellspacing=0 cellpadding=0 style="width:70%;min-width:900px;float:center;" class="tb-x1">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:30px;text-align:center;">当前分拣中心</th>
+                                        <th style="width:30px;text-align:center;">下级分拣中心</th>
+                                        <th style="width:30px;text-align:center;">预分拣站点</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="directDmsPager" class="tbl-n" style="width:85%;"></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="toSite">
                         <div style="height: 50px">
                             <div id="successAlert" class="alert alert-success alert-dismissable" style="display:none">
-                            #*<a href="#" class="close" data-dismiss="alert">&times;</a>*#
                                 <strong class="myfont">保存成功！</strong>
                             </div>
                             <div id="failureAlert" class="alert alert-danger alert-dismissable" style="display:none">
-                            #*<a href="#" class="close" data-dismiss="alert">&times;</a>*#
                                 <strong class="myfont">保存失败！</strong>
                             </div>
                         </div>
-                        <div class="tbl-left" style="width:30%;float:left">
-                            <ul id="myTab" class="nav nav-pills nav-stacked" style="display:block;width:30%;float:right;padding-top:50px;">
-                                <li class="active" onclick="loadSelected('all');">
-                                    <a href="#all" class="myfont" data-toggle="tab">全国</a>
-                                </li>
-                                #if(!$null.isNull($!allOrgs))
-                                    #foreach($org in $allOrgs)
-                                        <li onclick="loadSelected($org.orgId);">
-                                            <a href="" class="myfont" data-toggle="tab">$org.orgName</a>
-                                        </li>
-                                    #end
-                                #end
-                            </ul>
+                        <div id="multiselect" >
+                            <table class="display" style="width:70%;float:center;margin:0 auto">
+                                <tbody>
+                                <tr>
+                                    <td><h1 class="myfont">可选站点：</h1></td>
+                                    <td></td>
+                                    <td><h1 class="myfont">已选站点：</h1></td>
+                                </tr>
+                                <tr>
+                                    <td width="500px">
+                                        <select id="multiSelect_from" name="from[]" size=20
+                                                class="multiselect form-control" multiple="multiple"
+                                                data-right="#multiSelect_to" data-right-all="#right_all"
+                                                data-right-selected="#right_selected" data-left-all="#left_all"
+                                                data-left-selected="#left_selected" style="-webkit-box-sizing:border-box;box-sizing:border-box;height: 430px;">
+                                        </select>
+                                    </td>
+                                    <td width="18px" align="center" valign="middle">
+                                        <i id="right_all" class="glyphicon glyphicon-forward" style="cursor:pointer;"></i><br/><br/><br/>
+                                        <i id="right_selected" class="glyphicon glyphicon-chevron-right" style="cursor:pointer;"></i><br/><br/><br/>
+                                        <i id="left_selected" class="glyphicon glyphicon-chevron-left" style="cursor:pointer;"></i><br/><br/><br/>
+                                        <i id="left_all" class="glyphicon glyphicon-backward" style="cursor:pointer;"></i><br/><br/><br/>
+                                    </td>
+                                    <td width="500px">
+                                        <select id="multiSelect_to" name="to[]" size=20 class="multiselect form-control"
+                                                multiple="multiple" style="-webkit-box-sizing:border-box;box-sizing:border-box;height: 430px;">
+                                        </select>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="tbl-right" style="width:70%;float:right;">
-                            <div class="tab-content">
-                                <div id="multiselect" class="tab-pane fade in active">
-                                    <table class="display" style="width:70%;float:left;margin:0 auto">
-                                        <tbody>
-                                        <tr>
-                                            <td><h1>可选目的分拣中心：</h1></td>
-                                            <td></td>
-                                            <td><h1>已选目的分拣中心：</h1></td>
-                                        </tr>
-                                        <tr>
-                                            <td width="500px">
-                                                <select id="multiSelect_from" name="from[]" size=20
-                                                        class="multiselect form-control" multiple="multiple"
-                                                        data-right="#multiSelect_to" data-right-all="#right_all"
-                                                        data-right-selected="#right_selected" data-left-all="#left_all"
-                                                        data-left-selected="#left_selected" style="height: 430px">
-                                                </select>
-                                            </td>
-                                            <td width="18px" align="center" valign="middle">
-                                                <i id="right_all" class="glyphicon glyphicon-forward" style="cursor:pointer;"></i><br/><br/><br/>
-                                                <i id="right_selected" class="glyphicon glyphicon-chevron-right" style="cursor:pointer;"></i><br/><br/><br/>
-                                                <i id="left_selected" class="glyphicon glyphicon-chevron-left" style="cursor:pointer;"></i><br/><br/><br/>
-                                                <i id="left_all" class="glyphicon glyphicon-backward" style="cursor:pointer;"></i><br/><br/><br/>
-                                            </td>
-                                            <td width="500px">
-                                                <select id="multiSelect_to" name="to[]" size=20 class="multiselect form-control"
-                                                        multiple="multiple" style="height: 430px">
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="toSite">
-
-                    </div>
-                    <div class="tab-pane fade" id="toSortingCenter">
-
                     </div>
                 </div>
             </div>

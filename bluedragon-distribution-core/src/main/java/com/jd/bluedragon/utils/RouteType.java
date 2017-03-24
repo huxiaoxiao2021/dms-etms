@@ -6,18 +6,21 @@ package com.jd.bluedragon.utils;
  * Created by lixin39 on 2017/3/16.
  */
 public enum RouteType {
+
     /**
      * 直发到站
      */
     DIRECT_SITE(1, "直发到站"),
+
     /**
      * 直发分拣
      */
-    DIRECT_SORTING_CENTER(2, "直发分拣"),
+    DIRECT_DMS(2, "直发分拣"),
+
     /**
      * 多级分拣
      */
-    MULTI_SORTING_CENTER(3, "多级分拣");
+    MULTIPLE_DMS(3, "多级分拣");
 
     private int type;
 
@@ -44,4 +47,5 @@ public enum RouteType {
         }
         return null;
     }
+
 }

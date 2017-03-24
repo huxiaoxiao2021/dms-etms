@@ -54,9 +54,9 @@ public class AreaDestRequest extends JdRequest {
     private String receiveSiteName;
 
     /**
-     * 批次目的地的编号和名称
+     * 批次目的地的编号、名称
      */
-    private List<String> receiveSiteCodeName;
+    private List<String> receiveSiteList;
 
     public Integer getPlanId() {
         return planId;
@@ -122,26 +122,12 @@ public class AreaDestRequest extends JdRequest {
         this.receiveSiteName = receiveSiteName;
     }
 
-    public List<String> getReceiveSiteCodeName() {
-        return receiveSiteCodeName;
+    public List<String> getReceiveSiteList() {
+        return receiveSiteList;
     }
 
-    public void setReceiveSiteCodeName(List<String> receiveSiteCodeName) {
-        this.receiveSiteCodeName = receiveSiteCodeName;
+    public void setReceiveSiteList(List<String> receiveSiteList) {
+        this.receiveSiteList = receiveSiteList;
     }
 
-    @Override
-    public String toString() {
-        return "AreaDestRequest{" +
-                "planId=" + planId +
-                ", routeType=" + routeType +
-                ", createSiteName='" + createSiteName + '\'' +
-                ", createSiteCode=" + createSiteCode +
-                ", transferSiteCode=" + transferSiteCode +
-                ", transferSiteName='" + transferSiteName + '\'' +
-                ", receiveSiteCode=" + receiveSiteCode +
-                ", receiveSiteName='" + receiveSiteName + '\'' +
-                ", receiveSiteCodeName=" + receiveSiteCodeName +
-                '}';
-    }
 }

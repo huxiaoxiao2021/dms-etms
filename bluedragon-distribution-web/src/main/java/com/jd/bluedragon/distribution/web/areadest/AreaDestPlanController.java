@@ -13,8 +13,8 @@ import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.fastjson.serializer.InetAddressCodec;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +48,9 @@ public class AreaDestPlanController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private BaseService baseService;
+
     /**
      * 功能首页
      *
@@ -57,14 +60,9 @@ public class AreaDestPlanController {
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                //BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
-                dto.setSiteCode(910);
-                dto.setSiteName("北京马驹桥分拣中心");
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
             } else {
@@ -99,14 +97,9 @@ public class AreaDestPlanController {
                 pager = new Pager<List<AreaDestPlan>>(Pager.DEFAULT_PAGE_NO);
             }
             List<AreaDestPlan> data = areaDestPlanService.getList(operateSiteCode, request.getMachineId(), pager);
-            if (data != null && data.size() > 0) {
-                pager.setData(data);
-                response.setData(pager);
-                response.setCode(JdResponse.CODE_OK);
-            } else {
-                response.setCode(JdResponse.CODE_OK_NULL);
-                response.setMessage(JdResponse.MESSAGE_OK_NULL);
-            }
+            pager.setData(data);
+            response.setData(pager);
+            response.setCode(JdResponse.CODE_OK);
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
@@ -117,6 +110,7 @@ public class AreaDestPlanController {
 
     /**
      * 获取方案的所有列表
+     *
      * @return
      */
     @RequestMapping(value = "/getAllList", method = RequestMethod.POST)
@@ -146,28 +140,22 @@ public class AreaDestPlanController {
     public String addView(Model model, Integer machineId) {
         try {
             if (machineId != null) {
-                buildAddView(model, machineId);
+                model.addAttribute("machineId", machineId);
             }
+            buildSiteViewParam(model);
         } catch (Exception e) {
             logger.error("跳转新增方案页面发生异常", e);
         }
         return "areadest/add";
     }
 
-    private void buildAddView(Model model, Integer machineId) {
-        //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-        erpUser.setUserCode("lixin456");
-        erpUser.setUserId(320246);
+    private void buildSiteViewParam(Model model) {
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         if (erpUser != null) {
-            //BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-            BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
-            dto.setSiteCode(910);
-            dto.setSiteName("北京马驹桥分拣中心");
+            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
             if (dto != null) {
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
-                model.addAttribute("machineId", machineId);
             } else {
                 logger.error("根据Erp用户信息获取基础信息失败，结果为null");
             }
@@ -200,10 +188,7 @@ public class AreaDestPlanController {
             return response;
         }
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(320246);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 if (areaDestPlanService.add(requestToDomain(request, erpUser))) {
                     response.setCode(JdResponse.CODE_OK);
@@ -225,27 +210,28 @@ public class AreaDestPlanController {
 
     /**
      * 获取当前分拣中心的当前龙门架设备的在用发货方案
+     *
      * @return
      */
-    @RequestMapping(value = "/getMayPlan",method = RequestMethod.POST)
+    @RequestMapping(value = "/getMayPlan", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<AreaDestPlanDetail> queryMyPlan(AreaDestPlanRequest request){
+    public InvokeResult<AreaDestPlanDetail> queryMyPlan(AreaDestPlanRequest request) {
         InvokeResult<AreaDestPlanDetail> result = new InvokeResult<AreaDestPlanDetail>();
         result.setCode(400);
         result.setMessage("请求成功，无返回结果！！！");
         result.setData(null);
 
-        if(null != request){
-            if(this.logger.isInfoEnabled()){
+        if (null != request) {
+            if (this.logger.isInfoEnabled()) {
                 this.logger.info("分拣中心" + request.getOperateSiteCode() + "的龙门架" + request.getMachineId() + "获取当前的方案--AreaDestPlanController.queryMyPlan");
             }
-            try{
-                AreaDestPlanDetail plan = areaDestPlanDetailService.getByScannerTime(request.getMachineId(),request.getOperateSiteCode(),new Date());
+            try {
+                AreaDestPlanDetail plan = areaDestPlanDetailService.getByScannerTime(request.getMachineId(), request.getOperateSiteCode(), new Date());
                 result.setCode(200);
                 result.setMessage("请求成功");
                 result.setData(plan);
-            }catch(Exception e){
-                this.logger.error("获取当前分拣中心当前龙门架设备的发货方案异常，龙门架ID为：" + request.getMachineId(),e);
+            } catch (Exception e) {
+                this.logger.error("获取当前分拣中心当前龙门架设备的发货方案异常，龙门架ID为：" + request.getMachineId(), e);
             }
         }
         return result;
@@ -269,10 +255,7 @@ public class AreaDestPlanController {
             return response;
         }
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("lixin456");
-            erpUser.setUserId(320246);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getUserId())) {
                     response.setCode(JdResponse.CODE_OK);
@@ -291,10 +274,10 @@ public class AreaDestPlanController {
     }
 
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
-    public String detail(Model model, Integer planId) {
+    public String detail(Model model, Integer id) {
         try {
-            AreaDestPlan plan = areaDestPlanService.get(planId);
-            if (plan != null){
+            AreaDestPlan plan = areaDestPlanService.get(id);
+            if (plan != null) {
                 model.addAttribute("machineId", plan.getMachineId());
                 model.addAttribute("planId", plan.getPlanId());
                 model.addAttribute("planName", plan.getPlanName());
@@ -303,6 +286,23 @@ public class AreaDestPlanController {
             logger.error("跳转查询方案详情页面发生异常", e);
         }
         return "areadest/detail";
+    }
+
+    @RequestMapping(value = "/config", method = RequestMethod.GET)
+    public String config(Model model, Integer id) {
+        try {
+            buildSiteViewParam(model);
+            AreaDestPlan plan = areaDestPlanService.get(id);
+            if (plan != null) {
+                model.addAttribute("machineId", plan.getMachineId());
+                model.addAttribute("planId", plan.getPlanId());
+                model.addAttribute("planName", plan.getPlanName());
+                model.addAttribute("allOrgs", baseService.getAllOrg());
+            }
+        } catch (Exception e) {
+            logger.error("跳转配置页面发生异常", e);
+        }
+        return "areadest/config";
     }
 
 }

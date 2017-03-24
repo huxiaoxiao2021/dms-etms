@@ -38,31 +38,33 @@ function doQuery(params) {
         if (data.code == 200) {
             var pager = data.data;
             var dataList = pager.data;
-            var temp = "";
-            for (var i = 0; i < dataList.length; i++) {
-                temp += "<tr class='a2' style=''>";
-                if (dataList[i].routeType == 1) {
-                    temp += "<td>直发到站</td>";
-                    temp += "<td>" + (dataList[i].createSiteName) + "</td>";
-                    temp += "<td>-----</td>";
-                    temp += "<td>-----</td>";
-                    temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
-                } else if (dataList[i].routeType == 2) {
-                    temp += "<td>直发分拣</td>";
-                    temp += "<td>" + (dataList[i].createSiteName) + "</td>";
-                    temp += "<td>-----</td>";
-                    temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
-                    temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
-                } else {
-                    temp += "<td>多级分拣</td>";
-                    temp += "<td>" + (dataList[i].createSiteName) + "</td>";
-                    temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
-                    temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
-                    temp += "<td>-----</td>";
+            if (dataList != null && dataList.length > 0) {
+                var temp = "";
+                for (var i = 0; i < dataList.length; i++) {
+                    temp += "<tr class='a2' style=''>";
+                    if (dataList[i].routeType == 1) {
+                        temp += "<td>直发到站</td>";
+                        temp += "<td>" + (dataList[i].createSiteName) + "</td>";
+                        temp += "<td>-----</td>";
+                        temp += "<td>-----</td>";
+                        temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
+                    } else if (dataList[i].routeType == 2) {
+                        temp += "<td>直发分拣</td>";
+                        temp += "<td>" + (dataList[i].createSiteName) + "</td>";
+                        temp += "<td>-----</td>";
+                        temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
+                        temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
+                    } else {
+                        temp += "<td>多级分拣</td>";
+                        temp += "<td>" + (dataList[i].createSiteName) + "</td>";
+                        temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
+                        temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
+                        temp += "<td>-----</td>";
+                    }
+                    temp += "</tr>";
                 }
-                temp += "</tr>";
+                $("#paperTable tbody").html(temp);
             }
-            $("#paperTable tbody").html(temp);
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("init", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {

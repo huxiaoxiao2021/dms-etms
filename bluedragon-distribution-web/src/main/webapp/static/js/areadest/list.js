@@ -103,19 +103,21 @@ function doQuery(params) {
         if (data.code == 200) {
             var pager = data.data;
             var dataList = pager.data;
-            var temp = "";
-            for (var i = 0; i < dataList.length; i++) {
-                temp += "<tr class='a2' style=''>";
-                temp += "<td>" + (dataList[i].machineId) + "</td>";
-                temp += "<td>" + (dataList[i].planName) + "</td>";
-                temp += "<td>"
-                    + ("<a href='javascript:void(0)' onclick='doQueryDetail(" + dataList[i].planId + ")''>查看</a>"
-                    + "<a href='javascript:void(0)' onclick='doConfig(" + dataList[i].planId + ")' id='config'>配置</a>"
-                    + "<a href='javascript:void(0)' onclick='doDelete(" + dataList[i].planId + ")' id='delete'>删除</a>")
-                    + "</td>";
-                temp += "</tr>";
+            if (dataList != null && dataList.length > 0) {
+                var temp = "";
+                for (var i = 0; i < dataList.length; i++) {
+                    temp += "<tr class='a2' style=''>";
+                    temp += "<td>" + (dataList[i].machineId) + "</td>";
+                    temp += "<td>" + (dataList[i].planName) + "</td>";
+                    temp += "<td>"
+                        + ("<input type='button' onclick='doQueryDetail(" + dataList[i].planId + ")'' value='查看' class='btn_c'/>&nbsp&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doConfig(" + dataList[i].planId + ")'' value='配置' class='btn_c'/>&nbsp;&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doDelete(" + dataList[i].planId + ")'' value='删除' class='btn_c'/>")
+                        + "</td>";
+                    temp += "</tr>";
+                }
+                $("#paperTable tbody").html(temp);
             }
-            $("#paperTable tbody").html(temp);
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {
@@ -157,11 +159,12 @@ function doDelete(id) {
     }
 }
 
-function doQueryDetail(id){
+function doQueryDetail(id) {
     var contextPath = $("#contextPath").val();
-    location.href = contextPath + "/areaDestPlan/detail?planId=" + id;
+    location.href = contextPath + "/areaDestPlan/detail?id=" + id;
 }
 
-function doConfig(id){
-
+function doConfig(id) {
+    var contextPath = $("#contextPath").val();
+    location.href = contextPath + "/areaDestPlan/config?id=" + id;
 }

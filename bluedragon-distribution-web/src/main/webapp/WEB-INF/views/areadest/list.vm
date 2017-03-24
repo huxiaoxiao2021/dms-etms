@@ -70,9 +70,9 @@
                 <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
                     <thead>
                     <tr>
-                        <th style="width:30px;">龙门架编号</th>
-                        <th style="width:70px;">方案名称</th>
-                        <th style="width:30px;">功能</th>
+                        <th style="width:30%;">龙门架编号</th>
+                        <th style="width:30%;">方案名称</th>
+                        <th style="width:40%;">功能</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -82,7 +82,7 @@
         </div>
     </div>
 ##  分页
-    <div id="pager" class="tbl-n"></div>
+    <div id="pager" class="tbl-n" style="width:80%"></div>
 </div>
 </body>
 </html>
