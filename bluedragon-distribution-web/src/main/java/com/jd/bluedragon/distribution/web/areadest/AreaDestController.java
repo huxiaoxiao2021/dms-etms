@@ -126,7 +126,7 @@ public class AreaDestController {
             if (count != null) {
                 if (count > 0) {
                     response.setCode(JdResponse.CODE_SEE_OTHER);
-                    response.setMessage("新增失败，该关系已经存在，请勿重复添加！");
+                    response.setMessage("新增失败，始发站点与目的站点已经存在关系，请勿重复添加！");
                     return response;
                 } else {
                     if (areaDestService.add(buildAreaDestDomain(request, erpUser))) {
@@ -152,8 +152,14 @@ public class AreaDestController {
         areaDest.setRouteType(request.getRouteType());
         areaDest.setCreateSiteCode(request.getCreateSiteCode());
         areaDest.setCreateSiteName(request.getCreateSiteName());
-        areaDest.setTransferSiteCode(request.getTransferSiteCode());
-        areaDest.setTransferSiteName(request.getTransferSiteName());
+        Integer transferSiteCode = request.getTransferSiteCode();
+        if (transferSiteCode != null) {
+            areaDest.setTransferSiteCode(transferSiteCode);
+            areaDest.setTransferSiteName(request.getTransferSiteName());
+        } else {
+            areaDest.setTransferSiteCode(0);
+            areaDest.setTransferSiteName("");
+        }
         areaDest.setReceiveSiteCode(request.getReceiveSiteCode());
         areaDest.setReceiveSiteName(request.getReceiveSiteName());
         areaDest.setCreateUser(erpUser.getUserCode());
