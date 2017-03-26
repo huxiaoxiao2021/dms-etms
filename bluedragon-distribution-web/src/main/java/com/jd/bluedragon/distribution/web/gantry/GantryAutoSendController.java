@@ -203,7 +203,7 @@ public class GantryAutoSendController {
                     }
                 }catch(Exception e){
                     logger.error("服务器处理异常：",e);
-                }
+                 }
 
             }else{
                 logger.error("龙门架的状态参数错误");

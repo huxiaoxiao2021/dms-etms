@@ -149,20 +149,26 @@
         FROM AREA_DEST_PLAN
         WHERE YN = 1
         <if test="siteCode != null">
-            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT},
+            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
         </if>
-        <if test="machineId ！= null">
+        <if test="machineId != null">
             AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
         </if>
     </select>
 
-    <select id="isExist" parameterType="java.lang.Long">
+    <select id="isExist" parameterType="java.util.Map" resultMap="areaDestPlan">
         SELECT PLAN_ID,PLAN_NAME,MACHINE_ID,OPERATE_SITE_CODE
         FROM AREA_DEST_PLAN
-        WHERE YN = 1,
-        AND ID = #{PLAN_ID,jdbcType = BIGINT},
-        AND MACHINE_ID = #{PLAN_ID,jdbcType = BIGINT},
-        AND OPERATE_SITE_CODE = #{siteCode, jdbcType=BIGINT}
+        WHERE YN = 1
+        <if test="planId != null">
+            AND PLAN_ID = #{planId,jdbcType=BIGINT}
+        </if>
+        <if test="machineId != null">
+            AND MACHINE_ID = #{machineId, jdbcType=INTEGER}
+        </if>
+        <if test="siteCode != null">
+            AND OPERATE_SITE_CODE = #{siteCode}
+        </if>
     </select>
 
 </mapper>

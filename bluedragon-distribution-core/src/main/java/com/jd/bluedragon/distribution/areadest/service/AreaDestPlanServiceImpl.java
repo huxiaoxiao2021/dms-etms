@@ -132,9 +132,16 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     @Override
     public Boolean ModifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode) {
         Boolean bool = Boolean.FALSE;
+        if(this.logger.isInfoEnabled()){
+            this.logger.info("修改龙门架方案操作--machineId：" + machineId + ",planId:" + planId
+                    + ",userCode:" + userCode + ",siteCode:" + siteCode);
+        }
         if(null != machineId && null != planId && null != siteCode && null != userCode){
             if(isExist(planId,siteCode,machineId)){
                 /** 切换方案只要插入流水表就行 **/
+                if(this.logger.isInfoEnabled()){
+                    this.logger.info("存在此方案列表,进行插入流水操作");
+                }
                 AreaDestPlanDetail detail = new AreaDestPlanDetail();
                 detail.setMachineId(machineId);
                 detail.setOperateSiteCode(siteCode);
@@ -158,10 +165,20 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
         if(null != planId){
             Map<String, Object> params = new HashMap<String,Object>();
             params.put("planId",planId);
-            params.put("siteCode",siteCode);
             params.put("machineId",machineId);
+            params.put("siteCode",siteCode);
             bool = areaDestPlanDao.isExist(params);
         }
         return bool;
+    }
+
+    public static void main(String[] args) {
+        AreaDestPlanDao areaDestPlanDao = new AreaDestPlanDao();
+        Map<String, Object> params = new HashMap<String,Object>();
+        params.put("planId",4);
+        params.put("machineId",649);
+        params.put("siteCode",910);
+        Boolean bool = areaDestPlanDao.isExist(params);
+        System.out.println("args = [" + bool + "]");
     }
 }

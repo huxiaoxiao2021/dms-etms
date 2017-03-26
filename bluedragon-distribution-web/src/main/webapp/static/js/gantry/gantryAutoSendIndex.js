@@ -465,6 +465,7 @@ function getGantryParams(lockStatus){
         case 4: operateTypeRemark = "量方";break;
         case 5: operateTypeRemark = "验货+量方";break;
         case 6: operateTypeRemark = "发货+量方";break;
+
         case 7: operateTypeRemark = "验货+发货+量方";break;
         default: break;
     }

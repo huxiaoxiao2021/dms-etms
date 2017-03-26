@@ -91,7 +91,9 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
      * 根据ID查看方案是否存在
      */
     public Boolean isExist(Map<String ,Object> params){
-        return this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".isExist",params) == null;
+        AreaDestPlan result = new AreaDestPlan();
+        result = this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".isExist",params);
+        return  result != null;
     }
 
 }
