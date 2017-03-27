@@ -76,4 +76,16 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
     public List<ScannerFrameBatchSend> queryByMachineIdAndTime(ScannerFrameBatchSendSearchArgument request){
         return getSqlSession().selectList(QUERY_DOMAIN_By_MACHINEID_AND_TIME ,request);
     }
+
+    public List<ScannerFrameBatchSend> queryAllReceiveSites(Map<String,String> params){
+        return super.getSqlSession().selectList(NAMESPACE + ".queryAllReceiveSites" ,params);
+    }
+
+    public long queryAllUnPrintCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
+        return super.getSqlSession().selectOne(NAMESPACE + ".queryAllUnPrintCount",argumentPager);
+    }
+
+    public List<ScannerFrameBatchSend> queryAllUnPrint(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
+        return super.getSqlSession().selectList(NAMESPACE + ".queryAllUnPrint",argumentPager);
+    }
 }

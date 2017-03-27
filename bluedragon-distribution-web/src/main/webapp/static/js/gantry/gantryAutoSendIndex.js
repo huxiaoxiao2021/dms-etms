@@ -119,7 +119,9 @@ $(document).ready(function(){
 
     /** 异常数据点击事件 **/
     $("#exceptionNum").click(function(){
-        toGantryExceptionPage();
+        if($("#gantryDevice").val() !=null && $("#gantryDevice").val()!= ""){
+            toGantryExceptionPage();
+        }
     })
 
     /** 定时刷新数据 **/
@@ -216,9 +218,9 @@ function gantryDeviceItemShow(){
             jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
             return;
         }
-        if (gantryList.length > 0 && data.code == 200) {
+        if (gantryList!= null && data.code == 200) {
             loadGantryList(gantryList, "gantryDevice");
-        } else if (gantryList.length <= 0 && data.code == 200){
+        } else if (gantryList==null && data.code == 200){
             jQuery.messager.alert("提示：","该分拣中心没有可供选择的龙门架设备！","info");
         } else if (data.code == 500) {
             jQuery.messager.alert("提示：", "获取该分拣中心的龙门架设备失败!", "info");
@@ -375,10 +377,13 @@ function planShow(){
     params.machineId = $("#gantryDevice").val();
     params.operateSiteCode = $("#siteOrg").val();
     var url = $("#contextPath").val() + "/areaDestPlan/getMayPlan";//获取当前的planId
-    var planId = "";
-    CommonClient.post(url,params,function (data) {
+    var planId = 0;
+    CommonClient.syncPost(url,params,function (data) {
         if(undefined != data && null != data && null != data.data){
-            planId = data.data.planId;
+            if(data.code == 200){
+                var plan = data.data;
+                planId = plan.planId;
+            }
         }
     })
     planInit(params,planId);

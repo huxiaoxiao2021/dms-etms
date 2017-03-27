@@ -82,7 +82,7 @@ public class GantryBatchSendReplenishPrintController {
             request.setHasPrinted(false);//未打印标示
             argumentPager.setData(request);
             try{
-                result.setData(scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager));
+                result.setData(scannerFrameBatchSendService.queryAllHistoryBatchSend(argumentPager));
                 result.setCode(200);
                 result.setMessage("补打数据获取成功");
             }catch(Exception e){
@@ -106,7 +106,7 @@ public class GantryBatchSendReplenishPrintController {
             return null;
         }
         try{
-            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryByMachineIdAndTime(request);
+            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null,String.valueOf(request.getMachineId()));
             result.setCode(200);
             result.setData(list);
             result.setMessage("获取龙门架的目的站点成功");
