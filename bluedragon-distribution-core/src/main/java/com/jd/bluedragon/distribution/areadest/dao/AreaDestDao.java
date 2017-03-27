@@ -85,6 +85,16 @@ public class AreaDestDao extends BaseDao<AreaDest> {
      * @param params
      * @return
      */
+    public AreaDest get(Map<String, Object> params) {
+        return this.getSqlSession().selectOne(AreaDestDao.namespace + ".get", params);
+    }
+
+    /**
+     * 根据参数获取区域批次目的地列表
+     *
+     * @param params
+     * @return
+     */
     public List<AreaDest> getList(Map<String, Object> params) {
         return this.getSqlSession().selectList(AreaDestDao.namespace + ".getList", params);
     }

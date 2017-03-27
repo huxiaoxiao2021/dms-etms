@@ -89,6 +89,45 @@
         </foreach>
     </insert>
 
+    <select id="get" resultMap="areaDest" parameterType="java.util.Map">
+        SELECT
+        ID,
+        PLAN_ID,
+        ROUTE_TYPE,
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        TRANSFER_SITE_CODE,
+        TRANSFER_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        UPDATE_USER,
+        UPDATE_USER_CODE,
+        CREATE_TIME,
+        UPDATE_TIME
+        FROM AREA_DEST_CONFIG
+        WHERE YN = 1
+        <if test="id != null">
+            AND ID = #{id, jdbcType=BIGINT}
+        </if>
+        <if test="planId != null">
+            AND PLAN_ID = #{planId, jdbcType=BIGINT}
+        </if>
+        <if test="routeType != null">
+            AND ROUTE_TYPE = #{routeType, jdbcType=BIGINT}
+        </if>
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+    </select>
+
     <select id="getList" resultMap="areaDest" parameterType="java.util.Map">
         SELECT
         ID,
@@ -146,8 +185,8 @@
         <if test="transferSiteCode != null">
             AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
         </if>
-        <if test="RECEIVE_SITE_CODE != null">
-            AND RECEIVE_SITE_CODE = #{routeType, jdbcType=BIGINT}
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
         </if>
     </select>
 
