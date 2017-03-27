@@ -149,7 +149,7 @@
         FROM AREA_DEST_PLAN
         WHERE YN = 1
         <if test="siteCode != null">
-            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+            AND OPERATE_SITE_CODE = #{siteCode, jdbcType=BIGINT}
         </if>
         <if test="machineId != null">
             AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
