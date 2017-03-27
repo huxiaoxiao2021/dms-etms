@@ -4,8 +4,10 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.utils.RouteType;
+import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 发货路线关系
@@ -75,6 +77,16 @@ public interface AreaDestService {
     boolean enable(Integer id, String updateUser, Integer updateUserCode);
 
     /**
+     * 根据方案编号、当前分拣中心、目的站点获取方案信息
+     *
+     * @param planId
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    AreaDest get(Integer planId, Integer createSiteCode, Integer receiveSiteCode);
+
+    /**
      * 根据方案编号、线路类型获取龙门架发货路线关系
      *
      * @param planId 方案编号
@@ -96,8 +108,8 @@ public interface AreaDestService {
     /**
      * 根据方案编号、始发分拣中心编号、目的站点编号获取发货线路关系
      *
-     * @param planId 方案编号
-     * @param createSiteCode 始发分拣中心编号
+     * @param planId          方案编号
+     * @param createSiteCode  始发分拣中心编号
      * @param receiveSiteCode 目的站点编号
      * @return
      */
@@ -119,5 +131,16 @@ public interface AreaDestService {
      * @return
      */
     Integer getCount(AreaDestRequest request);
+
+    /**
+     * Excel导入
+     *
+     * @param sheets
+     * @param request
+     * @param userName
+     * @param userCode
+     * @throws Exception
+     */
+    void importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception;
 
 }

@@ -140,7 +140,7 @@
         <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
         </if>
-        YN = 0,UPDATE_TIME = NOW()
+        YN = 0, UPDATE_TIME = NOW()
         WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND PLAN_ID != #{planId,jdbcType=BIGINT}
     </update>
 

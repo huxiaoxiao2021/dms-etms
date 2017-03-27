@@ -1,18 +1,26 @@
 package com.jd.bluedragon.distribution.areadest.service;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.utils.RouteType;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.DataFormatException;
 
 /**
  * 区域批次目的地
@@ -26,6 +34,9 @@ public class AreaDestServiceImpl implements AreaDestService {
 
     @Autowired
     private AreaDestDao areaDestDao;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
     public boolean add(AreaDest areaDest) {
@@ -153,6 +164,15 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
+    public AreaDest get(Integer planId, Integer createSiteCode, Integer receiveSiteCode) {
+        Map<String, Object> parameter = new HashMap<String, Object>();
+        parameter.put("planId", planId);
+        parameter.put("createSiteCode", createSiteCode);
+        parameter.put("receiveSiteCode", receiveSiteCode);
+        return areaDestDao.get(parameter);
+    }
+
+    @Override
     public List<AreaDest> getList(Integer planId, RouteType type, Pager pager) {
         try {
             Map<String, Object> parameter = new HashMap<String, Object>();
@@ -243,5 +263,172 @@ public class AreaDestServiceImpl implements AreaDestService {
         return null;
     }
 
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception {
+        List<AreaDest> all = new ArrayList<AreaDest>();
+        for (Map.Entry<RouteType, Sheet> entry : sheets.entrySet()) {
+            all.addAll(doImportBySheet(entry.getKey(), entry.getValue(), request, userName, userCode));
+        }
+        if (!all.isEmpty()) {
+            this.disable(request.getPlanId(), userName, userCode);
+            areaDestDao.addBatch(all);
+        }
+    }
+
+    private List<AreaDest> doImportBySheet(RouteType routeType, Sheet sheet, AreaDestRequest request, String userName, Integer userCode) throws Exception {
+        List<AreaDest> insertList = new ArrayList<AreaDest>();
+        for (int rowIndex = 2; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            List<BaseStaffSiteOrgDto> baseStaffSites = baseMajorManager.getDmsSiteAll();
+            AreaDest areaDest = new AreaDest();
+            // 检查单元格是否符合列对应的要求
+            checkCellFormat(row, routeType);
+            // 检查输入的站点code是否存在
+            checkSiteCodeValid(row, routeType, baseStaffSites, areaDest);
+            areaDest.setPlanId(request.getPlanId());
+            areaDest.setRouteType(routeType.getType());
+            areaDest.setCreateSiteCode(request.getCreateSiteCode());
+            areaDest.setCreateSiteName(request.getCreateSiteName());
+            areaDest.setCreateUser(userName);
+            areaDest.setCreateUserCode(userCode);
+            List<AreaDest> list = this.getList(areaDest.getPlanId(), areaDest.getCreateSiteCode(), areaDest.getReceiveSiteCode());
+            if (list != null && list.size() > 0) {
+                throw new DataFormatException(routeType.getName() + "第" + (rowIndex + 1) + "行和第" + (rowIndex + 1) + "行关系已存在");
+            }
+            insertList.add(areaDest);
+        }
+        checkDataRepeat(routeType, insertList);
+        return insertList;
+    }
+
+    /**
+     * 检查导入的excel里面有没有重复的行
+     *
+     * @param areaDests
+     * @throws DataFormatException
+     */
+    private void checkDataRepeat(RouteType routeType, List<AreaDest> areaDests) throws DataFormatException {
+        if (null == areaDests || areaDests.size() <= 0) return;
+        for (int i = 0; i < areaDests.size(); i++) {
+            AreaDest ad = areaDests.get(i);
+            for (int j = i + 1; j < areaDests.size(); j++) {
+                AreaDest dest = areaDests.get(j);
+                if (ad.getPlanId().equals(dest.getPlanId())
+                        && ad.getCreateSiteCode().equals(dest.getCreateSiteCode()) && ad.getReceiveSiteCode().equals(dest.getTransferSiteCode())) {
+                    throw new DataFormatException(routeType.getName() + "第" + (i + 2 + "行和第" + (j + 2) + "行数据重复"));
+                }
+            }
+        }
+    }
+
+    /**
+     * 检查指定的单元格格式是否是规定的格式
+     *
+     * @param row
+     * @param type
+     * @throws Exception
+     */
+    private void checkCellFormat(Row row, RouteType type) throws Exception {
+        int rowIndex = row.getRowNum();
+        Cell cell0 = row.getCell(0);
+        Cell cell2 = row.getCell(2);
+        switch (type) {
+            case DIRECT_SITE:
+                if (null == cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+                }
+                break;
+            case DIRECT_DMS:
+                if (null == cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+                }
+                if (null == cell2 || cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据不正确");
+                }
+                break;
+            case MULTIPLE_DMS:
+                if (null != cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+                }
+                if (null == cell2 || cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据不正确");
+                }
+                break;
+        }
+    }
+
+    /**
+     * 检查站点是否存在
+     *
+     * @param row
+     * @param type
+     * @param siteCodes
+     * @param areaDest
+     * @throws DataFormatException
+     */
+    private void checkSiteCodeValid(Row row, RouteType type, List<BaseStaffSiteOrgDto> siteCodes, AreaDest areaDest) throws DataFormatException {
+        int rowIndex = row.getRowNum();
+        BaseStaffSiteOrgDto siteOrgDto;
+        Cell cell0 = row.getCell(0);
+        Cell cell2 = row.getCell(2);
+        switch (type) {
+            case DIRECT_SITE:
+                siteOrgDto = getSiteByCode(siteCodes, cell0.getNumericCellValue());
+                if (null == siteOrgDto) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
+                }
+                areaDest.setReceiveSiteCode(siteOrgDto.getSiteCode());
+                areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
+                break;
+            case DIRECT_DMS:
+                siteOrgDto = getSiteByCode(siteCodes, cell0.getNumericCellValue());
+                if (null == siteOrgDto) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
+                }
+                areaDest.setTransferSiteCode(siteOrgDto.getSiteCode());
+                areaDest.setTransferSiteName(siteOrgDto.getSiteName());
+
+                siteOrgDto = getSiteByCode(siteCodes, cell2.getNumericCellValue());
+                if (null == siteOrgDto) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
+                }
+                areaDest.setReceiveSiteCode(siteOrgDto.getSiteCode());
+                areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
+                break;
+            case MULTIPLE_DMS:
+                if (null != cell0) {
+                    siteOrgDto = getSiteByCode(siteCodes, cell0.getNumericCellValue());
+                    if (null == siteOrgDto) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
+                    }
+                    areaDest.setTransferSiteCode(siteOrgDto.getSiteCode());
+                    areaDest.setTransferSiteName(siteOrgDto.getSiteName());
+                }
+                siteOrgDto = getSiteByCode(siteCodes, cell2.getNumericCellValue());
+                if (null == siteOrgDto) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
+                }
+                areaDest.setReceiveSiteCode(siteOrgDto.getSiteCode());
+                areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
+                break;
+        }
+    }
+
+    /**
+     * 根据配置的站点编码获取完整的站点信息
+     *
+     * @param siteOrgDtos 所有的分拣中心
+     * @param siteCode    配置的站点编码
+     * @return
+     */
+    private BaseStaffSiteOrgDto getSiteByCode(List<BaseStaffSiteOrgDto> siteOrgDtos, double siteCode) {
+        for (BaseStaffSiteOrgDto dto : siteOrgDtos) {
+            if (dto.getSiteCode().equals(Integer.valueOf((int) siteCode))) {
+                return dto;
+            }
+        }
+        return null;
+    }
 
 }

@@ -103,8 +103,8 @@ function doQuery(params) {
         if (data.code == 200) {
             var pager = data.data;
             var dataList = pager.data;
+            var temp = "";
             if (dataList != null && dataList.length > 0) {
-                var temp = "";
                 for (var i = 0; i < dataList.length; i++) {
                     temp += "<tr class='a2' style=''>";
                     temp += "<td>" + (dataList[i].machineId) + "</td>";
@@ -116,8 +116,8 @@ function doQuery(params) {
                         + "</td>";
                     temp += "</tr>";
                 }
-                $("#paperTable tbody").html(temp);
             }
+            $("#paperTable tbody").html(temp);
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {

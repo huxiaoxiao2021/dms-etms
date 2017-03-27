@@ -25,6 +25,7 @@
     </script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <style type="text/css">
@@ -70,15 +71,27 @@
                                style="width:150px" value="$!{planName}"/>
                         <input type="hidden" id="planId" name="planId" value="$!{planId}"/>
                     </td>
-                    <td>
-                        <input type="button" id="goDownloadBtn" name="goDownload" value="下载模板" class="btn_c"/>
-                        <input type="button" id="goExportBtn" name="goExport" value="导入" class="btn_c"/>
-                        <input type="button" id="goImportBtn" name="goImport" value="导出" class="btn_c"/>
-                        <input type="button" id="goBackBtn" name="goback" value="返回" class="btn_c"/>
-                    </td>
                 </tr>
                 </tbody>
             </table>
+
+            <div style="width: 70%; margin:0 auto;margin-top:12px;">
+                <div class="div_btn" style="float:left;">
+                    <div style="width: 250px;float: right;">
+                        <input id="downloadModelBtn" value="下载模版" type="button" class="btn_c"></input>
+                        <input id="loadInBtn" value="导入" type="button" class="btn_c"></input>
+                    </div>
+                    <form action="" method="post" id="importFileForm" name="importFileForm"
+                          style="float:left;width:240px;">
+                        <input type="file" id="importFileIpt" name="importExcelFile"
+                               style="height: 28px;display: block;margin-top:5px;"/>
+                    </form>
+                </div>
+                <div class="div_btn" style="float:right;">
+                    <input id="loadOutBtn" value="导出" type="button" class="btn_c"></input>
+                    <input type="button" id="goBackBtn" name="goback" value="返回" class="btn_c"/>
+                </div>
+            </div>
         </div>
     </div>
     <!--[if !ie]>tbl-n<![endif]-->
