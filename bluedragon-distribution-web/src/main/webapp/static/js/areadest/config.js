@@ -24,6 +24,21 @@ function main() {
         goBack();
     });
 
+    // 导入按钮
+    $("#loadInBtn").click(function () {
+        importExcel();
+    });
+
+    // 导出按钮
+    $("#loadOutBtn").click(function () {
+        exportExcel();
+    })
+
+    // 下载模版
+    $("#downloadModelBtn").click(function () {
+        goDownModel();
+    })
+
     $('#multiSelect_from').multiselect({
         search: {
             left: '<input type="text" name="left" class="form-control" style="-webkit-box-sizing:border-box;box-sizing:border-box;" placeholder="输入站点ID/站点名称..." />',
@@ -391,7 +406,7 @@ function doSaveDirectDms() {
 }
 
 function doDmsSave(params) {
-    var url = $("#contextPath").val() + "/areaDest/save?" + Math.random()
+    var url = $("#contextPath").val() + "/areaDest/save?" + Math.random();
     CommonClient.post(url, params, function (data) {
         if (data && data.code == 200) {
             alert("添加成功");
@@ -408,4 +423,48 @@ function doDmsSave(params) {
             }
         }
     });
+}
+
+function goDownModel() {
+    location.href = "http://sq.jd.com/ScRG3M";
+}
+
+function getImportParam() {
+    var params = {};
+    params.planId = $("#planId").val();
+    params.createSiteCode = $("#currentSiteCode").val();
+    params.createSiteName = $("#currentSiteName").val();
+    return params;
+}
+
+function importExcel() {
+    var url = $("#contextPath").val() + "/areaDest/import";
+    $.blockUI({message: "<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
+    var params = getImportParam();
+    $("#importFileForm").ajaxSubmit({
+        url: url, // 请求的url
+        data: $("#importFileIpt").serialize(),// 请求参数
+        type: "post", // 请求方式
+        dataType: "json", // 响应的数据类型
+        async: true, // 异步
+        success: function (data) {
+            $.unblockUI();
+            var jsonData = eval(data);
+            if (200 == jsonData.code) {
+                alert("提示:导入配置成功");
+            } else {
+                alert("提示:" + jsonData.message);
+            }
+        },
+        error: function () {
+            $.unblockUI();
+            alert("提示:导入配置失败，稍后重试");
+        }
+    });
+}
+
+function exportExcel() {
+    var url = $("#contextPath").val() + "/areaDest/export?planId="
+        + $.trim($("#planId").val());
+    window.open(url, "_parent");
 }
