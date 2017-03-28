@@ -67,20 +67,28 @@ function initDms() {
     $.getJSON(url, function (data) {
         var dmsList = data;
         if (data == undefined || data == null) {
-            alert("提示:HTTP请求无数据返回！");
+            jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
             return;
         }
         if (dmsList.length > 0 && dmsList[0].code == 200) {
             initDmsSelect("receiveSite", data);
             initDmsSelect("nextSite", data)
         } else if (dmsList.length > 0 && dmsList[0].code == 404) {
-            alert("提示:获取分拣中心列表为空！");
+            jQuery.messager.alert('提示:', '获取分拣中心列表为空！', 'info');
         } else if (dmsList.length > 0 && dmsList[0].code == 20000) {
-            alert("提示:获取分拣中心列表为空！");
+            jQuery.messager.alert('提示:', dmsList[0].message, 'info');
         } else {
-            alert("提示:数据异常！");
+            jQuery.messager.alert('提示:', '数据异常！', 'info');
         }
     });
+}
+
+/**
+ * 清空多选框
+ */
+function clearMultiSelect() {
+    $('#multiSelect_from').empty();
+    $('#multiSelect_to').empty();
 }
 
 function intSite() {
@@ -92,13 +100,15 @@ function intSite() {
             return;
         }
         if (dmsList.length > 0 && dmsList[0].code == 200) {
+            clearMultiSelect();
             initDmsSelect("destSite", data);
             loadMultiSelect(data);
         } else if (dmsList.length > 0 && dmsList[0].code == 404) {
-            alert("提示:获取分拣中心列表为空！");
+            jQuery.messager.alert('提示:', '获取分拣中心列表为空！', 'info');
         } else if (dmsList.length > 0 && dmsList[0].code == 20000) {
-            alert("提示:获取分拣中心列表为空！");
+            jQuery.messager.alert('提示:', dmsList[0].message, 'info');
         } else {
+            jQuery.messager.alert('提示:', '数据异常！', 'info');
             alert("提示:数据异常！");
         }
     });
@@ -108,7 +118,7 @@ function multiDmsLoad(pageNo) {
     var params = {};
     //多级分拣
     params.routeType = 3;
-    params.planId = $("#planId").val();
+    params.planId = $.trim($("#planId").val());
     params.pageNo = pageNo;
     doQuery("multiDms", params);
 }
@@ -117,7 +127,7 @@ function directDmsLoad(pageNo) {
     var params = {};
     //多级分拣
     params.routeType = 2;
-    params.planId = $("#planId").val();
+    params.planId = $.trim($("#planId").val());
     params.pageNo = pageNo;
     doQuery("directDms", params);
 }
@@ -127,7 +137,7 @@ function doQuery(id, params) {
     var url = $("#contextPath").val() + "/areaDest/getList";
     CommonClient.post(url, params, function (data) {
         if (data == undefined || data == null) {
-            alert("未配置方案");
+            jQuery.messager.alert('提示:', '未配置方案！', 'info');
             return;
         }
         if (data.code == 200 || data.code == 2200) {
@@ -136,7 +146,7 @@ function doQuery(id, params) {
             var temp = "";
             if (dataList != null && dataList.length > 0) {
                 for (var i = 0; i < dataList.length; i++) {
-                    temp += "<tr class='a2' style=''>";
+                    temp += "<tr class='a2'>";
                     temp += "<td>" + (dataList[i].createSiteName) + "</td>";
                     if (dataList[i].transferSiteCode == null || dataList[i].transferSiteCode == 0) {
                         temp += "<td>-----</td>";
@@ -156,15 +166,13 @@ function doQuery(id, params) {
     });
 }
 
-
 function doSaveOrDel(type, $options) {
     var params = getParams(type, $options);
     if (checkParams(params)) {
-        var contextPath = $("#contextPath").val();
         if (type == "add") {
-            var url = contextPath + "/areaDest/saveBatch";
+            var url = $("#contextPath").val() + "/areaDest/saveBatch";
         } else {
-            var url = contextPath + "/areaDest/delBatch";
+            var url = $("#contextPath").val() + "/areaDest/delBatch";
         }
         var result = false;
         syncAjaxJson("POST", url, params, function (data) {
@@ -209,9 +217,9 @@ function getParams(type, $options) {
     }
     var params = {};
     params.routeType = 1;
-    params.planId = $("#planId").val();
-    params.createSiteCode = $("#currentSiteCode").val();
-    params.createSiteName = $("#currentSiteName").val();
+    params.planId = $.trim($("#planId").val());
+    params.createSiteCode = $.trim($("#currentSiteCode").val());
+    params.createSiteName = $.trim($("#currentSiteName").val());
     params.receiveSiteList = arr;
     return params;
 }
@@ -221,26 +229,26 @@ function checkParams(params) {
         return false;
     }
     if (params.planId == null || params.planId <= 0) {
-        alert("获取方案信息失败，请重新登录后重试！");
+        jQuery.messager.alert('提示:', '获取方案信息失败，请重新登录后重试！', 'info');
         return false;
     }
     if (params.createSiteCode == null || params.createSiteCode <= 0) {
-        alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
+        jQuery.messager.alert('提示:', '获取当前分拣中心失败，请确认用户是否关联分拣中心！', 'info');
         return false;
     }
     if (params.routeType == 2) {
         if (params.transferSiteCode == null || params.transferSiteCode <= 0) {
-            alert("请选择下级分拣中心！")
+            jQuery.messager.alert('提示:', '请选择下级分拣中心！', 'info');
             return false;
         }
         if (params.receiveSiteCode == null || params.receiveSiteCode <= 0) {
-            alert("请选择预分拣站点！")
+            jQuery.messager.alert('提示:', '请选择预分拣站点！', 'info');
             return false;
         }
     }
     if (params.routeType == 3) {
         if (params.receiveSiteCode == null || params.receiveSiteCode <= 0) {
-            alert("请选择末级分拣中心！")
+            jQuery.messager.alert('提示:', '请选择末级分拣中心！', 'info');
             return false;
         }
     }
@@ -310,7 +318,7 @@ function initDmsSelect(selectId, data) {
 function loadMultiSelect(data) {
     var params = {};
     params.routeType = 1;
-    params.planId = $("#planId").val();
+    params.planId = $.trim($("#planId").val());
     var getUrl = $("#contextPath").val() + "/areaDest/getSelected?" + Math.random();
     $.getJSON(getUrl, params, function (selectedData) {
         addOptions(data, selectedData);
@@ -366,13 +374,13 @@ function getMultiDmsParams() {
     var params = {};
     //多级分拣
     params.routeType = 3;
-    params.planId = $("#planId").val();
-    params.createSiteCode = $("#currentSiteCode").val();
-    params.createSiteName = $("#currentSiteName").val();
-    params.transferSiteCode = $("#transferSiteCode").val();
-    params.transferSiteName = $("#transferSiteName").val();
-    params.receiveSiteName = $("#receiveSiteName").val();
-    params.receiveSiteCode = $("#receiveSiteCode").val();
+    params.planId = $.trim($("#planId").val());
+    params.createSiteCode = $.trim($("#currentSiteCode").val());
+    params.createSiteName = $.trim($("#currentSiteName").val());
+    params.transferSiteCode = $.trim(("#transferSiteCode").val());
+    params.transferSiteName = $.trim($("#transferSiteName").val());
+    params.receiveSiteName = $.trim($("#receiveSiteName").val());
+    params.receiveSiteCode = $.trim($("#receiveSiteCode").val());
     return params;
 }
 
@@ -388,13 +396,13 @@ function getDirectDmsParams() {
     var params = {};
     //多级分拣
     params.routeType = 2;
-    params.planId = $("#planId").val();
-    params.createSiteCode = $("#currentSiteCode").val();
-    params.createSiteName = $("#currentSiteName").val();
-    params.transferSiteCode = $("#nextSiteCode").val();
-    params.transferSiteName = $("#nextSiteName").val();
-    params.receiveSiteName = $("#destSiteName").val();
-    params.receiveSiteCode = $("#destSiteCode").val();
+    params.planId = $.trim($("#planId").val());
+    params.createSiteCode = $.trim($("#currentSiteCode").val());
+    params.createSiteName = $.trim($("#currentSiteName").val());
+    params.transferSiteCode = $.trim($("#nextSiteCode").val());
+    params.transferSiteName = $.trim($("#nextSiteName").val());
+    params.receiveSiteName = $.trim($("#destSiteName").val());
+    params.receiveSiteCode = $.trim($("#destSiteCode").val());
     return params;
 }
 
@@ -409,7 +417,7 @@ function doDmsSave(params) {
     var url = $("#contextPath").val() + "/areaDest/save?" + Math.random();
     CommonClient.post(url, params, function (data) {
         if (data && data.code == 200) {
-            alert("添加成功");
+            jQuery.messager.alert('提示:', "添加成功", 'error');
             if (params.routeType == 2) {
                 directDmsLoad(1);
             } else {
@@ -417,9 +425,9 @@ function doDmsSave(params) {
             }
         } else {
             if (data.message) {
-                alert(data.message);
+                jQuery.messager.alert('提示:', data.message, 'info');
             } else {
-                alert("添加异常");
+                jQuery.messager.alert('提示:', "添加异常", 'info');
             }
         }
     });
@@ -431,19 +439,24 @@ function goDownModel() {
 
 function getImportParam() {
     var params = {};
-    params.planId = $("#planId").val();
-    params.createSiteCode = $("#currentSiteCode").val();
-    params.createSiteName = $("#currentSiteName").val();
+    params.planId = $.trim($("#planId").val());
+    params.createSiteCode = $.trim($("#currentSiteCode").val());
+    params.createSiteName = $.trim($("#currentSiteName").val());
     return params;
 }
 
 function importExcel() {
+    var filePath = $.trim($("#importFileIpt").val());
+    if (typeof(filePath) == "undefined" || filePath == null || filePath == "") {
+        jQuery.messager.alert('提示:', "请选择需要导入文件", 'info');
+        return;
+    }
     var url = $("#contextPath").val() + "/areaDest/import";
     $.blockUI({message: "<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
     var params = getImportParam();
     $("#importFileForm").ajaxSubmit({
         url: url, // 请求的url
-        data: $("#importFileIpt").serialize(),// 请求参数
+        data: params,// 请求参数
         type: "post", // 请求方式
         dataType: "json", // 响应的数据类型
         async: true, // 异步
@@ -451,20 +464,23 @@ function importExcel() {
             $.unblockUI();
             var jsonData = eval(data);
             if (200 == jsonData.code) {
-                alert("提示:导入配置成功");
+                //初始化站点下拉框
+                intSite();
+                multiDmsLoad(1);
+                directDmsLoad(1);
+                jQuery.messager.alert('提示:', "导入配置成功", 'info');
             } else {
-                alert("提示:" + jsonData.message);
+                jQuery.messager.alert('提示:', jsonData.message, 'info');
             }
         },
         error: function () {
             $.unblockUI();
-            alert("提示:导入配置失败，稍后重试");
+            jQuery.messager.alert('提示:', "导入配置失败，稍后重试", 'info');
         }
     });
 }
 
 function exportExcel() {
-    var url = $("#contextPath").val() + "/areaDest/export?planId="
-        + $.trim($("#planId").val());
+    var url = $("#contextPath").val() + "/areaDest/export?planId=" + $.trim($("#planId").val());
     window.open(url, "_parent");
 }

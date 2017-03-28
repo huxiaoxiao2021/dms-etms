@@ -71,15 +71,6 @@ public class AreaDestDao extends BaseDao<AreaDest> {
     }
 
     /**
-     * 根据参数设置为有效
-     *
-     * @param params
-     */
-    public int enableByParams(Map<String, Object> params) {
-        return this.getSqlSession().update(AreaDestDao.namespace + ".enableByParams", params);
-    }
-
-    /**
      * 根据参数获取区域批次目的地列表
      *
      * @param params

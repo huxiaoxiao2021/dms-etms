@@ -9,7 +9,9 @@
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/bootstrap.min.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
 #*<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>*#
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap/jquery.js')"></script>
     <script type="text/javascript">
@@ -23,17 +25,25 @@
             }
         })();
     </script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <style type="text/css">
-        *, :after, :before{
+        *, :after, :before {
             -webkit-box-sizing: content-box;
             box-sizing: content-box;
         }
-        .myfont { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; font-size:17px;}
+
+        .myfont {
+            font-family: Microsoft YaHei, '宋体', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
+            font-size: 17px;
+        }
     </style>
 </head>
 
@@ -77,15 +87,15 @@
 
             <div style="width: 70%; margin:0 auto;margin-top:12px;">
                 <div class="div_btn" style="float:left;">
-                    <div style="width: 250px;float: right;">
-                        <input id="downloadModelBtn" value="下载模版" type="button" class="btn_c"></input>
-                        <input id="loadInBtn" value="导入" type="button" class="btn_c"></input>
-                    </div>
-                    <form action="" method="post" id="importFileForm" name="importFileForm"
+                    <form action="" method="post" id="importFileForm" name="importFileForm" enctype="multipart/form-data"
                           style="float:left;width:240px;">
                         <input type="file" id="importFileIpt" name="importExcelFile"
                                style="height: 28px;display: block;margin-top:5px;"/>
                     </form>
+                    <div style="width: 250px;float: right;">
+                        <input id="loadInBtn" value="导入" type="button" class="btn_c"></input>
+                        <input id="downloadModelBtn" value="下载模版" type="button" class="btn_c"></input>
+                    </div>
                 </div>
                 <div class="div_btn" style="float:right;">
                     <input id="loadOutBtn" value="导出" type="button" class="btn_c"></input>

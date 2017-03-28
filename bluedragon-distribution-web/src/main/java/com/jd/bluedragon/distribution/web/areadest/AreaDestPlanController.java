@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -41,6 +42,9 @@ public class AreaDestPlanController {
 
     @Autowired
     private AreaDestPlanService areaDestPlanService;
+
+    @Autowired
+    private AreaDestService areaDestService;
 
     @Autowired
     private AreaDestPlanDetailService areaDestPlanDetailService;
@@ -258,6 +262,7 @@ public class AreaDestPlanController {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getUserId())) {
+                    areaDestService.disable(planId, erpUser.getUserCode(), erpUser.getUserId());
                     response.setCode(JdResponse.CODE_OK);
                     response.setMessage("删除成功！");
                 }

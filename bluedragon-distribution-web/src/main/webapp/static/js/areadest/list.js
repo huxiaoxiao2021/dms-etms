@@ -110,9 +110,9 @@ function doQuery(params) {
                     temp += "<td>" + (dataList[i].machineId) + "</td>";
                     temp += "<td>" + (dataList[i].planName) + "</td>";
                     temp += "<td>"
-                        + ("<input type='button' onclick='doQueryDetail(" + dataList[i].planId + ")'' value='查看' class='btn_c'/>&nbsp&nbsp;&nbsp;"
-                        + "<input type='button' onclick='doConfig(" + dataList[i].planId + ")'' value='配置' class='btn_c'/>&nbsp;&nbsp;&nbsp;"
-                        + "<input type='button' onclick='doDelete(" + dataList[i].planId + ")'' value='删除' class='btn_c'/>")
+                        + ("<input type='button' onclick='doQueryDetail(" + dataList[i].planId + ")'' value='查看' style='width:70px;height:25px;'/>&nbsp&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doConfig(" + dataList[i].planId + ")'' value='配置' style='width:70px;height:25px;'/>&nbsp;&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doDelete(" + dataList[i].planId + ")'' value='删除' style='width:70px;height:25px;'/>")
                         + "</td>";
                     temp += "</tr>";
                 }

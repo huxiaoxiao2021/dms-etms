@@ -7,19 +7,32 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.api.response.AreaDestResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.zip.DataFormatException;
 
 /**
  * 区域批次目的地
@@ -37,6 +50,10 @@ public class AreaDestController {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    private static final int FILE_SIZE_LIMIT = 1024 * 1024;
+
+    private static final int EXPORT_ROW_LIMIT = 50000;
 
     /**
      * 获取区域批次目的地列表
@@ -219,6 +236,241 @@ public class AreaDestController {
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return response;
+    }
+
+    /**
+     * 导入excel文件
+     *
+     * @param file
+     * @param response
+     */
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
+    public void doImportExcel(@RequestParam("importExcelFile") MultipartFile file, HttpServletRequest request, HttpServletResponse response) {
+        response.setContentType("text/json;charset=utf-8");
+        PrintWriter pw = null;
+        try {
+            pw = response.getWriter();
+            if (file.getSize() > FILE_SIZE_LIMIT) throw new IOException("文件大小超过限制(1M)");
+            Map<RouteType, Sheet> sheets = getSheets(file);
+            if (null == sheets || sheets.size() == 0) throw new DataFormatException("导入失败，无效的Excel模板");
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (null == erpUser) throw new DataFormatException("未登录用户，没有权限");
+            areaDestService.importForExcel(sheets, getParameters(request), erpUser.getUserCode(), erpUser.getUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (e instanceof IOException) {
+                logger.error("导入方案配置关系失败", e);
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
+            } else if (e instanceof DataFormatException) {
+                logger.error("导入方案配置关系失败", e);
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+            }
+            writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入方案配置关系失败，系统异常")));
+        }
+        writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
+    }
+
+    private AreaDestRequest getParameters(HttpServletRequest request) {
+        Integer planId = Integer.valueOf(request.getParameter("planId"));
+        Integer createSiteCode = Integer.valueOf(request.getParameter("createSiteCode"));
+        String createSiteName = request.getParameter("createSiteName");
+        AreaDestRequest areaDestRequest = new AreaDestRequest();
+        areaDestRequest.setPlanId(planId);
+        areaDestRequest.setCreateSiteCode(createSiteCode);
+        areaDestRequest.setCreateSiteName(createSiteName);
+        return areaDestRequest;
+    }
+
+    /**
+     * 从文件流获取Sheet
+     *
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    private Map<RouteType, Sheet> getSheets(MultipartFile file) throws Exception {
+        String fileName = file.getOriginalFilename();
+        Workbook workbook;
+        if (fileName.toLowerCase().endsWith(".xlsx")) {
+            workbook = new XSSFWorkbook(file.getInputStream());
+        } else if (fileName.toLowerCase().endsWith(".xls")) {
+            workbook = new HSSFWorkbook(file.getInputStream());
+        } else {
+            throw new DataFormatException("文件只能是Excel");
+        }
+        Map<RouteType, Sheet> sheets = new HashMap<RouteType, Sheet>();
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            Sheet sheet = workbook.getSheetAt(i);
+            if (RouteType.MULTIPLE_DMS.getName().equals(sheet.getSheetName())) {
+                sheets.put(RouteType.MULTIPLE_DMS, sheet);
+            } else if (RouteType.DIRECT_DMS.getName().equals(sheet.getSheetName())) {
+                sheets.put(RouteType.DIRECT_DMS, sheet);
+            } else if (RouteType.DIRECT_SITE.getName().equals(sheet.getSheetName())) {
+                sheets.put(RouteType.DIRECT_SITE, sheet);
+            }
+        }
+        return sheets;
+    }
+
+    /**
+     * 写入PrintWriter并关闭
+     *
+     * @param pw
+     * @param value
+     */
+    private void writeAndClose(PrintWriter pw, String value) {
+        pw.write(value);
+        pw.flush();
+        pw.close();
+    }
+
+    /**
+     * Excel导出
+     *
+     * @param planId
+     * @param response
+     */
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    @ResponseBody
+    public void doExportExcel(Integer planId, HttpServletResponse response) {
+        try {
+            if (planId != null && planId > 0) {
+                List<AreaDest> areaDests = areaDestService.getList(planId, null);
+                if (areaDests.size() > EXPORT_ROW_LIMIT) {
+                    response.setHeader("Content-type", "text/html;charset=UTF-8");
+                    PrintWriter pw = response.getWriter();
+                    writeAndClose(pw, "要导出的数据太大");
+                }
+                response.setContentType("application/vnd.ms-excel");
+                response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("发货方案配置.xls", "UTF-8"));
+                OutputStream outputStream = response.getOutputStream();
+                HSSFWorkbook wb = createWorkbook(areaDests);
+                wb.write(outputStream);
+                outputStream.flush();
+                outputStream.close();
+            }
+        } catch (Exception ex) {
+            logger.error("导出发货方案配置异常", ex);
+        }
+    }
+
+    /**
+     * 根据方案关系创建工作薄
+     *
+     * @param areaDests 方案关系
+     * @return 创建的工作薄
+     */
+    private HSSFWorkbook createWorkbook(List<AreaDest> areaDests) {
+        HSSFWorkbook wb = new HSSFWorkbook();
+        this.createColorIndex(wb);
+        for (RouteType type : RouteType.values()) {
+            HSSFSheet sheet = wb.createSheet(type.getName());
+            HSSFRow row = sheet.createRow(0);
+            HSSFCellStyle style = getHeadCellStyle(wb);
+            switch (type) {
+                case DIRECT_SITE:
+                    createCellOfRow(row, 0, "预分拣站点编号", style);
+                    createCellOfRow(row, 1, "预分拣站点名称", style);
+                    break;
+                case DIRECT_DMS:
+                    createCellOfRow(row, 0, "下级分拣中心编号", style);
+                    createCellOfRow(row, 1, "下级分拣中心名称", style);
+                    createCellOfRow(row, 2, "预分拣站点编号", style);
+                    createCellOfRow(row, 3, "预分拣站点名称", style);
+                    break;
+                case MULTIPLE_DMS:
+                    createCellOfRow(row, 0, "下级分拣中心编号", style);
+                    createCellOfRow(row, 1, "下级分拣中心名称", style);
+                    createCellOfRow(row, 2, "末级分拣中心编号", style);
+                    createCellOfRow(row, 3, "末级分拣中心名称", style);
+                    break;
+            }
+            sheet.autoSizeColumn((short) 0);
+            sheet.autoSizeColumn((short) 1);
+            sheet.autoSizeColumn((short) 2);
+            sheet.autoSizeColumn((short) 3);
+        }
+
+        // create cell style(border with border color)
+        HSSFCellStyle styleContent = getCellStyle(wb);
+        for (int i = 0; i < areaDests.size(); i++) {
+            AreaDest areaDest = areaDests.get(i);
+            RouteType type = RouteType.getEnum(areaDest.getRouteType());
+            switch (type) {
+                case DIRECT_SITE:
+                    HSSFSheet sheet = wb.getSheet(type.getName());
+                    HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
+                    createCellOfRow(row, 0, areaDest.getReceiveSiteCode(), styleContent);
+                    createCellOfRow(row, 1, areaDest.getReceiveSiteName(), styleContent);
+                    break;
+                case DIRECT_DMS:
+                    HSSFSheet sheet1 = wb.getSheet(type.getName());
+                    HSSFRow row1 = sheet1.createRow(sheet1.getLastRowNum() + 1);
+                    createCellOfRow(row1, 0, areaDest.getTransferSiteCode(), styleContent);
+                    createCellOfRow(row1, 1, areaDest.getTransferSiteName(), styleContent);
+                    createCellOfRow(row1, 2, areaDest.getReceiveSiteCode(), styleContent);
+                    createCellOfRow(row1, 3, areaDest.getReceiveSiteName(), styleContent);
+                    break;
+                case MULTIPLE_DMS:
+                    HSSFSheet sheet2 = wb.getSheet(type.getName());
+                    HSSFRow row2 = sheet2.createRow(sheet2.getLastRowNum() + 1);
+                    createCellOfRow(row2, 0, areaDest.getTransferSiteCode(), styleContent);
+                    createCellOfRow(row2, 1, areaDest.getTransferSiteName(), styleContent);
+                    createCellOfRow(row2, 2, areaDest.getReceiveSiteCode(), styleContent);
+                    createCellOfRow(row2, 3, areaDest.getReceiveSiteName(), styleContent);
+                    break;
+            }
+        }
+        return wb;
+    }
+
+    private final static short colorIndex_1 = 9;
+
+    private final static short colorIndex_2 = 10;
+
+    private void createColorIndex(HSSFWorkbook wb) {
+        // create two colors
+        HSSFPalette customPalette = wb.getCustomPalette();
+        customPalette.setColorAtIndex(colorIndex_1, (byte) 220, (byte) 230, (byte) 241);
+        customPalette.setColorAtIndex(colorIndex_2, (byte) 217, (byte) 217, (byte) 217);
+    }
+
+    private HSSFCellStyle getHeadCellStyle(HSSFWorkbook wb) {
+        // create cell style with font and colors
+        HSSFCellStyle style = wb.createCellStyle();
+        style.setFillForegroundColor(colorIndex_1);
+        style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+        style.setRightBorderColor(colorIndex_2);
+        return style;
+    }
+
+    private HSSFCellStyle getCellStyle(HSSFWorkbook wb) {
+        // create cell style with font and colors
+        HSSFCellStyle style = wb.createCellStyle();
+        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+        style.setRightBorderColor(colorIndex_2);
+        return style;
+    }
+
+    /**
+     * 根据具体格式和内容创建单元格
+     *
+     * @param row       单元格所在行
+     * @param colIndex  单元格的index
+     * @param cellValue 单元格内容
+     * @param cellStyle 单元格样式
+     */
+    private void createCellOfRow(HSSFRow row, int colIndex, String cellValue, HSSFCellStyle cellStyle) {
+        HSSFCell cell = row.createCell(colIndex);
+        cell.setCellStyle(cellStyle);
+        cell.setCellValue(cellValue);
+    }
+
+    private void createCellOfRow(HSSFRow row, int colIndex, double cellValue, HSSFCellStyle cellStyle) {
+        HSSFCell cell = row.createCell(colIndex);
+        cell.setCellStyle(cellStyle);
+        cell.setCellValue(cellValue);
     }
 
 }

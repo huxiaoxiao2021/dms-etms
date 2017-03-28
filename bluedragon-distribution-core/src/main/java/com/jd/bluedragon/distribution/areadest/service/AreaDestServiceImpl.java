@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 /**
@@ -266,22 +263,30 @@ public class AreaDestServiceImpl implements AreaDestService {
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception {
-        List<AreaDest> all = new ArrayList<AreaDest>();
+        Set<AreaDest> importData = new HashSet<AreaDest>();
         for (Map.Entry<RouteType, Sheet> entry : sheets.entrySet()) {
-            all.addAll(doImportBySheet(entry.getKey(), entry.getValue(), request, userName, userCode));
+            Set<AreaDest> areaDestSet = doImportBySheet(entry.getKey(), entry.getValue(), request, userName, userCode);
+            for (AreaDest areaDest : areaDestSet) {
+                if (!importData.add(areaDest)) {
+                    throw new DataFormatException("【" + RouteType.getEnum(areaDest.getRouteType()).getName() + "】预分拣站点/末级分拣中心：" + areaDest.getReceiveSiteName() + "，站点编号：" + areaDest.getReceiveSiteCode() + "，在其他页签中已存在发货路线关系");
+                }
+            }
         }
-        if (!all.isEmpty()) {
-            this.disable(request.getPlanId(), userName, userCode);
-            areaDestDao.addBatch(all);
+        if (!importData.isEmpty()) {
+            disable(request.getPlanId(), userName, userCode);
+            areaDestDao.addBatch(new ArrayList<AreaDest>(importData));
         }
     }
 
-    private List<AreaDest> doImportBySheet(RouteType routeType, Sheet sheet, AreaDestRequest request, String userName, Integer userCode) throws Exception {
-        List<AreaDest> insertList = new ArrayList<AreaDest>();
-        for (int rowIndex = 2; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+    private Set<AreaDest> doImportBySheet(RouteType routeType, Sheet sheet, AreaDestRequest request, String userName, Integer userCode) throws Exception {
+        Set<AreaDest> insertSet = new HashSet<AreaDest>();
+        for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
             Row row = sheet.getRow(rowIndex);
             List<BaseStaffSiteOrgDto> baseStaffSites = baseMajorManager.getDmsSiteAll();
             AreaDest areaDest = new AreaDest();
+            // 初始化中转站点信息，避免无中转站点时插入报错
+            areaDest.setTransferSiteCode(0);
+            areaDest.setTransferSiteName("");
             // 检查单元格是否符合列对应的要求
             checkCellFormat(row, routeType);
             // 检查输入的站点code是否存在
@@ -292,34 +297,11 @@ public class AreaDestServiceImpl implements AreaDestService {
             areaDest.setCreateSiteName(request.getCreateSiteName());
             areaDest.setCreateUser(userName);
             areaDest.setCreateUserCode(userCode);
-            List<AreaDest> list = this.getList(areaDest.getPlanId(), areaDest.getCreateSiteCode(), areaDest.getReceiveSiteCode());
-            if (list != null && list.size() > 0) {
-                throw new DataFormatException(routeType.getName() + "第" + (rowIndex + 1) + "行和第" + (rowIndex + 1) + "行关系已存在");
-            }
-            insertList.add(areaDest);
-        }
-        checkDataRepeat(routeType, insertList);
-        return insertList;
-    }
-
-    /**
-     * 检查导入的excel里面有没有重复的行
-     *
-     * @param areaDests
-     * @throws DataFormatException
-     */
-    private void checkDataRepeat(RouteType routeType, List<AreaDest> areaDests) throws DataFormatException {
-        if (null == areaDests || areaDests.size() <= 0) return;
-        for (int i = 0; i < areaDests.size(); i++) {
-            AreaDest ad = areaDests.get(i);
-            for (int j = i + 1; j < areaDests.size(); j++) {
-                AreaDest dest = areaDests.get(j);
-                if (ad.getPlanId().equals(dest.getPlanId())
-                        && ad.getCreateSiteCode().equals(dest.getCreateSiteCode()) && ad.getReceiveSiteCode().equals(dest.getTransferSiteCode())) {
-                    throw new DataFormatException(routeType.getName() + "第" + (i + 2 + "行和第" + (j + 2) + "行数据重复"));
-                }
+            if (!insertSet.add(areaDest)) {
+                throw new DataFormatException("【" + routeType.getName() + "】第" + (rowIndex + 1) + "行在该页签中存在重复关系");
             }
         }
+        return insertSet;
     }
 
     /**
@@ -335,24 +317,37 @@ public class AreaDestServiceImpl implements AreaDestService {
         Cell cell2 = row.getCell(2);
         switch (type) {
             case DIRECT_SITE:
-                if (null == cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK){
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
+                }
+                if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
                 }
                 break;
             case DIRECT_DMS:
-                if (null == cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK){
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
                 }
-                if (null == cell2 || cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据不正确");
+                if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
+                }
+
+                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK){
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
+                }
+                if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
                 }
                 break;
             case MULTIPLE_DMS:
                 if (null != cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据不正确");
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
                 }
-                if (null == cell2 || cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据不正确");
+                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK){
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
+                }
+                if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
                 }
                 break;
         }

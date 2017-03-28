@@ -209,6 +209,27 @@ public class AreaDest implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AreaDest areaDest = (AreaDest) o;
+
+        if (!planId.equals(areaDest.planId)) return false;
+        if (!createSiteCode.equals(areaDest.createSiteCode)) return false;
+        return receiveSiteCode.equals(areaDest.receiveSiteCode);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = planId.hashCode();
+        result = 31 * result + createSiteCode.hashCode();
+        result = 31 * result + receiveSiteCode.hashCode();
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "AreaDest{" +
                 "id=" + id +
