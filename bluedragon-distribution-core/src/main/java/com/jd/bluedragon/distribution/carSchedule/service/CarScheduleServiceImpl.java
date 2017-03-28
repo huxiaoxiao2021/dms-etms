@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.carSchedule.service;
 
 import com.google.gson.Gson;
+import com.jd.bluedragon.distribution.areadest.dao.AreaDestDao;
+import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.carSchedule.dao.CarScheduleDao;
 import com.jd.bluedragon.distribution.carSchedule.dao.SendCodeToCarNoDao;
 import com.jd.bluedragon.distribution.carSchedule.domain.CancelScheduleTo;
@@ -46,17 +48,17 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void persistData(CarScheduleTo carScheduleTo) {
         this.logger.info("CarScheduleService-->persistData方法begin...");
-        if(null == carScheduleTo || null == carScheduleTo.getCarSendCode() || "".equals(carScheduleTo.getCarSendCode())){
+        if(null == carScheduleTo || null == carScheduleTo.getSendCarCode() || "".equals(carScheduleTo.getSendCarCode())){
             this.logger.info("参数错误，参数的基本信息为空,本次方法退出。");
             return;
         }
         completeDomain(carScheduleTo);
-        carScheduleDao.add(carScheduleTo);
-        String[] sendCodes = carScheduleTo.getSendCodeList().split(",");
-        if(null != sendCodes && sendCodes.length > 0){
+        int i = carScheduleDao.addSchedule(carScheduleTo);
+        List<String> sendCodes = carScheduleTo.getSendCodeList();
+        if(null != sendCodes && sendCodes.size() > 0 && i > 0){
             for(String sendCode : sendCodes){
                 SendCodeToCarCode sendCodeToCarNo = new SendCodeToCarCode();
-                sendCodeToCarNo.setSendCarCode(carScheduleTo.getCarSendCode());//发车条码
+                sendCodeToCarNo.setSendCarCode(carScheduleTo.getSendCarCode());//发车条码
                 sendCodeToCarNo.setSendCode(sendCode);//批次号
                 sendCodeToCarNo.setYn(1);
                 sendCodeToCarNoDao.add(sendCodeToCarNo);
@@ -148,7 +150,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
             if(null != carScheduleTo.getSendCodeList() && !"".equals(carScheduleTo.getSendCodeList())){
                 localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
-                List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getCarSendCode());
+                List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getSendCarCode());
                 Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号
                 Set<String> sendCodeInside = new HashSet<String>();//本分拣中心的批次号
                 if(null != sendCodes && sendCodes.size() > 0){
@@ -192,29 +194,33 @@ public class CarScheduleServiceImpl implements CarScheduleService {
      */
     private void completeDomain(CarScheduleTo carScheduleTo){
         /** 处理sendCode为%%,%%,%%逗号隔开的形式 **/
-        if(null != carScheduleTo.getSendCodeList() && !"".equals(carScheduleTo.getSendCodeList())
-                && !"[]".equals(carScheduleTo.getSendCodeList())){
-            String sendCodes = carScheduleTo.getSendCodeList();
-            List<String> sendList = gson.fromJson(sendCodes, ArrayList.class);
-            StringBuffer sendCodeList = new StringBuffer();
-            for(int i = 0 ; i < sendList.size();i++){
-                sendCodeList.append(sendList.get(i));
-                if(i != sendList.size()-1){
-                    sendCodeList.append(",");
-                }
-            }
-            carScheduleTo.setSendCodeList(sendCodeList.toString());
-        }
+//        if(null != carScheduleTo.getSendCodeList() && !"".equals(carScheduleTo.getSendCodeList())
+//                && !"[]".equals(carScheduleTo.getSendCodeList())){
+//            String sendCodes = carScheduleTo.getSendCodeList();
+//            List<String> sendList = gson.fromJson(sendCodes, ArrayList.class);
+//            StringBuffer sendCodeList = new StringBuffer();
+//            for(int i = 0 ; i < sendList.size();i++){
+//                sendCodeList.append(sendList.get(i));
+//                if(i != sendList.size()-1){
+//                    sendCodeList.append(",");
+//                }
+//            }
+//            carScheduleTo.setSendCodeList(sendCodeList.toString());
+//        }
         /**根据七位站点编码，获取站点ID**/
         if(null != carScheduleTo.getCreateDmsCode() && !"".equals(carScheduleTo.getCreateDmsCode())){
             BaseStaffSiteOrgDto createSiteDto = basicPrimaryWS.getBaseSiteByDmsCode(carScheduleTo.getCreateDmsCode());
-            carScheduleTo.setCreateSiteCode(createSiteDto.getSiteCode());
-            carScheduleTo.setCreateSiteName(createSiteDto.getSiteName());
+            if(null != createSiteDto){
+                carScheduleTo.setCreateSiteCode(createSiteDto.getSiteCode());
+                carScheduleTo.setCreateSiteName(createSiteDto.getSiteName());
+            }
         }
         if(null != carScheduleTo.getReceiveDmsCode() && !"".equals(carScheduleTo.getReceiveDmsCode())){
             BaseStaffSiteOrgDto receiveSiteDto = basicPrimaryWS.getBaseSiteByDmsCode(carScheduleTo.getReceiveDmsCode());
-            carScheduleTo.setReceiveSiteCode(receiveSiteDto.getSiteCode());
-            carScheduleTo.setReceieSiteName(receiveSiteDto.getSiteName());
+            if(null != receiveSiteDto){
+                carScheduleTo.setReceiveSiteCode(receiveSiteDto.getSiteCode());
+                carScheduleTo.setReceiveSiteName(receiveSiteDto.getSiteName());
+            }
         }
         if(null != carScheduleTo.getRouteType()){
             carScheduleTo.setRouteTypeMark(routeTypeByType(carScheduleTo.getRouteType()));
@@ -275,37 +281,11 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     public static void main(String[] args){
-        Set<String> list = new HashSet<String>();
-//        Gson gson = new Gson();
-//        List<String> list = new ArrayList<String>();
-//        System.out.println(gson.toJson(list));
-        list.add("910-25016-2016112411081001");
-        list.add("910-25016-2016112411081002");
-        list.add("910-25016-2016112411081003");
-        list.add("910-25016-2016112411081004");
-        list.add("910-25016-2016112411081005");
-//        System.out.println(gson.toJson(list));
-//        String[] array = {"910-25016-2016112411081001",
-//                "910-25016-2016112411081002",
-//                "910-25016-2016112411081003",
-//                "910-25016-2016112411081004",
-//                "910-25016-2016112411081005"};
-//        System.out.println(gson.toJson(array));
-//        String[] array2 = list.toArray(new String[5]);
-//        System.out.println(gson.toJson(array2));
-//        StringBuffer sendCodeList = new StringBuffer();
-//        for(int i = 0 ; i < list.size();i++){
-//            sendCodeList.append(list.get(i));
-//            if(i != list.size()-1){
-//                sendCodeList.append(",");
-//            }
-//        }
-//        System.out.println(sendCodeList.toString());
-//        String sendCode = list.get(1);
-//        System.out.println(sendCode.substring(0,sendCode.lastIndexOf("-")));
-        for(Iterator it = list.iterator();it.hasNext();){
-            System.out.println(it.next());
-        }
+        CarScheduleDao dao = new CarScheduleDao();
+        AreaDestDao aDao = new AreaDestDao();
+        int i = aDao.add(new AreaDest());
+//        CarScheduleTo i = dao.getByVehicleNoAndSiteCode("京A-8888",910);
+        System.out.println( i );
 
     }
 }

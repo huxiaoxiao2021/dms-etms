@@ -13,7 +13,7 @@ import java.util.Map;
 public class CarScheduleDao extends BaseDao<CarScheduleTo>{
     private static final String NAMESPACE = CarScheduleDao.class.getName();
 
-    public Integer add(CarScheduleTo entity) {
+    public Integer addSchedule(CarScheduleTo entity) {
         return super.add(NAMESPACE, entity);
     }
 

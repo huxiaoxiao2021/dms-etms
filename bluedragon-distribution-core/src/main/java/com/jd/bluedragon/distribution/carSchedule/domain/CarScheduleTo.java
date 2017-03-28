@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * TMS的发车报文 TO与PO之间的映射关系
@@ -16,7 +17,7 @@ public class CarScheduleTo {
      */
     @Expose
     @SerializedName("sendCarCode")
-    private String carSendCode;
+    private String sendCarCode;
 
     /**
      * 车牌号
@@ -58,7 +59,7 @@ public class CarScheduleTo {
      * 发车目的地名称
      */
     @Expose
-    private String receieSiteName;
+    private String receiveSiteName;
 
     /**
      * 操作时间
@@ -78,7 +79,7 @@ public class CarScheduleTo {
      * 标准到达时间
      */
     @Expose
-    @SerializedName("standardEndTime")
+    @SerializedName("standarArriveTime")
     private Date standardArriveTime;
 
     /**
@@ -133,7 +134,7 @@ public class CarScheduleTo {
      */
     @Expose
     @SerializedName("batchCodeList")
-    private String sendCodeList;
+    private List<String> sendCodeList;
 
     /**
      * 车内包裹数量
@@ -149,12 +150,12 @@ public class CarScheduleTo {
     @SerializedName("waybillList")
     private Integer waybillNum;
 
-    public String getCarSendCode() {
-        return carSendCode;
+    public String getSendCarCode() {
+        return sendCarCode;
     }
 
-    public void setCarSendCode(String carSendCode) {
-        this.carSendCode = carSendCode;
+    public void setSendCarCode(String sendCarCode) {
+        this.sendCarCode = sendCarCode;
     }
 
     public String getVehicleNumber() {
@@ -205,12 +206,12 @@ public class CarScheduleTo {
         this.receiveSiteCode = receiveSiteCode;
     }
 
-    public String getReceieSiteName() {
-        return receieSiteName;
+    public String getReceiveSiteName() {
+        return receiveSiteName;
     }
 
-    public void setReceieSiteName(String receieSiteName) {
-        this.receieSiteName = receieSiteName;
+    public void setReceiveSiteName(String receiveSiteName) {
+        this.receiveSiteName = receiveSiteName;
     }
 
     public Date getOperateTime() {
@@ -293,11 +294,11 @@ public class CarScheduleTo {
         this.carrierType = carrierType;
     }
 
-    public String getSendCodeList() {
+    public List<String> getSendCodeList() {
         return sendCodeList;
     }
 
-    public void setSendCodeList(String sendCodeList) {
+    public void setSendCodeList(List<String> sendCodeList) {
         this.sendCodeList = sendCodeList;
     }
 

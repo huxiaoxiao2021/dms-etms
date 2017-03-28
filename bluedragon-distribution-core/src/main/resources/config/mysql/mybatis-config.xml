@@ -94,6 +94,10 @@
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
 		<typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
         <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDest" alias="AreaDest"/>
+
+        <!-- wuzuxiang -->
+        <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo" alias="carSchedule"/>
+        <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode" alias="sendCodeToCarCode"/>
     </typeAliases>
 
     <plugins>
@@ -222,6 +226,9 @@
 
         <mapper resource="mappers/mysql/areadest/AreaDestMapper.xml"/>
 
+        <!--wuzuxaing-->
+        <mapper resource="mappers/mysql/carSchedule/CarScheduleMapper.xml"/>
+        <mapper resource="mappers/mysql/carSchedule/SendCodeToCarCodeMapper.xml"/>
     </mappers>
 
 </configuration>
