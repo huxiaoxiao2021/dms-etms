@@ -19,10 +19,16 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             if(waybill.getSendPay().charAt(21)!='5'){
                 builder.append(SPECIAL_MARK_ARAYACAK_SITE);
             }
+            if(waybill.getSendPay().length()>=135&&waybill.getSendPay().charAt(134)=='1'){
+                builder.append(SPECIAL_MARK_VALUABLE);
+            }
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
         if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().charAt(11)=='9') {
             builder.append(SPECIAL_MARK_CROWD_SOURCING);
+        }
+        if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().charAt(23)=='1') {
+            builder.append(SPECIAL_MARK_PUBLIC_WELFARE);
         }
 
         if(waybill.getIsAir()){
@@ -30,6 +36,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         }
         if(waybill.getIsSelfService()){
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
+        }
+        int index=-1;
+        if(((index=builder.indexOf(SPECIAL_MARK_CROWD_SOURCING))>0)
+                &&(builder.indexOf(SPECIAL_MARK_VALUABLE)>0))
+        {
+            builder.deleteCharAt(index);
         }
         waybill.setSpecialMark(builder.toString());
     }
