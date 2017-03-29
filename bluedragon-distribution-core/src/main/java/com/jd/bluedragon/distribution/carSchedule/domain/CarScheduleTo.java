@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.carSchedule.domain;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.jd.bluedragon.utils.DateHelper;
 
 import java.util.Date;
 import java.util.List;
@@ -66,35 +67,35 @@ public class CarScheduleTo {
      */
     @Expose
     @SerializedName("operateTime")
-    private Date operateTime;
+    private Long operateTime;
 
     /**
      * 标准发车时间
      */
     @Expose
     @SerializedName("standardSendTime")
-    private Date standardSendTime;
+    private Long standardSendTime;
 
     /**
      * 标准到达时间
      */
     @Expose
     @SerializedName("standarArriveTime")
-    private Date standardArriveTime;
+    private Long standardArriveTime;
 
     /**
      * 实际发车时间
      */
     @Expose
     @SerializedName("sendCarTime")
-    private Date carSendTime;
+    private Long carSendTime;
 
     /**
      * 实际到达时间
      */
     @Expose
     @SerializedName("arriveCarTime")
-    private Date carArriveTime;
+    private Long carArriveTime;
 
     /**
      * 线路类型
@@ -214,43 +215,43 @@ public class CarScheduleTo {
         this.receiveSiteName = receiveSiteName;
     }
 
-    public Date getOperateTime() {
+    public Long getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(Long operateTime) {
         this.operateTime = operateTime;
     }
 
-    public Date getStandardSendTime() {
+    public Long getStandardSendTime() {
         return standardSendTime;
     }
 
-    public void setStandardSendTime(Date standardSendTime) {
+    public void setStandardSendTime(Long standardSendTime) {
         this.standardSendTime = standardSendTime;
     }
 
-    public Date getStandardArriveTime() {
+    public Long getStandardArriveTime() {
         return standardArriveTime;
     }
 
-    public void setStandardArriveTime(Date standardArriveTime) {
+    public void setStandardArriveTime(Long standardArriveTime) {
         this.standardArriveTime = standardArriveTime;
     }
 
-    public Date getCarSendTime() {
+    public Long getCarSendTime() {
         return carSendTime;
     }
 
-    public void setCarSendTime(Date carSendTime) {
+    public void setCarSendTime(Long carSendTime) {
         this.carSendTime = carSendTime;
     }
 
-    public Date getCarArriveTime() {
+    public Long getCarArriveTime() {
         return carArriveTime;
     }
 
-    public void setCarArriveTime(Date carArriveTime) {
+    public void setCarArriveTime(Long carArriveTime) {
         this.carArriveTime = carArriveTime;
     }
 
@@ -317,4 +318,26 @@ public class CarScheduleTo {
     public void setWaybillNum(Integer waybillNum) {
         this.waybillNum = waybillNum;
     }
+
+    /**=================以下获取Date类型的=================**/
+    public Date getOperateTimeDate(){
+        return DateHelper.toDate(this.getOperateTime());
+    }
+
+    public Date getStandardSendTimeDate() {
+        return DateHelper.toDate(this.getStandardSendTime());
+    }
+
+    public Date getStandardArriveTimeDate() {
+        return DateHelper.toDate(this.getStandardArriveTime());
+    }
+
+    public Date getCarSendTimeDate() {
+        return DateHelper.toDate(this.getCarSendTime());
+    }
+
+    public Date getCarArriveTimeDate() {
+        return DateHelper.toDate(this.getCarArriveTime());
+    }
+
 }

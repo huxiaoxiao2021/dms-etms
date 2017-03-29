@@ -71,12 +71,13 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean cancelSchedule(CancelScheduleTo cancelScheduleTo) {
         Boolean bool = Boolean.FALSE;
-        if(null == cancelScheduleTo || null == cancelScheduleTo.getSendCarCode() || "".equals(cancelScheduleTo.getSendCarCode())) {
-            bool = carScheduleDao.cancelSend(cancelScheduleTo);
+        if(null != cancelScheduleTo && null != cancelScheduleTo.getSendCarCode() && !"".equals(cancelScheduleTo.getSendCarCode())) {
+            Boolean bool1 = carScheduleDao.cancelSend(cancelScheduleTo);
             SendCodeToCarCode sendCodeToCarNo = new SendCodeToCarCode();
             sendCodeToCarNo.setSendCarCode(cancelScheduleTo.getSendCarCode());//发车条码
             sendCodeToCarNo.setYn(0);
-            sendCodeToCarNoDao.cancelSendCar(sendCodeToCarNo);
+            Boolean bool2 = sendCodeToCarNoDao.cancelSendCar(sendCodeToCarNo)>0;
+            bool = bool1 & bool2;
         }
         return bool;
     }

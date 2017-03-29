@@ -27,16 +27,16 @@
     </resultMap>
 
     <insert id="add" parameterType="carSchedule">
-      INSERT INTO car_schedule_info ( send_car_code,vehicle_number,create_site_code,create_site_name,receive_site_code,creata_site_name,
+      INSERT INTO car_schedule_info ( send_car_code,vehicle_number,create_site_code,create_dms_code,create_site_name,receive_site_code,receive_dms_code,receive_site_name,
       operate_time,standard_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
       carrier_type,package_num,waybill_num,is_cancel,yn,create_time,ts )
-      VALUES(#{sendCarCode},#{vehicleNumber},#{createSiteCode},#{createSiteName},#{receiveSiteCode},#{receiveSiteName},
-       #{operateTime},#{standardSendTime},#{standardArriveTime},#{carSendTime},#{carArriveTime},#{routeType},#{routeTypeMark},#{transportWay},
+      VALUES(#{sendCarCode},#{vehicleNumber},#{createSiteCode},#{createDmsCode},#{createSiteName},#{receiveSiteCode},#{receiveDmsCode},#{receiveSiteName},
+       #{operateTimeDate},#{standardSendTimeDate},#{standardArriveTimeDate},#{carSendTimeDate},#{carArriveTimeDate},#{routeType},#{routeTypeMark},#{transportWay},
        #{transportWayMark},#{carrierType},#{packageNum},#{waybillNum},0,1,NOW(),NOW())
     </insert>
 
-    <select id="getByVehicleNoAndSiteCode" parameterType="java.util.Map">
-        SELECT send_car_code,vehicle_number,create_site_code,create_site_name,receive_site_code,receive_site_name,
+    <select id="getByVehicleNoAndSiteCode" parameterType="java.util.Map" resultMap="carSchedule">
+        SELECT send_car_code,vehicle_number,create_site_code,create_dms_code,create_site_name,receive_site_code,receive_site_name,receive_site_name,
       operate_time,standar_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
       carrier_type,send_code_list,package_num,waybill_num FROM car_schedule_info
         WHERE is_cancel = 0 AND yn = 1
@@ -50,10 +50,10 @@
 
     </select>
 
-    <update id="cancelSendCar" parameterType="carSchedule">
+    <update id="cancelSchedule" parameterType="carSchedule">
         UPDATE car_schedule_info
-        SET is_cancel = 1,update_time = #{operateTime}
-        WHERE send_car_code = #{sendCarCode} AND vihecle_number = #{vihecleNumber}
+        SET is_cancel = 1,update_time = #{operateTimeDate}
+        WHERE send_car_code = #{sendCarCode} AND vehicle_number = #{vehicleNumber}
     </update>
 
     <select id="routeTypeByVehicleNo" parameterType="java.lang.String">

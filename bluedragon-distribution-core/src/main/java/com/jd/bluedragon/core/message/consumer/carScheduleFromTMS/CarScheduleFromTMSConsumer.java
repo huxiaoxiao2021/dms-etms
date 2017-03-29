@@ -1,18 +1,20 @@
 package com.jd.bluedragon.core.message.consumer.carScheduleFromTMS;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by wuzuxiang on 2017/3/3.
@@ -25,9 +27,16 @@ public class CarScheduleFromTMSConsumer extends MessageBaseConsumer{
     CarScheduleService carScheduleService;
 
     private static final Gson GSON_MILLIONSECOND_FORMAT=new GsonBuilder()
-            .enableComplexMapKeySerialization()
-            .serializeNulls().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-            .setPrettyPrinting().create();
+            .excludeFieldsWithoutExposeAnnotation()
+            .setExclusionStrategies()
+            .setDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+            .registerTypeAdapter(Timestamp.class, new JsonSerializer<Timestamp>() {
+                @Override
+                public JsonElement serialize(Timestamp src, Type typeOfSrc, JsonSerializationContext context) {
+                    return new JsonPrimitive(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(src));
+                }
+            })
+            .create();
 
     /**
      * 消费TMS的发车消息：发车计划
@@ -43,7 +52,7 @@ public class CarScheduleFromTMSConsumer extends MessageBaseConsumer{
         this.logger.info(MessageFormat.format("来自TMS的车辆调度任务消息内容为空,消息businessID：{0},消息内容为：{1}",message.getBusinessId(),body));
         CarScheduleTo carScheduleTo = new CarScheduleTo();
         try{
-            carScheduleTo = GSON_MILLIONSECOND_FORMAT.fromJson(body,CarScheduleTo.class);
+            carScheduleTo = JsonHelper.fromJsonUseGson(body,CarScheduleTo.class);
         }catch (JsonSyntaxException e){
             this.logger.error(MessageFormat.format("来自TMS的车辆调度任务消息序列化失败--消息businessID为：{0}，消息内容为：{1}",message.getBusinessId(),body),e);
             throw new Exception("来自TMS的车辆调度任务消息消费序列化失败--消息businessId："+message.getBusinessId()+",消息内容为："+body,e);

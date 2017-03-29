@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.carSchedule.domain;
 
+import com.jd.bluedragon.utils.DateHelper;
+
 import java.util.Date;
 
 /**
@@ -21,7 +23,7 @@ public class CancelScheduleTo {
     /**
      * 取消发车的操作时间(消息内容对应的对方是时间戳)
      */
-    private Date operateTime;
+    private Long operateTime;
 
     public String getSendCarCode() {
         return sendCarCode;
@@ -39,11 +41,22 @@ public class CancelScheduleTo {
         this.vehicleNumber = vehicleNumber;
     }
 
-    public Date getOperateTime() {
+    public Long getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(Long operateTime) {
         this.operateTime = operateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "CancelScheduleTo{" + "sendCarCode='" + sendCarCode + '\'' + ", vehicleNumber='" + vehicleNumber + '\'' + ", operateTime="
+                + operateTime + '}';
+    }
+
+    /** 获取Date类型的时间 **/
+    public Date getOperateTimeDate(){
+        return DateHelper.toDate(operateTime);
     }
 }
