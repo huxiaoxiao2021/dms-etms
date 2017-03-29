@@ -369,26 +369,36 @@ public class AreaDestController {
             HSSFCellStyle style = getHeadCellStyle(wb);
             switch (type) {
                 case DIRECT_SITE:
-                    createCellOfRow(row, 0, "预分拣站点编号", style);
+                    createCellOfRow(row, 0, "预分拣站点编号*", style);
                     createCellOfRow(row, 1, "预分拣站点名称", style);
+                    sheet.setColumnWidth(0, 5000);
+                    sheet.setColumnWidth(1, 10000);
                     break;
                 case DIRECT_DMS:
-                    createCellOfRow(row, 0, "下级分拣中心编号", style);
+                    createCellOfRow(row, 0, "下级分拣中心编号*", style);
                     createCellOfRow(row, 1, "下级分拣中心名称", style);
-                    createCellOfRow(row, 2, "预分拣站点编号", style);
+                    createCellOfRow(row, 2, "预分拣站点编号*", style);
                     createCellOfRow(row, 3, "预分拣站点名称", style);
+                    sheet.setColumnWidth(0, 5000);
+                    sheet.setColumnWidth(1, 10000);
+                    sheet.setColumnWidth(2, 5000);
+                    sheet.setColumnWidth(3, 10000);
                     break;
                 case MULTIPLE_DMS:
                     createCellOfRow(row, 0, "下级分拣中心编号", style);
                     createCellOfRow(row, 1, "下级分拣中心名称", style);
-                    createCellOfRow(row, 2, "末级分拣中心编号", style);
+                    createCellOfRow(row, 2, "末级分拣中心编号*", style);
                     createCellOfRow(row, 3, "末级分拣中心名称", style);
+                    sheet.setColumnWidth(0, 5000);
+                    sheet.setColumnWidth(1, 10000);
+                    sheet.setColumnWidth(2, 5000);
+                    sheet.setColumnWidth(3, 10000);
                     break;
             }
-            sheet.autoSizeColumn((short) 0);
+            /*sheet.autoSizeColumn((short) 0);
             sheet.autoSizeColumn((short) 1);
             sheet.autoSizeColumn((short) 2);
-            sheet.autoSizeColumn((short) 3);
+            sheet.autoSizeColumn((short) 3);*/
         }
 
         // create cell style(border with border color)
@@ -442,6 +452,9 @@ public class AreaDestController {
         style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
         style.setBorderRight(HSSFCellStyle.BORDER_THIN);
         style.setRightBorderColor(colorIndex_2);
+        HSSFFont font = wb.createFont();
+        font.setFontName("微软雅黑");
+        style.setFont(font);
         return style;
     }
 
