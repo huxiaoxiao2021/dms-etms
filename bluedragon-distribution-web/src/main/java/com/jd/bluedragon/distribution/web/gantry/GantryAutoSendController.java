@@ -187,7 +187,7 @@ public class GantryAutoSendController {
                     gantryDeviceConfig.setLockUserName(userName);
                     int i = gantryDeviceConfigService.lockDevice(gantryDeviceConfig);//锁定龙门架操作
                     if((request.getBusinessType()&2) == 2){
-                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getSiteCode());
+                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getCreateSiteCode());
                         if(!j){
                             this.logger.error("锁定龙门架的方案失败");
                         }
