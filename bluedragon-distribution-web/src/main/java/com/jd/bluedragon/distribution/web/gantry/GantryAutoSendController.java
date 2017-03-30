@@ -136,8 +136,8 @@ public class GantryAutoSendController {
         }
         GantryDeviceConfig  gantryDeviceConfig = null;
         gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
-        if(gantryDeviceConfig != null){
-            /** config 表中有数据说明此龙门架现在要做update操作 **/
+//        if(gantryDeviceConfig != null){
+//            /** config 表中有数据说明此龙门架现在要做update操作 **/
             if(request.getLockStatus() == 0){/** 解锁龙门架操作 **/
                 logger.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
                 try{
@@ -169,45 +169,45 @@ public class GantryAutoSendController {
                 }catch (Exception e){
                     logger.error("服务器处理异常：",e);
                 }
-            }else if(request.getLockStatus() == 1) {/** 锁定龙门架操作 **/
-                logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为：" + request.getMachineId()
-                        + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
-                try{
-                    gantryDeviceConfig.setBusinessType(request.getBusinessType());
-                    gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
-                    gantryDeviceConfig.setLockStatus(request.getLockStatus());
-                    gantryDeviceConfig.setStartTime(new Date());
-                    gantryDeviceConfig.setEndTime(null);
-                    gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
-                    gantryDeviceConfig.setOperateUserId(userId);
-                    gantryDeviceConfig.setOperateUserName(userName);
-                    gantryDeviceConfig.setUpdateUserErp(userCode);
-                    gantryDeviceConfig.setUpdateUserName(userName);
-                    gantryDeviceConfig.setLockUserErp(userCode);
-                    gantryDeviceConfig.setLockUserName(userName);
-                    int i = gantryDeviceConfigService.add(gantryDeviceConfig);//锁定龙门架操作
-                    if((request.getBusinessType()&2) == 2){
-                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getCreateSiteCode());
-                        if(!j){
-                            this.logger.error("锁定龙门架的方案失败");
-                        }
-                    }
-                    if( i > -1){
-                        result.setCode(200);
-                        result.setMessage("锁定龙门架状态成功");
-                        result.setData(gantryDeviceConfig);
-                    }else{
-                        result.setCode(500);
-                        result.setMessage("处理龙门架参数状态错误，锁定失败");
-                        result.setData(gantryDeviceConfig);
-                    }
-                }catch(Exception e){
-                    logger.error("服务器处理异常：",e);
-                 }
-
-            }else{
-                logger.error("龙门架的状态参数错误");
-            }
+//            }else if(request.getLockStatus() == 1) {/** 锁定龙门架操作 **/
+//                logger.info("用户：" + userCode + "正在锁定龙门架，龙门架ID为：" + request.getMachineId()
+//                        + "锁定龙门架的业务类型为：" + request.getBusinessType() + request.getOperateTypeRemark());
+//                try{
+//                    gantryDeviceConfig.setBusinessType(request.getBusinessType());
+//                    gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
+//                    gantryDeviceConfig.setLockStatus(request.getLockStatus());
+//                    gantryDeviceConfig.setStartTime(new Date());
+//                    gantryDeviceConfig.setEndTime(null);
+//                    gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
+//                    gantryDeviceConfig.setOperateUserId(userId);
+//                    gantryDeviceConfig.setOperateUserName(userName);
+//                    gantryDeviceConfig.setUpdateUserErp(userCode);
+//                    gantryDeviceConfig.setUpdateUserName(userName);
+//                    gantryDeviceConfig.setLockUserErp(userCode);
+//                    gantryDeviceConfig.setLockUserName(userName);
+//                    int i = gantryDeviceConfigService.add(gantryDeviceConfig);//锁定龙门架操作
+//                    if((request.getBusinessType()&2) == 2){
+//                        Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getCreateSiteCode());
+//                        if(!j){
+//                            this.logger.error("锁定龙门架的方案失败");
+//                        }
+//                    }
+//                    if( i > -1){
+//                        result.setCode(200);
+//                        result.setMessage("锁定龙门架状态成功");
+//                        result.setData(gantryDeviceConfig);
+//                    }else{
+//                        result.setCode(500);
+//                        result.setMessage("处理龙门架参数状态错误，锁定失败");
+//                        result.setData(gantryDeviceConfig);
+//                    }
+//                }catch(Exception e){
+//                    logger.error("服务器处理异常：",e);
+//                 }
+//
+//            }else{
+//                logger.error("龙门架的状态参数错误");
+//            }
         }else{
             gantryDeviceConfig = new GantryDeviceConfig();
             /**  config表中没有数据说明此龙门架是第一次添加，需要进行初始化所有字段数据数据 **/
