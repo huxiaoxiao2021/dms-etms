@@ -185,7 +185,7 @@ public class GantryAutoSendController {
                     gantryDeviceConfig.setUpdateUserName(userName);
                     gantryDeviceConfig.setLockUserErp(userCode);
                     gantryDeviceConfig.setLockUserName(userName);
-                    int i = gantryDeviceConfigService.lockDevice(gantryDeviceConfig);//锁定龙门架操作
+                    int i = gantryDeviceConfigService.add(gantryDeviceConfig);//锁定龙门架操作
                     if((request.getBusinessType()&2) == 2){
                         Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getCreateSiteCode());
                         if(!j){
@@ -553,6 +553,25 @@ public class GantryAutoSendController {
 
 
         return results;
+    }
+
+    /**********************转换domain************************/
+    private GantryDeviceConfig transformDomainToGantryDeviceConfig(GantryDeviceConfigRequest request,String userCode,String userName,Integer userId){
+        GantryDeviceConfig gantryDeviceConfig = new GantryDeviceConfig();
+        gantryDeviceConfig.setMachineId(request.getMachineId());
+        gantryDeviceConfig.setOperateUserId(userId);
+        gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
+        gantryDeviceConfig.setOperateUserName(userName);
+        gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
+        gantryDeviceConfig.setCreateSiteName(request.getCreateSiteName());
+        gantryDeviceConfig.setBusinessType(request.getBusinessType());
+        gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
+        gantryDeviceConfig.setStartTime(new Date());
+        gantryDeviceConfig.setLockStatus(request.getLockStatus());
+        gantryDeviceConfig.setLockUserErp(userCode);
+        gantryDeviceConfig.setLockUserName(userName);
+        gantryDeviceConfig.setYn(1);
+        return gantryDeviceConfig;
     }
 
 }
