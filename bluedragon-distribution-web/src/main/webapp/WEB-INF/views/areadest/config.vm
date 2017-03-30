@@ -9,7 +9,10 @@
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/bootstrap.min.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/js/plugins/jquery-easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/js/plugins/jquery-easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
+
 #*<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>*#
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap/jquery.js')"></script>
     <script type="text/javascript">
@@ -23,17 +26,24 @@
             }
         })();
     </script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <style type="text/css">
-        *, :after, :before{
+        *, :after, :before {
             -webkit-box-sizing: content-box;
             box-sizing: content-box;
         }
-        .myfont { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; font-size:17px;}
+        .myfont {
+            font-family: Microsoft YaHei, '宋体', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
+            font-weight: bold;
+            font-size: 17px;
+        }
     </style>
 </head>
 
@@ -42,7 +52,6 @@
 <script type="text/javascript" src="#springUrl('')/static/js/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="#springUrl('')/static/js/bootstrap/multiselect.min.js"></script>
 <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
-<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
 <script type="text/javascript" src="#springUrl('')/static/js/areadest/config.js"></script>
 <div id="breadcrumb">
     <p><a href="#">分拣中心</a>&nbsp;&gt;&nbsp;<a href="#">配置发货关系</a></p>
@@ -71,34 +80,27 @@
                                style="width:150px" value="$!{planName}"/>
                         <input type="hidden" id="planId" name="planId" value="$!{planId}"/>
                     </td>
+                    <td align="right">
+                        <form action="" method="post" id="importFileForm" name="importFileForm" enctype="multipart/form-data" style="float:right;">
+                            <input type="file" id="importFileIpt" name="importExcelFile"
+                                   style="height: 28px;display: block;margin-top:5px;"/>
+                        </form>
+                    </td>
+                    <td align="left">
+                        <input id="loadInBtn" value="导入" type="button" class="btn_c"></input>
+                        <input id="loadOutBtn" value="导出" type="button" class="btn_c"></input>
+                        <input id="downloadModelBtn" value="下载模版" type="button" class="btn_c"></input>
+                        <input id="goBackBtn" value="返回" type="button"  name="goback"  class="btn_c"/>
+                    </td>
                 </tr>
                 </tbody>
             </table>
-
-            <div style="width: 70%; margin:0 auto;margin-top:12px;">
-                <div class="div_btn" style="float:left;">
-                    <div style="width: 250px;float: right;">
-                        <input id="downloadModelBtn" value="下载模版" type="button" class="btn_c"></input>
-                        <input id="loadInBtn" value="导入" type="button" class="btn_c"></input>
-                    </div>
-                    <form action="" method="post" id="importFileForm" name="importFileForm"
-                          style="float:left;width:240px;">
-                        <input type="file" id="importFileIpt" name="importExcelFile"
-                               style="height: 28px;display: block;margin-top:5px;"/>
-                    </form>
-                </div>
-                <div class="div_btn" style="float:right;">
-                    <input id="loadOutBtn" value="导出" type="button" class="btn_c"></input>
-                    <input type="button" id="goBackBtn" name="goback" value="返回" class="btn_c"/>
-                </div>
-            </div>
         </div>
     </div>
     <!--[if !ie]>tbl-n<![endif]-->
     <div id="opening">
         <div class="tbl-list">
             <div class="tbl-bg">
-            ##  <ul id="myTab" class="nav nav-pills">
                 <ul id="tab" class="nav nav-tabs">
                     ##多级分拣
                     <li class="active"><a href="#toMultiDms" data-toggle="tab" class="myfont">多级分拣</a></li>
@@ -110,8 +112,8 @@
 
                 <div id="tabContent" class="tab-content">
                     <div class="tab-pane fade in active" id="toMultiDms">
-                        <div class="tbl-n">
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <div class="tbl-n" align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" style="width:75%;">
                                 <tbody>
                                 <tr>
                                     <td align="right">下级分拣区域：</td>
@@ -143,7 +145,7 @@
                             </table>
                         </div>
 
-                        <div id="opening">
+                        <div class="tbl-list">
                             <div class="tbl-bg" align="center">
                                 <table id="multiDmsPaperTable" border="1" cellspacing=0 cellpadding=0 style="width:70%;min-width:900px;" class="tb-x1">
                                     <thead>
@@ -162,8 +164,8 @@
                     </div>
 
                     <div class="tab-pane fade" id="toDirectDms">
-                        <div class="tbl-n">
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <div class="tbl-n" align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" style="width:75%;">
                                 <tbody>
                                 <tr>
                                     <td align="right">下级分拣中心：</td>
@@ -184,7 +186,7 @@
                             </table>
                         </div>
 
-                        <div id="opening">
+                        <div class="tbl-list">
                             <div class="tbl-bg" align="center">
                                 <table id="directDmsPaperTable" cellspacing=0 cellpadding=0 style="width:70%;min-width:900px;float:center;" class="tb-x1">
                                     <thead>

@@ -268,13 +268,13 @@
     <update id="enableById" parameterType="java.util.Map">
         UPDATE AREA_DEST_CONFIG
         SET
+        YN = 1,
         <if test="updateUser != null">
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
         <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
-        YN = 1,
         UPDATE_TIME = NOW()
         WHERE ID = #{id, jdbcType=BIGINT} AND YN = 0
     </update>

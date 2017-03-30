@@ -40,15 +40,19 @@ function checkParams(params) {
         return false;
     }
     if (params.operateSiteCode == null || params.operateSiteCode <= 0) {
-        alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
+        jQuery.messager.alert('提示:', '获取当前分拣中心失败，请确认用户是否关联分拣中心！', 'info');
         return false;
     }
     if (params.machineId == null || params.machineId <= 0) {
-        alert("获取龙门架编号为空，请重试！");
+        jQuery.messager.alert('提示:', '获取龙门架编号为空，请重试！', 'info');
         return false;
     }
     if (params.planName == null || params.planName.trim() == '') {
-        alert("输入方案名称非法，请重新输入！");
+        jQuery.messager.alert('提示:', '输入方案名称为空，请重新输入！', 'info');
+        return false;
+    }
+    if (params.planName.length > 100){
+        jQuery.messager.alert('提示:', '方案名称输入超长，请重新输入！', 'info');
         return false;
     }
     return true;
@@ -66,12 +70,12 @@ function doSave(params) {
         success: function (data) {
             if (data && data.code == 0) {
                 if (data.message) {
-                    alert(data.message);
+                    jQuery.messager.alert('提示:', data.message, 'info');
                 } else {
-                    alert("添加异常");
+                    jQuery.messager.alert('提示:', '添加异常！', 'error');
                 }
             } else {
-                alert("添加成功");
+                jQuery.messager.alert('提示:', '添加成功！', 'info');
                 document.location.href = contextPath + "/areaDestPlan/index";
             }
         }

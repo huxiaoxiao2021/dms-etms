@@ -2,7 +2,6 @@
 $(document).ready(main);
 
 function main() {
-
     // 查询按钮提交处理
     $('#queryBtn').click(function () {
         onQueryBtnClick(1);
@@ -40,24 +39,23 @@ function initGantryDevice(currentSiteCode) {
     CommonClient.postJson(url, param, function (data) {
         var gantryList = data.data;
         if (gantryList == undefined || gantryList == null) {
-            alert("提示：HTTP请求无返回数据！");
+            jQuery.messager.alert('提示:', '请求无返回数据！', 'info');
             return;
         }
         if (gantryList.length > 0 && data.code == 200) {
             loadGantryList(gantryList, "machineId");
         } else if (gantryList.length <= 0 && data.code == 200) {
-            alert("提示：该分拣中心没有可供选择的龙门架设备！");
+            jQuery.messager.alert('提示:', '该分拣中心没有可供选择的龙门架设备！', 'info');
         } else if (data.code == 500) {
-            alert("提示：获取该分拣中心的龙门架设备失败!");
+            jQuery.messager.alert('提示:', '获取该分拣中心的龙门架设备失败！', 'info');
         } else {
-            alert("提示：服务器异常!");
+            jQuery.messager.alert('提示:', '服务器异常！', 'error');
         }
     });
 }
 
 function loadGantryList(gantryList, selectId) {
     var gantryObj = $('#' + selectId);
-    // var optionList = "<option value= ''>选择龙门架</option>";
     var optionList = null
     for (var i = 0; i < gantryList.length; i++) {
         optionList += "<option value='" + gantryList[i].machineId + "'>" + gantryList[i].machineId + "</option>";
@@ -86,7 +84,7 @@ function checkParams(params) {
         return false;
     }
     if (params.operateSiteCode == null || params.operateSiteCode <= 0) {
-        alert("获取当前分拣中心失败，请确认用户是否关联分拣中心！");
+        jQuery.messager.alert('提示:', '获取当前分拣中心失败，请确认用户是否关联分拣中心！', 'info');
         return false;
     }
     return true;
@@ -97,7 +95,7 @@ function doQuery(params) {
     var url = $("#contextPath").val() + "/areaDestPlan/getList";
     CommonClient.post(url, params, function (data) {
         if (data == undefined || data == null) {
-            alert("未配置方案");
+            jQuery.messager.alert('提示:', '未配置方案！', 'info');
             return;
         }
         if (data.code == 200) {
@@ -110,9 +108,9 @@ function doQuery(params) {
                     temp += "<td>" + (dataList[i].machineId) + "</td>";
                     temp += "<td>" + (dataList[i].planName) + "</td>";
                     temp += "<td>"
-                        + ("<input type='button' onclick='doQueryDetail(" + dataList[i].planId + ")'' value='查看' class='btn_c'/>&nbsp&nbsp;&nbsp;"
-                        + "<input type='button' onclick='doConfig(" + dataList[i].planId + ")'' value='配置' class='btn_c'/>&nbsp;&nbsp;&nbsp;"
-                        + "<input type='button' onclick='doDelete(" + dataList[i].planId + ")'' value='删除' class='btn_c'/>")
+                        + ("<input type='button' onclick='doQueryDetail(" + dataList[i].planId + ")'' value='查看' style='width:70px;height:25px;'/>&nbsp&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doConfig(" + dataList[i].planId + ")'' value='配置' style='width:70px;height:25px;'/>&nbsp;&nbsp;&nbsp;"
+                        + "<input type='button' onclick='doDelete(" + dataList[i].planId + ")'' value='删除' style='width:70px;height:25px;'/>")
                         + "</td>";
                     temp += "</tr>";
                 }
@@ -129,7 +127,7 @@ function doQuery(params) {
 function goAddBtnClick() {
     var machineId = $.trim($("#machineId").val());
     if (machineId == null || machineId <= 0) {
-        alert("请选择龙门架！");
+        jQuery.messager.alert('提示:', '请选择龙门架！', 'info');
         return false;
     }
     var contextPath = $("#contextPath").val();
@@ -146,14 +144,15 @@ function doDelete(id) {
         params.planId = id;
         CommonClient.post(url, params, function (data) {
             if (data == undefined || data == null) {
-                alert("提示请求无数据返回");
+                jQuery.messager.alert('提示:', '请求无数据返回！', 'info');
                 return;
             }
             if (data.code == 200) {
+                jQuery.messager.alert('提示:', data.message, 'info');
                 alert(data.message);
                 window.location.reload()
             } else {
-                alert(data.message);
+                jQuery.messager.alert('提示:', data.message, 'error');
             }
         });
     }
