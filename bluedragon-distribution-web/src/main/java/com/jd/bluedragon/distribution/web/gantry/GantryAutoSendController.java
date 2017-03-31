@@ -242,6 +242,12 @@ public class GantryAutoSendController {
                 gantryDeviceConfig.setLockStatus(request.getLockStatus());
                 gantryDeviceConfig.setStartTime(new Date());
                 count = gantryDeviceConfigService.add(gantryDeviceConfig);
+                if((request.getBusinessType()&2) == 2){
+                    Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(),request.getPlanId(),userId,request.getCreateSiteCode());
+                    if(!j){
+                        this.logger.error("锁定龙门架的方案失败");
+                    }
+                }
             }catch(Exception e){
                 logger.error("锁定龙门架操作失败..",e);
             }
