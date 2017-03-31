@@ -61,9 +61,7 @@
         </if>
            #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
           now(), now(), 1, 0 ,
-        <if test = "sendCode != null">
-            #{sendCode, jdbcType=VARCHAR}
-        </if>
+          #{sendCode, jdbcType=VARCHAR}
         )
     </insert>
 

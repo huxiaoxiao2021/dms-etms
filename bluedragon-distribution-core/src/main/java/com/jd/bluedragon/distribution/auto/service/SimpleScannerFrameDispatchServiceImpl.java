@@ -85,7 +85,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     private static final String BOX_SUFFIX = "-CL";
 
     @Override
-    public boolean dispatch(UploadData domain) {
+    public boolean dispatch(UploadData domain) throws Exception {
 
         GantryDeviceConfig config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
         this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
@@ -168,7 +168,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param config
      * @return
      */
-    private String getSendCode(UploadData domain, GantryDeviceConfig config) {
+    private String getSendCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 判断条码是箱号还是包裹号
         if (SerialRuleUtil.isMatchBoxCode(domain.getBarCode())) {
             // 箱号
@@ -188,7 +188,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param config
      * @return
      */
-    private String getSendCodeWithBoxCode(UploadData domain, GantryDeviceConfig config) {
+    private String getSendCodeWithBoxCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         Box box = boxService.findBoxByCode(domain.getBarCode());
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = null;
         if (box != null) {
@@ -213,6 +213,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 return sendCode;
             } else {
                 this.printInfoLog("龙门架自动发货,直发站点,根据箱号获取批次号registerNo={0},operateTime={1},barCode={2}|获取龙门架发货线路关系方案操作记录异常", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
+                throw new Exception(MessageFormat.format("龙门架自动发货获取发货方案为null，龙门架编号为{0}，操作站点编号为{1}，龙门扫描时间为{2}", config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime()));
             }
         }
         this.addGantryException(domain, config, 3, null);
@@ -227,7 +228,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param config
      * @return
      */
-    private String getSendCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) {
+    private String getSendCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 获取运单号
         String waybillCode = SerialRuleUtil.getWaybillCode(domain.getBarCode());
         BigWaybillDto waybillDto = waybillService.getWaybill(waybillCode);
@@ -235,7 +236,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             // 获取运单信息
             Waybill waybill = waybillDto.getWaybill();
             // 判断是否为拦截订单
-            if (WaybillCancelClient.isWaybillCancel(waybill.getWaybillCode())){
+            if (WaybillCancelClient.isWaybillCancel(waybill.getWaybillCode())) {
                 this.addGantryException(domain, config, 4, null);
                 this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
             } else {
@@ -268,7 +269,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param config
      * @return
      */
-    private String doGetSendCode(Integer destSiteCode, UploadData domain, GantryDeviceConfig config) {
+    private String doGetSendCode(Integer destSiteCode, UploadData domain, GantryDeviceConfig config) throws Exception {
         AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
         if (detail != null) {
             Integer planId = detail.getPlanId();
@@ -295,6 +296,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                     }
                 }
             }
+        } else {
+            this.printInfoLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|获取龙门架发货线路关系方案操作记录异常，结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
+            throw new Exception(MessageFormat.format("龙门架自动发货获取发货方案为null，龙门架编号为{0}，操作站点编号为{1}，龙门扫描时间为{2}", config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime()));
         }
         return null;
     }
@@ -346,30 +350,26 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param type   1：没有预分拣站点  2：没有运单信息 3：没有箱子信息 4：订单拦截 5：龙门架未绑该站点
      */
     private void addGantryException(UploadData domain, GantryDeviceConfig config, int type, String sendCode) {
-        try {
-            Long machineId = Long.valueOf(config.getMachineId());
-            String barCode = domain.getBarCode();
-            if (machineId != null || StringUtils.isNotEmpty(barCode)) {
-                GantryException gantryException = new GantryException();
-                gantryException.setMachineId(machineId);
-                gantryException.setBarCode(domain.getBarCode());
-                gantryException.setCreateSiteCode(Long.valueOf(config.getCreateSiteCode()));
-                gantryException.setCreateSiteName(config.getCreateSiteName());
-                gantryException.setOperateTime(domain.getScannerTime());
-                gantryException.setType(type);
-                gantryException.setSendCode(sendCode);
-                if (domain.getLength() != null && domain.getWidth() != null && domain.getHeight() != null) {
-                    Float volume = domain.getLength() * domain.getWidth() * domain.getHeight();
-                    gantryException.setVolume(Double.valueOf(volume));
-                }
-                gantryExceptionService.addGantryException(gantryException);
-                return;
+        Long machineId = Long.valueOf(config.getMachineId());
+        String barCode = domain.getBarCode();
+        if (machineId != null || StringUtils.isNotEmpty(barCode)) {
+            GantryException gantryException = new GantryException();
+            gantryException.setMachineId(machineId);
+            gantryException.setBarCode(domain.getBarCode());
+            gantryException.setCreateSiteCode(Long.valueOf(config.getCreateSiteCode()));
+            gantryException.setCreateSiteName(config.getCreateSiteName());
+            gantryException.setOperateTime(domain.getScannerTime());
+            gantryException.setType(type);
+            gantryException.setSendCode(sendCode);
+            if (domain.getLength() != null && domain.getWidth() != null && domain.getHeight() != null) {
+                Float volume = domain.getLength() * domain.getWidth() * domain.getHeight();
+                gantryException.setVolume(Double.valueOf(volume));
             }
-            if (logger.isWarnEnabled()) {
-                logger.warn(MessageFormat.format("龙门架自动发货,存储异常信息registerNo={0},operateTime={1},barCode={2},machineId={3}|存储异常信息失败", domain.getRegisterNo(), domain.getScannerTime(), barCode, machineId));
-            }
-        } catch (Exception e) {
-            logger.error("龙门架自动发货存储异常信息失败", e);
+            gantryExceptionService.addGantryException(gantryException);
+            return;
+        }
+        if (logger.isWarnEnabled()) {
+            logger.warn(MessageFormat.format("龙门架自动发货,存储异常信息registerNo={0},operateTime={1},barCode={2},machineId={3}|存储异常信息失败", domain.getRegisterNo(), domain.getScannerTime(), barCode, machineId));
         }
     }
 
