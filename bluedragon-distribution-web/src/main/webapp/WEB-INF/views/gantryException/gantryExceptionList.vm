@@ -36,7 +36,7 @@
         .gantry_exception_query_type_span {
             display: block;
             float: left;
-            width: 220px;
+            width: 250px;
             margin-left: 5px;;
         }
 
@@ -79,11 +79,7 @@
                     #end
                 </select>
 			</span>
-            <span style="width: 250px;">
-                    <input id="gantry_exception_export_sub" value="导出" type="button" class="btn_c">
-			</span>
-        </div>
-        <div id="gantry_exception_query_date_div" style="padding-top: 20px">
+
             <span class="gantry_exception_query_span">
                 开始时间：
                 <input type="text" class="Wdate" id="gantry_exception_startTime" name="startTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!queryParam.startTime)" onfocus="WdatePicker({skin:'whyGreen',maxDate:'%y-%M-%d', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
@@ -92,6 +88,9 @@
                 结束时间：
                 <input type="text" class="Wdate" id="gantry_exception_endTime" name="endTime" value="$!dateTool.format('yyyy-MM-dd HH:mm:ss', $!queryParam.endTime)" onfocus="WdatePicker({skin:'whyGreen',maxDate:'#F{getMaxDate();}', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
             </span>
+        </div>
+        <div id="gantry_exception_query_date_div" style="padding-top: 20px">
+
             <span class="gantry_exception_query_type_span">
                 发货状态：
                 <select id="gantry_exception_sendStatus" class="gantry_exception_query_select">
@@ -113,9 +112,13 @@
                 </select>
             </span>
 
-            <span class="gantry_exception_query_span">
+            <span>
                 <input id="gantry_exception_query_sub" value="查询" type="button" class="btn_c">
             </span>
+
+            <span>
+                    <input id="gantry_exception_export_sub" value="导出" type="button" class="btn_c">
+			</span>
         </div>
 
     </div>
