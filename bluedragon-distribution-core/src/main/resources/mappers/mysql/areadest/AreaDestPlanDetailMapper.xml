@@ -33,14 +33,17 @@
         ID,
         PLAN_ID,
         MACHINE_ID,
-        MAX(START_TIME),
+        START_TIME,
         OPERATE_SITE_CODE,
         OPERATE_USER_CODE
         FROM AREA_DEST_PLAN_DETAIL
         WHERE
             MACHINE_ID = #{machineId, jdbcType=BIGINT}
             AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
-            AND START_TIME <![CDATA[<=]]> str_to_date(date_format(#{scannerTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s')
+            AND ID = (SELECT MAX(ID) FROM AREA_DEST_PLAN_DETAIL
+                            WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}
+                            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+                             AND START_TIME <![CDATA[<=]]> str_to_date(date_format(#{scannerTime, jdbcType=TIMESTAMP}, '%Y-%M-%d %H:%i:%s'), '%Y-%M-%d %H:%i:%s'))
     </select>
 
-</mapper>	
+</mapper>
