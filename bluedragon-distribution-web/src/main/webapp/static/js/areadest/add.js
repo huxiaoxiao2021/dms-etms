@@ -68,15 +68,15 @@ function doSave(params) {
         dataType: 'json',
         async: false,
         success: function (data) {
-            if (data && data.code == 0) {
+            if (data && data.code == 200) {
+                jQuery.messager.alert('提示:', '添加成功！', 'info');
+                document.location.href = contextPath + "/areaDestPlan/index";
+            } else {
                 if (data.message) {
                     jQuery.messager.alert('提示:', data.message, 'info');
                 } else {
                     jQuery.messager.alert('提示:', '添加异常！', 'error');
                 }
-            } else {
-                jQuery.messager.alert('提示:', '添加成功！', 'info');
-                document.location.href = contextPath + "/areaDestPlan/index";
             }
         }
     });
