@@ -40,7 +40,7 @@ public interface AreaDestService {
      * @param userCode
      * @return
      */
-    Integer addBatch(AreaDestRequest request, String user, Integer userCode);
+    Integer addBatch(AreaDestRequest request, String user, Integer userCode) throws Exception;
 
     /**
      * 根据id更新
@@ -127,10 +127,12 @@ public interface AreaDestService {
     /**
      * 根据参数获取龙门架发货路线关系数量
      *
-     * @param request
+     * @param planId
+     * @param createSiteCode
+     * @param receiveSiteCode
      * @return
      */
-    Integer getCount(AreaDestRequest request);
+    Integer getCount(Integer planId, Integer createSiteCode, Integer receiveSiteCode);
 
     /**
      * Excel导入

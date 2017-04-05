@@ -179,6 +179,7 @@ function doSaveOrDel(type, $options) {
                 showAlert("successAlert");
                 result = true;
             } else {
+                $("#failureMessage").text(data.message);
                 showAlert("failureAlert");
                 result = false;
             }
@@ -192,7 +193,7 @@ function showAlert(id) {
     $("#" + id).show();
     timeId = setTimeout(function () {
         $("#" + id).hide();
-    }, 1000);
+    }, 3000);
 }
 
 function delTimeout() {

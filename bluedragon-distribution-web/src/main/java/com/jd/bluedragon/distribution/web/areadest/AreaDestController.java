@@ -139,7 +139,7 @@ public class AreaDestController {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            Integer count = areaDestService.getCount(request);
+            Integer count = areaDestService.getCount(request.getPlanId(), request.getReceiveSiteCode(), request.getReceiveSiteCode());
             if (count != null) {
                 if (count > 0) {
                     response.setCode(JdResponse.CODE_SEE_OTHER);
@@ -180,7 +180,7 @@ public class AreaDestController {
         areaDest.setReceiveSiteCode(request.getReceiveSiteCode());
         areaDest.setReceiveSiteName(request.getReceiveSiteName());
         areaDest.setCreateUser(erpUser.getUserCode());
-        areaDest.setCreateUserCode(erpUser.getUserId());
+        areaDest.setCreateUserCode(erpUser.getStaffNo());
         return areaDest;
     }
 
@@ -196,7 +196,7 @@ public class AreaDestController {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getUserId()) > 0) {
+            if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getStaffNo()) > 0) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage(JdResponse.MESSAGE_OK);
             } else {
@@ -206,7 +206,7 @@ public class AreaDestController {
         } catch (Exception e) {
             logger.error("批量保存目的分拣中心失败", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            response.setMessage(e.getMessage());
         }
         return response;
     }
@@ -223,7 +223,7 @@ public class AreaDestController {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getUserId())) {
+            if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getStaffNo())) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage(JdResponse.MESSAGE_OK);
             } else {
@@ -255,7 +255,7 @@ public class AreaDestController {
             if (null == sheets || sheets.size() == 0) throw new DataFormatException("导入失败，无效的Excel模板");
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (null == erpUser) throw new DataFormatException("未登录用户，没有权限");
-            areaDestService.importForExcel(sheets, getParameters(request), erpUser.getUserCode(), erpUser.getUserId());
+            areaDestService.importForExcel(sheets, getParameters(request), erpUser.getUserCode(), erpUser.getStaffNo());
         } catch (Exception e) {
             e.printStackTrace();
             if (e instanceof IOException) {
