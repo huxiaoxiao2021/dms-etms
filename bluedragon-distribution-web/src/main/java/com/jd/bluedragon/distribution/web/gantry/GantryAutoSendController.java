@@ -30,10 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -552,4 +549,54 @@ public class GantryAutoSendController {
         return gantryDeviceConfig;
     }
 
+    /**
+     * 根据ERP账号更新龙门架操作用户ERP编号为青龙用户编号
+     *
+     * @param userErp 为all时更新所有
+     * @return
+     */
+    @RequestMapping(value = "/updateUserCodeToStaffNo/{userErp}", method = RequestMethod.GET)
+    @ResponseBody
+    public InvokeResult updateUserCodeToStaffNo(@PathVariable String userErp) {
+        InvokeResult invokeResult = new InvokeResult();
+        try {
+            if (StringUtils.isNotEmpty(userErp)) {
+                if ("all".equals(userErp)) {
+                    List<String> erpList = gantryDeviceConfigService.getAllOperateUserErp();
+                    if (erpList != null && erpList.size() > 0) {
+                        for (String erp : erpList) {
+                            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erp);
+                            if (dto != null) {
+                                gantryDeviceConfigService.updateOperateUserIdByErp(userErp, dto.getStaffNo());
+                            }
+                        }
+                        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                        invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+                        return invokeResult;
+                    }
+                    invokeResult.setCode(InvokeResult.RESULT_NULL_CODE);
+                    invokeResult.setMessage("无有效的龙门架配置记录");
+                    return invokeResult;
+                } else {
+                    BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
+                    if (dto != null) {
+                        gantryDeviceConfigService.updateOperateUserIdByErp(userErp, dto.getStaffNo());
+                        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                        invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+                    } else {
+                        invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                        invokeResult.setMessage("无效Erp账号");
+                    }
+                    return invokeResult;
+                }
+            }
+            invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            invokeResult.setMessage(InvokeResult.PARAM_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+            invokeResult.setMessage(InvokeResult.SERVER_ERROR_MESSAGE + e.getMessage());
+        }
+        return invokeResult;
+    }
 }
