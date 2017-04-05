@@ -58,21 +58,32 @@ public interface AreaDestPlanService {
     List<AreaDestPlan> getList(Integer operateSiteCode, Integer machineId, Pager pager);
 
     /**
+     * 是否为重复方案名称
+     *
+     * @param operateSiteCode
+     * @param planName
+     * @return
+     */
+    Boolean isRepeatName(Integer operateSiteCode, String planName);
+
+    /**
      * 获取当前分拣中心的当前龙门架设备的所有发货方案
+     *
      * @param siteCode
      * @param machineId
      * @return
      */
-    List<AreaDestPlan> getMyPlan(Integer siteCode,Integer machineId);
+    List<AreaDestPlan> getMyPlan(Integer siteCode, Integer machineId);
 
     /**
      * 龙门架方案切换
+     *
      * @param machineId
      * @param planId
      * @param userCode
      * @param siteCode
      * @return
      */
-    Boolean ModifyGantryPlan(Integer machineId,Long planId,Integer userCode,Integer siteCode);
+    Boolean ModifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode);
 
 }

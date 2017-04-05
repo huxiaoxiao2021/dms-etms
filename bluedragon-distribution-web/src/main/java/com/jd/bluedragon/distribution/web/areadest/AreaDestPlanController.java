@@ -191,6 +191,11 @@ public class AreaDestPlanController {
             response.setMessage("参数错误：方案名称输入非法！");
             return response;
         }
+        if (areaDestPlanService.isRepeatName(operateSiteCode, planName)) {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("方案名称已存在，请重新输入！");
+            return response;
+        }
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {

@@ -51,7 +51,7 @@ public class AreaDestController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    private static final int FILE_SIZE_LIMIT = 1024 * 1024;
+    private static final int FILE_SIZE_LIMIT = 1024 * 1024 * 10;
 
     private static final int EXPORT_ROW_LIMIT = 50000;
 

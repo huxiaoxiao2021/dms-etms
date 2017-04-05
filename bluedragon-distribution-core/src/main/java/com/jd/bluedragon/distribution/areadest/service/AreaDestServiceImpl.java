@@ -58,7 +58,7 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
-    public Integer addBatch(AreaDestRequest request, String user, Integer userCode) throws Exception{
+    public Integer addBatch(AreaDestRequest request, String user, Integer userCode) throws Exception {
         try {
             List<AreaDest> areaDestList = new ArrayList<AreaDest>();
             for (String codeName : request.getReceiveSiteList()) {
@@ -66,8 +66,8 @@ public class AreaDestServiceImpl implements AreaDestService {
                     String[] arr = codeName.split(",");
                     if (arr.length > 1) {
                         Integer count = this.getCount(request.getPlanId(), request.getCreateSiteCode(), Integer.valueOf(arr[0]));
-                        if (count != null && count >= 1){
-                            throw new Exception("操作失败，已存在目的站点为“"+ arr[1] + "”的路线关系！");
+                        if (count != null && count >= 1) {
+                            throw new Exception("操作失败，其他页签中已存在目的站点为“" + arr[1] + "”的路线关系！");
                         }
                         AreaDest areaDest = new AreaDest();
                         areaDest.setPlanId(request.getPlanId());
@@ -287,7 +287,6 @@ public class AreaDestServiceImpl implements AreaDestService {
         Set<AreaDest> insertSet = new HashSet<AreaDest>();
         for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
             Row row = sheet.getRow(rowIndex);
-            List<BaseStaffSiteOrgDto> baseStaffSites = baseMajorManager.getDmsSiteAll();
             AreaDest areaDest = new AreaDest();
             // 初始化中转站点信息，避免无中转站点时插入报错
             areaDest.setTransferSiteCode(0);
@@ -295,7 +294,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             // 检查单元格是否符合列对应的要求
             checkCellFormat(row, routeType);
             // 检查输入的站点code是否存在
-            checkSiteCodeValid(row, routeType, baseStaffSites, areaDest);
+            checkSiteCodeValid(row, routeType, areaDest);
             areaDest.setPlanId(request.getPlanId());
             areaDest.setRouteType(routeType.getType());
             areaDest.setCreateSiteCode(request.getCreateSiteCode());
@@ -363,18 +362,17 @@ public class AreaDestServiceImpl implements AreaDestService {
      *
      * @param row
      * @param type
-     * @param siteCodes
      * @param areaDest
      * @throws DataFormatException
      */
-    private void checkSiteCodeValid(Row row, RouteType type, List<BaseStaffSiteOrgDto> siteCodes, AreaDest areaDest) throws DataFormatException {
+    private void checkSiteCodeValid(Row row, RouteType type, AreaDest areaDest) throws DataFormatException {
         int rowIndex = row.getRowNum();
         BaseStaffSiteOrgDto siteOrgDto;
         Cell cell0 = row.getCell(0);
         Cell cell2 = row.getCell(2);
         switch (type) {
             case DIRECT_SITE:
-                siteOrgDto = getSiteByCode(siteCodes, cell0.getNumericCellValue());
+                siteOrgDto = getSiteByCode(cell0.getNumericCellValue());
                 if (null == siteOrgDto) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
                 }
@@ -382,14 +380,14 @@ public class AreaDestServiceImpl implements AreaDestService {
                 areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
                 break;
             case DIRECT_DMS:
-                siteOrgDto = getSiteByCode(siteCodes, cell0.getNumericCellValue());
+                siteOrgDto = getSiteByCode(cell0.getNumericCellValue());
                 if (null == siteOrgDto) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
                 }
                 areaDest.setTransferSiteCode(siteOrgDto.getSiteCode());
                 areaDest.setTransferSiteName(siteOrgDto.getSiteName());
 
-                siteOrgDto = getSiteByCode(siteCodes, cell2.getNumericCellValue());
+                siteOrgDto = getSiteByCode(cell2.getNumericCellValue());
                 if (null == siteOrgDto) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
                 }
@@ -398,14 +396,14 @@ public class AreaDestServiceImpl implements AreaDestService {
                 break;
             case MULTIPLE_DMS:
                 if (null != cell0) {
-                    siteOrgDto = getSiteByCode(siteCodes, cell0.getNumericCellValue());
+                    siteOrgDto = getSiteByCode(cell0.getNumericCellValue());
                     if (null == siteOrgDto) {
                         throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
                     }
                     areaDest.setTransferSiteCode(siteOrgDto.getSiteCode());
                     areaDest.setTransferSiteName(siteOrgDto.getSiteName());
                 }
-                siteOrgDto = getSiteByCode(siteCodes, cell2.getNumericCellValue());
+                siteOrgDto = getSiteByCode(cell2.getNumericCellValue());
                 if (null == siteOrgDto) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
                 }
@@ -418,17 +416,11 @@ public class AreaDestServiceImpl implements AreaDestService {
     /**
      * 根据配置的站点编码获取完整的站点信息
      *
-     * @param siteOrgDtos 所有的分拣中心
-     * @param siteCode    配置的站点编码
+     * @param siteCode 配置的站点编码
      * @return
      */
-    private BaseStaffSiteOrgDto getSiteByCode(List<BaseStaffSiteOrgDto> siteOrgDtos, double siteCode) {
-        for (BaseStaffSiteOrgDto dto : siteOrgDtos) {
-            if (dto.getSiteCode().equals(Integer.valueOf((int) siteCode))) {
-                return dto;
-            }
-        }
-        return null;
+    private BaseStaffSiteOrgDto getSiteByCode(double siteCode) {
+        return baseMajorManager.getBaseSiteBySiteId((int) siteCode);
     }
 
 }

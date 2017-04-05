@@ -63,7 +63,7 @@
         <if test="operateSiteCode != null">
             AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
         </if>
-        ORDER BY MACHINE_ID DESC
+        ORDER BY CREATE_TIME DESC
         <if test="startIndex != null">
             LIMIT #{startIndex}, #{pageSize}
         </if>
@@ -79,6 +79,9 @@
         </if>
         <if test="operateSiteCode != null">
             AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="planName != null">
+            AND PLAN_NAME = #{planName, jdbcType=VARCHAR}
         </if>
     </select>
 
@@ -138,7 +141,7 @@
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
         <if test="updateUserCode != null">
-            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
         YN = 0, UPDATE_TIME = NOW()
         WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND PLAN_ID != #{planId,jdbcType=BIGINT}
