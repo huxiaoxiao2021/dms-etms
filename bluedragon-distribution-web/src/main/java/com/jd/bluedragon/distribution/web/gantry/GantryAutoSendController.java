@@ -129,7 +129,7 @@ public class GantryAutoSendController {
             if(erpUser != null){
                 userCode = erpUser.getUserCode() == null ? null:erpUser.getUserCode();
 //                userName = erpUser.getUserName() == null ? null:erpUser.getUserName();
-//                userId = erpUser.getUserId() == null ? null:erpUser.getUserId();
+//                userId = erpUser.getStaffNo() == null ? null:erpUser.getStaffNo();
             }
             if(StringUtils.isNotBlank(userCode)){
                 BaseStaffSiteOrgDto staffInfo = baseMajorManager.getBaseStaffByErpNoCache(userCode);
@@ -332,7 +332,7 @@ public class GantryAutoSendController {
         Integer userCode = 0;//用户编号
         String userName = "none";//用户姓名
         if(erpUser != null){
-            userCode = erpUser.getUserId() == null ? 0:erpUser.getUserId();
+            userCode = erpUser.getStaffNo() == null ? 0:erpUser.getStaffNo();
             userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
         }
         try {
@@ -416,7 +416,7 @@ public class GantryAutoSendController {
         if(erpUser != null){
             try{
                 userCode = erpUser.getUserCode() == null ? "none":erpUser.getUserCode();
-                userId = erpUser.getUserId() == null ? 0:erpUser.getUserId();
+                userId = erpUser.getStaffNo() == null ? 0:erpUser.getStaffNo();
                 userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
             }catch(Exception e){
                 logger.info("没有在基础资料中维护此erp信息");

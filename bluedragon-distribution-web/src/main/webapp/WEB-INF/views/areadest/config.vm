@@ -210,7 +210,7 @@
                                 <strong class="myfont">保存成功！</strong>
                             </div>
                             <div id="failureAlert" class="alert alert-danger alert-dismissable" style="display:none">
-                                <strong class="myfont">保存失败！</strong>
+                                <strong id="failureMessage" class="myfont">保存失败！</strong>
                             </div>
                         </div>
                         <div id="multiselect" >

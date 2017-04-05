@@ -58,13 +58,17 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
-    public Integer addBatch(AreaDestRequest request, String user, Integer userCode) {
+    public Integer addBatch(AreaDestRequest request, String user, Integer userCode) throws Exception{
         try {
             List<AreaDest> areaDestList = new ArrayList<AreaDest>();
             for (String codeName : request.getReceiveSiteList()) {
                 if (codeName != null && !"".equals(codeName)) {
                     String[] arr = codeName.split(",");
                     if (arr.length > 1) {
+                        Integer count = this.getCount(request.getPlanId(), request.getCreateSiteCode(), Integer.valueOf(arr[0]));
+                        if (count != null && count >= 1){
+                            throw new Exception("操作失败，已存在目的站点为“"+ arr[1] + "”的路线关系！");
+                        }
                         AreaDest areaDest = new AreaDest();
                         areaDest.setPlanId(request.getPlanId());
                         areaDest.setRouteType(request.getRouteType());
@@ -90,6 +94,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             }
         } catch (Exception e) {
             logger.error("龙门架发货路线关系批量新增时发生异常！", e);
+            throw e;
         }
         return 0;
     }
@@ -247,12 +252,12 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
-    public Integer getCount(AreaDestRequest request) {
+    public Integer getCount(Integer planId, Integer createSiteCode, Integer receiveSiteCode) {
         try {
             Map<String, Object> parameter = new HashMap<String, Object>();
-            parameter.put("planId", request.getPlanId());
-            parameter.put("createSiteCode", request.getCreateSiteCode());
-            parameter.put("receiveSiteCode", request.getReceiveSiteCode());
+            parameter.put("planId", planId);
+            parameter.put("createSiteCode", createSiteCode);
+            parameter.put("receiveSiteCode", receiveSiteCode);
             return areaDestDao.getCount(parameter);
         } catch (Exception e) {
             logger.error("获取龙门架发货关系数量时发生异常！", e);
@@ -317,7 +322,7 @@ public class AreaDestServiceImpl implements AreaDestService {
         Cell cell2 = row.getCell(2);
         switch (type) {
             case DIRECT_SITE:
-                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK){
+                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
                 }
                 if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
@@ -325,14 +330,14 @@ public class AreaDestServiceImpl implements AreaDestService {
                 }
                 break;
             case DIRECT_DMS:
-                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK){
+                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
                 }
                 if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
                 }
 
-                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK){
+                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
                 }
                 if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
@@ -343,7 +348,7 @@ public class AreaDestServiceImpl implements AreaDestService {
                 if (null != cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
                 }
-                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK){
+                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK) {
                     throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
                 }
                 if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {

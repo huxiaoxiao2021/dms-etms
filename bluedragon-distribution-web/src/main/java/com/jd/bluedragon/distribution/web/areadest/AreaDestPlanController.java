@@ -245,7 +245,7 @@ public class AreaDestPlanController {
         AreaDestPlan areaDestPlan = new AreaDestPlan();
         BeanUtils.copyProperties(request, areaDestPlan);
         areaDestPlan.setCreateUser(erpUser.getUserCode());
-        areaDestPlan.setCreateUserCode(erpUser.getUserId());
+        areaDestPlan.setCreateUserCode(erpUser.getStaffNo());
         return areaDestPlan;
     }
 
@@ -261,8 +261,8 @@ public class AreaDestPlanController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getUserId())) {
-                    areaDestService.disable(planId, erpUser.getUserCode(), erpUser.getUserId());
+                if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getStaffNo())) {
+                    areaDestService.disable(planId, erpUser.getUserCode(), erpUser.getStaffNo());
                     response.setCode(JdResponse.CODE_OK);
                     response.setMessage("删除成功！");
                 }

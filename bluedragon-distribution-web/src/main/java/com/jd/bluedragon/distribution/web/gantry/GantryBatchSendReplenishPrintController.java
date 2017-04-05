@@ -132,7 +132,7 @@ public class GantryBatchSendReplenishPrintController {
         Integer userId = 0;
         String userName = "none";//用户姓名
         if(erpUser != null){
-            userId = erpUser.getUserId() == null ? 0:erpUser.getUserId();
+            userId = erpUser.getStaffNo() == null ? 0:erpUser.getStaffNo();
             userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
         }
 
