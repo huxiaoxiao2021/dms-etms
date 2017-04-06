@@ -51,7 +51,7 @@ public class AreaDestController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    private static final int FILE_SIZE_LIMIT = 1024 * 1024;
+    private static final int FILE_SIZE_LIMIT = 1024 * 1024 * 10;
 
     private static final int EXPORT_ROW_LIMIT = 50000;
 
@@ -139,22 +139,27 @@ public class AreaDestController {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            Integer count = areaDestService.getCount(request.getPlanId(), request.getReceiveSiteCode(), request.getReceiveSiteCode());
-            if (count != null) {
-                if (count > 0) {
-                    response.setCode(JdResponse.CODE_SEE_OTHER);
-                    response.setMessage("新增失败，始发站点与目的站点已经存在关系，请勿重复添加！");
-                    return response;
-                } else {
-                    if (areaDestService.add(buildAreaDestDomain(request, erpUser))) {
-                        response.setCode(JdResponse.CODE_OK);
-                        response.setMessage(JdResponse.MESSAGE_OK);
+            if (erpUser != null) {
+                Integer count = areaDestService.getCount(request.getPlanId(), request.getCreateSiteCode(), request.getReceiveSiteCode());
+                if (count != null) {
+                    if (count > 0) {
+                        response.setCode(JdResponse.CODE_SEE_OTHER);
+                        response.setMessage("新增失败，始发站点与目的站点已经存在关系，请勿重复添加！");
                         return response;
+                    } else {
+                        if (areaDestService.add(buildAreaDestDomain(request, erpUser))) {
+                            response.setCode(JdResponse.CODE_OK);
+                            response.setMessage(JdResponse.MESSAGE_OK);
+                            return response;
+                        }
                     }
                 }
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            } else {
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
             }
-            response.setCode(JdResponse.CODE_SERVICE_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         } catch (Exception e) {
             logger.error("新增发货关系时发生异常", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -196,12 +201,17 @@ public class AreaDestController {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getStaffNo()) > 0) {
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage(JdResponse.MESSAGE_OK);
+            if (erpUser != null) {
+                if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getStaffNo()) > 0) {
+                    response.setCode(JdResponse.CODE_OK);
+                    response.setMessage(JdResponse.MESSAGE_OK);
+                } else {
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                }
             } else {
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
             }
         } catch (Exception e) {
             logger.error("批量保存目的分拣中心失败", e);
@@ -223,12 +233,17 @@ public class AreaDestController {
         AreaDestResponse<String> response = new AreaDestResponse<String>();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getStaffNo())) {
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage(JdResponse.MESSAGE_OK);
+            if (erpUser != null) {
+                if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getStaffNo())) {
+                    response.setCode(JdResponse.CODE_OK);
+                    response.setMessage(JdResponse.MESSAGE_OK);
+                } else {
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                }
             } else {
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
             }
         } catch (Exception e) {
             logger.error("批量移除目的站点失败", e);
@@ -271,13 +286,10 @@ public class AreaDestController {
     }
 
     private AreaDestRequest getParameters(HttpServletRequest request) {
-        Integer planId = Integer.valueOf(request.getParameter("planId"));
-        Integer createSiteCode = Integer.valueOf(request.getParameter("createSiteCode"));
-        String createSiteName = request.getParameter("createSiteName");
         AreaDestRequest areaDestRequest = new AreaDestRequest();
-        areaDestRequest.setPlanId(planId);
-        areaDestRequest.setCreateSiteCode(createSiteCode);
-        areaDestRequest.setCreateSiteName(createSiteName);
+        areaDestRequest.setPlanId(Integer.valueOf(request.getParameter("planId")));
+        areaDestRequest.setCreateSiteCode(Integer.valueOf(request.getParameter("createSiteCode")));
+        areaDestRequest.setCreateSiteName(request.getParameter("createSiteName"));
         return areaDestRequest;
     }
 

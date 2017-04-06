@@ -115,6 +115,17 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     }
 
     @Override
+    public Boolean isRepeatName(Integer operateSiteCode, String planName) {
+        Map<String, Object> parameter = new HashMap<String, Object>();
+        parameter.put("operateSiteCode", operateSiteCode);
+        parameter.put("planName", planName);
+        if(areaDestPlanDao.getCount(parameter) > 0){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    @Override
     public List<AreaDestPlan> getMyPlan(Integer siteCode, Integer machineId) {
         List<AreaDestPlan> plan = new ArrayList<AreaDestPlan>();
         if(null != machineId){
@@ -172,13 +183,4 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
         return bool;
     }
 
-    public static void main(String[] args) {
-        AreaDestPlanDao areaDestPlanDao = new AreaDestPlanDao();
-        Map<String, Object> params = new HashMap<String,Object>();
-        params.put("planId",4);
-        params.put("machineId",649);
-        params.put("siteCode",910);
-        Boolean bool = areaDestPlanDao.isExist(params);
-        System.out.println("args = [" + bool + "]");
-    }
 }

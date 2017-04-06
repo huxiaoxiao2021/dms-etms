@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
@@ -16,10 +17,10 @@ import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -51,7 +52,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     private GantryDeviceService gantryDeviceService;
 
     @Autowired
-    private WaybillService waybillService;
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private BaseService baseService;
@@ -231,10 +232,10 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     private String getSendCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 获取运单号
         String waybillCode = SerialRuleUtil.getWaybillCode(domain.getBarCode());
-        BigWaybillDto waybillDto = waybillService.getWaybill(waybillCode);
-        if (waybillDto != null && waybillDto.getWaybill() != null) {
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, false, true, false, true);
+        if (baseEntity != null && baseEntity.getData() != null) {
             // 获取运单信息
-            Waybill waybill = waybillDto.getWaybill();
+            Waybill waybill = baseEntity.getData().getWaybill();
             // 判断是否为拦截订单
             if (WaybillCancelClient.isWaybillCancel(waybill.getWaybillCode())) {
                 this.addGantryException(domain, config, 4, null);
