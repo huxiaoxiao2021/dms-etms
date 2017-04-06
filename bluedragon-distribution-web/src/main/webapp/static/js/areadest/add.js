@@ -51,7 +51,7 @@ function checkParams(params) {
         jQuery.messager.alert('提示:', '输入方案名称为空，请重新输入！', 'info');
         return false;
     }
-    if (params.planName.length > 100){
+    if (params.planName.length > 100) {
         jQuery.messager.alert('提示:', '方案名称输入超长，请重新输入！', 'info');
         return false;
     }
