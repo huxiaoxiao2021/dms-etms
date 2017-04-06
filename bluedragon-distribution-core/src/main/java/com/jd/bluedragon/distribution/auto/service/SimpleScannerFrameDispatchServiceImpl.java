@@ -237,7 +237,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             this.addGantryException(domain, config, 4, null);
             this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
         } else {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
             if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                 // 获取运单信息
                 Waybill waybill = baseEntity.getData().getWaybill();
