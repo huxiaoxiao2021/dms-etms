@@ -232,15 +232,15 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     private String getSendCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 获取运单号
         String waybillCode = SerialRuleUtil.getWaybillCode(domain.getBarCode());
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, false, true, false, true);
-        if (baseEntity != null && baseEntity.getData() != null) {
-            // 获取运单信息
-            Waybill waybill = baseEntity.getData().getWaybill();
-            // 判断是否为拦截订单
-            if (WaybillCancelClient.isWaybillCancel(waybill.getWaybillCode())) {
-                this.addGantryException(domain, config, 4, null);
-                this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
-            } else {
+        // 判断是否为拦截订单
+        if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
+            this.addGantryException(domain, config, 4, null);
+            this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
+        } else {
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, false, true, false, false);
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+                // 获取运单信息
+                Waybill waybill = baseEntity.getData().getWaybill();
                 // 预分拣站点
                 Integer siteCode = waybill.getOldSiteId();
                 if (siteCode != null && siteCode.intValue() != 0) {
@@ -254,10 +254,10 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                     this.addGantryException(domain, config, 1, null);
                     this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|预分拣站点查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
                 }
+            } else {
+                this.addGantryException(domain, config, 2, null);
+                this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|运单信息查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
             }
-        } else {
-            this.addGantryException(domain, config, 2, null);
-            this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|运单信息查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
         }
         return null;
     }
