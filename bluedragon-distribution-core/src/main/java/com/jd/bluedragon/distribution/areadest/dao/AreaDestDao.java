@@ -96,7 +96,7 @@ public class AreaDestDao extends BaseDao<AreaDest> {
      * @param params
      * @return
      */
-    public int getCount(Map<String, Object> params) {
+    public Integer getCount(Map<String, Object> params) {
         return this.getSqlSession().selectOne(AreaDestDao.namespace + ".getCount", params);
     }
 

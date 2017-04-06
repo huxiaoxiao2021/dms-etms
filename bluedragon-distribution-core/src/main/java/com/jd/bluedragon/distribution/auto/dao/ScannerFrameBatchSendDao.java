@@ -81,7 +81,7 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
         return super.getSqlSession().selectList(NAMESPACE + ".queryAllReceiveSites" ,params);
     }
 
-    public long queryAllUnPrintCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
+    public Long queryAllUnPrintCount(Pager<ScannerFrameBatchSendSearchArgument> argumentPager){
         return super.getSqlSession().selectOne(NAMESPACE + ".queryAllUnPrintCount",argumentPager);
     }
 

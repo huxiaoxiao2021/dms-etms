@@ -51,7 +51,7 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
      * @param parameters
      * @return
      */
-    public int getCount(Map<String, Object> parameters) {
+    public Integer getCount(Map<String, Object> parameters) {
         return this.getSqlSession().selectOne(AreaDestPlanDao.namespace + ".getCount", parameters);
     }
 

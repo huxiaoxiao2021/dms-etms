@@ -95,13 +95,13 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
             if (machineId != null) {
                 parameter.put("machineId", machineId);
             }
-            int count = areaDestPlanDao.getCount(parameter);
+            Integer count = areaDestPlanDao.getCount(parameter);
 
             if (pager == null) {
                 pager = new Pager();
             }
 
-            if (count > 0) {
+            if (count != null && count > 0) {
                 pager.setTotalSize(count);
                 pager.init();
                 parameter.put("startIndex", pager.getStartIndex());

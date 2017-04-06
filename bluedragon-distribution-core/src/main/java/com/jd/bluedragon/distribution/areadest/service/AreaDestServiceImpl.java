@@ -184,13 +184,13 @@ public class AreaDestServiceImpl implements AreaDestService {
             if (type != null) {
                 parameter.put("routeType", type.getType());
             }
-            int total = areaDestDao.getCount(parameter);
+            Integer total = areaDestDao.getCount(parameter);
 
             if (pager == null) {
                 pager = new Pager();
             }
 
-            if (total > 0) {
+            if (total != null && total > 0) {
                 pager.setTotalSize(total);
                 pager.init();
                 parameter.put("startIndex", pager.getStartIndex());
