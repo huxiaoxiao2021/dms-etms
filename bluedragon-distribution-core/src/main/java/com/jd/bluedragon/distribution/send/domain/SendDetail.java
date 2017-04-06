@@ -98,7 +98,17 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
     /**亚一返仓标识 b1 c1*/
     private Integer whReverse;
 
-	public String getSpareTranCode() {
+    private String source;
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSpareTranCode() {
 		return spareTranCode;
 	}
 
