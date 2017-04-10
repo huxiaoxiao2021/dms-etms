@@ -46,7 +46,7 @@
         <if test="siteCode != null">
             AND  arrive_site_code = #{siteCode}
         </if>
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
 
     </select>
 
@@ -61,7 +61,7 @@
         FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         AND vehicle_number = #{vehicleNumber}
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
     </select>
 
     <select id="routeTypeByVehicleNoAndSiteCode" parameterType="java.util.Map">
@@ -72,7 +72,7 @@
         <if test="siteCode != null">
             AND arrive_site_code = #{siteCode}
         </if>
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
     </select>
 
     <select id="packageNumByVehicleNo" parameterType="java.lang.String">
@@ -80,7 +80,7 @@
         FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         AND vehicle_number = #{vehicleNumber}
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
     </select>
 
     <select id="packageNumByVehicleNoAndSiteCode" parameterType="java.util.Map">
@@ -91,14 +91,14 @@
         <if test="siteCode != null">
             AND arrive_site_code = #{siteCode}
         </if>
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
     </select>
 
     <select id="querySendCodesByVehicleNo" parameterType="java.lang.String">
         SELECT send_code_list FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         AND vehicle_number = #{vehicle_number}
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
     </select>
 
     <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map">
@@ -110,7 +110,7 @@
         <if test="siteCode != null">
             AND arrive_site_code = #{siteCode}
         </if>
-        AND car_send_time = MAX (car_send_time)
+        ORDER  BY create_time DESC limit 1
     </select>
 
 </mapper>
