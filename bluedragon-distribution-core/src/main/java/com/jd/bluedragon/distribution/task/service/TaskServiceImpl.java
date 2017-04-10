@@ -123,11 +123,11 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
-        if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType())
+        if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType()) 
                 || Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
                 || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
-                || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
+                || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType()) || Task.TASK_TYPE_ZHIPEI_SORTING.equals(task.getType())
                 || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
             if(!this.has(task)){
                 return routerDao.add(TaskDao.namespace, task);
@@ -563,6 +563,8 @@ public class TaskServiceImpl implements TaskService {
     private Task toSortingTask(AutoSortingPackageDto dto){
         BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(dto.getSiteCode());
         Assert.notNull(site,"智能分拣线生成分拣任务出错，获取站点信息失败"); //这里主动抛出异常是为了让事务回滚
+        BaseStaffSiteOrgDto distribution = baseService.queryDmsBaseSiteByCode(String.valueOf(dto.getDistributeID()));
+        Assert.notNull(distribution,"智能分拣线生成分拣任务出错，获取分拣/智配中心信息失败"); 
         Task taskSorting=new Task();
         taskSorting.setOwnSign(BusinessHelper.getOwnSign());
         taskSorting.setKeyword1(String.valueOf(dto.getDistributeID()));
@@ -570,7 +572,12 @@ public class TaskServiceImpl implements TaskService {
         taskSorting.setCreateSiteCode(dto.getDistributeID());
         taskSorting.setReceiveSiteCode(Integer.valueOf(dto.getSiteCode()));
         taskSorting.setCreateTime(new Date());
-        taskSorting.setType(Task.TASK_TYPE_SORTING);
+        //根据distributeId来判断是否是智配中心类型设置为1250  分拣中心类型是1200
+        if(distribution.getSiteType() == 4){
+        	taskSorting.setType(Task.TASK_TYPE_ZHIPEI_SORTING);
+        }else{
+        	taskSorting.setType(Task.TASK_TYPE_SORTING);
+        }
         taskSorting.setBoxCode(dto.getBoxCode());
         taskSorting.setTableName(Task.getTableName(taskSorting.getType()));
         taskSorting.setSequenceName(Task.getSequenceName(taskSorting.getTableName()));

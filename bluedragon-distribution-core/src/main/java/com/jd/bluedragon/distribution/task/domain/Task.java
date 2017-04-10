@@ -52,6 +52,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_SEAL_BOX = 1210; // 分拣封箱
     public static final Integer TASK_TYPE_RETURNS = 1220;// 分拣退货
     public static final Integer TASK_TYPE_SORTING_EXCEPTION=1240; //分拣异常记录日志
+    public static final Integer TASK_TYPE_ZHIPEI_SORTING = 1250; // 智配分拣
     
     /** 发货发车相关　 */
     public static final Integer TASK_TYPE_DEPARTURE = 1400; // 发车
