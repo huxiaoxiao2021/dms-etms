@@ -30,7 +30,7 @@ public class WaybillCancelClient {
     public static boolean isWaybillCancel(String waybillCode) {
 
         try {
-            ClientRequest request = new ClientRequest(URL);
+            ClientRequest request = new ClientRequest(URL + waybillCode);
             request.accept(MediaType.APPLICATION_JSON);
 
             ClientResponse<WaybillResponse> response = request.get(WaybillResponse.class);

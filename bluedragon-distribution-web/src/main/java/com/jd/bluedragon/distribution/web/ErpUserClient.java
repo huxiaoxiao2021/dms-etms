@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.web;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.common.web.LoginContext;
 
 /**
@@ -24,6 +26,10 @@ public class ErpUserClient {
 		erpUser.setUserId((int)loginContext.getUserId());
 		erpUser.setUserCode(loginContext.getPin());
 		erpUser.setUserName(loginContext.getNick());
+		BaseMajorManager baseMajorManager = (BaseMajorManager)SpringHelper.getBean("baseMajorManager");
+		if (baseMajorManager != null){
+			erpUser.setStaffNo(baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode()).getStaffNo());
+		}
 		return erpUser;
 	}
 	
@@ -44,6 +50,11 @@ public class ErpUserClient {
 		 * 当前登录用户名称
 		 */
 		private String userName;
+
+		/**
+		 * 青龙用户编号
+		 */
+		private Integer staffNo;
 
 		public Integer getUserId() {
 			return userId;
@@ -67,6 +78,14 @@ public class ErpUserClient {
 
 		public void setUserName(String userName) {
 			this.userName = userName;
+		}
+
+		public Integer getStaffNo() {
+			return staffNo;
+		}
+
+		public void setStaffNo(Integer staffNo) {
+			this.staffNo = staffNo;
 		}
 	}
 }

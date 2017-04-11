@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css"
           href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/jquery.autocomplete.css')" />
     <script type="application/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
@@ -17,6 +18,7 @@
     <script type="application/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/jquery-plugins/jquery.autocomplete.js')"></script>
     <style  type="text/css">
         .textField {
             width: 150px;
@@ -31,10 +33,6 @@
         $(document).ready(function () {
             var siteNo = $("#createSiteCode").val();
             querySubSite();//初始化子站点
-
-            query(1);//默认加载首页
-
-
 
             /**
              * 全选/取消
@@ -57,20 +55,21 @@
          */
         function querySubSite() {
             var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/querySubSiteNo"
-            CommonClient.post(url,getParams(),function(data){
-                if(data == undefined && data == null){
-                    return;
+            var slefSites = "";
+            var selfSiteArray;
+            CommonClient.post(url,getParams(),function(msg){
+                if (msg.code == 200) {
+                    jQuery.each(msg.data, function(infoIndex, info) {
+                        if(infoIndex == 0){
+                            slefSites = getSites(info);
+                        }else {
+                            slefSites = getSites(info) + " " + slefSites;
+                        }
+                    });
                 }
-                if(data.code == 200 && data.data != null ){
-                    var list = data.data;
-                    var temp = "<option value = ''>请选择目的站点</option>";
-                    for(var i = 0;i < list.length;i++){
-                        temp += "<option value = " + list[i].receiveSiteCode + ">" + list[i].receiveSiteCode + " " + list[i].receiveSiteName + "</option>";
-                    }
-                    $("#receiveSiteCode").html(temp);
-                }
+                selfSiteArray = slefSites.split(" ");
+                orginalDms(selfSiteArray);
             })
-
         }
 
         /**
@@ -139,9 +138,15 @@
             params.machineId = $("#machineId").val();
             params.createSiteCode = $("#createSiteCode").val();
             params.createSiteName = $("#createSiteName").val();
-            params.receiveSiteCode = $("#receiveSiteCode option:selected").val();
-            params.startTime = new Date($("#startTime").val());
-            params.endTime = new Date($("#endTime").val());
+            if($("#receiveSiteCodeInputHide").val() != ""){
+                params.receiveSiteCode = $("#receiveSiteCodeInputHide").val();
+            }
+            if($("#startTime").val() != null){
+                params.startTime = new Date($("#startTime").val());
+            }
+            if($("#endTime").val() != null){
+                params.endTime = new Date($("#endTime").val());
+            }
             return params;
         }
 
@@ -233,6 +238,64 @@
             return timeStr;
         }
 
+        function orginalDms(selfSiteArray) {
+            $('#receiveSiteCodeInputName').autocomplete(selfSiteArray, {
+                minChars : 0,
+                max : 20,
+                matchContains : true
+            }).result(function(event, data, formatted) {
+                var result = data[0].split("|");
+                $("#receiveSiteCodeInputName").val(result[0]);
+                $("#receiveSiteCodeInputHide").val(result[1]);
+            });
+        }
+
+        function getSites(info) {
+            return info.receiveSiteName + "|" + info.receiveSiteCode + "|";
+        }
+
+        //        $("#receiveSiteCode").keyup(function(){
+//            //过滤空
+//            var keyword = $(this).val().toLowerCase().replace(/(^\s*)|(\s*$)/g, "");
+//            if (keyword) {
+//                //使用正则
+//                var reg = new RegExp(keyword,'i');
+//                //遍历option
+//                $('option').each(function(key,val){
+//                    //定义要搜索的字符串
+//                    var ref = $(this).attr('ref');
+//                    //如果搜到，设置select值
+//                    if(ref && reg.test( ref ) ){
+//                        $("select").val($(val).val());
+//                        return false;
+//                    }
+//                });//end each
+//            }//end if keyword
+//        });
+
+//        function searchList(strValue) {
+//            var count = 0;
+//            if (strValue != "") {
+//                $(".nice_select ul li").each(function(i) {
+//                    var contentValue = $(this).text();
+//                    if (contentValue.toLowerCase().indexOf(strValue.toLowerCase()) < 0) {
+//                        $(this).hide();
+//                        count++;
+//                    } else {
+//                        $(this).show();
+//                    }
+//                    if (count == (i + 1)) {
+//                        $(".nice_select").find("ul").hide();
+//                    } else {
+//                        $(".nice_select").find("ul").show();
+//                    }
+//                });
+//            } else {
+//                $(".nice_select ul li").each(function(i) {
+//                    $(this).show();
+//                });
+//            }
+//        }
     </script>
 </head>
 <body>
@@ -252,9 +315,16 @@
         <div class="tbl-n">
             <div id="part-1" class="part">
                 <span>查询站点：</span>
-                <select name="siteOrg" id="receiveSiteCode" value="" class="textField">
-                    <option value="">请选择站点</option>
-                </select>
+##                <select name="siteOrg" id="receiveSiteCode" value="" class="textField">
+##                    <option value="">请选择站点</option>
+##                </select>
+                <span class="nice_select">
+                    <input type="text" id="receiveSiteCodeInputName" name="receiveSiteCodeInputName" value="">
+                    <input type="hidden" id="receiveSiteCodeInputHide" name="receiveSiteCodeInputHide" value="">
+##                    <ul style="display:none;">
+##                        <li style="display: list-item;" value="">请选择站点</li>
+##                    </ul>
+                </span>
                 <span>起始时间：</span>
                 <input type="text" id= "startTime"  name="startTime" style="width: 130px" class="Wdate"
                                         onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!{startTime}"/>

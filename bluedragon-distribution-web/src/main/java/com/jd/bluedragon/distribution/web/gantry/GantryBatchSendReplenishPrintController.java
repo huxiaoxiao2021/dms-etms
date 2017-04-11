@@ -49,70 +49,70 @@ public class GantryBatchSendReplenishPrintController {
     GantryDeviceService gantryDeviceService;
 
     @RequestMapping(value = "/index")
-    public String index(Model model,Integer machineId,Integer createSiteCode,String createSiteName,String startTime ,String endTime){
-        if (machineId != null && createSiteCode != null){
-            model.addAttribute("machineId",machineId);
-            model.addAttribute("createSiteCode",createSiteCode);
-            try{
-                model.addAttribute("createSiteName", URLDecoder.decode(createSiteName,"UTF-8"));
-            }catch (UnsupportedEncodingException e){
-                logger.info("补打界面跳转参数解码异常",e);
+    public String index(Model model, Integer machineId, Integer createSiteCode, String createSiteName, String startTime, String endTime) {
+        if (machineId != null && createSiteCode != null) {
+            model.addAttribute("machineId", machineId);
+            model.addAttribute("createSiteCode", createSiteCode);
+            try {
+                model.addAttribute("createSiteName", URLDecoder.decode(createSiteName, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                logger.info("补打界面跳转参数解码异常", e);
                 model.addAttribute("createSiteName", "未知分拣中心");
             }
-            model.addAttribute("startTime",startTime);
-            model.addAttribute("endTime",endTime);
+            model.addAttribute("startTime", startTime);
+            model.addAttribute("endTime", endTime);
         }
         return "/gantry/GantryBatchSendReplenishPrint";
     }
 
-    @RequestMapping(value = "/query",method = RequestMethod.POST)
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager){
+    public InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager) {
         logger.debug("获取补打印数据 --> ");
         InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
         result.setCode(400);
         result.setMessage("服务器处理信息异常，查询补打印数据失败!!");
         result.setData(null);
-        if (request != null){
+        if (request != null) {
             Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
-            if(pager.getPageNo() != null){
+            if (pager.getPageNo() != null) {
                 argumentPager.setPageNo(pager.getPageNo());
                 argumentPager.init();
             }
             request.setHasPrinted(false);//未打印标示
             argumentPager.setData(request);
-            try{
-                result.setData(scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager));
+            try {
+                result.setData(scannerFrameBatchSendService.queryAllHistoryBatchSend(argumentPager));
                 result.setCode(200);
                 result.setMessage("补打数据获取成功");
-            }catch(Exception e){
+            } catch (Exception e) {
                 result.setCode(500);
                 result.setMessage("服务调用异常");
                 result.setData(null);
-                logger.error("补打数据获取失败..",e);
+                logger.error("补打数据获取失败..", e);
             }
         }
         return result;
     }
 
-    @RequestMapping(value = "/querySubSiteNo",method = RequestMethod.POST)
+    @RequestMapping(value = "/querySubSiteNo", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<List<ScannerFrameBatchSend>> querySubSiteNo(ScannerFrameBatchSendSearchArgument request){
+    public InvokeResult<List<ScannerFrameBatchSend>> querySubSiteNo(ScannerFrameBatchSendSearchArgument request) {
         InvokeResult<List<ScannerFrameBatchSend>> result = new InvokeResult<List<ScannerFrameBatchSend>>();
         result.setCode(400);
         result.setMessage("服务调用异常");
         result.setData(null);
-        if(request == null){
+        if (request == null) {
             return null;
         }
-        try{
-            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryByMachineIdAndTime(request);
+        try {
+            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null, String.valueOf(request.getMachineId()));
             result.setCode(200);
             result.setData(list);
             result.setMessage("获取龙门架的目的站点成功");
-        }catch(Exception e){
+        } catch (Exception e) {
             result.setMessage("获取龙门架的目的站点失败");
-            logger.error("加载龙门架的目的站点失败。。",e);
+            logger.error("加载龙门架的目的站点失败。。", e);
         }
         return result;
     }
@@ -120,9 +120,9 @@ public class GantryBatchSendReplenishPrintController {
     /**
      * 批次号打印
      */
-    @RequestMapping(value = "/sendCodePrint" ,method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCodePrint", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests){
+    public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests) {
         this.logger.info("龙门架补打印数据开始-->需要打印的龙门架ID为" + requests[0].getMachineId());
         InvokeResult<List<BatchSendPrintImageResponse>> result = new InvokeResult<List<BatchSendPrintImageResponse>>();
         result.setCode(400);
@@ -131,13 +131,13 @@ public class GantryBatchSendReplenishPrintController {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         Integer userId = 0;
         String userName = "none";//用户姓名
-        if(erpUser != null){
-            userId = erpUser.getUserId() == null ? 0:erpUser.getUserId();
-            userName = erpUser.getUserName() == null ? "none":erpUser.getUserName();
+        if (erpUser != null) {
+            userId = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
+            userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
         }
 
         Integer machineId = requests[0].getMachineId();
-        if(machineId == null || machineId == 0){
+        if (machineId == null || machineId == 0) {
             result.setCode(200);
             result.setMessage("服务调用成功，龙门架参数错误");
             return result;
@@ -149,12 +149,12 @@ public class GantryBatchSendReplenishPrintController {
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(500);//最多一次打印500条
         argumentPager.setData(sfbssa);
-        try{
+        try {
             logger.info("需要执行该打印并完结批次的条数为：" + requests.length);
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
-            String url =HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
-            for(ScannerFrameBatchSendPrint item : requests){
-                if(item.getReceiveSiteCode() == 0 || "".equals(item.getSendCode()) || item.getCreateSiteCode() == 0){
+            String url = HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
+            for (ScannerFrameBatchSendPrint item : requests) {
+                if (item.getReceiveSiteCode() == 0 || "".equals(item.getSendCode()) || item.getCreateSiteCode() == 0) {
                     //没有目的站点，自动退出循环
                     logger.error("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
                     continue;
@@ -169,12 +169,13 @@ public class GantryBatchSendReplenishPrintController {
                 Integer packageSum = 0;
                 /** 获取包裹的数据量 **/
                 List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(item.getSendCode());
-                if(sendDetailList != null && sendDetailList.size() > 0){
+                if (sendDetailList != null && sendDetailList.size() > 0) {
                     packageSum = sendDetailList.size();//获取包裹的数量
                 }
                 itemRequest.setPackageNum(packageSum);
 
-                BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url,itemRequest,new TypeReference<BatchSendPrintImageResponse>(){});
+                BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url, itemRequest, new TypeReference<BatchSendPrintImageResponse>() {
+                });
                 results.add(itemResponse);
                 logger.info("获取图片的base64结束。");
                 /** ===================获取打印图片获取base64图片码结束================= **/
@@ -186,7 +187,7 @@ public class GantryBatchSendReplenishPrintController {
                 result.setMessage("服务调用成功");
                 result.setData(results);
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             logger.error("获取数据异常");
             result.setCode(500);
             result.setMessage("服务调用异常");
@@ -196,12 +197,13 @@ public class GantryBatchSendReplenishPrintController {
 
     /**
      * domain 类型转换
+     *
      * @param request
      * @return
      */
-    private ScannerFrameBatchSendSearchArgument toScannerFrameBatchSend (GantryDeviceConfigRequest request,Integer receiveSiteCode,String receiveSiteName){
+    private ScannerFrameBatchSendSearchArgument toScannerFrameBatchSend(GantryDeviceConfigRequest request, Integer receiveSiteCode, String receiveSiteName) {
         ScannerFrameBatchSendSearchArgument result = new ScannerFrameBatchSendSearchArgument();
-        if(request != null){
+        if (request != null) {
             result.setMachineId(request.getMachineId());
             result.setStartTime(request.getStartTime());
             result.setEndTime(request.getEndTime());

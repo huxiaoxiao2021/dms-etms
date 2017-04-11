@@ -312,4 +312,12 @@
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
 
+	<bean id="areaDestPlanDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+
+	<bean id="areaDestPlanDetailDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+
 </beans>

@@ -101,6 +101,11 @@ public class  GantryDeviceConfigRequest extends JdRequest {
      */
     private byte version;
 
+    /**
+     * 龙门架的方案ID
+     */
+    private Long planId;
+
     public Integer getMachineId() {
         return machineId;
     }
@@ -253,5 +258,13 @@ public class  GantryDeviceConfigRequest extends JdRequest {
 
     public void setVersion(byte version) {
         this.version = version;
+    }
+
+    public Long getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(Long planId) {
+        this.planId = planId;
     }
 }

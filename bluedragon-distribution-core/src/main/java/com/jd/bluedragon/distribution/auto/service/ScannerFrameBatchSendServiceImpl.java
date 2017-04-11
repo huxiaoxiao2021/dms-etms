@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.RestHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,9 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2016/12/8.
@@ -247,5 +246,27 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         this.submitPrint(scannerFrameBatchSend.getId(),userId,userName);
         return result;
 
+    }
+
+    @Override
+    public List<ScannerFrameBatchSend> queryAllReceiveSites(String createSiteCode, String machineId) {
+        List<ScannerFrameBatchSend> results = new ArrayList<ScannerFrameBatchSend>();
+        if(StringUtils.isNotBlank(machineId)){
+            Map<String ,String> params = new HashMap<String, String>();
+            params.put("createSiteCode",createSiteCode);
+            params.put("machineId",machineId);
+            results = scannerFrameBatchSendDao.queryAllReceiveSites(params);
+        }
+        return results;
+    }
+
+    @Override
+    public Pager<List<ScannerFrameBatchSend>> queryAllHistoryBatchSend(Pager<ScannerFrameBatchSendSearchArgument> request) {
+        request.init();
+        long count = scannerFrameBatchSendDao.queryAllUnPrintCount(request);
+        Pager<List<ScannerFrameBatchSend>> result = new Pager<List<ScannerFrameBatchSend>>(request.getPageNo(), request.getPageSize());
+        result.setTotalSize((int) count);
+        result.setData(scannerFrameBatchSendDao.queryAllUnPrint(request));
+        return result;
     }
 }

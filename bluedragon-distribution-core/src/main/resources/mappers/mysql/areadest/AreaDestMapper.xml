@@ -4,6 +4,8 @@
 
     <resultMap id="areaDest" type="com.jd.bluedragon.distribution.areadest.domain.AreaDest">
         <result column="ID" property="id"/>
+        <result column="PLAN_ID" property="planId"/>
+        <result column="ROUTE_TYPE" property="routeType"/>
         <result column="CREATE_SITE_CODE" property="createSiteCode"/>
         <result column="CREATE_SITE_NAME" property="createSiteName"/>
         <result column="TRANSFER_SITE_CODE" property="transferSiteCode"/>
@@ -20,6 +22,8 @@
 
     <insert id="add" parameterType="areaDest">
 		INSERT INTO AREA_DEST_CONFIG(
+		    PLAN_ID,
+		    ROUTE_TYPE,
 		    CREATE_SITE_CODE,
 		    CREATE_SITE_NAME,
 		    TRANSFER_SITE_CODE,
@@ -33,6 +37,8 @@
 		    YN
 		    )
 		VALUES(
+		    #{planId, jdbcType=BIGINT},
+		    #{routeType, jdbcType=INTEGER},
 		    #{createSiteCode, jdbcType=BIGINT},
 			#{createSiteName, jdbcType=VARCHAR},
 			#{transferSiteCode, jdbcType=BIGINT},
@@ -49,6 +55,8 @@
 
     <insert id="addBatch" parameterType="java.util.List">
         INSERT INTO AREA_DEST_CONFIG(
+        PLAN_ID,
+        ROUTE_TYPE,
         CREATE_SITE_CODE,
         CREATE_SITE_NAME,
         TRANSFER_SITE_CODE,
@@ -64,6 +72,8 @@
         VALUES
         <foreach collection="list" item="areaDest" index="index" separator=",">
             (
+            #{areaDest.planId, jdbcType=BIGINT},
+            #{areaDest.routeType, jdbcType=INTEGER},
             #{areaDest.createSiteCode, jdbcType=BIGINT},
             #{areaDest.createSiteName, jdbcType=VARCHAR},
             #{areaDest.transferSiteCode, jdbcType=BIGINT},
@@ -79,9 +89,11 @@
         </foreach>
     </insert>
 
-    <select id="getList" resultMap="areaDest" parameterType="java.util.Map">
+    <select id="get" resultMap="areaDest" parameterType="java.util.Map">
         SELECT
         ID,
+        PLAN_ID,
+        ROUTE_TYPE,
         CREATE_SITE_CODE,
         CREATE_SITE_NAME,
         TRANSFER_SITE_CODE,
@@ -96,6 +108,77 @@
         UPDATE_TIME
         FROM AREA_DEST_CONFIG
         WHERE YN = 1
+        <if test="id != null">
+            AND ID = #{id, jdbcType=BIGINT}
+        </if>
+        <if test="planId != null">
+            AND PLAN_ID = #{planId, jdbcType=BIGINT}
+        </if>
+        <if test="routeType != null">
+            AND ROUTE_TYPE = #{routeType, jdbcType=BIGINT}
+        </if>
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <select id="getList" resultMap="areaDest" parameterType="java.util.Map">
+        SELECT
+        ID,
+        PLAN_ID,
+        ROUTE_TYPE,
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        TRANSFER_SITE_CODE,
+        TRANSFER_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        UPDATE_USER,
+        UPDATE_USER_CODE,
+        CREATE_TIME,
+        UPDATE_TIME
+        FROM AREA_DEST_CONFIG
+        WHERE YN = 1
+        <if test="planId != null">
+            AND PLAN_ID = #{planId, jdbcType=BIGINT}
+        </if>
+        <if test="routeType != null">
+            AND ROUTE_TYPE = #{routeType, jdbcType=BIGINT}
+        </if>
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transferSiteCode != null">
+            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode != null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+        ORDER BY ROUTE_TYPE DESC
+        <if test="startIndex != null">
+            LIMIT #{startIndex}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="getCount" resultType="int" parameterType="java.util.Map">
+        SELECT
+        COUNT(*)
+        FROM AREA_DEST_CONFIG
+        WHERE YN = 1
+        <if test="planId != null">
+            AND PLAN_ID = #{planId, jdbcType=BIGINT}
+        </if>
+        <if test="routeType != null">
+            AND ROUTE_TYPE = #{routeType, jdbcType=BIGINT}
+        </if>
         <if test="createSiteCode != null">
             AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
         </if>
@@ -139,40 +222,43 @@
         ID = #{id, jdbcType=BIGINT}
     </update>
 
-    <update id="disableById" parameterType="java.util.Map">
+    <update id="disableByPlanId" parameterType="java.util.Map">
         UPDATE AREA_DEST_CONFIG
         SET
+        YN = 0,
         <if test="updateUser != null">
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
         <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
-        YN = 0,
         UPDATE_TIME = NOW()
-        WHERE ID = #{id, jdbcType=BIGINT} AND YN = 1
+        WHERE PLAN_ID = #{planId, jdbcType=BIGINT} AND YN = 1
     </update>
 
     <update id="disableByParams" parameterType="java.util.Map">
         UPDATE AREA_DEST_CONFIG
         SET
+        YN = 0,
         <if test="updateUser != null">
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
         <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
-        YN = 0,
         UPDATE_TIME = NOW()
         WHERE
-        YN = 1 AND
-        CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
+        YN = 1
+        AND PLAN_ID = #{planId,jdbcType=BIGINT}
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
+        </if>
         <if test="transferSiteCode != null">
             AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
         </if>
-        <if test="receiveSiteCode != null">
+        <if test="receiveSiteCodeList != null">
             AND RECEIVE_SITE_CODE in
-            <foreach item="item" index="index" collection="receiveSiteCode"
+            <foreach item="item" index="index" collection="receiveSiteCodeList"
                      open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -182,37 +268,15 @@
     <update id="enableById" parameterType="java.util.Map">
         UPDATE AREA_DEST_CONFIG
         SET
+        YN = 1,
         <if test="updateUser != null">
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
         </if>
         <if test="updateUserCode != null">
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
-        YN = 1,
         UPDATE_TIME = NOW()
         WHERE ID = #{id, jdbcType=BIGINT} AND YN = 0
-    </update>
-
-    <update id="enableByParams" parameterType="java.util.Map">
-        UPDATE AREA_DEST_CONFIG
-        SET
-        <if test="updateUser != null">
-            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
-        </if>
-        <if test="updateUserCode != null">
-            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
-        </if>
-        YN = 1,
-        UPDATE_TIME = NOW()
-        WHERE
-        YN = 0 AND
-        CREATE_SITE_CODE = #{createSiteCode,jdbcType=BIGINT}
-        <if test="transferSiteCode != null">
-            AND TRANSFER_SITE_CODE = #{transferSiteCode, jdbcType=BIGINT}
-        </if>
-        <if test="receiveSiteCode != null">
-            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
-        </if>
     </update>
 
 </mapper>	
