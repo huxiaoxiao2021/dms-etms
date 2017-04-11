@@ -131,6 +131,8 @@ function doQuery(params) {
                     reason = "拦截订单";
                 else if (dataList[i].type == 5)
                     reason = "龙门架未绑该站点";
+                else if (dataList[i].type == 6)
+                    reason = "无启用方案信息";
                 temp += "<td>" + reason + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].operateTime)) + "</td>";
                 temp += "<td>" + (dataList[i].sendStatus ? "已发货" : "未发货") + "</td>";

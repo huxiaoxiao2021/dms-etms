@@ -109,6 +109,7 @@
                     <option value="3">无箱号信息</option>
                     <option value="4">拦截订单</option>
                     <option value="5">龙门架未绑该站点</option>
+                    <option value="6">无启用方案信息</option>
                 </select>
             </span>
 

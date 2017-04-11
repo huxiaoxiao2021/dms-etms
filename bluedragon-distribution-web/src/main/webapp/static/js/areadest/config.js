@@ -155,8 +155,8 @@ function doQuery(id, params) {
                     temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
                     temp += "</tr>";
                 }
-                $("#" + id + "PaperTable tbody").html(temp);
             }
+            $("#" + id + "PaperTable tbody").html(temp);
             // 添加分页显示
             $("#" + id + "Pager").html(PageBar.getHtml(id + "Load", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {
@@ -468,7 +468,7 @@ function importExcel() {
                 intSite();
                 multiDmsLoad(1);
                 directDmsLoad(1);
-                jQuery.messager.alert('提示:', "导入配置成功", 'info');
+                jQuery.messager.alert('提示:', jsonData.message, 'info');
             } else {
                 jQuery.messager.alert('提示:', jsonData.message, 'error');
             }
