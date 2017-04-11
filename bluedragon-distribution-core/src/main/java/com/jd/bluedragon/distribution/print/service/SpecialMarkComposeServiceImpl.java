@@ -39,8 +39,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
         }
         int index=-1;
-        if(((index=builder.indexOf(SPECIAL_MARK_CROWD_SOURCING))>0)
-                &&(builder.indexOf(SPECIAL_MARK_VALUABLE)>0))
+        if(((index=builder.indexOf(SPECIAL_MARK_CROWD_SOURCING))>=0)
+                &&(builder.indexOf(SPECIAL_MARK_VALUABLE)>=0))
         {
             builder.deleteCharAt(index);
         }
