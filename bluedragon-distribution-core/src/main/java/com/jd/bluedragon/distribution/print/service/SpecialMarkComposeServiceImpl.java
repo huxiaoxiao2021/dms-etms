@@ -19,9 +19,10 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             if(waybill.getSendPay().charAt(21)!='5'){
                 builder.append(SPECIAL_MARK_ARAYACAK_SITE);
             }
-            if(waybill.getSendPay().length()>=135&&waybill.getSendPay().charAt(134)=='1'){
-                builder.append(SPECIAL_MARK_VALUABLE);
-            }
+
+        }
+        if(waybill.getSendPay().length()>134&&waybill.getSendPay().charAt(134)=='1'){
+            builder.append(SPECIAL_MARK_VALUABLE);
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
         if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().charAt(11)=='9') {
