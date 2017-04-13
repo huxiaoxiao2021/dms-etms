@@ -47,7 +47,7 @@ function checkParams(params) {
         jQuery.messager.alert('提示:', '获取龙门架编号为空，请重试！', 'info');
         return false;
     }
-    if (params.planName == null || params.planName.trim() == '') {
+    if (params.planName == null || params.planName == '') {
         jQuery.messager.alert('提示:', '输入方案名称为空，请重新输入！', 'info');
         return false;
     }
