@@ -39,6 +39,34 @@ public class TransBillSchedule {
     private GoddessService goddessService;
 
     /**
+     * 派车单号调度，此rest接口用于分拣校验，提供两个参数，
+     * 输出分拣到这个箱号下面的包裹是不是同一个派车单号
+     * @param boxCode 箱号
+     * @param waybillCode 运单号
+     * @return true / false
+     */
+    @POST
+    @Path("transBillSchedule/check")
+    public Boolean checkTransBill(String boxCode,String waybillCode){
+        Boolean bool = Boolean.FALSE;
+        if (this.existsKey(boxCode)){
+            String oldTransBillCode = this.getKey(boxCode);
+            String newTransBillCode = "";//fixme
+            if (oldTransBillCode.equals(newTransBillCode)){
+                bool = Boolean.TRUE;
+            }
+        }else {
+            this.setKey(boxCode,waybillCode);
+            bool = Boolean.TRUE;
+        }
+        return bool;
+    }
+
+
+
+
+
+    /**
      * 获取箱号对应的派车单号
      * @param boxCode
      * @return
@@ -52,12 +80,12 @@ public class TransBillSchedule {
     /**
      * 设置派车单的redis记录，统一前缀
      * @param boxCode 箱号
-     * @param packageCode 包裹号
+     * @param waybillCode 包裹号运单号
      * @return
      */
     @POST
     @Path("transBillSchedule/setKey")
-    public void setKey(String boxCode,String packageCode) {
+    public void setKey(String boxCode,String waybillCode) {
         String value = "";
         // TODO: 2017/4/14 通过包裹号获取派车单号
         redisClientCache.setEx(TRANSBILL_PREFIX + boxCode,value,expire_time, TimeUnit.SECONDS);

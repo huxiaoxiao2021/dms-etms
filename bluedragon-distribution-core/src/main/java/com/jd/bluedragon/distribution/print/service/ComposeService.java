@@ -27,6 +27,14 @@ public interface ComposeService {
     String SPECIAL_MARK_VALUABLE="安";
     String SPECIAL_MARK_PUBLIC_WELFARE="益";
 
+    /**
+     * 城市配送项目：标识
+     * sendpay 第146位等于1，且sendpay第124位=3，则打印“集”;
+     * sendpay 第146位等于1，但sendpay第124位不为3，则打印“城”;
+     */
+    String CITY_DISTRIBUTION_JI = "集";
+    String CITY_DISTRIBUTION_CHENG = "城";
+
 
     int AIR_TRANSPORT = 1;
     int ARAYACAK_CABINET = 1;

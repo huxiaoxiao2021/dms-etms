@@ -38,6 +38,14 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(waybill.getIsSelfService()){
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
         }
+        if(waybill.getSendPay().charAt(146) == '1'){
+            if(waybill.getSendPay().charAt(124) == '3'){
+                builder.append(CITY_DISTRIBUTION_JI);
+            }else {
+                builder.append(CITY_DISTRIBUTION_CHENG);
+            }
+        }
+
         int index=-1;
         if(((index=builder.indexOf(SPECIAL_MARK_CROWD_SOURCING))>=0)
                 &&(builder.indexOf(SPECIAL_MARK_VALUABLE)>=0))
