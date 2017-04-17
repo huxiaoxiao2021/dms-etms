@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.CarSchedule;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleRequest;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -39,17 +40,17 @@ public class CarScheduleResource {
 
     /**
      * 暴露一个接口，提供车辆的线路类型routeType,车载总量packageNum,当前分拣中心的货物量localPackageNum,当前分拣中心载货明细localPackageDetail,
-     * @param vehicleNumber
-     * @param siteCode
      * @return
      */
     @POST
     @Path("/carSchedule/queryVehicleRouteType")
-    public CarScheduleResponse queryParkingCarInfo(String vehicleNumber, String siteCode){
+    public CarScheduleResponse queryParkingCarInfo(CarScheduleRequest request){
         CarScheduleResponse result = new CarScheduleResponse();
         result.setCode(400);
         result.setMessage("请求成功，无返回数据...");
-        if(null != vehicleNumber ){
+        if(null != request && request.getVehicleNumber() != null ){
+            String vehicleNumber = request.getVehicleNumber();
+            String siteCode = request.getSiteCode();
             Integer routeType = null;
             Integer totalPackageNum = null;
             Integer localPackageNum = null;
@@ -60,7 +61,7 @@ public class CarScheduleResource {
                     routeType = carScheduleService.routeTypeByVehicleNoAndSiteCode(vehicleNumber,siteNo);
                     totalPackageNum = carScheduleService.packageNumByVehicleNoAndSiteCode(vehicleNumber,siteNo);
                     localPackageNum = carScheduleService.localPackageNumByVehicleNo(vehicleNumber,siteNo);
-                    sendDetails = carScheduleService.sendDetailByCarAndSiteCode(vehicleNumber,siteNo);
+//                    sendDetails = carScheduleService.sendDetailByCarAndSiteCode(vehicleNumber,siteNo);
                 }
             }catch (Exception e){
                 result.setCode(500);
@@ -108,8 +109,16 @@ public class CarScheduleResource {
      */
     @POST
     @Path("/carSchedule/InAndOut")
-    public Boolean InAndOut(String vehicleNumber,String siteCode,Integer key){
-        if(null == vehicleNumber || null == siteCode || null == key){
+    public Boolean InAndOut(CarScheduleRequest request){
+        String vehicleNumber = "";
+        String siteCode = "";
+        Integer key = -1;
+        if(request != null){
+            vehicleNumber = request.getVehicleNumber();
+            siteCode = request.getSiteCode();
+            key = request.getKey();
+        }
+        if(null == vehicleNumber || null == siteCode || null == request.getKey()){
             this.logger.error("车辆进出管理确少车牌号、站点、关键字基本信息。");
             return Boolean.FALSE;
         }

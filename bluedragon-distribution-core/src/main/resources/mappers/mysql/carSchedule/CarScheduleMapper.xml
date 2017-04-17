@@ -19,8 +19,8 @@
         <result column="route_type_mark" property="routeTypeMark"/>
         <result column="transportWay" property="transportWay"/>
         <result column="transportWay_mark" property="transportWayMark"/>
-        <result column="carrier_type" property="carrier_type"/>
-        <result column="send_code_list" property="sendCodeList"/>
+        <result column="carrier_type" property="carrierType"/>
+        <!--<result column="send_code_list" property="sendCodeList"/>-->
         <result column="package_num" property="packageNum"/>
         <result column="waybill_num" property="waybillNum"/>
         <!--<result column="yn" property="yn"/>-->
@@ -37,14 +37,14 @@
 
     <select id="getByVehicleNoAndSiteCode" parameterType="java.util.Map" resultMap="carSchedule">
         SELECT send_car_code,vehicle_number,create_site_code,create_dms_code,create_site_name,receive_site_code,receive_site_name,receive_site_name,
-      operate_time,standar_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
-      carrier_type,send_code_list,package_num,waybill_num FROM car_schedule_info
+      operate_time,standard_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
+      carrier_type,package_num,waybill_num FROM car_schedule_info
         WHERE is_cancel = 0 AND yn = 1
         <if test="vehicleNumber != null">
-            AND vehicleNumber = #{vehicleNumber}
+            AND vehicle_number = #{vehicleNumber}
         </if>
         <if test="siteCode != null">
-            AND  arrive_site_code = #{siteCode}
+            AND  receive_site_code = #{siteCode}
         </if>
         ORDER  BY create_time DESC limit 1
 
@@ -64,13 +64,13 @@
         ORDER  BY create_time DESC limit 1
     </select>
 
-    <select id="routeTypeByVehicleNoAndSiteCode" parameterType="java.util.Map">
+    <select id="routeTypeByVehicleNoAndSiteCode" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT route_type
         FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         AND vehicle_number = #{vehicleNumber}
         <if test="siteCode != null">
-            AND arrive_site_code = #{siteCode}
+            AND receive_site_code = #{siteCode}
         </if>
         ORDER  BY create_time DESC limit 1
     </select>
@@ -83,32 +83,32 @@
         ORDER  BY create_time DESC limit 1
     </select>
 
-    <select id="packageNumByVehicleNoAndSiteCode" parameterType="java.util.Map">
+    <select id="packageNumByVehicleNoAndSiteCode" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT package_num
         FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         AND vehicle_number = #{vehicleNumber}
         <if test="siteCode != null">
-            AND arrive_site_code = #{siteCode}
+            AND receive_site_code = #{siteCode}
         </if>
         ORDER  BY create_time DESC limit 1
     </select>
 
-    <select id="querySendCodesByVehicleNo" parameterType="java.lang.String">
-        SELECT send_code_list FROM car_schedule_info
-        WHERE yn = 1 AND is_cancel = 0
-        AND vehicle_number = #{vehicle_number}
-        ORDER  BY create_time DESC limit 1
-    </select>
+    <!--<select id="querySendCodesByVehicleNo" parameterType="java.lang.String">-->
+        <!--SELECT send_code_list FROM car_schedule_info-->
+        <!--WHERE yn = 1 AND is_cancel = 0-->
+        <!--AND vehicle_number = #{vehicle_number}-->
+        <!--ORDER  BY create_time DESC limit 1-->
+    <!--</select>-->
 
-    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map">
+    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map" resultType="java.lang.String">
         SELECT send_car_code FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         <if test="vehicleNumber != null">
             AND vehicle_number = #{vehicleNumber}
         </if>
         <if test="siteCode != null">
-            AND arrive_site_code = #{siteCode}
+            AND receive_site_code = #{siteCode}
         </if>
         ORDER  BY create_time DESC limit 1
     </select>

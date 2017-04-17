@@ -55,9 +55,9 @@ public class CarScheduleDao extends BaseDao<CarScheduleTo>{
         return super.getSqlSession().selectOne(CarScheduleDao.NAMESPACE + ".packageNumByVehicleNoAndSiteCode",params);
     }
 
-    public String querySendCodesByVehicleNo(String vehicleNumber){
-        return super.getSqlSession().selectOne(CarScheduleDao.NAMESPACE + ".querySendCodesByVehicleNo",vehicleNumber);
-    }
+//    public String querySendCodesByVehicleNo(String vehicleNumber){
+//        return super.getSqlSession().selectOne(CarScheduleDao.NAMESPACE + ".querySendCodesByVehicleNo",vehicleNumber);
+//    }
 
     public String sendCarCodeByVehicleNumberAndSiteCode(String vehicleNumber ,Integer siteCode){
         Map<String,Object> params = new HashedMap();
