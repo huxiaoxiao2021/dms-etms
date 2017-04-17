@@ -27,45 +27,53 @@
 	    <bean id="jmqTopicRouter" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskOwnSignJmqTopicRouter">
 	    	<constructor-arg>
 	    		<map>
-                    <!-- 逆向备件库 -->
-	    			<entry key="task_reverse_3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>
-                    <entry key="task_reverse_3300_PRE" value="${jmq.task.topic.reverse.spare.pre}"/>
+					<!-- 分拣 -->
+					<entry key="task_sorting_1200_DMS" value="${jmq.task.topic.sorting.dms}"/>
+					<entry key="task_sorting_1200_PRE" value="${jmq.task.topic.sorting.pre}"/>
 
-                    <!-- 运单状态-验货 -->
-                    <entry key="task_waybill_0_DMS" value="${jmq.task.topic.waybill.status.inspection.dms}"/>
-                    <entry key="task_waybill_0_PRE" value="${jmq.task.topic.waybill.status.inspection.pre}"/>
+					<!-- 分拣退货 -->
+					<entry key="task_sorting_1220_DMS" value="${jmq.task.topic.sorting.dms}"/>
+					<entry key="task_sorting_1220_PRE" value="${jmq.task.topic.sorting.pre}"/>
 
-                    <!-- 运单状态-分拣 -->
-                    <entry key="task_waybill_1_DMS" value="${jmq.task.topic.waybill.status.sorting.dms}"/>
-                    <entry key="task_waybill_1_PRE" value="${jmq.task.topic.waybill.status.sorting.pre}"/>
+                    <!--&lt;!&ndash; 逆向备件库 &ndash;&gt;-->
+	    			<!--<entry key="task_reverse_3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>-->
+                    <!--<entry key="task_reverse_3300_PRE" value="${jmq.task.topic.reverse.spare.pre}"/>-->
 
-                    <!-- 运单状态-逆向验货 -->
-                    <entry key="task_waybill_30_DMS" value="${jmq.task.topic.waybill.status.reverse.inspection.dms}"/>
-                    <entry key="task_waybill_30_PRE" value="${jmq.task.topic.waybill.status.reverse.inspection.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-验货 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_0_DMS" value="${jmq.task.topic.waybill.status.inspection.dms}"/>-->
+                    <!--<entry key="task_waybill_0_PRE" value="${jmq.task.topic.waybill.status.inspection.pre}"/>-->
 
-                    <!-- 运单状态-逆向分拣 -->
-                    <entry key="task_waybill_40_DMS" value="${jmq.task.topic.waybill.status.reverse.sorting.dms}"/>
-                    <entry key="task_waybill_40_PRE" value="${jmq.task.topic.waybill.status.reverse.sorting.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-分拣 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_1_DMS" value="${jmq.task.topic.waybill.status.sorting.dms}"/>-->
+                    <!--<entry key="task_waybill_1_PRE" value="${jmq.task.topic.waybill.status.sorting.pre}"/>-->
 
-                    <!-- 运单状态-分拣退货 -->
-                    <entry key="task_waybill_60_DMS" value="${jmq.task.topic.waybill.status.sorting.return.dms}"/>
-                    <entry key="task_waybill_60_PRE" value="${jmq.task.topic.waybill.status.sorting.return.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-逆向验货 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_30_DMS" value="${jmq.task.topic.waybill.status.reverse.inspection.dms}"/>-->
+                    <!--<entry key="task_waybill_30_PRE" value="${jmq.task.topic.waybill.status.reverse.inspection.pre}"/>-->
 
-                    <!-- 运单状态-三方验货 -->
-                    <entry key="task_waybill_80_DMS" value="${jmq.task.topic.waybill.status.third.inspection.dms}"/>
-                    <entry key="task_waybill_80_PRE" value="${jmq.task.topic.waybill.status.third.inspection.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-逆向分拣 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_40_DMS" value="${jmq.task.topic.waybill.status.reverse.sorting.dms}"/>-->
+                    <!--<entry key="task_waybill_40_PRE" value="${jmq.task.topic.waybill.status.reverse.sorting.pre}"/>-->
 
-                    <!-- 运单状态-发货 -->
-                    <entry key="task_waybill_1300_DMS" value="${jmq.task.topic.waybill.status.delivery.dms}"/>
-                    <entry key="task_waybill_1300_PRE" value="${jmq.task.topic.waybill.status.delivery.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-分拣退货 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_60_DMS" value="${jmq.task.topic.waybill.status.sorting.return.dms}"/>-->
+                    <!--<entry key="task_waybill_60_PRE" value="${jmq.task.topic.waybill.status.sorting.return.pre}"/>-->
 
-                    <!-- 运单状态-售后备件库 -->
-                    <entry key="task_waybill_4300_DMS" value="${jmq.task.topic.waybill.status.aftersale.spare.dms}"/>
-                    <entry key="task_waybill_4300_PRE" value="${jmq.task.topic.waybill.status.aftersale.spare.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-三方验货 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_80_DMS" value="${jmq.task.topic.waybill.status.third.inspection.dms}"/>-->
+                    <!--<entry key="task_waybill_80_PRE" value="${jmq.task.topic.waybill.status.third.inspection.pre}"/>-->
 
-                    <!-- 运单状态-妥投 -->
-                    <entry key="task_waybill_6667_DMS" value="${jmq.task.topic.waybill.status.done.dms}"/>
-                    <entry key="task_waybill_6667_PRE" value="${jmq.task.topic.waybill.status.done.pre}"/>
+                    <!--&lt;!&ndash; 运单状态-发货 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_1300_DMS" value="${jmq.task.topic.waybill.status.delivery.dms}"/>-->
+                    <!--<entry key="task_waybill_1300_PRE" value="${jmq.task.topic.waybill.status.delivery.pre}"/>-->
+
+                    <!--&lt;!&ndash; 运单状态-售后备件库 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_4300_DMS" value="${jmq.task.topic.waybill.status.aftersale.spare.dms}"/>-->
+                    <!--<entry key="task_waybill_4300_PRE" value="${jmq.task.topic.waybill.status.aftersale.spare.pre}"/>-->
+
+                    <!--&lt;!&ndash; 运单状态-妥投 &ndash;&gt;-->
+                    <!--<entry key="task_waybill_6667_DMS" value="${jmq.task.topic.waybill.status.done.dms}"/>-->
+                    <!--<entry key="task_waybill_6667_PRE" value="${jmq.task.topic.waybill.status.done.pre}"/>-->
 
 	    		</map>
 	    	</constructor-arg>

@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.worker.crossbox;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
+import com.jd.bluedragon.distribution.send.ws.client.reverse.SyncOrderState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,6 @@ public class CrossBoxTask extends DBSingleScheduler {
 
 	public List<Task> selectTasks(String arg0, int queueNum, List<String> queryCondition, int fetchNum) throws Exception {
 		logger.info("============================selectTasks==========================");
-		System.out.println("+++++++++++++++++++++++++++sekectTasks++++++++++++++++++++");
 		if (logger.isInfoEnabled()) {
 			logger.info("任务执行fetchNum is" + fetchNum);
 		}
@@ -63,14 +65,12 @@ public class CrossBoxTask extends DBSingleScheduler {
 	@Override
 	public boolean execute(Object[] taskArray, String ownSign) throws Exception {
 		logger.info("============================execute==========================");
-		System.out.println("+++++++++++++++++++++++++++execute++++++++++++++++++++");
 		List<Task> tasks = new ArrayList<Task>();
 		for (Object task : taskArray) {
 			if (task != null && task instanceof Task) {
 				tasks.add((Task) task);
 			}
 		}
-		System.out.println(getWorkerDescPrefix() + "抓取到[" + tasks.size() + "]条任务待处理");
 		logger.info(getWorkerDescPrefix() + "抓取到[" + tasks.size() + "]条任务待处理");
 
 		int dealDataFail = 0;
@@ -90,7 +90,6 @@ public class CrossBoxTask extends DBSingleScheduler {
 
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
-		System.out.println("++++++++++++++++++executeSingleTask+++++++++++++++++++++");
 		int result = crossBoxService.activeCrossBox(task);
 		if (result == 1) {
 			taskService.updateTaskStatus(task);
@@ -98,13 +97,5 @@ public class CrossBoxTask extends DBSingleScheduler {
 			return false;
 		}
 		return true;
-	}
-
-	public static void main(String [] args){
-		int a = Integer.MAX_VALUE;
-		System.out.println(a);
-		
-		Long b = Long.MAX_VALUE;
-		System.out.println(b);
 	}
 }
