@@ -197,198 +197,217 @@
                 </entry>
 
 
-                <!---->
-                <!--&lt;!&ndash; 逆向备件库 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.reverse.spare.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target" ref="reverseSpareService"></constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doReverseSpareTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-                <!--<entry key="${jmq.task.topic.reverse.spare.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target" ref="reverseSpareService"></constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doReverseSpareTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 逆向备件库 -->
+                <entry key="${jmq.task.topic.reverse.spare.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="reverseSpareService"></constructor-arg>
+                        <constructor-arg name="methodName" value="doReverseSpareTask"></constructor-arg>
+                    </bean>
+                </entry>
+                <entry key="${jmq.task.topic.reverse.spare.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="reverseSpareService"></constructor-arg>
+                        <constructor-arg name="methodName" value="doReverseSpareTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--&lt;!&ndash; 运单状态-验货 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.inspection.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 运单状态-验货 -->
+                <entry key="${jmq.task.topic.waybill.status.inspection.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--<entry key="${jmq.task.topic.waybill.status.inspection.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.waybill.status.inspection.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--&lt;!&ndash; 运单状态-分拣 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.sorting.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 运单状态-分拣 -->
+                <entry key="${jmq.task.topic.waybill.status.sorting.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--<entry key="${jmq.task.topic.waybill.status.sorting.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-
-
-                <!--&lt;!&ndash; 运单状态-逆向验货 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.reverse.inspection.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-
-                <!--<entry key="${jmq.task.topic.waybill.status.reverse.inspection.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.waybill.status.sorting.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
 
-                <!--&lt;!&ndash; 运单状态-逆向分拣 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.reverse.sorting.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 运单状态-逆向验货 -->
+                <entry key="${jmq.task.topic.waybill.status.reverse.inspection.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--<entry key="${jmq.task.topic.waybill.status.reverse.sorting.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-
-
-                <!--&lt;!&ndash; 运单状态-分拣退货 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.sorting.return.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-
-                <!--<entry key="${jmq.task.topic.waybill.status.sorting.return.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.waybill.status.reverse.inspection.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
 
-                <!--&lt;!&ndash; 运单状态-三方验货 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.third.inspection.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 运单状态-逆向分拣 -->
+                <entry key="${jmq.task.topic.waybill.status.reverse.sorting.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--<entry key="${jmq.task.topic.waybill.status.third.inspection.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-
-
-                <!--&lt;!&ndash; 运单状态-发货 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.delivery.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
-
-                <!--<entry key="${jmq.task.topic.waybill.status.delivery.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.waybill.status.reverse.sorting.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
 
-                <!--&lt;!&ndash; 运单状态-售后备件库 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.aftersale.spare.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 运单状态-分拣退货 -->
+                <entry key="${jmq.task.topic.waybill.status.sorting.return.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--<entry key="${jmq.task.topic.waybill.status.aftersale.spare.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.waybill.status.sorting.return.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
 
-                <!--&lt;!&ndash; 运单状态-妥投 &ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.waybill.status.done.dms}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <!-- 运单状态-三方验货 -->
+                <entry key="${jmq.task.topic.waybill.status.third.inspection.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
 
-                <!--<entry key="${jmq.task.topic.waybill.status.done.pre}">-->
-                <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor" autowire="byType">-->
-                <!--<constructor-arg name="target">-->
-                <!--<bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>-->
-                <!--</constructor-arg>-->
-                <!--<constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>-->
-                <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.waybill.status.third.inspection.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+
+                <!-- 运单状态-发货 -->
+                <entry key="${jmq.task.topic.waybill.status.delivery.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <entry key="${jmq.task.topic.waybill.status.delivery.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+
+                <!-- 运单状态-售后备件库 -->
+                <entry key="${jmq.task.topic.waybill.status.aftersale.spare.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <entry key="${jmq.task.topic.waybill.status.aftersale.spare.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+
+                <!-- 运单状态-妥投 -->
+                <entry key="${jmq.task.topic.waybill.status.done.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <entry key="${jmq.task.topic.waybill.status.done.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>
