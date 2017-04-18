@@ -218,7 +218,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -228,7 +228,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -239,7 +239,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -249,7 +249,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -261,7 +261,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -271,7 +271,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -283,7 +283,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -293,7 +293,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -305,7 +305,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -315,7 +315,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -327,7 +327,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -337,7 +337,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -349,7 +349,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -359,7 +359,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -371,7 +371,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -381,7 +381,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -393,7 +393,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
@@ -403,7 +403,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target">
-                            <bean class="com.jd.bluedragon.distribution.waybill.asynbuffer.WaybillServiceImpl"/>
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
