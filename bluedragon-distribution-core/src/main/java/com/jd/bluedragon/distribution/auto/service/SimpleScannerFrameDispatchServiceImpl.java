@@ -361,6 +361,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                     if (transferSiteCode != null && transferSiteCode > 0) {
                         siteCode = transferSiteCode;
                     }
+                    break;
             }
             // 根据发货站点和目的站点获取批次号
             return scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), siteCode, config).getSendCode();
