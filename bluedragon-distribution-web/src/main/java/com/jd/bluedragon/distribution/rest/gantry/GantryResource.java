@@ -82,11 +82,11 @@ public class GantryResource {
 
 
             if(velocity == 0){
-                velocity = 3600;
+                velocity = (int) Math.ceil(3600 / 60);
             }
 
-            if(velocity > 5000){
-                velocity = 5000;
+            if(velocity > (int) Math.ceil(5000 / 60)){
+                velocity = (int) Math.ceil(5000 / 60);
             }
 
             response.setVelocity(velocity);

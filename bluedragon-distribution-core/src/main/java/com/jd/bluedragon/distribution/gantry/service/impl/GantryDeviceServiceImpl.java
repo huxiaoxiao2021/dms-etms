@@ -110,7 +110,7 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
         //计算出结束时间 redis key
         String endKey = GantryPackageUtil.getDateRegion(gantryNumber,endTime);
 
-        //如果开始时间与结束时间是在同一个区间 返回0  这时候前台处理可以使用默认值  3600件/s 龙门架的平均流速
+        //如果开始时间与结束时间是在同一个区间 返回0  这时候前台处理可以使用默认值  3600件/h 龙门架的平均流速
         if(startKey.equals(endKey)){
             return 0;
         }else{
@@ -162,7 +162,8 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
             if(regionCount == 0){
                 return 0;
             }else{
-                return packageCount/regionCount;
+                //返回每分钟多少个
+                return packageCount/regionCount/5 ;
             }
         }
     }
