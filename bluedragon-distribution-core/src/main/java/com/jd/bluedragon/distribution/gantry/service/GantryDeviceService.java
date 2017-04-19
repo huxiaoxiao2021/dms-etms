@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.gantry.service;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -76,4 +77,9 @@ public interface GantryDeviceService {
      * 通过批次号 获取sendD 箱号的列表
      */
     public List<SendDetail> queryBoxCodeBySendCode(String sendCode);
+
+    /**
+     * 根据
+     * */
+    public Integer getGantryVelocity(Integer dmsCode,String gantryNumber,Date startTime,Date endTime);
 }
