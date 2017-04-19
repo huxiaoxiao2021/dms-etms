@@ -13,8 +13,9 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 
-@Service("sortingReturnService")
+@Service("sortingZhiPeiService")
 public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
@@ -32,13 +33,23 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 	@Override
 	public void doSorting(Task task) throws Exception {
 		// TODO Auto-generated method stub
-		SortingRequest request = JsonHelper.fromJson(task.getBody(), SortingRequest.class);
+		String body = task.getBody().substring(1, task.getBody().length() - 1);
+		SortingRequest request = JsonHelper.fromJson(body, SortingRequest.class);
 		Sorting sorting = Sorting.toSorting(request);
-		//生成分拣中心操作日志到Cassandra
-		this.sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
+		try {
+			//终端发送mq
+			zhipeiSortingMQ.send(sorting.getWaybillCode(),createMqBody(request));
+		}catch (Exception e) {
+			this.logger.error("智配中心分拣推送给终端系统信息失败，运单号：" + sorting.getWaybillCode(), e);
+		}
 		
-		//终端发送mq
-		zhipeiSortingMQ.send(sorting.getWaybillCode(),createMqBody(request));
+		try{
+			//生成分拣中心操作日志到Cassandra
+			this.sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
+		}catch (Exception e) {
+			this.logger.error("全程跟踪失败，运单号：" + sorting.getWaybillCode(), e);
+		}
+		
 	}
 	
 	private String createMqBody(SortingRequest sorting) {
@@ -47,11 +58,10 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 		sb.append("<SortingZhiPeiTaskInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
 		sb.append("<pacakgeCode>" + sorting.getPackageCode() + "</pacakgeCode>");
 		sb.append("<operateSiteCode>" + sorting.getSiteCode() + "</operateSiteCode>");
-		sb.append("<MessageType>zhipeiSortingMQ</MessageType>");
-		sb.append("<OperatTime>" + sorting.getOperateTime() + "</OperatTime>");
+		sb.append("<operatTime>" + sorting.getOperateTime() + "</operatTime>");
 		sb.append("<userCode>" + sorting.getUserCode() + "</userCode>");
 		sb.append("<userName>" + sorting.getUserName() + "</userName>");
-		sb.append("</OrderTaskInfo>");
+		sb.append("</SortingZhiPeiTaskInfo>");
 		logger.info("智配中心给终端发送zhipeiSortingMQ:"+sb);
 		return sb.toString();
 	}
