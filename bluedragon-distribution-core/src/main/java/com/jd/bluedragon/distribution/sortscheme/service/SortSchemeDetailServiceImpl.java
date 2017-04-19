@@ -141,7 +141,8 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
             if (StringUtils.isBlank(chuteCode)) {
                 break;
             } else {
-                chuteCode = StringHelper.prefixStr(chuteCode, ".");
+                //兼容.
+//                chuteCode = StringHelper.prefixStr(chuteCode, ".");
                 if (StringUtils.isNotBlank(chuteCodeMap.put(chuteCode, chuteCode))) {
                     repeatChuteErrorList.add(MessageFormat.format("第{0}行的物理格口{1}重复", i + 1, chuteCode));
                 }
@@ -219,8 +220,11 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
             } else if (i == 0) {
-                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
+//                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
+                cellValue = ExportByPOIUtil.getCellValue(currentRow.getCell(i));
+                //这里去掉对物理滑槽非数值的判断 可以导入带字母 = .的
+//                || !NumberHelper.isNumberUpZero(cellValue)
+                if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
             }else if(i == 1){
