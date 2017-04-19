@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,7 +150,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
         Integer temporaryNum = 0;//临时变量
         if(null != vehicleNo && !"".equals(vehicleNo) && null != siteCode){
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
-            if(null != carScheduleTo.getSendCodeList() && !"".equals(carScheduleTo.getSendCodeList())){
+            if(StringUtils.isNotBlank(carScheduleTo.getSendCarCode())){
                 localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
                 List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getSendCarCode());
                 Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号

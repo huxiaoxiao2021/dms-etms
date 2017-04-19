@@ -27,4 +27,5 @@ public class SendCodeToCarNoDao extends BaseDao<SendCodeToCarCode> {
     public List<String> sendCodeBySendCarCode(String sendCarCode){
         return super.getSqlSession().selectList(SendCodeToCarNoDao.NAMESPACE + ".sendCodeBySendCarCode" ,sendCarCode);
     }
+
 }

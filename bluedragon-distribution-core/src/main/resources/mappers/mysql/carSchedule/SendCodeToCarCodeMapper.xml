@@ -20,13 +20,13 @@
         WHERE send_car_code = #{sendCarCode}
     </update>
 
-    <select id="sendCodeBySendCarCode" parameterType="java.lang.String">
+    <select id="sendCodeBySendCarCode" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT send_car_code FROM send_code_to_car_code
         WHERE yn = 1
         <if test="sendCarCode != null">
             AND send_car_code = #{sendCarCode}
         </if>
-        AND create_time = MAX(create_time)
+--         AND create_time = MAX(create_time)
     </select>
 
 </mapper>
