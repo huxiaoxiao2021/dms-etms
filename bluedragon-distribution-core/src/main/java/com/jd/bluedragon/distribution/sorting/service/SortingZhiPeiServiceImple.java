@@ -53,16 +53,24 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 	}
 	
 	private String createMqBody(SortingRequest sorting) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("<?xml version=\"1.0\" encoding=\"utf-16\"?>");
-		sb.append("<SortingZhiPeiTaskInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
-		sb.append("<pacakgeCode>" + sorting.getPackageCode() + "</pacakgeCode>");
-		sb.append("<operateSiteCode>" + sorting.getSiteCode() + "</operateSiteCode>");
-		sb.append("<operatTime>" + sorting.getOperateTime() + "</operatTime>");
-		sb.append("<userCode>" + sorting.getUserCode() + "</userCode>");
-		sb.append("<userName>" + sorting.getUserName() + "</userName>");
-		sb.append("</SortingZhiPeiTaskInfo>");
-		logger.info("智配中心给终端发送zhipeiSortingMQ:"+sb);
-		return sb.toString();
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("<?xml version=\"1.0\" encoding=\"utf-16\"?>");
+//		sb.append("<SortingZhiPeiTaskInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
+//		sb.append("<pacakgeCode>" + sorting.getPackageCode() + "</pacakgeCode>");
+//		sb.append("<operateSiteCode>" + sorting.getSiteCode() + "</operateSiteCode>");
+//		sb.append("<operatTime>" + sorting.getOperateTime() + "</operatTime>");
+//		sb.append("<userCode>" + sorting.getUserCode() + "</userCode>");
+//		sb.append("<userName>" + sorting.getUserName() + "</userName>");
+//		sb.append("</SortingZhiPeiTaskInfo>");
+		SortingRequest request = new SortingRequest();
+		request.setPackageCode(sorting.getPackageCode());
+		request.setSiteCode(sorting.getSiteCode());
+		request.setOperateTime(sorting.getOperateTime());
+		request.setUserCode(sorting.getUserCode());
+		request.setUserName(sorting.getUserName());
+		String str = JsonHelper.toJson(request);
+		logger.info("智配中心给终端发送zhipeiSortingMQ:"+str);
+		return str;
 	}
+	
 }
