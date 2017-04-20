@@ -185,6 +185,32 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     @Override
+    public Integer isSameOrg(String vehicleNumber, Integer siteCode) {
+        CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNumber,siteCode);
+        String createDmsCode = carScheduleTo.getCreateDmsCode();
+        String receiveDmsCode = carScheduleTo.getReceiveDmsCode();
+        Integer result = null;
+        if(StringUtils.isNotBlank(createDmsCode) && StringUtils.isNotBlank(receiveDmsCode)){
+            BaseStaffSiteOrgDto createSite = basicPrimaryWS.getBaseSiteByDmsCode(createDmsCode);
+            BaseStaffSiteOrgDto receiveSite = basicPrimaryWS.getBaseSiteByDmsCode(receiveDmsCode);
+            Integer createOrg = new Integer(0);
+            Integer receiveOrg = new Integer(-1);
+            if(createSite != null ){
+                createOrg = createSite.getOrgId();
+            }
+            if(receiveSite != null){
+                receiveOrg = receiveSite.getOrgId();
+            }
+            if(createOrg.equals(receiveOrg)){
+                result = 1;//同区
+            }else {
+                result = 2;//跨区
+            }
+        }
+        return result;
+    }
+
+    @Override
     public Date expectArriveTimeByVehicleNo(String vehicleNo) {
         return null;
     }

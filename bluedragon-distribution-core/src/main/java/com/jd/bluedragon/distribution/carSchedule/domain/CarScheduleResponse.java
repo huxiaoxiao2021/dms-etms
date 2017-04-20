@@ -29,6 +29,16 @@ public class CarScheduleResponse extends JdResponse {
     private Integer localPackageNum;
 
     /**
+     * 装卸口作业类型:1.装货，2.卸货
+     */
+    private String platformPortJobType;
+
+    /**
+     * 判断始发区域与目的区域是不是同一区域，同区：1  不同区：2
+     */
+    private Integer workType;
+
+    /**
      * 当前分拣中心的载货明细
      */
 //    private List<SendDetail> sendDetails;
@@ -64,7 +74,24 @@ public class CarScheduleResponse extends JdResponse {
     public void setLocalPackageNum(Integer localPackageNum) {
         this.localPackageNum = localPackageNum;
     }
-//
+
+    public String getPlatformPortJobType() {
+        return platformPortJobType;
+    }
+
+    public void setPlatformPortJobType(String platformPortJobType) {
+        this.platformPortJobType = platformPortJobType;
+    }
+
+    public Integer getWorkType() {
+        return workType;
+    }
+
+    public void setWorkType(Integer workType) {
+        this.workType = workType;
+    }
+
+    //
 //    public List<SendDetail> getSendDetails() {
 //        return sendDetails;
 //    }
