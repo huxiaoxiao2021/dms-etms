@@ -150,7 +150,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
         Integer temporaryNum = 0;//临时变量
         if(null != vehicleNo && !"".equals(vehicleNo) && null != siteCode){
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
-            if(StringUtils.isNotBlank(carScheduleTo.getSendCarCode())){
+            if(carScheduleTo != null && StringUtils.isNotBlank(carScheduleTo.getSendCarCode())){
                 localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
                 List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getSendCarCode());
                 Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号
