@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.urban.dao.UrbanWaybillDao">
+
+	<resultMap id="UrbanWaybill" type="com.jd.bluedragon.distribution.urban.domain.UrbanWaybill" >
+		<result column="ID" property="id" jdbcType="BIGINT" />
+		<result column="WAYBILL_CODE" property="waybillCode" jdbcType="VARCHAR" />
+		<result column="SCHEDULEBILL_CODE" property="scheduleBillCode" jdbcType="VARCHAR" />
+		<result column="TRANSBILL_CODE" property="transbillCode" jdbcType="VARCHAR" />
+		<result column="STATUS" property="status" jdbcType="SMALLINT" />
+		<result column="OPERATE_USER_ERP" property="operateUserErp" jdbcType="VARCHAR" />
+		<result column="OPERATE_USER_NAME" property="operateUserName" jdbcType="VARCHAR" />
+		<result column="OPERATE_TIME" property="operateTime" jdbcType="TIMESTAMP" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="YN" property="yn" jdbcType="TINYINT" />
+		<result column="TIME_STAMP" property="timeStamp" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		ID,WAYBILL_CODE,SCHEDULEBILL_CODE,TRANSBILL_CODE,STATUS,OPERATE_USER_ERP,
+		OPERATE_USER_NAME,OPERATE_TIME,CREATE_TIME,UPDATE_TIME,YN,
+		TIME_STAMP
+	</sql>
+
+	<insert id="insert" parameterType="UrbanWaybill">
+		insert into DB_URBAN_WAYBILL
+			(
+			<trim suffixOverrides=",">
+				<if test="waybillCode != null">
+					WAYBILL_CODE,
+				</if>
+				<if test="scheduleBillCode != null">
+					SCHEDULEBILL_CODE,
+				</if>
+				<if test="transbillCode != null">
+					TRANSBILL_CODE,
+				</if>
+				<if test="status != null">
+					STATUS,
+				</if>
+				<if test="operateUserErp != null">
+					OPERATE_USER_ERP,
+				</if>
+				<if test="operateUserName != null">
+					OPERATE_USER_NAME,
+				</if>
+				<if test="operateTime != null">
+					OPERATE_TIME,
+				</if>
+				<if test="createTime != null">
+					CREATE_TIME,
+				</if>
+				<if test="updateTime != null">
+					UPDATE_TIME,
+				</if>
+				<if test="yn != null">
+					YN,
+				</if>
+				<if test="timeStamp != null">
+					TIME_STAMP
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="waybillCode != null">
+					#{waybillCode},
+				</if>
+				<if test="scheduleBillCode != null">
+					#{scheduleBillCode},
+				</if>
+				<if test="transbillCode != null">
+					#{transbillCode},
+				</if>
+				<if test="status != null">
+					#{status},
+				</if>
+				<if test="operateUserErp != null">
+					#{operateUserErp},
+				</if>
+				<if test="operateUserName != null">
+					#{operateUserName},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime},
+				</if>
+				<if test="createTime != null">
+					#{createTime},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime},
+				</if>
+				<if test="yn != null">
+					#{yn},
+				</if>
+				<if test="timeStamp != null">
+					#{timeStamp}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateBySelective" parameterType="UrbanWaybill">
+		update DB_URBAN_WAYBILL
+			<set>
+				<if test="waybillCode != null">
+					WAYBILL_CODE = #{waybillCode},
+				</if>
+				<if test="scheduleBillCode != null">
+					SCHEDULEBILL_CODE = #{scheduleBillCode},
+				</if>
+				<if test="transbillCode != null">
+					TRANSBILL_CODE = #{transbillCode},
+				</if>
+				<if test="status != null">
+					STATUS = #{status},
+				</if>
+				<if test="operateUserErp != null">
+					OPERATE_USER_ERP = #{operateUserErp},
+				</if>
+				<if test="operateUserName != null">
+					OPERATE_USER_NAME = #{operateUserName},
+				</if>
+				<if test="operateTime != null">
+					OPERATE_TIME = #{operateTime},
+				</if>
+				<if test="createTime != null">
+					CREATE_TIME = #{createTime},
+				</if>
+				<if test="updateTime != null">
+					UPDATE_TIME = #{updateTime},
+				</if>
+				<if test="yn != null">
+					YN = #{yn},
+				</if>
+				<if test="timeStamp != null">
+					TIME_STAMP = #{timeStamp}
+				</if>
+			</set>
+		where ID = #{id}
+	</update>
+
+	<delete id="deleteById" parameterType="Long">
+		delete from DB_URBAN_WAYBILL where ID = #{id}
+	</delete>
+
+	<select id="findById" parameterType="Long" resultMap="UrbanWaybill">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  DB_URBAN_WAYBILL 
+		where ID = #{id}
+	</select>
+	
+	<select id="findByWaybillCode" parameterType="String" resultMap="UrbanWaybill">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  DB_URBAN_WAYBILL 
+		where YN = 1 
+		  AND WAYBILL_CODE = #{wallbillCode}
+	</select>
+	
+	<select id="findByScheduleBillCode" parameterType="String" resultMap="UrbanWaybill">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  DB_URBAN_WAYBILL 
+		where YN = 1 
+		  AND SCHEDULEBILL_CODE = #{scheduleBillCode}
+	</select>
+</mapper>
