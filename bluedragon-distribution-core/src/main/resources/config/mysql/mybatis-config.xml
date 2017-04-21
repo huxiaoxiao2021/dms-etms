@@ -94,6 +94,8 @@
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
 		<typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
         <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDest" alias="AreaDest"/>
+    	<!-- urban -->
+    	<typeAlias type="com.jd.bluedragon.distribution.urban.domain.UrbanWaybill" alias="UrbanWaybill"/>
     </typeAliases>
 
     <plugins>
@@ -221,7 +223,7 @@
         <mapper resource="mappers/mysql/auto/ScannerFrameBatchSend.xml"/>
 
         <mapper resource="mappers/mysql/areadest/AreaDestMapper.xml"/>
-
+		<mapper resource="mappers/mysql/urban/UrbanWaybillMapper.xml"/>
     </mappers>
 
 </configuration>

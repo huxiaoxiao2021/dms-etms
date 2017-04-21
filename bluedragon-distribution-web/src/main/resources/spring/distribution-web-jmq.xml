@@ -24,7 +24,10 @@
 	<jmq:transport id="jmq.BlueDragonDistributionPop.transport"
 		address="${jmq.BlueDragonDistributionPop.address}" user="${jmq.BlueDragonDistributionPop.user}"
 		password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />	
-		
+	<!--urbanWaybillSyncConsumer 城配运单mq消费应用-->
+	<jmq:transport id="jmq.urbanWaybillSyncConsumer.transport"
+		address="${jmq.urbanWaybillSyncConsumer.address}" user="${jmq.urbanWaybillSyncConsumer.user}"
+		password="${jmq.urbanWaybillSyncConsumer.password}" app="${jmq.urbanWaybillSyncConsumer.app}" />	
 	<!-- jmq 消费客户端配置区 -->	    
     <!-- 一车一单发车 -->
     <jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
@@ -112,5 +115,9 @@
     <!-- 全国邮政自消费类型MQ created by wzx -->
     <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.BlueDragonDistribution.transport">
             <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
+    </jmq:consumer>
+    <!--urbanWaybillSyncConsumer 城配运单mq消费应用-->
+    <jmq:consumer id="jmq.urbanWaybillSyncConsumer" transport="jmq.urbanWaybillSyncConsumer.transport">
+        <jmq:listener topic="tms_schedule_transbill_status" listener="urbanWaybillSyncConsumer"/>
     </jmq:consumer>
 </beans>
