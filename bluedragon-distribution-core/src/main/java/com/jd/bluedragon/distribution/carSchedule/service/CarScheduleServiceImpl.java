@@ -152,6 +152,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
             if(carScheduleTo != null && StringUtils.isNotBlank(carScheduleTo.getSendCarCode())){
                 localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
+                temporaryNum = localPackageNum;
                 List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getSendCarCode());
                 Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号
                 Set<String> sendCodeInside = new HashSet<String>();//本分拣中心的批次号
@@ -165,7 +166,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
                         sendCodeInside.add(sendCode);
                     }
                 }
-                if(sendCodeOutside.size() > 0){
+//                if(sendCodeOutside.size() > 0){
                     if(sendCodeInside.size() > 0){
                         for(Iterator it = sendCodeInside.iterator();it.hasNext();){
                             String sendCode1 = String.valueOf(it.next());
@@ -175,12 +176,12 @@ public class CarScheduleServiceImpl implements CarScheduleService {
                             temporaryNum += sendDatailDao.queryBySiteCodeAndSendCode(queryDetail).size();//当前分拣中心的包裹总量
                         }
                     }
-                }
+//                }
             }
         }
-        if(temporaryNum < localPackageNum){
+//        if(temporaryNum < localPackageNum){
             localPackageNum = temporaryNum;
-        }
+//        }
         return localPackageNum;
     }
 
