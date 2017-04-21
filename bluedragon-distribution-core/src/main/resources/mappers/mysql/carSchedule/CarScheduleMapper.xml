@@ -75,7 +75,7 @@
         ORDER  BY create_time DESC limit 1
     </select>
 
-    <select id="packageNumByVehicleNo" parameterType="java.lang.String">
+    <select id="packageNumByVehicleNo" parameterType="java.lang.String" resultType="java.lang.Integer">
         SELECT package_num
         FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
@@ -101,7 +101,11 @@
         <!--ORDER  BY create_time DESC limit 1-->
     <!--</select>-->
 
-    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map" resultType="java.lang.String">
+    <!--<resultMap id="stringsResult" type="java.lang.String">-->
+        <!--<result column="send_car_code" property="sendCarCode" jdbcType="VARCHAR" />-->
+    <!--</resultMap>-->
+
+    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map" resultType="string">
         SELECT send_car_code FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         <if test="vehicleNumber != null">
