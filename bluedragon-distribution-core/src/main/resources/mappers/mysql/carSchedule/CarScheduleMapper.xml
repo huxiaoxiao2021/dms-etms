@@ -7,9 +7,11 @@
         <result column="send_car_code" property="sendCarCode"/>
         <result column="vehicle_number" property="vehicleNumber"/>
         <result column="create_site_code" property="createSiteCode"/>
+        <result column="create_dms_code" property="createDmsCode"></result>
         <result column="create_site_name" property="createSiteName"/>
         <result column="receive_site_code" property="receiveSiteCode"/>
-        <result column="creata_site_name" property="receiveSiteName"/>
+        <result column="receive_dms_code" property="receiveDmsCode"></result>
+        <result column="receive_site_name" property="receiveSiteName"/>
         <result column="operate_time" property="operateTime"/>
         <result column="standard_send_time" property="standardSendTime"/>
         <result column="standard_arrive_time" property="standardArriveTime"/>

@@ -187,12 +187,12 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     @Override
     public Integer isSameOrg(String vehicleNumber, Integer siteCode) {
         CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNumber,siteCode);
-        String createDmsCode = carScheduleTo.getCreateDmsCode();
-        String receiveDmsCode = carScheduleTo.getReceiveDmsCode();
+        Integer createSiteCode = carScheduleTo.getCreateSiteCode();
+        Integer receiveSiteCode = carScheduleTo.getReceiveSiteCode();
         Integer result = null;
-        if(StringUtils.isNotBlank(createDmsCode) && StringUtils.isNotBlank(receiveDmsCode)){
-            BaseStaffSiteOrgDto createSite = basicPrimaryWS.getBaseSiteByDmsCode(createDmsCode);
-            BaseStaffSiteOrgDto receiveSite = basicPrimaryWS.getBaseSiteByDmsCode(receiveDmsCode);
+        if(createSiteCode != null && receiveSiteCode != null){
+            BaseStaffSiteOrgDto createSite = basicPrimaryWS.getBaseSiteBySiteId(createSiteCode);
+            BaseStaffSiteOrgDto receiveSite = basicPrimaryWS.getBaseSiteBySiteId(receiveSiteCode);
             Integer createOrg = new Integer(0);
             Integer receiveOrg = new Integer(-1);
             if(createSite != null ){
