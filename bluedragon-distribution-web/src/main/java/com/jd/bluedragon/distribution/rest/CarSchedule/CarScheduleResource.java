@@ -61,7 +61,8 @@ public class CarScheduleResource {
                     Integer siteNo = NumberUtils.toInt(siteCode);
                     routeType = carScheduleService.routeTypeByVehicleNoAndSiteCode(vehicleNumber,siteNo);
                     totalPackageNum = carScheduleService.packageNumByVehicleNoAndSiteCode(vehicleNumber,siteNo);
-                    localPackageNum = carScheduleService.localPackageNumByVehicleNo(vehicleNumber,siteNo);
+//                    localPackageNum = carScheduleService.localPackageNumByVehicleNo(vehicleNumber,siteNo);
+                    localPackageNum = totalPackageNum;
                     platformPortJobType = "2";//此接口返回的都是卸货的任务(默认)
                     workType = carScheduleService.isSameOrg(vehicleNumber,siteNo);
                 }
