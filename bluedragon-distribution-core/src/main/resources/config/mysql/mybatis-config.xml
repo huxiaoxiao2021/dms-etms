@@ -93,9 +93,17 @@
         <!-- xumei -->
         <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
 		<typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
+
+        <!-- lixin456 -->
         <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDest" alias="AreaDest"/>
         <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan" alias="AreaDestPlan"/>
         <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail" alias="AreaDestPlanDetail"/>
+
+        <!-- wuzuxiang -->
+        <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo" alias="carSchedule"/>
+        <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode" alias="sendCodeToCarCode"/>
+    	<!-- urban -->
+    	<typeAlias type="com.jd.bluedragon.distribution.urban.domain.UrbanWaybill" alias="UrbanWaybill"/>
     </typeAliases>
 
     <plugins>
@@ -227,6 +235,10 @@
         <mapper resource="mappers/mysql/areadest/AreaDestPlanMapper.xml"/>
         <mapper resource="mappers/mysql/areadest/AreaDestPlanDetailMapper.xml"/>
 
+        <!--wuzuxaing-->
+        <mapper resource="mappers/mysql/carSchedule/CarScheduleMapper.xml"/>
+        <mapper resource="mappers/mysql/carSchedule/SendCodeToCarCodeMapper.xml"/>
+		<mapper resource="mappers/mysql/urban/UrbanWaybillMapper.xml"/>
     </mappers>
 
 </configuration>

@@ -56,6 +56,16 @@ public class AreaDestPlanDao extends BaseDao<AreaDestPlan> {
     }
 
     /**
+     * 更新龙门架使用状态
+     *
+     * @param parameters
+     * @return
+     */
+    public Integer updateUsingState(Map<String, Object> parameters) {
+        return this.getSqlSession().update(AreaDestPlanDao.namespace + ".update", parameters);
+    }
+
+    /**
      * 获取当前龙门架设备的所有方案
      * @param params
      * @return
