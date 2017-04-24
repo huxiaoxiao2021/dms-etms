@@ -574,7 +574,7 @@ public class GantryAutoSendController {
                         for (String erp : erpList) {
                             BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erp);
                             if (dto != null) {
-                                gantryDeviceConfigService.updateOperateUserIdByErp(userErp, dto.getStaffNo());
+                                gantryDeviceConfigService.updateOperateUserIdByErp(erp, dto.getStaffNo());
                             }
                         }
                         invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);

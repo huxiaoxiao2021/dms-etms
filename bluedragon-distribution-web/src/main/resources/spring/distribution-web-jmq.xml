@@ -17,6 +17,11 @@
 		address="${jmq.bd.address}" user="${jmq.bd.user}"
 		password="${jmq.bd.password}" app="${jmq.bd.app}" />
 
+    <!--dmsWeb mq消费应用-->
+    <jmq:transport id="jmq.dmsWeb.transport"
+                   address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
+                   password="${jmq.dmsWeb.password}" app="${jmq.dmsWeb.app}" />
+
 	<jmq:transport id="jmq.BlueDragonDistributionStock.transport"
 		address="${jmq.BlueDragonDistributionStock.address}" user="${jmq.BlueDragonDistributionStock.user}"
 		password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />
@@ -112,5 +117,20 @@
     <!-- 全国邮政自消费类型MQ created by wzx -->
     <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.BlueDragonDistribution.transport">
             <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费龙门架扫描MQ added by zhanglei -->
+    <jmq:consumer id="jmq.gantryScanPackageConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="bd_gantry_scan_package" listener="gantryScanPackageConsumer"/>
+    </jmq:consumer>
+
+    <!-- TMS发车报文 createed by wzx-->
+    <jmq:consumer id="jmq.carScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="tms_cargovolume_inbound" listener="carScheduleFromTMSConsumer"/>
+    </jmq:consumer>
+
+    <!-- TMS取消发车报文 create by wzx -->
+    <jmq:consumer id="jmq.cancelScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="tms_cancel_sendcar" listener="cancelScheduleFromTMSConsumer"/>
     </jmq:consumer>
 </beans>

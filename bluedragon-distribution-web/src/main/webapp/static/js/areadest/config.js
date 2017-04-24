@@ -54,11 +54,13 @@ function main() {
             return doSaveOrDel("remove", $options);
         }
     });
-    //初始化分拣中心下拉框
-    initDms();
-    //初始化站点下拉框
+    // 初始化站点下拉框
     intSite();
+    // 初始化分拣中心下拉框
+    initDms();
+    // 加载跨分拣配置
     multiDmsLoad(1);
+    // 加载分拣白名单配置
     directDmsLoad(1);
 }
 
@@ -434,7 +436,7 @@ function doDmsSave(params) {
 }
 
 function goDownModel() {
-    location.href = "http://jbox.jd.com/quickshare/odanbjm2bgadeshou2dbo24roe";
+    location.href = "http://jbox.jd.com/quickshare/tcnn5exdvangwshou2dbo24roe";
 }
 
 function getImportParam() {
