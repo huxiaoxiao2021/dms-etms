@@ -150,8 +150,9 @@ public class CarScheduleServiceImpl implements CarScheduleService {
         Integer temporaryNum = 0;//临时变量
         if(null != vehicleNo && !"".equals(vehicleNo) && null != siteCode){
             CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNo,siteCode);
-            if(StringUtils.isNotBlank(carScheduleTo.getSendCarCode())){
+            if(carScheduleTo != null && StringUtils.isNotBlank(carScheduleTo.getSendCarCode())){
                 localPackageNum = carScheduleTo.getPackageNum();//默认是车载的总量就是本分拣中心的总量
+                temporaryNum = localPackageNum;
                 List<String> sendCodes = sendCodeToCarNoDao.sendCodeBySendCarCode(carScheduleTo.getSendCarCode());
                 Set<String> sendCodeOutside = new HashSet<String>();//非本分拣中心的批次号
                 Set<String> sendCodeInside = new HashSet<String>();//本分拣中心的批次号
@@ -165,7 +166,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
                         sendCodeInside.add(sendCode);
                     }
                 }
-                if(sendCodeOutside.size() > 0){
+//                if(sendCodeOutside.size() > 0){
                     if(sendCodeInside.size() > 0){
                         for(Iterator it = sendCodeInside.iterator();it.hasNext();){
                             String sendCode1 = String.valueOf(it.next());
@@ -175,13 +176,39 @@ public class CarScheduleServiceImpl implements CarScheduleService {
                             temporaryNum += sendDatailDao.queryBySiteCodeAndSendCode(queryDetail).size();//当前分拣中心的包裹总量
                         }
                     }
-                }
+//                }
             }
         }
-        if(temporaryNum < localPackageNum){
+//        if(temporaryNum < localPackageNum){
             localPackageNum = temporaryNum;
-        }
+//        }
         return localPackageNum;
+    }
+
+    @Override
+    public Integer isSameOrg(String vehicleNumber, Integer siteCode) {
+        CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNumber,siteCode);
+        Integer createSiteCode = carScheduleTo.getCreateSiteCode();
+        Integer receiveSiteCode = carScheduleTo.getReceiveSiteCode();
+        Integer result = null;
+        if(createSiteCode != null && receiveSiteCode != null){
+            BaseStaffSiteOrgDto createSite = basicPrimaryWS.getBaseSiteBySiteId(createSiteCode);
+            BaseStaffSiteOrgDto receiveSite = basicPrimaryWS.getBaseSiteBySiteId(receiveSiteCode);
+            Integer createOrg = new Integer(0);
+            Integer receiveOrg = new Integer(-1);
+            if(createSite != null ){
+                createOrg = createSite.getOrgId();
+            }
+            if(receiveSite != null){
+                receiveOrg = receiveSite.getOrgId();
+            }
+            if(createOrg.equals(receiveOrg)){
+                result = 1;//同区
+            }else {
+                result = 2;//跨区
+            }
+        }
+        return result;
     }
 
     @Override

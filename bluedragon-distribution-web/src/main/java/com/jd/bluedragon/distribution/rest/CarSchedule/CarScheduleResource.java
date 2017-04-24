@@ -4,7 +4,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleRequest;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import org.apache.commons.lang.math.NumberUtils;
@@ -54,14 +53,18 @@ public class CarScheduleResource {
             Integer routeType = null;
             Integer totalPackageNum = null;
             Integer localPackageNum = null;
-            List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+            String platformPortJobType = "";
+            Integer workType = null;
+            List<String> sendCodes = new ArrayList<String>();
             try{
                 if(null != siteCode && !"".equals(siteCode) && NumberUtils.isNumber(siteCode)){
                     Integer siteNo = NumberUtils.toInt(siteCode);
                     routeType = carScheduleService.routeTypeByVehicleNoAndSiteCode(vehicleNumber,siteNo);
                     totalPackageNum = carScheduleService.packageNumByVehicleNoAndSiteCode(vehicleNumber,siteNo);
-                    localPackageNum = carScheduleService.localPackageNumByVehicleNo(vehicleNumber,siteNo);
-//                    sendDetails = carScheduleService.sendDetailByCarAndSiteCode(vehicleNumber,siteNo);
+//                    localPackageNum = carScheduleService.localPackageNumByVehicleNo(vehicleNumber,siteNo);
+                    localPackageNum = totalPackageNum;
+                    platformPortJobType = "2";//此接口返回的都是卸货的任务(默认)
+                    workType = carScheduleService.isSameOrg(vehicleNumber,siteNo);
                 }
             }catch (Exception e){
                 result.setCode(500);
@@ -74,6 +77,8 @@ public class CarScheduleResource {
             result.setRouteType(routeType);
             result.setTotalPackageNum(totalPackageNum);
             result.setLocalPackageNum(localPackageNum);
+            result.setPlatformPortJobType(platformPortJobType);
+            result.setWorkType(workType);
 //            result.setSendDetails(sendDetails);
         }
         return result;
