@@ -65,6 +65,7 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 		SortingRequest request = new SortingRequest();
 		request.setPackageCode(sorting.getPackageCode());
 		request.setSiteCode(sorting.getSiteCode());
+		request.setSiteName(sorting.getSiteName());
 		request.setOperateTime(sorting.getOperateTime());
 		request.setUserCode(sorting.getUserCode());
 		request.setUserName(sorting.getUserName());
