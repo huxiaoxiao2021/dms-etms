@@ -49,13 +49,19 @@ function doQuery(params) {
                         temp += "<td>-----</td>";
                         temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
                     } else if (dataList[i].routeType == 2) {
-                        temp += "<td>直发分拣</td>";
+                        temp += "<td>分拣白名单</td>";
                         temp += "<td>" + (dataList[i].createSiteName) + "</td>";
                         temp += "<td>-----</td>";
                         temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
                         temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
+                    } else  if (dataList[i].routeType == 3) {
+                        temp += "<td>跨分拣配置</td>";
+                        temp += "<td>" + (dataList[i].createSiteName) + "</td>";
+                        temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
+                        temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
+                        temp += "<td>-----</td>";
                     } else {
-                        temp += "<td>多级分拣</td>";
+                        temp += "<td>无效类型</td>";
                         temp += "<td>" + (dataList[i].createSiteName) + "</td>";
                         temp += "<td>" + (dataList[i].transferSiteName) + "</td>";
                         temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";

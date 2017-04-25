@@ -23,7 +23,7 @@ public class AreaDest implements Serializable {
     private Integer planId;
 
     /**
-     * 线路类型，1-分拣到站，2-直发分拣，3-多级分拣
+     * 线路类型
      * {@link com.jd.bluedragon.utils.RouteType}
      */
     private Integer routeType;

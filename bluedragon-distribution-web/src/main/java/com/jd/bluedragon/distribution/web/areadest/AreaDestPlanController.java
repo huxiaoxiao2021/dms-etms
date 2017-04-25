@@ -266,10 +266,15 @@ public class AreaDestPlanController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getStaffNo())) {
-                    areaDestService.disable(planId, erpUser.getUserCode(), erpUser.getStaffNo());
-                    response.setCode(JdResponse.CODE_OK);
-                    response.setMessage("删除成功！");
+                if (areaDestPlanService.isUsing(planId)) {
+                    response.setCode(JdResponse.CODE_SEE_OTHER);
+                    response.setMessage("该方案正在处于启用状态，请释放后再操作！");
+                } else {
+                    if (areaDestPlanService.delete(planId, erpUser.getUserCode(), erpUser.getStaffNo())) {
+                        areaDestService.disable(planId, erpUser.getUserCode(), erpUser.getStaffNo());
+                        response.setCode(JdResponse.CODE_OK);
+                        response.setMessage("删除成功！");
+                    }
                 }
             } else {
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);

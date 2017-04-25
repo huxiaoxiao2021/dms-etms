@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -46,6 +47,12 @@ public class TaskResource {
 
     @Autowired
     private RestAuthorization restAuthorization;
+
+	/**
+	 * 龙门架扫描发出mq消息
+	 * */
+	@Autowired
+	private DefaultJMQProducer gantryScanPackageMQ;
 
     @POST
     @Path("/tasks/add")
@@ -307,6 +314,13 @@ public class TaskResource {
             if(count<=0){
                 result.customMessage(0,"保存数据失败");
             }
+
+			/**
+			 * 扫描成功之后发出mq消息 用来计算龙门架流速
+			 * */
+
+			domain.setScannerTime(new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime())));
+			gantryScanPackageMQ.sendOnFailPersistent(domain.getBarCode(),JsonHelper.toJsonUseGson(domain));
 
         }catch (Throwable throwable){
             logger.error("龙门架自动发货任务上传",throwable);

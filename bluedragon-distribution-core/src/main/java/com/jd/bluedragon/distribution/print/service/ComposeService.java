@@ -24,6 +24,9 @@ public interface ComposeService {
     String SPECIAL_MARK_LOCAL_SCHEDULE = "调";
     String SPECIAL_MARK_ARAYACAK_SITE = "提";
     String SPECIAL_MARK_CROWD_SOURCING = "众";
+    String SPECIAL_MARK_VALUABLE="安";
+    String SPECIAL_MARK_PUBLIC_WELFARE="益";
+
 
     int AIR_TRANSPORT = 1;
     int ARAYACAK_CABINET = 1;

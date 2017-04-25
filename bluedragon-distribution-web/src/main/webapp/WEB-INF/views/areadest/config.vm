@@ -102,12 +102,12 @@
         <div class="tbl-list">
             <div class="tbl-bg">
                 <ul id="tab" class="nav nav-tabs">
-                    ##多级分拣
-                    <li class="active"><a href="#toMultiDms" data-toggle="tab" class="myfont">多级分拣</a></li>
-                    ##直发分拣
-                    <li><a href="#toDirectDms" data-toggle="tab" class="myfont">直发分拣</a></li>
-                    ##跨区分拣
-                    <li><a href="#toSite" data-toggle="tab" class="myfont">分拣到站</a></li>
+                    ##跨分拣配置
+                    <li class="active"><a href="#toMultiDms" data-toggle="tab" class="myfont">跨分拣配置</a></li>
+                    ##直发到站
+                    <li><a href="#toSite" data-toggle="tab" class="myfont">直发到站</a></li>
+                    ##分拣白名单
+                    <li><a href="#toDirectDms" data-toggle="tab" class="myfont">分拣白名单</a></li>
                 </ul>
 
                 <div id="tabContent" class="tab-content">
@@ -163,47 +163,6 @@
                         <div id="multiDmsPager" class="tbl-n" style="width:85%;"></div>
                     </div>
 
-                    <div class="tab-pane fade" id="toDirectDms">
-                        <div class="tbl-n" align="center">
-                            <table border="0" cellpadding="0" cellspacing="0" style="width:75%;">
-                                <tbody>
-                                <tr>
-                                    <td align="right">下级分拣中心：</td>
-                                    <td>
-                                        <input type="text" id="nextSiteName" name="nextSiteName" maxlength="50" style="width:150px" value="$!{nextSiteName}"/>
-                                        <input type="hidden" id="nextSiteCode" name="nextSiteCode" value="$!{nextSiteCode}"/>
-                                    </td>
-                                    <td align="right">预分拣站点：</td>
-                                    <td>
-                                        <input type="text" id="destSiteName" name="destSiteName" maxlength="50" style="width:150px" value="$!{destSiteName}"/>
-                                        <input type="hidden" id="destSiteCode" name="destSiteCode" value="$!{destSiteCode}"/>
-                                    </td>
-                                    <td>
-                                        <input type="button" id="goAddBtn_2" name="goAdd" value="添加" class="btn_c"/>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="tbl-list">
-                            <div class="tbl-bg" align="center">
-                                <table id="directDmsPaperTable" cellspacing=0 cellpadding=0 style="width:70%;min-width:900px;float:center;" class="tb-x1">
-                                    <thead>
-                                    <tr>
-                                        <th style="width:30px;text-align:center;">当前分拣中心</th>
-                                        <th style="width:30px;text-align:center;">下级分拣中心</th>
-                                        <th style="width:30px;text-align:center;">预分拣站点</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div id="directDmsPager" class="tbl-n" style="width:85%;"></div>
-                    </div>
-
                     <div class="tab-pane fade" id="toSite">
                         <div style="height: 50px">
                             <div id="successAlert" class="alert alert-success alert-dismissable" style="display:none">
@@ -245,6 +204,47 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="toDirectDms">
+                        <div class="tbl-n" align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" style="width:75%;">
+                                <tbody>
+                                <tr>
+                                    <td align="right">下级分拣中心：</td>
+                                    <td>
+                                        <input type="text" id="nextSiteName" name="nextSiteName" maxlength="50" style="width:150px" value="$!{nextSiteName}"/>
+                                        <input type="hidden" id="nextSiteCode" name="nextSiteCode" value="$!{nextSiteCode}"/>
+                                    </td>
+                                    <td align="right">预分拣站点：</td>
+                                    <td>
+                                        <input type="text" id="destSiteName" name="destSiteName" maxlength="50" style="width:150px" value="$!{destSiteName}"/>
+                                        <input type="hidden" id="destSiteCode" name="destSiteCode" value="$!{destSiteCode}"/>
+                                    </td>
+                                    <td>
+                                        <input type="button" id="goAddBtn_2" name="goAdd" value="添加" class="btn_c"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tbl-list">
+                            <div class="tbl-bg" align="center">
+                                <table id="directDmsPaperTable" cellspacing=0 cellpadding=0 style="width:70%;min-width:900px;float:center;" class="tb-x1">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:30px;text-align:center;">当前分拣中心</th>
+                                        <th style="width:30px;text-align:center;">下级分拣中心</th>
+                                        <th style="width:30px;text-align:center;">预分拣站点</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="directDmsPager" class="tbl-n" style="width:85%;"></div>
                     </div>
                 </div>
             </div>

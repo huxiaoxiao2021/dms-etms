@@ -99,14 +99,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
         Byte version = getVersion(config.getMachineId());
         config.setVersion(version);
-        // 判断操作类型是否为发货并且龙门架为新设备
+        // 多批次发货龙门架
         if (version != null && version.intValue() == 1) {
-            String sendCode = getSendCode(domain, config);
-            if (StringUtils.isNotEmpty(sendCode)) {
-                this.printInfoLog("龙门架自动发货,跨分拣,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode);
-                config.setSendCode(sendCode);
-            } else {
-                this.printWarnLog("获取龙门架操作方式registerNo={0},operateTime={1}|获取批次号结果为NULL", domain.getRegisterNo(), domain.getScannerTime());
+            if (!doGetSendCode(domain, config)) {
                 return true;
             }
         }
@@ -169,27 +164,46 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param config
      * @return
      */
-    private String getSendCode(UploadData domain, GantryDeviceConfig config) throws Exception {
+    private boolean doGetSendCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 判断条码是箱号还是包裹号
         if (SerialRuleUtil.isMatchBoxCode(domain.getBarCode())) {
             // 箱号
             this.printInfoLog("龙门架自动发货判断货物类型registerNo={0},operateTime={1},barCode={2}|结果为箱子", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
-            return getSendCodeWithBoxCode(domain, config);
+            // 获取目的站点
+            Integer destSiteCode = getSiteCodeWithBoxCode(domain, config);
+            if (destSiteCode != null) {
+                // 判断是否为发货
+                if ((config.getBusinessType() & 2) == 2) {
+                    // 获取批次号
+                    return getSendCodeByBox(domain, config, destSiteCode);
+                }
+                return true;
+            }
         } else {
             // 包裹号
             this.printInfoLog("龙门架自动发货判断货物类型registerNo={0},operateTime={1},barCode={2}|结果为包裹", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
-            return getSendCodeWithPackageCode(domain, config);
+            // 获取目的站点
+            Integer destSiteCode = getSiteCodeWithPackageCode(domain, config);
+            if (destSiteCode != null) {
+                // 判断是否为发货
+                if ((config.getBusinessType() & 2) == 2) {
+                    // 获取批次号
+                    return getSendCodeByPackage(domain, config, destSiteCode);
+                }
+                return true;
+            }
         }
+        return false;
     }
 
     /**
-     * 箱号获取批次号
+     * 根据箱号获取目的站点编号
      *
      * @param domain
      * @param config
      * @return
      */
-    private String getSendCodeWithBoxCode(UploadData domain, GantryDeviceConfig config) throws Exception {
+    private Integer getSiteCodeWithBoxCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         Box box = boxService.findBoxByCode(domain.getBarCode());
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = null;
         if (box != null) {
@@ -201,41 +215,57 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(siteCode);
             }
         }
-
-        if (baseStaffSiteOrgDto != null) {
-            AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
-            if (detail != null && detail.getPlanId() != null) {
-                String sendCode = getSendCodeBySiteCode(detail.getPlanId(), baseStaffSiteOrgDto.getSiteCode(), domain, config);
-                if (StringUtils.isNotEmpty(sendCode)) {
-                    this.printInfoLog("龙门架自动发货,直发站点,根据箱号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode);
-                } else {
-                    this.addGantryException(domain, config, 5, sendCode);
-                }
-                return sendCode;
-            } else {
-                this.printInfoLog("龙门架自动发货,直发站点,根据箱号获取批次号registerNo={0},operateTime={1},barCode={2}|获取龙门架发货线路关系方案操作记录异常", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
-                throw new Exception(MessageFormat.format("龙门架自动发货获取发货方案为null，龙门架编号为{0}，操作站点编号为{1}，龙门扫描时间为{2}", config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime()));
-            }
+        if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getSiteCode() != null && baseStaffSiteOrgDto.getSiteCode() > 0) {
+            return baseStaffSiteOrgDto.getSiteCode();
+        } else {
+            this.addGantryException(domain, config, 3, null);
+            this.printWarnLog("龙门架自动发货,根据箱号获取批次号registerNo={0},operateTime={1},boxCode={2}|箱子信息查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
         }
-        this.addGantryException(domain, config, 3, null);
-        this.printWarnLog("龙门架自动发货,根据箱号获取批次号registerNo={0},operateTime={1},boxCode={2}|箱子信息查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
         return null;
     }
 
     /**
-     * 包裹获取批次号
+     * 箱子(集包)根据目的站点和操作站点获取批次号
+     *
+     * @param domain
+     * @param config
+     * @param destSiteCode
+     * @return
+     * @throws Exception
+     */
+    private boolean getSendCodeByBox(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
+        boolean isSuccess = false;
+        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
+        if (detail != null && detail.getPlanId() != null) {
+            String sendCode = getSendCodeBySiteCode(detail.getPlanId(), destSiteCode, domain, config);
+            if (StringUtils.isNotEmpty(sendCode)) {
+                isSuccess = true;
+                config.setSendCode(sendCode);
+                this.printInfoLog("龙门架自动发货,直发站点,根据箱号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode);
+            } else {
+                this.addGantryException(domain, config, 5, sendCode);
+            }
+        } else {
+            this.printInfoLog("龙门架自动发货,直发站点,根据箱号获取批次号registerNo={0},operateTime={1},barCode={2}|获取龙门架发货线路关系方案操作记录异常", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
+            this.addGantryException(domain, config, 6, null);
+        }
+        return isSuccess;
+    }
+
+    /**
+     * 包裹获取目的站点编号
      *
      * @param domain
      * @param config
      * @return
      */
-    private String getSendCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) throws Exception {
+    private Integer getSiteCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 获取运单号
         String waybillCode = SerialRuleUtil.getWaybillCode(domain.getBarCode());
         // 判断是否为拦截订单
         if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
-            this.addGantryException(domain, config, 4, null);
             this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
+            this.addGantryException(domain, config, 4, null);
         } else {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
             if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
@@ -244,66 +274,77 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 // 预分拣站点
                 Integer siteCode = waybill.getOldSiteId();
                 if (siteCode != null && siteCode.intValue() != 0) {
-                    // 判断是否为自提柜
-                    if (isZiTiGui(waybill)) {
+                    // 判断运单是不是(自提柜,便民自提,合作代收)，如果是，则将siteCode设置为归属站点
+                    if (isZiTiGui(waybill) || isBianMinZiTi(waybill) || isHeZuoDaiShou(waybill)) {
                         // 获取自提柜所属站点编号
                         siteCode = baseService.getSiteSelfDBySiteCode(siteCode);
                     }
-                    return doGetSendCode(siteCode, domain, config);
+                    return siteCode;
                 } else {
-                    this.addGantryException(domain, config, 1, null);
                     this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|预分拣站点查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
+                    this.addGantryException(domain, config, 1, null);
                 }
             } else {
-                this.addGantryException(domain, config, 2, null);
                 this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|运单信息查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
+                this.addGantryException(domain, config, 2, null);
             }
         }
         return null;
     }
 
     /**
-     * 根据目的站点获取批次号
+     * 包裹，根据目的站点和操作站点获取批次号
      *
      * @param destSiteCode
      * @param domain
      * @param config
      * @return
      */
-    private String doGetSendCode(Integer destSiteCode, UploadData domain, GantryDeviceConfig config) throws Exception {
-        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
-        if (detail != null) {
-            Integer planId = detail.getPlanId();
-            if (planId != null && planId > 0) {
-                String sendCode = getSendCodeBySiteCode(planId, destSiteCode, domain, config);
-                if (StringUtils.isNotEmpty(sendCode)) {
-                    // 有效批次号 直接返回
-                    return sendCode;
-                } else {
-                    // 根据所属站点获取对应目的分拣中心
-                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(destSiteCode);
-                    Integer dmsId = baseStaffSiteOrgDto.getDmsId();
-                    if (dmsId != null && dmsId > 0) {
-                        sendCode = getSendCodeBySiteCode(detail.getPlanId(), baseStaffSiteOrgDto.getDmsId(), domain, config);
-                        if (StringUtils.isNotEmpty(sendCode)) {
-                            // 有效批次号 直接返回
-                            return sendCode;
-                        } else {
-                            this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},destSiteCode={2}|龙门架未绑该站点", domain.getRegisterNo(), domain.getScannerTime(), destSiteCode);
-                            this.addGantryException(domain, config, 5, null);
-                        }
+    private boolean getSendCodeByPackage(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
+        boolean isSuccess = false;
+        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
+        if (planDetail != null && planDetail.getPlanId() != null && planDetail.getPlanId() > 0) {
+            String sendCode = getSendCodeBySiteCode(planDetail.getPlanId(), destSiteCode, domain, config);
+            if (StringUtils.isNotEmpty(sendCode)) {
+                // 有效批次号 直接返回
+                isSuccess = true;
+                config.setSendCode(sendCode);
+                this.printInfoLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode);
+            } else {
+                // 根据所属站点获取对应目的分拣中心
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(destSiteCode);
+                if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getDmsId() != null && baseStaffSiteOrgDto.getDmsId() > 0) {
+                    sendCode = getSendCodeBySiteCode(planDetail.getPlanId(), baseStaffSiteOrgDto.getDmsId(), domain, config);
+                    if (StringUtils.isNotEmpty(sendCode)) {
+                        // 有效批次号 直接返回
+                        isSuccess = true;
+                        config.setSendCode(sendCode);
+                        this.printInfoLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|批次号为{3}", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode(), sendCode);
                     } else {
-                        this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},destSiteCode={2}|获取站点对应分拣中心结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), destSiteCode);
+                        this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},destSiteCode={2}|龙门架未绑该站点", domain.getRegisterNo(), domain.getScannerTime(), destSiteCode);
+                        this.addGantryException(domain, config, 5, null);
                     }
+                } else {
+                    this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},destSiteCode={2}|获取站点对应分拣中心结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), destSiteCode);
+                    this.addGantryException(domain, config, 1, null);
                 }
             }
         } else {
             this.printInfoLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},barCode={2}|获取龙门架发货线路关系方案操作记录异常，结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
-            throw new Exception(MessageFormat.format("龙门架自动发货获取发货方案为null，龙门架编号为{0}，操作站点编号为{1}，龙门扫描时间为{2}", config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime()));
+            this.addGantryException(domain, config, 6, null);
         }
-        return null;
+        return isSuccess;
     }
 
+    /**
+     * 根据方案编号、目的站点等信息获取批次号
+     *
+     * @param planId
+     * @param siteCode
+     * @param domain
+     * @param config
+     * @return
+     */
     private String getSendCodeBySiteCode(Integer planId, Integer siteCode, UploadData domain, GantryDeviceConfig config) {
         List<AreaDest> areaDestList = areaDestService.getList(planId, config.getCreateSiteCode(), siteCode);
         // 是否存在路由
@@ -320,6 +361,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                     if (transferSiteCode != null && transferSiteCode > 0) {
                         siteCode = transferSiteCode;
                     }
+                    break;
             }
             // 根据发货站点和目的站点获取批次号
             return scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), siteCode, config).getSendCode();
@@ -344,11 +386,37 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     }
 
     /**
+     * 便民自提判断 【sendpay 第22位等于6(合作自提柜 )】
+     */
+    private static Boolean isBianMinZiTi(Waybill waybill){
+        if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
+            return Boolean.FALSE;
+        }
+        if ('6' == waybill.getSendPay().charAt(21)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 便民自提判断 【sendpay 7的订单(合作代收点)】
+     */
+    private static Boolean isHeZuoDaiShou(Waybill waybill){
+        if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
+            return Boolean.FALSE;
+        }
+        if ('7' == waybill.getSendPay().charAt(21)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
      * 龙门架自动发货异常信息存储
      *
      * @param domain
      * @param config
-     * @param type   1：没有预分拣站点  2：没有运单信息 3：没有箱子信息 4：订单拦截 5：龙门架未绑该站点
+     * @param type   1：无预分拣站点  2：无运单信息 3：无箱子信息 4：订单拦截 5：龙门架未绑该站点 6：无启用方案信息
      */
     private void addGantryException(UploadData domain, GantryDeviceConfig config, int type, String sendCode) {
         Long machineId = Long.valueOf(config.getMachineId());

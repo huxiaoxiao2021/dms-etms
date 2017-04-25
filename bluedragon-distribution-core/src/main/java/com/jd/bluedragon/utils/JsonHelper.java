@@ -1,11 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import java.io.StringWriter;
-import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -15,6 +9,12 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import java.io.StringWriter;
+import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 
 public class JsonHelper {
     
@@ -80,6 +80,11 @@ public class JsonHelper {
             }
         }
         
+        return null;
+    }
+
+    public static <T> T fromJsonUseGsonMillisecondFormat(String json,Class<T> responseType){
+
         return null;
     }
     
@@ -220,4 +225,5 @@ public class JsonHelper {
     public static String toJsonUseGson(Object object) {
         return GSON_COMMON.toJson(object);
     }
+
 }
