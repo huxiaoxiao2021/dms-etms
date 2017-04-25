@@ -49,7 +49,7 @@ function gantry_modify_sub(id) {
  * 跳转到修改页面
  * */
 function to_modify_page(id){
-    window.location.href = $("#contextPath").val() + "/gantry/modifyShow?id=" + id;
+    window.location.href = $("#contextPath").val() + "/gantry/modifyShow?id=" + id+"&t="+new Date().getTime();
 }
 
 

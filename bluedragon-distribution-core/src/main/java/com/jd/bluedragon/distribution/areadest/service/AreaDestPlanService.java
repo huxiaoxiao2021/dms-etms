@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.areadest.service;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
+import com.jd.bluedragon.utils.UsingState;
 
 import java.util.List;
 
@@ -66,6 +67,24 @@ public interface AreaDestPlanService {
      */
     Boolean isRepeatName(Integer operateSiteCode, String planName);
 
+
+    /**
+     * 更新方案使用状态
+     *
+     * @param planId
+     * @param state
+     * @return
+     */
+    Boolean updateUsingState(Integer planId, UsingState state);
+
+    /**
+     * 方案是否在启用状态
+     *
+     * @param planId
+     * @return
+     */
+    Boolean isUsing(Integer planId);
+
     /**
      * 获取当前分拣中心的当前龙门架设备的所有发货方案
      *
@@ -84,6 +103,6 @@ public interface AreaDestPlanService {
      * @param siteCode
      * @return
      */
-    Boolean ModifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode);
+    Boolean modifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode);
 
 }

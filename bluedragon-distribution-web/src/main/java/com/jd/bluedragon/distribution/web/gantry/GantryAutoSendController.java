@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.UsingState;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -152,6 +153,13 @@ public class GantryAutoSendController {
                     gantryDeviceConfig.setUpdateUserName(userName);
                     int i = gantryDeviceConfigService.unlockDevice(gantryDeviceConfig);
                     if (i > -1) {
+                        if ((request.getBusinessType() & 2) == 2) {
+                            Long planId = request.getPlanId();
+                            if (planId != null) {
+                                // 更新方案使用状态为停用
+                                areaDestPlanService.updateUsingState(Integer.valueOf(planId.toString()), UsingState.NOT_USED);
+                            }
+                        }
                         result.setCode(200);
                         result.setMessage("释放龙门架状态成功");
                         result.setData(gantryDeviceConfig);
@@ -204,8 +212,14 @@ public class GantryAutoSendController {
                 gantryDeviceConfig.setStartTime(new Date());
                 count = gantryDeviceConfigService.add(gantryDeviceConfig);
                 if ((request.getBusinessType() & 2) == 2) {
-                    Boolean j = areaDestPlanService.ModifyGantryPlan(request.getMachineId(), request.getPlanId(), userId, request.getCreateSiteCode());
-                    if (!j) {
+                    Boolean j = areaDestPlanService.modifyGantryPlan(request.getMachineId(), request.getPlanId(), userId, request.getCreateSiteCode());
+                    if (j) {
+                        Long planId = request.getPlanId();
+                        if (planId != null) {
+                            // 更新方案使用状态为启用
+                            areaDestPlanService.updateUsingState(Integer.valueOf(planId.toString()), UsingState.USING);
+                        }
+                    } else {
                         this.logger.error("锁定龙门架的方案失败");
                     }
                 }
@@ -560,7 +574,7 @@ public class GantryAutoSendController {
                         for (String erp : erpList) {
                             BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erp);
                             if (dto != null) {
-                                gantryDeviceConfigService.updateOperateUserIdByErp(userErp, dto.getStaffNo());
+                                gantryDeviceConfigService.updateOperateUserIdByErp(erp, dto.getStaffNo());
                             }
                         }
                         invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);

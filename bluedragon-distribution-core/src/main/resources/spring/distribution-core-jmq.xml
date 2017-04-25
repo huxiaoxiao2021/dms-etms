@@ -178,6 +178,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--在龙门架扫描写任务之后发出一条mq消息出来，用于车辆调度计算龙门架流速 added by zhanglei 20170310-->
+    <bean id="gantryScanPackageMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_gantry_scan_package"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--武汉邮政 发送mq 自消费 added by wzx-->
     <bean id="whSmsSendMq" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_dms_whSms_mq"/>

@@ -8,19 +8,19 @@ package com.jd.bluedragon.utils;
 public enum RouteType {
 
     /**
+     * 跨分拣配置
+     */
+    MULTIPLE_DMS(3, "跨分拣配置"),
+
+    /**
      * 直发到站
      */
     DIRECT_SITE(1, "直发到站"),
 
     /**
-     * 直发分拣
+     * 分拣白名单
      */
-    DIRECT_DMS(2, "直发分拣"),
-
-    /**
-     * 多级分拣
-     */
-    MULTIPLE_DMS(3, "多级分拣");
+    DIRECT_DMS(2, "分拣白名单");
 
     private int type;
 

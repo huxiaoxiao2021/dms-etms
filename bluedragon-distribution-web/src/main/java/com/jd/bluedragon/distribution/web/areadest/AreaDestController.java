@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.api.request.AreaDestRequest;
 import com.jd.bluedragon.distribution.api.response.AreaDestResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.RouteType;
@@ -19,7 +20,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +47,9 @@ public class AreaDestController {
 
     @Autowired
     private AreaDestService areaDestService;
+
+    @Autowired
+    private AreaDestPlanService areaDestPlanService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -140,22 +143,27 @@ public class AreaDestController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                Integer count = areaDestService.getCount(request.getPlanId(), request.getCreateSiteCode(), request.getReceiveSiteCode());
-                if (count != null) {
-                    if (count > 0) {
-                        response.setCode(JdResponse.CODE_SEE_OTHER);
-                        response.setMessage("新增失败，始发站点与目的站点已经存在关系，请勿重复添加！");
-                        return response;
-                    } else {
-                        if (areaDestService.add(buildAreaDestDomain(request, erpUser))) {
-                            response.setCode(JdResponse.CODE_OK);
-                            response.setMessage(JdResponse.MESSAGE_OK);
+                if (areaDestPlanService.isUsing(request.getPlanId())) {
+                    response.setCode(JdResponse.CODE_SEE_OTHER);
+                    response.setMessage("该方案正在处于启用状态，请释放后再操作！");
+                } else {
+                    Integer count = areaDestService.getCount(request.getPlanId(), request.getCreateSiteCode(), request.getReceiveSiteCode());
+                    if (count != null) {
+                        if (count > 0) {
+                            response.setCode(JdResponse.CODE_SEE_OTHER);
+                            response.setMessage("新增失败，始发站点与目的站点已经存在关系，请勿重复添加！");
                             return response;
+                        } else {
+                            if (areaDestService.add(buildAreaDestDomain(request, erpUser))) {
+                                response.setCode(JdResponse.CODE_OK);
+                                response.setMessage(JdResponse.MESSAGE_OK);
+                                return response;
+                            }
                         }
                     }
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
                 }
-                response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             } else {
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
@@ -202,12 +210,17 @@ public class AreaDestController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getStaffNo()) > 0) {
-                    response.setCode(JdResponse.CODE_OK);
-                    response.setMessage(JdResponse.MESSAGE_OK);
+                if (areaDestPlanService.isUsing(request.getPlanId())) {
+                    response.setCode(JdResponse.CODE_SEE_OTHER);
+                    response.setMessage("该方案正在处于启用状态，请释放后再操作！");
                 } else {
-                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                    if (areaDestService.addBatch(request, erpUser.getUserCode(), erpUser.getStaffNo()) > 0) {
+                        response.setCode(JdResponse.CODE_OK);
+                        response.setMessage(JdResponse.MESSAGE_OK);
+                    } else {
+                        response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                        response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                    }
                 }
             } else {
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -234,12 +247,17 @@ public class AreaDestController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getStaffNo())) {
-                    response.setCode(JdResponse.CODE_OK);
-                    response.setMessage(JdResponse.MESSAGE_OK);
+                if (areaDestPlanService.isUsing(request.getPlanId())) {
+                    response.setCode(JdResponse.CODE_SEE_OTHER);
+                    response.setMessage("该方案正在处于启用状态，请释放后再操作！");
                 } else {
-                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                    if (areaDestService.disable(request, erpUser.getUserCode(), erpUser.getStaffNo())) {
+                        response.setCode(JdResponse.CODE_OK);
+                        response.setMessage(JdResponse.MESSAGE_OK);
+                    } else {
+                        response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                        response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                    }
                 }
             } else {
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -265,24 +283,39 @@ public class AreaDestController {
         PrintWriter pw = null;
         try {
             pw = response.getWriter();
-            if (file.getSize() > FILE_SIZE_LIMIT) throw new IOException("文件大小超过限制(1M)");
+            if (file.getSize() > FILE_SIZE_LIMIT) throw new IOException("文件大小超过限制(10M)");
             Map<RouteType, Sheet> sheets = getSheets(file);
             if (null == sheets || sheets.size() == 0) throw new DataFormatException("导入失败，无效的Excel模板");
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (null == erpUser) throw new DataFormatException("未登录用户，没有权限");
-            areaDestService.importForExcel(sheets, getParameters(request), erpUser.getUserCode(), erpUser.getStaffNo());
+            if (null == erpUser) throw new DataFormatException("未登录用户或没有权限，请重新登录");
+            if (areaDestPlanService.isUsing(Integer.valueOf(request.getParameter("planId")))) {
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_SEE_OTHER, "该方案正在处于启用状态，请释放后再操作！")));
+            } else {
+                Map<RouteType, Integer> result = areaDestService.importForExcel(sheets, getParameters(request), erpUser.getUserCode(), erpUser.getStaffNo());
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, getMessage(result))));
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("导入方案配置关系失败", e);
             if (e instanceof IOException) {
-                logger.error("导入方案配置关系失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
             } else if (e instanceof DataFormatException) {
-                logger.error("导入方案配置关系失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+            } else {
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入方案配置关系失败，系统异常")));
             }
-            writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入方案配置关系失败，系统异常")));
         }
-        writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
+    }
+
+    private String getMessage(Map<RouteType, Integer> result) {
+        StringBuffer sb = new StringBuffer("导入配置完成，结果：");
+        for (RouteType type : RouteType.values()) {
+            Integer count = result.get(type);
+            if (count != null) {
+                sb.append("[" + type.getName());
+                sb.append("成功导入" + count + "条]");
+            }
+        }
+        return sb.toString();
     }
 
     private AreaDestRequest getParameters(HttpServletRequest request) {

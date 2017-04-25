@@ -54,11 +54,13 @@ function main() {
             return doSaveOrDel("remove", $options);
         }
     });
-    //初始化分拣中心下拉框
-    initDms();
-    //初始化站点下拉框
+    // 初始化站点下拉框
     intSite();
+    // 初始化分拣中心下拉框
+    initDms();
+    // 加载跨分拣配置
     multiDmsLoad(1);
+    // 加载分拣白名单配置
     directDmsLoad(1);
 }
 
@@ -155,8 +157,8 @@ function doQuery(id, params) {
                     temp += "<td>" + (dataList[i].receiveSiteName) + "</td>";
                     temp += "</tr>";
                 }
-                $("#" + id + "PaperTable tbody").html(temp);
             }
+            $("#" + id + "PaperTable tbody").html(temp);
             // 添加分页显示
             $("#" + id + "Pager").html(PageBar.getHtml(id + "Load", pager.totalSize, pager.pageNo, pager.totalNo));
         } else {
@@ -434,7 +436,7 @@ function doDmsSave(params) {
 }
 
 function goDownModel() {
-    location.href = "http://jbox.jd.com/quickshare/odanbjm2bgadeshou2dbo24roe";
+    location.href = "http://jbox.jd.com/quickshare/tcnn5exdvangwshou2dbo24roe";
 }
 
 function getImportParam() {
@@ -468,7 +470,7 @@ function importExcel() {
                 intSite();
                 multiDmsLoad(1);
                 directDmsLoad(1);
-                jQuery.messager.alert('提示:', "导入配置成功", 'info');
+                jQuery.messager.alert('提示:', jsonData.message, 'info');
             } else {
                 jQuery.messager.alert('提示:', jsonData.message, 'error');
             }

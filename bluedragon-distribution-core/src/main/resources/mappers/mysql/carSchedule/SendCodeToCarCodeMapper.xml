@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.carSchedule.dao.SendCodeToCarNoDao" >
+
+    <resultMap id="sendCodeToCarCode" type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode">
+        <!--<result column="id" property="id"/>-->
+        <result column="send_car_code" property="sendCarCode"/>
+        <result column="send_code" property="sendCode"/>
+        <result column="yn" property="yn"/>
+    </resultMap>
+
+    <insert id="add" parameterType="sendCodeToCarCode">
+        INSERT INTO send_code_to_car_code ( send_code,send_car_code,yn,create_time,ts )
+        VALUES(#{sendCode},#{sendCarCode},1,NOW(),NOW())
+    </insert>
+
+    <update id="cancelSendCar" parameterType="sendCodeToCarCode">
+        UPDATE send_code_to_car_code
+        SET yn = 0
+        WHERE send_car_code = #{sendCarCode}
+    </update>
+
+    <select id="sendCodeBySendCarCode" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT send_code FROM send_code_to_car_code
+        WHERE yn = 1
+        AND send_car_code = #{sendCarCode}
+    </select>
+
+</mapper>
