@@ -7,9 +7,11 @@
         <result column="send_car_code" property="sendCarCode"/>
         <result column="vehicle_number" property="vehicleNumber"/>
         <result column="create_site_code" property="createSiteCode"/>
+        <result column="create_dms_code" property="createDmsCode"></result>
         <result column="create_site_name" property="createSiteName"/>
         <result column="receive_site_code" property="receiveSiteCode"/>
-        <result column="creata_site_name" property="receiveSiteName"/>
+        <result column="receive_dms_code" property="receiveDmsCode"></result>
+        <result column="receive_site_name" property="receiveSiteName"/>
         <result column="operate_time" property="operateTime"/>
         <result column="standard_send_time" property="standardSendTime"/>
         <result column="standard_arrive_time" property="standardArriveTime"/>
@@ -75,7 +77,7 @@
         ORDER  BY create_time DESC limit 1
     </select>
 
-    <select id="packageNumByVehicleNo" parameterType="java.lang.String">
+    <select id="packageNumByVehicleNo" parameterType="java.lang.String" resultType="java.lang.Integer">
         SELECT package_num
         FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
@@ -101,7 +103,11 @@
         <!--ORDER  BY create_time DESC limit 1-->
     <!--</select>-->
 
-    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map" resultType="java.lang.String">
+    <!--<resultMap id="stringsResult" type="java.lang.String">-->
+        <!--<result column="send_car_code" property="sendCarCode" jdbcType="VARCHAR" />-->
+    <!--</resultMap>-->
+
+    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map" resultType="string">
         SELECT send_car_code FROM car_schedule_info
         WHERE yn = 1 AND is_cancel = 0
         <if test="vehicleNumber != null">

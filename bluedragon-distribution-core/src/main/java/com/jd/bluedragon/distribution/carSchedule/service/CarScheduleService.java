@@ -54,6 +54,14 @@ public interface CarScheduleService {
     Integer localPackageNumByVehicleNo(String vehicleNo,Integer siteCode);
 
     /**
+     * 根据车牌号和目的分拣中心，判断此车是不是同区还是跨区
+     * @param vehicleNumber
+     * @param siteCode
+     * @return
+     */
+    Integer isSameOrg(String vehicleNumber,Integer siteCode);
+
+    /**
      * 根据车牌号获取车辆的预计达到时间
      */
     Date expectArriveTimeByVehicleNo(String vehicleNo);
