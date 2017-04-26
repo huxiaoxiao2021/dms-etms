@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.rest.redis;
+package com.jd.bluedragon.distribution.rest.transBillSchedule;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class TransBillSchedule {
+public class TransBillScheduleResource {
 
-    private static final Log logger = LogFactory.getLog(TransBillSchedule.class);
+    private static final Log logger = LogFactory.getLog(TransBillScheduleResource.class);
 
     private static final String TRANSBILL_PREFIX = "schedule_transBill_";
 
@@ -79,8 +79,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/getKey")
+    @POST
+    @Path("transBillSchedule/getKey")
     public String getKey(String boxCode) {
         return this.redisClientCache.get(TRANSBILL_PREFIX + boxCode);
     }
@@ -91,8 +91,8 @@ public class TransBillSchedule {
      * @param waybillCode 包裹号运单号
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/setKey")
+    @POST
+    @Path("transBillSchedule/setKey")
     public void setKey(String boxCode,String waybillCode) {
         String value = "";
         UrbanWaybill urbanWaybill = urbanWaybillService.getByWaybillCode(waybillCode);
@@ -107,8 +107,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/existsKet")
+    @POST
+    @Path("transBillSchedule/existsKet")
     public Boolean existsKey(String boxCode){
         Boolean bool = redisClientCache.exists(TRANSBILL_PREFIX + boxCode);
         return bool;
@@ -119,8 +119,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/delete")
+    @POST
+    @Path("transBillSchedule/delete")
     public boolean delete(String boxCode) {
         return redisClientCache.del(TRANSBILL_PREFIX + boxCode) > 0;
     }
