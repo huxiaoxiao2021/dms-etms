@@ -47,6 +47,15 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             }
         }
 
+        //安利--waybillSign第27位等于1的为允许半收的订单，包裹标签打“半”
+        if(waybill.getWaybillSign().charAt(26) == '1'){
+            builder.append(ALLOW_HALF_ACCEPT);
+        }
+        //“半”与“空”互斥，且“空”字为大
+        if( builder.indexOf(SPECIAL_MARK_AIRTRANSPORT) >= 0 && builder.indexOf(ALLOW_HALF_ACCEPT) >= 0){
+            builder.deleteCharAt(builder.indexOf(ALLOW_HALF_ACCEPT));
+        }
+
         int index=-1;
         if(((index=builder.indexOf(SPECIAL_MARK_CROWD_SOURCING))>=0)
                 &&(builder.indexOf(SPECIAL_MARK_VALUABLE)>=0))
