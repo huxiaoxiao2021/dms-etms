@@ -38,8 +38,9 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(waybill.getIsSelfService()){
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
         }
-        if(waybill.getSendPay().charAt(146) == '1'){
-            if(waybill.getSendPay().charAt(124) == '3'){
+        //派车单--sendPay第146位为1，且124位为3追打“集”；sendPay第146位为1，且124位不为3追打“城”
+        if(waybill.getSendPay().charAt(145) == '1'){
+            if(waybill.getSendPay().charAt(123) == '3'){
                 builder.append(CITY_DISTRIBUTION_JI);
             }else {
                 builder.append(CITY_DISTRIBUTION_CHENG);
