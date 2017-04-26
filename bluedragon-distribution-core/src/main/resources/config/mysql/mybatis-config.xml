@@ -102,6 +102,8 @@
         <!-- wuzuxiang -->
         <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo" alias="carSchedule"/>
         <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode" alias="sendCodeToCarCode"/>
+    	<!-- urban -->
+    	<typeAlias type="com.jd.bluedragon.distribution.urban.domain.UrbanWaybill" alias="UrbanWaybill"/>
     </typeAliases>
 
     <plugins>
@@ -236,6 +238,7 @@
         <!--wuzuxaing-->
         <mapper resource="mappers/mysql/carSchedule/CarScheduleMapper.xml"/>
         <mapper resource="mappers/mysql/carSchedule/SendCodeToCarCodeMapper.xml"/>
+		<mapper resource="mappers/mysql/urban/UrbanWaybillMapper.xml"/>
     </mappers>
 
 </configuration>

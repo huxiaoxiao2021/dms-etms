@@ -328,4 +328,8 @@
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
 
+	<bean id="urbanWaybillDao" class="com.jd.bluedragon.distribution.urban.dao.UrbanWaybillDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+	
 </beans>
