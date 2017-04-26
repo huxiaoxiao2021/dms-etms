@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.rest.redis;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.bluedragon.distribution.urban.domain.UrbanWaybill;
+import com.jd.bluedragon.distribution.urban.service.UrbanWaybillService;
 import com.jd.jim.cli.Cluster;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,9 @@ public class TransBillSchedule {
     @Autowired
     private GoddessService goddessService;
 
+    @Autowired
+    private UrbanWaybillService urbanWaybillService;
+
     /**
      * 派车单号调度，此rest接口用于分拣校验，提供两个参数，
      * 输出分拣到这个箱号下面的包裹是不是同一个派车单号
@@ -47,12 +53,18 @@ public class TransBillSchedule {
      */
     @POST
     @Path("transBillSchedule/check")
-    public Boolean checkTransBill(String boxCode,String waybillCode){
+    public Boolean checkScheduleBill(String boxCode,String waybillCode){
         Boolean bool = Boolean.FALSE;
         if (this.existsKey(boxCode)){
-            String oldTransBillCode = this.getKey(boxCode);
-            String newTransBillCode = "";//fixme
-            if (oldTransBillCode.equals(newTransBillCode)){
+            String oldScheduleBillCode = this.getKey(boxCode);
+            String newScheduleBillCode = "";
+
+            UrbanWaybill urbanWaybill = urbanWaybillService.getByWaybillCode(waybillCode);
+            if(urbanWaybill != null && StringUtils.isNotBlank(urbanWaybill.getScheduleBillCode())){
+                newScheduleBillCode = urbanWaybill.getScheduleBillCode();
+            }
+
+            if (oldScheduleBillCode.equals(newScheduleBillCode)){
                 bool = Boolean.TRUE;
             }
         }else {
@@ -62,17 +74,13 @@ public class TransBillSchedule {
         return bool;
     }
 
-
-
-
-
     /**
      * 获取箱号对应的派车单号
      * @param boxCode
      * @return
      */
-    @POST
-    @Path("transBillSchedule/getKey")
+//    @POST
+//    @Path("transBillSchedule/getKey")
     public String getKey(String boxCode) {
         return this.redisClientCache.get(TRANSBILL_PREFIX + boxCode);
     }
@@ -83,11 +91,14 @@ public class TransBillSchedule {
      * @param waybillCode 包裹号运单号
      * @return
      */
-    @POST
-    @Path("transBillSchedule/setKey")
+//    @POST
+//    @Path("transBillSchedule/setKey")
     public void setKey(String boxCode,String waybillCode) {
         String value = "";
-        // TODO: 2017/4/14 通过包裹号获取派车单号
+        UrbanWaybill urbanWaybill = urbanWaybillService.getByWaybillCode(waybillCode);
+        if(urbanWaybill != null && StringUtils.isNotBlank(urbanWaybill.getScheduleBillCode())){
+            value = urbanWaybill.getScheduleBillCode();//获取运单的派车单号
+        }
         redisClientCache.setEx(TRANSBILL_PREFIX + boxCode,value,expire_time, TimeUnit.SECONDS);
     }
 
@@ -96,8 +107,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-    @POST
-    @Path("transBillSchedule/existsKet")
+//    @POST
+//    @Path("transBillSchedule/existsKet")
     public Boolean existsKey(String boxCode){
         Boolean bool = redisClientCache.exists(TRANSBILL_PREFIX + boxCode);
         return bool;
@@ -108,8 +119,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-    @POST
-    @Path("transBillSchedule/delete")
+//    @POST
+//    @Path("transBillSchedule/delete")
     public boolean delete(String boxCode) {
         return redisClientCache.del(TRANSBILL_PREFIX + boxCode) > 0;
     }
