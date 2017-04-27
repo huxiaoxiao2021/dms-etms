@@ -69,9 +69,13 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     public String queryRoadCodeByWaybillCode(String waybillCode) {
         String result = "";
         if(StringUtils.isNotBlank(waybillCode)){
-            BigWaybillDto waybillDto = waybillService.getWaybill(waybillCode);
-            if(waybillDto != null){
-                result = waybillDto.getWaybill().getRoadCode();
+            try{
+                BigWaybillDto waybillDto = waybillService.getWaybill(waybillCode);
+                if(waybillDto != null){
+                    result = waybillDto.getWaybill().getRoadCode();
+                }
+            }catch(Exception e){
+                this.logger.info("派车单号{" + waybillCode + "}从运单接口获取roadCode失败",e);
             }
         }
         return result;
