@@ -14,6 +14,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -58,7 +59,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
     @Resource(name = "boxService")
     private BoxService                      boxService;
 
-    @Resource(name = "waybillService")
+    @Autowired
     private WaybillService                  waybillService;
 
     /**
