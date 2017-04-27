@@ -28,22 +28,9 @@ import javax.ws.rs.core.MediaType;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class TransBillSchedule {
+public class TransBillScheduleResource {
 
-    private static final Log logger = LogFactory.getLog(TransBillSchedule.class);
-
-    private static final String TRANSBILL_PREFIX = "schedule_transBill_";
-
-    private static final long expire_time = 7*24*60*60;//过期时间，以秒为单位
-
-    @Autowired
-    private Cluster redisClientCache;
-
-    @Autowired
-    private GoddessService goddessService;
-
-    @Autowired
-    private UrbanWaybillService urbanWaybillService;
+    private static final Log logger = LogFactory.getLog(TransBillScheduleResource.class);
 
     @Autowired
     private TransBillScheduleService transBillScheduleService;
@@ -62,7 +49,7 @@ public class TransBillSchedule {
             response.setBoxCode(request.getBoxCode());
             response.setWaybillCode(request.getWaybillCode());
             response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
-//            response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
+            response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
         }
         return response;
     }
@@ -72,8 +59,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/getKey")
+    @POST
+    @Path("transBillSchedule/getKey")
     public String getKey(String boxCode) {
         return transBillScheduleService.getKey(boxCode);
     }
@@ -84,8 +71,8 @@ public class TransBillSchedule {
      * @param waybillCode 包裹号运单号
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/setKey")
+    @POST
+    @Path("transBillSchedule/setKey")
     public void setKey(String boxCode,String waybillCode) {
         transBillScheduleService.setKey(boxCode,waybillCode);
     }
@@ -95,8 +82,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/existsKet")
+    @POST
+    @Path("transBillSchedule/existsKet")
     public Boolean existsKey(String boxCode){
         return transBillScheduleService.existsKey(boxCode);
     }
@@ -106,8 +93,8 @@ public class TransBillSchedule {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/delete")
+    @POST
+    @Path("transBillSchedule/delete")
     public boolean delete(String boxCode) {
         return transBillScheduleService.delete(boxCode);
     }
