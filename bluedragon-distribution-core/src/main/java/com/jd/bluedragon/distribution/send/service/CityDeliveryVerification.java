@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
@@ -23,7 +22,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
     @Resource(name = "baseService")
     private BaseService baseService;
 
-    30142 iceImpl 平台称重运单号为VC34270530405重量为0.12
+    //30142 iceImpl 平台称重运单号为VC34270530405重量为0.12
 
     /**
      * 城配验证
