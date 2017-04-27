@@ -51,21 +51,18 @@ public class TransBillSchedule {
     /**
      * 派车单号调度，此rest接口用于分拣校验，提供两个参数，
      * 输出分拣到这个箱号下面的包裹是不是同一个派车单号
-     * @param boxCode 箱号
-     * @param waybillCode 运单号
      * @return true / false
      */
     @POST
     @Path("transBillSchedule/check")
-    public TransBillScheduleResponse checkScheduleBill(String boxCode, String waybillCode){
+    public TransBillScheduleResponse checkScheduleBill(TransBillScheduleRequest request){
         TransBillScheduleResponse response = new TransBillScheduleResponse();
 
-        if(StringUtils.isNotBlank(boxCode) && StringUtils.isNotBlank(waybillCode)){
-            TransBillScheduleRequest request = new TransBillScheduleRequest();
-            request.setBoxCode(boxCode);
-            request.setWaybillCode(waybillCode);
+        if(request != null && StringUtils.isNotBlank(request.getBoxCode()) && StringUtils.isNotBlank(request.getWaybillCode())){
+            response.setBoxCode(request.getBoxCode());
+            response.setWaybillCode(request.getWaybillCode());
             response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
-            response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(waybillCode));
+//            response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
         }
         return response;
     }
