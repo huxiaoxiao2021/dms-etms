@@ -21,7 +21,7 @@ public interface AsynBufferService {
         public boolean shieldsCarErrorTaskProcess(Task task)throws Exception;
 
         //运单号关联包裹回传
-        public boolean partnerWaybillSynchroTaskProcess(Object[] taskArray)throws Exception;
+        public boolean partnerWaybillSynchroTaskProcess(Task task)throws Exception;
 
         //支线发车推送运单任务
         public boolean thirdDepartureTaskProcess(Task task)throws Exception;

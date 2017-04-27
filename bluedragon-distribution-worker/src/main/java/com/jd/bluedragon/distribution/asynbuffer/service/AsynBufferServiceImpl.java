@@ -65,8 +65,6 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             throws Exception {
         try {
             logger.info("验货work开始，task_id: " + task.getId());
-            //List<Inspection> inspections = inspectionService.parseInspections(task);
-            //inspectionService.inspectionCore(inspections);
             if (task == null || StringUtils.isBlank(task.getBody())) {
                 return true;
             }
@@ -132,12 +130,11 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
 
     //运单号关联包裹回传
-    public boolean partnerWaybillSynchroTaskProcess(Object[] taskArray) throws Exception {
-        if (taskArray == null || taskArray.length == 0) {
-            return false;
-        }
+    public boolean partnerWaybillSynchroTaskProcess(Task task) throws Exception {
+        List<Task> taskList = new ArrayList<Task>();
+        taskList.add(task);
         try {
-            List<Task> taskList = this.asList(taskArray);
+           // List<Task> taskList = this.asList(taskArray);
             partnerWaybillService.doWayBillCodesProcessed(taskList);
         } catch (Exception e) {
             logger.error("处理运单号关联包裹数据时发生异常", e);

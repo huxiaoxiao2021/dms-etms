@@ -16,6 +16,8 @@ import com.jd.ql.framework.asynBuffer.producer.ProducerType;
 public class DmsDynamicProducer extends DynamicProducer<Task> {
 	
 	public static final String PRODUCER_TYPE_KEY = "asynBuffer.dynamicProducer.producerType";
+
+	public static final String PRODUCER_TYPE_KEY_TEST = "asynBuffer.dynamicProducer.producerType.test";
 	
 	public static final String ENBALED_TASK_TYPE_KEY = "asynBuffer.enabled.task.type";
 	
@@ -31,7 +33,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Override
 	public ProducerType getProducerType() {
-		ProducerType producerType = ProducerType.valueOf(configManager.getProperty(PRODUCER_TYPE_KEY));
+		ProducerType producerType = ProducerType.valueOf(configManager.getProperty(PRODUCER_TYPE_KEY_TEST));
 		this.setProducerType(producerType);
 		return producerType;
 	}
