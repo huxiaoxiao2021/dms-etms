@@ -13,10 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -59,7 +56,7 @@ public class TransBillScheduleResource {
      * @param boxCode
      * @return
      */
-    @POST
+    @GET
     @Path("transBillSchedule/getKey")
     public String getKey(String boxCode) {
         return transBillScheduleService.getKey(boxCode);

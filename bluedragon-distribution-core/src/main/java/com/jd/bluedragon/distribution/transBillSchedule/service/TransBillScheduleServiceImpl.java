@@ -107,7 +107,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
         if(urbanWaybill != null && StringUtils.isNotBlank(urbanWaybill.getScheduleBillCode())){
             value = urbanWaybill.getScheduleBillCode();//获取运单的派车单号
         }
-        redisClientCache.setEx(TRANSBILL_PREFIX + boxCode,value,expire_time, TimeUnit.SECONDS);
+        redisClientCache.setEx(TRANSBILL_PREFIX + StringUtils.trim(boxCode),value,expire_time, TimeUnit.SECONDS);
     }
 
     /**
