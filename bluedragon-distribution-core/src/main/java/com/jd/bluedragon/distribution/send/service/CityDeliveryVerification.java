@@ -14,6 +14,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -31,6 +32,7 @@ import java.util.Map;
  *             1：原包发货，只能发往分拣中心(即站点类型为64)
  *             2：箱子发货，同一派车单下的订单需要装入同一箱子中，才能发货
  */
+@Service("cityDeliveryVerification")
 public class CityDeliveryVerification implements DeliveryVerification{
 
     private static final Log LOG= LogFactory.getLog(CityDeliveryVerification.class);
