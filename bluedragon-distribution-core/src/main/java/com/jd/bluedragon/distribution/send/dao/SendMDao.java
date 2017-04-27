@@ -3,15 +3,20 @@ package com.jd.bluedragon.distribution.send.dao;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public  class SendMDao extends BaseDao<SendM>  {
 	
 	public static final String namespace = SendMDao.class.getName();
-	
+	private final Log logger = LogFactory.getLog(this.getClass());
+
 	public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
         querySendM.setCreateSiteCode(createSiteCode);
@@ -59,7 +64,15 @@ public  class SendMDao extends BaseDao<SendM>  {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySendSiteCode(SendM sendM) {
-        if(null !=sendM && null != sendM.getSendCode() && null == sendM.getCreateSiteCode()) {
+		if(null == sendM || null == sendM.getSendCode()) {
+			logger.info("对象sendM为空或者批次号为空");
+			return Collections.emptyList();
+		}
+		if(!isLegalSendCode(sendM.getSendCode())){
+			logger.info("批次号："+sendM.getSendCode()+" 不合法！");
+			return Collections.emptyList();
+		}
+        if(null == sendM.getCreateSiteCode()) {
             sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendM.getSendCode()));
         }
 		return getSqlSession().selectList(SendMDao.namespace + ".selectBySendSiteCode", sendM);
@@ -154,4 +167,18 @@ public  class SendMDao extends BaseDao<SendM>  {
         return	this.getSqlSession().selectList(
                 SendMDao.namespace + ".selectBoxCodeBySendCodeAndCreateSiteCode", sendM);
     }
+
+	/**
+	 * added by xumei 2017-04-24
+	 * 校验批次号是否合法，避免无效的查询
+	 * 批次号规则正则表达式：^[Y|y]?(\d+)-(\d+)-([0-9]{14,17})
+	 * (来自com.jd.bluedragon.utils.SerialRuleUtil中的定义)
+	 * * @param sendCode
+	 * @return
+     */
+	private boolean isLegalSendCode(String sendCode){
+		Pattern send_code_regEx = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,17})");
+		Matcher m = send_code_regEx.matcher(sendCode);
+		return m.matches();
+	}
 }
