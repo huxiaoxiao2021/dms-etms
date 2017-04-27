@@ -88,7 +88,10 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
      */
     @Override
     public String getKey(String boxCode) {
-        return this.redisClientCache.get(TRANSBILL_PREFIX + boxCode);
+        String result = this.redisClientCache.get(TRANSBILL_PREFIX + boxCode);
+        logger.info("箱号============================================================"+boxCode);
+        this.logger.info("redis=========================================================="+result);
+        return result;
     }
 
     /**
