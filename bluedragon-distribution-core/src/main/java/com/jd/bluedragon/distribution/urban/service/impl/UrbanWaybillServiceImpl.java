@@ -36,7 +36,6 @@ public class UrbanWaybillServiceImpl implements UrbanWaybillService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean save(UrbanWaybill urbanWaybill) {
-		// TODO Auto-generated method stub
 		if(urbanWaybill!=null&&StringHelper.isNotEmpty(urbanWaybill.getWaybillCode())){
 			UrbanWaybill oldData = urbanWaybillDao.findByWaybillCode(urbanWaybill.getWaybillCode());
 			if(oldData!=null){
@@ -54,7 +53,6 @@ public class UrbanWaybillServiceImpl implements UrbanWaybillService {
 
 	@Override
 	public UrbanWaybill getByWaybillCode(String waybillCode) {
-		// TODO Auto-generated method stub
 		if(StringHelper.isNotEmpty(waybillCode)){
 			return urbanWaybillDao.findByWaybillCode(waybillCode);
 		}
@@ -63,7 +61,6 @@ public class UrbanWaybillServiceImpl implements UrbanWaybillService {
 
 	@Override
 	public List<UrbanWaybill> getListByScheduleBillCode(String scheduleBillCode) {
-		// TODO Auto-generated method stub
 		if(StringHelper.isNotEmpty(scheduleBillCode)){
 			return urbanWaybillDao.findByScheduleBillCode(scheduleBillCode);
 		}

@@ -13,7 +13,7 @@ public interface DeliveryVerification {
      * @param       receiveSiteCode         收货站点
      * @return
      */
-    VerificationResult verification(String boxCode,Integer receiveSiteCode);
+    VerificationResult verification(String boxCode,Integer receiveSiteCode,boolean checkPackage);
 
     /**
      * 验证结果
@@ -28,7 +28,7 @@ public interface DeliveryVerification {
         /**
          * 验证消息体
          */
-        private int message;
+        private String message;
 
         protected VerificationResult(){
             this.code=true;
@@ -43,11 +43,11 @@ public interface DeliveryVerification {
             this.code = code;
         }
 
-        public int getMessage() {
+        public String getMessage() {
             return message;
         }
 
-        public void setMessage(int message) {
+        public void setMessage(String message) {
             this.message = message;
         }
 
