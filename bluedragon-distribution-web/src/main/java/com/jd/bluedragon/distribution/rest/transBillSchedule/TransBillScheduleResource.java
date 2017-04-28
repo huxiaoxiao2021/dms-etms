@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.rest.redis;
+package com.jd.bluedragon.distribution.rest.transBillSchedule;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
