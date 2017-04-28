@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,13 +217,21 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 }
             } else if (i == 3) {
 //                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                cellValue = ExportByPOIUtil.getCellValue(currentRow.getCell(i));
+            	/**
+            	 * 格口号设置为string类型
+            	 */
+            	currentRow.getCell(i).setCellType(Cell.CELL_TYPE_STRING);
+            	cellValue = currentRow.getCell(i).getStringCellValue();
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
             } else if (i == 0) {
 //                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                cellValue = ExportByPOIUtil.getCellValue(currentRow.getCell(i));
+            	/**
+            	 * 格口号设置为string类型
+            	 */
+            	currentRow.getCell(i).setCellType(Cell.CELL_TYPE_STRING);
+            	cellValue = currentRow.getCell(i).getStringCellValue();
                 //这里去掉对物理滑槽非数值的判断 可以导入带字母 = .的
 //                || !NumberHelper.isNumberUpZero(cellValue)
                 if (StringUtils.isBlank(cellValue)) {
