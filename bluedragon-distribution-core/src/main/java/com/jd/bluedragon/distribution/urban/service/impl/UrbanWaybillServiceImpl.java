@@ -5,13 +5,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.distribution.urban.dao.UrbanWaybillDao;
 import com.jd.bluedragon.distribution.urban.domain.UrbanWaybill;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.urban.service.UrbanWaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -32,6 +32,10 @@ public class UrbanWaybillServiceImpl implements UrbanWaybillService {
 	
 	@Autowired
 	private UrbanWaybillDao urbanWaybillDao;
+	
+	@Autowired
+	private TransbillMService transbillMService;
+	
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
