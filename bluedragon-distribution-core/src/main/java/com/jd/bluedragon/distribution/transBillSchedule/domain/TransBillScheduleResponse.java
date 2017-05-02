@@ -16,9 +16,14 @@ public class TransBillScheduleResponse {
     private String waybillCode;
 
     /**
+     * 派车单号
+     */
+    private String scheduleCode;
+
+    /**
      * 此运单数据的派车单号跟箱号的其他运输单号是不是保持一致
      */
-    private Boolean isSameScheduleBill;
+    private Boolean sameScheduleBill;
 
     /**
      * 此运单号的路区编号
@@ -41,12 +46,20 @@ public class TransBillScheduleResponse {
         this.waybillCode = waybillCode;
     }
 
+    public String getScheduleCode() {
+        return scheduleCode;
+    }
+
+    public void setScheduleCode(String scheduleCode) {
+        this.scheduleCode = scheduleCode;
+    }
+
     public Boolean getSameScheduleBill() {
-        return isSameScheduleBill;
+        return sameScheduleBill;
     }
 
     public void setSameScheduleBill(Boolean sameScheduleBill) {
-        isSameScheduleBill = sameScheduleBill;
+        this.sameScheduleBill = sameScheduleBill;
     }
 
     public String getRoadCode() {

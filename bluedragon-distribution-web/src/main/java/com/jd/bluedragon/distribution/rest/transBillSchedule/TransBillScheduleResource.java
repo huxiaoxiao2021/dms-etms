@@ -43,6 +43,7 @@ public class TransBillScheduleResource {
             try{
                 response.setBoxCode(request.getBoxCode());
                 response.setWaybillCode(request.getWaybillCode());
+                response.setScheduleCode(transBillScheduleService.queryScheduleCode(request.getWaybillCode()));
                 response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
                 response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
             }catch(Exception e){

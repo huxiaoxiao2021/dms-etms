@@ -48,12 +48,8 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
         }
         if (this.existsKey(request.getBoxCode())){
             String oldScheduleBillCode = this.getKey(request.getBoxCode());
-            String newScheduleBillCode = "";
+            String newScheduleBillCode = this.queryScheduleCode(request.getWaybillCode());
 
-            TransbillM transbillM = transbillMService.getByWaybillCode(request.getWaybillCode());
-            if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
-                newScheduleBillCode = transbillM.getScheduleBillCode();
-            }
             this.logger.info("oldScheduleBillCode:" + oldScheduleBillCode + ",newScheduleBillCode:" + newScheduleBillCode);
             if (oldScheduleBillCode.equals(newScheduleBillCode)){
                 bool = Boolean.TRUE;
@@ -63,6 +59,18 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
             bool = Boolean.TRUE;
         }
         return bool;
+    }
+
+    @Override
+    public String queryScheduleCode(String waybillCode) {
+        String scheduleCode = "-1";
+        if(StringUtils.isNotBlank(waybillCode)){
+            TransbillM transbillM = transbillMService.getByWaybillCode(waybillCode);
+            if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
+                scheduleCode = transbillM.getScheduleBillCode();
+            }
+        }
+        return scheduleCode;
     }
 
     @Override
@@ -89,20 +97,18 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     @Override
     public String getKey(String boxCode) {
         String result = this.redisClientCache.get(TRANSBILL_PREFIX + boxCode);
-        logger.info("箱号============================================================"+boxCode);
-        this.logger.info("redis=========================================================="+result);
         return result;
     }
 
     /**
-     * 设置派车单的redis记录，统一前缀
+     * 设置派车单的redis记录，统一前缀,value 的默认值为“-1”
      * @param boxCode 箱号
      * @param waybillCode 包裹号运单号
      * @return
      */
     @Override
     public void setKey(String boxCode,String waybillCode) {
-        String value = "";
+        String value = "-1";
         TransbillM transbillM = transbillMService.getByWaybillCode(waybillCode);
         if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
             value = transbillM.getScheduleBillCode();//获取运单的派车单号
