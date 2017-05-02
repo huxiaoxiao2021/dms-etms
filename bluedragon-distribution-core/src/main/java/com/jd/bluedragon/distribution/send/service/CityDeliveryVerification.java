@@ -1,28 +1,30 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
-import com.jd.bluedragon.distribution.urban.domain.UrbanWaybill;
-import com.jd.bluedragon.distribution.urban.service.UrbanWaybillService;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 城配订单发货验证
@@ -47,8 +49,8 @@ public class CityDeliveryVerification implements DeliveryVerification{
     private BaseService                     baseService;
 
 
-    @Resource(name = "urbanWaybillService")
-    private UrbanWaybillService             urbanWaybillService;
+    @Resource(name = "transbillMService")
+    private TransbillMService             transbillMService;
 
     @Resource(name = "transBillScheduleService")
     private TransBillScheduleService        transBillScheduleService;
@@ -84,7 +86,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
         if(SerialRuleUtil.isMatchBoxCode(boxCode)&&transBillScheduleService.existsKey(boxCode)){
             /****send_d与派车单下运单进行对比，当一致时，才能通过*/
             String                  scheduleBillCode    =   transBillScheduleService.getKey(boxCode);
-            List<UrbanWaybill>      list                =   urbanWaybillService.getListByScheduleBillCode(scheduleBillCode);
+            List<TransbillM>      list                =   transbillMService.getListByScheduleBillCode(scheduleBillCode);
             Box                     box                 =   this.boxService.findBoxByCode(boxCode);
             Sorting                 queryArgument       =   new Sorting();
             queryArgument.setBoxCode(boxCode);
@@ -101,7 +103,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
                     map.put(item.getWaybillCode(),temp);
                 }
             }
-            for (UrbanWaybill urban:list){
+            for (TransbillM urban:list){
                 if(map.containsKey(urban.getWaybillCode())){
                     List<String> packageCodeList=map.get(urban.getWaybillCode());
                     if(packageCodeList.size()!=SerialRuleUtil.getPackageCounter(packageCodeList.get(0))){

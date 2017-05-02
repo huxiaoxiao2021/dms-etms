@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.urban.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.jd.bluedragon.common.domain.DbEntity;
-
 /**
  * 城配运单M表-实体类
  * 
