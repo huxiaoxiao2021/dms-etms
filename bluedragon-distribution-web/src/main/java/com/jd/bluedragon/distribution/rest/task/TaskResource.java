@@ -57,23 +57,7 @@ public class TaskResource {
     @POST
     @Path("/tasks/add")
     public Integer add(Task task) {
-      //  task.setTableName("task_waybill");
-		task.setCreateTime(new Date());
-		String body = "[{ \"receiveSiteCode\" : 511," +
-				" \"receiveSiteName\" : \"北京大鲁店分拣中心\"," +
-				" \"boxCode\" : \"BC010F001010F00500003029\", " +
-				"\"packageCode\" : \"383851175-1-1-4\", " +
-				"\"isCancel\" : 0, " +
-				"\"id\" : 42960, " +
-				"\"businessType\" : 10, " +
-				"\"userCode\" : 13445, " +
-				"\"userName\" : \"司营\", " +
-				"\"siteCode\" : 1006, " +
-				"\"siteName\" : \"北京双树分拣中心\", " +
-				"\"operateTime\" : \"2012-11-29 18:43:14.000\" }]";
-		task.setBody(body);
-
-
+        task.setTableName("task_waybill");
         return taskService.add(task,false);
     }
 

@@ -85,29 +85,15 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testSelectBySendSiteCode() {
-        List<SendM> resultList = new ArrayList<SendM>();
         SendM parameter = new SendM();
-        resultList = sendMDao.selectBySendSiteCode(parameter);
-        Assert.assertNotNull(resultList);
-        for(SendM sendM:resultList){
-            System.out.println(sendM);
-        }
-
-        SendM parameter2 = new SendM();
-        parameter2.setSendCode("GC315Y006010F01600012095");
-        resultList = sendMDao.selectBySendSiteCode(parameter2);
-        Assert.assertNotNull(resultList);
-        for(SendM sendM:resultList){
-            System.out.println(sendM);
-        }
-
-        SendM parameter3 = new SendM();
-        parameter3.setSendCode("910-39-20161116184255937");
-        resultList = sendMDao.selectBySendSiteCode(parameter3);
-        Assert.assertNotNull(resultList);
-        for(SendM sendM:resultList){
-            System.out.println(sendM);
-        }
+        parameter.setCreateSiteCode(175);
+        parameter.setReceiveSiteCode(768);
+        parameter.setSendCode("Jim");
+        parameter.setBoxCode("James");
+        parameter.setCreateUserCode(875);
+        parameter.setOperateTime(new Date());
+        parameter.setUpdateTime(new Date());
+        sendMDao.selectBySendSiteCode(parameter);
     }
 	
 	@Test

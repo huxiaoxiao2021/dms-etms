@@ -1,12 +1,9 @@
 package com.jd.bluedragon.distribution.worker.crossbox;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
-import com.jd.bluedragon.distribution.send.ws.client.reverse.SyncOrderState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +87,7 @@ public class CrossBoxTask extends DBSingleScheduler {
 
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
+		System.out.println("++++++++++++++++++executeSingleTask+++++++++++++++++++++");
 		int result = crossBoxService.activeCrossBox(task);
 		if (result == 1) {
 			taskService.updateTaskStatus(task);
@@ -97,5 +95,13 @@ public class CrossBoxTask extends DBSingleScheduler {
 			return false;
 		}
 		return true;
+	}
+
+	public static void main(String [] args){
+		int a = Integer.MAX_VALUE;
+		System.out.println(a);
+
+		Long b = Long.MAX_VALUE;
+		System.out.println(b);
 	}
 }
