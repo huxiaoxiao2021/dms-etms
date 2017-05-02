@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.rest.gantry;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
+import com.jd.bluedragon.distribution.api.request.GantryVelocityRequest;
 import com.jd.bluedragon.distribution.api.response.GantryDeviceResponse;
+import com.jd.bluedragon.distribution.api.response.GantryVelocityResponse;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.utils.BeanHelper;
@@ -64,5 +66,36 @@ public class GantryResource {
             listGantryDevice.add(temp);
         }
         return listGantryDevice;
+    }
+
+    @POST
+    @Path("/gantryDevice/getGantryVelocity")
+    public GantryVelocityResponse findAllGantryDeviceCurrentConfig(GantryVelocityRequest request) {
+        GantryVelocityResponse response=new GantryVelocityResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+        try {
+
+            Integer velocity = gantryDeviceService.getGantryVelocity(request.getCreateSiteCode(),request.getGantrySerialNumber(),request.getStartTime(),request.getEndTime());
+
+            //这里需要做一个判断  龙门架有个最大流速3600 和 最大流速 5000
+
+
+            if(velocity == 0){
+                velocity = (int) Math.ceil(3600 / 60);
+            }
+
+            if(velocity > (int) Math.ceil(5000 / 60)){
+                velocity = (int) Math.ceil(5000 / 60);
+            }
+
+            response.setVelocity(velocity);
+        } catch (Throwable ex) {
+            String message = "获取龙门架设备异常" + request.toString() + ex.toString();
+            logger.error(message);
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(message);
+        }
+        return response;
     }
 }

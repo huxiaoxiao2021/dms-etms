@@ -39,6 +39,8 @@
 		<div>
 			<div class="tbl-n">
                 <div style="color: #B61D1D;">/** 注意：在选择收容表和箱号表的时候，请选好类型：（收容表：'DE','ID','MB','MJ','MR','MT','NR','UP'；扫描表：'SC'）**/</div>
+                <div style="color: #B61D1D;">/** 注意：在选择收容表和箱号表的时候，请选好类型：（供件方式：'AT'：自动,'DE'：人工条码,'MD'：人工目的地代码,'MJ'：人工拒绝；
+                    失败原因代码：'CD'：小车禁用,'CF':小车故障,'DD'：卸载口禁用,'DF'：格口满,'DJ'：卸载口堵塞,'OF'：卸载验证失败,'SP'：速度未达到）**/</div>
                 <form id="form1" name="form1" style="margin-top: 30px;">
                     <input type="hidden" id="contextPath" value="#springUrl('')">
 					<div style="margin-bottom: 30px;">

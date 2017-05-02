@@ -248,7 +248,18 @@ public class ExportByPOIUtil {
             throw new DataFormatException("文件只能是Excel");
         }
     }
-
+    /**
+     * 强制获取string类型数据
+     * @param cell
+     * @return
+     */
+    public static String getStringCellValue(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        return String.valueOf(cell.getStringCellValue()).trim();
+    }
     public static String getCellValue(Cell cell) {
         if (cell == null) {
             return null;
