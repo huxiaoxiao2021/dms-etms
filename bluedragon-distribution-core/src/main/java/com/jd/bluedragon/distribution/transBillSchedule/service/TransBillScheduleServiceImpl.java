@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.transBillSchedule.service;
 
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
-import com.jd.bluedragon.distribution.urban.domain.UrbanWaybill;
-import com.jd.bluedragon.distribution.urban.service.UrbanWaybillService;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
@@ -34,7 +34,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     private GoddessService goddessService;
 
     @Autowired
-    private UrbanWaybillService urbanWaybillService;
+    private TransbillMService transbillMService;
 
     @Autowired
     private WaybillService waybillService;
@@ -50,9 +50,9 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
             String oldScheduleBillCode = this.getKey(request.getBoxCode());
             String newScheduleBillCode = "";
 
-            UrbanWaybill urbanWaybill = urbanWaybillService.getByWaybillCode(request.getWaybillCode());
-            if(urbanWaybill != null && StringUtils.isNotBlank(urbanWaybill.getScheduleBillCode())){
-                newScheduleBillCode = urbanWaybill.getScheduleBillCode();
+            TransbillM transbillM = transbillMService.getByWaybillCode(request.getWaybillCode());
+            if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
+                newScheduleBillCode = transbillM.getScheduleBillCode();
             }
             this.logger.info("oldScheduleBillCode:" + oldScheduleBillCode + ",newScheduleBillCode:" + newScheduleBillCode);
             if (oldScheduleBillCode.equals(newScheduleBillCode)){
@@ -71,7 +71,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
         if(StringUtils.isNotBlank(waybillCode)){
             try{
                 BigWaybillDto waybillDto = waybillService.getWaybill(waybillCode);
-                if(waybillDto != null){
+                if(waybillDto != null && waybillDto.getWaybill() != null){
                     result = waybillDto.getWaybill().getRoadCode();
                 }
             }catch(Exception e){
@@ -103,9 +103,9 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     @Override
     public void setKey(String boxCode,String waybillCode) {
         String value = "";
-        UrbanWaybill urbanWaybill = urbanWaybillService.getByWaybillCode(waybillCode);
-        if(urbanWaybill != null && StringUtils.isNotBlank(urbanWaybill.getScheduleBillCode())){
-            value = urbanWaybill.getScheduleBillCode();//获取运单的派车单号
+        TransbillM transbillM = transbillMService.getByWaybillCode(waybillCode);
+        if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
+            value = transbillM.getScheduleBillCode();//获取运单的派车单号
         }
         redisClientCache.setEx(TRANSBILL_PREFIX + StringUtils.trim(boxCode),value,expire_time, TimeUnit.SECONDS);
     }
