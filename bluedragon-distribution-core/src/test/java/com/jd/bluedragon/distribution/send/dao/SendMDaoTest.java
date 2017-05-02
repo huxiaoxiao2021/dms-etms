@@ -44,7 +44,7 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         parameter.setCreateSiteCode(150);
         sendMDao.updateBySendCodeSelective(parameter);
     }
-	
+
 	@Test
     public void testCheckSendByBox() {
         SendM parameter = new SendM();
