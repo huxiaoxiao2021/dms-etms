@@ -1,12 +1,9 @@
 package com.jd.bluedragon.distribution.rest.transBillSchedule;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
-import com.jd.bluedragon.distribution.urban.service.UrbanWaybillService;
-import com.jd.jim.cli.Cluster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,10 +40,15 @@ public class TransBillScheduleResource {
         TransBillScheduleResponse response = new TransBillScheduleResponse();
 
         if(request != null && StringUtils.isNotBlank(request.getBoxCode()) && StringUtils.isNotBlank(request.getWaybillCode())){
-            response.setBoxCode(request.getBoxCode());
-            response.setWaybillCode(request.getWaybillCode());
-            response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
-            response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
+            try{
+                response.setBoxCode(request.getBoxCode());
+                response.setWaybillCode(request.getWaybillCode());
+                response.setScheduleCode(transBillScheduleService.queryScheduleCode(request.getWaybillCode()));
+                response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
+                response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
+            }catch(Exception e){
+                this.logger.error("派车单信息校验失败" + request.toString());
+            }
         }
         return response;
     }
@@ -68,8 +70,8 @@ public class TransBillScheduleResource {
      * @param waybillCode 包裹号运单号
      * @return
      */
-    @POST
-    @Path("transBillSchedule/setKey")
+//    @POST
+//    @Path("transBillSchedule/setKey")
     public void setKey(String boxCode,String waybillCode) {
         transBillScheduleService.setKey(boxCode,waybillCode);
     }
@@ -79,8 +81,8 @@ public class TransBillScheduleResource {
      * @param boxCode
      * @return
      */
-    @POST
-    @Path("transBillSchedule/existsKet")
+//    @POST
+//    @Path("transBillSchedule/existsKet")
     public Boolean existsKey(String boxCode){
         return transBillScheduleService.existsKey(boxCode);
     }
@@ -90,8 +92,8 @@ public class TransBillScheduleResource {
      * @param boxCode
      * @return
      */
-    @POST
-    @Path("transBillSchedule/delete")
+//    @POST
+//    @Path("transBillSchedule/delete")
     public boolean delete(String boxCode) {
         return transBillScheduleService.delete(boxCode);
     }

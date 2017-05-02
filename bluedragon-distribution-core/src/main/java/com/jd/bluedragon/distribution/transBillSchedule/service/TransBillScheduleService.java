@@ -15,6 +15,12 @@ public interface TransBillScheduleService {
     public Boolean checkSameScheduleBill(TransBillScheduleRequest request);
 
     /**
+     * 获取派车单号，通过运单号
+     * @return
+     */
+    String queryScheduleCode(String waybillCode);
+
+    /**
      * 获取此运单号的路区字段
      * @param waybillCode
      * @return

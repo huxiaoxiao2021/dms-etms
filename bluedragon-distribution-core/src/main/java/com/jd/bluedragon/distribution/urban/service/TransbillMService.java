@@ -16,6 +16,13 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
  */
 public interface TransbillMService {
 	/**
+	 * 保存一条记录，不出在执行insert，存在则update
+	 * 
+	 * @param transbillM
+	 * @return
+	 */
+	boolean save(TransbillM transbillM);
+	/**
 	 * 根据运单号获取城配运单数据
 	 * @param waybillCode
 	 * @return
@@ -28,5 +35,4 @@ public interface TransbillMService {
 	 * @return
 	 */
 	List<TransbillM> getListByScheduleBillCode(String scheduleBillCode);
-
 }

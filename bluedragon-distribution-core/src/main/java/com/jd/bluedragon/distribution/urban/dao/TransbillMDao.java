@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
-import com.jd.bluedragon.distribution.urban.domain.UrbanWaybill;
 
 /**
  * 城配运单M表--Dao接口实现
@@ -30,8 +29,8 @@ public class TransbillMDao extends BaseDao<TransbillM> {
     public Integer deleteById(Long id) {
         return this.getSqlSession().delete(namespace + ".deleteById", id);
     }
-    public UrbanWaybill findById(Long id) {
-        return (UrbanWaybill) this.getSqlSession().selectOne(namespace + ".findById", id);
+    public TransbillM findById(Long mid) {
+        return (TransbillM) this.getSqlSession().selectOne(namespace + ".findById", mid);
     }
     public TransbillM findByWaybillCode(String waybillCode) {
     	List<TransbillM> list = this.getSqlSession().selectList(namespace + ".findByWaybillCode", waybillCode);

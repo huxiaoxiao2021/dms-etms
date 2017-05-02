@@ -5,13 +5,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.distribution.urban.dao.TransbillMDao;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
-import com.jd.bluedragon.distribution.urban.domain.UrbanWaybill;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 
 /**
@@ -27,11 +28,27 @@ import com.jd.bluedragon.utils.StringHelper;
 @SuppressWarnings("all")
 public class TransbillMServiceImpl implements TransbillMService {
 
-	private static final Log logger= LogFactory.getLog(UrbanWaybillServiceImpl.class);
+	private static final Log logger= LogFactory.getLog(TransbillMServiceImpl.class);
 
 	@Autowired
 	private TransbillMDao transbillMDao;
 	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public boolean save(TransbillM transbillM) {
+		if(transbillM!=null&&transbillM.getMId()!=null){
+			TransbillM oldData = transbillMDao.findById(transbillM.getMId());
+			if(oldData!=null){
+				transbillMDao.updateBySelective(transbillM);
+			}else{
+				transbillMDao.insert(transbillM);
+			}
+			return true;
+		}else{
+			logger.error("城配运单transbillM保存失败！原因"+(transbillM==null?"对象为空":JsonHelper.toJson(transbillM)));
+		}
+		return false;
+	}
 	@Override
 	public TransbillM getByWaybillCode(String waybillCode) {
 		// TODO Auto-generated method stub
