@@ -11,6 +11,9 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.canal.CanalEvent;
+import com.jd.bluedragon.utils.canal.CanalHelper;
+import com.jd.bluedragon.utils.canal.DbOperation;
 import com.jd.jmq.common.message.Message;
 
 /**
@@ -34,7 +37,20 @@ public class TransbillMSyncConsumer extends MessageBaseConsumer{
             logger.warn(MessageFormat.format("城配运单推送MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
             return;
         }
-        TransbillM transbillM = JsonHelper.fromJsonUseGson(message.getText(), TransbillM.class);
-        transbillMService.save(transbillM);
+        CanalEvent<TransbillM> canalEvent = CanalHelper.parseCanalMsg(message.getText(), TransbillM.class);
+        TransbillM transbillM = null;
+        if(null != canalEvent){
+        	if(DbOperation.INSERT.equals(canalEvent.getDbOperation()) || DbOperation.UPDATE.equals(canalEvent.getDbOperation())){
+        		transbillM = canalEvent.getDataAfter();
+        	}else if(DbOperation.DELETE.equals(canalEvent.getDbOperation())){
+        		transbillM = canalEvent.getDataBefore();
+        		if(transbillM!=null){
+        			transbillM.setYn(0);
+        		}
+        	}
+        }
+        if(!transbillMService.save(transbillM)){
+        	logger.warn(MessageFormat.format("城配运单推送MQ-消息同步失败，内容为【{0}】", message.getText()));
+        }
     }
 }
