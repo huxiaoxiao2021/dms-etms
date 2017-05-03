@@ -36,16 +36,17 @@ public class TransbillMServiceImpl implements TransbillMService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean save(TransbillM transbillM) {
+		Integer rs = 0;
 		if(transbillM!=null&&transbillM.getMId()!=null){
 			TransbillM oldData = transbillMDao.findById(transbillM.getMId());
 			if(oldData!=null){
-				transbillMDao.updateBySelective(transbillM);
+				rs = transbillMDao.updateBySelective(transbillM);
 			}else{
-				transbillMDao.insert(transbillM);
+				rs = transbillMDao.insert(transbillM);
 			}
-			return true;
+			return rs==1;
 		}else{
-			logger.error("城配运单transbillM保存失败！原因"+(transbillM==null?"对象为空":JsonHelper.toJson(transbillM)));
+			logger.error("城配运单transbillM保存失败！transbillM:"+(transbillM==null?"对象为空":JsonHelper.toJson(transbillM)));
 		}
 		return false;
 	}
