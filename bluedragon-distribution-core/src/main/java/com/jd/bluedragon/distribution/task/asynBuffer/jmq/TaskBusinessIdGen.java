@@ -16,7 +16,8 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
      */
     @Override
     public String genId(Task task) {
-        return task.getType() + DELIMITER + task.getKeyword1();
+//        return task.getType() + DELIMITER + task.getKeyword1();
+        return task.getKeyword2();
     }
 
 

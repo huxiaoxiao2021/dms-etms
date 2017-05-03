@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.ql.dcam.config.ConfigManager;
 import com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -16,15 +18,17 @@ import com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor;
 public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Task> {
 
 	public final static String STOER_TASK_ENBALED_KEY = "asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled";
-	
+
 	private ConfigManager configManager;
-	
+
 	private TaskService taskService;
-	
+
+	private final Log logger = LogFactory.getLog(this.getClass());
+
 	public void setConfigManager(ConfigManager configManager) {
 		this.configManager = configManager;
 	}
-	
+
 	public void setTaskService(TaskService taskService) {
 		this.taskService = taskService;
 	}
@@ -49,25 +53,37 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	@Override
 	public boolean process(List<Task> tasks) {
 		boolean result =  super.process(tasks);
-		
-		//若处理成功，并且开关开启了。
-		if(result && isStoreSucessTask()){
+		//如果消费失败，落库
+		if(!result){
+			return saveConsumerFailedTask(tasks);
+		}else if(isStoreSucessTask()){
 			return saveTask(tasks);
 		}
+		
+//		//若处理成功，并且开关开启了。
+//		if(result && isStoreSucessTask()){
+//			return saveTask(tasks);
+//		}
 		return result;
 	}
 
 	@Override
 	public boolean process(Task task) {
 		boolean result = super.process(task);
-		//若处理成功，并且开关开启了。
-		if(result && isStoreSucessTask()){
+		//如果消费失败，落库
+		if(!result){
+			return saveConsumerFailedTask(task);
+		}else if(isStoreSucessTask()){
 			return saveTask(task);
 		}
+//		//若处理成功，并且开关开启了。
+//		if(result && isStoreSucessTask()){
+//			return saveTask(task);
+//		}
 		return result;
 	}
-	
-	
+
+
 	protected boolean saveTask(Task task) {
 		task.setStatus(Task.TASK_STATUS_FINISHED);
         task.setExecuteCount(0);
@@ -87,6 +103,21 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 		for(Task task:tasks){
 			this.saveTask(task);
 		}
+		return true;
+	}
+
+	protected boolean saveConsumerFailedTask(List<Task> tasks) {
+		for(Task task:tasks){
+			this.saveConsumerFailedTask(task);
+		}
+		return true;
+	}
+
+	protected boolean saveConsumerFailedTask(Task task) {
+		logger.error("【异步缓冲组件】消费消息失败，执行落库,消息内容："+task);
+		task.setStatus(Task.TASK_STATUS_UNHANDLED);
+		task.setExecuteCount(0);
+		taskService.doAddTask(task, false);
 		return true;
 	}
 
