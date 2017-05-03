@@ -445,7 +445,7 @@
         <property name="desc" value="补发失败mq" />
     </bean>
     
-    <bean id="sortingZhiPeiTask"
+    <bean id="sortingZhipeiTask"
           class="com.jd.bluedragon.distribution.worker.sorting.SortingZhiPeiTask"
           init-method="init" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>

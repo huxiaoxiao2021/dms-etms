@@ -134,28 +134,13 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         List<Task> taskList = new ArrayList<Task>();
         taskList.add(task);
         try {
-           // List<Task> taskList = this.asList(taskArray);
             partnerWaybillService.doWayBillCodesProcessed(taskList);
         } catch (Exception e) {
             logger.error("处理运单号关联包裹数据时发生异常", e);
+            return false;
         }
         return true;
     }
-
-    public List<Task> asList(Object[] taskArray) {
-        if (taskArray == null) {
-            return Collections.emptyList();
-        }
-
-        List<Task> tasks = new ArrayList<Task>();
-        for (Object task : taskArray) {
-            if (task != null && task instanceof Task) {
-                tasks.add((Task) task);
-            }
-        }
-        return tasks;
-    }
-
 
     //发货新老数据同步任务
     @Autowired
@@ -231,19 +216,16 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         String keyword1 = task.getKeyword1();
         if (keyword1.equals("1")||keyword1.equals("2")) {
             //发货回传运单状态任务
-            deliveryService.findSendwaybillMessage(task);
-            return true;
+            return deliveryService.findSendwaybillMessage(task);
         } else if (keyword1.equals("3")) {
             //发货新老数据同步任务
-            reverseService.findsendMToReverse(task);
-            return true;
+            return reverseService.findsendMToReverse(task);
         } else if (keyword1.equals("4")) {
             return reverseSendService.findSendwaybillMessage(task);
 
         } else if (keyword1.equals("5")) {
             //中转发货补全任务
-            deliveryService.findTransitSend(task);
-            return true;
+            return deliveryService.findTransitSend(task);
 
         } else {
             //没有找到对应的方法，提供报错信息
