@@ -149,13 +149,13 @@
                 <!--</entry>-->
 
                 <!-- 封箱解封箱Redis任务-->
-                <!--<entry key="${jmq.task.topic.sealBox.dms}">-->
-                    <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"-->
-                          <!--autowire="byType">-->
-                        <!--<constructor-arg name="target" ref="asynBufferService"></constructor-arg>-->
-                        <!--<constructor-arg name="methodName" value="sealBoxTaskProcess"></constructor-arg>-->
-                    <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.sealBox.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="sealBoxTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
                 <entry key="${jmq.task.topic.sealBox.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -165,13 +165,13 @@
                 </entry>
 
                 <!-- 分拣退货Redis任务-->
-                <!--<entry key="${jmq.task.topic.sortingReturn.dms}">-->
-                    <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"-->
-                          <!--autowire="byType">-->
-                        <!--<constructor-arg name="target" ref="asynBufferService"></constructor-arg>-->
-                        <!--<constructor-arg name="methodName" value="sortingReturnTaskProcess"></constructor-arg>-->
-                    <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.sortingReturn.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="sortingReturnTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
                 <entry key="${jmq.task.topic.sortingReturn.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -181,13 +181,13 @@
                 </entry>
 
                 <!--&lt;!&ndash; 分拣&ndash;&gt;-->
-                <!--<entry key="${jmq.task.topic.sorting.dms}">-->
-                    <!--<bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"-->
-                          <!--autowire="byType">-->
-                        <!--<constructor-arg name="target" ref="asynBufferService"></constructor-arg>-->
-                        <!--<constructor-arg name="methodName" value="sortingTaskProcess"></constructor-arg>-->
-                    <!--</bean>-->
-                <!--</entry>-->
+                <entry key="${jmq.task.topic.sorting.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="sortingTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
                 <entry key="${jmq.task.topic.sorting.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
