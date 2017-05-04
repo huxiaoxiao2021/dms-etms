@@ -40,7 +40,11 @@ public class TransbillMServiceImpl implements TransbillMService {
 		if(transbillM!=null&&transbillM.getMId()!=null){
 			TransbillM oldData = transbillMDao.findById(transbillM.getMId());
 			if(oldData!=null){
-				rs = transbillMDao.updateBySelective(transbillM);
+				if(transbillM.getTsM()>=oldData.getTsM()){
+					rs = transbillMDao.updateBySelective(transbillM);
+				}else{
+					logger.warn("本次数据ts_m小于数据库当前ts_m，抛弃本次数据！transbillM:"+JsonHelper.toJson(transbillM));
+				}
 			}else{
 				rs = transbillMDao.insert(transbillM);
 			}

@@ -1,22 +1,15 @@
 package com.jd.bluedragon.utils.canal;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -55,6 +48,12 @@ public class CanalHelper {
     	}
     	return null;
     }
+    /**
+     * canal字段列表转换成特定对象
+     * @param columns
+     * @param targetType
+     * @return
+     */
     public static <T> T parse2Object(List<CanalColumn> columns,Class<T> targetType) {
     	try {
 			if (null != columns && !columns.isEmpty()) {
@@ -86,10 +85,11 @@ public class CanalHelper {
 				    		} else if(fieldType.equals(java.sql.Timestamp.class)){
 				    		}
 			    		}else{
-			    			logger.debug("数据转换失败：name:"+columnName+"->"+fieldName+" val:"+columnValue);
+			    			logger.error("数据转换失败：name:"+columnName+"->"+fieldName+" val:"+columnValue);
 			    		}
 			    		if(fieldValue!=null){
-			    			BeanUtils.setProperty(obj, fieldName, fieldValue);
+			    			field.setAccessible(true);
+			    			field.set(obj, fieldValue);
 			    		}
 			    	}
 			    }
@@ -101,7 +101,7 @@ public class CanalHelper {
 		}
     	return null;
     }
-    private Map<String, Object> parse2Map(List<CanalColumn> columns) {
+    public Map<String, Object> parse2Map(List<CanalColumn> columns) {
         if (null == columns || columns.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -133,39 +133,5 @@ public class CanalHelper {
 		}
 		return sf.toString();
 	}
-	public static void main(String[] args) {
-		printText();
-	}
-	private static void printText() {
-		// TODO Auto-generated method stub
-		BufferedReader br = null;
-		StringBuffer sf = new StringBuffer();
-		try {
-			String path = "C://Users//wuyoude//Desktop//tmp//json.txt";
-			File f = new File(path);
-			br = new BufferedReader(new FileReader(f));
-			String tmp = br.readLine();
-			while(tmp != null){
-				sf.append(tmp);
-				tmp = br.readLine();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			try {
-				br.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		try {
-			System.err.println(sf);
-			CanalEvent<TransbillM> event = CanalHelper.parseCanalMsg(sf.toString(), TransbillM.class);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}    
+
 }

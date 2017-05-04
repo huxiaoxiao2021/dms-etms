@@ -47,7 +47,7 @@ public class TransbillM implements Serializable{
 	/**
 	 * 调度单中运输单数量
 	 */
-	private String scheduleAmount;
+	private Integer scheduleAmount;
 
 	/**
 	 * 卡位号(卡车的位置)
@@ -82,12 +82,12 @@ public class TransbillM implements Serializable{
 	/**
 	 * 运输单状态
 	 */
-	private String transbillState;
+	private Integer transbillState;
 
 	/**
 	 * 当前运输单所属站点ID
 	 */
-	private String siteId;
+	private Integer siteId;
 
 	/**
 	 * 当前运输单所属站点名称
@@ -228,7 +228,7 @@ public class TransbillM implements Serializable{
 	 *
 	 * @param scheduleAmount
 	 */
-	public void setScheduleAmount(String scheduleAmount) {
+	public void setScheduleAmount(Integer scheduleAmount) {
 		this.scheduleAmount = scheduleAmount;
 	}
 
@@ -236,7 +236,7 @@ public class TransbillM implements Serializable{
 	 *
 	 * @return scheduleAmount
 	 */
-	public String getScheduleAmount() {
+	public Integer getScheduleAmount() {
 		return this.scheduleAmount;
 	}
 
@@ -340,7 +340,7 @@ public class TransbillM implements Serializable{
 	 *
 	 * @param transbillState
 	 */
-	public void setTransbillState(String transbillState) {
+	public void setTransbillState(Integer transbillState) {
 		this.transbillState = transbillState;
 	}
 
@@ -348,7 +348,7 @@ public class TransbillM implements Serializable{
 	 *
 	 * @return transbillState
 	 */
-	public String getTransbillState() {
+	public Integer getTransbillState() {
 		return this.transbillState;
 	}
 
@@ -356,7 +356,7 @@ public class TransbillM implements Serializable{
 	 *
 	 * @param siteId
 	 */
-	public void setSiteId(String siteId) {
+	public void setSiteId(Integer siteId) {
 		this.siteId = siteId;
 	}
 
@@ -364,7 +364,7 @@ public class TransbillM implements Serializable{
 	 *
 	 * @return siteId
 	 */
-	public String getSiteId() {
+	public Integer getSiteId() {
 		return this.siteId;
 	}
 
