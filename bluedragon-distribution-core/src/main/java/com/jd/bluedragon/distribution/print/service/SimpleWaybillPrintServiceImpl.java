@@ -1,4 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -7,17 +8,19 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +55,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private AirTransportService airTransportService;
+
+    @Autowired
+    private TransbillMService transbillMService;
 
 
     private List<ComposeService> composeServiceList;
@@ -240,6 +246,14 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay()) && tmsWaybill.getSendPay().charAt(145) == '1') {//城配的订单标识，remark打派车单号
+                String scheduleCode = tmsWaybill.getImportantHint();
+                TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
+                if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
+                    scheduleCode = transbillM.getScheduleBillCode();
+                }
+                commonWaybill.setRemark(scheduleCode);
+            }
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);

@@ -24,11 +24,13 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(null!=targetSiteCode&&targetSiteCode>0){
             builder.append(SPECIAL_MARK_LOCAL_SCHEDULE);
         }
-        if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
-            if(waybill.getSendPay().charAt(21)!='5'){
-                builder.append(SPECIAL_MARK_ARAYACAK_SITE);
-            }
+        if(waybill.getSendPay().charAt(145) != '1'){//城配与配送方式提互斥，优先城配
+            if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
+                if(waybill.getSendPay().charAt(21)!='5'){
+                    builder.append(SPECIAL_MARK_ARAYACAK_SITE);
+                }
 
+            }
         }
         if(waybill.getSendPay().length()>134&&waybill.getSendPay().charAt(134)=='1'){
             builder.append(SPECIAL_MARK_VALUABLE);
@@ -48,7 +50,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(waybill.getWaybillSign().charAt(26) == '1'){
             builder.append(ALLOW_HALF_ACCEPT);
         }
-        if(waybill.getIsSelfService()){
+        if(waybill.getSendPay().charAt(145) != '1' && waybill.getIsSelfService()){//城配与配送方式柜互斥，优先城配
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
         }
 
