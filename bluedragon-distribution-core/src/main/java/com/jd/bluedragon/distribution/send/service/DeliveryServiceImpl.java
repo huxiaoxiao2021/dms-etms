@@ -815,6 +815,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
                     DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
+        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),true);
+        if(!verificationResult.getCode()){
+            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ALL_CHECK,verificationResult.getMessage());
+        }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());
             if (box != null) {
@@ -872,10 +876,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
             }
         }
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),true);
-        if(!verificationResult.getCode()){
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ALL_CHECK,verificationResult.getMessage());
-        }
+
         return new DeliveryResponse(JdResponse.CODE_OK, reslut);
     }
 

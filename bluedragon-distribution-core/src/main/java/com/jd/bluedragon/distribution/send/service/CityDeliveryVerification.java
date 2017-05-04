@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
     public static final int CITY_DISTRIBUTION_WAYBILL_INDEX = 145;
     public static final char CITY_DISTRIBUTION_WAYBILL_INDEX_CHAR_VALUE = '1';
     public static final String CITY_CAN_NOT_TO_NONE_SORTING_CENTER = "城配运单原包发货只能发到分拣中心";
+    public static final String NONE_SCHEDULER_BOX = "-1";
 
     @Resource(name = "baseService")
     private BaseService                     baseService;
@@ -81,9 +83,13 @@ public class CityDeliveryVerification implements DeliveryVerification{
             }
         }
 
-        if(SerialRuleUtil.isMatchBoxCode(boxCode)&&transBillScheduleService.existsKey(boxCode)){
+        if(SerialRuleUtil.isMatchBoxCode(boxCode)){
+
             /****send_d与派车单下运单进行对比，当一致时，才能通过*/
             String                  scheduleBillCode    =   transBillScheduleService.getKey(boxCode);
+            if(StringUtils.isBlank(scheduleBillCode)||scheduleBillCode.equals(NONE_SCHEDULER_BOX)){
+                return result;
+            }
             List<TransbillM>      list                  =   transbillMService.getListByScheduleBillCode(scheduleBillCode);
             Box                     box                 =   this.boxService.findBoxByCode(boxCode);
             Sorting                 queryArgument       =   new Sorting();
