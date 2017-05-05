@@ -23,6 +23,7 @@ public  class SendMDao extends BaseDao<SendM>  {
         }
 
 		querySendM.setSendCode(sendCode);
+
 		if(null == querySendM.getCreateSiteCode()){
 			logger.info("selectOneBySiteAndSendCode-->参数createSiteCode："
 					+ createSiteCode+";sendCode:"+sendCode);
