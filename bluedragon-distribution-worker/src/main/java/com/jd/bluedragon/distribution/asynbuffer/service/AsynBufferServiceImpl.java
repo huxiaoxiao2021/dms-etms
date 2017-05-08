@@ -193,7 +193,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     private SortingService sortingService;
 
     public boolean sortingTaskProcess(Task task) throws Exception {
-        boolean result = false;
+        boolean result = Boolean.FALSE;
         try {
             this.logger.info("task id is " + task.getId());
             result = this.sortingService.doSorting(task);

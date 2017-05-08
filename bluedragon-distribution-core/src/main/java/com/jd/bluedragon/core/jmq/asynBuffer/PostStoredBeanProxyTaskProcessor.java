@@ -114,7 +114,6 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 			taskService.doAddTask(task, false);
 		}catch (Exception e){
 			logger.error("消费消息失败，落库失败，数据存入System_Log表!"+e.getMessage(), e);
-			//说明消费失败后落库又失败，这种情况需要记录日志，择日再执行了
 			SystemLog systemLog = new SystemLog();
 			systemLog.setKeyword1(task.getKeyword1());
 			systemLog.setKeyword2(task.getKeyword2());
@@ -123,7 +122,6 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 			systemLog.setType(task.getType().longValue());
 			systemLog.setContent(task.getBody());
 			SystemLogUtil.log(systemLog);
-
 		}
 		return true;
 	}
