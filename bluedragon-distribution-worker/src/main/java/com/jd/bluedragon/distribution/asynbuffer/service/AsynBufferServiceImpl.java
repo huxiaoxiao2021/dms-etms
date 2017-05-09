@@ -68,9 +68,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             if (task == null || StringUtils.isBlank(task.getBody())) {
                 return true;
             }
-            /**
-             * 此处理为消除列表情况，最早任务保存的是数组，此处拆为单条，以防万一
-             */
+
             List<InspectionRequest> middleRequests = JsonHelper.fromJsonUseGson(task.getBody(), LIST_INSPECTIONREQUEST_TYPE);
             if (null == middleRequests || middleRequests.size() == 0) {
                 return true;
@@ -213,16 +211,18 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
     //统一处理task_send入口，根据keyword1对应具体的方法
     public boolean taskSendProcess(Task task) throws Exception {
-        String keyword1 = task.getKeyword1();
-        if (keyword1.equals("1")||keyword1.equals("2")) {
+        String keyword1 = task.getKeyword1().trim();
+        if (keyword1.equals("1")){
             //发货回传运单状态任务
-            return deliveryService.findSendwaybillMessage(task);
+            return deliveryService.updatewaybillCodeMessage(task);
+        } else if(keyword1.equals("2")){
+            //回传周转箱号任务
+            return  deliveryService.findSendwaybillMessage(task);
         } else if (keyword1.equals("3")) {
             //发货新老数据同步任务
             return reverseService.findsendMToReverse(task);
         } else if (keyword1.equals("4")) {
             return reverseSendService.findSendwaybillMessage(task);
-
         } else if (keyword1.equals("5")) {
             //中转发货补全任务
             return deliveryService.findTransitSend(task);
