@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.asynbuffer.service;
 
+import IceInternal.Ex;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -15,7 +16,10 @@ import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.weight.service.WeightService;
+import com.jd.bluedragon.utils.BooleanHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.jexl2.UnifiedJEXL;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -208,6 +212,21 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         return result;
     }
 
+    //称重信息回传运单中心
+    @Autowired
+    private WeightService weightService;
+    public boolean weightTaskProcess(Task task) throws Exception{
+        boolean result = Boolean.FALSE;
+        try {
+            this.logger.info("task id is " + task.getId());
+            result = this.weightService.doWeightTrack(task);
+        } catch (Exception e) {
+            this.logger.error("task id is" + task.getId());
+            this.logger.error("处理称重回传任务发生异常，异常信息为：" + e.getMessage(), e);
+            return Boolean.FALSE;
+        }
+        return result;
+    }
 
     //统一处理task_send入口，根据keyword1对应具体的方法
     public boolean taskSendProcess(Task task) throws Exception {
