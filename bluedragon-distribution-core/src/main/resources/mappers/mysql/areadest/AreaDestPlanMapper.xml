@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao">
+
+    <resultMap id="areaDestPlan" type="com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan">
+        <result column="PLAN_ID" property="planId"/>
+        <result column="PLAN_NAME" property="planName"/>
+        <result column="MACHINE_ID" property="machineId"/>
+        <result column="OPERATE_SITE_CODE" property="operateSiteCode"/>
+        <result column="CREATE_USER" property="createUser"/>
+        <result column="CREATE_USER_CODE" property="createUserCode"/>
+        <result column="UPDATE_USER" property="updateUser"/>
+        <result column="UPDATE_USER_CODE" property="updateUserCode"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="STATE" property="state"/>
+    </resultMap>
+
+    <insert id="add" parameterType="areaDestPlan">
+		INSERT INTO AREA_DEST_PLAN(
+		    PLAN_NAME,
+		    MACHINE_ID,
+		    OPERATE_SITE_CODE,
+		    CREATE_USER,
+		    CREATE_USER_CODE,
+		    CREATE_TIME,
+		    UPDATE_TIME,
+		    STATE,
+		    YN
+		    )
+		VALUES(
+			#{planName, jdbcType=VARCHAR},
+			#{machineId, jdbcType=BIGINT},
+			#{operateSiteCode, jdbcType=BIGINT},
+			#{createUser, jdbcType=VARCHAR},
+			#{createUserCode, jdbcType=BIGINT},
+			NOW(),
+			NOW(),
+			0,
+			1
+		)
+	</insert>
+
+    <select id="get" resultMap="areaDestPlan" parameterType="int">
+        SELECT
+        PLAN_ID,
+        PLAN_NAME,
+        MACHINE_ID,
+        OPERATE_SITE_CODE,
+        STATE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+            AND PLAN_ID = #{planId, jdbcType=BIGINT}
+    </select>
+
+    <select id="getList" resultMap="areaDestPlan" parameterType="java.util.Map">
+        SELECT
+        PLAN_ID,
+        PLAN_NAME,
+        MACHINE_ID,
+        OPERATE_SITE_CODE,
+        STATE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+        <if test="machineId != null">
+            AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+        </if>
+        <if test="operateSiteCode != null">
+            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+        </if>
+        ORDER BY CREATE_TIME DESC
+        <if test="startIndex != null">
+            LIMIT #{startIndex}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="getCount" resultType="int" parameterType="java.util.Map">
+        SELECT
+        COUNT(*)
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+        <if test="machineId != null">
+            AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+        </if>
+        <if test="operateSiteCode != null">
+            AND OPERATE_SITE_CODE = #{operateSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="planName != null">
+            AND PLAN_NAME = #{planName, jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <update id="update" parameterType="areaDestPlan">
+        UPDATE AREA_DEST_PLAN
+        SET
+        <if test="planName != null">
+            PLAN_NAME = #{planName, jdbcType=VARCHAR},
+        </if>
+        <if test="machineId != null">
+            MACHINE_ID = #{machineId, jdbcType=BIGINT},
+        </if>
+        <if test="state != null">
+            STATE = #{state, jdbcType=INTEGER},
+        </if>
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
+        </if>
+        UPDATE_TIME = NOW()
+        WHERE
+        PLAN_ID = #{planId, jdbcType=BIGINT}
+    </update>
+
+    <update id="disableById" parameterType="java.util.Map">
+        UPDATE AREA_DEST_PLAN
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 0,
+        UPDATE_TIME = NOW()
+        WHERE PLAN_ID = #{planId, jdbcType=BIGINT} AND YN = 1
+    </update>
+
+    <!-- create by wzx -->
+    <update id="enableById" parameterType="java.util.Map">
+        UPDATE AREA_DEST_PLAN
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT}
+        </if>
+        YN = 1,UPDATE_TIME = NOW()
+        WHERE PLAN_ID = #{planId, jdbcType=BIGINT} AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT}
+    </update>
+
+    <!-- create by wzx -->
+    <update id="disableByMachineId" parameterType="java.util.Map">
+        UPDATE AREA_DEST_PLAN
+        SET
+        <if test="updateUser != null">
+            UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserCode != null">
+            UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
+        </if>
+        YN = 0, UPDATE_TIME = NOW()
+        WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND
+        PLAN_ID != #{planId,jdbcType=BIGINT}
+    </update>
+
+    <select id="getMyPlans" parameterType="java.util.Map">
+        SELECT PLAN_ID,PLAN_NAME,MACHINE_ID,OPERATE_SITE_CODE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+        <if test="siteCode != null">
+            AND OPERATE_SITE_CODE = #{siteCode, jdbcType=BIGINT}
+        </if>
+        <if test="machineId != null">
+            AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <select id="isExist" parameterType="java.util.Map" resultMap="areaDestPlan">
+        SELECT PLAN_ID,PLAN_NAME,MACHINE_ID,OPERATE_SITE_CODE
+        FROM AREA_DEST_PLAN
+        WHERE YN = 1
+        <if test="planId != null">
+            AND PLAN_ID = #{planId,jdbcType=BIGINT}
+        </if>
+        <if test="machineId != null">
+            AND MACHINE_ID = #{machineId, jdbcType=INTEGER}
+        </if>
+        <if test="siteCode != null">
+            AND OPERATE_SITE_CODE = #{siteCode}
+        </if>
+    </select>
+
+</mapper>

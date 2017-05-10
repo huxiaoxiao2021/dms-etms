@@ -102,19 +102,19 @@ public class SerialRuleUtil {
     /**
      * 箱号正则表达式
      */
-    private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}");
+    private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
 
     private static final Pattern RULE_F_WAYBILL_CODE_REGEX = Pattern.compile("^F[0-9]{11}$");
 
     /**
      * 发货批次号正则表达式
      */
-    private static final Pattern RULE_SEND_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,17})");
+    private static final Pattern RULE_SEND_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,17})$");
 
     /**
      * 提取发货批次号中站点正则
      */
-    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})");
+    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
 
     /**
      * 获取收货站点

@@ -77,4 +77,14 @@ public interface ScannerFrameBatchSendService {
      */
     BatchSendPrintImageResponse summaryPrint(String url,ScannerFrameBatchSend scannerFrameBatchSend,Integer userId,String userName);
 
+    /**
+     * 补打界面：获取该发货中心的所有目的站点
+     */
+    List<ScannerFrameBatchSend> queryAllReceiveSites(String createSiteCode,String machineId);
+
+    /**
+     * 补打页面获取所有当前时间的所有批次
+     */
+    Pager<List<ScannerFrameBatchSend>> queryAllHistoryBatchSend(Pager<ScannerFrameBatchSendSearchArgument> request);
+
 }

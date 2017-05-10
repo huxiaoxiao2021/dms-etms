@@ -123,4 +123,14 @@
     <jmq:consumer id="jmq.gantryScanPackageConsumer" transport="jmq.dmsWeb.transport">
         <jmq:listener topic="bd_gantry_scan_package" listener="gantryScanPackageConsumer"/>
     </jmq:consumer>
+
+    <!-- TMS发车报文 createed by wzx-->
+    <jmq:consumer id="jmq.carScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="tms_cargovolume_inbound" listener="carScheduleFromTMSConsumer"/>
+    </jmq:consumer>
+
+    <!-- TMS取消发车报文 create by wzx -->
+    <jmq:consumer id="jmq.cancelScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="tms_cancel_sendcar" listener="cancelScheduleFromTMSConsumer"/>
+    </jmq:consumer>
 </beans>

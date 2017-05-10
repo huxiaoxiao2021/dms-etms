@@ -27,6 +27,7 @@ $(document).ready(function(){
             return;
         }
         gantryLockStatusShow();
+        planShow();
         queryExceptionNum();
         queryBatchSendSub(1)
     });
@@ -118,7 +119,9 @@ $(document).ready(function(){
 
     /** 异常数据点击事件 **/
     $("#exceptionNum").click(function(){
-        toGantryExceptionPage();
+        if($("#gantryDevice").val() !=null && $("#gantryDevice").val()!= ""){
+            toGantryExceptionPage();
+        }
     })
 
     /** 定时刷新数据 **/
@@ -130,6 +133,17 @@ $(document).ready(function(){
             // })
         }else{
             flashT = window.clearInterval(flashT);
+        }
+    })
+
+    /**
+     * 发货方案选择
+     */
+    $("#send").click(function(){
+        if($(this).is(":checked")){
+            $("#planDiv").show();
+        }else{
+            $("#planDiv").hide();
         }
     })
 
@@ -204,9 +218,9 @@ function gantryDeviceItemShow(){
             jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
             return;
         }
-        if (gantryList.length > 0 && data.code == 200) {
+        if (gantryList!= null && data.code == 200) {
             loadGantryList(gantryList, "gantryDevice");
-        } else if (gantryList.length <= 0 && data.code == 200){
+        } else if (gantryList==null && data.code == 200){
             jQuery.messager.alert("提示：","该分拣中心没有可供选择的龙门架设备！","info");
         } else if (data.code == 500) {
             jQuery.messager.alert("提示：", "获取该分拣中心的龙门架设备失败!", "info");
@@ -329,16 +343,21 @@ function gantryStateInit(gantryConfig) {
                 measureObj.prop("checked",true);
                 break;
         }
+        if((businessType & 2) == 2){//是否包含发货功能
+            $("#planDiv").show() ;//分拣方案显示
+        }
         if (lockStatus == 0){
             inspectionObj.attr("disabled",false);
             sendObj.attr("disabled",false);
             measureObj.attr("disabled",false);
+            $("#GantryPlan").attr("disabled",false);
             $("#gantryBtn").html("<input  type='button' value='启用龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(startGantry))'>");//启用龙门架需要传入的参数
         }else if (lockStatus == 1){
             //状态锁定 需要点击解锁
             inspectionObj.attr("disabled",true);
             sendObj.attr("disabled",true);
             measureObj.attr("disabled",true);
+            $("#GantryPlan").attr("disabled",true);
             $("#gantryBtn").html("<input  type='button' value='释放龙门架' class='btn_c' onclick='enOrDisGantry(getGantryParams(endGantry))'>");//释放龙门架只需要传入的机器编号参数？！
         }
         // else{
@@ -348,6 +367,47 @@ function gantryStateInit(gantryConfig) {
     // else{
     //     jQuery.messager.alert("提示","龙门架配置信息错误！","info");
     // }
+}
+
+/**
+ * 龙门架方案初始化(获取该分拣中心该龙门架设备下的所有方案)
+ */
+function planShow(){
+    var params = {};
+    params.machineId = $("#gantryDevice").val();
+    params.operateSiteCode = $("#siteOrg").val();
+    var url = $("#contextPath").val() + "/areaDestPlan/getMayPlan";//获取当前的planId
+    var planId = 0;
+    CommonClient.syncPost(url,params,function (data) {
+        if(undefined != data && null != data && null != data.data){
+            if(data.code == 200){
+                var plan = data.data;
+                planId = plan.planId;
+            }
+        }
+    })
+    planInit(params,planId);
+}
+
+
+function planInit(params,planId){
+    var url = $("#contextPath").val() + "/areaDestPlan/getAllList";
+    CommonClient.post(url,params,function (data) {
+        if(null == data && undefined == data){
+            return;
+        }
+        if(data.code === 200){
+            var optionList = "<option value=''>" + "选择分拣方案" + "</option>";
+            var list = data.data;
+            if(list != null && list.length > 0){
+                for(var i = 0;i<list.length;i++){
+                    optionList += "<option value='" + list[i].planId + "' " + (list[i].planId == planId? "selected='selected'":"") +">" + list[i].planName + "</option>";
+                }
+                $("#GantryPlan").html(optionList);
+            }
+        }
+    })
+
 }
 
 /**
@@ -410,6 +470,7 @@ function getGantryParams(lockStatus){
         case 4: operateTypeRemark = "量方";break;
         case 5: operateTypeRemark = "验货+量方";break;
         case 6: operateTypeRemark = "发货+量方";break;
+
         case 7: operateTypeRemark = "验货+发货+量方";break;
         default: break;
     }
@@ -418,6 +479,9 @@ function getGantryParams(lockStatus){
     var userMarker = $("#operator").val().split("||");//操作人姓名和erp用||分割
     params.operateUserName = userMarker[0];//获取操作人姓名
     params.operateUserErp = userMarker[1];//获取操作人的erp
+    if((businessType & 2) == 2){//是否包含发货功能
+        params.planId = $("#GantryPlan").val() ;//分拣方案ID
+    }
     params.lockStatus = lockStatus == 1? 1:0; //1启用 0释放
     return params;
 }
@@ -570,6 +634,8 @@ function clearInfo(){
     $("input[name='businessType']").each(function () {
         $(this).prop("checked",false);//清空龙门架的配置信息
     });
+    $("#planDiv").hide();
+    $("#GantryPlan").html("<option value=''>(无)</option>");//清空龙门架方案信息
     gantryParams = {};//清空龙门架参数信息
     $("#pagerTable tbody").html("");//清空列表
     $("#pager").html("");//清空分页信息
@@ -587,7 +653,7 @@ function toReplenishPrintPage(){
     }
     location.href = url + "?machineId=" + gantryParams.machineId + "&createSiteCode=" + gantryParams.createSiteCode
         + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
-        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
 }
 
 /**
@@ -616,6 +682,9 @@ function toGantryExceptionPage(){
  * @param ts
  */
 function timeStampToDate(ts){
+    if(undefined == ts && ts == null && ts == NaN){
+        return "";
+    }
     var date = new Date(ts);
     var Y = date.getFullYear() + "-";
     var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + "-";

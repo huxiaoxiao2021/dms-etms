@@ -7,18 +7,33 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public  class SendMDao extends BaseDao<SendM>  {
 	
 	public static final String namespace = SendMDao.class.getName();
-	
+	private final Log logger = LogFactory.getLog(this.getClass());
+
 	public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
         querySendM.setCreateSiteCode(createSiteCode);
         if(null == createSiteCode) {
             querySendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
         }
+
 		querySendM.setSendCode(sendCode);
+
+		//FIXME 如果sendCode不合法则无法通过sendCode获取createSiteCode
+		//如果传进来的参数createSiteCode不为空则还会进行一次查询
+
+		if(null == querySendM.getCreateSiteCode()){
+			logger.info("selectOneBySiteAndSendCode-->参数createSiteCode："
+					+ createSiteCode+";sendCode:"+sendCode);
+			logger.info("createSiteCode = null");
+			return null;
+		}
+
 		return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectOneBySiteAndSendCode", querySendM);
 	}
 
@@ -62,6 +77,11 @@ public  class SendMDao extends BaseDao<SendM>  {
         if(null !=sendM && null != sendM.getSendCode() && null == sendM.getCreateSiteCode()) {
             sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendM.getSendCode()));
         }
+		if(null == sendM.getCreateSiteCode()){
+			logger.info("selectBySendSiteCode-->参数sendM：" + sendM);
+			logger.info("createSiteCode = null");
+			return Collections.emptyList();
+		}
 		return getSqlSession().selectList(SendMDao.namespace + ".selectBySendSiteCode", sendM);
 	}
 

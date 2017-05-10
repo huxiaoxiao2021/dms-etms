@@ -150,4 +150,32 @@
           </if>
         </where>
     </select>
+
+    <select id="queryAllReceiveSites" parameterType="java.util.Map" resultMap="resultListMap">
+        SELECT DISTINCT(RECEIVE_SITE_CODE),MACHINE_ID,CREATE_SITE_CODE,RECEIVE_SITE_NAME
+        FROM SCANNER_FRAME_BATCH_SEND
+        <where>
+            <if test="machineId != null">
+                MACHINE_ID = #{machineId,jdbcType=BIGINT}
+            </if>
+            <if test="createSiteCode != null">
+                AND CREATE_SITE_CODE = #{createSiteCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryAllUnPrintCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM SCANNER_FRAME_BATCH_SEND
+          <include refid="getSplitPageListWhere" />
+    </select>
+    <select id="queryAllUnPrint" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
+      SELECT
+         <include refid="allFieldsExcludeTs"/>
+      FROM SCANNER_FRAME_BATCH_SEND
+         <include refid="getSplitPageListWhere"/>
+      ORDER BY Id DESC
+      LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+
 </mapper>

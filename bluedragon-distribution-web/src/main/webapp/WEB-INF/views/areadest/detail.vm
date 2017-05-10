@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="pragma" content="no-cach"/>
+    <meta http-equiv="cache-control" content="no-cache"/>
+    <meta http-equiv="expires" content="0"/>
+    <title>龙门架发货关系维护</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all"/>
+
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <style type="text/css"></style>
+</head>
+
+<body>
+<input type="hidden" id="contextPath" value="#springUrl('')"/>
+<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
+<script type="text/javascript" src="#springUrl('/static/js/areadest/detail.js')"></script>
+
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;
+        <a href="javascript:void(0)">龙门架发货关系维护</a>&nbsp;&gt;&nbsp;
+        <a href="javascript:void(0)">查看方案</a>
+    </p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content" width="100%">
+    <div class="m">
+        <div class="tbl-n">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                <tr>
+                    <td align="right">龙门架编号：</td>
+                    <td>
+##                        <select id="machineId" style="width:150px" disabled="true">
+##                            #if($!{machineId})
+##                                <option value="$!{machineId}">$!{machineId}
+##                                    &nbsp$!{machineId}</option>
+##                            #else
+##                                <option value="">请选择龙门架</option>
+##                            #end
+##                        </select>
+                        <input type="text" id="machineId" name="machineId" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{machineId}"/>
+                    </td>
+                    <td align="right">方案名称：</td>
+                    <td>
+                        <input type="text" id="planName" name="planName" maxlength="50" disabled="true"
+                               style="width:150px" value="$!{planName}"/>
+                        <input type="hidden" id="planId" name="planId" value="$!{planId}"/>
+                    </td>
+                    <td>
+                        <input id="backBtn" value="返回" type="button" class="btn_c"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--[if !ie]>tbl-n<![endif]-->
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table id="paperTable" cellspacing=0 cellpadding=0 style="width:80%;min-width:900px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th style="width:30px;">属性</th>
+                        <th style="width:50px;">当前分拣中心</th>
+                        <th style="width:50px;">下级分拣中心</th>
+                        <th style="width:50px;">末级分拣中心</th>
+                        <th style="width:70px;">站点</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+##  分页
+    <div id="pager" class="tbl-n" style="width:80%"></div>
+</div>
+</body>
+</html>

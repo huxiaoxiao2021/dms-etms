@@ -47,4 +47,20 @@ public interface GantryDeviceConfigService {
      * 新龙门架的锁定逻辑 by zuxiangWu
      */
     int lockDevice(GantryDeviceConfig gantryDeviceConfig);
+
+    /**
+     * 修改操作用户id
+     *
+     * @param operateUserErp
+     * @param operateUserId
+     * @return
+     */
+    int updateOperateUserIdByErp(String operateUserErp, Integer operateUserId);
+
+    /**
+     * 获取所有龙门架操作用户Erp账号
+     *
+     * @return
+     */
+    List<String> getAllOperateUserErp();
 }

@@ -3,9 +3,11 @@ package com.jd.bluedragon.distribution.gantry.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yanghongqiang on 2016/3/11.
@@ -14,35 +16,35 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
 
     public static final String namespace = GantryDeviceConfigDao.class.getName();
 
-    public List<GantryDeviceConfig> findGantryDeviceConfigByOperateTime(Integer machineId,Date packageOperateTime){
-        HashMap<String,Object> hashMap=new HashMap<String, Object>();
-        hashMap.put("machineId",machineId);
-        hashMap.put("operateTime",packageOperateTime);
+    public List<GantryDeviceConfig> findGantryDeviceConfigByOperateTime(Integer machineId, Date packageOperateTime) {
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("machineId", machineId);
+        hashMap.put("operateTime", packageOperateTime);
         return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findGantryDeviceConfigByOperateTime", hashMap);
     }
 
-    public Integer addUseJavaTime(GantryDeviceConfig entity){
+    public Integer addUseJavaTime(GantryDeviceConfig entity) {
         return this.getSqlSession().insert(namespace + ".addUseJavaTime", entity);
     }
+
     public GantryDeviceConfig findMaxStartTimeGantryDeviceConfigByMachineId(Integer machineId) {
-        HashMap<String,Object> hashMap=new HashMap<String, Object>();
-        hashMap.put("machineId",machineId);
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("machineId", machineId);
         return (GantryDeviceConfig) super.getSqlSession().selectOne(GantryDeviceConfigDao.namespace + ".findMaxStartTimeGantryDeviceConfigByMachineId", hashMap);
     }
 
-    public List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode,byte version) {
-        HashMap<String,Object> hashMap=new HashMap<String, Object>();
-        hashMap.put("createSiteCode",createSiteCode);
-        hashMap.put("version",version);
+    public List<GantryDeviceConfig> findAllGantryDeviceCurrentConfig(Integer createSiteCode, byte version) {
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("createSiteCode", createSiteCode);
+        hashMap.put("version", version);
         return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".findAllGantryDeviceCurrentConfig", hashMap);
     }
 
     public GantryDeviceConfig checkSendCode(String sendCode) {
-        HashMap<String,Object> hashMap=new HashMap<String, Object>();
-        hashMap.put("sendCode",sendCode);
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("sendCode", sendCode);
         return (GantryDeviceConfig) super.getSqlSession().selectOne(GantryDeviceConfigDao.namespace + ".checkSendCode", hashMap);
     }
-
 
 
     public int updateLockStatus(GantryDeviceConfig gantryDeviceConfig) {
@@ -53,12 +55,23 @@ public class GantryDeviceConfigDao extends BaseDao<GantryDeviceConfig> {
         return super.getSqlSession().update(namespace + ".updateBusinessType", gantryDeviceConfig);
     }
 
-    public int unlockDevice(GantryDeviceConfig gantryDeviceConfig){
-        return  super.getSqlSession().update(namespace + ".unlockDevice", gantryDeviceConfig);
+    public int unlockDevice(GantryDeviceConfig gantryDeviceConfig) {
+        return super.getSqlSession().update(namespace + ".unlockDevice", gantryDeviceConfig);
     }
 
-    public int lockDevice(GantryDeviceConfig gantryDeviceConfig){
-        return  super.getSqlSession().update(namespace + ".lockDevice", gantryDeviceConfig);
+    public int lockDevice(GantryDeviceConfig gantryDeviceConfig) {
+        return super.getSqlSession().update(namespace + ".lockDevice", gantryDeviceConfig);
+    }
+
+    public int updateOperateUserIdByErp(String operateUserErp, Integer operateUserId) {
+        Map<String, Object> parameter = new HashMap<String, Object>();
+        parameter.put("operateUserErp", operateUserErp);
+        parameter.put("operateUserId", operateUserId);
+        return super.getSqlSession().update(GantryDeviceConfigDao.namespace + ".updateOperateUserIdByErp", parameter);
+    }
+
+    public List<String> getAllOperateUserErp() {
+        return super.getSqlSession().selectList(GantryDeviceConfigDao.namespace + ".getAllOperateUserErp");
     }
 
 }

@@ -13,6 +13,6 @@ public interface ScannerFrameDispatchService {
      * @param domain 龙门架数据
      * @return
      */
-    boolean dispatch(UploadData domain);
+    boolean dispatch(UploadData domain) throws Exception;
 
 }

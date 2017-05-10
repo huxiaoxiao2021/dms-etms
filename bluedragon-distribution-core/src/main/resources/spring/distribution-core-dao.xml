@@ -312,4 +312,20 @@
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
 
+	<!-- 车辆调度任务类型，数据来自TMS create by Wu Zuxiang -->
+	<bean id="carScheduleDao" class="com.jd.bluedragon.distribution.carSchedule.dao.CarScheduleDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+	<!-- 发车条码与批次号的映射表，数据来自TMS create by Wu Zuxiang -->
+	<bean id="sendCodeToCarNoDao" class="com.jd.bluedragon.distribution.carSchedule.dao.SendCodeToCarNoDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+	<bean id="areaDestPlanDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+
+	<bean id="areaDestPlanDetailDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+
 </beans>

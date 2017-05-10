@@ -103,14 +103,17 @@
         WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND yn = 1
         <if test="version != null">
-        AND exists (select machine_id from gantry_device_info where gantry_device_config.MACHINE_ID=gantry_device_info.MACHINE_ID and gantry_device_info.version=#{version,jdbcType=TINYINT})
+            AND exists (select machine_id from gantry_device_info where
+            gantry_device_config.MACHINE_ID=gantry_device_info.MACHINE_ID and
+            gantry_device_info.version=#{version,jdbcType=TINYINT})
         </if>
     </select>
     <select id="checkSendCode" resultMap="gantryDeviceConfig" parameterType="java.util.Map">
-        SELECT <include refid="fields"/>
+        SELECT
+        <include refid="fields"/>
         FROM gantry_device_config
         WHERE send_code = #{sendCode,jdbcType=VARCHAR}
-        AND yn = 1 LIMIT  1
+        AND yn = 1 LIMIT 1
     </select>
 
     <update id="updateLockStatus" parameterType="gantryDeviceConfig">
@@ -129,27 +132,27 @@
     <update id="unlockDevice" parameterType="gantryDeviceConfig">
         UPDATE gantry_device_config
         <set>
-          lock_status = #{lockStatus,jdbcType=INTEGER},
-          <if test="endTime != null">
-              end_time = #{endTime},
-          </if>
-          <if test="operateUserId != null">
-              OPERATE_USER_ID = #{operateUserId,jdbcType=INTEGER},
-          </if>
-          <if test="operateUserErp != null">
-              OPERATE_USER_ERP = #{operateUserErp,jdbcType=VARCHAR},
-          </if>
-          <if test="operateUserName != null">
-              OPERATE_USER_NAME = #{operateUserName,jdbcType=VARCHAR},
-          </if>
-          <if test="updateUserErp != null">
-              UPDATE_USER_ERP = #{updateUserErp,jdbcType=VARCHAR},
-          </if>
-          <if test="updateUserName != null">
-              UPDATE_USER_NAME=#{updateUserName,jdbcType=VARCHAR},
-          </if>
+            lock_status = #{lockStatus,jdbcType=INTEGER},
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="operateUserId != null">
+                OPERATE_USER_ID = #{operateUserId,jdbcType=INTEGER},
+            </if>
+            <if test="operateUserErp != null">
+                OPERATE_USER_ERP = #{operateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateUserName != null">
+                OPERATE_USER_NAME = #{operateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                UPDATE_USER_ERP = #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                UPDATE_USER_NAME=#{updateUserName,jdbcType=VARCHAR},
+            </if>
         </set>
-        WHERE  id =  #{id,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
     </update>
 
     <update id="lockDevice" parameterType="gantryDeviceConfig">
@@ -188,7 +191,22 @@
                 lock_user_name=#{lockUserName,jdbcType=VARCHAR},
             </if>
         </set>
-        WHERE  id =  #{id,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
     </update>
+
+    <update id="updateOperateUserIdByErp" parameterType="java.util.Map">
+        UPDATE gantry_device_config
+        <set>
+            OPERATE_USER_ID = #{operateUserId,jdbcType=INTEGER}
+        </set>
+        WHERE OPERATE_USER_ERP = #{operateUserErp,jdbcType=VARCHAR}
+    </update>
+
+    <select id="getAllOperateUserErp" resultType="java.lang.String">
+        SELECT
+        DISTINCT
+        OPERATE_USER_ERP
+        FROM gantry_device_config
+    </select>
 
 </mapper>

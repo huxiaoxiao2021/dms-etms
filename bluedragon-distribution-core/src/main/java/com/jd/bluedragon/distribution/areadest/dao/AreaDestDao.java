@@ -48,8 +48,8 @@ public class AreaDestDao extends BaseDao<AreaDest> {
      *
      * @param params
      */
-    public int disableById(Map<String, Object> params) {
-        return this.getSqlSession().update(AreaDestDao.namespace + ".disableById", params);
+    public int disableByPlanId(Map<String, Object> params) {
+        return this.getSqlSession().update(AreaDestDao.namespace + ".disableByPlanId", params);
     }
 
     /**
@@ -71,12 +71,13 @@ public class AreaDestDao extends BaseDao<AreaDest> {
     }
 
     /**
-     * 根据参数设置为有效
+     * 根据参数获取区域批次目的地列表
      *
      * @param params
+     * @return
      */
-    public int enableByParams(Map<String, Object> params) {
-        return this.getSqlSession().update(AreaDestDao.namespace + ".enableByParams", params);
+    public AreaDest get(Map<String, Object> params) {
+        return this.getSqlSession().selectOne(AreaDestDao.namespace + ".get", params);
     }
 
     /**
@@ -87,6 +88,16 @@ public class AreaDestDao extends BaseDao<AreaDest> {
      */
     public List<AreaDest> getList(Map<String, Object> params) {
         return this.getSqlSession().selectList(AreaDestDao.namespace + ".getList", params);
+    }
+
+    /**
+     * 根据参数获取龙门架发货关系数量
+     *
+     * @param params
+     * @return
+     */
+    public Integer getCount(Map<String, Object> params) {
+        return this.getSqlSession().selectOne(AreaDestDao.namespace + ".getCount", params);
     }
 
 }
