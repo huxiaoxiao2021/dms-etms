@@ -62,7 +62,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
     @Override
     @JProfiler(jKey= "DMSWEB.ReassignWaybillService.packLastScheduleSite")
-    @Transactional(readOnly = false,propagation = Propagation.REQUIRED)
     public ReassignWaybill queryByPackageCode(String packageCode) {
         Assert.notNull(packageCode, "packageCode must not be null");
         return reassignWaybillDao.queryByPackageCode(packageCode);

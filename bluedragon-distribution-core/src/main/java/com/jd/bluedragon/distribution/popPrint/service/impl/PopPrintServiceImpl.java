@@ -38,7 +38,6 @@ public class PopPrintServiceImpl implements PopPrintService {
 	private InspectionDao inspectionDao;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public PopPrint findByWaybillCode(String waybillCode) {
 		if (StringUtils.isBlank(waybillCode)) {
 			logger.info("传入运单号 waybillCode 为空");
@@ -47,13 +46,11 @@ public class PopPrintServiceImpl implements PopPrintService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<PopPrint> findSitePrintDetail(Map<String,Object> map){
 		return  popPrintDao.findSitePrintDetail(map);
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public Integer findSitePrintDetailCount(Map<String,Object> map){
 		return  popPrintDao.findSitePrintDetailCount(map);
 	}
@@ -63,7 +60,6 @@ public class PopPrintServiceImpl implements PopPrintService {
 	
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<PopPrint> findAllByWaybillCode(String waybillCode) {
 		if (StringUtils.isBlank(waybillCode)) {
 			logger.info("传入运单号 waybillCode 为空");
