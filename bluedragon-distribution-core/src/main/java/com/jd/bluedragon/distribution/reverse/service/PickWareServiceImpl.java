@@ -51,7 +51,7 @@ public class PickWareServiceImpl implements PickWareService {
 		return Boolean.FALSE;
 	}
 	
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public Integer findByFingerprint(PickWare pickWare) {
 		Assert.notNull(pickWare.getFingerprint(), "fingerprint must not be null");
 		return this.pickWareDao.findByFingerprint(pickWare);

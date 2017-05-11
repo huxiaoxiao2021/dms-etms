@@ -13,125 +13,23 @@
 
     <typeAliases>
         <typeAlias type="com.jd.bluedragon.distribution.box.domain.Box" alias="Box"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.task.domain.Task" alias="Task"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.seal.domain.SealBox" alias="SealBox"/>
-        <typeAlias type="com.jd.bluedragon.distribution.seal.domain.SealVehicle" alias="SealVehicle"/>
-
         <typeAlias type="com.jd.bluedragon.distribution.sorting.domain.Sorting" alias="Sorting"/>
-        <typeAlias type="com.jd.bluedragon.distribution.sorting.domain.SortingReturn" alias="SortingReturn"/>
-
         <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM"/>
         <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendDetail" alias="SendDetail"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.receive.domain.Receive" alias="Receive"/>
-
         <typeAlias type="com.jd.bluedragon.distribution.receive.domain.CenConfirm" alias="CenConfirm"/>
-        <typeAlias type="com.jd.bluedragon.distribution.departure.domain.DepartureCar" alias="DepartureCar"/>
-        <typeAlias type="com.jd.bluedragon.distribution.departure.domain.DepartureSend" alias="DepartureSend"/>
-        <typeAlias type="com.jd.bluedragon.distribution.departure.domain.DepartureLog" alias="DepartureLog"/>
-        <typeAlias type="com.jd.bluedragon.distribution.api.request.DepartureTmpRequest" alias="DepartureTmpSend"/>
         <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
-        <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.InspectionEC" alias="InspectionEC"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopPrint" alias="PopPrint"/>
-        <typeAlias type="com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal" alias="PopAbnormal"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.version.domain.ClientVersion" alias="ClientVersion"/>
-        <typeAlias type="com.jd.bluedragon.distribution.version.domain.ClientConfig" alias="ClientConfig"/>
-        <typeAlias type="com.jd.bluedragon.distribution.version.domain.VersionEntity" alias="VersionEntity"/>
-        <typeAlias type="com.jd.bluedragon.distribution.version.domain.ClientConfigHistory"
-                   alias="ClientConfigHistory"/>
-        <typeAlias type="com.jd.bluedragon.distribution.operationLog.domain.OperationLog" alias="OperationLog"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue" alias="taskFailQueue"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.reverse.domain.ReverseReject" alias="ReverseReject"/>
-        <typeAlias type="com.jd.bluedragon.distribution.reverse.domain.ReverseReceive" alias="ReverseReceive"/>
-        <typeAlias type="com.jd.bluedragon.distribution.reverse.domain.ReverseSpare" alias="ReverseSpare"/>
-        <typeAlias type="com.jd.bluedragon.distribution.reverse.domain.LossOrder" alias="LossOrder"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.spare.domain.Spare" alias="Spare"/>
-        <typeAlias type="com.jd.bluedragon.distribution.spare.domain.SpareSale" alias="SpareSale"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill"
-                   alias="reassignWaybill"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.base.domain.SysConfig" alias="sysConfig"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder" alias="abnormalOrder"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopQueue" alias="popQueue"/>
-        <typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopSignin" alias="PopSignin"/>
-        <typeAlias type="com.jd.bluedragon.distribution.popReveice.domain.PopReceive" alias="PopReceive"/>
-        <typeAlias type="com.jd.bluedragon.distribution.popPickup.domain.PopPickup" alias="PopPickup"/>
-        <typeAlias type="com.jd.bluedragon.distribution.popReveice.domain.TaskPopRecieveCount"
-                   alias="TaskPopRecieveCount"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.popAbnormal.domain.PopReceiveAbnormal"
-                   alias="PopReceiveAbnormal"/>
-        <typeAlias type="com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail"
-                   alias="PopAbnormalDetail"/>
-        <typeAlias type="com.jd.bluedragon.distribution.receive.domain.TurnoverBox" alias="TurnoverBox"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.offline.domain.OfflineLog" alias="OfflineLog"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.reverse.domain.PickWare" alias="PickWare"/>
-        <typeAlias type="com.jd.bluedragon.distribution.label.domain.Label" alias="Label"/>
-        <typeAlias type="com.jd.bluedragon.distribution.batch.domain.BatchSend" alias="BatchSend"/>
-        <typeAlias type="com.jd.bluedragon.distribution.batch.domain.BatchInfo" alias="BatchInfo"/>
-        <typeAlias type="com.jd.bluedragon.distribution.sorting.domain.SortingException" alias="sortingException"/>
-        <typeAlias type="com.jd.bluedragon.distribution.systemLog.domain.SystemLog" alias="SystemLog"/>
-
-        <typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting"/>
-        <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill"/>
-        <typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport"/>
-        <typeAlias type="com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig" alias="gantryDeviceConfig"/>
-        <typeAlias type="com.jd.bluedragon.distribution.waybill.domain.FreshWaybill" alias="freshWaybill"/>
-
-        <!-- xumei -->
-        <typeAlias type="com.jd.bluedragon.distribution.crossbox.domain.CrossBox" alias="CrossBox"/>
-		<typeAlias type="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend" alias="scannerFrameBatchSend"/>
-
-        <!-- lixin456 -->
-        <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDest" alias="AreaDest"/>
-        <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan" alias="AreaDestPlan"/>
-        <typeAlias type="com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail" alias="AreaDestPlanDetail"/>
-
-        <!-- wuzuxiang -->
-        <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo" alias="carSchedule"/>
-        <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode" alias="sendCodeToCarCode"/>
     </typeAliases>
 
     <plugins>
         <plugin interceptor="com.jd.coo.sa.mybatis.plugins.id.AutoIncrementKeyPlugin">
             <property name="idGen.type" value="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor"/>
             <property name="interceptTableSettings" value="
-                abnormal_order=systemId:system_id,
                 box=id:box_id,
                 cen_confirm=confirmId:confirm_id,
-                departure_send=departureSendId:departure_send_id,
-                fresh_waybill=id:id,
                 inspection=inspectionId:inspection_id,
-                inspection_e_c=checkId:check_id,
-                operation_log_0=logId:log_id,
-                partner_waybill=relationId:relation_id,
-                pop_abnormal_order=id:id,
-                pop_pickup=pickupId:pickup_id,
-                pop_print=popPrintId:id,
-                pop_queue=id:id,
-                pop_signin=id:id,
-                pop_receive=systemId:system_id,
-                receive=receiveId:receive_id,
-                reverse_receive=id:system_id,
-                reverse_spare=systemId:system_id,
-                seal_box=id:system_id,
-                seal_vehicle=id:system_id,
                 send_d=sendDId:send_d_id,
                 send_m=sendMId:send_m_id,
-                sorting=id:sorting_id,
-                sorting_ret=id:sorting_ret_id
+                sorting=id:sorting_id
              "/>
             <property name="replaceNextValue" value="true"/>
             <property name="replaceExistsNewId" value="true"/>
@@ -140,102 +38,11 @@
 
     <mappers>
         <mapper resource="mappers/mysql/box/BoxMapper.xml"/>
-
-        <mapper resource="mappers/mysql/task/TaskMapper.xml"/>
-
-        <mapper resource="mappers/mysql/seal/SealBoxMapper.xml"/>
-        <mapper resource="mappers/mysql/seal/SealVehicleMapper.xml"/>
-
         <mapper resource="mappers/mysql/sorting/SortingMapper.xml"/>
-        <mapper resource="mappers/mysql/sorting/SortingReturnMapper.xml"/>
-
         <mapper resource="mappers/mysql/send/SendMMapper.xml"/>
         <mapper resource="mappers/mysql/send/SendDatailMapper.xml"/>
-
-        <mapper resource="mappers/mysql/receive/ReceiveMapper.xml"/>
-        <mapper resource="mappers/mysql/receive/TurnoverBoxMapper.xml"/>
-
-        <mapper resource="mappers/mysql/departure/DepartureCarMapper.xml"/>
         <mapper resource="mappers/mysql/receive/CenConfirmMapper.xml"/>
-
-        <mapper resource="mappers/mysql/inspection/InspectionECMapper.xml"/>
         <mapper resource="mappers/mysql/inspection/InspectionMapper.xml"/>
-        <mapper resource="mappers/mysql/operationLog/OperationLogMapper.xml"/>
-
-        <mapper resource="mappers/mysql/receiveInspectionExc/ShieldsErrorMapper.xml"/>
-
-        <mapper resource="mappers/mysql/partnerWaybill/partnerWaybilllMapper.xml"/>
-
-        <mapper resource="mappers/mysql/popPrint/PopPrintMapper.xml"/>
-        <mapper resource="mappers/mysql/popAbnormal/PopAbnormalMapper.xml"/>
-
-        <mapper resource="mappers/mysql/version/ClientVersionMapper.xml"/>
-        <mapper resource="mappers/mysql/version/ClientConfigMapper.xml"/>
-        <mapper resource="mappers/mysql/version/ClientConfigHistoryMapper.xml"/>
-
-        <mapper resource="mappers/mysql/failqueue/FailQueueMapper.xml"/>
-
-        <mapper resource="mappers/mysql/reverse/ReverseRejectMapper.xml"/>
-        <mapper resource="mappers/mysql/reverse/ReverseReceiveMapper.xml"/>
-        <mapper resource="mappers/mysql/reverse/ReverseSpareMapper.xml"/>
-        <mapper resource="mappers/mysql/reverse/LossOrderMapper.xml"/>
-
-        <mapper resource="mappers/mysql/spare/SpareMapper.xml"/>
-        <mapper resource="mappers/mysql/spare/SpareSaleMapper.xml"/>
-        <mapper resource="mappers/mysql/departure/DepartureSendMapper.xml"/>
-        <mapper resource="mappers/mysql/departure/DepartureLogMapper.xml"/>
-        <mapper resource="mappers/mysql/departure/DepartureTmpMapper.xml"/>
-
-        <mapper resource="mappers/mysql/reassignWaybill/ReassignWaybillMapper.xml"/>
-
-        <mapper resource="mappers/mysql/popPickup/PopPickupMapper.xml"/>
-        <mapper resource="mappers/mysql/sysconfig/SysConfigMapper.xml"/>
-
-        <mapper resource="mappers/mysql/popPrint/popQueueMapper.xml"/>
-        <mapper resource="mappers/mysql/popPrint/PopSigninMapper.xml"/>
-        <mapper resource="mappers/mysql/popReceive/PopReceiveMapper.xml"/>
-        <mapper resource="mappers/mysql/popReceive/TaskPopRecieveCountMapper.xml"/>
-
-        <mapper resource="mappers/mysql/abnormalorder/AbnormalOrderMapper.xml"/>
-
-        <mapper resource="mappers/mysql/popAbnormal/PopReceiveAbnormalMapper.xml"/>
-        <mapper resource="mappers/mysql/popAbnormal/PopAbnormalDetailMapper.xml"/>
-
-        <mapper resource="mappers/mysql/offLine/OfflineLogMapper.xml"/>
-        <mapper resource="mappers/mysql/reverse/PickWareMapper.xml"/>
-        <mapper resource="mappers/mysql/label/LabelMapper.xml"/>
-        <mapper resource="mappers/mysql/fBarCode/FBarCodeMapper.xml"/>
-        <mapper resource="mappers/mysql/batch/BatchInfoMapper.xml"/>
-        <mapper resource="mappers/mysql/batch/BatchSendMapper.xml"/>
-        <mapper resource="mappers/mysql/sorting/SortingExceptionMapper.xml"/>
-        <mapper resource="mappers/mysql/send/SendQueryMapper.xml"/>
-
-        <mapper resource="mappers/mysql/systemLog/SystemLogMapper.xml"/>
-
-        <mapper resource="mappers/mysql/crossSorting/CrossSortingMapper.xml"/>
-        <mapper resource="mappers/mysql/globaltrade/LoadBillMapper.xml"/>
-        <mapper resource="mappers/mysql/globaltrade/LoadBillReportMapper.xml"/>
-
-        <mapper resource="mappers/mysql/gantry/GantryDeviceMapper.xml"/>
-        <mapper resource="mappers/mysql/gantry/GantryDeviceConfigMapper.xml"/>
-        <mapper resource="mappers/mysql/freshWaybill/freshWaybillMapper.xml"/>
-        <!-- xumei -->
-        <mapper resource="mappers/mysql/crossbox/CrossBoxMapper.xml"/>
-        <mapper resource="mappers/mysql/dbs/objectIdMapper.xml"/>
-        <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
-
-        <!-- hanjiaxing -->
-        <mapper resource="mappers/mysql/gantry/GantryExceptionMapper.xml"/>
-        <mapper resource="mappers/mysql/auto/ScannerFrameBatchSend.xml"/>
-
-        <!-- lixin456 -->
-        <mapper resource="mappers/mysql/areadest/AreaDestMapper.xml"/>
-        <mapper resource="mappers/mysql/areadest/AreaDestPlanMapper.xml"/>
-        <mapper resource="mappers/mysql/areadest/AreaDestPlanDetailMapper.xml"/>
-
-        <!--wuzuxaing-->
-        <mapper resource="mappers/mysql/carSchedule/CarScheduleMapper.xml"/>
-        <mapper resource="mappers/mysql/carSchedule/SendCodeToCarCodeMapper.xml"/>
     </mappers>
 
 </configuration>

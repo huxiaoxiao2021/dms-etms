@@ -54,7 +54,6 @@ public class SiteServiceImpl implements SiteService {
 	//车辆管理系统获取运力编码
 	@Override
 	public RouteTypeResponse getCapacityCodeInfo(String capacityCode) {
-		
 		CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(capacityCode);
 		RouteTypeResponse base = new RouteTypeResponse();
 		if(dto!=null && dto.getCode()==Constants.RESULT_SUCCESS){

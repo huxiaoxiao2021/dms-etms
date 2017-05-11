@@ -362,13 +362,13 @@ public class LoadBillServiceImpl implements LoadBillService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
     public List<LoadBill> findPageLoadBill(Map<String, Object> params) {
         return loadBillReadDao.findPageLoadBill(params);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
     public Integer findCountLoadBill(Map<String, Object> params) {
         return loadBillReadDao.findCountLoadBill(params);
     }

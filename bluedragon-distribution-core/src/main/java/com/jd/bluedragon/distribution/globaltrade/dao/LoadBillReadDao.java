@@ -18,7 +18,7 @@ public class LoadBillReadDao extends BaseDao<LoadBill> {
 	public static final String namespace = LoadBillReadDao.class.getName();
 
 	@SuppressWarnings("unchecked")
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
 	public List<LoadBill> findPageLoadBill(Map<String, Object> params) {
 		return super.getSqlSessionRead().selectList(LoadBillReadDao.namespace + ".findPage", params);
 	}
@@ -27,7 +27,7 @@ public class LoadBillReadDao extends BaseDao<LoadBill> {
 		return (Integer) super.getSqlSessionRead().selectOne(LoadBillReadDao.namespace + ".findCount", params);
 	}
     @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(Map<String, Object> params) {
         return super.getSqlSessionRead().selectList(LoadBillReadDao.namespace + ".findWaybillinLoadBill", params);
     }

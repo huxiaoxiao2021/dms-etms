@@ -30,7 +30,7 @@ public class CrossSortingDao extends BaseDao<CrossSorting> {
 		return super.getSqlSession().insert(CrossSortingDao.namespace + ".addBatch", csList);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public CrossSorting findCrossSorting(CrossSorting crossSorting) {
 		List<CrossSorting> crossSortings = super.getSqlSession().selectList(CrossSortingDao.namespace + ".findCrossSorting", crossSorting);
 		if (null == crossSortings || crossSortings.size() <= 0)
@@ -49,20 +49,20 @@ public class CrossSortingDao extends BaseDao<CrossSorting> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
 	public List<CrossSorting> findPageCrossSorting(Map<String, Object> params) {
 		logger.info("CrossSortingReadDao.findPageCrossSorting begin...");
 		return super.getSqlSession().selectList(CrossSortingDao.namespace + ".findPageTask", params);
 	}
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
 	public Integer findCountCrossSorting(Map<String, Object> params) {
 		logger.info("CrossSortingReadDao.findCountCrossSorting begin...");
 		return (Integer) super.getSqlSession().selectOne(CrossSortingDao.namespace + ".findCountTask", params);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = false)
 	public List<CrossSorting> findMixDms(Map<String, Object> params) {
 		logger.info("CrossSortingReadDao.findMixDms begin...");
 		return super.getSqlSession().selectList(CrossSortingDao.namespace + ".findMixDms", params);

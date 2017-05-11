@@ -836,7 +836,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
         String reslut = "0";
         Box box = null;
@@ -1707,7 +1707,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return tSorting;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public boolean checkSend(SendDetail tSendDatail) {
         List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
         if (sendDetails != null && !sendDetails.isEmpty()) {
@@ -1723,7 +1723,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public SendDetail getSendSiteID(String packbarCode, Integer sitecode) {
         if (packbarCode == null || packbarCode.isEmpty() || sitecode == null) {
             return null;
@@ -1974,7 +1974,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return false;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public List<SendDetail> findOrder(SendDetail sendDetail) {
         return sendDatailDao.findOrder(sendDetail);
     }

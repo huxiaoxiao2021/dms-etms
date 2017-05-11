@@ -45,13 +45,13 @@ public class SealBoxServiceImpl implements SealBoxService {
 		}
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public SealBox findBySealCode(String sealCode) {
 		Assert.notNull(sealCode, "sealCode must not be null");
 		return this.sealBoxDao.findBySealCode(sealCode);
 	}
 	
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public SealBox findByBoxCode(String boxCode) {
 		Assert.notNull(boxCode, "boxCode must not be null");
 		return this.sealBoxDao.findByBoxCode(boxCode);

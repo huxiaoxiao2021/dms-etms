@@ -22,19 +22,19 @@ public class OfflineLogServiceImpl implements OfflineLogService{
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public Integer totalSizeByParams(Map<String, Object> params){
 		return offlineDao.totalSizeByParams(params);
 	}
 	
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<OfflineLog> queryByParams(Map<String, Object> params) {
 		return offlineDao.queryByParams(params);
 	}
 	
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public OfflineLog findByObj(OfflineLog offlineLog) {
 		return offlineDao.findByObj(offlineLog);
 	}

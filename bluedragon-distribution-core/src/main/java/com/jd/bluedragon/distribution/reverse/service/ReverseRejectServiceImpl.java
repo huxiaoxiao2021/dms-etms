@@ -46,7 +46,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         return this.reverseRejectDao.update(ReverseRejectDao.namespace, reverseReject);
     }
     
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public ReverseReject get(Integer businessType, String orderId, String packageCode) {
         ReverseReject reverseReject = new ReverseReject();
         reverseReject.setBusinessType(businessType);

@@ -55,7 +55,7 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<PopReceive> findListByParamMap(Map<String, Object> paramMap) {
 		this.logger.info("findListByParamMap --> paramMap:" + paramMap);
 		if (paramMap == null || paramMap.isEmpty()) {
@@ -65,7 +65,7 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	}
 	
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public PopReceive findByFingerPrint(String fingerPrint) {
 		this.logger.info("findByFingerPrint --> fingerPrint:" + fingerPrint);
 		if (StringUtils.isBlank(fingerPrint)) {

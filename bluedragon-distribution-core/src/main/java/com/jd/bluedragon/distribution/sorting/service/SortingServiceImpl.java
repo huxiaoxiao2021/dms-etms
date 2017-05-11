@@ -145,7 +145,7 @@ public class SortingServiceImpl implements SortingService {
 		this.addSendDetail(sorting, null);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
 			return true;
@@ -175,7 +175,7 @@ public class SortingServiceImpl implements SortingService {
 		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findByBoxCode(Sorting sorting) {
 		return this.sortingDao.findByBoxCode(sorting);
 	}
@@ -847,18 +847,18 @@ public class SortingServiceImpl implements SortingService {
 		return pickup;
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findOrder(Sorting sorting) {
 		return this.sortingDao.findOrder(sorting);
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int findBoxPack(Integer createSiteCode, String boxCode) {
 		this.logger.debug("根据箱号获取包裹信息 --> 开始获取包裹总数");
 		return this.sortingDao.findPackCount(createSiteCode, boxCode);
