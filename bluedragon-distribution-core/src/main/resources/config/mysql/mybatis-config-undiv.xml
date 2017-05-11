@@ -12,6 +12,8 @@
     </settings>
 
     <typeAliases>
+        <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
+
         <typeAlias type="com.jd.bluedragon.distribution.task.domain.Task" alias="Task"/>
 
         <typeAlias type="com.jd.bluedragon.distribution.seal.domain.SealBox" alias="SealBox"/>
