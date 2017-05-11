@@ -43,6 +43,7 @@
         <mapper resource="mappers/mysql/send/SendDatailMapper.xml"/>
         <mapper resource="mappers/mysql/receive/CenConfirmMapper.xml"/>
         <mapper resource="mappers/mysql/inspection/InspectionMapper.xml"/>
+        <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
     </mappers>
 
 </configuration>

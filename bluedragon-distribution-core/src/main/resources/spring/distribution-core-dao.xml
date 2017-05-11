@@ -41,6 +41,10 @@
           class="com.jd.bluedragon.distribution.receive.dao.CenConfirmDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
+    <bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
     <!-- 采用JProxy分库分表 end -->
 
     <bean id="scannerFrameBatchSendDao" class="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao">
@@ -304,10 +308,6 @@
     </bean>
 
     <bean id="objectIdDao" class="com.jd.bluedragon.distribution.dbs.dao.ObjectIdDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
-    <bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
