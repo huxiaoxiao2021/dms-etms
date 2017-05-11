@@ -83,18 +83,15 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
     }
     
 
-    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCode(String packageCode) {
         return this.reverseReceiveDao.findByPackageCode(packageCode);
     }
     
 
-    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public ReverseReceive findByPackageCodeAndSendCode(String packageCode,String sendCode,Integer businessType) {
     	return this.reverseReceiveDao.findByPackageCodeAndSendCode(packageCode, sendCode, businessType);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
     public ReverseReceive findMCS(String packageCode,String sendCode,Integer businessType, Integer canReceive) {
         return this.reverseReceiveDao.findMCS(packageCode, sendCode, businessType, canReceive);
     }

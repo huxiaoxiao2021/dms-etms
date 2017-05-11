@@ -71,7 +71,6 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * 通过运单号获得所有包裹
 	 */
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<DeliveryPackageD> getPackageBarcodeByWaybillCode(String waybillCode ){
 		
 		BaseEntity<com.jd.etms.waybill.dto.BigWaybillDto> entity = wssByWaybillCode(waybillCode);
@@ -89,7 +88,6 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * @param code
 	 */
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public WaybillResponse getWaybillPackageBarcode(String code,Integer siteCode, Integer receiveSiteCode) {
 		
 		WaybillResponse waybillResponse = new WaybillResponse();

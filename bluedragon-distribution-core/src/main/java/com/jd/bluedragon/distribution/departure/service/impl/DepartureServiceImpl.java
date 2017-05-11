@@ -516,7 +516,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param
 	 *
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public ServiceMessage<String> checkSendStatus(Integer siteCode,
 			String sendCode) {
 
@@ -549,7 +548,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @param sendCode
 	 *            交接单号
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public SendMeasure getSendMeasure(Integer siteCode, String sendCode) {
 		SendMeasure response = new SendMeasure();
 		SendDetail queryDetail = new SendDetail();
@@ -733,7 +731,6 @@ public class DepartureServiceImpl implements DepartureService {
 	 *
 	 * @return
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<SendCode> getSendCodesByWaybills(List<SendCode> sendCodes) {
 		if (sendCodes == null) {
 			return null;

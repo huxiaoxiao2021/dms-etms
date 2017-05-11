@@ -71,7 +71,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	private WaybillService waybillService; 
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public Map<String, Object> getBaseStaffByStaffId(Integer staffId) {
 		logger.info("根据员工编号获取员工信息，staffId:" + staffId);
 		if (staffId == null) {
@@ -101,7 +100,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	@Deprecated
 	public int findTotalCount(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
@@ -109,14 +107,12 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<PopAbnormal> findList(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
 		return popAbnormalDao.findList(paramMap);
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public PopAbnormal getWaybillByOrderCode(String orderCode) {
 		PopAbnormal popAbnormal = null;
 		try {
@@ -147,7 +143,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public PopAbnormal checkByMap(Map<String, String> paramMap) {
 		if (paramMap == null || paramMap.isEmpty()) {
 			logger.info("POP差异订单Service --> checkByMap 传入验证参数为空");

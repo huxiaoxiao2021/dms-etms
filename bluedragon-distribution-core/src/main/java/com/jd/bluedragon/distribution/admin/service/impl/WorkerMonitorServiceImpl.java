@@ -21,7 +21,6 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	private TaskDao taskDao;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<Task> findPageTask(Map<String, Object> params) {
 		logger.info("WorkerMonitorServiceImpl.findPageTask begin...");
 		TaskDao routerDao = taskDao;    	
@@ -29,7 +28,6 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public Integer findCountTask(Map<String, Object> params) {
 		logger.info("WorkerMonitorServiceImpl.findCountTask begin...");
 		TaskDao routerDao = taskDao;    	
@@ -37,7 +35,6 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public List<Integer> findTaskTypeByTableName(String tableName) {
 		logger.info("WorkerMonitorServiceImpl.findTaskTypeByTableName begin...");
 		TaskDao routerDao = taskDao;    	
