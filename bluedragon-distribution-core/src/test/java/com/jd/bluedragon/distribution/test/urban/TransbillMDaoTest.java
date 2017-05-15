@@ -35,7 +35,7 @@ public class TransbillMDaoTest extends AbstractDaoIntegrationTest{
 		Assert.assertEquals(res, new Integer(1));
 		TransbillM obj = transbillMDao.findByWaybillCode(wallbillCode);
 		Assert.assertNotNull(obj);
-		obj.setTransbillState("300");
+		//obj.setTransbillState("300");
 		res = transbillMDao.updateBySelective(obj);
 		Assert.assertEquals(res, new Integer(1));
 		List<TransbillM> list = transbillMDao.findByScheduleBillCode(scheduleBillCode);
