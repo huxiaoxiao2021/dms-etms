@@ -28,30 +28,52 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
 
     protected String getBussinessId(Task task){
         Integer taskType = task.getType();
+        String tableName = task.getTableName();
+        String keyword1 = task.getKeyword1();
 
-        if(taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)){
-            if(StringHelper.isNotEmpty(task.getBody())){
-                String [] data = task.getBody().split(DELIMITER);
-                return data[data.length-1];
-            }
+        //task_send 1300
+        //keyword1 = boxCode
+        //keyword2 = boxCode
+        //keyword3 = boxCode 可以截后面的序列号
+        //keyword4 = boxCode 可以截后面的序列号
+        //keyword5 = body可以截后面的序列号
 
-        } else if(taskType.equals(Task.TASK_TYPE_DEPARTURE)){
+        if("task_send".equalsIgnoreCase(tableName) && taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)
+                && (keyword1.equals("1")||(keyword1.equals("2")) )){
+            return task.getBoxCode();
+        }
+        if("task_send".equalsIgnoreCase(tableName) && taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)
+                && (keyword1.equals("3")||(keyword1.equals("4")) )){
             if(StringHelper.isNotEmpty(task.getBoxCode())) {
                 String[] data = task.getBoxCode().split(DELIMITER);
                 return data[data.length - 1];
             }
+        }
+        if("task_send".equalsIgnoreCase(tableName) && taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)
+                && keyword1.equals("5")){
+            if(StringHelper.isNotEmpty(task.getBody())){
+                String [] data = task.getBody().split(DELIMITER);
+                return data[data.length-1];
+            }
+        }
+        //task_send:1400
+        // boxCode 可以截后面的序列号
 
-        } else if(taskType.equals(Task.TASK_TYPE_RECEIVE)
-                || taskType.equals(Task.TASK_TYPE_SHIELDS_CAR_ERROR)
-                ||taskType.equals(Task.TASK_TYPE_INSPECTION)
-                ||taskType.equals(Task.TASK_TYPE_SHIELDS_BOX_ERROR)
-                ||taskType.equals(Task.TASK_TYPE_PARTNER_WAY_BILL)
-                ||taskType.equals(Task.TASK_TYPE_PARTNER_WAY_BILL_NOTIFY)
-                ||taskType.equals(Task.TASK_TYPE_SORTING)
-                ||taskType.equals(Task.TASK_TYPE_SEAL_BOX)
-                ||taskType.equals(Task.TASK_TYPE_RETURNS)){
+        if("task_send".equalsIgnoreCase(tableName) && taskType.equals(Task.TASK_TYPE_DEPARTURE)
+                && keyword1.equals("5")){
+            if(StringHelper.isNotEmpty(task.getBoxCode())) {
+                String[] data = task.getBoxCode().split(DELIMITER);
+                return data[data.length - 1];
+            }
+        }
+
+        //task_sorting 和 task_inspeciton
+        if("task_sorting".equalsIgnoreCase(tableName) || "task_inspection".equalsIgnoreCase(tableName)){
             return task.getKeyword2();
-        } else if (taskType .equals(Task.TASK_TYPE_WEIGHT) ){
+        }
+
+        //task_weight
+        if (taskType .equals(Task.TASK_TYPE_WEIGHT) ){
             String body = task.getBody();
             if(StringHelper.isNotEmpty(body)) {
                 String waybillCode = null;
