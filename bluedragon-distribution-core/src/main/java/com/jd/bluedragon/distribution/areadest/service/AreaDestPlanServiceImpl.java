@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDao;
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
+import com.jd.bluedragon.utils.UsingState;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -119,8 +120,32 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
         Map<String, Object> parameter = new HashMap<String, Object>();
         parameter.put("operateSiteCode", operateSiteCode);
         parameter.put("planName", planName);
-        if(areaDestPlanDao.getCount(parameter) > 0){
+        if (areaDestPlanDao.getCount(parameter) > 0) {
             return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    @Override
+    public Boolean updateUsingState(Integer planId, UsingState state) {
+        Map<String, Object> parameter = new HashMap<String, Object>();
+        parameter.put("planId", planId);
+        if (state != null){
+            parameter.put("state", state.getState());
+        }
+        if (areaDestPlanDao.updateUsingState(parameter) > 0) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    @Override
+    public Boolean isUsing(Integer planId) {
+        AreaDestPlan plan = this.get(planId);
+        if (plan != null){
+            if (UsingState.USING.getState() == plan.getState()){
+                return Boolean.TRUE;
+            }
         }
         return Boolean.FALSE;
     }
@@ -128,39 +153,39 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     @Override
     public List<AreaDestPlan> getMyPlan(Integer siteCode, Integer machineId) {
         List<AreaDestPlan> plan = new ArrayList<AreaDestPlan>();
-        if(null != machineId){
-            if(this.logger.isInfoEnabled()){
+        if (null != machineId) {
+            if (this.logger.isInfoEnabled()) {
                 this.logger.info("分拣中心：" + siteCode + ",龙门架设备ID：" + machineId + ",请求获取当前分配方案");
             }
-            Map<String,Object> param = new HashMap<String,Object>();
-            param.put("siteCode",siteCode);
-            param.put("machineId",machineId);
+            Map<String, Object> param = new HashMap<String, Object>();
+            param.put("siteCode", siteCode);
+            param.put("machineId", machineId);
             plan = areaDestPlanDao.getMyPlans(param);
         }
         return plan;
     }
 
     @Override
-    public Boolean ModifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode) {
+    public Boolean modifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode) {
         Boolean bool = Boolean.FALSE;
-        if(this.logger.isInfoEnabled()){
+        if (this.logger.isInfoEnabled()) {
             this.logger.info("修改龙门架方案操作--machineId：" + machineId + ",planId:" + planId
                     + ",userCode:" + userCode + ",siteCode:" + siteCode);
         }
-        if(null != machineId && null != planId && null != siteCode && null != userCode){
-            if(isExist(planId,siteCode,machineId)){
+        if (null != machineId && null != planId && null != siteCode && null != userCode) {
+            if (isExist(planId, siteCode, machineId)) {
                 /** 切换方案只要插入流水表就行 **/
-                if(this.logger.isInfoEnabled()){
+                if (this.logger.isInfoEnabled()) {
                     this.logger.info("存在此方案列表,进行插入流水操作");
                 }
                 AreaDestPlanDetail detail = new AreaDestPlanDetail();
                 detail.setMachineId(machineId);
                 detail.setOperateSiteCode(siteCode);
-                detail.setPlanId((int)(long)planId);
+                detail.setPlanId((int) (long) planId);
                 detail.setOperateUserCode(userCode);
                 detail.setStartTime(new Date());
                 int i = areaDestPlanDetailDao.add(detail);
-                if(i>=1){
+                if (i >= 1) {
                     bool = Boolean.TRUE;
                 }
             }
@@ -171,13 +196,13 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     /**
      * 根据方案ID查看方案是不是存在
      */
-    private Boolean isExist(Long planId,Integer siteCode,Integer machineId){
+    private Boolean isExist(Long planId, Integer siteCode, Integer machineId) {
         Boolean bool = Boolean.FALSE;
-        if(null != planId){
-            Map<String, Object> params = new HashMap<String,Object>();
-            params.put("planId",planId);
-            params.put("machineId",machineId);
-            params.put("siteCode",siteCode);
+        if (null != planId) {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("planId", planId);
+            params.put("machineId", machineId);
+            params.put("siteCode", siteCode);
             bool = areaDestPlanDao.isExist(params);
         }
         return bool;

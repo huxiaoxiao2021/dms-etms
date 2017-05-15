@@ -310,5 +310,8 @@
 	<bean id="areaDestDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestDao">
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
-
+	<!--城配运单M表 -->
+	<bean id="transbillMDao" class="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
 </beans>

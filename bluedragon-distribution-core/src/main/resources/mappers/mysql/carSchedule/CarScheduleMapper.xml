@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.carSchedule.dao.CarScheduleDao" >
+
+    <resultMap id="carSchedule" type="com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo">
+        <!--<result column="id" property="id"/>-->
+        <result column="send_car_code" property="sendCarCode"/>
+        <result column="vehicle_number" property="vehicleNumber"/>
+        <result column="create_site_code" property="createSiteCode"/>
+        <result column="create_dms_code" property="createDmsCode"></result>
+        <result column="create_site_name" property="createSiteName"/>
+        <result column="receive_site_code" property="receiveSiteCode"/>
+        <result column="receive_dms_code" property="receiveDmsCode"></result>
+        <result column="receive_site_name" property="receiveSiteName"/>
+        <result column="operate_time" property="operateTime"/>
+        <result column="standard_send_time" property="standardSendTime"/>
+        <result column="standard_arrive_time" property="standardArriveTime"/>
+        <result column="car_send_time" property="carSendTime"/>
+        <result column="car_arrive_time" property="carArriveTime"/>
+        <result column="route_type" property="routeType"/>
+        <result column="route_type_mark" property="routeTypeMark"/>
+        <result column="transportWay" property="transportWay"/>
+        <result column="transportWay_mark" property="transportWayMark"/>
+        <result column="carrier_type" property="carrierType"/>
+        <!--<result column="send_code_list" property="sendCodeList"/>-->
+        <result column="package_num" property="packageNum"/>
+        <result column="waybill_num" property="waybillNum"/>
+        <!--<result column="yn" property="yn"/>-->
+    </resultMap>
+
+    <insert id="add" parameterType="carSchedule">
+      INSERT INTO car_schedule_info ( send_car_code,vehicle_number,create_site_code,create_dms_code,create_site_name,receive_site_code,receive_dms_code,receive_site_name,
+      operate_time,standard_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
+      carrier_type,package_num,waybill_num,is_cancel,yn,create_time,ts )
+      VALUES(#{sendCarCode},#{vehicleNumber},#{createSiteCode},#{createDmsCode},#{createSiteName},#{receiveSiteCode},#{receiveDmsCode},#{receiveSiteName},
+       #{operateTimeDate},#{standardSendTimeDate},#{standardArriveTimeDate},#{carSendTimeDate},#{carArriveTimeDate},#{routeType},#{routeTypeMark},#{transportWay},
+       #{transportWayMark},#{carrierType},#{packageNum},#{waybillNum},0,1,NOW(),NOW())
+    </insert>
+
+    <select id="getByVehicleNoAndSiteCode" parameterType="java.util.Map" resultMap="carSchedule">
+        SELECT send_car_code,vehicle_number,create_site_code,create_dms_code,create_site_name,receive_site_code,receive_site_name,receive_site_name,
+      operate_time,standard_send_time,standard_arrive_time,car_send_time,car_arrive_time,route_type,route_type_mark,transportWay,transportWay_mark,
+      carrier_type,package_num,waybill_num FROM car_schedule_info
+        WHERE is_cancel = 0 AND yn = 1
+        <if test="vehicleNumber != null">
+            AND vehicle_number = #{vehicleNumber}
+        </if>
+        <if test="siteCode != null">
+            AND  receive_site_code = #{siteCode}
+        </if>
+        ORDER  BY create_time DESC limit 1
+
+    </select>
+
+    <update id="cancelSchedule" parameterType="carSchedule">
+        UPDATE car_schedule_info
+        SET is_cancel = 1,update_time = #{operateTimeDate}
+        WHERE send_car_code = #{sendCarCode} AND vehicle_number = #{vehicleNumber}
+    </update>
+
+    <select id="routeTypeByVehicleNo" parameterType="java.lang.String">
+        SELECT route_type
+        FROM car_schedule_info
+        WHERE yn = 1 AND is_cancel = 0
+        AND vehicle_number = #{vehicleNumber}
+        ORDER  BY create_time DESC limit 1
+    </select>
+
+    <select id="routeTypeByVehicleNoAndSiteCode" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT route_type
+        FROM car_schedule_info
+        WHERE yn = 1 AND is_cancel = 0
+        AND vehicle_number = #{vehicleNumber}
+        <if test="siteCode != null">
+            AND receive_site_code = #{siteCode}
+        </if>
+        ORDER  BY create_time DESC limit 1
+    </select>
+
+    <select id="packageNumByVehicleNo" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT package_num
+        FROM car_schedule_info
+        WHERE yn = 1 AND is_cancel = 0
+        AND vehicle_number = #{vehicleNumber}
+        ORDER  BY create_time DESC limit 1
+    </select>
+
+    <select id="packageNumByVehicleNoAndSiteCode" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT package_num
+        FROM car_schedule_info
+        WHERE yn = 1 AND is_cancel = 0
+        AND vehicle_number = #{vehicleNumber}
+        <if test="siteCode != null">
+            AND receive_site_code = #{siteCode}
+        </if>
+        ORDER  BY create_time DESC limit 1
+    </select>
+
+    <!--<select id="querySendCodesByVehicleNo" parameterType="java.lang.String">-->
+        <!--SELECT send_code_list FROM car_schedule_info-->
+        <!--WHERE yn = 1 AND is_cancel = 0-->
+        <!--AND vehicle_number = #{vehicle_number}-->
+        <!--ORDER  BY create_time DESC limit 1-->
+    <!--</select>-->
+
+    <!--<resultMap id="stringsResult" type="java.lang.String">-->
+        <!--<result column="send_car_code" property="sendCarCode" jdbcType="VARCHAR" />-->
+    <!--</resultMap>-->
+
+    <select id="sendCarCodeByVehicleNumberAndSiteCode" parameterType="java.util.Map" resultType="string">
+        SELECT send_car_code FROM car_schedule_info
+        WHERE yn = 1 AND is_cancel = 0
+        <if test="vehicleNumber != null">
+            AND vehicle_number = #{vehicleNumber}
+        </if>
+        <if test="siteCode != null">
+            AND receive_site_code = #{siteCode}
+        </if>
+        ORDER  BY create_time DESC limit 1
+    </select>
+
+</mapper>

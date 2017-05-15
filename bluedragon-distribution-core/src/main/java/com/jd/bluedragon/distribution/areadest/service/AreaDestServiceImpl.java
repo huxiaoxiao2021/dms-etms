@@ -267,7 +267,8 @@ public class AreaDestServiceImpl implements AreaDestService {
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception {
+    public Map<RouteType, Integer> importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception {
+        Map<RouteType, Integer> result = new HashMap<RouteType, Integer>();
         Set<AreaDest> importData = new HashSet<AreaDest>();
         for (Map.Entry<RouteType, Sheet> entry : sheets.entrySet()) {
             Set<AreaDest> areaDestSet = doImportBySheet(entry.getKey(), entry.getValue(), request, userName, userCode);
@@ -276,33 +277,39 @@ public class AreaDestServiceImpl implements AreaDestService {
                     throw new DataFormatException("【" + RouteType.getEnum(areaDest.getRouteType()).getName() + "】预分拣站点/末级分拣中心：" + areaDest.getReceiveSiteName() + "，站点编号：" + areaDest.getReceiveSiteCode() + "，在其他页签中已存在发货路线关系");
                 }
             }
+            result.put(entry.getKey(), areaDestSet.size());
         }
         if (!importData.isEmpty()) {
             disable(request.getPlanId(), userName, userCode);
             areaDestDao.addBatch(new ArrayList<AreaDest>(importData));
         }
+        return result;
     }
 
     private Set<AreaDest> doImportBySheet(RouteType routeType, Sheet sheet, AreaDestRequest request, String userName, Integer userCode) throws Exception {
         Set<AreaDest> insertSet = new HashSet<AreaDest>();
         for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
             Row row = sheet.getRow(rowIndex);
-            AreaDest areaDest = new AreaDest();
-            // 初始化中转站点信息，避免无中转站点时插入报错
-            areaDest.setTransferSiteCode(0);
-            areaDest.setTransferSiteName("");
-            // 检查单元格是否符合列对应的要求
-            checkCellFormat(row, routeType);
-            // 检查输入的站点code是否存在
-            checkSiteCodeValid(row, routeType, areaDest);
-            areaDest.setPlanId(request.getPlanId());
-            areaDest.setRouteType(routeType.getType());
-            areaDest.setCreateSiteCode(request.getCreateSiteCode());
-            areaDest.setCreateSiteName(request.getCreateSiteName());
-            areaDest.setCreateUser(userName);
-            areaDest.setCreateUserCode(userCode);
-            if (!insertSet.add(areaDest)) {
-                throw new DataFormatException("【" + routeType.getName() + "】第" + (rowIndex + 1) + "行在该页签中存在重复关系");
+            if (row != null) {
+                AreaDest areaDest = new AreaDest();
+                // 初始化中转站点信息，避免无中转站点时插入报错
+                areaDest.setTransferSiteCode(0);
+                areaDest.setTransferSiteName("");
+                // 检查单元格是否符合列对应的要求
+                if (checkCellFormat(row, routeType)) {
+                    // 检查输入的站点code是否存在
+                    if (checkSiteCodeValid(row, routeType, areaDest)) {
+                        areaDest.setPlanId(request.getPlanId());
+                        areaDest.setRouteType(routeType.getType());
+                        areaDest.setCreateSiteCode(request.getCreateSiteCode());
+                        areaDest.setCreateSiteName(request.getCreateSiteName());
+                        areaDest.setCreateUser(userName);
+                        areaDest.setCreateUserCode(userCode);
+                        if (!insertSet.add(areaDest)) {
+                            throw new DataFormatException("【" + routeType.getName() + "】第" + (rowIndex + 1) + "行在该页签中存在重复关系");
+                        }
+                    }
+                }
             }
         }
         return insertSet;
@@ -315,46 +322,70 @@ public class AreaDestServiceImpl implements AreaDestService {
      * @param type
      * @throws Exception
      */
-    private void checkCellFormat(Row row, RouteType type) throws Exception {
+    private boolean checkCellFormat(Row row, RouteType type) throws Exception {
         int rowIndex = row.getRowNum();
         Cell cell0 = row.getCell(0);
         Cell cell2 = row.getCell(2);
+        boolean isEmptyRow = false;
         switch (type) {
             case DIRECT_SITE:
-                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
-                }
-                if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
+                if (checkCellIsEmpty(cell0)) {
+                    isEmptyRow = true;
+                } else {
+                    if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
+                    }
                 }
                 break;
             case DIRECT_DMS:
-                if (null == cell0 || cell0.getCellType() == Cell.CELL_TYPE_BLANK) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
-                }
-                if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
-                }
-
-                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
-                }
-                if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
+                if (checkCellIsEmpty(cell0)) {
+                    if (checkCellIsEmpty(cell2)) {
+                        isEmptyRow = true;
+                    } else {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 此处为必填项");
+                    }
+                } else {
+                    if (cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
+                    }
+                    if (checkCellIsEmpty(cell2)) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
+                    }
+                    if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
+                    }
                 }
                 break;
             case MULTIPLE_DMS:
-                if (null != cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
-                }
-                if (null == cell2 || cell2.getCellType() == Cell.CELL_TYPE_BLANK) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
-                }
-                if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
+                if (checkCellIsEmpty(cell0)) {
+                    if (checkCellIsEmpty(cell2)) {
+                        isEmptyRow = true;
+                    } else {
+                        if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                            throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
+                        }
+                    }
+                } else {
+                    if (null != cell0 && cell0.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 数据格式不正确");
+                    }
+                    if (checkCellIsEmpty(cell2)) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 此处为必填项");
+                    }
+                    if (cell2.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 数据格式不正确");
+                    }
                 }
                 break;
         }
+        return !isEmptyRow;
+    }
+
+    private boolean checkCellIsEmpty(Cell cell) {
+        if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || "".equals(cell.toString().trim())) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -365,52 +396,56 @@ public class AreaDestServiceImpl implements AreaDestService {
      * @param areaDest
      * @throws DataFormatException
      */
-    private void checkSiteCodeValid(Row row, RouteType type, AreaDest areaDest) throws DataFormatException {
-        int rowIndex = row.getRowNum();
-        BaseStaffSiteOrgDto siteOrgDto;
+    private boolean checkSiteCodeValid(Row row, RouteType type, AreaDest areaDest) throws DataFormatException {
+        boolean isValid = true;
+        //int rowIndex = row.getRowNum();
+        BaseStaffSiteOrgDto siteOrgDto0;
+        BaseStaffSiteOrgDto siteOrgDto2;
         Cell cell0 = row.getCell(0);
         Cell cell2 = row.getCell(2);
         switch (type) {
             case DIRECT_SITE:
-                siteOrgDto = getSiteByCode(cell0.getNumericCellValue());
-                if (null == siteOrgDto) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
+                siteOrgDto0 = getSiteByCode(cell0.getNumericCellValue());
+                if (siteOrgDto0 != null) {
+                    areaDest.setReceiveSiteCode(siteOrgDto0.getSiteCode());
+                    areaDest.setReceiveSiteName(siteOrgDto0.getSiteName());
+                } else {
+                    isValid = false;
                 }
-                areaDest.setReceiveSiteCode(siteOrgDto.getSiteCode());
-                areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
                 break;
             case DIRECT_DMS:
-                siteOrgDto = getSiteByCode(cell0.getNumericCellValue());
-                if (null == siteOrgDto) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
+                siteOrgDto0 = getSiteByCode(cell0.getNumericCellValue());
+                siteOrgDto2 = getSiteByCode(cell2.getNumericCellValue());
+                if (siteOrgDto0 != null && siteOrgDto2 != null) {
+                    areaDest.setTransferSiteCode(siteOrgDto0.getSiteCode());
+                    areaDest.setTransferSiteName(siteOrgDto0.getSiteName());
+                    areaDest.setReceiveSiteCode(siteOrgDto2.getSiteCode());
+                    areaDest.setReceiveSiteName(siteOrgDto2.getSiteName());
+                } else {
+                    isValid = false;
                 }
-                areaDest.setTransferSiteCode(siteOrgDto.getSiteCode());
-                areaDest.setTransferSiteName(siteOrgDto.getSiteName());
-
-                siteOrgDto = getSiteByCode(cell2.getNumericCellValue());
-                if (null == siteOrgDto) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
-                }
-                areaDest.setReceiveSiteCode(siteOrgDto.getSiteCode());
-                areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
                 break;
             case MULTIPLE_DMS:
-                if (null != cell0) {
-                    siteOrgDto = getSiteByCode(cell0.getNumericCellValue());
-                    if (null == siteOrgDto) {
-                        throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (1) + "列) 没有找到对应分拣中心");
+                if (!checkCellIsEmpty(cell0)) {
+                    siteOrgDto0 = getSiteByCode(cell0.getNumericCellValue());
+                    if (null != siteOrgDto0) {
+                        areaDest.setTransferSiteCode(siteOrgDto0.getSiteCode());
+                        areaDest.setTransferSiteName(siteOrgDto0.getSiteName());
+                    } else {
+                        isValid = false;
+                        break;
                     }
-                    areaDest.setTransferSiteCode(siteOrgDto.getSiteCode());
-                    areaDest.setTransferSiteName(siteOrgDto.getSiteName());
                 }
-                siteOrgDto = getSiteByCode(cell2.getNumericCellValue());
-                if (null == siteOrgDto) {
-                    throw new DataFormatException(type.getName() + "(" + (rowIndex + 1) + "行," + (3) + "列) 没有找到对应分拣中心");
+                siteOrgDto2 = getSiteByCode(cell2.getNumericCellValue());
+                if (null != siteOrgDto2) {
+                    areaDest.setReceiveSiteCode(siteOrgDto2.getSiteCode());
+                    areaDest.setReceiveSiteName(siteOrgDto2.getSiteName());
+                } else {
+                    isValid = false;
                 }
-                areaDest.setReceiveSiteCode(siteOrgDto.getSiteCode());
-                areaDest.setReceiveSiteName(siteOrgDto.getSiteName());
                 break;
         }
+        return isValid;
     }
 
     /**

@@ -62,6 +62,11 @@ public class AreaDestPlan implements Serializable {
      */
     private Date updateTime;
 
+    /**
+     * 启用状态 {@link com.jd.bluedragon.utils.UsingState}
+     */
+    private Integer state;
+
     public Integer getPlanId() {
         return planId;
     }
@@ -142,6 +147,14 @@ public class AreaDestPlan implements Serializable {
         this.updateTime = updateTime;
     }
 
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return "AreaDestPlan{" +
@@ -155,6 +168,7 @@ public class AreaDestPlan implements Serializable {
                 ", updateUserCode=" + updateUserCode +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
+                ", state=" + state +
                 '}';
     }
 }

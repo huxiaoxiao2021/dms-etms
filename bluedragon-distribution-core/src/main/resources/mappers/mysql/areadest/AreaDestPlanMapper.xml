@@ -13,6 +13,7 @@
         <result column="UPDATE_USER_CODE" property="updateUserCode"/>
         <result column="CREATE_TIME" property="createTime"/>
         <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="STATE" property="state"/>
     </resultMap>
 
     <insert id="add" parameterType="areaDestPlan">
@@ -24,6 +25,7 @@
 		    CREATE_USER_CODE,
 		    CREATE_TIME,
 		    UPDATE_TIME,
+		    STATE,
 		    YN
 		    )
 		VALUES(
@@ -34,6 +36,7 @@
 			#{createUserCode, jdbcType=BIGINT},
 			NOW(),
 			NOW(),
+			0,
 			1
 		)
 	</insert>
@@ -43,7 +46,8 @@
         PLAN_ID,
         PLAN_NAME,
         MACHINE_ID,
-        OPERATE_SITE_CODE
+        OPERATE_SITE_CODE,
+        STATE
         FROM AREA_DEST_PLAN
         WHERE YN = 1
             AND PLAN_ID = #{planId, jdbcType=BIGINT}
@@ -54,7 +58,8 @@
         PLAN_ID,
         PLAN_NAME,
         MACHINE_ID,
-        OPERATE_SITE_CODE
+        OPERATE_SITE_CODE,
+        STATE
         FROM AREA_DEST_PLAN
         WHERE YN = 1
         <if test="machineId != null">
@@ -93,6 +98,9 @@
         </if>
         <if test="machineId != null">
             MACHINE_ID = #{machineId, jdbcType=BIGINT},
+        </if>
+        <if test="state != null">
+            STATE = #{state, jdbcType=INTEGER},
         </if>
         <if test="updateUser != null">
             UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
@@ -144,7 +152,8 @@
             UPDATE_USER_CODE = #{updateUserCode, jdbcType=BIGINT},
         </if>
         YN = 0, UPDATE_TIME = NOW()
-        WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND PLAN_ID != #{planId,jdbcType=BIGINT}
+        WHERE MACHINE_ID = #{machineId, jdbcType=BIGINT}AND OPERATE_SITE_CODE = #{siteCode,jdbcType=BIGINT} AND YN=1 AND
+        PLAN_ID != #{planId,jdbcType=BIGINT}
     </update>
 
     <select id="getMyPlans" parameterType="java.util.Map">

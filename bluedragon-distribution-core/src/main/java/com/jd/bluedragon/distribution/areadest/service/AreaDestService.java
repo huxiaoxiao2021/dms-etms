@@ -143,6 +143,6 @@ public interface AreaDestService {
      * @param userCode
      * @throws Exception
      */
-    void importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception;
+    Map<RouteType, Integer> importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception;
 
 }
