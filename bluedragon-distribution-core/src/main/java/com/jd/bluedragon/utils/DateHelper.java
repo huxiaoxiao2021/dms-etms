@@ -6,11 +6,20 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.jd.bluedragon.Constants;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class DateHelper {
-
+	
+    public static final String[] DATE_TIME_FORMAT=new String[]{
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy/MM/dd HH:mm:ss",
+        "yyyy/MM/dd HH:mm:ss.SSS",
+        "yyyy-MM-dd HH:mm:ss.SSS",
+        "yyyyMMddHHmmss",
+        "yyyyMMddHHmmssSSS"
+    };
     private static final Log LOGGER= LogFactory.getLog(DateHelper.class);
 
     public static final long TEN_MINUTES = 10 * 60 * 1000;

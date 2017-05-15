@@ -133,4 +133,8 @@
     <jmq:consumer id="jmq.cancelScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
             <jmq:listener topic="tms_cancel_sendcar" listener="cancelScheduleFromTMSConsumer"/>
     </jmq:consumer>
+    <!--jmq.transbillMSyncConsumer 城配运单mq消费应用-->
+    <jmq:consumer id="jmq.transbillMSyncConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="bd_transbill_m" listener="transbillMSyncConsumer"/>
+    </jmq:consumer>
 </beans>

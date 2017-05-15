@@ -73,7 +73,6 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 //	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public SealVehicle findBySealCode(String sealCode) {
 		Assert.notNull(sealCode, "sealCode must not be null");
 		return this.sealVehicleDao.findBySealCode(sealCode);
@@ -465,7 +464,6 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 	
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SealVehicle> findBySendCode(String sendCode) {
 		Assert.notNull(sendCode, "sendCode must not be null");
 		return this.sealVehicleReadDao.findBySendCode(sendCode);

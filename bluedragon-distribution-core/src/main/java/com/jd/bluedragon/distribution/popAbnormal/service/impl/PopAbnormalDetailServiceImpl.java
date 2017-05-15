@@ -30,7 +30,6 @@ public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 	private PopAbnormalDetailDao popAbnormalDetailDao;
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public PopAbnormalDetail findByObj(PopAbnormalDetail popAbnormalDetail) {
 		if (popAbnormalDetail == null) {
 			this.logger.info("POP差异明细Service --> findByObj 传入验证参数为空");
@@ -40,7 +39,6 @@ public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopAbnormalDetail> findListByAbnormalId(Long abnormalId) {
 		this.logger.info("POP差异明细Service --> findListByAbnormalId 传入验证参数为空");
 		return this.popAbnormalDetailDao.findListByAbnormalId(abnormalId);

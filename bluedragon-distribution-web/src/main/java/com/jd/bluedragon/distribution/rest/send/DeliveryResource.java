@@ -340,52 +340,6 @@ public class DeliveryResource {
             tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, flage);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
-                /*  中转发货任务改到分货时建立任务
-                if(!DeliveryResponse.CODE_Delivery_IS_SEND.equals(tDeliveryResponse.getCode())&&flage){
-                    //只要没有发货，则添加中转任务，补全SEND_D明细 updated by wangtingwei@jd.com
-                    deliveryService.pushTransferSendTask(tSendM);
-                }
-                /* 注释掉跨区分拣发货功能
-                Integer targetSortingCenterId = null;
-                Integer targetSiteCode = null;
-                if (SerialRuleUtil.isMatchAllPackageNo(boxCode)) {
-                    Waybill waybill = this.waybillCommonService.findWaybillAndPack(SerialRuleUtil.getAllWaybillCode(boxCode).getResult());
-                    if (null != waybill && null != waybill.getSiteCode()) {
-                        targetSiteCode = waybill.getSiteCode();
-                        BaseStaffSiteOrgDto br = this.baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
-                        if (null != br && null != br.getDmsId()) {
-                            targetSortingCenterId = br.getDmsId();
-                            logger.info("站点为:" + waybill.getSiteCode() + "目的分拣中心为：" + targetSortingCenterId + "目的站点：" + receiveSiteCode);
-                        }
-                    } else {
-                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT, JdResponse.SEND_WAYBILL_NOT_FOUND);
-                    }
-                } else {
-                    Box box = boxService.findBoxByCode(boxCode);
-                    if (null != box && box.getReceiveSiteCode() != null) {
-                        targetSiteCode = box.getReceiveSiteCode();
-                        BaseStaffSiteOrgDto site1 = siteService.getSite(box.getReceiveSiteCode());
-                        targetSortingCenterId = box.getReceiveSiteCode();
-                        if (null != site1 && null != site1.getSiteType() && !site1.getSiteType().equals(64)) {
-                            BaseStaffSiteOrgDto br = this.baseMajorManager.getBaseSiteBySiteId(site1.getSiteCode());
-                            if (null != br && null != br.getDmsId()) {
-                                targetSortingCenterId = br.getDmsId();
-                            }
-                        }
-                        logger.info("站点为:" + box.getReceiveSiteCode() + "目的分拣中心为：" + targetSortingCenterId + "目的站点：" + receiveSiteCode);
-                    } else {
-                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT, JdResponse.SEND_BOX_NOT_FOUND);
-                    }
-                }
-                if (null != targetSortingCenterId
-                        && !targetSortingCenterId.equals(Integer.valueOf(receiveSiteCode))) {
-                    List<CrossSortingDto> list = crossSortingService.getQueryByids(Integer.parseInt(siteCode), Integer.parseInt(receiveSiteCode), targetSortingCenterId, 20);
-                    if (list.size() == 0 && !Integer.valueOf(receiveSiteCode).equals(targetSiteCode)) {
-                        logger.info("targetSiteCode:" + targetSiteCode + "目的分拣中心为：" + targetSortingCenterId + "目的站点：" + receiveSiteCode);
-                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT, JdResponse.SEND_SITE_NO_MATCH);
-                    }
-                }
-                */
                 if (flage && tDeliveryResponse.getCode().equals(JdResponse.CODE_OK))
                     return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT,
                             DeliveryResponse.MESSAGE_Delivery_TRANSIT);
@@ -396,7 +350,7 @@ public class DeliveryResource {
                         JdResponse.MESSAGE_SERVICE_ERROR);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR);
         }

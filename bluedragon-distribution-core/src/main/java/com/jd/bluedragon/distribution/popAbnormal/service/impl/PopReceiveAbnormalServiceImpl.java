@@ -76,21 +76,18 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	private PopPrintDao popPrintDao;
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public int findTotalCount(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
 		return popReceiveAbnormalDao.findTotalCount(paramMap);
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<PopReceiveAbnormal> findList(Map<String, Object> paramMap) {
 		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
 		return this.popReceiveAbnormalDao.findList(paramMap);
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public PopReceiveAbnormal findByMap(Map<String, String> paramMap) {
 		if (paramMap == null || paramMap.isEmpty()) {
 			logger.info("POP差异订单Service --> findByMap 传入验证参数为空");
@@ -100,7 +97,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public PopReceiveAbnormal findByObj(PopReceiveAbnormal popReceiveAbnormal) {
 		if (popReceiveAbnormal == null) {
 			logger.info("POP差异订单Service --> findByObj 传入验证参数为空");
