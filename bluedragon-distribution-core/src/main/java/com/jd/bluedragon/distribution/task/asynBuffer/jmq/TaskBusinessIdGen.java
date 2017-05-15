@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.task.asynBuffer.jmq;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.framework.asynBuffer.producer.jmq.BusinessIdGen;
-import net.sf.json.JSONObject;
+import com.jd.ql.framework.idgenerator.util.JsonUtils;
 
 
 /**
@@ -20,7 +21,7 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
     public String genId(Task task) {
         String businessId = getBussinessId(task);
         if(businessId==null){
-            return task.getType()+"-"+task.getKeyword1();
+            return task.getType()+DELIMITER+task.getKeyword1();
         }
         return businessId;
     }
@@ -29,20 +30,17 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
         Integer taskType = task.getType();
 
         if(taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)){
-            if(task.getBody()== null)
+            if(StringHelper.isNotEmpty(task.getBody()))
                 return null;
-            String [] data = task.getBody().split("_");
-            if(data.length<1)
-                return null;
+            String [] data = task.getBody().split(DELIMITER);
             return data[data.length-1];
+
         } else if(taskType.equals(Task.TASK_TYPE_DEPARTURE)){
-            if(task.getBoxCode() == null){
+            if(StringHelper.isNotEmpty(task.getBoxCode()))
                 return null;
-            }
-            String [] data = task.getBoxCode().split("_");
-            if(data.length<1)
-                return null;
+            String [] data = task.getBoxCode().split(DELIMITER);
             return data[data.length-1];
+
         } else if(taskType.equals(Task.TASK_TYPE_RECEIVE)
                 || taskType.equals(Task.TASK_TYPE_SHIELDS_CAR_ERROR)
                 ||taskType.equals(Task.TASK_TYPE_INSPECTION)
@@ -55,16 +53,15 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
             return task.getKeyword2();
         } else if (taskType .equals(Task.TASK_TYPE_WEIGHT) ){
             String body = task.getBody();
-            String waybillCode = null;
-            if(body.startsWith("[")&&body.endsWith("]"))
-                body = body.substring(1,body.length()-1);
-            try {
-                JSONObject jsonObject = JSONObject.fromObject(body);
-                waybillCode = (String) jsonObject.get("waybillCode");
-            }catch(Exception e){
-                //获取waybillCode失败。
+            if(StringHelper.isNotEmpty(body)) {
+                String waybillCode = null;
+                try {
+                    waybillCode = JsonUtils.searchValue(body, "waybillCode");
+                } catch (Exception e) {
+                    return null;
+                }
+                return waybillCode;
             }
-            return waybillCode;
         }
         return null;
     }

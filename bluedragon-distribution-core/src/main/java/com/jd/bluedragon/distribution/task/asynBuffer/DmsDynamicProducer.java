@@ -8,8 +8,8 @@ import com.jd.ql.framework.asynBuffer.producer.AbstractProducer;
 import com.jd.ql.framework.asynBuffer.producer.DynamicProducer;
 import com.jd.ql.framework.asynBuffer.producer.ProducerType;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * dms系统的动态消息生产者扩展，支持动态配置更新。
@@ -38,24 +38,17 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 
 	/**
-	 * 获取不开启jmq模式的task类型map<tasktype,keyword1>
+	 * 获取不开启jmq模式的task类型
+	 * 配置规则：taskType-keyword1；taskType-keyword1
+	 * 如：1300-1；1300-2；1400-5
 	 * @return
      */
-	public Map<String,String> getNotEnabledKeyWord(){
+	public Set<String> getNotEnabledKeyWord(){
 		String [] notEnabledKeyWords = configManager.getProperty(NOT_ENBALED_KEY_WORD1).trim().split(";");
-		Map <String,String> type_keyword = new HashMap<String,String>();
-		try{
+		Set<String> type_keyword = new HashSet<String>();
 			for(String s : notEnabledKeyWords){
-				 String [] tk = s.split("-");
-				 if(tk.length!=2){
-
-				 }
-				type_keyword.put(tk[0],tk[1]);
+				type_keyword.add(s);
 			}
-		}catch (Exception e){
-			return null;
-		}
-
 		return type_keyword;
 	}
 
@@ -81,19 +74,20 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 		//未启用的任务类型还采用原始的tbschedule生产者。
 		return this.getTbscheduleProducer();
 	}
-	
-	private boolean checkEnabled(Task message){
+
+		private boolean checkEnabled(Task message){
 		String types = this.getEnabledTypes();
-		Map <String,String> type_keyword = this.getNotEnabledKeyWord();
+		Set<String> type_keyword = this.getNotEnabledKeyWord();
+
 		if(types==null || types.length()==0 || message==null || message.getType()==null){
 			return false;
 		}
 
 		String[] sa = types.split(";");
 		for(String s:sa){
-			if(s.equals(message.getType().toString())){
-				if(type_keyword.get(message.getType().toString())!=null
-						&& type_keyword.get(message.getType().toString()).equals(message.getKeyword1())){
+			String taskType = message.getType().toString();
+			if(s.equals(taskType)){
+				if(type_keyword.contains(message.getType()+"-"+message.getKeyword1())){
 					return false;
 				}
 				return true;
