@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.task.asynBuffer.jmq;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.framework.asynBuffer.producer.jmq.BusinessIdGen;
-import com.jd.ql.framework.idgenerator.util.JsonUtils;
+import net.sf.json.JSONObject;
 
 
 /**
@@ -30,16 +30,16 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
         Integer taskType = task.getType();
 
         if(taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)){
-            if(StringHelper.isNotEmpty(task.getBody()))
-                return null;
-            String [] data = task.getBody().split(DELIMITER);
-            return data[data.length-1];
+            if(StringHelper.isNotEmpty(task.getBody())){
+                String [] data = task.getBody().split(DELIMITER);
+                return data[data.length-1];
+            }
 
         } else if(taskType.equals(Task.TASK_TYPE_DEPARTURE)){
-            if(StringHelper.isNotEmpty(task.getBoxCode()))
-                return null;
-            String [] data = task.getBoxCode().split(DELIMITER);
-            return data[data.length-1];
+            if(StringHelper.isNotEmpty(task.getBoxCode())) {
+                String[] data = task.getBoxCode().split(DELIMITER);
+                return data[data.length - 1];
+            }
 
         } else if(taskType.equals(Task.TASK_TYPE_RECEIVE)
                 || taskType.equals(Task.TASK_TYPE_SHIELDS_CAR_ERROR)
@@ -56,7 +56,8 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
             if(StringHelper.isNotEmpty(body)) {
                 String waybillCode = null;
                 try {
-                    waybillCode = JsonUtils.searchValue(body, "waybillCode");
+                    JSONObject jsonobject = JSONObject.fromObject(body.substring(1,body.length()-1));
+                    waybillCode = (String)jsonobject.get("waybillCode");
                 } catch (Exception e) {
                     return null;
                 }
