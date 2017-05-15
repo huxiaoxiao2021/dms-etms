@@ -65,6 +65,8 @@ public class SiteServiceImpl implements SiteService {
 				base.setDriverId(vtsDto.getCarrierId());
 	            base.setRouteType(vtsDto.getRouteType()); // 增加运输类型返回值
 				base.setDriver(vtsDto.getCarrierName());
+				base.setTransWay(vtsDto.getTransMode());
+				base.setCarrierType(vtsDto.getTransType());
 			}
 		}
 		

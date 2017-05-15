@@ -73,7 +73,7 @@ public class NewSealVehicleResource {
 	}
 
 	/**
-	 * 一车一单的封车功能,添加了发货批次号,体积,重量,件数四个字段
+	 * 封车功能
 	 */
 	@POST
 	@Path("/new/seal/vehicle")
@@ -93,7 +93,11 @@ public class NewSealVehicleResource {
 		}
 		return sealVehicleResponse;
 	}
-	
+
+
+	/**
+	 * 解封车功能
+	 */
 	@PUT
 	@Path("/new/seal/vehicle")
 	public SealVehicleResponse update(SealVehicleRequest request) {
