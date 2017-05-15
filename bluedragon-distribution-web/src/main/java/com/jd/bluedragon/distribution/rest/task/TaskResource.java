@@ -57,7 +57,7 @@ public class TaskResource {
     @POST
     @Path("/tasks/add")
     public Integer add(Task task) {
-//        task.setTableName("task_waybill");
+        task.setTableName("task_waybill");
         return taskService.add(task,false);
     }
 
