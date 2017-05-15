@@ -60,7 +60,6 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public TaskPopRecieveCount getTaskPopRevieveCountById(Long taskId) {
 		return this.taskPopRecieveCountDao.getTaskPopRevieveCountById(taskId);
 	}

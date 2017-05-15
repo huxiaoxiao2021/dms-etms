@@ -175,28 +175,24 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type) {
         Assert.notNull(type, "type must not be null");
         TaskDao routerDao = taskDao;
         return routerDao.findTasks(type);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type, String ownSign) {
         Assert.notNull(type, "type must not be null");
         TaskDao routerDao = taskDao;
         return routerDao.findTasks(type, ownSign);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer fetchNum) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
         return routerDao.findLimitedTasks(fetchNum);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -204,7 +200,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findLimitedTasks(type, fetchNum);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -242,7 +237,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -250,7 +244,6 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasksByFingerprint(Task task) {
         Assert.notNull(task.getFingerprint(), "fingerprint must not be null");
         TaskDao routerDao = taskDao;
@@ -323,13 +316,11 @@ public class TaskServiceImpl implements TaskService {
 	 * 
 	 * @return true没有执行完成
 	 */
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findTasks(Task task) {
         TaskDao routerDao = taskDao;
 		return routerDao.findTasks(task);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -337,13 +328,11 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSendTasks(type, fetchNum, key);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findReverseSendTask(String sendCode) {
         TaskDao routerDao = taskDao;
 		return routerDao.findReverseSendTask(sendCode);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
 		return routerDao.findWaybillSendTask(sendCode);
@@ -483,25 +472,21 @@ public class TaskServiceImpl implements TaskService {
 		}
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findTasksNumsByType(type, ownSign);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign,Integer keyword1) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findFailTasksNumsByType(type, ownSign,keyword1);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsIgnoreType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findTasksNumsIgnoreType(type, ownSign);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsIgnoreType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findFailTasksNumsIgnoreType(type, ownSign);

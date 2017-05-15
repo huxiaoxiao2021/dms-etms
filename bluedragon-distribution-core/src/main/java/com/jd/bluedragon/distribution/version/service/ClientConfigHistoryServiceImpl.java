@@ -17,18 +17,15 @@ public class ClientConfigHistoryServiceImpl implements
 	@Autowired
 	private ClientConfigHistoryDao clientConfigHistoryDao;
 	
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ClientConfigHistory> getAll() {
 		return clientConfigHistoryDao.getAll();
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ClientConfigHistory> getBySiteCode(String siteCode) {
 		Assert.notNull(siteCode, "siteCode must not be null");
         return clientConfigHistoryDao.getBySiteCode(siteCode);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ClientConfigHistory> getByProgramType(Integer programType) {
 		Assert.notNull(programType, "programType must not be null");
         return clientConfigHistoryDao.getByProgramType(programType);

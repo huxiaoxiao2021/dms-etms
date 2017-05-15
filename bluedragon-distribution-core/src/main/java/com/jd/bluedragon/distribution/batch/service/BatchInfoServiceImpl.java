@@ -82,8 +82,6 @@ class BatchInfoServiceImpl implements BatchInfoService {
         return BatchInfo.class.getName() + batchInfo.getCreateSiteCode();
     }
 
-
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public BatchInfo findBatchInfoByCode(String code) {
         Assert.notNull(code, "code must not be null");
 
@@ -138,13 +136,11 @@ class BatchInfoServiceImpl implements BatchInfoService {
     }
 
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public BatchInfo findBatchInfoByBatchInfoCode(BatchInfo batchInfo) {
         Assert.notNull(batchInfo, "batchInfo must not be null");
         return this.batchInfoDao.findBatchInfoByBatchInfoCode(batchInfo);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<BatchInfo> findBatchInfoes(BatchInfo batchInfo) {
         Assert.notNull(batchInfo, "batchInfo must not be null");
         return this.batchInfoDao.findBatchInfoesBySite(batchInfo);
