@@ -156,6 +156,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
+        	logger.error("内部错误",e);
         }
         return response;
     }
@@ -183,6 +184,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
+        	logger.error("内部错误",e);
         }
 		
         return response;
@@ -210,6 +212,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
+        	logger.error("内部错误",e);
         }
 		
         return response;
@@ -241,6 +244,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
+        	logger.error("内部错误",e);
         }
 		
         return response;
