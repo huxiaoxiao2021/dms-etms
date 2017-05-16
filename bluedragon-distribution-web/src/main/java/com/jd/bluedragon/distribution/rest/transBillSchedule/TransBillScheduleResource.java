@@ -35,7 +35,7 @@ public class TransBillScheduleResource {
      * @return true / false
      */
     @POST
-    @Path("transBillSchedule/check")
+    @Path("/transBillSchedule/check")
     public TransBillScheduleResponse checkScheduleBill(TransBillScheduleRequest request){
         TransBillScheduleResponse response = new TransBillScheduleResponse();
 
@@ -59,7 +59,7 @@ public class TransBillScheduleResource {
      * @return
      */
     @GET
-    @Path("transBillSchedule/getKey")
+    @Path("/transBillSchedule/getKey")
     public String getKey(String boxCode) {
         return transBillScheduleService.getKey(boxCode);
     }
