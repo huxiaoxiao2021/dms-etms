@@ -340,6 +340,10 @@
     <bean id="areaDestPlanDetailDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <!--城配运单M表 -->
+	<bean id="transbillMDao" class="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
+		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+	</bean>
 
     <!-- Worker start -->
     <bean id="tbTaskTypeDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao">
