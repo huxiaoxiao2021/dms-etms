@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.domain;
 
 import java.util.Date;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 
 
@@ -330,11 +331,5 @@ public class SendM implements Cloneable,java.io.Serializable,Comparable<SendM>{
 	@Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }
-
-    public static void main(String[] args) {
-        String text="364605_DD41423"+
-        "_" + "192.168.1.1" + "_" + "1" + "_" + System.currentTimeMillis() + ".bmp";
-        System.out.println(text.substring(0, text.lastIndexOf("_")));
     }
 }

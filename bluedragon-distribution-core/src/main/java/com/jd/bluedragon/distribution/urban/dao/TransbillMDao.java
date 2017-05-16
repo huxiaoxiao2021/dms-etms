@@ -16,7 +16,6 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
  * @date 2017年04月28日 13:30:01
  *
  */
-@Repository("transbillMDao")
 public class TransbillMDao extends BaseDao<TransbillM> {
 	public static final String namespace = TransbillMDao.class.getName();
 	
