@@ -85,7 +85,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
                 if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(NONE_SCHEDULER_BOX)) {
                     return result;
                 }
-                List<TransbillM> list = transbillMService.getListByScheduleBillCode(scheduleBillCode);
+                List<String> list = transbillMService.getEffectWaybillCodesByScheduleBillCode(scheduleBillCode);
                 Box box = this.boxService.findBoxByCode(boxCode);
                 Sorting queryArgument = new Sorting();
                 queryArgument.setBoxCode(boxCode);
@@ -105,10 +105,10 @@ public class CityDeliveryVerification implements DeliveryVerification{
                         map.put(item.getWaybillCode(), temp);
                     }
                 }
-                for (TransbillM urban : list) {
-                    if (map.containsKey(urban.getWaybillCode())) {
+                for (String itemString : list) {
+                    if (map.containsKey(itemString)) {
                         /**一单多件不全校验**/
-                        Set<String> packageSets=  map.get(urban.getWaybillCode());
+                        Set<String> packageSets=  map.get(itemString);
                         List<String> packageCodeList=new ArrayList<String>(packageSets);
                         if (packageCodeList.size() != SerialRuleUtil.getPackageCounter(packageCodeList.get(0))) {
                             List<String> targetList = SerialRuleUtil.generateAllPackageCodes(packageCodeList.get(0));
@@ -116,12 +116,12 @@ public class CityDeliveryVerification implements DeliveryVerification{
                                 targetList.remove(packageCode);
                             }
                             result.setCode(false);
-                            result.setMessage(MessageFormat.format("运单【{0}】一单多件不齐，缺少包裹【{1}】", urban.getWaybillCode(), targetList.get(0)));
+                            result.setMessage(MessageFormat.format("运单【{0}】一单多件不齐，缺少包裹【{1}】", itemString, targetList.get(0)));
                             break;
                         }
                     } else {
                         result.setCode(false);
-                        result.setMessage(MessageFormat.format("派车单【{0}】不齐，缺少运单【{1}】", scheduleBillCode, urban.getWaybillCode()));
+                        result.setMessage(MessageFormat.format("派车单【{0}】不齐，缺少运单【{1}】", scheduleBillCode, itemString));
                         break;
                     }
                 }
@@ -136,7 +136,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
 
     private boolean isCityDistributionWaybill(String waybillCode){
         try {
-            Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode,true,false,false,false);
+            Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode, true, false, false, false);
             return  waybillDto!=null
                     &&waybillDto.getSendPay()!=null
                     &&waybillDto.getSendPay().length()>CITY_DISTRIBUTION_WAYBILL_INDEX
