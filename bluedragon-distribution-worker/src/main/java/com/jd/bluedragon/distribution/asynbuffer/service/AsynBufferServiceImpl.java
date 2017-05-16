@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.asynbuffer.service;
 
+import IceInternal.Ex;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -68,9 +70,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             if (task == null || StringUtils.isBlank(task.getBody())) {
                 return true;
             }
-            /**
-             * 此处理为消除列表情况，最早任务保存的是数组，此处拆为单条，以防万一
-             */
+
             List<InspectionRequest> middleRequests = JsonHelper.fromJsonUseGson(task.getBody(), LIST_INSPECTIONREQUEST_TYPE);
             if (null == middleRequests || middleRequests.size() == 0) {
                 return true;
@@ -134,28 +134,13 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         List<Task> taskList = new ArrayList<Task>();
         taskList.add(task);
         try {
-           // List<Task> taskList = this.asList(taskArray);
             partnerWaybillService.doWayBillCodesProcessed(taskList);
         } catch (Exception e) {
             logger.error("处理运单号关联包裹数据时发生异常", e);
+            return false;
         }
         return true;
     }
-
-    public List<Task> asList(Object[] taskArray) {
-        if (taskArray == null) {
-            return Collections.emptyList();
-        }
-
-        List<Task> tasks = new ArrayList<Task>();
-        for (Object task : taskArray) {
-            if (task != null && task instanceof Task) {
-                tasks.add((Task) task);
-            }
-        }
-        return tasks;
-    }
-
 
     //发货新老数据同步任务
     @Autowired
@@ -208,7 +193,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     private SortingService sortingService;
 
     public boolean sortingTaskProcess(Task task) throws Exception {
-        boolean result = false;
+        boolean result = Boolean.FALSE;
         try {
             this.logger.info("task id is " + task.getId());
             result = this.sortingService.doSorting(task);
@@ -225,25 +210,39 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         return result;
     }
 
+    //称重信息回传运单中心
+    @Autowired
+    private WeightService weightService;
+    public boolean weightTaskProcess(Task task) throws Exception{
+        boolean result = Boolean.FALSE;
+        try {
+            this.logger.info("task id is " + task.getId());
+            result = this.weightService.doWeightTrack(task);
+        } catch (Exception e) {
+            this.logger.error("task id is" + task.getId());
+            this.logger.error("处理称重回传任务发生异常，异常信息为：" + e.getMessage(), e);
+            return Boolean.FALSE;
+        }
+        return result;
+    }
 
     //统一处理task_send入口，根据keyword1对应具体的方法
     public boolean taskSendProcess(Task task) throws Exception {
-        String keyword1 = task.getKeyword1();
-        if (keyword1.equals("1")||keyword1.equals("2")) {
+        String keyword1 = task.getKeyword1().trim();
+        if (keyword1.equals("1")){
             //发货回传运单状态任务
-            deliveryService.findSendwaybillMessage(task);
-            return true;
+            return deliveryService.updatewaybillCodeMessage(task);
+        } else if(keyword1.equals("2")){
+            //回传周转箱号任务
+            return  deliveryService.findSendwaybillMessage(task);
         } else if (keyword1.equals("3")) {
             //发货新老数据同步任务
-            reverseService.findsendMToReverse(task);
-            return true;
+            return reverseService.findsendMToReverse(task);
         } else if (keyword1.equals("4")) {
             return reverseSendService.findSendwaybillMessage(task);
-
         } else if (keyword1.equals("5")) {
             //中转发货补全任务
-            deliveryService.findTransitSend(task);
-            return true;
+            return deliveryService.findTransitSend(task);
 
         } else {
             //没有找到对应的方法，提供报错信息

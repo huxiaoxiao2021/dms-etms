@@ -80,13 +80,11 @@ public class SystemLogServiceImpl implements SystemLogService {
 		return add(systemLog);
 	}
 	
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<SystemLog> queryByParams(Map<String, Object> params) {
 		// TODO Auto-generated method stub
 		return systemLogDao.queryByParams(params);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer totalSizeByParams(Map<String, Object> params) {
 		return systemLogDao.totalSizeByParams(params);
 	}

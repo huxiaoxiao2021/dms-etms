@@ -38,4 +38,7 @@ public interface AsynBufferService {
         //统一处理task_send入口，根据keyword1对应具体的方法
         public boolean taskSendProcess(Task task)throws Exception;
 
+        //称重信息回传运单中心
+        public boolean weightTaskProcess(Task task) throws Exception;
+
 }

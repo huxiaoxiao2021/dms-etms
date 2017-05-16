@@ -1,46 +1,27 @@
 <?xml version="1.0" encoding="GBK"?>
 <!DOCTYPE configuration
-    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-	
-	<settings>  
-		<setting name="lazyLoadingEnabled" value="false" />
-		<setting name="autoMappingBehavior" value="FULL"/>
+
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="autoMappingBehavior" value="FULL"/>
         <!-- 默认全局超时都设置成30秒 -->
         <setting name="defaultStatementTimeout" value="100"/>
-	</settings>
-	
-	<typeAliases>
-	
-	    <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendDetail" alias="SendDetail" />
-	   	<typeAlias type="com.jd.bluedragon.distribution.operationLog.domain.OperationLog"  alias="OperationLog"/>
-	    <typeAlias type="com.jd.bluedragon.distribution.seal.domain.SealVehicle" alias="SealVehicle" />
-		<typeAlias type="com.jd.bluedragon.distribution.task.domain.Task" alias="Task" />
-		<typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopPrint" alias="PopPrint"/>
-		<typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
-		<typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopSignin"  alias="PopSignin"/>
-		<typeAlias type="com.jd.bluedragon.distribution.offline.domain.OfflineLog" alias="OfflineLog" />
-		<typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM" />
-		<typeAlias type="com.jd.bluedragon.distribution.cross.domain.CrossSorting" alias="CrossSorting" />
-		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill" alias="LoadBill" />
-		<typeAlias type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport" alias="LoadBillReport" />
-	</typeAliases>
-	
-	<mappers>
-		<mapper resource="mappers/mysql/send/SendDatailReadMapper.xml"/>
-		<mapper resource="mappers/mysql/operationLog/OperationLogReadMapper.xml"/>
-		<mapper resource="mappers/mysql/seal/SealVehicleReadMapper.xml"/>
-		<mapper resource="mappers/mysql/popPrint/PopPrintReadMapper.xml"/>
-		<mapper resource="mappers/mysql/inspection/InspectionReadMapper.xml"/>
-		<mapper resource="mappers/mysql/popPrint/PopSigninReadMapper.xml"/>
-		<mapper resource="mappers/mysql/offLine/OfflineLogReadMapper.xml"/>
-		<mapper resource="mappers/mysql/send/SendMReadMapper.xml"/>
-		<mapper resource="mappers/mysql/crossSorting/CrossSortingReadMapper.xml"/>
-		<mapper resource="mappers/mysql/globaltrade/LoadBillReadMapper.xml"/>
-		<mapper resource="mappers/mysql/globaltrade/LoadBillReportReadMapper.xml"/>
-		<mapper resource="mappers/mysql/queryTool/ReverseReceiveMapper.xml"/>
-	</mappers>
-	
+    </settings>
+
+    <typeAliases>
+        <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendDetail" alias="SendDetail"/>
+        <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
+        <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="mappers/mysql/send/SendDatailReadMapper.xml"/>
+        <mapper resource="mappers/mysql/inspection/InspectionReadMapper.xml"/>
+        <mapper resource="mappers/mysql/send/SendMReadMapper.xml"/>
+    </mappers>
+
 </configuration>

@@ -94,7 +94,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @return
 	 */
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getListsByCondition(InspectionEC inspectionEC) throws Exception{
 		return inspectionECDao.selectSelective(inspectionEC);
 	}
@@ -106,7 +105,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @throws Exception 
 	 */
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<InspectionEC> getByThird(InspectionEC inspectionEC) throws Exception{
 		List<InspectionEC> list =inspectionECDao.queryByThird(inspectionEC);
         List<InspectionEC> target=new ArrayList<InspectionEC>();

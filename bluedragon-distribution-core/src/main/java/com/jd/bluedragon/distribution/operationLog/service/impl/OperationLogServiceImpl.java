@@ -48,13 +48,11 @@ public class OperationLogServiceImpl implements OperationLogService {
 		return 1;
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<OperationLog> queryByParams(Map<String, Object> params) {
 		// TODO Auto-generated method stub
 		return operationLogReadDao.queryByParams(params);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer totalSizeByParams(Map<String, Object> params) {
 		return operationLogReadDao.totalSizeByParams(params);
 	}

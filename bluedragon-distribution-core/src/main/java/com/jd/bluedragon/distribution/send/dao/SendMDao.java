@@ -21,13 +21,19 @@ public  class SendMDao extends BaseDao<SendM>  {
         if(null == createSiteCode) {
             querySendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
         }
-		if(null == querySendM.getSendCode()){
+
+		querySendM.setSendCode(sendCode);
+
+		//FIXME 如果sendCode不合法则无法通过sendCode获取createSiteCode
+		//如果传进来的参数createSiteCode不为空则还会进行一次查询
+
+		if(null == querySendM.getCreateSiteCode()){
 			logger.info("selectOneBySiteAndSendCode-->参数createSiteCode："
 					+ createSiteCode+";sendCode:"+sendCode);
 			logger.info("createSiteCode = null");
 			return null;
 		}
-		querySendM.setSendCode(sendCode);
+
 		return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectOneBySiteAndSendCode", querySendM);
 	}
 

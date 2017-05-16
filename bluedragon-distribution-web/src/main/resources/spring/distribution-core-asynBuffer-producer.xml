@@ -27,50 +27,53 @@
 	    <bean id="jmqTopicRouter" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskOwnSignJmqTopicRouter">
 	    	<constructor-arg>
 	    		<map>
-					<!--&lt;!&ndash; 分拣中心收货 &ndash;&gt;-->
-					<!--<entry key="task_inspection_1110_DMS" value="${jmq.task.topic.receive.dms}"/>-->
-					<!--<entry key="task_inspection_1110_PRE" value="${jmq.task.topic.receive.pre}"/>-->
+					<!-- 分拣中心收货 -->
+					<entry key="task_inspection_1110_DMS" value="${jmq.task.topic.receive.dms}"/>
+					<entry key="task_inspection_1110_PRE" value="${jmq.task.topic.receive.pre}"/>
 
-					<!--&lt;!&ndash; 分拣中心验货 &ndash;&gt;-->
-					<!--<entry key="task_inspection_1130_DMS" value="${jmq.task.topic.inspection.dms}"/>-->
-					<!--<entry key="task_inspection_1130_PRE" value="${jmq.task.topic.inspection.pre}"/>-->
+					<!-- 分拣中心验货 -->
+					<entry key="task_inspection_1130_DMS" value="${jmq.task.topic.inspection.dms}"/>
+					<entry key="task_inspection_1130_PRE" value="${jmq.task.topic.inspection.pre}"/>
 
-					<!--&lt;!&ndash; 处理运单号关联包裹任务 &ndash;&gt;-->
-					<!--<entry key="task_inspection_1600_DMS" value="${jmq.task.topic.partnerWaybill.dms}"/>-->
-					<!--<entry key="task_inspection_1600_PRE" value="${jmq.task.topic.partnerWaybill.pre}"/>-->
+					<!-- 处理运单号关联包裹任务 -->
+					<entry key="task_inspection_1600_DMS" value="${jmq.task.topic.partnerWaybill.dms}"/>
+					<entry key="task_inspection_1600_PRE" value="${jmq.task.topic.partnerWaybill.pre}"/>
 
-					<!--&lt;!&ndash; 封签[封箱]异常任务 &ndash;&gt;-->
-					<!--<entry key="task_inspection_1140_DMS" value="${jmq.task.topic.shieldsBoxError.dms}"/>-->
-					<!--<entry key="task_inspection_1140_PRE" value="${jmq.task.topic.shieldsBoxError.pre}"/>-->
+					<!-- 封签[封箱]异常任务 -->
+					<entry key="task_inspection_1140_DMS" value="${jmq.task.topic.shieldsBoxError.dms}"/>
+					<entry key="task_inspection_1140_PRE" value="${jmq.task.topic.shieldsBoxError.pre}"/>
 
-					<!--&lt;!&ndash; 封签[封车]异常任务 &ndash;&gt;-->
-					<!--<entry key="task_inspection_1120_DMS" value="${jmq.task.topic.shieldsCarError.dms}"/>-->
-					<!--<entry key="task_inspection_1120_PRE" value="${jmq.task.topic.shieldsCarError.pre}"/>-->
+					<!-- 封签[封车]异常任务 -->
+					<entry key="task_inspection_1120_DMS" value="${jmq.task.topic.shieldsCarError.dms}"/>
+					<entry key="task_inspection_1120_PRE" value="${jmq.task.topic.shieldsCarError.pre}"/>
 
-					<!--&lt;!&ndash; 运单号关联包裹回传 &ndash;&gt;-->
-					<!--<entry key="task_inspection_1601_DMS" value="${jmq.task.topic.partnerWaybillSynchro.dms}"/>-->
-					<!--<entry key="task_inspection_1601_PRE" value="${jmq.task.topic.partnerWaybillSynchro.pre}"/>-->
+					<!-- 运单号关联包裹回传 -->
+					<entry key="task_inspection_1601_DMS" value="${jmq.task.topic.partnerWaybillSynchro.dms}"/>
+					<entry key="task_inspection_1601_PRE" value="${jmq.task.topic.partnerWaybillSynchro.pre}"/>
 
-					<!--&lt;!&ndash; 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务&ndash;&gt;-->
-					<!--<entry key="task_send_1300_DMS" value="${jmq.task.topic.send.dms}"/>-->
-					<!--<entry key="task_send_1300_PRE" value="${jmq.task.topic.send.pre}"/>-->
+					<!-- 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务-->
+					<entry key="task_send_1300_DMS" value="${jmq.task.topic.send.dms}"/>
+					<entry key="task_send_1300_PRE" value="${jmq.task.topic.send.pre}"/>
 
-					<!--&lt;!&ndash; 支线发车推送运单任务&ndash;&gt;-->
-					<!--<entry key="task_send_1400_DMS" value="${jmq.task.topic.thirdDeparture.dms}"/>-->
-					<!--<entry key="task_send_1400_PRE" value="${jmq.task.topic.thirdDeparture.pre}"/>-->
+					<!-- 支线发车推送运单任务-->
+					<entry key="task_send_1400_DMS" value="${jmq.task.topic.thirdDeparture.dms}"/>
+					<entry key="task_send_1400_PRE" value="${jmq.task.topic.thirdDeparture.pre}"/>
 
 					<!-- 封箱解封箱Redis任务-->
-					<!--<entry key="task_sorting_1210_DMS" value="${jmq.task.topic.sealBox.dms}"/>-->
+					<entry key="task_sorting_1210_DMS" value="${jmq.task.topic.sealBox.dms}"/>
 					<entry key="task_sorting_1210_PRE" value="${jmq.task.topic.sealBox.pre}"/>
 
 					<!-- 分拣退货Redis任务-->
-					<!--<entry key="task_sorting_1220_DMS" value="${jmq.task.topic.sortingReturn.dms}"/>-->
+					<entry key="task_sorting_1220_DMS" value="${jmq.task.topic.sortingReturn.dms}"/>
 					<entry key="task_sorting_1220_PRE" value="${jmq.task.topic.sortingReturn.pre}"/>
 
 					<!-- 分拣-->
-					<!--<entry key="task_sorting_1200_DMS" value="${jmq.task.topic.sorting.dms}"/>-->
+					<entry key="task_sorting_1200_DMS" value="${jmq.task.topic.sorting.dms}"/>
 					<entry key="task_sorting_1200_PRE" value="${jmq.task.topic.sorting.pre}"/>
 
+					<!-- 称重信息回传运单中心 -->
+					<entry key="task_weight_1160_DMS" value="${jmq.task.topic.weight.dms}"/>
+					<entry key="task_weight_1160_PRE" value="${jmq.task.topic.weight.pre}"/>
 
                     <!-- 逆向备件库 -->
 	    			<entry key="task_reverse_3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>

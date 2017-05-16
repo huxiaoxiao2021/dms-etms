@@ -22,36 +22,30 @@ public class ClientConfigServiceImpl implements ClientConfigService {
 	@Autowired
     private ClientConfigHistoryDao clientConfigHistoryDao;
 	
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ClientConfig> getAll() {
         return this.clientConfigDao.getAll();
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public ClientConfig getById(Long id) {
 		Assert.notNull(id, "id must not be null");
         return this.clientConfigDao.getById(id);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ClientConfig> getBySiteCode(String siteCode) {
 		Assert.notNull(siteCode, "siteCode must not be null");
         return this.clientConfigDao.getBySiteCode(siteCode);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public VersionEntity getVersionEntity(VersionEntity versionEntity) {
 		Assert.notNull(versionEntity, "versionEntity must not be null");
         return this.clientConfigDao.getVersionEntity(versionEntity);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ClientConfig> getByProgramType(Integer programType) {
 		Assert.notNull(programType, "programType must not be null");
         return this.clientConfigDao.getByProgramType(programType);
 	}
 	
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public boolean exists(ClientConfig clientConfig){
 		Assert.notNull(clientConfig, "clientConfig must not be null");
         return this.clientConfigDao.exists(clientConfig);
