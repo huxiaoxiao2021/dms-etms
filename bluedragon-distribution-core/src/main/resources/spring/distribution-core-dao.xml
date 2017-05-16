@@ -347,11 +347,11 @@
 	
 	<!-- 周转箱（笼车） -->
 	<bean id="rollContainerDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.RollContainerDao">
-		<property name="sqlSession" ref="sessionTemplate"/>
+		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
 	</bean>
 	<!-- 周转箱（笼车）关系 -->
-	<bean id="ontainerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
-		<property name="sqlSession" ref="sessionTemplate"/>
+	<bean id="containerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
+		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
 	</bean>
 
     <!-- Worker start -->

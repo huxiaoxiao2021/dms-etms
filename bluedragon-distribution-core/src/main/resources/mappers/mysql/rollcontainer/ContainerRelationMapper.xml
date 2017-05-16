@@ -33,7 +33,7 @@
 	</sql>
 	
 	<!-- 根据container_code查询 -->
-	<select id="getContainerRelation" resultMap="BaseResultMap" parameterType="String">
+	<select id="getContainerRelation" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation">
 		select
 		<include refid="Base_Column_List" />
 		from container_relation

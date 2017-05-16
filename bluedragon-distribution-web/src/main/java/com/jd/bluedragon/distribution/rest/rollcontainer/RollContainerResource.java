@@ -168,13 +168,14 @@ public class RollContainerResource {
 	 */
 	@POST
     @Path("/rollContainer/getContainerRelationByCode")
-    public ContainerRelationResponse getContainerRelationByCode(String containerCode) {
+    public ContainerRelationResponse getContainerRelationByCode(ContainerRelation relationRequest) {
 		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(containerCode == null ){
+		if(relationRequest == null || relationRequest.getContainerCode()==null){
         	response.setCode(JdResponse.CODE_PARAM_ERROR);
         	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
         	return response;
         }
+		String containerCode = relationRequest.getContainerCode();
 		try{
 			ContainerRelation relation = containerRelationService.getContainerRelation(containerCode);
 			String boxCode = relation.getBoxCode();
