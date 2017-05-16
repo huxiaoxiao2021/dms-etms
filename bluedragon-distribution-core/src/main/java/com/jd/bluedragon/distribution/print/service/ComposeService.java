@@ -26,7 +26,6 @@ public interface ComposeService {
     String SPECIAL_MARK_CROWD_SOURCING = "众";
     String SPECIAL_MARK_VALUABLE="安";
     String SPECIAL_MARK_PUBLIC_WELFARE="益";
-
     /**
      * 城市配送项目：标识
      * sendpay 第146位等于1，且sendpay第124位=3，则打印“集”;

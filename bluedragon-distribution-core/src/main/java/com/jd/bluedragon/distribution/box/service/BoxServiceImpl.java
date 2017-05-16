@@ -212,19 +212,16 @@ public class BoxServiceImpl implements BoxService {
 		return this.boxDao.findBoxByCode(code);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Box findBoxByBoxCode(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxByBoxCode(box);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Box> findBoxesBySite(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxesBySite(box);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Box> findBoxes(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.findBoxes(box);

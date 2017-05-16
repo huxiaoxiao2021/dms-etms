@@ -17,58 +17,56 @@ import com.jd.bluedragon.utils.StringHelper;
 
 /**
  * 城配运单M表--Service接口实现
- * 
+ *
+ * @author wuyoude
  * @ClassName: TransbillMServiceImpl
  * @Description: TODO
- * @author wuyoude
  * @date 2017年04月28日 13:30:01
- *
  */
 @Service("transbillMService")
 @SuppressWarnings("all")
 public class TransbillMServiceImpl implements TransbillMService {
 
-	private static final Log logger= LogFactory.getLog(TransbillMServiceImpl.class);
+    private static final Log logger = LogFactory.getLog(TransbillMServiceImpl.class);
 
-	@Autowired
-	private TransbillMDao transbillMDao;
-	
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public boolean save(TransbillM transbillM) {
-		Integer rs = 0;
-		if(transbillM!=null&&transbillM.getMId()!=null){
-			TransbillM oldData = transbillMDao.findById(transbillM.getMId());
-			if(oldData!=null){
-				if(transbillM.getTsM()>=oldData.getTsM()){
-					rs = transbillMDao.updateBySelective(transbillM);
-				}else{
-					logger.warn("本次数据ts_m小于数据库当前ts_m，抛弃本次数据！transbillM:"+JsonHelper.toJson(transbillM));
-				}
-			}else{
-				rs = transbillMDao.insert(transbillM);
-			}
-			return rs==1;
-		}else{
-			logger.error("城配运单transbillM保存失败！transbillM:"+(transbillM==null?"对象为空":JsonHelper.toJson(transbillM)));
-		}
-		return false;
-	}
-	@Override
-	public TransbillM getByWaybillCode(String waybillCode) {
-		// TODO Auto-generated method stub
-		if(StringHelper.isNotEmpty(waybillCode)){
-			return transbillMDao.findByWaybillCode(waybillCode);
-		}
-		return null;
-	}
+    @Autowired
+    private TransbillMDao transbillMDao;
 
-	@Override
-	public List<TransbillM> getListByScheduleBillCode(String scheduleBillCode) {
-		// TODO Auto-generated method stub
-		if(StringHelper.isNotEmpty(scheduleBillCode)){
-			return transbillMDao.findByScheduleBillCode(scheduleBillCode);
-		}
-		return null;
-	}
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public boolean saveOrUpdate(TransbillM transbillM) {
+        Integer rs = 0;
+        if (transbillM != null && transbillM.getMId() != null) {
+            TransbillM oldData = transbillMDao.findById(transbillM.getMId());
+            if (oldData != null) {
+                if (transbillM.getTsM() >= oldData.getTsM()) {
+                    rs = transbillMDao.updateBySelective(transbillM);
+                } else {
+                    logger.warn("本次数据ts_m小于数据库当前ts_m，抛弃本次数据！transbillM:" + JsonHelper.toJson(transbillM));
+                }
+            } else {
+                rs = transbillMDao.insert(transbillM);
+            }
+            return rs == 1;
+        } else {
+            logger.warn("城配运单transbillM保存失败！transbillM:" + (transbillM == null ? "对象为空" : JsonHelper.toJson(transbillM)));
+        }
+        return false;
+    }
+
+    @Override
+    public TransbillM getByWaybillCode(String waybillCode) {
+        if (StringHelper.isNotEmpty(waybillCode)) {
+            return transbillMDao.findByWaybillCode(waybillCode);
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getEffectWaybillCodesByScheduleBillCode(String scheduleBillCode) {
+        if (StringHelper.isNotEmpty(scheduleBillCode)) {
+            return transbillMDao.findEffectWaybillCodesByScheduleBillCode(scheduleBillCode);
+        }
+        return null;
+    }
 }

@@ -123,11 +123,11 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
-        if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType())
+        if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType()) 
                 || Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
                 || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
-                || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType())
+                || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType()) || Task.TASK_TYPE_ZHIPEI_SORTING.equals(task.getType())
                 || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
             if(!this.has(task)){
                 return routerDao.add(TaskDao.namespace, task);
@@ -175,28 +175,24 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type) {
         Assert.notNull(type, "type must not be null");
         TaskDao routerDao = taskDao;
         return routerDao.findTasks(type);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasks(Integer type, String ownSign) {
         Assert.notNull(type, "type must not be null");
         TaskDao routerDao = taskDao;
         return routerDao.findTasks(type, ownSign);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer fetchNum) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
         return routerDao.findLimitedTasks(fetchNum);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -204,7 +200,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findLimitedTasks(type, fetchNum);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -242,7 +237,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -250,7 +244,6 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
 	}
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Task> findTasksByFingerprint(Task task) {
         Assert.notNull(task.getFingerprint(), "fingerprint must not be null");
         TaskDao routerDao = taskDao;
@@ -323,13 +316,11 @@ public class TaskServiceImpl implements TaskService {
 	 * 
 	 * @return true没有执行完成
 	 */
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findTasks(Task task) {
         TaskDao routerDao = taskDao;
 		return routerDao.findTasks(task);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
@@ -337,13 +328,11 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSendTasks(type, fetchNum, key);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findReverseSendTask(String sendCode) {
         TaskDao routerDao = taskDao;
 		return routerDao.findReverseSendTask(sendCode);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Task findWaybillSendTask(String sendCode) {
         TaskDao routerDao = taskDao;    	
 		return routerDao.findWaybillSendTask(sendCode);
@@ -483,25 +472,21 @@ public class TaskServiceImpl implements TaskService {
 		}
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsByType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findTasksNumsByType(type, ownSign);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsByType(Integer type, String ownSign,Integer keyword1) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findFailTasksNumsByType(type, ownSign,keyword1);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findTasksNumsIgnoreType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findTasksNumsIgnoreType(type, ownSign);
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Integer findFailTasksNumsIgnoreType(Integer type, String ownSign) {
 		TaskDao routerDao = taskDao;
 		return routerDao.findFailTasksNumsIgnoreType(type, ownSign);
@@ -563,6 +548,8 @@ public class TaskServiceImpl implements TaskService {
     private Task toSortingTask(AutoSortingPackageDto dto){
         BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(dto.getSiteCode());
         Assert.notNull(site,"智能分拣线生成分拣任务出错，获取站点信息失败"); //这里主动抛出异常是为了让事务回滚
+        BaseStaffSiteOrgDto distribution = baseService.queryDmsBaseSiteByCode(String.valueOf(dto.getDistributeID()));
+        Assert.notNull(distribution,"智能分拣线生成分拣任务出错，获取分拣/智配中心信息失败"); 
         Task taskSorting=new Task();
         taskSorting.setOwnSign(BusinessHelper.getOwnSign());
         taskSorting.setKeyword1(String.valueOf(dto.getDistributeID()));
@@ -570,7 +557,12 @@ public class TaskServiceImpl implements TaskService {
         taskSorting.setCreateSiteCode(dto.getDistributeID());
         taskSorting.setReceiveSiteCode(Integer.valueOf(dto.getSiteCode()));
         taskSorting.setCreateTime(new Date());
-        taskSorting.setType(Task.TASK_TYPE_SORTING);
+        //根据distributeId来判断是否是智配中心类型设置为1250  分拣中心类型是1200
+        if(distribution.getSiteType() == 4){
+        	taskSorting.setType(Task.TASK_TYPE_ZHIPEI_SORTING);
+        }else{
+        	taskSorting.setType(Task.TASK_TYPE_SORTING);
+        }
         taskSorting.setBoxCode(dto.getBoxCode());
         taskSorting.setTableName(Task.getTableName(taskSorting.getType()));
         taskSorting.setSequenceName(Task.getSequenceName(taskSorting.getTableName()));

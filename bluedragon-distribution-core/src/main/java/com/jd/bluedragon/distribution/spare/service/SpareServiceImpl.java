@@ -74,13 +74,11 @@ public class SpareServiceImpl implements SpareService {
 				+ DateHelper.formatDate(new Date(), Constants.DATE_FORMAT1);
 	}
 	
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Spare findBySpareCode(String code) {
 		Assert.notNull(code, "code must not be null");
 		return this.spareDao.findBySpareCode(code);
 	}
 	
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Spare> findSpares(Spare spare) {
 		Assert.notNull(spare, "spare must not be null");
 		return this.spareDao.findSpares(spare);

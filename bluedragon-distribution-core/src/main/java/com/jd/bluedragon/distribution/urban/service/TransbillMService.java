@@ -21,7 +21,7 @@ public interface TransbillMService {
 	 * @param transbillM
 	 * @return
 	 */
-	boolean save(TransbillM transbillM);
+	boolean saveOrUpdate(TransbillM transbillM);
 	/**
 	 * 根据运单号获取城配运单数据
 	 * @param waybillCode
@@ -29,10 +29,10 @@ public interface TransbillMService {
 	 */
 	TransbillM getByWaybillCode(String waybillCode);
 	/**
-	 * 根据派车单号获取城配运单列表
+	 * 根据派车单号获取有效的运单号列表
 	 * 
 	 * @param scheduleBillCode-派车单号
 	 * @return
 	 */
-	List<TransbillM> getListByScheduleBillCode(String scheduleBillCode);
+	List<String> getEffectWaybillCodesByScheduleBillCode(String scheduleBillCode);
 }

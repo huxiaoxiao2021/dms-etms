@@ -126,19 +126,16 @@ class FBarCodeServiceImpl implements FBarCodeService  {
         return this.fBarCodeDao.findFBarCodeByCode(code);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public FBarCode findFBarCodeByFBarCodeCode(FBarCode fBarCode) {
         Assert.notNull(fBarCode, "fBarCode must not be null");
         return this.fBarCodeDao.findFBarCodeByFBarCodeCode(fBarCode);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<FBarCode> findFBarCodeesBySite(FBarCode fBarCode) {
         Assert.notNull(fBarCode, "fBarCode must not be null");
         return this.fBarCodeDao.findFBarCodeesBySite(fBarCode);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<FBarCode> findFBarCodees(FBarCode fBarCode) {
         Assert.notNull(fBarCode, "fBarCode must not be null");
         return this.fBarCodeDao.findFBarCodees(fBarCode);
