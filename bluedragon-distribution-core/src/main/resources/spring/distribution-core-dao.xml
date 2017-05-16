@@ -327,5 +327,14 @@
 	<bean id="areaDestPlanDetailDao" class="com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao">
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
+	
+	<!-- 周转箱（笼车） -->
+	<bean id="rollContainerDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.RollContainerDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+	<!-- 周转箱（笼车）关系 -->
+	<bean id="ontainerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
 
 </beans>

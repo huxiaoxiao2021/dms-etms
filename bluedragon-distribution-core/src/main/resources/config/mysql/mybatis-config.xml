@@ -236,6 +236,10 @@
         <!--wuzuxaing-->
         <mapper resource="mappers/mysql/carSchedule/CarScheduleMapper.xml"/>
         <mapper resource="mappers/mysql/carSchedule/SendCodeToCarCodeMapper.xml"/>
+        
+        <!--lhc-->
+        <mapper resource="mappers/mysql/rollcontainer/RollContainerMapper.xml"/>
+        <mapper resource="mappers/mysql/rollcontainer/ContainerRelationMapper.xml"/>
     </mappers>
 
 </configuration>

@@ -2982,4 +2982,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
+
+
+	@Override
+	public SendM getBoxCodeByTurnoverBox(String turnoverBoxCode,Integer createSiteCode) {
+		// TODO Auto-generated method stub
+		SendM sendm = sendMDao.getSendMByTurnoverBox(turnoverBoxCode,createSiteCode);
+		return sendm;
+	}
 }
