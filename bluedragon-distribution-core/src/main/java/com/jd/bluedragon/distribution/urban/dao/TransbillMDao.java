@@ -25,20 +25,14 @@ public class TransbillMDao extends BaseDao<TransbillM> {
     public Integer updateBySelective(TransbillM entity) {
         return this.getSqlSession().update(namespace + ".updateBySelective", entity);
     }
-    public Integer deleteById(Long id) {
-        return this.getSqlSession().delete(namespace + ".deleteById", id);
-    }
+
     public TransbillM findById(Long mid) {
         return (TransbillM) this.getSqlSession().selectOne(namespace + ".findById", mid);
     }
     public TransbillM findByWaybillCode(String waybillCode) {
-    	List<TransbillM> list = this.getSqlSession().selectList(namespace + ".findByWaybillCode", waybillCode);
-    	if(list!=null&&list.size()>0){
-    		return list.get(0);
-    	}
-        return null;
+        return (TransbillM) this.getSqlSession().selectOne(namespace + ".findByWaybillCode", waybillCode);
     }
-    public List<TransbillM> findByScheduleBillCode(String scheduleBillCode) {
-        return this.getSqlSession().selectList(namespace + ".findByScheduleBillCode", scheduleBillCode);
+    public List<String> findEffectWaybillCodesByScheduleBillCode(String scheduleBillCode) {
+       return this.getSqlSession().selectList(namespace + ".findEffectWaybillCodesByScheduleBillCode", scheduleBillCode);
     }
 }
