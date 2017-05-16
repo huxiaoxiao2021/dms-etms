@@ -70,8 +70,6 @@ public class TransBillScheduleResource {
      * @param waybillCode 包裹号运单号
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/setKey")
     public void setKey(String boxCode,String waybillCode) {
         transBillScheduleService.setKey(boxCode,waybillCode);
     }
@@ -81,8 +79,6 @@ public class TransBillScheduleResource {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/existsKet")
     public Boolean existsKey(String boxCode){
         return transBillScheduleService.existsKey(boxCode);
     }
@@ -92,8 +88,6 @@ public class TransBillScheduleResource {
      * @param boxCode
      * @return
      */
-//    @POST
-//    @Path("transBillSchedule/delete")
     public boolean delete(String boxCode) {
         return transBillScheduleService.delete(boxCode);
     }

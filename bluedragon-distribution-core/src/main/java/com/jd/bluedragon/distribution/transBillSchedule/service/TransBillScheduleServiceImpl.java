@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.transBillSchedule.service;
 
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -37,7 +37,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     private TransbillMService transbillMService;
 
     @Autowired
-    private WaybillService waybillService;
+    private WaybillCommonService waybillCommonService;
 
     @Override
     public Boolean checkSameScheduleBill(TransBillScheduleRequest request) {
@@ -78,9 +78,9 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
         String result = "";
         if(StringUtils.isNotBlank(waybillCode)){
             try{
-                BigWaybillDto waybillDto = waybillService.getWaybill(waybillCode);
-                if(waybillDto != null && waybillDto.getWaybill() != null){
-                    result = waybillDto.getWaybill().getRoadCode();
+                Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode,false,true,false,false);
+                if(waybillDto != null && StringUtils.isNotBlank(waybillDto.getRoad())){
+                    result = waybillDto.getRoad();
                 }
             }catch(Exception e){
                 this.logger.info("派车单号{" + waybillCode + "}从运单接口获取roadCode失败",e);

@@ -253,7 +253,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
                     scheduleCode = transbillM.getScheduleBillCode();
                 }
-                commonWaybill.setRemark(scheduleCode);
+                commonWaybill.setRemark(tmsWaybill.getImportantHint() + scheduleCode);
             }
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
