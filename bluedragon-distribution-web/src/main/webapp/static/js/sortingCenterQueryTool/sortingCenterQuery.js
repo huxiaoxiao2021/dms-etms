@@ -131,6 +131,19 @@ function multiSelectShow(){
     var temp = "";
     temp += "<select name='expTypeList' id='expTypeList' multiple='multiple' >";
     temp += "<option value=''>选择EXP_TYPE</option>";
+    temp += "<option value='AT'>AT</option>";
+    // temp += "<option value='MB'>MB</option>";
+    temp += "<option value='MD'>MD</option>";
+    // temp += "<option value='MJ'>MJ</option>";
+
+    temp += "<option value='CD'>CD</option>";
+    temp += "<option value='CF'>CF</option>";
+    temp += "<option value='DD'>DD</option>";
+    temp += "<option value='DF'>DF</option>";
+    temp += "<option value='DJ'>DJ</option>";
+    temp += "<option value='OF'>OF</option>";
+    temp += "<option value='SP'>SP</option>";
+
     temp += "<option value='DE'>DE</option>";
     temp += "<option value='ID'>ID</option>";
     temp += "<option value='MB'>MB</option>";
@@ -139,6 +152,7 @@ function multiSelectShow(){
     temp += "<option value='MT'>MT</option>";
     temp += "<option value='NR'>NR</option>";
     temp += "<option value='UP'>UP</option>";
+
     temp += "<option value='SC'>SC</option>";
     temp += "</select>";
     return temp;
@@ -152,7 +166,7 @@ function sqlSyntax(params){
         temp += params.startTime;
     }
     if(params.endTime != ""){
-        temp += " AND endTime < ";
+        temp += " AND create_time < ";
         temp += params.endTime;
     }
     if(params.expTypeList.length > 0){
