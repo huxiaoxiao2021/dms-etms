@@ -38,10 +38,8 @@ public class TransbillMDaoTest extends AbstractDaoIntegrationTest{
 		//obj.setTransbillState("300");
 		res = transbillMDao.updateBySelective(obj);
 		Assert.assertEquals(res, new Integer(1));
-		List<TransbillM> list = transbillMDao.findByScheduleBillCode(scheduleBillCode);
+        List<String> list = transbillMDao.findEffectWaybillCodesByScheduleBillCode(scheduleBillCode);
 		Assert.assertNotNull(list);
-		res = transbillMDao.deleteById(obj.getMId());
-		Assert.assertEquals(res, new Integer(1));
     }
 	
 }
