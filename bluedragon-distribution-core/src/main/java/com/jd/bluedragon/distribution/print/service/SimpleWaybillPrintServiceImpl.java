@@ -247,7 +247,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
-            if(StringUtils.isNotBlank(tmsWaybill.getSendPay()) && tmsWaybill.getSendPay().charAt(145) == '1') {//城配的订单标识，remark打派车单号
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay()) && tmsWaybill.getSendPay().length()>145 && tmsWaybill.getSendPay().charAt(145) == '1') {//城配的订单标识，remark打派车单号
                 String scheduleCode = tmsWaybill.getImportantHint();
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
