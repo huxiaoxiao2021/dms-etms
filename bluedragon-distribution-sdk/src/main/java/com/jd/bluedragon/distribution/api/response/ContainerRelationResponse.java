@@ -8,6 +8,8 @@ import java.util.List;
  * Created by lhc on 2017/5/4.
  */
 public class ContainerRelationResponse extends JdResponse {
+	
+	private static final long serialVersionUID = 6421643159029953636L;
 
 	/**
 	 * 主键

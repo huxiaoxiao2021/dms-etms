@@ -156,7 +156,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
-        	logger.error("内部错误",e);
+        	logger.error("中转箱与箱号绑定内部错误",e);
         }
         return response;
     }
@@ -185,7 +185,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
-        	logger.error("内部错误",e);
+        	logger.error("根据编号获得对应关系内部错误",e);
         }
 		
         return response;
@@ -196,59 +196,27 @@ public class RollContainerResource {
 	 * @param request
 	 * @return
 	 */
-	@POST
-    @Path("/rollContainer/releaseContainerRelation")
-    public ContainerRelationResponse releaseContainerRelation(ContainerRelation relation) {
-		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(relation.getContainerCode() == null && relation.getBoxCode() == null ){
-        	response.setCode(JdResponse.CODE_PARAM_ERROR);
-        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-        	return response;
-        }
-		try{
-			relation.setUpdateTime(new Date());
-	        relation.setIsDelete(1);//无效状态标示
-	        relation.setTs(new Date());
-	        int count = containerRelationService.updateContainerRelationByCode(relation);
-        }catch(Exception e){
-        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-        	response.setMessage("内部错误");
-        	logger.error("内部错误",e);
-        }
-		
-        return response;
-    }
-	
-	/**
-	 * 根据boxCode得到box信息,供周转箱(笼车)发货使用
-	 * @param request
-	 * @return
-	 */
-	@POST
-    @Path("/rollContainer/getBoxByBoxCode")
-    public ContainerRelationResponse getBoxByBoxCode(ContainerRelation relation) {
-		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(relation.getBoxCode() == null ){
-        	response.setCode(JdResponse.CODE_PARAM_ERROR);
-        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-        	return response;
-        }
-		try{
-			String boxCode = relation.getBoxCode();
-			Box box = boxService.findBoxByCode(boxCode);
-			if(box != null){
-				box.getReceiveSiteCode();
-				response.setSiteCode(box.getCreateSiteCode());
-				response.setReceiveSiteCode(box.getReceiveSiteCode());
-			}
-			
-        }catch(Exception e){
-        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-        	response.setMessage("内部错误");
-        	logger.error("内部错误",e);
-        }
-		
-        return response;
-    }
+//	@POST
+//    @Path("/rollContainer/releaseContainerRelation")
+//    public ContainerRelationResponse releaseContainerRelation(ContainerRelation relation) {
+//		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+//		if(relation.getContainerCode() == null && relation.getBoxCode() == null ){
+//        	response.setCode(JdResponse.CODE_PARAM_ERROR);
+//        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+//        	return response;
+//        }
+//		try{
+//			relation.setUpdateTime(new Date());
+//	        relation.setIsDelete(1);//无效状态标示
+//	        relation.setTs(new Date());
+//	        int count = containerRelationService.updateContainerRelationByCode(relation);
+//        }catch(Exception e){
+//        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+//        	response.setMessage("内部错误");
+//        	logger.error("中转箱与箱号释放绑定关系内部错误",e);
+//        }
+//		
+//        return response;
+//    }
 	
 }
