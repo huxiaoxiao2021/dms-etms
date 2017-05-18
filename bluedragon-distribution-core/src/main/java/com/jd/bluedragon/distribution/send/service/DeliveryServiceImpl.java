@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -87,7 +85,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
@@ -114,10 +111,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
-
-    @Autowired
-    @Qualifier("restTemplate")
-    private RestTemplate restTemplate;
 
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
@@ -241,8 +234,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
 
-    private static final String SMS_MESSAGE = "亲爱的顾客，京东提示您：京东不会用手机号或官方400电话联系您办理退款转账或推销商品等事宜；京东也不会以被列为经销商用户/订单异常等为由索要银行卡/验证码等支付信息，请您警惕此类诈骗电话！";
-
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
@@ -300,7 +291,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Integer preSortingSiteCode = null;
                 try {
                     CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
-                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
+                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(domain.getBoxCode()), true, false, false, false);
                     Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                     if (null != waybill) {
                         preSortingSiteCode = waybill.getSiteCode();
@@ -653,16 +644,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 写入发货表数据
         this.insertSendM(sendMList, list);
 
-        List<String> boxCodes = new ArrayList<String>();
-
         for (SendM domain : sendMList) {
             this.transitSend(domain);//插入中转任务
-//            if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-//                boxCodes.add(domain.getBoxCode());
-//            }
         }
-        // 更新箱号的状态
-//        boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
         // 写入任务
         addTaskSend(sendMList.get(0));
         Profiler.registerInfoEnd(info2);
@@ -875,7 +859,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
             }
         }
-
         return new DeliveryResponse(JdResponse.CODE_OK, reslut);
     }
 
@@ -1424,7 +1407,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         sb.append("</OrderSendDetail>");
 
         this.logger.info("snedMQpop----snedMQpop----" + sb.toString());
-        //messageClient.sendMessage("pop1", sb.toString(), tSendDatail.getWaybillCode());
         pop1MQ.sendOnFailPersistent(tSendDatail.getWaybillCode(), sb.toString());
     }
 
@@ -2086,6 +2068,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     /*******************
      * 发货已扫描数据
      ******************************************/
+    @Deprecated
     private Set<String> getDeliveryPackageCode(List<String> packlist, List<String> code) {
         Set<String> codeList = new HashSet<String>();
         for (String packageBarcode : packlist) {
@@ -2561,7 +2544,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                         rsiteCode + "站点箱号" + DeliveryResponse.MESSAGE_Delivery_ERROR);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             logger.error("dealWithSendBatch处理异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR,
@@ -2605,7 +2587,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                     rsiteCode = rsiteCode + ","
                             + String.valueOf(sendM.getReceiveSiteCode());
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return new DeliveryResponse(
                         DeliveryResponse.CODE_Delivery_ERROR,

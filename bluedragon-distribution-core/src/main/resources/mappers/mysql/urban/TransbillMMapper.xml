@@ -280,9 +280,6 @@
 		where m_id = #{mId}
 	</update>
 
-	<delete id="deleteById" parameterType="Long">
-		delete from transbill_m where m_id = #{mId}
-	</delete>
 
 	<select id="findById" parameterType="Long" resultMap="TransbillM">
 		select 
@@ -298,16 +295,17 @@
 		  transbill_m 
 		where waybill_code = #{wallbillCode} 
 		  and yn = 1
+        order by ts_m desc
 		  limit 1;
 	</select>
-	
-	<select id="findByScheduleBillCode" parameterType="String" resultMap="TransbillM">
+
+    <select id="findEffectWaybillCodesByScheduleBillCode" parameterType="String" resultType="String" >
 		select 
-		 <include refid="Base_Column_List"/>
+		 waybill_code
 		from 
 		  transbill_m 
 		where yn = 1 
 		  and schedule_bill_code = #{scheduleBillCode}
-		  limit 1000
+		  limit 10000
 	</select>
 </mapper>

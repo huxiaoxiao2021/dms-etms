@@ -49,7 +49,7 @@ public class TransbillMSyncConsumer extends MessageBaseConsumer{
         		}
         	}
         }
-        if(!transbillMService.save(transbillM)){
+        if(!transbillMService.saveOrUpdate(transbillM)){
         	logger.warn(MessageFormat.format("城配运单推送MQ-消息同步失败，内容为【{0}】", message.getText()));
         }
     }
