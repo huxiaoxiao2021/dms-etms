@@ -192,6 +192,38 @@ public class RollContainerResource {
     }
 	
 	/**
+	 * 根据boxCode得到box信息,供周转箱(笼车)发货使用
+	 * @param request
+	 * @return
+	 */
+//	@POST
+//    @Path("/rollContainer/getBoxByBoxCode")
+//    public ContainerRelationResponse getBoxByBoxCode(ContainerRelation relation) {
+//		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+//		if(relation.getBoxCode() == null ){
+//        	response.setCode(JdResponse.CODE_PARAM_ERROR);
+//        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+//        	return response;
+//        }
+//		try{
+//			String boxCode = relation.getBoxCode();
+//			Box box = boxService.findBoxByCode(boxCode);
+//			if(box != null){
+//				box.getReceiveSiteCode();
+//				response.setSiteCode(box.getCreateSiteCode());
+//				response.setReceiveSiteCode(box.getReceiveSiteCode());
+//			}
+//			
+//        }catch(Exception e){
+//        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+//        	response.setMessage("内部错误");
+//        	logger.error("内部错误",e);
+//        }
+//		
+//        return response;
+//    }
+	
+	/**
 	 * 中转箱与箱号释放绑定关系,周转箱收货时需要释放rfid与箱号的关系
 	 * @param request
 	 * @return
