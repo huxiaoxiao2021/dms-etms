@@ -13,11 +13,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * create by zhanglei 2017-05-10
@@ -25,8 +25,9 @@ import java.util.Set;
  * 新版封车解封车
  *
  * 主要功能点
- * 1、封车：写入封车表、回传运单封车全程跟踪、回传TMS发车信息（通过jsf接口）
- * 2、解封车：更新封车状态、回传运单解封车全程跟踪、回传TMS解封车信息（mq消息）
+ * 1、封车：回传TMS发车信息（通过jsf接口）
+ * 2、解封车：回传TMS解封车信息（通过jsf接口）
+ * 3、获取待解封列表(通过jsf接口)
  *
  */
 @Component
@@ -40,10 +41,35 @@ public class NewSealVehicleResource {
 	@Autowired
 	private SealVehicleService sealVehicleService;
 
-	@GET
-	@Path("/new/seal/vehicle/{sealCode}")
-	public SealVehicleResponse findSealByCode(
-			@PathParam("sealCode") String sealCode) {
+
+	/**
+	 * 封车功能
+	 */
+	@POST
+	@Path("/new/vehicle/seal")
+	public SealVehicleResponse add(NewSealVehicleRequest request) {
+		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+		try{
+			if (request == null
+					|| StringUtils.isBlank(request.getVehicleCode())
+					|| request.getSiteCode() == null
+					|| request.getUserCode() == null
+					|| StringUtils.isBlank(request.getUserName())) {
+				this.logger.error("SealVehicleResource add --> 传入参数非法");
+				sealVehicleResponse =  new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+			}
+		}catch(Exception e){
+			this.logger.error("SealVehicleResource.add3-error", e);
+		}
+		return sealVehicleResponse;
+	}
+
+	/**
+	 * 获取待解封信息
+	 * */
+	@POST
+	@Path("/new/vehicle/findSealInfo")
+	public SealVehicleResponse findSealInfo( String sealCode) {
 		if (StringUtils.isBlank(sealCode)) {
 			this.logger.error("SealVehicleResponse findSealByCode --> 传入参数非法");
 			return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR,
@@ -72,34 +98,12 @@ public class NewSealVehicleResource {
 		}
 	}
 
-	/**
-	 * 封车功能
-	 */
-	@POST
-	@Path("/new/seal/vehicle")
-	public SealVehicleResponse add(NewSealVehicleRequest request) {
-		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-		try{
-			if (request == null
-					|| StringUtils.isBlank(request.getVehicleCode())
-					|| request.getSiteCode() == null
-					|| request.getUserCode() == null
-					|| StringUtils.isBlank(request.getUserName())) {
-				this.logger.error("SealVehicleResource add --> 传入参数非法");
-				sealVehicleResponse =  new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-			}
-		}catch(Exception e){
-			this.logger.error("SealVehicleResource.add3-error", e);
-		}
-		return sealVehicleResponse;
-	}
-
 
 	/**
 	 * 解封车功能
 	 */
-	@PUT
-	@Path("/new/seal/vehicle")
+	@POST
+	@Path("/new/vehicle/unseal")
 	public SealVehicleResponse update(SealVehicleRequest request) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		try{
@@ -121,45 +125,5 @@ public class NewSealVehicleResource {
 			this.logger.error("SealVehicleResource.update3-error", e);
 		}
 		return sealVehicleResponse;
-	}
-	
-	@GET
-	@Path("/new/seal/{vehicleCode}")
-	public SealVehicleResponse findByVehicleCode(@PathParam("vehicleCode") String vehicleCode) {
-		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-		if (StringUtils.isBlank(vehicleCode)) {
-			this.logger.error("SealVehicleResponse findByVehicleCode --> 传入参数非法");
-			return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-		}
-		try{
-			List<SealVehicle> sealVehicleList =  sealVehicleService.findByVehicleCode(vehicleCode);
-			if(sealVehicleList == null || sealVehicleList.size() < 1){
-				return new SealVehicleResponse(JdResponse.CODE_OK_NULL, JdResponse.MESSAGE_OK_NULL);
-			}
-			sealVehicleResponse.setSealCodes(getSealCodes(sealVehicleList));
-			sealVehicleResponse.setCode(JdResponse.CODE_OK);
-			sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
-		}catch(Exception e){
-			this.logger.error("SealVehicleResource.findByVehicleCode-error", e);
-		}
-		return sealVehicleResponse;
-	}
-	
-	public static String getSealCodes(List<SealVehicle> sealVehicleList){
-		String sealCodes = "";
-		boolean isFirst = true;
-		Set<String> sealCodeSet = new HashSet<String>();
-		for(SealVehicle sv : sealVehicleList){
-			sealCodeSet.add(sv.getCode());
-		}
-		for(String str : sealCodeSet){
-			if(isFirst){
-				sealCodes += str;
-				isFirst = false;
-			}else{
-				sealCodes += "," + str;
-			}
-		}
-		return sealCodes;
 	}
 }
