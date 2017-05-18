@@ -259,4 +259,11 @@ public interface DeliveryService {
      * @param tDeliveryMessageJsonList 发货相关数据
      */
     public DeliveryResponse autoBatchSend(List<SendM> sendMList);
+    
+    /**
+     * 根据周转箱编号获取send_m里的box_code(类似于编号与box_code绑定关系)
+     * @param turnoverBoxCode
+     * @return
+     */
+    public SendM getBoxCodeByTurnoverBox(String turnoverBoxCode,Integer createSiteCode);
 }

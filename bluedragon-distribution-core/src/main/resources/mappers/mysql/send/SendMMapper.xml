@@ -463,4 +463,15 @@
         where send_code= #{sendCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
+    
+    <select id="selectByTurnoverBox" parameterType="String"
+		resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from send_m
+		where yn =1
+        and turnoverBox_Code= #{turnoverBoxCode,jdbcType=VARCHAR} 
+        order by create_time desc LIMIT 1
+        
+	</select>
 </mapper>

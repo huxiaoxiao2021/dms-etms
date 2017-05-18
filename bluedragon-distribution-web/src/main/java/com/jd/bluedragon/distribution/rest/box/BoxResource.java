@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -88,6 +90,28 @@ public class BoxResource {
             }
         }
 
+        return response;
+    }
+    
+    /**
+	 * 根据boxCode得到box信息,供周转箱(笼车)发货使用
+	 * @param request
+	 * @return
+	 */
+	@POST
+    @Path("/boxes/getBoxByBoxCode")
+    public BoxResponse getBoxByBoxCode(BoxRequest request) {
+		
+		Assert.notNull(request.getBoxCode(), "BoxRequest's code must not be null");
+        this.logger.info("BoxRequest's " + request);
+        String boxCode = request.getBoxCode();
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            return this.boxNoFound();
+        }
+        
+        BoxResponse response = this.toBoxResponse(box);
+        
         return response;
     }
 

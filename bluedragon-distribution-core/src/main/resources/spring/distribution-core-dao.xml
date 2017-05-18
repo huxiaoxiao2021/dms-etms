@@ -344,6 +344,15 @@
 	<bean id="transbillMDao" class="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
 		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
 	</bean>
+	
+	<!-- 周转箱（笼车） -->
+	<bean id="rollContainerDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.RollContainerDao">
+		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+	</bean>
+	<!-- 周转箱（笼车）关系 -->
+	<bean id="containerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
+		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+	</bean>
 
     <!-- Worker start -->
     <bean id="tbTaskTypeDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao">
