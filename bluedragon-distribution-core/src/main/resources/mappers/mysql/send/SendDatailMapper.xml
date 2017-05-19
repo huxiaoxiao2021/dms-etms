@@ -51,7 +51,7 @@
     </insert>
 	
 	<update id="update" parameterType="SendDetail" >
-		UPDATE Send_d USE INDEX(IND_SEND_D_BCPB)
+		UPDATE Send_d
 		<set>
 			<if test="sendCode != null">
 				send_code = #{sendCode,jdbcType=VARCHAR},

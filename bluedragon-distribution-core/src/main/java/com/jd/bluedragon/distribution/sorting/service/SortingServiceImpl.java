@@ -51,6 +51,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -278,8 +279,12 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
+	/**
+	 * author by lixin456
+	 * 强制指定事务隔离级别为RC，解决数据插入时死锁报错问题
+	 */
     @JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean doSorting(Task task) {
         List<Sorting> sortings = this.prepareSorting(task);
         if (null == sortings || sortings.isEmpty()) {
