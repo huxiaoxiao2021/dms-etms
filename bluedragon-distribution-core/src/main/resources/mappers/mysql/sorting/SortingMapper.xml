@@ -52,7 +52,7 @@
     </insert>
 	
 	<update id="update" parameterType="sorting" >
-		UPDATE Sorting
+		UPDATE Sorting USE INDEX(IND_SORTING_PCODE_P)
 		SET 
 		    bsend_code = #{bsendCode,jdbcType=VARCHAR},
 		    box_code = #{boxCode,jdbcType=VARCHAR},

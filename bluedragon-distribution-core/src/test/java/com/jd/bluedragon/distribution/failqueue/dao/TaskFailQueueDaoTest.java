@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,9 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Autowired
 	private TaskFailQueueDao taskFailQueueDao;
-	
+
+    @Autowired
+    SendDatailReadDao sendDatailReadDao;
 	
 	@Test
     public void testQuery() {
@@ -34,33 +37,33 @@ public class TaskFailQueueDaoTest extends AbstractDaoIntegrationTest{
     }
 	
 	@Test
-    public void testQuerySendDatail_SELF() {
+    public void testQuerySendDetail_SELF() {
 		List<String> param =new ArrayList<String>();
 		param.add("James");
-		List<SendDetail> result = taskFailQueueDao.querySendDatailBySendCodes_SELF(param);
+		List<SendDetail> result = sendDatailReadDao.querySendDetailBySendCodes_SELF(param);
 		Assert.assertEquals(0, result.size());
 		
 		param.clear();
 		param.add("910-311-20160126202034466");
-		result = taskFailQueueDao.querySendDatailBySendCodes_SELF(param);
+		result = sendDatailReadDao.querySendDetailBySendCodes_SELF(param);
 		Assert.assertEquals("910-311-20160126202034466", result.get(0).getSendCode());
     }
 	
 	@Test
-    public void testQuerySendDatail_3PL() {
+    public void testQuerySendDetail_3PL() {
         List parameter = new ArrayList();
         parameter.add("James");
-        List<SendDetail> result = taskFailQueueDao.querySendDatailBySendCodes_3PL(parameter);
+        List<SendDetail> result = sendDatailReadDao.querySendDetailBySendCodes_3PL(parameter);
         Assert.assertEquals(0, result.size());
         
         parameter.clear();
         parameter.add("511-1-20120925100935659");
-		result = taskFailQueueDao.querySendDatailBySendCodes_3PL(parameter);
+		result = sendDatailReadDao.querySendDetailBySendCodes_3PL(parameter);
 		Assert.assertEquals("511-1-20120925100935659", result.get(0).getSendCode());
 		
         parameter.clear();
         parameter.add("511201203280756360");
-		result = taskFailQueueDao.querySendDatailBySendCodes_3PL(parameter);
+		result = sendDatailReadDao.querySendDetailBySendCodes_3PL(parameter);
 		Assert.assertEquals("511201203280756360", result.get(0).getSendCode());
     }
 	
