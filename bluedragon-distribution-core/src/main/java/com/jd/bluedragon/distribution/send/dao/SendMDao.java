@@ -175,11 +175,4 @@ public  class SendMDao extends BaseDao<SendM>  {
                 SendMDao.namespace + ".selectBoxCodeBySendCodeAndCreateSiteCode", sendM);
     }
     
-    public SendM getSendMByTurnoverBox(String turnoverBoxCode,Integer createSiteCode){
-    	
-    	SendM querySendM = new SendM();
-//        querySendM.setCreateSiteCode(createSiteCode);
-        querySendM.setTurnoverBoxCode(turnoverBoxCode);
-    	return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectByTurnoverBox", querySendM);
-    }
 }

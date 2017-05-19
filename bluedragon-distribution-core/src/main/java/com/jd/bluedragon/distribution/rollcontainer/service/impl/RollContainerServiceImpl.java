@@ -19,7 +19,6 @@ public class RollContainerServiceImpl implements RollContainerService{
 	
 	@Override
 	public List<RollContainer> getRollContainer(Map<String, Object> param) {
-		// TODO Auto-generated method stub
 		return rollContainerDao.getRollContainerPage(param);
 	}
 	
@@ -33,7 +32,6 @@ public class RollContainerServiceImpl implements RollContainerService{
 
 	@Override
 	public RollContainer getRollContainerByCode(String code) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

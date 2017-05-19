@@ -85,7 +85,7 @@ public class RollContainerResource {
 	
 	
 	/**
-	 * 根据编号获得对应的关系,根据编号获取最近生成的关系(周转箱收货用sendm里的箱号和周转箱对应关系)
+	 * 根据编号获得对应的关系,根据编号获取最近生成的关系(kvindex里获取对应关系)
 	 * @param request
 	 * @return
 	 */
@@ -100,21 +100,32 @@ public class RollContainerResource {
         	return response;
         }
 		try{
-			//从send_m表的turnoverbox_code得到对应的box_code
-			SendM sendm = deliveryService.getBoxCodeByTurnoverBox(containerCode,siteCode);
-			if(sendm != null){
-				String boxCode = sendm.getBoxCode();
+//			//从send_m表的turnoverbox_code得到对应的box_code
+//			SendM sendm = deliveryService.getBoxCodeByTurnoverBox(containerCode,siteCode);
+//			if(sendm != null){
+//				String boxCode = sendm.getBoxCode();
+//				response.setBoxCode(boxCode);
+//				if(boxCode == null || "".equals(boxCode)){
+//					response.setCode(JdResponse.CODE_OK_NULL);
+//					response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
+//					logger.error("周转箱"+containerCode+"对应的箱号为空，请确认！");
+//				}
+//			}else{
+//				response.setCode(JdResponse.CODE_OK_NULL);
+//				response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
+//				logger.error("周转箱"+containerCode+"对应的发货信息sendm数据为空，请确认！");
+//			}
+			//kvindex里根据rfid获取箱号
+			String boxCode = containerRelationService.getBoxCodeByContainerCode(containerCode);
+			if(boxCode != null){
 				response.setBoxCode(boxCode);
-				if(boxCode == null || "".equals(boxCode)){
-					response.setCode(JdResponse.CODE_OK_NULL);
-					response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
-					logger.error("周转箱"+containerCode+"对应的箱号为空，请确认！");
-				}
+				logger.info("根据周转箱号:"+containerCode+"获取箱号("+boxCode+")成功!");
 			}else{
 				response.setCode(JdResponse.CODE_OK_NULL);
 				response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
 				logger.error("周转箱"+containerCode+"对应的发货信息sendm数据为空，请确认！");
 			}
+			
 		}catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
@@ -196,32 +207,32 @@ public class RollContainerResource {
 	 * @param request
 	 * @return
 	 */
-	@POST
-    @Path("/rollContainer/getBoxByBoxCode")
-    public ContainerRelationResponse getBoxByBoxCode(ContainerRelation relation) {
-		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(relation.getBoxCode() == null ){
-        	response.setCode(JdResponse.CODE_PARAM_ERROR);
-        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-        	return response;
-        }
-		try{
-			String boxCode = relation.getBoxCode();
-			Box box = boxService.findBoxByCode(boxCode);
-			if(box != null){
-				box.getReceiveSiteCode();
-				response.setSiteCode(box.getCreateSiteCode());
-				response.setReceiveSiteCode(box.getReceiveSiteCode());
-			}
-			
-        }catch(Exception e){
-        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-        	response.setMessage("内部错误");
-        	logger.error("内部错误",e);
-        }
-		
-        return response;
-    }
+//	@POST
+//    @Path("/rollContainer/getBoxByBoxCode")
+//    public ContainerRelationResponse getBoxByBoxCode(ContainerRelation relation) {
+//		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+//		if(relation.getBoxCode() == null ){
+//        	response.setCode(JdResponse.CODE_PARAM_ERROR);
+//        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+//        	return response;
+//        }
+//		try{
+//			String boxCode = relation.getBoxCode();
+//			Box box = boxService.findBoxByCode(boxCode);
+//			if(box != null){
+//				box.getReceiveSiteCode();
+//				response.setSiteCode(box.getCreateSiteCode());
+//				response.setReceiveSiteCode(box.getReceiveSiteCode());
+//			}
+//			
+//        }catch(Exception e){
+//        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+//        	response.setMessage("内部错误");
+//        	logger.error("内部错误",e);
+//        }
+//		
+//        return response;
+//    }
 	
 	/**
 	 * 中转箱与箱号释放绑定关系,周转箱收货时需要释放rfid与箱号的关系

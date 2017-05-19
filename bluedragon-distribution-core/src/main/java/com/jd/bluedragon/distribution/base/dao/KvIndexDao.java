@@ -45,6 +45,10 @@ public class KvIndexDao extends BaseDao<KvIndex> {
     	return null;
 	}
     
+    public String queryRecentOneByKeyword(String keyword) {
+    	return this.getSqlSession().selectOne(namespace + ".queryRecentOneByKeyword", keyword);
+	}
+    
     public Integer deleteByKeyword(String keyword) {
         return this.getSqlSession().delete(namespace + ".deleteByKey", keyword);
     }
