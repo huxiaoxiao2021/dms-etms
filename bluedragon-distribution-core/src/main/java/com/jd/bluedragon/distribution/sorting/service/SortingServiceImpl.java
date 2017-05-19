@@ -963,15 +963,12 @@ public class SortingServiceImpl implements SortingService {
 //		Sorting sorting = new Sorting();
 //		sorting.setWaybillCode("T42747129215");
 //		impl.backwardSendMQ(sorting);
-//		String waybillsign = "T0000000000000200000000000000000000000000000000000";
-//		String b = waybillsign.substring(15,16);
-//		String a = waybillsign.substring(0,1);
-//		if("T".equals(a) || "6".equals(b)){
-//			System.out.println(a);
-//		}
-		
-		Boolean temp = BusinessHelper.isPickupCode("PC2017051200001003");
-		System.out.println(temp);
+		String waybillsign = "T0000000000000200000000000000000000000000000000000";
+		String b = waybillsign.substring(15,16);
+		String a = waybillsign.substring(0,1);
+		if("T".equals(a) || "6".equals(b)){
+			System.out.println(a);
+		}
 		
 	}
 }

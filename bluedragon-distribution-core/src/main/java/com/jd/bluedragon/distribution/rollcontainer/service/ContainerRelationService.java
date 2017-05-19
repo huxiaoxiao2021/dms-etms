@@ -25,6 +25,13 @@ public interface ContainerRelationService {
     
     public int updateContainerRelationByCode(ContainerRelation containerRelation);
     
+    /**
+     * 根据rfid获取对应的箱号
+     * @param containerCode
+     * @return
+     */
+    public String getBoxCodeByContainerCode(String containerCode);
+    
     
     
     
