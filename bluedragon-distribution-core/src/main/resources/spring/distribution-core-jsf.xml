@@ -75,12 +75,7 @@
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                  protocol="jsf" alias="${3pl.jsf.alias}" timeout="10000" retries="0">
 	</jsf:consumer>
-	
-	<!-- 车辆电子围栏 VOS系统 李胜涛  -->
-	<jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
-                 protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
-	</jsf:consumer>
-	
+
 	<!-- 运力编码Vts系统 李胜涛  -->
 	<jsf:consumer id="vtsQueryWS" interface="com.jd.etms.vts.ws.VtsQueryWS" protocol="jsf" 
     			   alias="${vst.jsf.alias}" serialization="hessian" timeout="10000" retries="0"> 
@@ -220,4 +215,19 @@
 	    <property name="fromEmailName" value="青龙服务" />
 	</bean>
 	<!-- 公司邮件服务  结束-->
+
+    <!--封车解封车jsf接口  added by zhanglei 20170519 -->
+    <!-- 封车解封车 jsf接口 隋红华 王显群-->
+    <jsf:consumer id="vosBusinessWS" interface="com.jd.etms.vos.ws.VosBusinessWS"
+                  protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
+
+    </jsf:consumer>
+
+    <!-- 车辆电子围栏 VOS系统 隋红华 王显群 李胜涛  -->
+    <jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
+                  protocol="jsf" alias="${vos.jsf.alias}"  serialization="hessian" timeout="10000" retries="0">
+    </jsf:consumer>
+
+    <!--封车解封车jsf接口  added by zhanglei 20170519 -->
+
 </beans>
