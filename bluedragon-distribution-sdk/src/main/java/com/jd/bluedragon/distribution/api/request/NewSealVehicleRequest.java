@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
-import com.jd.bluedragon.distribution.api.domain.NewSealVehicleBean;
+import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 
 import java.util.List;
 
@@ -13,73 +13,137 @@ public class NewSealVehicleRequest extends JdRequest {
 
 	private static final long serialVersionUID = -4900034488418821323L;
 
-	/** 车牌号 */
-	private String vehicleCode;
+	/**
+	 * 代码
+	 * */
+	private Integer code;
 
-	/** 交接单号 */
-	private String handoverCode;
+	/**
+	 * 信息
+	 * */
+	private String message;
 
-	/** 封车号 */
-	private List<String> sealVehicleCodes;
+	/**
+	 * 10:封车
+	 * 20:解封车
+	 * */
+	private Integer status;
+
+	/**
+	 * 显示条数
+	 * */
+	private Integer pageNums;
+
+	/**
+	 * 封车号
+	 * */
+	private String sealCode;
+
+	/**
+	 * 车牌号
+	 * */
+	private String vehicleNumber;
+
+	/**
+	 *
+	 * */
+	private String transportCode;
+
+	/**
+	 * 始发站点
+	 * */
+	private String startSiteId;
+
+	/**
+	 * 目的站点s
+	 * */
+	private String endSiteId;
+
 
 	/**批次基本信息*/
-	private List<NewSealVehicleBean> newSealVehicles;
-
-	/** 创建站点编号 */
-	private Integer createSiteCode;
-
-	/** 创建站点名称 */
-	private String createSiteName;
+	private List<SealCarDto> data;
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
 
-	public String getVehicleCode() {
-		return vehicleCode;
+	public Integer getCode() {
+		return code;
 	}
 
-	public void setVehicleCode(String vehicleCode) {
-		this.vehicleCode = vehicleCode;
+	public void setCode(Integer code) {
+		this.code = code;
 	}
 
-	public String getHandoverCode() {
-		return handoverCode;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setHandoverCode(String handoverCode) {
-		this.handoverCode = handoverCode;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
-	public List<String> getSealVehicleCodes() {
-		return sealVehicleCodes;
+	public Integer getStatus() {
+		return status;
 	}
 
-	public void setSealVehicleCodes(List<String> sealVehicleCodes) {
-		this.sealVehicleCodes = sealVehicleCodes;
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
-	public List<NewSealVehicleBean> getNewSealVehicles() {
-		return newSealVehicles;
+	public Integer getPageNums() {
+		return pageNums;
 	}
 
-	public void setNewSealVehicles(List<NewSealVehicleBean> newSealVehicles) {
-		this.newSealVehicles = newSealVehicles;
+	public void setPageNums(Integer pageNums) {
+		this.pageNums = pageNums;
 	}
 
-	public Integer getCreateSiteCode() {
-		return createSiteCode;
+	public String getSealCode() {
+		return sealCode;
 	}
 
-	public void setCreateSiteCode(Integer createSiteCode) {
-		this.createSiteCode = createSiteCode;
+	public void setSealCode(String sealCode) {
+		this.sealCode = sealCode;
 	}
 
-	public String getCreateSiteName() {
-		return createSiteName;
+	public String getVehicleNumber() {
+		return vehicleNumber;
 	}
 
-	public void setCreateSiteName(String createSiteName) {
-		this.createSiteName = createSiteName;
+	public void setVehicleNumber(String vehicleNumber) {
+		this.vehicleNumber = vehicleNumber;
+	}
+
+	public String getTransportCode() {
+		return transportCode;
+	}
+
+	public void setTransportCode(String transportCode) {
+		this.transportCode = transportCode;
+	}
+
+	public String getStartSiteId() {
+		return startSiteId;
+	}
+
+	public void setStartSiteId(String startSiteId) {
+		this.startSiteId = startSiteId;
+	}
+
+	public String getEndSiteId() {
+		return endSiteId;
+	}
+
+	public void setEndSiteId(String endSiteId) {
+		this.endSiteId = endSiteId;
+	}
+
+	public List<SealCarDto> getData() {
+		return data;
+	}
+
+	public void setData(List<SealCarDto> data) {
+		this.data = data;
 	}
 }
