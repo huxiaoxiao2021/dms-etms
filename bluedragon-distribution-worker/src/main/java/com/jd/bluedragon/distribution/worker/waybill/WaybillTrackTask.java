@@ -19,8 +19,4 @@ public class WaybillTrackTask extends DBSingleScheduler {
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         return waybillService.doWaybillTraceTask(task);
     }
-    
-    public boolean executeSingleTask(Task task) throws Exception {
-        return this.executeSingleTask(task, null);
-    }
 }
