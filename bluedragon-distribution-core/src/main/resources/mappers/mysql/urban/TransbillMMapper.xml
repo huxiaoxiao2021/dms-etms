@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
+
+	<resultMap id="TransbillM" type="com.jd.bluedragon.distribution.urban.domain.TransbillM" >
+		<result column="m_id" property="mId" jdbcType="BIGINT" />
+		<result column="transbill_code" property="transbillCode" jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+		<result column="order_flag" property="orderFlag" jdbcType="TINYINT" />
+		<result column="schedule_bill_code" property="scheduleBillCode" jdbcType="VARCHAR" />
+		<result column="schedule_amount" property="scheduleAmount" jdbcType="INTEGER" />
+		<result column="truck_spot" property="truckSpot" jdbcType="VARCHAR" />
+		<result column="allocate_sequence" property="allocateSequence" jdbcType="VARCHAR" />
+		<result column="arrive_time" property="arriveTime" jdbcType="TIMESTAMP" />
+		<result column="redelivery_time" property="redeliveryTime" jdbcType="TIMESTAMP" />
+		<result column="redelivery_address" property="redeliveryAddress" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+		<result column="transbill_state" property="transbillState" jdbcType="INTEGER" />
+		<result column="site_id" property="siteId" jdbcType="INTEGER" />
+		<result column="site_name" property="siteName" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" jdbcType="VARCHAR" />
+		<result column="generate_type" property="generateType" jdbcType="TINYINT" />
+		<result column="push_pre_flag" property="pushPreFlag" jdbcType="TINYINT" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="create_user" property="createUser" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" jdbcType="VARCHAR" />
+		<result column="partition_time" property="partitionTime" jdbcType="TIMESTAMP" />
+		<result column="ts_m" property="tsM" jdbcType="BIGINT" />
+		<result column="yn" property="yn" jdbcType="TINYINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		m_id,transbill_code,waybill_code,order_flag,schedule_bill_code,schedule_amount,
+		truck_spot,allocate_sequence,arrive_time,redelivery_time,redelivery_address,
+		operate_time,transbill_state,site_id,site_name,site_code,
+		generate_type,push_pre_flag,create_time,update_time,create_user,
+		update_user,partition_time,ts_m,yn
+	</sql>
+
+	<insert id="insert" parameterType="TransbillM">
+		insert into transbill_m
+			(
+			<trim suffixOverrides=",">
+				<if test="mId != null">
+					m_id,
+				</if>
+				<if test="transbillCode != null">
+					transbill_code,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="orderFlag != null">
+					order_flag,
+				</if>
+				<if test="scheduleBillCode != null">
+					schedule_bill_code,
+				</if>
+				<if test="scheduleAmount != null">
+					schedule_amount,
+				</if>
+				<if test="truckSpot != null">
+					truck_spot,
+				</if>
+				<if test="allocateSequence != null">
+					allocate_sequence,
+				</if>
+				<if test="arriveTime != null">
+					arrive_time,
+				</if>
+				<if test="redeliveryTime != null">
+					redelivery_time,
+				</if>
+				<if test="redeliveryAddress != null">
+					redelivery_address,
+				</if>
+				<if test="operateTime != null">
+					operate_time,
+				</if>
+				<if test="transbillState != null">
+					transbill_state,
+				</if>
+				<if test="siteId != null">
+					site_id,
+				</if>
+				<if test="siteName != null">
+					site_name,
+				</if>
+				<if test="siteCode != null">
+					site_code,
+				</if>
+				<if test="generateType != null">
+					generate_type,
+				</if>
+				<if test="pushPreFlag != null">
+					push_pre_flag,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="updateUser != null">
+					update_user,
+				</if>
+				<if test="partitionTime != null">
+					partition_time,
+				</if>
+				<if test="tsM != null">
+					ts_m,
+				</if>
+				<if test="yn != null">
+					yn
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="mId != null">
+					#{mId},
+				</if>
+				<if test="transbillCode != null">
+					#{transbillCode},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode},
+				</if>
+				<if test="orderFlag != null">
+					#{orderFlag},
+				</if>
+				<if test="scheduleBillCode != null">
+					#{scheduleBillCode},
+				</if>
+				<if test="scheduleAmount != null">
+					#{scheduleAmount},
+				</if>
+				<if test="truckSpot != null">
+					#{truckSpot},
+				</if>
+				<if test="allocateSequence != null">
+					#{allocateSequence},
+				</if>
+				<if test="arriveTime != null">
+					#{arriveTime},
+				</if>
+				<if test="redeliveryTime != null">
+					#{redeliveryTime},
+				</if>
+				<if test="redeliveryAddress != null">
+					#{redeliveryAddress},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime},
+				</if>
+				<if test="transbillState != null">
+					#{transbillState},
+				</if>
+				<if test="siteId != null">
+					#{siteId},
+				</if>
+				<if test="siteName != null">
+					#{siteName},
+				</if>
+				<if test="siteCode != null">
+					#{siteCode},
+				</if>
+				<if test="generateType != null">
+					#{generateType},
+				</if>
+				<if test="pushPreFlag != null">
+					#{pushPreFlag},
+				</if>
+				<if test="createTime != null">
+					#{createTime},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime},
+				</if>
+				<if test="createUser != null">
+					#{createUser},
+				</if>
+				<if test="updateUser != null">
+					#{updateUser},
+				</if>
+				<if test="partitionTime != null">
+					#{partitionTime},
+				</if>
+				<if test="tsM != null">
+					#{tsM},
+				</if>
+				<if test="yn != null">
+					#{yn}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateBySelective" parameterType="TransbillM">
+		update transbill_m
+			<set>
+				<if test="transbillCode != null">
+					transbill_code = #{transbillCode},
+				</if>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode},
+				</if>
+				<if test="orderFlag != null">
+					order_flag = #{orderFlag},
+				</if>
+				<if test="scheduleBillCode != null">
+					schedule_bill_code = #{scheduleBillCode},
+				</if>
+				<if test="scheduleAmount != null">
+					schedule_amount = #{scheduleAmount},
+				</if>
+				<if test="truckSpot != null">
+					truck_spot = #{truckSpot},
+				</if>
+				<if test="allocateSequence != null">
+					allocate_sequence = #{allocateSequence},
+				</if>
+				<if test="arriveTime != null">
+					arrive_time = #{arriveTime},
+				</if>
+				<if test="redeliveryTime != null">
+					redelivery_time = #{redeliveryTime},
+				</if>
+				<if test="redeliveryAddress != null">
+					redelivery_address = #{redeliveryAddress},
+				</if>
+				<if test="operateTime != null">
+					operate_time = #{operateTime},
+				</if>
+				<if test="transbillState != null">
+					transbill_state = #{transbillState},
+				</if>
+				<if test="siteId != null">
+					site_id = #{siteId},
+				</if>
+				<if test="siteName != null">
+					site_name = #{siteName},
+				</if>
+				<if test="siteCode != null">
+					site_code = #{siteCode},
+				</if>
+				<if test="generateType != null">
+					generate_type = #{generateType},
+				</if>
+				<if test="pushPreFlag != null">
+					push_pre_flag = #{pushPreFlag},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser},
+				</if>
+				<if test="partitionTime != null">
+					partition_time = #{partitionTime},
+				</if>
+				<if test="tsM != null">
+					ts_m = #{tsM},
+				</if>
+				<if test="yn != null">
+					yn = #{yn}
+				</if>
+			</set>
+		where m_id = #{mId}
+	</update>
+
+
+	<select id="findById" parameterType="Long" resultMap="TransbillM">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  transbill_m 
+		where m_id = #{mId}
+	</select>
+	<select id="findByWaybillCode" parameterType="String" resultMap="TransbillM">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  transbill_m 
+		where waybill_code = #{wallbillCode} 
+		  and yn = 1
+        order by ts_m desc
+		  limit 1;
+	</select>
+
+    <select id="findEffectWaybillCodesByScheduleBillCode" parameterType="String" resultType="String" >
+		select 
+		 waybill_code
+		from 
+		  transbill_m 
+		where yn = 1 
+		  and schedule_bill_code = #{scheduleBillCode}
+		  limit 10000
+	</select>
+</mapper>

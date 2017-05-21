@@ -463,4 +463,5 @@
         where send_code= #{sendCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
+    
 </mapper>

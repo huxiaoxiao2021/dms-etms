@@ -223,7 +223,6 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<CenConfirm> queryHandoverInfo(CenConfirm cenConfirm) {
 		return cenConfirmDao.queryHandoverInfo(cenConfirm);
 	}

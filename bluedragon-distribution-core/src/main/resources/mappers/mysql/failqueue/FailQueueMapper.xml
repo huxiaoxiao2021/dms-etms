@@ -14,28 +14,7 @@
 		<result column="excute_count" property="excuteCount" jdbcType="INTEGER" />
 		<result column="excute_time" property="excuteTime" jdbcType="TIMESTAMP" />
 	</resultMap>
-	
-	<resultMap id="SendDatail_TaskFailQueue" type="com.jd.bluedragon.distribution.send.domain.SendDetail">
-		<id column="send_d_id"  property="sendDId" />
-		<result column="send_code"  property="sendCode" />
-		<result column="box_code"  property="boxCode" />
-		<result column="package_barcode"  property="packageBarcode" />
-		<result column="waybill_code"  property="waybillCode" />
-		<result column="pickup_code"  property="pickupCode" />
-		<result column="create_site_code"  property="createSiteCode" />
-		<result column="receive_site_code"  property="receiveSiteCode" />
-		<result column="send_type" property="sendType" />
-		<result column="create_time"  property="createTime" />
-		<result column="create_user"  property="createUser" />
-		<result column="create_user_code"  property="createUserCode" />
-		<result column="sendd_status"  property="status" />
-		<result column="weight"  property="weight" />
-		<result column="is_cancel"  property="isCancel" />
-		<result column="update_time"  property="updateTime" />
-		<result column="excute_count" property="excuteCount" />
-		<result column="excute_time" property="excuteTime" />
-		<result column="yn"  property="yn" />
-	</resultMap>
+
 	<insert id="add"
 		parameterType="com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue">
 		insert into task_failqueue (
@@ -125,6 +104,7 @@
 					#{items,jdbcType=BIGINT}
 		</foreach>
 	</select>
+
 	<select id="querySendCodeByBusiId" resultType="long"  parameterType="list">
 		select
 			busi_id
@@ -134,43 +114,6 @@
 					close=")" separator=",">
 					#{items,jdbcType=BIGINT}
 		</foreach>
-	</select>
-	<select id="querySendDatail_SELF" parameterType="list" resultMap="SendDatail_TaskFailQueue">
-		select
-			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code,
-    		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
-		from send_d
-		where send_code in
-		<foreach collection="sendCodeList" item="items" index="index" open="("
-					close=")" separator=",">
-					#{items,jdbcType=VARCHAR}
-		</foreach> and yn = 1 and send_type = 10
-		<if test="dmsList.size()>0">
-		and create_site_code in 
-				<foreach collection="dmsList" item="items" index="index" open="("
-					close=")" separator=",">
-					#{items,jdbcType=INTEGER}
-				</foreach>
-		</if>
-	</select>
-
-	<select id="querySendDatail_3PL" parameterType="list" resultMap="SendDatail_TaskFailQueue">
-		select
-			send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code,
-    		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
-		from send_d
-		where send_code in
-		<foreach collection="sendCodeList" item="items" index="index" open="("
-					close=")" separator=",">
-					#{items,jdbcType=VARCHAR}
-		</foreach> and yn = 1 and send_type = 30
-		<if test="dmsList.size()>0">
-		and create_site_code in 
-				<foreach collection="dmsList" item="items" index="index" open="("
-					close=")" separator=",">
-					#{items,jdbcType=INTEGER}
-				</foreach>
-		</if>
 	</select>
 
 </mapper>
