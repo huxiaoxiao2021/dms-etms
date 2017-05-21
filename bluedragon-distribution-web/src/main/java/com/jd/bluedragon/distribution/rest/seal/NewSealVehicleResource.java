@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -54,23 +55,23 @@ public class NewSealVehicleResource {
 
         try {
             if (request == null) {
-                this.logger.error("SealVehicleResource seal --> 传入参数非法");
+                this.logger.error("NewSealVehicleResource seal --> 传入参数非法");
             }
             CommonDto<String> returnCommonDto = newsealVehicleService.seal(convertList(request.getData()));
             if(returnCommonDto != null){
                 if(returnCommonDto.getCode() == 1){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
 
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_EXCUTE_ERROR+",错误码为："+returnCommonDto.getCode()+",返回信息为："+returnCommonDto.getMessage());
+                    sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
         } catch (Exception e) {
-            this.logger.error("SealVehicleResource.seal-error", e);
+            this.logger.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
     }
@@ -85,15 +86,21 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null) {
-                this.logger.error("SealVehicleResource findSealInfo --> 传入参数非法");
+                this.logger.error("NewSealVehicleResource findSealInfo --> 传入参数非法");
             }
 
             SealCarDto sealCarDto = new SealCarDto();
             sealCarDto.setStatus(request.getStatus());
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
-            sealCarDto.setStartSiteId(Integer.parseInt(request.getStartSiteId()));
-            sealCarDto.setEndSiteId(Integer.parseInt(request.getEndSiteId()));
+
+
+            Integer intStartSiteId = NumberHelper.isNumber(request.getStartSiteId()) ? Integer.parseInt(request.getStartSiteId()) : null;
+            Integer intEndSiteId = NumberHelper.isNumber(request.getEndSiteId()) ? Integer.parseInt(request.getEndSiteId()) : null;
+
+
+            sealCarDto.setStartSiteId(intStartSiteId);
+            sealCarDto.setEndSiteId(intEndSiteId);
 
             PageDto<SealCarDto> pageDto = new PageDto<SealCarDto>();
             pageDto.setPageSize(request.getPageNums());
@@ -107,12 +114,12 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setData(returnCommonDto.getData().getResult());
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_QUERY_ERROR+",错误码为："+returnCommonDto.getCode()+",返回信息为："+returnCommonDto.getMessage());
+                    sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(null);
                 }
             }
         } catch (Exception e) {
-            this.logger.error("SealVehicleResource.findSealInfo-error", e);
+            this.logger.error("NewSealVehicleResource.findSealInfo-error", e);
         }
         return sealVehicleResponse;
     }
@@ -127,22 +134,23 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null) {
-                this.logger.error("SealVehicleResource unseal --> 传入参数非法");
+                this.logger.error("NewSealVehicleResource unseal --> 传入参数非法");
             }
-            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(convertList(request.getData()));
+            List<SealCarDto> paramList = convertList(request.getData());
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(paramList);
             if(returnCommonDto != null){
                 if(returnCommonDto.getCode() == 1){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_EXCUTE_ERROR+",错误码为："+returnCommonDto.getCode()+",返回信息为："+returnCommonDto.getMessage());
+                    sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
         } catch (Exception e) {
-            this.logger.error("SealVehicleResource.unseal-error", e);
+            this.logger.error("NewSealVehicleResource.unseal-error", e);
         }
         return sealVehicleResponse;
     }
@@ -194,12 +202,34 @@ public class NewSealVehicleResource {
         sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
 
         try {
-            sealCarDto.setSealCarTime(simpleDateFormat.parse(sourceSealDto.getSealCarTime()));
-            sealCarDto.setDesealCarTime(simpleDateFormat.parse(sourceSealDto.getDesealCarTime()));
-            sealCarDto.setCreateTime(simpleDateFormat.parse(sourceSealDto.getCreateTime()));
-            sealCarDto.setUpdateTime(simpleDateFormat.parse(sourceSealDto.getUpdateTime()));
+            if(sourceSealDto.getSealCarTime() != null && sourceSealDto.getSealCarTime().length() > 0){
+                sealCarDto.setSealCarTime(simpleDateFormat.parse(sourceSealDto.getSealCarTime()));
+            }
         }catch(Exception e){
-            this.logger.error("日期转换异常", e);
+            this.logger.error("封车日期[SealCarTime]转换异常", e);
+        }
+
+        try {
+            if(sourceSealDto.getDesealCarTime() != null && sourceSealDto.getDesealCarTime().length() > 0) {
+                sealCarDto.setDesealCarTime(simpleDateFormat.parse(sourceSealDto.getDesealCarTime()));
+            }
+        }catch(Exception e){
+            this.logger.error("解封车日期[DesealCarTime]转换异常", e);
+        }
+        try {
+            if(sourceSealDto.getCreateTime() != null && sourceSealDto.getCreateTime().length() > 0) {
+                sealCarDto.setCreateTime(simpleDateFormat.parse(sourceSealDto.getCreateTime()));
+            }
+        }catch(Exception e){
+            this.logger.error("创建日期[CreateTime]转换异常", e);
+        }
+
+        try {
+            if(sourceSealDto.getUpdateTime() != null && sourceSealDto.getUpdateTime().length() > 0) {
+                sealCarDto.setUpdateTime(simpleDateFormat.parse(sourceSealDto.getUpdateTime()));
+            }
+        }catch(Exception e){
+            this.logger.error("创建日期[UpdateTime]转换异常", e);
         }
 
         return sealCarDto;
