@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.CommonDto;
@@ -57,7 +58,11 @@ public class NewSealVehicleResource {
             if (request == null) {
                 this.logger.error("NewSealVehicleResource seal --> 传入参数非法");
             }
-            CommonDto<String> returnCommonDto = newsealVehicleService.seal(convertList(request.getData()));
+            List<SealCarDto> paramList = convertList(request.getData());
+
+            logger.info("封车参数："+JsonHelper.toJson(paramList));
+
+            CommonDto<String> returnCommonDto = newsealVehicleService.seal(paramList);
             if(returnCommonDto != null){
                 if(returnCommonDto.getCode() == 1){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -105,6 +110,9 @@ public class NewSealVehicleResource {
             PageDto<SealCarDto> pageDto = new PageDto<SealCarDto>();
             pageDto.setPageSize(request.getPageNums());
 
+            logger.info("解封车查询参数，sealCarDto："+JsonHelper.toJson(sealCarDto));
+            logger.info("解封车查询参数，pageDto："+JsonHelper.toJson(pageDto));
+
             CommonDto<PageDto<SealCarDto>> returnCommonDto = newsealVehicleService.findSealInfo(sealCarDto,pageDto);
 
             if(returnCommonDto != null){
@@ -137,6 +145,9 @@ public class NewSealVehicleResource {
                 this.logger.error("NewSealVehicleResource unseal --> 传入参数非法");
             }
             List<SealCarDto> paramList = convertList(request.getData());
+
+            logger.info("解封车参数："+JsonHelper.toJson(paramList));
+
             CommonDto<String> returnCommonDto = newsealVehicleService.unseal(paramList);
             if(returnCommonDto != null){
                 if(returnCommonDto.getCode() == 1){
