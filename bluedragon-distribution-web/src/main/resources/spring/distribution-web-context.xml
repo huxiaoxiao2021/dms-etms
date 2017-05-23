@@ -23,6 +23,7 @@
 	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
+	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->
