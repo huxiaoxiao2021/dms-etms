@@ -29,7 +29,6 @@
 	<dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
     <dd><a href="#springUrl('/fresh/index')" target="mainFrame">生鲜温度录入</a></dd>
     <dd><a href="#springUrl('/gantryAutoSend/index')" target="mainFrame">龙门架自动发货</a></dd>
-    <dd><a href="#springUrl('/rollContainer/updateRollContainerStatus')" target="mainFrame">周转箱信息录入</a></dd>
     <dt><a href="#" class="curr">工具</a></dt>
 	<dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
 	<dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>

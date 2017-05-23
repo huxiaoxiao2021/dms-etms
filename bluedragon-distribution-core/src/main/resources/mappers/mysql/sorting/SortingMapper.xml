@@ -69,7 +69,8 @@
 			is_cancel = #{isCancel,jdbcType=INTEGER},
 			is_loss = #{isLoss,jdbcType=INTEGER},
 			feature_type = #{featureType,jdbcType=INTEGER}
-	    WHERE yn = 1 AND box_code = #{boxCode}
+	    WHERE yn = 1
+	        AND box_code = #{boxCode}
 	        AND sorting_type = #{type}
 	        AND package_code = #{packageCode}
 		    AND create_site_code = #{createSiteCode}

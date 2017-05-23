@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+    <Appenders>
+        <!-- 输出控制台的配置 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n"/>
+        </Console>
+
+        <RollingFile name="bluedragon" fileName="d:/logs/worker/bluedragon-distribution-worker.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker.log.%d{yyyyMMdd}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.error" fileName="d:/logs/worker/bluedragon-distribution-worker-error.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-error.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.sorting" fileName="d:/logs/worker/bluedragon-distribution-worker-sorting.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-sorting.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.inspection"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-inspection.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-inspection.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.popAbnormal"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-popAbnormal.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-popAbnormal.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.base"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-base.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-base.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.box"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-box.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-box.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.send"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-send.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-send.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.sortingReturn"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-sortingReturnReturnStatus.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-sortingReturnReturnStatus.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.receive"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-receive.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-receive.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.partnerWaybill"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-partnerWaybill.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-partnerWaybill.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.reverseservice"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-reverseservice.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-reverseservice.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="bluedragon.etms.mq.sender"
+                     fileName="d:/logs/worker/bluedragon-distribution-worker-mq-sender.log"
+                     filePattern="d:/logs/worker/bluedragon-distribution-worker-mq-sender.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.apache.ibatis" level="INFO" additivity="true">
+        </Logger>
+
+        <Logger name="java.sql" level="INFO" additivity="true">
+        </Logger>
+
+        <Logger name="com.jd.dbs.transaction" level="INFO">
+        </Logger>
+
+        <Logger name="com.jd.etms.basic.cache" level="INFO">
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.worker.PopAbnormalTask" level="INFO">
+            <AppenderRef ref="bluedragon.popAbnormal"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.base" level="INFO">
+            <AppenderRef ref="bluedragon.base"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.box" level="INFO">
+            <AppenderRef ref="bluedragon.box"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.reverse.service" level="INFO">
+            <AppenderRef ref="bluedragon"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.send.service" level="INFO">
+            <AppenderRef ref="bluedragon"/>
+        </Logger>
+
+        <Logger name="com.jd.etms.message" level="INFO">
+            <AppenderRef ref="bluedragon.etms.mq.sender"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.waybill.service" level="INFO">
+            <AppenderRef ref="bluedragon.base"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon" level="INFO">
+            <AppenderRef ref="bluedragon.error"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution" level="INFO">
+            <AppenderRef ref="bluedragon"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao" level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="bluedragon"/>
+        </Logger>
+
+        <Logger name="com.jd.bluedragon.distribution.weight.service" level="INFO">
+            <AppenderRef ref="bluedragon"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="bluedragon"/>
+        </Root>
+    </Loggers>
+</Configuration>

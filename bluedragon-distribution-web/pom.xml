@@ -38,6 +38,16 @@
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-core</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -227,6 +237,10 @@
 					<groupId>ice</groupId>
 					<artifactId>ice</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -285,6 +299,10 @@
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
                 </exclusion>
+                <exclusion>
+                	<artifactId>slf4j-log4j12</artifactId>
+                	<groupId>org.slf4j</groupId>
+                </exclusion>
             </exclusions>
 		</dependency>
 		<dependency>
@@ -293,8 +311,27 @@
 			<version>4.5.2</version>
 		</dependency>
         <!-- 单点登录    end-->
-        
-    </dependencies>
+
+        <dependency>
+        	<groupId>org.apache.logging.log4j</groupId>
+        	<artifactId>log4j-1.2-api</artifactId>
+        	<version>2.3</version>
+        </dependency>
+
+        <dependency>
+        	<groupId>org.apache.logging.log4j</groupId>
+        	<artifactId>log4j-slf4j-impl</artifactId>
+        	<version>2.3</version>
+        </dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-web</artifactId>
+			<version>2.3</version>
+			<scope>runtime</scope>
+		</dependency>
+
+	</dependencies>
 
 	<build>
 		<finalName>bluedragon-distribution-web</finalName>

@@ -51,6 +51,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -278,8 +279,12 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
+	/**
+	 * author by lixin456
+	 * 强制指定事务隔离级别为RC，解决数据插入时死锁报错问题
+	 */
     @JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean doSorting(Task task) {
         List<Sorting> sortings = this.prepareSorting(task);
         if (null == sortings || sortings.isEmpty()) {
@@ -963,15 +968,12 @@ public class SortingServiceImpl implements SortingService {
 //		Sorting sorting = new Sorting();
 //		sorting.setWaybillCode("T42747129215");
 //		impl.backwardSendMQ(sorting);
-//		String waybillsign = "T0000000000000200000000000000000000000000000000000";
-//		String b = waybillsign.substring(15,16);
-//		String a = waybillsign.substring(0,1);
-//		if("T".equals(a) || "6".equals(b)){
-//			System.out.println(a);
-//		}
-		
-		Boolean temp = BusinessHelper.isPickupCode("PC2017051200001003");
-		System.out.println(temp);
+		String waybillsign = "T0000000000000200000000000000000000000000000000000";
+		String b = waybillsign.substring(15,16);
+		String a = waybillsign.substring(0,1);
+		if("T".equals(a) || "6".equals(b)){
+			System.out.println(a);
+		}
 		
 	}
 }

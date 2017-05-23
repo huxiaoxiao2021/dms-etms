@@ -47,7 +47,6 @@ public class RollContainerController {
         try {
         	Map<String, Object> param = new HashMap<String, Object>();
         	List<RollContainer> list = rollContainerService.getRollContainer(param);
-        	System.out.println("````````````");
         } catch (Exception e) {
             logger.error("周转箱index失败",e);
         }
@@ -93,7 +92,6 @@ public class RollContainerController {
         
         String containerCode = "234";
         ContainerRelation relationTemp = containerRelationService.getContainerRelation(containerCode);
-        System.out.println("----------");
         
         return "";
     }
