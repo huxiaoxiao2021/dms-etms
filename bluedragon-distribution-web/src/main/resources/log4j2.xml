@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="ERROR">
+    <properties>
+        <!-- 日志路径 -->
+        <property name="LOG_HOME">d:/logs/dms.web</property>
+    </properties>
     <Appenders>
         <!-- 输出控制台的配置 -->
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n"/>
         </Console>
 
-        <RollingFile name="bluedragon" fileName="d:/logs/dms.web/bluedragon-distribution-web.log"
-                     filePattern="d:/logs/dms.web/bluedragon-distribution-web.log.%d{yyyyMMdd}">
+        <RollingFile name="bluedragon" fileName="${LOG_HOME}/bluedragon-distribution-web.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web.log.%d{yyyyMMdd}">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
             <Policies>
                 <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
             </Policies>
         </RollingFile>
 
-        <RollingFile name="bluedragon.error" fileName="d:/logs/dms.web/bluedragon-distribution-web-error.log"
-                     filePattern="d:/logs/dms.web/bluedragon-distribution-web-error.log.%d{yyyyMMdd}">
+        <RollingFile name="bluedragon.error" fileName="${LOG_HOME}/bluedragon-distribution-web-error.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-error.log.%d{yyyyMMdd}">
             <Filters>
                 <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
@@ -26,8 +30,8 @@
             <DefaultRolloverStrategy max="100"/>
         </RollingFile>
 
-        <RollingFile name="bluedragon.task" fileName="d:/logs/dms.web/bluedragon-distribution-web-task.log"
-                     filePattern="d:/logs/dms.web/bluedragon-distribution-web-task.log.%d{yyyyMMdd}">
+        <RollingFile name="bluedragon.task" fileName="${LOG_HOME}/bluedragon-distribution-web-task.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-task.log.%d{yyyyMMdd}">
             <Filters>
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
@@ -38,8 +42,8 @@
             <DefaultRolloverStrategy max="100"/>
         </RollingFile>
 
-        <RollingFile name="bluedragon.consumer" fileName="d:/logs/dms.web/bluedragon-distribution-web-consumer.log"
-                     filePattern="d:/logs/dms.web/bluedragon-distribution-web-consumer.log.%d{yyyyMMdd}">
+        <RollingFile name="bluedragon.consumer" fileName="${LOG_HOME}/bluedragon-distribution-web-consumer.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-consumer.log.%d{yyyyMMdd}">
             <Filters>
                 <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
@@ -51,8 +55,8 @@
         </RollingFile>
 
         <RollingFile name="bluedragon.etms.mq.sender"
-                     fileName="d:/logs/dms.web/bluedragon-distribution-web-mq-sender.log"
-                     filePattern="d:/logs/dms.web/bluedragon-distribution-web-mq-sender.log.%d{yyyyMMdd}">
+                     fileName="${LOG_HOME}/bluedragon-distribution-web-mq-sender.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-mq-sender.log.%d{yyyyMMdd}">
             <Filters>
                 <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
