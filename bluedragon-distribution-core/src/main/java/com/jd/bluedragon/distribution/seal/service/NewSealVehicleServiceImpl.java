@@ -5,6 +5,8 @@ import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +23,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	private VosBusinessWS vosBusinessWS;
 
 	@Override
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP})
 	public CommonDto<String> seal(List<SealCarDto> sealCars) {
 		CommonDto<String> sealCarInfo = vosBusinessWS.doSealCar(sealCars);
 		return sealCarInfo;
 	}
 
 	@Override
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.findSealInfo", mState = {JProEnum.TP})
 	public CommonDto<PageDto<SealCarDto>> findSealInfo(SealCarDto request,PageDto<SealCarDto> pageDto) {
 		CommonDto<PageDto<SealCarDto>> sealCarInfo = vosQueryWS.querySealCarPage(request,pageDto);
 //		CommonDto<PageDto<SealCarDto>> sealCarInfo = new CommonDto<PageDto<SealCarDto>>();
@@ -53,6 +57,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
 	@Override
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal", mState = {JProEnum.TP})
 	public CommonDto<String> unseal(List<SealCarDto> sealCars) {
 		CommonDto<String> sealCarInfo = vosBusinessWS.doDesealCar(sealCars);
 		return sealCarInfo;
