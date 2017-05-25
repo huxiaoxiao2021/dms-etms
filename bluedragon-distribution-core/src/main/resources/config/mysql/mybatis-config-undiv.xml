@@ -14,8 +14,6 @@
     <typeAliases>
         <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
 
-        <typeAlias type="com.jd.bluedragon.distribution.task.domain.Task" alias="Task"/>
-
         <typeAlias type="com.jd.bluedragon.distribution.seal.domain.SealBox" alias="SealBox"/>
         <typeAlias type="com.jd.bluedragon.distribution.seal.domain.SealVehicle" alias="SealVehicle"/>
 
@@ -124,8 +122,6 @@
     </plugins>
 
     <mappers>
-        <mapper resource="mappers/mysql/task/TaskMapper.xml"/>
-
         <mapper resource="mappers/mysql/seal/SealBoxMapper.xml"/>
         <mapper resource="mappers/mysql/seal/SealVehicleMapper.xml"/>
 

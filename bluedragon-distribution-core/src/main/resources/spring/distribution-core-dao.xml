@@ -51,11 +51,6 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
-    <bean id="taskDao" class="com.jd.bluedragon.distribution.task.dao.TaskDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-        <property name="sqlSessionRead" ref="readUnDivSqlSessionTemplate"/>
-    </bean>
-
     <bean id="sealBoxDao" class="com.jd.bluedragon.distribution.seal.dao.SealBoxDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
@@ -128,10 +123,6 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
-    <bean id="taskFailQueueDao" class="com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
     <bean id="reverseRejectDao" class="com.jd.bluedragon.distribution.reverse.dao.ReverseRejectDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
@@ -187,11 +178,6 @@
 
     <bean id="popReceiveDao"
           class="com.jd.bluedragon.distribution.popReveice.dao.PopReceiveDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
-    <bean id="taskPopRecieveCountDao"
-          class=" com.jd.bluedragon.distribution.popReveice.dao.TaskPopRecieveCountDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
@@ -341,18 +327,18 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
     <!--城配运单M表 -->
-	<bean id="transbillMDao" class="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
-		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-	</bean>
-	
-	<!-- 周转箱（笼车） -->
-	<bean id="rollContainerDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.RollContainerDao">
-		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-	</bean>
-	<!-- 周转箱（笼车）关系 -->
-	<bean id="containerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
-		<property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-	</bean>
+    <bean id="transbillMDao" class="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 周转箱（笼车） -->
+    <bean id="rollContainerDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.RollContainerDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <!-- 周转箱（笼车）关系 -->
+    <bean id="containerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!-- Worker start -->
     <bean id="tbTaskTypeDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao">
@@ -363,5 +349,21 @@
         <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>
     </bean>
     <!-- Worker end -->
+
+    <!-- task start -->
+    <bean id="taskDao" class="com.jd.bluedragon.distribution.task.dao.TaskDao">
+        <property name="sqlSession" ref="taskSqlSessionTemplate"/>
+        <property name="sqlSessionRead" ref="taskSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="taskFailQueueDao" class="com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="taskPopRecieveCountDao"
+          class=" com.jd.bluedragon.distribution.popReveice.dao.TaskPopRecieveCountDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <!-- task end -->
 
 </beans>
