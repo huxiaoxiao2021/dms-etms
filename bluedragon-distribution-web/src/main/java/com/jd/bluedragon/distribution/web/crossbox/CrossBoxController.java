@@ -518,6 +518,7 @@ public class CrossBoxController {
 		if (null != crossBox.getTransferTwoId() && crossBox.getTransferTwoId() >= 0) {
 			if(crossBox.getTransferTwoId() == 0){
 				crossBox.setTransferTwoId(null);
+				crossBox.setTransferTwoName(null);
 			}else {
 				String transferTwoName = getDmsName(crossBox.getTransferTwoId());
 				if (null != transferTwoName) {
@@ -535,6 +536,7 @@ public class CrossBoxController {
 		if (null != crossBox.getTransferThreeId() && crossBox.getTransferThreeId() >= 0) {
 			if(crossBox.getTransferThreeId() == 0){
 				crossBox.setTransferThreeId(null);
+				crossBox.setTransferThreeName(null);
 			}else {
 				String transferThreeName = getDmsName(crossBox.getTransferThreeId());
 				if (null != transferThreeName) {
