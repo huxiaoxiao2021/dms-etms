@@ -53,7 +53,7 @@
 
 	<!-- Author by lixin456 指定更新时使用索引 解决更新死锁问题 若对该表索引进行调整 请注意修改此处 -->
 	<update id="update" parameterType="sorting" >
-		UPDATE Sorting USE INDEX(IND_SORTING_BCODE_P)
+		UPDATE Sorting FORCE INDEX(IND_SORTING_PCODE_P)
 		SET 
 		    bsend_code = #{bsendCode,jdbcType=VARCHAR},
 		    box_code = #{boxCode,jdbcType=VARCHAR},
