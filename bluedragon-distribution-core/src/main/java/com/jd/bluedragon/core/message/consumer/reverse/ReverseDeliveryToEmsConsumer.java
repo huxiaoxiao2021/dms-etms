@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.jmq.common.message.Message;
 import com.jd.postal.GetPrintDatasPortType;
 import org.apache.commons.codec.binary.Base64;
@@ -41,5 +42,8 @@ public class ReverseDeliveryToEmsConsumer extends MessageBaseConsumer{
             emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
             this.logger.error("全国邮政返回" + emsstring);
         }
+
+        //添加systemLog日志
+        SystemLogUtil.log(message.getBusinessId(),body,"bd_dms_ems_mq",1,emsstring,89757L);
     }
 }
