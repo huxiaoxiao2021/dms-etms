@@ -74,15 +74,16 @@ public class CityDeliveryVerification implements DeliveryVerification{
             if (checkPackage && SerialRuleUtil.isMatchAllPackageNo(boxCode)
                     && isCityDistributionWaybill(SerialRuleUtil.getWaybillCode(boxCode))) {
                 BaseStaffSiteOrgDto site = baseService.getSiteBySiteID(receiveSiteCode);
+                //站点不存在或者站点不是分拣中心
                 if (null != site && !SITE_TYPE_FOR_SORTING_CENTER.equals(site.getSiteType())) {
                     result.setCode(false);
                     result.setMessage(CITY_CAN_NOT_TO_NONE_SORTING_CENTER);
                 }
             }
-            if (SerialRuleUtil.isMatchBoxCode(boxCode)) {
+            if (SerialRuleUtil.isMatchBoxCode(boxCode)) {//是箱号
                 /****send_d与派车单下运单进行对比，当一致时，才能通过*/
                 String scheduleBillCode = transBillScheduleService.getKey(boxCode);
-                if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(NONE_SCHEDULER_BOX)) {
+                if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(NONE_SCHEDULER_BOX)) {//没有预分拣单号
                     return result;
                 }
                 List<String> list = transbillMService.getEffectWaybillCodesByScheduleBillCode(scheduleBillCode);

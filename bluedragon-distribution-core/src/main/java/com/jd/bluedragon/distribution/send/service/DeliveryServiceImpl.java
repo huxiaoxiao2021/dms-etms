@@ -254,6 +254,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
         queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
+        //查询箱子发货记录
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
         if (null != sendMList && sendMList.size() > 0) {
@@ -311,8 +312,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         Profiler.registerInfoEnd(temp_info2);
         DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
-        if(!verificationResult.getCode()){
-            return new SendResult(2, verificationResult.getMessage());
+        if(!verificationResult.getCode() && !isForceSend){//按照箱发货，校验派车单是否齐全，判断是否强制发货
+//            return new SendResult(2, verificationResult.getMessage());
+            return new SendResult(4, verificationResult.getMessage() + "，是否强制发货？");
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
