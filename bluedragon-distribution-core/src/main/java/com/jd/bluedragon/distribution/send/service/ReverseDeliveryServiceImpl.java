@@ -34,6 +34,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -377,20 +378,32 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 								sendData[3] = waybill.getReceiverZipCode();
 							}
 							String province = waybill.getProvinceName();
-							if (null == province) {
-								sendData[4] = "";
+							if (StringUtils.isBlank(province)) {
+								if (waybill.getProvinceId() != null){
+									sendData[4] = baseService.getAssortById(waybill.getProvinceId());
+								} else {
+									sendData[4] = "";
+								}
 							} else {
 								sendData[4] = province;
 							}
 							String city = waybill.getCityName();
-							if (null == city) {
-								sendData[5] = "";
+							if (StringUtils.isBlank(city)) {
+								if (waybill.getCityId() != null){
+									sendData[5] = baseService.getAssortById(waybill.getCityId());
+								} else {
+									sendData[5] = "";
+								}
 							} else {
 								sendData[5] = city;
 							}
 							String county = waybill.getCountryName();
-							if (null == county) {
-								sendData[6] = "";
+							if (StringUtils.isBlank(county)) {
+								if (waybill.getCountryId() != null){
+									sendData[6] = baseService.getAssortById(waybill.getCountryId());
+								} else {
+									sendData[6] = "";
+								}
 							} else {
 								sendData[6] = county;
 							}

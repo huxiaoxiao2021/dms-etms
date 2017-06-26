@@ -6,6 +6,8 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +32,7 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
     private Ems4JingDongPortType whemsClientService;
 
     @Override
+    @JProfiler(jKey = "com.jd.bluedragon.core.message.consumer.reverse.ReverseDeliveryToWhSmsConsumer" , mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         this.logger.info("反向推送武汉邮政的自消费，内容为：" + message.getText());
         if(message == null || "".equals(message.getText()) || null == message.getText()){
