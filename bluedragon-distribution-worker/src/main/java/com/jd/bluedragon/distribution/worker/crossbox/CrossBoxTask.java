@@ -61,7 +61,6 @@ public class CrossBoxTask extends DBSingleScheduler {
 
 	@Override
 	public boolean execute(Object[] taskArray, String ownSign) throws Exception {
-		logger.info("============================execute==========================");
 		List<Task> tasks = new ArrayList<Task>();
 		for (Object task : taskArray) {
 			if (task != null && task instanceof Task) {
@@ -87,7 +86,6 @@ public class CrossBoxTask extends DBSingleScheduler {
 
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
-		System.out.println("++++++++++++++++++executeSingleTask+++++++++++++++++++++");
 		int result = crossBoxService.activeCrossBox(task);
 		if (result == 1) {
 			taskService.updateTaskStatus(task);
@@ -95,13 +93,5 @@ public class CrossBoxTask extends DBSingleScheduler {
 			return false;
 		}
 		return true;
-	}
-
-	public static void main(String [] args){
-		int a = Integer.MAX_VALUE;
-		System.out.println(a);
-
-		Long b = Long.MAX_VALUE;
-		System.out.println(b);
 	}
 }
