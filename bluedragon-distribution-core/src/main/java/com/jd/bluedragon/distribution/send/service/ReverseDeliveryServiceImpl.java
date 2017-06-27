@@ -30,6 +30,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -380,7 +381,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							String province = waybill.getProvinceName();
 							if (StringUtils.isBlank(province)) {
 								if (waybill.getProvinceId() != null){
-									sendData[4] = baseService.getAssortById(waybill.getProvinceId());
+									Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
+									if (assort != null){
+										sendData[4] = assort.getAssName();
+									}else {
+										sendData[4] = "";								}
 								} else {
 									sendData[4] = "";
 								}
@@ -390,7 +395,12 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							String city = waybill.getCityName();
 							if (StringUtils.isBlank(city)) {
 								if (waybill.getCityId() != null){
-									sendData[5] = baseService.getAssortById(waybill.getCityId());
+									Assort assort = baseService.getAssortById(waybill.getCityId());
+									if (assort != null){
+										sendData[5] = assort.getAssName();
+									}else {
+										sendData[5] = "";
+									}
 								} else {
 									sendData[5] = "";
 								}
@@ -400,7 +410,12 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							String county = waybill.getCountryName();
 							if (StringUtils.isBlank(county)) {
 								if (waybill.getCountryId() != null){
-									sendData[6] = baseService.getAssortById(waybill.getCountryId());
+									Assort assort = baseService.getAssortById(waybill.getCountryId());
+									if (assort != null){
+										sendData[6] = assort.getAssName();
+									}else {
+										sendData[6] = "";
+									}
 								} else {
 									sendData[6] = "";
 								}
