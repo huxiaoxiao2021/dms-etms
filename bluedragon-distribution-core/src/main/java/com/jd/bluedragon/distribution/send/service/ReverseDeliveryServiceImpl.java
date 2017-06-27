@@ -383,7 +383,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 								if (waybill.getProvinceId() != null){
 									Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
 									if (assort != null){
-										sendData[4] = assort.getAssName();
+										sendData[4] = assort.getAssDis();
 									}else {
 										sendData[4] = "";								}
 								} else {
@@ -395,9 +395,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							String city = waybill.getCityName();
 							if (StringUtils.isBlank(city)) {
 								if (waybill.getCityId() != null){
-									Assort assort = baseService.getAssortById(waybill.getCityId());
+									Assort assort = baseService.getOneAssortById(waybill.getCityId());
 									if (assort != null){
-										sendData[5] = assort.getAssName();
+										sendData[5] = assort.getAssDis();
 									}else {
 										sendData[5] = "";
 									}
@@ -410,9 +410,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 							String county = waybill.getCountryName();
 							if (StringUtils.isBlank(county)) {
 								if (waybill.getCountryId() != null){
-									Assort assort = baseService.getAssortById(waybill.getCountryId());
+									Assort assort = baseService.getOneAssortById(waybill.getCountryId());
 									if (assort != null){
-										sendData[6] = assort.getAssName();
+										sendData[6] = assort.getAssDis();
 									}else {
 										sendData[6] = "";
 									}
