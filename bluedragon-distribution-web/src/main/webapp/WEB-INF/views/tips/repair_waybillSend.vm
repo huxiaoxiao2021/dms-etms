@@ -104,7 +104,7 @@
 					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
 						<tbody>
 							<tr>
-								<td> <b>1、全国邮政运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
+								<td> <b>2、全国邮政运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
 							</tr>
 							<tr>
 								<td><textarea cols ="50" rows = "3" id="waybillCode" name="waybillCode"></textarea><font color="red"></font></td>
@@ -122,7 +122,7 @@
                     <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
                         <tbody>
                         <tr>
-                            <td> <b>1、武汉邮政运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
+                            <td> <b>3、武汉邮政运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
                         </tr>
                         <tr>
                             <td><textarea cols ="50" rows = "3" id="whWaybillCode" name="whWaybillCode"></textarea><font color="red"></font></td>
