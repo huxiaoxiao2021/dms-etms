@@ -99,6 +99,9 @@ public class NewSealVehicleResource {
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
 
+            //增加车牌号的条件
+            sealCarDto.setVehicleNumber(request.getVehicleNumber());
+
 
             Integer intStartSiteId = NumberHelper.isNumber(request.getStartSiteId()) ? Integer.parseInt(request.getStartSiteId()) : null;
             Integer intEndSiteId = NumberHelper.isNumber(request.getEndSiteId()) ? Integer.parseInt(request.getEndSiteId()) : null;
