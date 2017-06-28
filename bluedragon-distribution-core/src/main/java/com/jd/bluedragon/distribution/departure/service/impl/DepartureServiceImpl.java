@@ -246,72 +246,71 @@ public class DepartureServiceImpl implements DepartureService {
 			sendCodeAl.add(sendCode);
 		}
 
-//		//写发货推财务的表（task_delivery_to_finance）sendCodeAl, type = 10
-//		ArrayList<SendDetail> senddAL = new ArrayList<SendDetail>();
-//		if (sendCodeAl.size() > 0) {
-//			List<SendDetail> senddAL_self = sendDatailReadDao.querySendDetailBySendCodes_SELF(sendCodeAl);
-//			senddAL.addAll(senddAL_self);
-//		}
-//
-//		for(SendDetail sendDetail : senddAL){
-//			//转换成DealData_SendDatail对象，写入表
-//			Long primaryKey = sendDetail.getSendDId();
-//			String waybillCode = sendDetail.getWaybillCode();
-//			int sortingCenterId = sendDetail.getCreateSiteCode();
-//			int targetSiteId = sendDetail.getReceiveSiteCode();
-//			String deliveryTime = DateHelper.formatDateTime(sendDetail.getUpdateTime());
-//			String sortBatchNo = sendDetail.getSendCode();
-//
-//			DealData_SendDatail tmpdata = new DealData_SendDatail(primaryKey,waybillCode,sortingCenterId,targetSiteId,deliveryTime,sortBatchNo);
-//
-//
-//			//生成Task
-//			Task task = new Task();
-//			task.setCreateSiteCode(tmpdata.getSortingCenterId());
-//			task.setReceiveSiteCode(tmpdata.getTargetSiteId());
-//			task.setKeyword1(tmpdata.getPrimaryKey().toString());  //send_id
-//			task.setKeyword2(tmpdata.getWaybillCode()); //批次号
-//			task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE);
-//			task.setBody(JsonHelper.toJson(tmpdata));
-//			task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE);
-//			task.setOwnSign(BusinessHelper.getOwnSign());
-//
-//			taskService.add(task);
-//		}
+		//写发货推财务的表（task_delivery_to_finance）sendCodeAl, type = 10
+		ArrayList<SendDetail> senddAL = new ArrayList<SendDetail>();
+		if (sendCodeAl.size() > 0) {
+			List<SendDetail> senddAL_self = sendDatailReadDao.querySendDetailBySendCodes_SELF(sendCodeAl);
+			senddAL.addAll(senddAL_self);
+		}
 
-		//发车数据推送财务（支线&&承运人为第三方承运商）
-		if(pushDeparture) {
-			logger.info("发车对应的发货数据，准备推送财务，SendCode：" + sortBatchNosb.toString());
+		for(SendDetail sendDetail : senddAL){
+			//转换成DealData_SendDatail对象，写入表
+			Long primaryKey = sendDetail.getSendDId();
+			String waybillCode = sendDetail.getWaybillCode();
+			int sortingCenterId = sendDetail.getCreateSiteCode();
+			int targetSiteId = sendDetail.getReceiveSiteCode();
+			String deliveryTime = DateHelper.formatDateTime(sendDetail.getUpdateTime());
+			String sortBatchNo = sendDetail.getSendCode();
 
-			//写入task_departure_to_finance表
-			//组装DealData_Departure对象
-			DealData_Departure dealData = new DealData_Departure();
-
-			String sortBatchNo = sortBatchNosb.toString();
-			sortBatchNo = sortBatchNosb != null && sortBatchNo.length() > 0 ? sortBatchNo
-					.substring(0, sortBatchNo.length() - 1) : "";
-
-			dealData.setSortingCenterId(sendMs.get(0).getCreateSiteCode());// 分拣中心
-			dealData.setTargetSiteId(sendMs.get(0).getReceiveSiteCode());// 目标站点
-			dealData.setSortCarId(shieldsCarId);// 发车批次
-			dealData.setCarrierId(departure.getSendUserCode());// 承运商编号
-			dealData.setSortCarTime(DateHelper.formatDateTime(new Date()));// 发货批次号
-			dealData.setSortBatchNo(sortBatchNo);
-			dealData.setWeight(departure.getWeight());// 重量
-			dealData.setVolume(departure.getVolume());// 体积
+			DealData_SendDatail tmpdata = new DealData_SendDatail(primaryKey,waybillCode,sortingCenterId,targetSiteId,deliveryTime,sortBatchNo);
 
 			//生成Task
 			Task task = new Task();
-			task.setCreateSiteCode(dealData.getSortingCenterId());
-			task.setReceiveSiteCode(dealData.getTargetSiteId());
-			task.setKeyword1(dealData.getSortCarId().toString());//发车批次
-			task.setTableName(Task.TABLE_NAME_DEPARTURE_TO_FINANCE);
-			task.setBody(JsonHelper.toJson(dealData));
-			task.setType(Task.TASK_TYPE_DEPARTURE_TO_FINANCE);
+			task.setCreateSiteCode(tmpdata.getSortingCenterId());
+			task.setReceiveSiteCode(tmpdata.getTargetSiteId());
+			task.setKeyword1(tmpdata.getPrimaryKey().toString());  //send_id
+			task.setKeyword2(tmpdata.getWaybillCode()); //批次号
+			task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE);
+			task.setBody(JsonHelper.toJson(tmpdata));
+			task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE);
 			task.setOwnSign(BusinessHelper.getOwnSign());
 
 			taskService.add(task);
 		}
+
+//		//发车数据推送财务（支线&&承运人为第三方承运商）
+//		if(pushDeparture) {
+//			logger.info("发车对应的发货数据，准备推送财务，SendCode：" + sortBatchNosb.toString());
+//
+//			//写入task_departure_to_finance表
+//			//组装DealData_Departure对象
+//			DealData_Departure dealData = new DealData_Departure();
+//
+//			String sortBatchNo = sortBatchNosb.toString();
+//			sortBatchNo = sortBatchNosb != null && sortBatchNo.length() > 0 ? sortBatchNo
+//					.substring(0, sortBatchNo.length() - 1) : "";
+//
+//			dealData.setSortingCenterId(sendMs.get(0).getCreateSiteCode());// 分拣中心
+//			dealData.setTargetSiteId(sendMs.get(0).getReceiveSiteCode());// 目标站点
+//			dealData.setSortCarId(shieldsCarId);// 发车批次
+//			dealData.setCarrierId(departure.getSendUserCode());// 承运商编号
+//			dealData.setSortCarTime(DateHelper.formatDateTime(new Date()));// 发货批次号
+//			dealData.setSortBatchNo(sortBatchNo);
+//			dealData.setWeight(departure.getWeight());// 重量
+//			dealData.setVolume(departure.getVolume());// 体积
+//
+//			//生成Task
+//			Task task = new Task();
+//			task.setCreateSiteCode(dealData.getSortingCenterId());
+//			task.setReceiveSiteCode(dealData.getTargetSiteId());
+//			task.setKeyword1(dealData.getSortCarId().toString());//发车批次
+//			task.setTableName(Task.TABLE_NAME_DEPARTURE_TO_FINANCE);
+//			task.setBody(JsonHelper.toJson(dealData));
+//			task.setType(Task.TASK_TYPE_DEPARTURE_TO_FINANCE);
+//			task.setOwnSign(BusinessHelper.getOwnSign());
+//
+//			taskService.add(task);
+//		}
 	}
 
 	private void createSealVehicle(Departure departure, List<SendM> sendMs) {

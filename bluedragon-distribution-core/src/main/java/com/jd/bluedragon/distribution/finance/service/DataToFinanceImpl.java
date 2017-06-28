@@ -26,41 +26,10 @@ public class DataToFinanceImpl implements DataToFinance{
     private final static Logger logger = Logger.getLogger(DataToFinanceImpl.class);
 
     @Autowired
-    private DefaultJMQProducer departureToFinanceMQ;
-
-    @Autowired
     private DefaultJMQProducer deliveryToFinanceMQ;
 
     @Autowired
     WaybillDataServiceWS waybillDataServiceWS;
-
-    /**
-     * 第三方发车信息发送到mq 供财务消费
-     * @param task
-     * @return
-     */
-    public boolean departure2Finance(Task task){
-        DealData_Departure departure = null;
-        SortingCar sortingCar = null;
-        try {
-            departure = JsonHelper.fromJson(task.getBody(), DealData_Departure.class);
-            sortingCar = DataTranTool.transDealDataDepartureToFinanceData(departure);
-            //发送消息到mq
-            departureToFinanceMQ.sendOnFailPersistent(String.valueOf(sortingCar.getSortCarId())
-                        ,JsonHelper.toJsonUseGson(sortingCar));
-        } catch (Exception e) {
-            logger.error("[DataToFinanceImpl.departure2Finance]发送到mq失败", e);
-            logger.error("调用外单接口推送");
-            List<SortingCar >  sortingCars = new ArrayList<SortingCar>();
-            sortingCars.add(sortingCar);
-            ResponseMessage responseMessage = waybillDataServiceWS.sendSortingCar(sortingCars);
-            if(responseMessage.getIsSuccess()== 1){
-                return true;
-            }
-            return false;
-        }
-        return true;
-    }
 
     public boolean delivery2Finance(Task task){
         DealData_SendDatail departure  =null;

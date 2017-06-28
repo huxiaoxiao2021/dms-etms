@@ -556,7 +556,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         tTask.setBody(sendM.getSendCode());
 
-
         tTask.setKeyword1("3");// 3回传dmc
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
@@ -568,14 +567,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             tTaskService.add(tTask);
         }
 
+        this.logger.info("推送财务信息 --start");
 		/* 推送财务信息 */
         if (businessTypeTHR.equals(sendM.getSendType())){
             //写task_delivery_to_finance表，mq的方式
-            pushFinanceTask(sendM.getSendCode());
+            pushFinanceTask(sendM);
 
             //原始的task_failqueue的方式，之后需要下掉
-            newFailQueueService.sendCodeNewData(sendM.getSendCode(),
-                    IFailQueueService.DMS_SEND_3PL);
+            newFailQueueService.sendCodeNewData(sendM.getSendCode(), IFailQueueService.DMS_SEND_3PL);
         }
 
         /*添加自动化分拣发货回传波次表*/
@@ -587,14 +586,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 第三方发货数据写deliveryToFinanceTask任务
      * task_delivery_to_finance
-     * @param sendCode 批次号
+     * @param sendM
      */
-    private void pushFinanceTask(String sendCode){
-        ArrayList<String> sendCodeAl = new ArrayList<String>();
+    private void pushFinanceTask(SendM sendM){
+        String boxCode = sendM.getBoxCode();
         ArrayList<SendDetail> senddAL = new ArrayList<SendDetail>();
-        sendCodeAl.add(sendCode);
 
-        List<SendDetail> senddAL_3pl = sendDatailReadDao.querySendDetailBySendCodes_3PL(sendCodeAl);
+        List<SendDetail> senddAL_3pl = sendDatailReadDao.queryByBoxCode_3PL(boxCode,sendM.getCreateSiteCode());
         senddAL.addAll(senddAL_3pl);
 
         for(SendDetail sendDetail : senddAL) {
@@ -604,10 +602,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             int sortingCenterId = sendDetail.getCreateSiteCode();
             int targetSiteId = sendDetail.getReceiveSiteCode();
             String deliveryTime = DateHelper.formatDateTime(sendDetail.getUpdateTime());
-            String sortBatchNo = sendDetail.getSendCode();
+            String sortBatchNo = sendM.getSendCode();
 
             DealData_SendDatail tmpdata = new DealData_SendDatail(primaryKey, waybillCode, sortingCenterId, targetSiteId, deliveryTime, sortBatchNo);
-
 
             //生成Task
             Task task = new Task();

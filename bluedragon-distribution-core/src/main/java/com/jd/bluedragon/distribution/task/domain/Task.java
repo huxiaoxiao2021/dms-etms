@@ -114,11 +114,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_CROSS_BOX=2222;
 
     /**
-     * 第三方发车数据推送财务
-     */
-    public static final Integer TASK_TYPE_DEPARTURE_TO_FINANCE= 1900;
-
-    /**
      * 第三方发货数据推送财务
      */
     public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
@@ -147,7 +142,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
 
-    public static final String TABLE_NAME_DEPARTURE_TO_FINANCE = "task_departure_to_finance";
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE = "task_delivery_to_finance";
 
     /** 相关数据库序列 */
@@ -486,8 +480,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if(Task.TASK_TYPE_CROSS_BOX.equals(type)){
         	return Task.TABLE_NAME_CROSSBOX;
-        }else if(Task.TASK_TYPE_DEPARTURE_TO_FINANCE.equals(type)){
-            return Task.TABLE_NAME_DEPARTURE_TO_FINANCE;
         }else if(Task.TASK_TYPE_DELIVERY_TO_FINANCE.equals(type)){
             return Task.TABLE_NAME_DELIVERY_TO_FINANCE;
         }
