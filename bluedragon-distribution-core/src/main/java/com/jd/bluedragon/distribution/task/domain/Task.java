@@ -544,7 +544,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("1"))
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("2"))
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("3"))
-				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("4"))
+//				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("4"))
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("5"))
 				|| (Task.TASK_TYPE_DEPARTURE.equals(type)
 						&& StringHelper.isNotEmpty(keyword1) && keyword1
@@ -559,7 +559,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				|| Task.TASK_TYPE_REVERSE_RECEIVE.equals(type)
 				|| Task.TASK_TYPE_WEIGHT.equals(type)
                 || Task.TASK_TYPE_PUSH_MQ.equals(type)
-||Task.TASK_TYPE_MESSAGE.equals(type)
+                ||Task.TASK_TYPE_MESSAGE.equals(type)
                 ||Task.TASK_TYPE_SCANNER_FRAME.equals(type)) {  // 增加干线计费系统任务
 			return TaskMode.REDIS;
 		}
@@ -589,8 +589,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				taskType = "SendDeliveryTotmsRedisTask";
 			} else if (keyword1.equals("3")) {
 				taskType = "ReverseDeliveryRedisTask";
-			} else if (keyword1.equals("4")) {
-				taskType = "ReverseSendRedisTask";
+//			} else if (keyword1.equals("4")) {
+//				taskType = "ReverseSendRedisTask";
 			} else if (keyword1.equals("5")) {
 				taskType = "TransitSendRedisTask";
 			}

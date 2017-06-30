@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+    <!-- dms任务单库读写库 数据源 start -->
+    <bean id="dms_main_task" parent="parentDataSource">
+        <property name="url" value="${db.mysql.task.url}"/>
+        <property name="username" value="${db.mysql.task.username}"/>
+        <property name="password" value="${db.mysql.task.password}"/>
+    </bean>
+
+    <bean id="transactionManager_task"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_main_task"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager_task"/>
+
+    <bean id="taskSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main_task"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-task.xml"/>
+    </bean>
+
+    <bean id="taskSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="taskSqlSessionFactory"/>
+    </bean>
+    <!-- dms任务单库读写库 数据源 end -->
+
+</beans>

@@ -14,16 +14,15 @@ import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.etms.vts.dto.DictDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.CommonDto;
+import com.jd.etms.vts.dto.DictDto;
+import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -41,7 +40,6 @@ import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -834,8 +832,13 @@ public class BaseServiceImpl implements BaseService {
         return null;
     }
 
+	@Override
+	@Cache(memoryEnable = false,key = "getOneAssortById@args0")
+	public Assort getOneAssortById(int assId) {
+		return basicSecondaryWS.getAssortById(assId);
+	}
 
-    @SuppressWarnings("static-access")
+	@SuppressWarnings("static-access")
 	private ElectronSite toElectronSite(BaseGoodsPositionDto baseGoodsPositionDto){
 		ElectronSite electronSite = new ElectronSite();
 		if(baseGoodsPositionDto!=null){

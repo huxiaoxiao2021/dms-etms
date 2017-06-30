@@ -49,6 +49,7 @@
         <property name="url" value="${db.mysql.url}"/>
         <property name="username" value="${db.mysql.username}" />
         <property name="password" value="${db.mysql.password}" />
+        <property name="defaultTransactionIsolation" value="${db.mysql.isolationLevel}"/>
     </bean>
 
     <bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"

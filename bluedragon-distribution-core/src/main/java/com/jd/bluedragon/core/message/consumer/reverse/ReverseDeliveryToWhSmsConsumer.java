@@ -4,7 +4,10 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.send.domain.whems.Ems4JingDongPortType;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +32,7 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
     private Ems4JingDongPortType whemsClientService;
 
     @Override
+    @JProfiler(jKey = "com.jd.bluedragon.core.message.consumer.reverse.ReverseDeliveryToWhSmsConsumer" , mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         this.logger.info("反向推送武汉邮政的自消费，内容为：" + message.getText());
         if(message == null || "".equals(message.getText()) || null == message.getText()){
@@ -49,40 +53,44 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
                         + md5tempstring
                         + "</ValidationData>"
                         + body + "</Response>");
-        logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                                            + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-                                            + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-                                            + md5tempstring
-                                            + "</ValidationData>"
-                                            + body + "</Response>");
+        if (logger.isInfoEnabled()){
+            logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                    + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
+                    + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
+                    + md5tempstring
+                    + "</ValidationData>"
+                    + body + "</Response>");
+        }
 
         if (null == emsstring || "".equals(emsstring.trim())) {
             this.logger
-                    .error("DmsToTmsTaskImpl!ReverseDeliveryToWhSmsConsumer WuHan CXF return null :");
+                    .error("DmsToTmsTaskImpl!ReverseDeliveryToWhSmsConsumer WuHan CXF return null :" + message.getBusinessId());
             return;
         }
-        this.logger.info("武汉邮政返回" + emsstring);
+        this.logger.info(message.getBusinessId() + "武汉邮政返回" + emsstring);
         String str = emsstring.substring(emsstring.indexOf("<ResultCode>")==-1?0:emsstring.indexOf("<ResultCode>"));
-
+        long keyword4 = -1;//接口返回的是否成功的标识
         if (str.indexOf("<ResultCode>000</ResultCode>") != -1) {
             this.logger
-                    .info("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 000=交易成功 :");
-            return;
+                    .info("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 000=交易成功 :" + message.getBusinessId());
+            keyword4 = 000;
         }else if (str.indexOf("<ResultCode>001</ResultCode>") == -1) {
             this.logger
-                    .error("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 001=验证失败 :");
-            return;
+                    .error("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 001=验证失败 :" + message.getBusinessId());
+            keyword4 = 001;
         }else if(str.indexOf("<ResultCode>002</ResultCode>") != -1){
             String strCode = str.substring(str.indexOf("<ResultCode>") + "<ResultCode>".length(),str.indexOf("</ResultCode>"));
             this.logger
-                    .error("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 002=接受数据失败 :"
-                            + findReason(strCode));
-            return;
+                    .error("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 002=接受数据失败 :" + message.getBusinessId()
+                            + findReason(strCode)) ;
+            keyword4 = 002;
         }else if(str.indexOf("<ResultCode>003</ResultCode>") != -1){
             this.logger
-                    .error("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 003=没有可接受的数据 :");
-            return;
+                    .error("reverseDeliveryToWhSmsConsumer! 接受邮政返回的数据 003=没有可接受的数据 :" + message.getBusinessId());
+            keyword4 = 003;
         }
+        //记录systemLog 方便查询 参数顺序依次为 1.waybillCode，2.推送给武汉邮政的数据报文，3.mq的topic，4.接口返回的code，5.武汉邮政返回的报文，6.自定义的type
+        SystemLogUtil.log(message.getBusinessId(),body,"bd_dms_whSms_mq",keyword4,emsstring,89757L);
 
     }
 
