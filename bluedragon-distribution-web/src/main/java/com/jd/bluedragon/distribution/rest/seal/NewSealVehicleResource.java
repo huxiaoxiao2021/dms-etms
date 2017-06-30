@@ -6,7 +6,9 @@ import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -44,6 +46,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+
+    @Autowired
+    private CarLicenseChangeUtil carLicenseChangeUtil;
 
 
     /**
@@ -90,6 +95,7 @@ public class NewSealVehicleResource {
 
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
+
             if (request == null) {
                 this.logger.error("NewSealVehicleResource findSealInfo --> 传入参数非法");
             }
@@ -99,8 +105,12 @@ public class NewSealVehicleResource {
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
 
-            //增加车牌号的条件
-            sealCarDto.setVehicleNumber(request.getVehicleNumber());
+            if(StringHelper.isNotEmpty(request.getVehicleNumber())){
+                String ChineseVehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(request.getVehicleNumber());
+
+                //增加车牌号的条件
+                sealCarDto.setVehicleNumber(ChineseVehicleNumber);
+            }
 
 
             Integer intStartSiteId = NumberHelper.isNumber(request.getStartSiteId()) ? Integer.parseInt(request.getStartSiteId()) : null;

@@ -24,6 +24,12 @@ public class SysConfigDao extends BaseDao<SysConfig> {
 	public List<SysConfig> getSwitchList(){
 		return getSqlSession().selectList(SysConfigDao.namespace + ".getSwitchList");
 	}
+
+	public SysConfig findConfigContentByConfigName(String configName){
+        SysConfig  result= getSqlSession().selectOne(SysConfigDao.namespace+".findConfigContentByConfigName",configName);
+        return result;
+		//return getSqlSession().selectOne(SysConfigDao.namespace+".findConfigContentByConfigName",configName);
+	}
 	public List<SysConfig> getList(SysConfig sysConfig){
 		return getSqlSession().selectList(SysConfigDao.namespace + ".getList",sysConfig);
 	}
