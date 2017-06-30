@@ -4,13 +4,20 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.SysConfigContentResponse;
+import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -27,6 +34,10 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 @Controller
 @RequestMapping("/sysconfig")
@@ -164,6 +175,23 @@ public class SysconfigController {
         return querySysconfig(null, null, model);
     }
 
+    @RequestMapping(value = "/findConfigContentByConfigName/{configName}", method = RequestMethod.GET)
+    @ResponseBody
+    public SysConfigContentResponse findConfigContentByConfigName(@PathVariable String configName) {
+        Assert.notNull(configName, "configName must not be null");
+        this.logger.info("configName's " + configName);
+        SysConfigContentResponse response = new SysConfigContentResponse();
+        SysConfig config = sysConfigService.findConfigContentByConfigName(configName);
+        if (config == null) {
+            response.setCode(SysConfigContentResponse.CODE_OK_NULL);
+            response.setMessage(SysConfigContentResponse.MESSAGE_OK_NULL);
+            return response;
+        }
+        response.setCode(SysConfigContentResponse.CODE_OK);
+        response.setMessage(SysConfigContentResponse.MESSAGE_OK);
+        response.setConfigContent(config.getConfigContent());
+        return response;
+    }
 
     @RequestMapping(value = "/goAddPage", method = RequestMethod.GET)
     public String goAddPage() {
