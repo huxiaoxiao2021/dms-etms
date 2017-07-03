@@ -16,7 +16,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import com.jd.bluedragon.distribution.failqueue.domain.DealData_SendDatail;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -538,6 +537,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         body.copyFromParent(sendM);
         Task tTask = new Task();
         tTask.setBoxCode(sendM.getSendCode());
+        //tTask.setBody(sendM.getSendCode());
         tTask.setBody(JsonHelper.toJson(body));
         tTask.setCreateSiteCode(sendM.getCreateSiteCode());
         tTask.setKeyword2(String.valueOf(sendM.getSendType()));
@@ -567,58 +567,24 @@ public class DeliveryServiceImpl implements DeliveryService {
             tTaskService.add(tTask);
         }
 
-        this.logger.info("推送财务信息 --start");
-		/* 推送财务信息 */
+		/* 第三方发货推送财务
+		*  写到task_delviery_to_finance_batch表*/
         if (businessTypeTHR.equals(sendM.getSendType())){
-            //写task_delivery_to_finance表，mq的方式
-            pushFinanceTask(sendM);
+            String sendCode = sendM.getSendCode();
+            Task task = new Task();
+            task.setKeyword1(businessTypeTHR+"");
+            task.setBody(sendCode);
+            task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH);
+            task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH);
+            task.setOwnSign(BusinessHelper.getOwnSign());
 
-            //原始的task_failqueue的方式，之后需要下掉
-            newFailQueueService.sendCodeNewData(sendM.getSendCode(), IFailQueueService.DMS_SEND_3PL);
+            taskService.add(task);
         }
 
         /*添加自动化分拣发货回传波次表*/
         BatchSend batchSend = new BatchSend();
         batchSend.setSendCode(sendM.getSendCode());
         batchSendDao.batchUpdateStatus(batchSend);
-    }
-
-    /**
-     * 第三方发货数据写deliveryToFinanceTask任务
-     * task_delivery_to_finance
-     * @param sendM
-     */
-    private void pushFinanceTask(SendM sendM){
-        String boxCode = sendM.getBoxCode();
-        ArrayList<SendDetail> senddAL = new ArrayList<SendDetail>();
-
-        List<SendDetail> senddAL_3pl = sendDatailReadDao.queryByBoxCode_3PL(boxCode,sendM.getCreateSiteCode());
-        senddAL.addAll(senddAL_3pl);
-
-        for(SendDetail sendDetail : senddAL) {
-            //转换成DealData_SendDatail对象，写入表
-            Long primaryKey = sendDetail.getSendDId();
-            String waybillCode = sendDetail.getWaybillCode();
-            int sortingCenterId = sendDetail.getCreateSiteCode();
-            int targetSiteId = sendDetail.getReceiveSiteCode();
-            String deliveryTime = DateHelper.formatDateTime(sendDetail.getUpdateTime());
-            String sortBatchNo = sendM.getSendCode();
-
-            DealData_SendDatail tmpdata = new DealData_SendDatail(primaryKey, waybillCode, sortingCenterId, targetSiteId, deliveryTime, sortBatchNo);
-
-            //生成Task
-            Task task = new Task();
-            task.setCreateSiteCode(tmpdata.getSortingCenterId());
-            task.setReceiveSiteCode(tmpdata.getTargetSiteId());
-            task.setKeyword1(tmpdata.getPrimaryKey().toString());  //send_id
-            task.setKeyword2(tmpdata.getWaybillCode()); //批次号
-            task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE);
-            task.setBody(JsonHelper.toJson(tmpdata));
-            task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE);
-            task.setOwnSign(BusinessHelper.getOwnSign());
-
-            taskService.add(task);
-        }
     }
 
     /**

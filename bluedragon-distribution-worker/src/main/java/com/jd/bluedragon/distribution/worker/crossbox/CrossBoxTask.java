@@ -30,7 +30,6 @@ public class CrossBoxTask extends DBSingleScheduler {
 	private CrossBoxService crossBoxService;
 
 	public List<Task> selectTasks(String arg0, int queueNum, List<String> queryCondition, int fetchNum) throws Exception {
-		logger.info("============================selectTasks==========================");
 		if (logger.isInfoEnabled()) {
 			logger.info("任务执行fetchNum is" + fetchNum);
 		}

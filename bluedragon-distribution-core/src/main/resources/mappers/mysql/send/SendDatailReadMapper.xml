@@ -121,17 +121,4 @@
 		</if>
 	</select>
 
-	<select id="queryByBoxCode_3PL" parameterType="String" resultMap="SendDetail">
-		select
-		send_d_id, send_code, box_code, package_barcode, waybill_code,pickup_code, send_type,create_site_code,
-		receive_site_code, create_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn
-		from send_d
-		where box_code = #{boxCode}
-		and yn = 1 and send_type = 30
-		<if test="createSiteCode != null">
-			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		</if>
-
-	</select>
-
 </mapper>

@@ -183,23 +183,6 @@ public class DataTranTool {
 		}
 		return departureAl;
 	}
-
-	public static com.jd.etms.finance.wss.pojo.SortingCar transDealDataDepartureToFinanceData(DealData_Departure  departure){
-		com.jd.etms.finance.wss.pojo.SortingCar sortingCar = new SortingCar();
-		sortingCar.setCarrierId(departure.getCarrierId());
-		sortingCar.setSortBatchNo(departure.getSortBatchNo());
-		sortingCar.setSortCarId(departure.getSortCarId());
-		sortingCar.setSortCarTime(departure.getSortCarTime());
-		sortingCar.setSortingCenterId(departure.getSortingCenterId());
-		//sortingCar.setTargetSiteId(departure.getTargetSiteId());
-		sortingCar.setVolume(departure.getVolume() != null ? departure.getVolume() : 0);
-		/**
-		 * 重量单位为吨，财务需要千克，乘以1000
-		 */
-		sortingCar.setWeight(departure.getWeight() != null ? departure.getWeight() * 1000 : 0);
-
-		return sortingCar;
-	}
 	
 	public static java.util.List<com.jd.etms.finance.wss.pojo.SortingCar> transDealDataToFinanceData(DealData_Departure departure){
 		ArrayList<DealData_Departure> tmpal = new ArrayList<DealData_Departure>();

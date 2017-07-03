@@ -114,6 +114,14 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_CROSS_BOX=2222;
 
     /**
+     * 第三发发货数据推送财务 中间转换表
+     * 按批次号写到该任务表，跑任务的时候根据批次号查send_d表
+     * 再写到task_delivery_to_finance表
+     */
+
+    public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE_BATCH = 1900;
+
+    /**
      * 第三方发货数据推送财务
      */
     public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
@@ -142,7 +150,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
 
+    public static final String TABLE_NAME_DELIVERY_TO_FINANCE_BATCH = "task_delivery_to_finance_batch";
+
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE = "task_delivery_to_finance";
+
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -482,6 +493,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
         	return Task.TABLE_NAME_CROSSBOX;
         }else if(Task.TASK_TYPE_DELIVERY_TO_FINANCE.equals(type)){
             return Task.TABLE_NAME_DELIVERY_TO_FINANCE;
+        }else if(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH.equals(type)){
+            return Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -553,7 +566,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("1"))
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("2"))
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("3"))
-				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("4"))
+//				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("4"))
 				|| ( Task.TASK_TYPE_SEND_DELIVERY.equals(type) && StringHelper.isNotEmpty(keyword1) && keyword1.equals("5"))
 				|| (Task.TASK_TYPE_DEPARTURE.equals(type)
 						&& StringHelper.isNotEmpty(keyword1) && keyword1
@@ -568,7 +581,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				|| Task.TASK_TYPE_REVERSE_RECEIVE.equals(type)
 				|| Task.TASK_TYPE_WEIGHT.equals(type)
                 || Task.TASK_TYPE_PUSH_MQ.equals(type)
-||Task.TASK_TYPE_MESSAGE.equals(type)
+                ||Task.TASK_TYPE_MESSAGE.equals(type)
                 ||Task.TASK_TYPE_SCANNER_FRAME.equals(type)) {  // 增加干线计费系统任务
 			return TaskMode.REDIS;
 		}
@@ -598,8 +611,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
 				taskType = "SendDeliveryTotmsRedisTask";
 			} else if (keyword1.equals("3")) {
 				taskType = "ReverseDeliveryRedisTask";
-			} else if (keyword1.equals("4")) {
-				taskType = "ReverseSendRedisTask";
+//			} else if (keyword1.equals("4")) {
+//				taskType = "ReverseSendRedisTask";
 			} else if (keyword1.equals("5")) {
 				taskType = "TransitSendRedisTask";
 			}
