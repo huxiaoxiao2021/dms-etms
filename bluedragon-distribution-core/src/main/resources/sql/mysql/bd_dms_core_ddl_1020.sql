@@ -2498,3 +2498,47 @@ CREATE TABLE `turnoverbox` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2016-10-20 11:04:31
+
+CREATE TABLE TASK_DELIVERY_TO_FINANCE (
+	`task_id` bigint (20) UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT '自增id',
+	`create_time` datetime DEFAULT NULL COMMENT '创建时间',
+	`update_time` datetime DEFAULT NULL COMMENT '更新时间',
+	`keyword1` VARCHAR (64) DEFAULT NULL COMMENT '关键字1',
+	`keyword2` VARCHAR (64) DEFAULT NULL COMMENT '关键字2',
+	`create_site_code` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '始发分拣中心',
+	`receive_site_code` bigint (20) UNSIGNED DEFAULT NULL COMMENT '目的分拣中心',
+	`box_code` VARCHAR (32) DEFAULT NULL COMMENT '箱号',
+	`body` VARCHAR (2000) DEFAULT NULL COMMENT '任务主体',
+	`execute_count` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '执行次数',
+	`task_type` bigint (20) UNSIGNED  DEFAULT NULL COMMENT '任务烈性',
+	`task_status` bigint (20) UNSIGNED DEFAULT NULL COMMENT '任务状态',
+	`yn` bigint (20) UNSIGNED DEFAULT NULL COMMENT '是否生效',
+	`own_sign` VARCHAR (50) DEFAULT 'DMS' COMMENT '部署环境',
+	`execute_time` datetime DEFAULT NULL COMMENT '执行时间',
+	`fingerprint` VARCHAR (64) DEFAULT NULL COMMENT '指纹信息',
+	PRIMARY KEY (`task_id`),
+	KEY `idx_box_code` (`box_code`),
+	KEY `idx_status_count` (`task_status`,`execute_count`)
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8 COMMENT="第三方发货数据推财务任务表";
+
+
+CREATE TABLE TASK_DELIVERY_TO_FINANCE_BATCH (
+	`task_id` bigint (20) UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT '自增id',
+	`create_time` datetime DEFAULT NULL COMMENT '创建时间',
+	`update_time` datetime DEFAULT NULL COMMENT '更新时间',
+	`keyword1` VARCHAR (64) DEFAULT NULL COMMENT '关键字1',
+	`keyword2` VARCHAR (64) DEFAULT NULL COMMENT '关键字2',
+	`create_site_code` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '始发分拣中心',
+	`receive_site_code` bigint (20) UNSIGNED DEFAULT NULL COMMENT '目的分拣中心',
+	`box_code` VARCHAR (32) DEFAULT NULL COMMENT '箱号',
+	`body` VARCHAR (2000) DEFAULT NULL COMMENT '任务主体',
+	`execute_count` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '执行次数',
+	`task_type` bigint (20) UNSIGNED  DEFAULT NULL COMMENT '任务烈性',
+	`task_status` bigint (20) UNSIGNED DEFAULT NULL COMMENT '任务状态',
+	`yn` bigint (20) UNSIGNED DEFAULT NULL COMMENT '是否生效',
+	`own_sign` VARCHAR (50) DEFAULT 'DMS' COMMENT '部署环境',
+	`execute_time` datetime DEFAULT NULL COMMENT '执行时间',
+	`fingerprint` VARCHAR (64) DEFAULT NULL COMMENT '指纹信息',
+	PRIMARY KEY (`task_id`),
+	KEY `idx_status_count` (`task_status`,`execute_count`)
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8 COMMENT="第三方发货数据推财务批处理任务表";

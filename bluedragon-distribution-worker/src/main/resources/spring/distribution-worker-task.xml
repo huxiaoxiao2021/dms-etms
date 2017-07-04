@@ -462,7 +462,7 @@
         <property name="dataSource" ref="taskDataSource" />
         <property name="taskType" value="DeliveryToFinanceTask" />
         <property name="managerFactory" ref="managerFactory" />
-        <property name="ownSign" value="DMS" />
+        <property name="ownSign" value="${ownSign}" />
         <property name="type" value="1910" />
         <property name="desc" value="第三方发货数据推送财务" />
     </bean>
@@ -473,9 +473,9 @@
         <property name="dataSource" ref="taskDataSource" />
         <property name="taskType" value="DeliveryToFinanceConvertTask" />
         <property name="managerFactory" ref="managerFactory" />
-        <property name="ownSign" value="DMS" />
+        <property name="ownSign" value="${ownSign}" />
         <property name="type" value="1900" />
-        <property name="desc" value="第三方发货数据推送财务转换" />
+        <property name="desc" value="第三方发货数据推送财务批处理" />
     </bean>
 
 </beans>
