@@ -11,12 +11,10 @@ import java.util.List;
 public class SortMachineSendGroupDao extends BaseDao<SortMachineSendGroup>{
 
     public static final String namespace = SortMachineSendGroupDao.class.getName();
-    //todo
     public List<SortMachineSendGroup> findSendGroupByMachineCode(String machineCode) {
         return super.getSqlSession().selectList(namespace + ".findSendGroupByMachineCode", machineCode);
     }
 
-    //todo
     public void add(SortMachineSendGroup sendGroup) {
         add(namespace, sendGroup);
     }
@@ -29,7 +27,6 @@ public class SortMachineSendGroupDao extends BaseDao<SortMachineSendGroup>{
         update(namespace, sendGroup);
     }
 
-    //todo
     public void deleteSendGroupById(Long groupId) {
         super.getSqlSession().delete(namespace + ".deleteSendGroupById", groupId);
     }
