@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -304,7 +305,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
                         return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-                } else {
+                    //城配一车一单升级需求 原包发货不检验目的地是否为分拣中心
+                } else if(response.getCode() != SortingResponse.CODE_29212){
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
@@ -800,9 +802,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
                     DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),true);
+        //老发货升级需求 调用verification 的checkPackage的值由true 改成fals byjinjingcheng
+        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),false);
         if(!verificationResult.getCode()){
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ALL_CHECK,verificationResult.getMessage());
+            return new DeliveryResponse(DeliveryResponse.CODE_CITY_BILL_CHECK,
+                    verificationResult.getMessage() + DeliveryResponse.MESSAGE_CITY_BILL_CHECK);
         }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());
