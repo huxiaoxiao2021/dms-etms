@@ -105,4 +105,9 @@
 		select * from sysconfig where yn=1
 			and config_name=#{conName}
 	</select>
+
+	<select id="findConfigContentByConfigName" resultMap="sysconfig" parameterType="java.lang.String">
+		select config_content from sysconfig where yn=1
+		and config_name=#{configName}
+	</select>
 </mapper>	

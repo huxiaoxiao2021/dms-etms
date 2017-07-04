@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.message.consumer.reverse;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.jmq.common.message.Message;
 import com.jd.postal.GetPrintDatasPortType;
 import org.apache.commons.codec.binary.Base64;
@@ -23,7 +24,7 @@ public class ReverseDeliveryToEmsConsumer extends MessageBaseConsumer{
 
     @Override
     public void consume(Message message) throws Exception {
-        this.logger.info("推送全国EMS的自消费类型的MQ：内容为" + message.getText());
+        this.logger.info("推送全国EMS的自消费类型的MQ：内容为" + message.getBusinessId());
         if(message == null || "".equals(message.getText()) || null == message.getText() ){
             this.logger.error("推送EMS的消息类型为空");
             return;
@@ -33,13 +34,15 @@ public class ReverseDeliveryToEmsConsumer extends MessageBaseConsumer{
         String emsstring=null;
         body =new String(base64.encode(body.getBytes("utf-8")), Charset.forName("UTF-8"));
         emsstring = getPrintDatasPortType.printEMSDatas(body);
-        logger.info(body);
         if (null == emsstring || "".equals(emsstring.trim())) {
             this.logger
                     .error("toEmsServer CXF return null :");
         }else{
             emsstring = new String(base64.decode(emsstring),Charset.forName("UTF-8"));
-            this.logger.error("全国邮政返回" + emsstring);
+            this.logger.info("全国邮政返回" + emsstring);
         }
+
+        //添加systemLog日志
+        SystemLogUtil.log(message.getBusinessId(),body,"bd_dms_ems_mq",1,emsstring,89757L);
     }
 }

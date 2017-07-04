@@ -256,4 +256,11 @@ public interface BaseService {
     public Assort getAssortById(Integer assortId);
 
 	BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String siteCode);
+
+	/**
+	 * 根据assId获取单条省市县信息
+	 * @param assId
+	 * @return
+	 */
+	public Assort getOneAssortById(int assId);
 }

@@ -3,11 +3,15 @@ package com.jd.bluedragon.distribution.web.sortscheme;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CacheCleanRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
+import com.jd.bluedragon.distribution.api.response.CacheCleanResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.cacheClean.domain.CacheClean;
+import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
@@ -26,7 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,6 +72,9 @@ public class SortSchemeController {
     @Resource
     private BaseMajorManager baseMajorManager;
 
+    @Resource
+    private CacheCleanService cacheCleanService;
+
     // 页面跳转控制 增加参数跳转
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Integer siteCode,String siteName,Model model) {
@@ -100,6 +107,41 @@ public class SortSchemeController {
 
         return "sortscheme/sort-scheme-index";
     }
+
+    @RequestMapping(value = "/cacheClean-index", method = RequestMethod.GET)
+    public String cacheCleanindex(Integer siteCode,String siteName,Model model) {
+
+        if(null == siteName || "".equals(siteName)){
+            /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
+            logger.info("开始获取当前登录用户的ERP信息......");
+            try{
+                ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+                logger.info("获取用户ERP："+ user.getUserCode());
+                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+                if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                    siteCode = bssod.getSiteCode();
+                    siteName = bssod.getSiteName();
+                }
+            }catch(Exception e){
+                logger.error("用户分拣中心初始化失败：",e);
+            }
+        }else{
+            try{
+                siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));//需要截取字段
+
+            }catch(UnsupportedEncodingException e){
+                logger.error("分拣中心参数解码异常：",e);
+            }
+        }
+
+        model.addAttribute("siteCode",siteCode);
+        model.addAttribute("siteName",siteName);
+
+        return "sortscheme/sort-scheme-cache-clean";
+    }
+
+
+
 
     @RequestMapping(value = "/goDetail", method = RequestMethod.GET)
     public String goDetail(SortSchemeRequest request, Model model) {
@@ -262,6 +304,97 @@ public class SortSchemeController {
             }
         } catch (Exception e) {
             logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 查询已删缓存
+     *author zhoutao on 2017/6/19
+     */
+    @RequestMapping(value = "/cacheClean", method = RequestMethod.POST)
+    @ResponseBody
+    public  CacheCleanResponse<Pager<List<CacheClean>>> cacheClean(@RequestBody CacheCleanRequest cacheCleanRequest) {
+            CacheCleanResponse<Pager<List<CacheClean>>> response = new CacheCleanResponse<Pager<List<CacheClean>>> ();
+        try {
+            if (cacheCleanRequest == null || cacheCleanRequest.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣中心ID为空,请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest == null || cacheCleanRequest.getMachineCode()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣机代码为空，请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest==null||cacheCleanRequest.getChuteCode1()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("滑槽号为空，请输入!!");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + cacheCleanRequest.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            CacheCleanResponse<Pager<List<CacheClean>>> remoteResponse = cacheCleanService.findPageCacheClean(cacheCleanRequest,HTTP + url + "services/smartDistribution/smartBoxes/query");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setData(remoteResponse.getData());
+                response.setMessage("查找本次删除的缓存成功!");
+            }
+        } catch (Exception e) {
+            logger.error("findPageCacheClean-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 删除缓存
+     *author zhoutao on 2017/6/19
+     */
+
+    @RequestMapping(value = "/excuteCacheClean", method = RequestMethod.POST)
+    @ResponseBody
+    public  CacheCleanResponse<Integer> excuteCacheClean(@RequestBody CacheCleanRequest cacheCleanRequest) {
+        CacheCleanResponse<Integer> response = new CacheCleanResponse<Integer> ();
+        try {
+            if (cacheCleanRequest == null || cacheCleanRequest.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣中心ID为空,请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest == null || cacheCleanRequest.getMachineCode()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣机代码为空，请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest==null||cacheCleanRequest.getChuteCode1()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("滑槽号为空，请输入!!");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + cacheCleanRequest.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            CacheCleanResponse<Integer> remoteResponse = cacheCleanService.cacheClean(cacheCleanRequest,HTTP + url + "/services/smartDistribution/smartBoxes/clean");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setData(remoteResponse.getData());
+                response.setMessage("删除缓存成功!");
+            }
+        } catch (Exception e) {
+            logger.error("cacheClean-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
