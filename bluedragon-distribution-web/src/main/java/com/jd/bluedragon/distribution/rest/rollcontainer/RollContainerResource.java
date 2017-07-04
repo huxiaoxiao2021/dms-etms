@@ -189,14 +189,45 @@ public class RollContainerResource {
 		String containerCode = relationRequest.getContainerCode();
 		try{
 			ContainerRelation relation = containerRelationService.getContainerRelation(containerCode);
-			String boxCode = relation.getBoxCode();
-			response.setContainerCode(containerCode);
-			response.setBoxCode(boxCode);
-			
+			if(relation != null){
+				response.setContainerCode(containerCode);
+				response.setBoxCode(relation.getBoxCode());
+			}else{
+				response.setCode(JdResponse.CODE_NOT_CONTAINER_RELATION);
+	        	response.setMessage("没有对应周转箱"+containerCode+"与箱号的对应关系！");
+			}
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
         	logger.error("根据编号获得对应关系内部错误",e);
+        }
+		
+        return response;
+    }
+	
+	/**
+	 * 中转箱与箱号释放绑定关系,周转箱收货时需要释放rfid与箱号的关系
+	 * @param request
+	 * @return
+	 */
+	@POST
+    @Path("/rollContainer/releaseContainerRelation")
+    public ContainerRelationResponse releaseContainerRelation(ContainerRelation relation) {
+		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		if(relation.getContainerCode() == null && relation.getBoxCode() == null ){
+        	response.setCode(JdResponse.CODE_PARAM_ERROR);
+        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+        	return response;
+        }
+		try{
+			relation.setUpdateTime(new Date());
+	        relation.setIsDelete(1);//无效状态标示
+	        relation.setTs(new Date());
+	        int count = containerRelationService.updateContainerRelationByCode(relation);
+        }catch(Exception e){
+        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+        	response.setMessage("内部错误");
+        	logger.error("周转箱与箱号释放绑定关系内部错误",e);
         }
 		
         return response;
@@ -229,34 +260,6 @@ public class RollContainerResource {
 //        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 //        	response.setMessage("内部错误");
 //        	logger.error("内部错误",e);
-//        }
-//		
-//        return response;
-//    }
-	
-	/**
-	 * 中转箱与箱号释放绑定关系,周转箱收货时需要释放rfid与箱号的关系
-	 * @param request
-	 * @return
-	 */
-//	@POST
-//    @Path("/rollContainer/releaseContainerRelation")
-//    public ContainerRelationResponse releaseContainerRelation(ContainerRelation relation) {
-//		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-//		if(relation.getContainerCode() == null && relation.getBoxCode() == null ){
-//        	response.setCode(JdResponse.CODE_PARAM_ERROR);
-//        	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-//        	return response;
-//        }
-//		try{
-//			relation.setUpdateTime(new Date());
-//	        relation.setIsDelete(1);//无效状态标示
-//	        relation.setTs(new Date());
-//	        int count = containerRelationService.updateContainerRelationByCode(relation);
-//        }catch(Exception e){
-//        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-//        	response.setMessage("内部错误");
-//        	logger.error("中转箱与箱号释放绑定关系内部错误",e);
 //        }
 //		
 //        return response;
