@@ -112,6 +112,19 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * xumei 基础资料-->跨分拣箱号中转维护导入文件中信息定时生效
      */
     public static final Integer TASK_TYPE_CROSS_BOX=2222;
+
+    /**
+     * 第三发发货数据推送财务 中间转换表
+     * 按批次号写到该任务表，跑任务的时候根据批次号查send_d表
+     * 再写到task_delivery_to_finance表
+     */
+
+    public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE_BATCH = 1900;
+
+    /**
+     * 第三方发货数据推送财务
+     */
+    public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
     
     
     /** 相关数据库表 */
@@ -136,6 +149,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
     
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
+
+    public static final String TABLE_NAME_DELIVERY_TO_FINANCE_BATCH = "task_delivery_to_finance_batch";
+
+    public static final String TABLE_NAME_DELIVERY_TO_FINANCE = "task_delivery_to_finance";
+
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -473,6 +491,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if(Task.TASK_TYPE_CROSS_BOX.equals(type)){
         	return Task.TABLE_NAME_CROSSBOX;
+        }else if(Task.TASK_TYPE_DELIVERY_TO_FINANCE.equals(type)){
+            return Task.TABLE_NAME_DELIVERY_TO_FINANCE;
+        }else if(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH.equals(type)){
+            return Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH;
         }
         
         return Task.TABLE_NAME_SORTING;
