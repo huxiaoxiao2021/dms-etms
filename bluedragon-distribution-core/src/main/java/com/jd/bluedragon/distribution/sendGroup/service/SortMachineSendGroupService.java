@@ -38,4 +38,26 @@ public interface SortMachineSendGroupService {
                               String[] chuteCodes,
                               Integer staffNo,
                               String userName);
+
+    /**
+     * 修改发货组
+     * @param groupId
+     * @param machineCode
+     * @param chuteCodes
+     * @param staffNo
+     * @param userName
+     * @return
+     */
+    void updateSendGroup(Long groupId,
+                                 String machineCode,
+                                 String[] chuteCodes,
+                                 Integer staffNo,
+                                 String userName);
+
+    /**
+     * 删除发货组
+     * @param groupId
+     * @return
+     */
+    void deleteSendGroup(Long groupId);
 }

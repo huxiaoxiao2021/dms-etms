@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.sendGroup.service.SortMachineSendGroupServ
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,34 +41,68 @@ public class SortMachineSendGroupServiceImpl implements SortMachineSendGroupServ
                                      Integer staffNo,
                                      String userName) {
         //检查
-        addSendGroupCheck();
+        InvokeResult saveResult =  addSendGroupCheck();
         //
         SortMachineSendGroup sendGroup = new SortMachineSendGroup();
         sendGroup.setGroupName(groupName);
         sendGroup.setMachineCode(machineCode);
-        sendGroup.setYn(1);
         sendGroup.setCreateUser(userName);
         sendGroup.setCreateUserCode(new Long(staffNo));
-        Date createTime = new Date();
-        sendGroup.setCreateTime(createTime);
-        sendGroup.setUpdateTime(createTime);
-        sendGroup.setUpdateUser(userName);
-        sendGroup.setUpdateUserCode(new Long(staffNo));
         sortMachineSendGroupDao.add(sendGroup);
+        List<SortMachineGroupConfig> sortMachineGroupConfigs = initSortMachineGroupConfigList(sendGroup.getId(),
+                chuteCodes);
 
-
-        return null;
+        sortMachineGroupConfigDao.addBatch(sortMachineGroupConfigs);
+        return saveResult;
     }
+
+    //修改发货组关联的滑槽：
+    //先删除已关联的的 再重新关联
+    @Override
+    public void updateSendGroup(Long groupId,
+                                        String machineCode,
+                                        String[] chuteCodes,
+                                        Integer staffNo,
+                                        String userName) {
+        //更新发货组信息
+        SortMachineSendGroup oldSendGroup = sortMachineSendGroupDao.get(groupId);
+        oldSendGroup.setUpdateTime(new Date());
+        oldSendGroup.setUpdateUserCode(new Long(staffNo));
+        oldSendGroup.setUpdateUser(userName);
+        sortMachineSendGroupDao.update(oldSendGroup);
+        //删除已关联的滑道信息
+        sortMachineGroupConfigDao.deleteMachineGroupConfigByGroupId(groupId);
+        //重新绑定滑道
+        List<SortMachineGroupConfig> sortMachineGroupConfigs = initSortMachineGroupConfigList(groupId,
+                chuteCodes);
+
+        sortMachineGroupConfigDao.addBatch(sortMachineGroupConfigs);
+    }
+
+    @Override
+    public void deleteSendGroup(Long groupId) {
+        sortMachineSendGroupDao.deleteSendGroupById(groupId);
+        sortMachineGroupConfigDao.deleteMachineGroupConfigByGroupId(groupId);
+    }
+
 
     private List<SortMachineGroupConfig> initSortMachineGroupConfigList(Long sendGroupId, String[] chuteCodes){
         if(chuteCodes != null && chuteCodes.length > 0){
-
+            List<SortMachineGroupConfig> sortMachineGroupConfigs = new ArrayList<SortMachineGroupConfig>(chuteCodes.length);
+            for(String chuteCode : chuteCodes){
+                sortMachineGroupConfigs.add(initSortMachineGroupConfig(sendGroupId, chuteCode));
+            }
+            return sortMachineGroupConfigs;
         }
         return null;
     }
 
     private SortMachineGroupConfig initSortMachineGroupConfig(Long sendGroupId, String chuteCode){
-        return null;
+        SortMachineGroupConfig sortMachineGroupConfig = new SortMachineGroupConfig();
+        sortMachineGroupConfig.setChuteCode(chuteCode);
+        sortMachineGroupConfig.setGroupId(sendGroupId);
+        sortMachineGroupConfig.setYn(1);
+        return sortMachineGroupConfig;
     }
 
     //todo

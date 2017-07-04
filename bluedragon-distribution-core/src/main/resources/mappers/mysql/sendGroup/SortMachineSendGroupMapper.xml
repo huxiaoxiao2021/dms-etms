@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jd.bluedragon.distribution.sendGroup.dao.SortMachineSendGroupDao">
-    <resultMap id="SortMachineSendGroup" type="SortMachineSendGroup">
+    <resultMap id="sortMachineSendGroupMap" type="com.jd.bluedragon.distribution.sendGroup.domain.SortMachineSendGroup">
         <id column="id" property="id" />
         <result column="group_name" property="groupName" />
         <result column="machine_code" property="machineCode" />
@@ -25,7 +25,73 @@
         update_user_code,
         update_user,
         update_time,
-        yn,
-        ts
+        yn
     </sql>
+    <insert id="add" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.jd.bluedragon.distribution.sendGroup.domain.SortMachineSendGroup">
+        INSERT INTO sort_machine_send_group(
+        group_name,
+        machine_code,
+        create_user_code,
+        create_user,
+        create_time,
+        update_user_code,
+        update_user,
+        update_time,
+        yn)
+        VALUES (
+        #{groupName,jdbcType=VARCHAR},
+        #{machineCode, jdbcType=VARCHAR},
+        #{createUserCode,jdbcType=BIGINT},
+        #{createUser,jdbcType=VARCHAR},
+        NOW(),
+        #{createUserCode,jdbcType=BIGINT},
+        #{createUser,jdbcType=VARCHAR},
+        NOW(),
+        1
+        )
+    </insert>
+
+    <select id="get" resultMap="sortMachineSendGroupMap" parameterType="java.lang.Long">
+      SELECT
+      <include refid="Base_Column_List"/>
+        FROM sort_machine_send_group
+        WHERE id = #{groupId, jdbcType=BIGINT}
+    </select>
+    <update id="update" parameterType="com.jd.bluedragon.distribution.sendGroup.domain.SortMachineSendGroup">
+        UPDATE sort_machine_send_group
+        <set>
+          <if test="groupName != null and groupName != ''">
+              group_name =  #{groupName,jdbcType=VARCHAR},
+          </if>
+          <if test="machineCode != null and machineCode != ''">
+              machine_code = #{machineCode, jdbcType=VARCHAR},
+          </if>
+          <if test="updateUserCode != null">
+              update_user_code =  #{updateUserCode,jdbcType=BIGINT},
+          </if>
+          <if test="updateUser != null and updateUser != ''">
+              update_user = #{updateUser, jdbcType=VARCHAR},
+          </if>
+            update_time = NOW()
+          <if test="yn != null">
+              yn = #{updateUserCode,jdbcType=INTEGER}
+          </if>
+        </set>
+        <where>
+        id = #{id,jdbcType=BIGINT}
+        </where>
+    </update>
+
+    <delete id="deleteSendGroupById" parameterType="java.lang.Long">
+        DELETE FROM sort_machine_send_group
+        WHERE id = #{groupId, jdbcType=BIGINT}
+    </delete>
+    <select id="findSendGroupByMachineCode" resultMap="sortMachineSendGroupMap" parameterType="java.lang.String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sort_machine_send_group
+        WHERE machine_code = #{machineCode, jdbcType=VARCHAR}
+    </select>
+
 </mapper>

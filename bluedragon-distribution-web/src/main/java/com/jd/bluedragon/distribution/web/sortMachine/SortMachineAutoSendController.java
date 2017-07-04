@@ -174,6 +174,9 @@ public class SortMachineAutoSendController {
         try{
             InvokeResult addResult = sortMachineSendGroupService.addSendGroup(machineCode,
                     groupName, chuteCodes, erpUser.getStaffNo(), erpUser.getUserName());
+            if(addResult.getCode() != 200){
+                return addResult;
+            }
         }catch (Exception e){
             e.printStackTrace();
             respone.customMessage(500, "添加发货组时系统异常！");
@@ -181,4 +184,50 @@ public class SortMachineAutoSendController {
 
         return respone;
     }
+
+    /**
+     * 更新发货组
+     * @param groupId 发货组ID
+     * @param machineCode 分拣机编号
+     * @param chuteCodes 滑槽号
+     * @return
+     */
+    @RequestMapping(value = "/updateSendGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult updateSendGroup(Long groupId,
+                                        String machineCode,
+                                     @RequestParam(value = "chuteCodes[]") String[] chuteCodes){
+        InvokeResult respone = new InvokeResult();
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        try{
+             sortMachineSendGroupService.updateSendGroup(groupId,
+                    machineCode,chuteCodes, erpUser.getStaffNo(), erpUser.getUserName());
+        }catch (Exception e){
+            e.printStackTrace();
+            respone.customMessage(500, "修改发货组时系统异常！");
+        }
+
+        return respone;
+    }
+
+    /**
+     * 更新发货组
+     * @param groupId 发货组ID
+     * @return
+     */
+    @RequestMapping(value = "/deleteSendGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult deleteSendGroup(Long groupId){
+        InvokeResult respone = new InvokeResult();
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        try{
+            sortMachineSendGroupService.deleteSendGroup(groupId);
+        }catch (Exception e){
+            e.printStackTrace();
+            respone.customMessage(500, "删除发货组时系统异常！");
+        }
+
+        return respone;
+    }
+
 }

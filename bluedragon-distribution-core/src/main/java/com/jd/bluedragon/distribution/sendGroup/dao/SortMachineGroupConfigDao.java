@@ -11,8 +11,14 @@ import java.util.List;
 public class SortMachineGroupConfigDao extends BaseDao<SortMachineGroupConfig> {
     public static final String namespace = SortMachineSendGroupDao.class.getName();
 
-    //todo
     public List<SortMachineGroupConfig> findSendGroupConfigByGroupId(Integer groupId) {
-        return null;
+        return super.getSqlSession().selectList(namespace + ".findSendGroupConfigByGroupId", groupId);
+    }
+
+    public int addBatch(List<SortMachineGroupConfig> sortMachineGroupConfigs) {
+         return super.getSqlSession().insert(namespace + ".addBatch", sortMachineGroupConfigs);
+    }
+    public int deleteMachineGroupConfigByGroupId(Long groupId) {
+        return super.getSqlSession().delete(namespace + ".deleteMachineGroupConfigByGroupId", groupId);
     }
 }
