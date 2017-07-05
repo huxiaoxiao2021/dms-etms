@@ -305,8 +305,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
                         return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-                    //城配一车一单升级需求 原包发货不检验目的地是否为分拣中心
-                } else if(response.getCode() != SortingResponse.CODE_29212){
+                } else{
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
