@@ -4,13 +4,16 @@ import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
+import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupConfig;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineSendGroup;
 import com.jd.bluedragon.distribution.sendGroup.service.SortMachineSendGroupService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
+import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -144,16 +147,37 @@ public class SortMachineAutoSendController {
 
     /**
      * 根据分拣机号查询滑槽信息
-     * @param groupId
+     * @param machineCode
      * @return
      */
     //todo
     @RequestMapping(value = "/queryChuteBySortMachineCode", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<List<SortMachineGroupConfig>> queryChuteBySortMachineCode(Integer groupId){
+    public InvokeResult<List<SortMachineGroupConfig>> queryChuteBySortMachineCode(String machineCode){
 //        InvokeResult<List> response = new InvokeResult<List>();
 //
 //        return response;
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+        //获取分拣站点失败
+//        if(bssod == null || bssod.getSiteCode() == null){
+//            response.parameterError("根据erp活动分拣中心失败！");
+//            return response;
+//        }
+//        //获取分拣中心本地服务url
+//        String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+//        if (StringUtils.isBlank(url)) {
+//            response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+//            return response;
+//        }
+//        SortSchemeDetailRequest request = new SortSchemeDetailRequest();
+//        request.setMachineCode(machineCode);
+//        request.setSortSchemeYn(1);
+//        request.setPageNo(1);
+//        request.setPageSize(Integer.MAX_VALUE);
+//        SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = sortSchemeService.
+//                pageQuerySortSchemeDetail(request, HTTP + url + "/autosorting/sortSchemeDetail/list");
+
         return null;
     }
 
@@ -229,5 +253,7 @@ public class SortMachineAutoSendController {
 
         return respone;
     }
+
+
 
 }
