@@ -223,12 +223,12 @@ public class LoadBillServiceImpl implements LoadBillService {
 	@JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.preLoadBill",mState = JProEnum.TP)
 	public Integer preLoadBill(List<Long> id, String trunkNo) throws Exception {
 		List<LoadBill> loadBIlls = null;
-		CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.PreLoadIdsAdd", false, true);
+		CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.selectLoadBill", false, true);
 		try{
 			loadBIlls = selectLoadbillById(id); //每次取#{SQL_IN_EXPRESS_LIMIT}
 		}catch (Exception ex){
 			logger.error("获取预装载数据失败",ex);
-			Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.SelectAlarm", "selectLoadbillById出错" );
+			Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.selectLoadBillAlarm", "selectLoadBillById出错" );
 			Profiler.functionError(info);
 			throw new GlobalTradeException("获取预装载数据失败，系统异常");
 		}finally{
@@ -255,7 +255,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 		logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
 
 		ClientResponse<String> response=getResponse(preLoadBill);
-		CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.PreLoadIdsAdd", false, true);
+		CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.updateLoadBillStatus", false, true);
 		if (response.getStatus() == HttpStatus.SC_OK) {
 			LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(),LoadBillReportResponse.class);
 			if(SUCCESS == response1.getStatus().intValue()){
@@ -273,7 +273,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 			}
 		} else {
 			logger.error("调用卓志预装载接口失败" + response.getStatus());
-			Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.ZhuozhiAlarm", "调用卓志预装载接口出错" );
+			Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.updateLoadBillStatusAlarm", "调用卓志预装载接口出错" );
 			throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
 		}
 		Profiler.registerInfoEnd(info1);
