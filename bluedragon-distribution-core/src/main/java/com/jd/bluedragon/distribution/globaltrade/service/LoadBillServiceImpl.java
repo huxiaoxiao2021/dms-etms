@@ -24,6 +24,10 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +43,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.jd.ump.profiler.proxy.Profiler.functionError;
 
 @Service("loadBillService")
 public class LoadBillServiceImpl implements LoadBillService {
@@ -214,14 +220,19 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+	@JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.preLoadBill",mState = JProEnum.TP)
 	public Integer preLoadBill(List<Long> id, String trunkNo) throws Exception {
 		List<LoadBill> loadBIlls = null;
-
+		CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.PreLoadIdsAdd", false, true);
 		try{
 			loadBIlls = selectLoadbillById(id); //每次取#{SQL_IN_EXPRESS_LIMIT}
 		}catch (Exception ex){
 			logger.error("获取预装载数据失败",ex);
+			Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.SelectAlarm", "selectLoadbillById出错" );
+			Profiler.functionError(info);
 			throw new GlobalTradeException("获取预装载数据失败，系统异常");
+		}finally{
+			Profiler.registerInfoEnd(info);
 		}
 
 		if(loadBIlls.size() > GLOBAL_TRADE_PRELOAD_COUNT_LIMIT){
@@ -243,10 +254,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 		logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
 
-		ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
-		request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
-		request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, JsonHelper.toJson(preLoadBill));
-		ClientResponse<String> response = request.post(String.class);
+		ClientResponse<String> response=getResponse(preLoadBill);
+		CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.PreLoadIdsAdd", false, true);
 		if (response.getStatus() == HttpStatus.SC_OK) {
 			LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(),LoadBillReportResponse.class);
 			if(SUCCESS == response1.getStatus().intValue()){
@@ -264,10 +273,26 @@ public class LoadBillServiceImpl implements LoadBillService {
 			}
 		} else {
 			logger.error("调用卓志预装载接口失败" + response.getStatus());
+			Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.ZhuozhiAlarm", "调用卓志预装载接口出错" );
 			throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
 		}
-
+		Profiler.registerInfoEnd(info1);
 		return loadBIlls.size();
+	}
+
+	@JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.getResponse",mState = JProEnum.TP)
+	public ClientResponse<String> getResponse(PreLoadBill preLoadBill){
+
+		ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
+		request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
+		request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, JsonHelper.toJson(preLoadBill));
+		ClientResponse<String> response = null;
+		try {
+			response = request.post(String.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
 	}
 
 	public PreLoadBill toPreLoadBill(List<LoadBill> loadBills, String trunkNo, String preLoadBillId){

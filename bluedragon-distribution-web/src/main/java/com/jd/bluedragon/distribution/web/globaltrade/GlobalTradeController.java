@@ -21,6 +21,8 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,8 @@ public class GlobalTradeController {
         return "globaltrade/global-trade-index";
     }
 
+
+    @JProfiler(jKey = "DMSWEB.GlobalTradeController.prepareLoadBill",mState = JProEnum.TP)
     @RequestMapping(value = "/preload", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse prepareLoadBill(HttpServletRequest request) {
