@@ -202,6 +202,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!-- 第三方发货推财务mq -->
+    <bean id="deliveryToFinanceMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="delivery_to_finance"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 

@@ -125,7 +125,7 @@ public class DataTranTool {
 		
 		return dealDataAl;
 	}
-	
+
 	public static ArrayList<com.jd.etms.finance.wss.pojo.SortingOrder> transDealDataSendDatailToFinanceData(List<DealData_SendDatail> list){
 		/*准备数据*/
 		ArrayList<com.jd.etms.finance.wss.pojo.SortingOrder> sendDataAl = new ArrayList<com.jd.etms.finance.wss.pojo.SortingOrder>();
@@ -142,10 +142,25 @@ public class DataTranTool {
 			tmpSortingOrder.setCarrierId(0);
 			sendDataAl.add(tmpSortingOrder);
 		}
-		
+
 		return sendDataAl;
 	}
-	
+
+	public static com.jd.etms.finance.wss.pojo.SortingOrder transDealDataSendDatailToFinanceData(DealData_SendDatail dealData) {
+		com.jd.etms.finance.wss.pojo.SortingOrder sortingOrder = new com.jd.etms.finance.wss.pojo.SortingOrder();
+		sortingOrder.setWaybillCode(dealData.getWaybillCode());
+		sortingOrder.setSortingCenterId(dealData.getSortingCenterId());
+		sortingOrder.setTargetSiteId(dealData.getTargetSiteId());
+		sortingOrder.setDeliveryTime(dealData.getDeliveryTime());
+		sortingOrder.setSortBatchNo(dealData.getSortBatchNo());
+		/**
+		 * 发货数据没有承运商ID，所以默认为0
+		 */
+		sortingOrder.setCarrierId(0);
+
+		return sortingOrder;
+	}
+
 	public static java.util.List<com.jd.etms.finance.wss.pojo.SortingCar> transDealDataDepartureToFinanceData(List<DealData_Departure> departures){
 		ArrayList<com.jd.etms.finance.wss.pojo.SortingCar> departureAl = new ArrayList<com.jd.etms.finance.wss.pojo.SortingCar>();
 		
