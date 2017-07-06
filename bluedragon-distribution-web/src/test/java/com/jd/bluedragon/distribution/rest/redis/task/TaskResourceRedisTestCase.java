@@ -234,7 +234,7 @@ public class TaskResourceRedisTestCase {
 	
 	@Test
 	public void testReverseSendRedisTaskAdd(){
-		
+
 		//组装请求参数
 		DepartureRequest request = new DepartureRequest();
 		request.setShieldsCarCode("1");
@@ -248,14 +248,14 @@ public class TaskResourceRedisTestCase {
 		request.setType(1);//支线发车
 		request.setOldCarCode("10");
 		request.setBusinessType(20);
-		
+
 		DepartureSendRequest dsr = new DepartureSendRequest();
 		dsr.setThirdWaybillCode("123x2");
 		dsr.setSendCode("1006-511-20120406140628654");
 		List<DepartureSendRequest> sends = new ArrayList<DepartureSendRequest>();
 		sends.add(dsr);
 		request.setSends(sends);
-		
+
 		String url = this.urlRoot + "/departure/createDepartue";
         
         try {
