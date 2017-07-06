@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.sortscheme.service;
 
 import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
+import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
@@ -30,6 +32,7 @@ public class SortSchemeServiceImpl implements SortSchemeService {
                 new TypeReference<SortSchemeResponse<Pager<List<SortScheme>>>>() {
                 });
     }
+
 
     @Override
     public SortSchemeResponse addSortScheme2(SortSchemeRequest request, String url) {
@@ -70,6 +73,14 @@ public class SortSchemeServiceImpl implements SortSchemeService {
     public SortSchemeResponse importSortSchemeDetail2(SortSchemeRequest request, String url) {
         return RestHelper.jsonPostForEntity(url, request, //
                 new TypeReference<SortSchemeResponse>() {
+                });
+    }
+
+    @Override
+    public SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(
+            SortSchemeDetailRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request,
+                new TypeReference<SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>>>() {
                 });
     }
 

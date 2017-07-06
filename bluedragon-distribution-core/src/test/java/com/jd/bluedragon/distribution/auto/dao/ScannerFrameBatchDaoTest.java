@@ -21,7 +21,7 @@ public class ScannerFrameBatchDaoTest extends AbstractDaoIntegrationTest {
     @Test
     public void testgetSplitPageList() throws Exception {
         ScannerFrameBatchSendSearchArgument argument=new ScannerFrameBatchSendSearchArgument();
-        argument.setMachineId(1L);
+        argument.setMachineId("1");
         argument.setStartTime(DateHelper.add(new Date(), Calendar.HOUR, -10));
         argument.setEndTime(new Date());
         argument.setHasPrinted(true);
@@ -37,7 +37,7 @@ public class ScannerFrameBatchDaoTest extends AbstractDaoIntegrationTest {
     @Test
     public void testgetCurrentSplitPageList() throws Exception {
         ScannerFrameBatchSendSearchArgument argument=new ScannerFrameBatchSendSearchArgument();
-        argument.setMachineId(1L);
+        argument.setMachineId("1");
         argument.setStartTime(DateHelper.add(new Date(), Calendar.HOUR, -10));
         argument.setEndTime(new Date());
         argument.setHasPrinted(true);

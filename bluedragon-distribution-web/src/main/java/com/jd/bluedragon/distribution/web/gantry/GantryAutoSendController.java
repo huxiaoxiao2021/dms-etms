@@ -260,7 +260,7 @@ public class GantryAutoSendController {
             argumentPager.setPageNo(pager.getPageNo());
             argumentPager.init();
         }
-        sfbssa.setMachineId(request.getMachineId());
+        sfbssa.setMachineId(String.valueOf(request.getMachineId()));
 //        sfbssa.setStartTime(request.getStartTime());
 //        sfbssa.setEndTime(request.getEndTime());
         sfbssa.setHasPrinted(false);
@@ -431,7 +431,7 @@ public class GantryAutoSendController {
         }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
-        sfbssa.setMachineId(machineId);//查询参数只有龙门架ID
+        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有龙门架ID
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(MAX_DATA_TO_PRINT);

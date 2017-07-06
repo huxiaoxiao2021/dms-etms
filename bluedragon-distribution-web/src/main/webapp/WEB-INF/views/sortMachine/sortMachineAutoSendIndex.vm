@@ -20,7 +20,7 @@
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSendIndex.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js')"></script>
     <style  type="text/css">
         .part {
             margin-top: 30px;
@@ -168,11 +168,13 @@
                         <thead>
                         <tr>
                             <th class="checkboxArea"><input type="checkbox" id="all" name="all" value="all" class="checkbox"><label for="all">全选</label></th>
-                            <th>批次目的地</th>
+                            <th>物理滑槽</th>
+                            <th>发货目的地代码</th>
+                            <th>发货目的地名称</th>
                             <th>批次号</th>
-                            <th>包裹数量</th>
-                            <th>总体积（cm³）</th>
-                            <th>批次创建时间</th>
+                            <th>批次开始时间</th>
+                            <th>已发货箱数(原包数量)</th>
+                            <th>总体积</th>
                         </tr>
                         </thead>
                         <tbody>

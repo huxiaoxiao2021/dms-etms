@@ -106,7 +106,7 @@ public class GantryBatchSendReplenishPrintController {
             return null;
         }
         try {
-            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null, String.valueOf(request.getMachineId()));
+            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null,request.getMachineId());
             result.setCode(200);
             result.setData(list);
             result.setMessage("获取龙门架的目的站点成功");
@@ -144,7 +144,7 @@ public class GantryBatchSendReplenishPrintController {
         }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
-        sfbssa.setMachineId(machineId);//查询参数只有龙门架ID
+        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有龙门架ID
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(500);//最多一次打印500条
@@ -204,7 +204,7 @@ public class GantryBatchSendReplenishPrintController {
     private ScannerFrameBatchSendSearchArgument toScannerFrameBatchSend(GantryDeviceConfigRequest request, Integer receiveSiteCode, String receiveSiteName) {
         ScannerFrameBatchSendSearchArgument result = new ScannerFrameBatchSendSearchArgument();
         if (request != null) {
-            result.setMachineId(request.getMachineId());
+            result.setMachineId(String.valueOf(request.getMachineId()));
             result.setStartTime(request.getStartTime());
             result.setEndTime(request.getEndTime());
             result.setReceiveSiteCode(receiveSiteCode);
