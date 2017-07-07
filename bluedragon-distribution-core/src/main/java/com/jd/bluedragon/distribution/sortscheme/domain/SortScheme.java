@@ -48,6 +48,11 @@ public class SortScheme implements Serializable {
     private String receTime;
 
     /**
+     * 是否自动发货 0：否 1：是
+     */
+    private Integer autoSend;
+
+    /**
      * 数据库时间
      */
     private Date timesTamp;
@@ -119,6 +124,14 @@ public class SortScheme implements Serializable {
 
     public void setReceTime(String receTime) {
         this.receTime = receTime;
+    }
+
+    public Integer getAutoSend() {
+        return autoSend;
+    }
+
+    public void setAutoSend(Integer autoSend) {
+        this.autoSend = autoSend;
     }
 
     public Date getTimesTamp() {

@@ -61,7 +61,7 @@
         FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=TIMESTAMP}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
-              AND machine_id=#{machineId,jdbcType=INTEGER}
+              AND machine_id=#{machineId,jdbcType=VARCHAR}
               AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
         order by CREATE_TIME DESC
         limit 1

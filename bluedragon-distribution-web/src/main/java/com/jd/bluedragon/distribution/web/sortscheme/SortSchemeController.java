@@ -392,6 +392,66 @@ public class SortSchemeController {
         return response;
     }
 
+    @RequestMapping(value = "/update/open/id", method = RequestMethod.POST)
+    @ResponseBody
+    public SortSchemeResponse<String> ableAutoSendById(@RequestBody SortSchemeRequest request) {
+        SortSchemeResponse<String> response = new SortSchemeResponse<String>();
+        try {
+            if (request == null || request.getId() == null || request.getId() < 1 || request.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("参数不能为空！");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            SortSchemeResponse remoteResponse = sortSchemeService.ableAutoSendById(request, HTTP + url + "/autosorting/sortScheme/update/open/id");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage("分拣计划自动发货开启成功!");
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeResource.ableAutoSendById-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/update/close/id", method = RequestMethod.POST)
+    @ResponseBody
+    public SortSchemeResponse<String> disableAutoSendById(@RequestBody SortSchemeRequest request) {
+        SortSchemeResponse<String> response = new SortSchemeResponse<String>();
+        try {
+            if (request == null || request.getId() == null || request.getId() < 1 || request.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("参数不能为空！");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            SortSchemeResponse remoteResponse = sortSchemeService.disableAutoSendById(request, HTTP + url + "/autosorting/sortScheme/update/close/id");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage("分拣计划自动发货关闭成功!");
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeResource.disableAutoSendById-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
     /** 去掉参数中的ID，保留中午分拣中心名 **/
     private String getSiteNameParam(String str){
         String siteName = "";
@@ -407,33 +467,3 @@ public class SortSchemeController {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

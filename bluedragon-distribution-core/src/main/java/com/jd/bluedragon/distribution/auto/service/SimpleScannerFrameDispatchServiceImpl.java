@@ -32,10 +32,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2016/3/10.
@@ -87,22 +84,29 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Override
     public boolean dispatch(UploadData domain) throws Exception {
-
-        GantryDeviceConfig config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
-        this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
-        if (null == config) {
-            this.printWarnLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果为NULL", domain.getRegisterNo(), domain.getScannerTime());
-            return true;
-        }
+        GantryDeviceConfig config = null;
         boolean result = false;
-        domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
-
-        Byte version = getVersion(config.getMachineId());
-        config.setVersion(version);
-        // 多批次发货龙门架
-        if (version != null && version.intValue() == 1) {
-            if (!doGetSendCode(domain, config)) {
+        if (domain.getSource() == 2) {
+            config = new GantryDeviceConfig();
+            if (!getSortMachineAutoSendConfig(domain, config)) {
                 return true;
+            }
+        } else {
+            config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
+            this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
+            if (null == config) {
+                this.printWarnLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果为NULL", domain.getRegisterNo(), domain.getScannerTime());
+                return true;
+            }
+            domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
+
+            Byte version = getVersion(Integer.getInteger(config.getMachineId()));
+            config.setVersion(version);
+            // 多批次发货龙门架
+            if (version != null && version.intValue() == 1) {
+                if (!this.doGetSendCode(domain, config)) {
+                    return true;
+                }
             }
         }
 
@@ -115,6 +119,50 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             }
         }
         return result;
+    }
+
+    /**
+     * 构建分拣机自动发货任务配置信息
+     *
+     * @param domain
+     * @return
+     */
+    private boolean getSortMachineAutoSendConfig(UploadData domain, GantryDeviceConfig config) {
+        String barCode = domain.getBarCode();
+        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+            // 获取运单号
+            String waybillCode = SerialRuleUtil.getWaybillCode(barCode);
+            // 判断是否为拦截订单
+            if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
+                this.addGantryException(domain, config, 23, null);
+                return false;
+            }
+        }
+        // 业务类型-发货
+        config.setBusinessType(2);
+        // 多批次发货版本
+        config.setVersion((byte) 1);
+        config.setMachineId(domain.getRegisterNo());
+        config.setCreateSiteCode(domain.getDistributeId());
+        BaseStaffSiteOrgDto site = siteService.getSite(domain.getDistributeId());
+        if (null != site) {
+            config.setCreateSiteName(site.getSiteName());
+        } else {
+            this.addGantryException(domain, config, 21, null);
+            return false;
+        }
+        if (domain.getSendSiteCode() == null || domain.getSendSiteCode() <= 0){
+            this.addGantryException(domain, config, 22, null);
+            return false;
+        }
+        config.setOperateUserId(domain.getOperatorId());
+        config.setOperateUserName(domain.getOperatorName());
+        if (domain.getScannerTime() == null){
+            this.addGantryException(domain, config, 24, null);
+            return false;
+        }
+        config.setSendCode(scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
+        return true;
     }
 
     /**
@@ -235,7 +283,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSendCodeByBox(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
         boolean isSuccess = false;
-        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
+        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(Integer.parseInt(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
         if (detail != null && detail.getPlanId() != null) {
             String sendCode = getSendCodeBySiteCode(detail.getPlanId(), destSiteCode, domain, config);
             if (StringUtils.isNotEmpty(sendCode)) {
@@ -302,7 +350,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSendCodeByPackage(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
         boolean isSuccess = false;
-        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
+        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(Integer.parseInt(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
         if (planDetail != null && planDetail.getPlanId() != null && planDetail.getPlanId() > 0) {
             String sendCode = getSendCodeBySiteCode(planDetail.getPlanId(), destSiteCode, domain, config);
             if (StringUtils.isNotEmpty(sendCode)) {
@@ -388,7 +436,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     /**
      * 便民自提判断 【sendpay 第22位等于6(合作自提柜 )】
      */
-    private static Boolean isBianMinZiTi(Waybill waybill){
+    private static Boolean isBianMinZiTi(Waybill waybill) {
         if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
             return Boolean.FALSE;
         }
@@ -401,7 +449,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     /**
      * 便民自提判断 【sendpay 7的订单(合作代收点)】
      */
-    private static Boolean isHeZuoDaiShou(Waybill waybill){
+    private static Boolean isHeZuoDaiShou(Waybill waybill) {
         if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
             return Boolean.FALSE;
         }
@@ -417,11 +465,12 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param domain
      * @param config
      * @param type   1：无预分拣站点  2：无运单信息 3：无箱子信息 4：订单拦截 5：龙门架未绑该站点 6：无启用方案信息
+     *               21：发货始发地站点无效 22：无发货目的地站点 23：订单拦截 24：无落格时间
      */
     private void addGantryException(UploadData domain, GantryDeviceConfig config, int type, String sendCode) {
-        Long machineId = Long.valueOf(config.getMachineId());
+        String machineId = config.getMachineId();
         String barCode = domain.getBarCode();
-        if (machineId != null || StringUtils.isNotEmpty(barCode)) {
+        if (StringUtils.isNotEmpty(machineId) && StringUtils.isNotEmpty(barCode)) {
             GantryException gantryException = new GantryException();
             gantryException.setMachineId(String.valueOf(machineId));
             gantryException.setBarCode(domain.getBarCode());

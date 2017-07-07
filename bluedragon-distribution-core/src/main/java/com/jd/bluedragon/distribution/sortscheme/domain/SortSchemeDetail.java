@@ -62,6 +62,16 @@ public class SortSchemeDetail implements Serializable, Comparable<SortSchemeDeta
     private String receTime;
 
     /**
+     * 发货目的地编号
+     */
+    private Integer sendSiteCode;
+
+    /**
+     * 发货目的地名称
+     */
+    private String sendSiteName;
+
+    /**
      * 数据库时间
      */
     private Date timesTamp;
@@ -74,15 +84,6 @@ public class SortSchemeDetail implements Serializable, Comparable<SortSchemeDeta
     // 目的地代码串,编号从5开始,格式为siteCode:siteType;siteCode:siteType;...
     String siteCodes;
 
-    /**
-     * 发货目的地编号
-     */
-    private Integer sendSiteCode;
-
-    /**
-     * 发货目的地名称
-     */
-    private String sendSiteName;
     public SortSchemeDetail() {
     }
 
@@ -90,11 +91,13 @@ public class SortSchemeDetail implements Serializable, Comparable<SortSchemeDeta
         this.siteCode = siteCode;
     }
 
-    public SortSchemeDetail(String chuteCode1, String currChuteCode, String boxSiteCode, String pkgLabelName, String siteCodes) {
+    public SortSchemeDetail(String chuteCode1, String currChuteCode, String boxSiteCode, String pkgLabelName, Integer sendSiteCode, String sendSiteName, String siteCodes) {
         this.chuteCode1 = chuteCode1;
         this.currChuteCode = currChuteCode;
         this.boxSiteCode = boxSiteCode;
         this.pkgLabelName = pkgLabelName;
+        this.sendSiteCode = sendSiteCode;
+        this.sendSiteName = sendSiteName;
         this.siteCodes = siteCodes;
     }
 
@@ -178,6 +181,22 @@ public class SortSchemeDetail implements Serializable, Comparable<SortSchemeDeta
         this.receTime = receTime;
     }
 
+    public Integer getSendSiteCode() {
+        return sendSiteCode;
+    }
+
+    public void setSendSiteCode(Integer sendSiteCode) {
+        this.sendSiteCode = sendSiteCode;
+    }
+
+    public String getSendSiteName() {
+        return sendSiteName;
+    }
+
+    public void setSendSiteName(String sendSiteName) {
+        this.sendSiteName = sendSiteName;
+    }
+
     public Date getTimesTamp() {
         return timesTamp;
     }
@@ -200,22 +219,6 @@ public class SortSchemeDetail implements Serializable, Comparable<SortSchemeDeta
 
     public void setSiteCodes(String siteCodes) {
         this.siteCodes = siteCodes;
-    }
-
-    public Integer getSendSiteCode() {
-        return sendSiteCode;
-    }
-
-    public void setSendSiteCode(Integer sendSiteCode) {
-        this.sendSiteCode = sendSiteCode;
-    }
-
-    public String getSendSiteName() {
-        return sendSiteName;
-    }
-
-    public void setSendSiteName(String sendSiteName) {
-        this.sendSiteName = sendSiteName;
     }
 
     @Override
