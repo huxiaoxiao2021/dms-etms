@@ -88,7 +88,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         boolean result = false;
         if (domain.getSource() == 2) {
             config = new GantryDeviceConfig();
-            if (!getSortMachineAutoSendConfig(domain, config)) {
+            if (!this.getSortMachineAutoSendConfig(domain, config)) {
                 return true;
             }
         } else {
@@ -151,13 +151,13 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             this.addGantryException(domain, config, 21, null);
             return false;
         }
-        if (domain.getSendSiteCode() == null || domain.getSendSiteCode() <= 0){
+        if (domain.getSendSiteCode() == null || domain.getSendSiteCode() <= 0) {
             this.addGantryException(domain, config, 22, null);
             return false;
         }
         config.setOperateUserId(domain.getOperatorId());
         config.setOperateUserName(domain.getOperatorName());
-        if (domain.getScannerTime() == null){
+        if (domain.getScannerTime() == null) {
             this.addGantryException(domain, config, 24, null);
             return false;
         }
@@ -218,7 +218,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             // 箱号
             this.printInfoLog("龙门架自动发货判断货物类型registerNo={0},operateTime={1},barCode={2}|结果为箱子", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
             // 获取目的站点
-            Integer destSiteCode = getSiteCodeWithBoxCode(domain, config);
+            Integer destSiteCode = this.getSiteCodeWithBoxCode(domain, config);
             if (destSiteCode != null) {
                 // 判断是否为发货
                 if ((config.getBusinessType() & 2) == 2) {
@@ -231,12 +231,12 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             // 包裹号
             this.printInfoLog("龙门架自动发货判断货物类型registerNo={0},operateTime={1},barCode={2}|结果为包裹", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
             // 获取目的站点
-            Integer destSiteCode = getSiteCodeWithPackageCode(domain, config);
+            Integer destSiteCode = this.getSiteCodeWithPackageCode(domain, config);
             if (destSiteCode != null) {
                 // 判断是否为发货
                 if ((config.getBusinessType() & 2) == 2) {
                     // 获取批次号
-                    return getSendCodeByPackage(domain, config, destSiteCode);
+                    return this.getSendCodeByPackage(domain, config, destSiteCode);
                 }
                 return true;
             }
