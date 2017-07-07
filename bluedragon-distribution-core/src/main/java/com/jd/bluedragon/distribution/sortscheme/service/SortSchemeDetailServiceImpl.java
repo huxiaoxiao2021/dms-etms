@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +78,9 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         ExportByPOIUtil.createHSSFCell(firstRow, 0, "物理滑槽");
         ExportByPOIUtil.createHSSFCell(firstRow, 1, "格口箱号目的地代码");
         ExportByPOIUtil.createHSSFCell(firstRow, 2, "格口箱号目的地名称");
-        ExportByPOIUtil.createHSSFCell(firstRow, 3, "当前使用滑槽");
+        ExportByPOIUtil.createHSSFCell(firstRow, 3, "发货目的地代码");
+        ExportByPOIUtil.createHSSFCell(firstRow, 4, "发货目的地名称");
+        ExportByPOIUtil.createHSSFCell(firstRow, 5, "当前使用滑槽");
 
         int rowIndex = 1; // 从第一行开始,每遍历一个Entry,则加1
         int maxSiteNum = 0;
@@ -98,8 +99,10 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 0, sortSchemeDetail.getChuteCode1());
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 1, sortSchemeDetail.getBoxSiteCode());
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 2, sortSchemeDetail.getPkgLabelName());
-                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 3, sortSchemeDetail.getCurrChuteCode());
-                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 4, sortSchemeDetail.getSiteCode());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 3, String.valueOf(sortSchemeDetail.getSendSiteCode()));
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 4, sortSchemeDetail.getSendSiteName());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 5, sortSchemeDetail.getCurrChuteCode());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 6, sortSchemeDetail.getSiteCode());
                     isFirst = false;
                 } else {
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, siteIndex, sortSchemeDetail.getSiteCode());
@@ -111,7 +114,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
 
         // 补全第一行的站点标题
         for (int i = 0; i < maxSiteNum; i++) {
-            ExportByPOIUtil.createHSSFCell(firstRow, i + 4, "目的地代码");
+            ExportByPOIUtil.createHSSFCell(firstRow, i + 6, "目的地代码");
         }
         return wb;
     }
@@ -129,8 +132,8 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 effectiveColumns++;
             }
         }
-        if (effectiveColumns < 5) {
-            throw new DataFormatException("分拣计划明细Excel不满足最少5列的要求!!");
+        if (effectiveColumns < 7) {
+            throw new DataFormatException("分拣计划明细Excel不满足最少7列的要求!!");
         }
         // 确定最大行数,同时统计重复的错误(只做第一列,物理滑槽)
         int maxRowNum = sheet0.getLastRowNum();
@@ -194,13 +197,15 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         String boxSiteCode = ""; // 格口箱号目的地代码
         String pkgLabelName = ""; // 格口箱号目的地名称
         String currChuteCode = "";// 当前使用滑槽
+        String sendSiteCode = ""; // 发货目的地代码
+        String sendSiteName = ""; // 发货目的地名称
         String siteStrs = ""; // 站点字符串
         List<String> siteList = new ArrayList<String>();
 
 
         //------------如果一行里面有一个目的地代码不为空,就不要校验其他站点为空-------------
         boolean needValiSiteEmpty = true;
-        for (int k = 4; k < effectiveColumns; k++) {
+        for (int k = 6; k < effectiveColumns; k++) {
             if (StringUtils.isNotBlank(StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(k)), "."))) {
                 needValiSiteEmpty = false;
                 break;
@@ -217,34 +222,34 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 }
             } else if (i == 3) {
 //                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-            	/**
-            	 * 格口号获取为string类型
-            	 */
-            	cellValue = ExportByPOIUtil.getStringCellValue(currentRow.getCell(i));
+                /**
+                 * 格口号获取为string类型
+                 */
+                cellValue = ExportByPOIUtil.getStringCellValue(currentRow.getCell(i));
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
             } else if (i == 0) {
 //                cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-            	/**
-            	 * 格口号获取为string类型
-            	 */
-            	cellValue = ExportByPOIUtil.getStringCellValue(currentRow.getCell(i));
+                /**
+                 * 格口号获取为string类型
+                 */
+                cellValue = ExportByPOIUtil.getStringCellValue(currentRow.getCell(i));
                 //这里去掉对物理滑槽非数值的判断 可以导入带字母 = .的
 //                || !NumberHelper.isNumberUpZero(cellValue)
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 }
-            }else if(i == 1){
+            } else if (i == 1) {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                if(StringUtils.isBlank(cellValue)){
+                if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
-                }else{
+                } else {
                     if (!cellValue.startsWith(EXP) && !NumberHelper.isNumberUpZero(cellValue)) {
                         emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}不符合规则", rowIndex + 1, i + 1, cellValue));
                     }
                 }
-            }else {
+            } else {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
                 if (needValiSiteEmpty && !cellValue.startsWith(EXP)) {
                     if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
@@ -262,6 +267,17 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
             } else if (i == 2) {
                 pkgLabelName = cellValue;
             } else if (i == 3) {
+                sendSiteCode = cellValue;
+                validateSite(siteMap, cellValue, notExsitErrorList, rowIndex, i);
+                BaseStaffSiteOrgDto site = siteMap.get(cellValue);
+                if (site != null) {
+                    sendSiteName = site.getSiteName();
+                }
+            } else if (i == 4) {
+                if (StringUtils.isEmpty(sendSiteName.trim())) {
+                    sendSiteName = cellValue;
+                }
+            } else if (i == 5) {
                 currChuteCode = cellValue;
             } else {
                 if (StringUtils.isNotBlank(cellValue)) {
@@ -280,7 +296,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         }
         // 均没有错误,才能创建domain对象
         if (repeatChuteErrorList.size() == 0 && repeatSiteErrorList.size() == 0 && emptyErrorList.size() == 0 && notExsitErrorList.size() == 0) {
-            sortSchemeDetailList.add(new SortSchemeDetail(chuteCode1, currChuteCode, boxSiteCode, pkgLabelName, siteStrs));
+            sortSchemeDetailList.add(new SortSchemeDetail(chuteCode1, currChuteCode, boxSiteCode, pkgLabelName, Integer.parseInt(sendSiteCode), sendSiteName, siteStrs));
         }
 
     }
@@ -297,6 +313,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 try {
                     site = siteService.getSite(Integer.parseInt(cellValue));
                 } catch (Exception e) {
+
                 }
             }
             if (site == null) {

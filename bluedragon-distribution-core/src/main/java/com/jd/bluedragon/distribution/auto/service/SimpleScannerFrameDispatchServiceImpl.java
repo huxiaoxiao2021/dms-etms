@@ -87,22 +87,26 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Override
     public boolean dispatch(UploadData domain) throws Exception {
-
-        GantryDeviceConfig config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
-        this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
-        if (null == config) {
-            this.printWarnLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果为NULL", domain.getRegisterNo(), domain.getScannerTime());
-            return true;
-        }
+        GantryDeviceConfig config = null;
         boolean result = false;
-        domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
-
-        Byte version = getVersion(config.getMachineId());
-        config.setVersion(version);
-        // 多批次发货龙门架
-        if (version != null && version.intValue() == 1) {
-            if (!doGetSendCode(domain, config)) {
+        if (domain.getSource() == 2) {
+            config = getSortMachineAutoSendConfig(domain);
+        } else {
+            config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
+            this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
+            if (null == config) {
+                this.printWarnLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果为NULL", domain.getRegisterNo(), domain.getScannerTime());
                 return true;
+            }
+            domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
+
+            Byte version = getVersion(Integer.getInteger(config.getMachineId()));
+            config.setVersion(version);
+            // 多批次发货龙门架
+            if (version != null && version.intValue() == 1) {
+                if (!doGetSendCode(domain, config)) {
+                    return true;
+                }
             }
         }
 
@@ -115,6 +119,27 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             }
         }
         return result;
+    }
+
+    /**
+     * 构建分拣机自动发货任务配置信息
+     *
+     * @param domain
+     * @return
+     */
+    private GantryDeviceConfig getSortMachineAutoSendConfig(UploadData domain) {
+        GantryDeviceConfig config = new GantryDeviceConfig();
+        // 业务类型-发货
+        config.setBusinessType(2);
+        config.setMachineId(domain.getRegisterNo());
+        config.setCreateSiteCode(domain.getDistributeId());
+        config.setCreateSiteName(domain.getDistributeName());
+        // 多批次发货版本
+        config.setVersion((byte) 1);
+        config.setOperateUserId(domain.getOperatorId());
+        config.setOperateUserName(domain.getOperatorName());
+        config.setSendCode(scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
+        return config;
     }
 
     /**
@@ -235,7 +260,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSendCodeByBox(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
         boolean isSuccess = false;
-        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
+        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(Integer.parseInt(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
         if (detail != null && detail.getPlanId() != null) {
             String sendCode = getSendCodeBySiteCode(detail.getPlanId(), destSiteCode, domain, config);
             if (StringUtils.isNotEmpty(sendCode)) {
@@ -302,7 +327,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSendCodeByPackage(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
         boolean isSuccess = false;
-        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(config.getMachineId(), config.getCreateSiteCode(), domain.getScannerTime());
+        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(Integer.parseInt(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
         if (planDetail != null && planDetail.getPlanId() != null && planDetail.getPlanId() > 0) {
             String sendCode = getSendCodeBySiteCode(planDetail.getPlanId(), destSiteCode, domain, config);
             if (StringUtils.isNotEmpty(sendCode)) {
@@ -388,7 +413,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     /**
      * 便民自提判断 【sendpay 第22位等于6(合作自提柜 )】
      */
-    private static Boolean isBianMinZiTi(Waybill waybill){
+    private static Boolean isBianMinZiTi(Waybill waybill) {
         if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
             return Boolean.FALSE;
         }
@@ -401,7 +426,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     /**
      * 便民自提判断 【sendpay 7的订单(合作代收点)】
      */
-    private static Boolean isHeZuoDaiShou(Waybill waybill){
+    private static Boolean isHeZuoDaiShou(Waybill waybill) {
         if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
             return Boolean.FALSE;
         }
@@ -419,9 +444,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param type   1：无预分拣站点  2：无运单信息 3：无箱子信息 4：订单拦截 5：龙门架未绑该站点 6：无启用方案信息
      */
     private void addGantryException(UploadData domain, GantryDeviceConfig config, int type, String sendCode) {
-        Long machineId = Long.valueOf(config.getMachineId());
+        String machineId = config.getMachineId();
         String barCode = domain.getBarCode();
-        if (machineId != null || StringUtils.isNotEmpty(barCode)) {
+        if (StringUtils.isNotEmpty(machineId) && StringUtils.isNotEmpty(barCode)) {
             GantryException gantryException = new GantryException();
             gantryException.setMachineId(machineId);
             gantryException.setBarCode(domain.getBarCode());

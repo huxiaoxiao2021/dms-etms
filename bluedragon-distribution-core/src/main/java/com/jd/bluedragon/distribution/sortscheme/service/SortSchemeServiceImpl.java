@@ -8,17 +8,10 @@ import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
-import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.RestHelper;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by yangbo7 on 2016/6/22.
@@ -32,7 +25,6 @@ public class SortSchemeServiceImpl implements SortSchemeService {
                 new TypeReference<SortSchemeResponse<Pager<List<SortScheme>>>>() {
                 });
     }
-
 
     @Override
     public SortSchemeResponse addSortScheme2(SortSchemeRequest request, String url) {
@@ -77,13 +69,26 @@ public class SortSchemeServiceImpl implements SortSchemeService {
     }
 
     @Override
+    public SortSchemeResponse<String> ableAutoSendById(SortSchemeRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeResponse<String>>() {
+                });
+    }
+
+    @Override
+    public SortSchemeResponse<String> disableAutoSendById(SortSchemeRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeResponse<String>>() {
+                });
+    }
+
+    @Override
     public SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(
             SortSchemeDetailRequest request, String url) {
         return RestHelper.jsonPostForEntity(url, request,
                 new TypeReference<SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>>>() {
                 });
     }
-
 
 }
 

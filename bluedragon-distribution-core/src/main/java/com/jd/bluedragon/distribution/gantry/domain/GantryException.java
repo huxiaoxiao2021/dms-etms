@@ -17,7 +17,7 @@ public class GantryException {
     /**
      * 龙门架设备编号
      */
-    private Long machineId;
+    private String machineId;
 
     /**
      * 条码
@@ -92,11 +92,11 @@ public class GantryException {
         this.id = id;
     }
 
-    public Long getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(Long machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 

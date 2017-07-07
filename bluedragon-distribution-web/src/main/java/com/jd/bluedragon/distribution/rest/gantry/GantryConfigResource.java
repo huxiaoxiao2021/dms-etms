@@ -67,7 +67,7 @@ public class GantryConfigResource {
         temp.setLockStatus(config.getLockStatus());
         temp.setLockUserErp(config.getLockUserErp());
         temp.setLockUserName(config.getLockUserName());
-        temp.setMachineId(config.getMachineId());
+        temp.setMachineId(Integer.parseInt(config.getMachineId()));
         temp.setOperateTypeRemark(config.getBusinessTypeRemark());
         temp.setOperateUserErp(config.getOperateUserErp());
         temp.setOperateUserId(config.getOperateUserId());
@@ -139,7 +139,7 @@ public class GantryConfigResource {
         gantryDeviceConfig.setLockStatus(request.getLockStatus());
         gantryDeviceConfig.setLockUserErp(request.getLockUserErp());
         gantryDeviceConfig.setLockUserName(request.getLockUserName());
-        gantryDeviceConfig.setMachineId(request.getMachineId());
+        gantryDeviceConfig.setMachineId(String.valueOf(request.getMachineId()));
         gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
         gantryDeviceConfig.setOperateUserErp(request.getOperateUserErp());
         gantryDeviceConfig.setOperateUserId(request.getOperateUserId());

@@ -69,6 +69,7 @@ function getParams() {
     params.siteNo = $.trim($("#siteNo").val());
     params.machineCode = $.trim($("#machineCode").val());
     params.sortMode = $.trim($("#sortMode").val());
+    params.autoSend = $.trim($("#autoSend").val());
     params.name = $.trim($("#name").val());
     return params;
 }

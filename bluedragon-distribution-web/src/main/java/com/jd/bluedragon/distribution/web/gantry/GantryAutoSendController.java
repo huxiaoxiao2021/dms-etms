@@ -183,7 +183,7 @@ public class GantryAutoSendController {
             if (logger.isInfoEnabled()) {
                 logger.info("用户" + userName + "正在尝试第一次配置该龙门架设备ID：" + request.getMachineId());
             }
-            gantryDeviceConfig.setMachineId(request.getMachineId());
+            gantryDeviceConfig.setMachineId(request.getMachineId().toString());
             gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
             gantryDeviceConfig.setYn(1);
             if (request.getBusinessType() == 4 || request.getBusinessType() == 3 || request.getBusinessType() == 7) {
@@ -540,7 +540,7 @@ public class GantryAutoSendController {
     /**********************转换domain************************/
     private GantryDeviceConfig transformDomainToGantryDeviceConfig(GantryDeviceConfigRequest request, String userCode, String userName, Integer userId) {
         GantryDeviceConfig gantryDeviceConfig = new GantryDeviceConfig();
-        gantryDeviceConfig.setMachineId(request.getMachineId());
+        gantryDeviceConfig.setMachineId(String.valueOf(request.getMachineId()));
         gantryDeviceConfig.setOperateUserId(userId);
         gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
         gantryDeviceConfig.setOperateUserName(userName);

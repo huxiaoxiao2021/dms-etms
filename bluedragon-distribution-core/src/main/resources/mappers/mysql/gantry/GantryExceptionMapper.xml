@@ -4,7 +4,7 @@
 
     <resultMap id="gantryExceptionMap" type="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         <id column="ID" property="id" jdbcType="BIGINT"/>
-        <id column="MACHINE_ID" property="machineId" jdbcType="BIGINT"/>
+        <id column="MACHINE_ID" property="machineId" jdbcType="VARCHAR"/>
         <result column="BAR_CODE" property="barCode" jdbcType="VARCHAR"/>
         <result column="WAYBILL_CODE" property="waybillCode" jdbcType="VARCHAR"/>
         <result column="CREATE_SITE_CODE" property="createSiteCode" jdbcType="BIGINT"/>
@@ -68,7 +68,7 @@
     <sql id="gantryExceptionQueryParam" >
         <where>
             <if test="machineId != null">
-                AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+                AND MACHINE_ID = #{machineId, jdbcType=VARCHAR}
             </if>
             <if test="startTime != null and startTime != ''">
                 AND OPERATE_TIME <![CDATA[>=]]> #{startTime, jdbcType=TIMESTAMP}
