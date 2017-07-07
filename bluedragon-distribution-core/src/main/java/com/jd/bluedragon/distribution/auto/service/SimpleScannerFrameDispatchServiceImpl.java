@@ -32,10 +32,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2016/3/10.
@@ -90,7 +87,10 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         GantryDeviceConfig config = null;
         boolean result = false;
         if (domain.getSource() == 2) {
-            config = getSortMachineAutoSendConfig(domain);
+            config = new GantryDeviceConfig();
+            if (!getSortMachineAutoSendConfig(domain, config)) {
+                return true;
+            }
         } else {
             config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
             this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
@@ -104,7 +104,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             config.setVersion(version);
             // 多批次发货龙门架
             if (version != null && version.intValue() == 1) {
-                if (!doGetSendCode(domain, config)) {
+                if (!this.doGetSendCode(domain, config)) {
                     return true;
                 }
             }
@@ -127,19 +127,42 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param domain
      * @return
      */
-    private GantryDeviceConfig getSortMachineAutoSendConfig(UploadData domain) {
-        GantryDeviceConfig config = new GantryDeviceConfig();
+    private boolean getSortMachineAutoSendConfig(UploadData domain, GantryDeviceConfig config) {
+        String barCode = domain.getBarCode();
+        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+            // 获取运单号
+            String waybillCode = SerialRuleUtil.getWaybillCode(barCode);
+            // 判断是否为拦截订单
+            if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
+                this.addGantryException(domain, config, 23, null);
+                return false;
+            }
+        }
         // 业务类型-发货
         config.setBusinessType(2);
-        config.setMachineId(domain.getRegisterNo());
-        config.setCreateSiteCode(domain.getDistributeId());
-        config.setCreateSiteName(domain.getDistributeName());
         // 多批次发货版本
         config.setVersion((byte) 1);
+        config.setMachineId(domain.getRegisterNo());
+        config.setCreateSiteCode(domain.getDistributeId());
+        BaseStaffSiteOrgDto site = siteService.getSite(domain.getDistributeId());
+        if (null != site) {
+            config.setCreateSiteName(site.getSiteName());
+        } else {
+            this.addGantryException(domain, config, 21, null);
+            return false;
+        }
+        if (domain.getSendSiteCode() == null || domain.getSendSiteCode() <= 0){
+            this.addGantryException(domain, config, 22, null);
+            return false;
+        }
         config.setOperateUserId(domain.getOperatorId());
         config.setOperateUserName(domain.getOperatorName());
+        if (domain.getScannerTime() == null){
+            this.addGantryException(domain, config, 24, null);
+            return false;
+        }
         config.setSendCode(scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
-        return config;
+        return true;
     }
 
     /**
@@ -442,6 +465,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param domain
      * @param config
      * @param type   1：无预分拣站点  2：无运单信息 3：无箱子信息 4：订单拦截 5：龙门架未绑该站点 6：无启用方案信息
+     *               21：发货始发地站点无效 22：无发货目的地站点 23：订单拦截 24：无落格时间
      */
     private void addGantryException(UploadData domain, GantryDeviceConfig config, int type, String sendCode) {
         String machineId = config.getMachineId();

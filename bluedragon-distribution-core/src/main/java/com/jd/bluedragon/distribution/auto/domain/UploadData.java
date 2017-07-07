@@ -76,20 +76,20 @@ public class UploadData implements Serializable {
      */
     private Integer distributeId;
 
-    /**
-     * 分拣中心名称【可选，来源为自动分拣机时必填】
-     */
-    private String distributeName;
+//    /**
+//     * 分拣中心名称【可选，来源为自动分拣机时必填】
+//     */
+//    private String distributeName;
 
     /**
      * 发货目的地编号【可选，来源为自动分拣机时必填】
      */
     private Integer sendSiteCode;
 
-    /**
-     * 发货目的地名称【可选，来源为自动分拣机时必填】
-     */
-    private String sendSiteName;
+//    /**
+//     * 发货目的地名称【可选，来源为自动分拣机时必填】
+//     */
+//    private String sendSiteName;
 
     /**
      * 操作人ID【可选，来源为自动分拣机时必填】
@@ -189,13 +189,13 @@ public class UploadData implements Serializable {
         this.distributeId = distributeId;
     }
 
-    public String getDistributeName() {
-        return distributeName;
-    }
-
-    public void setDistributeName(String distributeName) {
-        this.distributeName = distributeName;
-    }
+//    public String getDistributeName() {
+//        return distributeName;
+//    }
+//
+//    public void setDistributeName(String distributeName) {
+//        this.distributeName = distributeName;
+//    }
 
     public Integer getSendSiteCode() {
         return sendSiteCode;
@@ -205,13 +205,13 @@ public class UploadData implements Serializable {
         this.sendSiteCode = sendSiteCode;
     }
 
-    public String getSendSiteName() {
-        return sendSiteName;
-    }
-
-    public void setSendSiteName(String sendSiteName) {
-        this.sendSiteName = sendSiteName;
-    }
+//    public String getSendSiteName() {
+//        return sendSiteName;
+//    }
+//
+//    public void setSendSiteName(String sendSiteName) {
+//        this.sendSiteName = sendSiteName;
+//    }
 
     public Integer getOperatorId() {
         return operatorId;
