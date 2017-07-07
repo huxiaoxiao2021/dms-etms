@@ -289,7 +289,7 @@ public class GantryExceptionController {
         for (int i = 0; i < gantryExceptions.size(); i++) {
             GantryException gantryException = gantryExceptions.get(i);
             HSSFRow row1 = sheet.createRow(i + 1);
-            createCellOfRow(row1, 0, String.valueOf(gantryException.getMachineId()), styleContent);
+            createCellOfRow(row1, 0, gantryException.getMachineId(), styleContent);
             createCellOfRow(row1, 1, gantryException.getBarCode(), styleContent);
             createCellOfRow(row1, 2, gantryException.getWaybillCode(),styleContent);
             createCellOfRow(row1, 3, gantryException.getSendCode(),styleContent);

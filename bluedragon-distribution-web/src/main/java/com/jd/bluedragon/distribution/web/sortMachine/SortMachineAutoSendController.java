@@ -4,6 +4,7 @@ import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineBatchSendResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupConfig;
@@ -59,6 +61,8 @@ public class SortMachineAutoSendController {
     private SortMachineSendGroupService sortMachineSendGroupService;
     @Resource
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
+    @Autowired
+    GantryExceptionService gantryExceptionService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
@@ -463,5 +467,62 @@ public class SortMachineAutoSendController {
         return result;
     }
 
+    @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(String machineCode,
+                                                                                              Date startTime,
+                                                                                              Date endTime) {
+        this.logger.debug("获取分拣机发货异常信息 --> queryExceptionNum");
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result =
+                new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
+        try {
+            Integer count = gantryExceptionService.getGantryExceptionCount(machineCode, startTime, endTime);
+            result.setData(count);
+        } catch (NullPointerException e) {
+            logger.error("获取龙门架自动发货异常数据失败，龙门架ID为：" + machineCode);
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/generateSendCode", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> generateSendCode(@RequestBody ScannerFrameBatchSend[] lists) {
+        this.logger.debug("分拣机自动换批次 --> changeSendCode");
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        Integer userCode = 0;//用户编号
+        String userName = "none";//用户姓名
+        if (erpUser != null) {
+            userCode = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
+            userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
+        }
+        try {
+            for (ScannerFrameBatchSend item : lists) {
+                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
+                scannerFrameBatchSend.setPrintTimes((byte) 0);
+                scannerFrameBatchSend.setLastPrintTime(null);
+                scannerFrameBatchSend.setCreateUserCode(userCode);
+                scannerFrameBatchSend.setCreateUserName(userName);
+                scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
+                scannerFrameBatchSend.setUpdateUserName(userName);
+                scannerFrameBatchSend.setCreateTime(new Date());
+                scannerFrameBatchSend.setUpdateTime(new Date());
+                scannerFrameBatchSend.setYn((byte) 1);
+                scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(), scannerFrameBatchSend.getReceiveSiteCode(), scannerFrameBatchSend.getCreateTime()));
+                boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
+                if (!bool) {
+                    result.setCode(500);
+                    result.setMessage("部分批次转换失败，失败原始批次为：" + item.getSendCode());
+                    return result;
+                } else {
+                    result.setCode(200);
+                    result.setMessage("换批次成功");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("生产新的批次号失败", e);
+        }
+        return result;
+    }
 
 }

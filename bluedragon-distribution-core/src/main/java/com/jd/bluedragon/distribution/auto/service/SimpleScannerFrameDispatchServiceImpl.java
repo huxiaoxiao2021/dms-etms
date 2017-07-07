@@ -423,7 +423,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         String barCode = domain.getBarCode();
         if (machineId != null || StringUtils.isNotEmpty(barCode)) {
             GantryException gantryException = new GantryException();
-            gantryException.setMachineId(machineId);
+            gantryException.setMachineId(String.valueOf(machineId));
             gantryException.setBarCode(domain.getBarCode());
             gantryException.setCreateSiteCode(Long.valueOf(config.getCreateSiteCode()));
             gantryException.setCreateSiteName(config.getCreateSiteName());

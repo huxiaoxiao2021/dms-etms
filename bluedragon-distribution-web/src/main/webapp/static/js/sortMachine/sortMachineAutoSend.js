@@ -16,13 +16,20 @@ $(document).ready(function(){
         //初始化发货组
         sortMachineGroupInit(currentSortMachineCode);
         //查询异常信息
-
+        queryExceptionNum();
     });
     //发货组改变时，加载关联的滑道
     $(sendGroupSelect).change(function () {
         var currentGroupId = $(this).val();
         querySendGroupConfig(currentGroupId);
     });
+
+    /** 异常数据点击事件 **/
+    $("#exceptionNum").click(function(){
+        if($(sortMachineSelect).val() !=null && $(sortMachineSelect).val()!= ""){
+            toGantryExceptionPage();
+        }
+    })
 });
 /**
  * 查询该分拣机下的发货组
@@ -325,7 +332,7 @@ $("#printAndEndSend").click(function () {
 function printAndEndSendCodeBtn(param,printerNames){
     var width = 200;
     var height = 100;
-    var url = $("#contextPath").val() + "/gantryAutoSend/sendEndAndPrint";
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/sendEndAndPrint";
     CommonClient.syncPostJson(url,param,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("提示：","获取打印内容异常，请稍后再试","info");
@@ -360,8 +367,8 @@ $("#generateSendCodeBtn").click(function () {
     var list = [];
     $("input[name=item]:checked").each(function () {
         var param = {};
-        param.machineId = gantryParams.machineId;
-        param.receiveSiteCode = $(this).parents("tr").find("[name=receiveSite]").attr("title");
+        param.machineId = $("#sortMachine :selected").val();
+        param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
         param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
         param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
         list.push(param);
@@ -377,7 +384,7 @@ $("#generateSendCodeBtn").click(function () {
  * 换批次点击事件
  */
 function generateSendCode(list) {
-    var url = $("#contextPath").val() + "/gantryAutoSend/generateSendCode";
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/generateSendCode";
     CommonClient.postJson(url,list,function (data) {
         if(data == undefined && data == null){
             jQuery.messager.alert("提示：","HTTP请求无返回数据！！","info");
@@ -414,4 +421,79 @@ function flashChuteInfo(){
     }
     //模拟点击查询按钮
     document.getElementById("queryBtn").onclick();
+}
+
+/**
+ * 获取发货异常数据总量
+ */
+function queryExceptionNum(){
+    if(!$("#sortMachine :selected").val()){
+        return;
+    }
+    var url = $("#contextPath").val() + "/gantryAutoSend/queryExceptionNum";
+    var params = {};
+    // if(gantryParams != undefined && gantryParams != null ){
+    //     params.machineId = gantryParams.machineId;
+    //     params.startTime = new Date(gantryParams.startTime);
+    //     if(null != gantryParams.endTime){
+    //         params.endTime = new Date(gantryParams.endTime);
+    //     }else{
+    //         params.endTime = new Date();
+    //     }
+    // }
+    params.machineId = $("#sortMachine :selected").val();
+    CommonClient.post(url,params,function (data) {
+        if(data.data == undefined || data.data == null){
+            jQuery.messager.alert("提示：","HTTP请求无数据返回!!","info")
+        }
+        if(data.code == 200){
+            $("#exceptionNum").text(data.data);
+        }
+        // else{
+        //     jQuery.messager.alert("提示","获取龙门架自动发货异常数据失败!!","info");
+        // }
+    })
+}
+
+/** 补打印按钮点击事件 **/
+$("#replenishPrint").click(function () {
+    toReplenishPrintPage();
+})
+
+/**
+ * 点击补打印跳转到补打印界面
+ */
+//todo 参数
+function toReplenishPrintPage(){
+    var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/index";
+    var param = {};
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null){
+        jQuery.messager.alert("提示：","请选择有效的补打信息","info");
+        return;
+    }
+    location.href = url + "?machineId=" + gantryParams.machineId + "&createSiteCode=" + gantryParams.createSiteCode
+        + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
+        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
+}
+
+/**
+ * 点击异常数据跳转到异常发货界面
+ */
+//todo ???
+function toGantryExceptionPage(){
+    var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
+    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
+        var machineId = $("#gantryDevice option:selected").val();
+        var siteCode = $("#siteOrg option:selected").val();
+        if(machineId != "" || machineId != 0){
+            url += "?machineId=" + gantryParams.machineId;
+        }
+        if(siteCode != "" || siteCode != 0){
+            url += "&siteCode=" + siteCode;
+        }
+        location.href = url;
+        return;
+    }
+    location.href = url + "?machineId=" + gantryParams.machineId + "&siteCode=" + gantryParams.createSiteCode
+        + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }

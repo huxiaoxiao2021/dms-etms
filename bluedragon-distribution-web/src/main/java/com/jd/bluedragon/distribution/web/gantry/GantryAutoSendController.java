@@ -381,7 +381,7 @@ public class GantryAutoSendController {
         }
         try {
             if (null != request.getMachineId()) {
-                Integer count = gantryExceptionService.getGantryExceptionCount((long) request.getMachineId(), request.getStartTime(), request.getEndTime());
+                Integer count = gantryExceptionService.getGantryExceptionCount( String.valueOf(request.getMachineId()), request.getStartTime(), request.getEndTime());
                 result.setCode(200);
                 result.setMessage("龙门架异常数据获取成功");
                 result.setData(count);
