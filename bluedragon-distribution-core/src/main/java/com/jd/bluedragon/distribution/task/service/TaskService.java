@@ -108,4 +108,13 @@ public interface TaskService {
 	List<Task> findTaskTypeByStatus(Integer type, int fetchNum);
 
 	Integer updateTaskStatus(Task task);
+
+    /**
+     * 第三方发货数据推财务，从delivery_to_finance_batch表查找任务
+     * 让该任务延迟执行
+     * @param type
+     * @param fetchNum
+     * @return
+     */
+    List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum);
 }

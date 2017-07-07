@@ -556,7 +556,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         tTask.setBody(sendM.getSendCode());
 
-
         tTask.setKeyword1("3");// 3回传dmc
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
@@ -568,10 +567,20 @@ public class DeliveryServiceImpl implements DeliveryService {
             tTaskService.add(tTask);
         }
 
-		/* 推送财务信息 */
-        if (businessTypeTHR.equals(sendM.getSendType()))
-            newFailQueueService.sendCodeNewData(sendM.getSendCode(),
-                    IFailQueueService.DMS_SEND_3PL);
+		/* 第三方发货推送财务
+		*  写到task_delviery_to_finance_batch表*/
+        if (businessTypeTHR.equals(sendM.getSendType())){
+            String sendCode = sendM.getSendCode();
+            Task task = new Task();
+            task.setKeyword1(businessTypeTHR+"");
+            task.setBody(sendCode);
+            task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH);
+            task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH);
+            task.setOwnSign(BusinessHelper.getOwnSign());
+
+            taskService.add(task);
+        }
+
         /*添加自动化分拣发货回传波次表*/
         BatchSend batchSend = new BatchSend();
         batchSend.setSendCode(sendM.getSendCode());
