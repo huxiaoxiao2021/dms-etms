@@ -310,4 +310,9 @@ public class Constants {
     
     // 一次邮件发送最大收件人数
     public static final int MAX_SEND_SIZE = 500;
+    
+    /**
+	 * 亚一站点
+	 */
+	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
 }
