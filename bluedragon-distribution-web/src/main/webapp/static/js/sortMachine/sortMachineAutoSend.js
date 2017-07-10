@@ -39,7 +39,7 @@ function querySendGroupConfig(groupId) {
     if(groupId){
         var param= {};
         param.groupId = groupId;
-        var url = $("#contextPath").val() + "/services/sortMachineAutoSend/findSendGroupConfigByGroupId";
+        var url = $("#contextPath").val() + "/sortMachineAutoSend/findSendGroupConfigByGroupId";
         CommonClient.postJson(url,param,function (data) {
             var sendGroupConfigs = data.data;
             if (data == undefined || data == null) {
@@ -62,7 +62,7 @@ function sortMachineInit() {
     var temp = "<option value=''>请选择分拣机</option>";
     $("#sortMachine").html(temp);//清空分拣机信息
     var param= {};
-    var url = $("#contextPath").val() + "/services/sortMachineAutoSend/findSortMachineByErp";
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/findSortMachineByErp";
     CommonClient.postJson(url,param,function (data) {
         var machineCodes = data.data;
         if (data == undefined || data == null) {
@@ -86,7 +86,7 @@ function sortMachineGroupInit(machineCode) {
     if(machineCode){
         var param= {};
         param.machineCode = machineCode;
-        var url = $("#contextPath").val() + "/services/sortMachineAutoSend/findSendGroupByMachineCode";
+        var url = $("#contextPath").val() + "/sortMachineAutoSend/findSendGroupByMachineCode";
         CommonClient.postJson(url,param,function (data) {
             var sendGroups = data.data;
             if (data == undefined || data == null) {
@@ -141,9 +141,10 @@ function loadMachineCodes(machineCodes) {
  * @param sendGroupConfigs
  */
 function loadSendGroupConfigs(sendGroupConfigs) {
-    //todo
     if(sendGroupConfigs){
-
+        $.each(sendGroupConfigs, function (index, groupConfig) {
+            $("#ckbox"+ groupConfig.chuteCode).attr("checked",'checked');
+        })
     }
 }
 
@@ -155,7 +156,7 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
     if(currentSortMachineCode){
         var param= {};
         param.machineCode = currentSortMachineCode;
-        var url = $("#contextPath").val() + "/services/sortMachineAutoSend/queryChuteBySortMachineCode";
+        var url = $("#contextPath").val() + "/sortMachineAutoSend/queryChuteBySortMachineCode";
         CommonClient.postJson(url,param,function (data) {
             var chutes = data.data;
             if (data == undefined || data == null) {
@@ -179,7 +180,6 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
  * 加载滑道信息
  * @param chutes
  */
-//todo
 function loadChutes(chutes) {
     $("#pagerTable tbody").html("");
     if(chutes){
@@ -458,42 +458,46 @@ function queryExceptionNum(){
 /** 补打印按钮点击事件 **/
 $("#replenishPrint").click(function () {
     toReplenishPrintPage();
-})
+});
 
 /**
  * 点击补打印跳转到补打印界面
  */
-//todo 参数
 function toReplenishPrintPage(){
-    var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/index";
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/replenishPrintIndex";
     var param = {};
-    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null){
-        jQuery.messager.alert("提示：","请选择有效的补打信息","info");
+
+    if(!$(sortMachineSelect).val()){
+        jQuery.messager.alert("提示：","请选择分拣机编号","info");
         return;
     }
-    location.href = url + "?machineId=" + gantryParams.machineId + "&createSiteCode=" + gantryParams.createSiteCode
-        + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
-        + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
+    location.href = url + "?machineId=" + $(sortMachineSelect).val()
+        // + "&createSiteCode=" + gantryParams.createSiteCode
+        // + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
+        // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
 }
 
 /**
  * 点击异常数据跳转到异常发货界面
  */
-//todo ???
 function toGantryExceptionPage(){
     var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
-    if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
-        var machineId = $("#gantryDevice option:selected").val();
-        var siteCode = $("#siteOrg option:selected").val();
-        if(machineId != "" || machineId != 0){
-            url += "?machineId=" + gantryParams.machineId;
-        }
-        if(siteCode != "" || siteCode != 0){
-            url += "&siteCode=" + siteCode;
-        }
-        location.href = url;
+    // if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
+    //     var machineId = $("#gantryDevice option:selected").val();
+    //     var siteCode = $("#siteOrg option:selected").val();
+    //     if(machineId != "" || machineId != 0){
+    //         url += "?machineId=" + gantryParams.machineId;
+    //     }
+    //     if(siteCode != "" || siteCode != 0){
+    //         url += "&siteCode=" + siteCode;
+    //     }
+    //     location.href = url;
+    //     return;
+    // }
+    if(!$(sortMachineSelect).val()){
         return;
     }
-    location.href = url + "?machineId=" + gantryParams.machineId + "&siteCode=" + gantryParams.createSiteCode
-        + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+    location.href = url + "?machineId=" + $(sortMachineSelect).val()
+        // + "&siteCode=" + gantryParams.createSiteCode
+        // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }

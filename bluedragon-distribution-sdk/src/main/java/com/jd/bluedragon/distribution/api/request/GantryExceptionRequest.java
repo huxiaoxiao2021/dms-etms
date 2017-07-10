@@ -42,6 +42,12 @@ public class GantryExceptionRequest implements Serializable {
      */
     private String endTime;
 
+    /**
+     * 业务类型：1 :龙门架 2：自动分拣机
+     * @return
+     */
+    private Integer busiType = 1;
+
     public Long getId() {
         return id;
     }
@@ -98,4 +104,11 @@ public class GantryExceptionRequest implements Serializable {
         this.sendStatus = sendStatus;
     }
 
+    public Integer getBusiType() {
+        return busiType;
+    }
+
+    public void setBusiType(Integer busiType) {
+        this.busiType = busiType;
+    }
 }

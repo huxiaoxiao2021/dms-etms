@@ -70,6 +70,11 @@ public class GantryExceptionController {
         return "gantryException/gantryExceptionList";
     }
 
+    @RequestMapping(value = "/autoMachineExceptionList", method = RequestMethod.GET)
+    public String autoMachineExceptionList(GantryExceptionRequest request, Model model) {
+        return "gantryException/sortMachineExceptionList";
+    }
+
     /**
      * 查询符合条件的异常数据
      *
@@ -181,7 +186,7 @@ public class GantryExceptionController {
                     response.setContentType("application/vnd.ms-excel");
                     response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
                     outputStream = response.getOutputStream();
-                    HSSFWorkbook wb = createWorkbook(gantryExceptionExports);
+                    HSSFWorkbook wb = createWorkbook(gantryExceptionExports, request.getBusiType());
                     wb.write(outputStream);
                     outputStream.flush();
                     outputStream.close();
@@ -251,7 +256,13 @@ public class GantryExceptionController {
      * 创建excel
      *
      */
-    private HSSFWorkbook createWorkbook(List<GantryException> gantryExceptions){
+    private HSSFWorkbook createWorkbook(List<GantryException> gantryExceptions, Integer busiType){
+        String machineName = "龙门架编号";
+        String pkgNumberName = "条码号";
+        if(busiType != null && busiType == 2){
+            machineName = "物理滑槽";
+            pkgNumberName = "包裹号";
+        }
         HSSFWorkbook wb = new HSSFWorkbook();
 
         // create sheet
@@ -270,8 +281,8 @@ public class GantryExceptionController {
         style.setRightBorderColor((short) 10);
 
 //        createCellOfRow(row, 0, "规则类型", style);
-        createCellOfRow(row, 0, "龙门架编号", style);
-        createCellOfRow(row, 1, "条码号", style);
+        createCellOfRow(row, 0, machineName, style);
+        createCellOfRow(row, 1, pkgNumberName, style);
         createCellOfRow(row, 2, "运单号", style);
         createCellOfRow(row, 3, "批次号", style);
         createCellOfRow(row, 4, "体积", style);

@@ -33,10 +33,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.annotation.meta.TypeQualifier;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 /**
@@ -525,4 +528,21 @@ public class SortMachineAutoSendController {
         return result;
     }
 
+
+    @RequestMapping(value = "/replenishPrintIndex")
+    public String index(Model model, Integer machineId, Integer createSiteCode, String createSiteName, String startTime, String endTime) {
+        if (machineId != null && createSiteCode != null) {
+            model.addAttribute("machineId", machineId);
+            model.addAttribute("createSiteCode", createSiteCode);
+            try {
+                model.addAttribute("createSiteName", URLDecoder.decode(createSiteName, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                logger.info("补打界面跳转参数解码异常", e);
+                model.addAttribute("createSiteName", "未知分拣中心");
+            }
+            model.addAttribute("startTime", startTime);
+            model.addAttribute("endTime", endTime);
+        }
+        return "/sortMachine/replenishPrint";
+    }
 }
