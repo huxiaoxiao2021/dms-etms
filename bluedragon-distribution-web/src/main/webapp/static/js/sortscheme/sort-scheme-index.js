@@ -59,7 +59,8 @@ function goDetailClick(id) {
 }
 
 function goDownSortSchemeModel() {
-    location.href = "http://sq.jd.com/dXSzs3";
+    //location.href = "http://sq.jd.com/dXSzs3";
+    location.href = "http://3.cn/bAfe5o";
 }
 
 //--------------激活方案-----------------
