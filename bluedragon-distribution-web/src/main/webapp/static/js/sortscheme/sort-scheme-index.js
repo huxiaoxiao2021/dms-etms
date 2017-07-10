@@ -307,25 +307,29 @@ function goOpenBtnClick() {
         jQuery.messager.alert('提示:', "分拣计划已开启自动发货，无需重复开启!", 'info');
         return;
     }
-    if (confirm("确定要启用自动发货？")) {
-        var url = $("#contextPath").val() + "/autosorting/sortScheme/update/open/id";
-        var params = {};
-        params.id = singleBtns[0].id;
-        params.siteNo = $.trim($("#siteNo").val());
-        CommonClient.postJson(url, params, function (data) {
-            if (data == undefined || data == null) {
-                jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
-                return;
-            }
-            if (data.code == 200) {
-                jQuery.messager.alert('提示:', "当前分拣计划自动发货启动成功", 'info');
-                // 对当前页做一次分页查询
-                onQueryBtnClick($("#pageNo").val());
-            } else {
-                jQuery.messager.alert('提示:', data.message, 'info');
-            }
-        });
-    }
+
+    jQuery.messager.confirm('确认', '确定要启用自动发货？', function (r) {
+        if (r) {
+            var url = $("#contextPath").val() + "/autosorting/sortScheme/update/open/id";
+            var params = {};
+            params.id = singleBtns[0].id;
+            params.siteNo = $.trim($("#siteNo").val());
+            CommonClient.postJson(url, params, function (data) {
+                if (data == undefined || data == null) {
+                    jQuery.messager.alert('提示:', 'HTTP请求无数据返回!', 'info');
+                    return;
+                }
+                if (data.code == 200) {
+                    jQuery.messager.alert('提示:', "当前分拣计划自动发货启动成功!", 'info');
+                    // 对当前页做一次分页查询
+                    onQueryBtnClick($("#pageNo").val());
+                } else {
+                    jQuery.messager.alert('提示:', data.message, 'info');
+                }
+            });
+        }
+    });
+
 }
 
 //--------------关闭自动发货-----------------
@@ -349,23 +353,27 @@ function goCloseBtnClick() {
         jQuery.messager.alert('提示:', "分拣计划未启用自动发货，无需关闭!", 'info');
         return;
     }
-    if (confirm("警告：自动分拣机将停止自动发货功能，在此之前的发货批次自动完结，并不再生成新的发货批次，建议清场之后再停止！！！确认关闭？")) {
-        var url = $("#contextPath").val() + "/autosorting/sortScheme/update/close/id";
-        var params = {};
-        params.id = singleBtns[0].id;
-        params.siteNo = $.trim($("#siteNo").val());
-        CommonClient.postJson(url, params, function (data) {
-            if (data == undefined || data == null) {
-                jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
-                return;
-            }
-            if (data.code == 200) {
-                jQuery.messager.alert('提示:', "当前分拣计划自动发货关闭成功", 'info');
-                // 对当前页做一次分页查询
-                onQueryBtnClick($("#pageNo").val());
-            } else {
-                jQuery.messager.alert('提示:', data.message, 'info');
-            }
-        });
-    }
+
+    jQuery.messager.confirm('警告', '自动分拣机将停止自动发货功能，在此之前的发货批次自动完结，并不再生成新的发货批次，建议清场之后再停止！！！确认关闭？', function (r) {
+        if (r) {
+            var url = $("#contextPath").val() + "/autosorting/sortScheme/update/close/id";
+            var params = {};
+            params.id = singleBtns[0].id;
+            params.siteNo = $.trim($("#siteNo").val());
+            CommonClient.postJson(url, params, function (data) {
+                if (data == undefined || data == null) {
+                    jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+                    return;
+                }
+                if (data.code == 200) {
+                    jQuery.messager.alert('提示:', "当前分拣计划自动发货关闭成功", 'info');
+                    // 对当前页做一次分页查询
+                    onQueryBtnClick($("#pageNo").val());
+                } else {
+                    jQuery.messager.alert('提示:', data.message, 'info');
+                }
+            });
+        }
+    });
+
 }
