@@ -2,7 +2,7 @@ var flashTime = 10000;//页面刷新时间
 //发货组
 var sendGroupSelect = $('#sendGroup');
 //机器码
-var sortMachineSelect = $("#sortMachine");
+// var sortMachineSelect = $("#sortMachine");
 
 $(document).ready(function(){
     //初始化分拣机
@@ -26,7 +26,7 @@ $(document).ready(function(){
 
     /** 异常数据点击事件 **/
     $("#exceptionNum").click(function(){
-        if($(sortMachineSelect).val() !=null && $(sortMachineSelect).val()!= ""){
+        if($("#sortMachine").val() !=null && $("#sortMachine").val()!= ""){
             toGantryExceptionPage();
         }
     })
@@ -132,7 +132,7 @@ function loadMachineCodes(machineCodes) {
     $.each(machineCodes, function (index, machineCode) {
         option = option + "<option value='" + machineCode + "'>" + machineCode + "</option>";
     });
-    $(sortMachineSelect).html(option);
+    $("#sortMachine").html(option);
 }
 
 
@@ -467,11 +467,11 @@ function toReplenishPrintPage(){
     var url = $("#contextPath").val() + "/sortMachineAutoSend/replenishPrintIndex";
     var param = {};
 
-    if(!$(sortMachineSelect).val()){
+    if(!$("#sortMachine").val()){
         jQuery.messager.alert("提示：","请选择分拣机编号","info");
         return;
     }
-    location.href = url + "?machineId=" + $(sortMachineSelect).val()
+    location.href = url + "?machineId=" + $("#sortMachine").val()
         // + "&createSiteCode=" + gantryParams.createSiteCode
         // + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
         // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
@@ -494,10 +494,10 @@ function toGantryExceptionPage(){
     //     location.href = url;
     //     return;
     // }
-    if(!$(sortMachineSelect).val()){
+    if(!$("#sortMachine").val()){
         return;
     }
-    location.href = url + "?machineId=" + $(sortMachineSelect).val()
+    location.href = url + "?machineId=" + $("#sortMachine").val()
         // + "&siteCode=" + gantryParams.createSiteCode
         // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }

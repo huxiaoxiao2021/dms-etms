@@ -81,6 +81,9 @@ public class SortMachineAutoSendController {
     public InvokeResult<List<String>> findSortMachineByErp(){
         InvokeResult<List<String>> response = new InvokeResult<List<String>>();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//        todo for dev test
+//        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+//        erpUser.setUserCode("bjxings");
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         //获取分拣站点失败
         if(bssod == null || bssod.getSiteCode() == null){
