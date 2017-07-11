@@ -285,7 +285,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 response = jsfSortingResourceService.check(sortingCheck);
             } catch (Exception ex) {
                 logger.error("调用VER", ex);
-                return new SendResult(4, "调用分拣验证异常", 100, 0);
+                return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
             }
             Profiler.registerInfoEnd(info1);
             if (!response.getCode().equals(200)) {//如果校验不OK
@@ -304,7 +304,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
-                        return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
+                        return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
                 } else{
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
@@ -314,8 +314,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(temp_info2);
         DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
         if(!verificationResult.getCode() && !isForceSend){//按照箱发货，校验派车单是否齐全，判断是否强制发货
-//            return new SendResult(2, verificationResult.getMessage());
-            return new SendResult(4, verificationResult.getMessage() + "，是否强制发货？");
+            return new SendResult(4, verificationResult.getMessage());
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
@@ -814,7 +813,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),false);
         if(!verificationResult.getCode()){
             return new DeliveryResponse(DeliveryResponse.CODE_CITY_BILL_CHECK,
-                    verificationResult.getMessage() + DeliveryResponse.MESSAGE_CITY_BILL_CHECK);
+                    verificationResult.getMessage());
         }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());

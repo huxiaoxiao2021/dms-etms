@@ -5,7 +5,10 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 public class DeliveryResponse extends JdResponse {
     
     private static final long serialVersionUID = 6917841719620008189L;
-    
+    public static final Integer CODE_Delivery_SEND_SUCCESS = 1;
+    public static final Integer CODE_Delivery_SEND_FAIL = 2;
+    public static final Integer CODE_Delivery_SEND_CONFIRM = 4;
+
     public static final Integer CODE_Delivery_ERROR = 40001;
     public static final String MESSAGE_Delivery_ERROR = "发货处理异常";
     

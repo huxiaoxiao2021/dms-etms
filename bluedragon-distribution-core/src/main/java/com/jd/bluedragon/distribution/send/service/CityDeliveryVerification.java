@@ -117,12 +117,14 @@ public class CityDeliveryVerification implements DeliveryVerification{
                                 targetList.remove(packageCode);
                             }
                             result.setCode(false);
-                            result.setMessage(MessageFormat.format("运单【{0}】一单多件不齐，缺少包裹【{1}】", itemString, targetList.get(0)));
+                            result.setMessage(MessageFormat.format("运单【{0}】一单多件不齐，缺少包裹【{1}】,是否强制发货？",
+                                    itemString, targetList.get(0)));
                             break;
                         }
                     } else {
                         result.setCode(false);
-                        result.setMessage(MessageFormat.format("派车单【{0}】不齐，缺少运单【{1}】", scheduleBillCode, itemString));
+                        result.setMessage(MessageFormat.format("派车单【{0}】不齐，缺少运单【{1}】,是否强制发货？",
+                                scheduleBillCode, itemString));
                         break;
                     }
                 }
