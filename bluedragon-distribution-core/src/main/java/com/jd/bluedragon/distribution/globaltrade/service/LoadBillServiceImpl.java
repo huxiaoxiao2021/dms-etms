@@ -280,9 +280,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 		return loadBIlls.size();
 	}
 
-	@JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.getResponse",mState = JProEnum.TP)
 	public ClientResponse<String> getResponse(PreLoadBill preLoadBill){
-
+		CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.getResponse", false, true);
 		ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
 		request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
 		request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, JsonHelper.toJson(preLoadBill));
@@ -290,7 +289,10 @@ public class LoadBillServiceImpl implements LoadBillService {
 		try {
 			response = request.post(String.class);
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			e.printStackTrace();
+		}finally{
+			Profiler.registerInfoEnd(info);
 		}
 		return response;
 	}
