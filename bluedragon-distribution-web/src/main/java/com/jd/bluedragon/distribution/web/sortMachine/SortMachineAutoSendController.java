@@ -81,8 +81,7 @@ public class SortMachineAutoSendController {
     public InvokeResult<List<String>> findSortMachineByErp(){
         InvokeResult<List<String>> response = new InvokeResult<List<String>>();
         //todo dev test
-/*        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        logger.info("dev test info ------------------------------------------ erpUser.getUserCode():" + erpUser.getUserCode());
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         //获取分拣站点失败
         if(bssod == null || bssod.getSiteCode() == null){
@@ -95,10 +94,10 @@ public class SortMachineAutoSendController {
             return response;
         }
         //获取分拣中心本地服务url
-        String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());*/
-        String url = "dmsvertest.360buy.com";
+        String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+/*        String url = "dmsvertest.360buy.com";
         BaseStaffSiteOrgDto bssod = new BaseStaffSiteOrgDto();
-        bssod.setSiteCode(910);
+        bssod.setSiteCode(910);*/
         //todo dev test end
         if (StringUtils.isBlank(url)) {
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
