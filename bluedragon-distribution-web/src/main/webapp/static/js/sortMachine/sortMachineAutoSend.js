@@ -10,7 +10,7 @@ $(document).ready(function(){
 
     //查询按钮
     $('#queryBtn').click(function () {
-        var currentSortMachineCode = $(this).val();
+        var currentSortMachineCode = $("#sortMachine").val();
         //查询机器号下的滑道信息
         queryChuteBySortMachineCode(currentSortMachineCode);
         //初始化发货组
@@ -87,7 +87,7 @@ function sortMachineGroupInit(machineCode) {
         var param= {};
         param.machineCode = machineCode;
         var url = $("#contextPath").val() + "/sortMachineAutoSend/findSendGroupByMachineCode";
-        CommonClient.postJson(url,param,function (data) {
+        CommonClient.ajax("POST",url,param,function (data) {
             var sendGroups = data.data;
             if (data == undefined || data == null) {
                 jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
@@ -157,7 +157,7 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
         var param= {};
         param.machineCode = currentSortMachineCode;
         var url = $("#contextPath").val() + "/sortMachineAutoSend/queryChuteBySortMachineCode";
-        CommonClient.postJson(url,param,function (data) {
+        CommonClient.ajax("POST",url,param,function (data) {
             var chutes = data.data;
             if (data == undefined || data == null) {
                 jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
