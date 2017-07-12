@@ -91,7 +91,7 @@
 	        <if test="siteCode != null">
 					site_code = #{siteCode,jdbcType=BIGINT},
 	      		</if>
-			<if test="packageCount != 0">
+			<if test="packageCount != null">
 					package_count = #{packageCount,jdbcType=TINYINT},
 	      		</if>
 	        <if test="createTime != null">
