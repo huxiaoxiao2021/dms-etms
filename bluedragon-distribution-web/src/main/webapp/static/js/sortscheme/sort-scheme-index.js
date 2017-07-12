@@ -33,6 +33,15 @@ function main() {
         goDownSortSchemeModel();
     });
 
+    // 分拣方案同步到仓储系统
+    $("#syncBtn").click(function () {
+        if($("#siteNo").val() == ""){
+            jQuery.messager.alert("提示：","没有选择分拣中心!!","info");
+            return;
+        }
+        location.href =  $("#contextPath").val() +　"/sortSchemeSync/index";
+    });
+
     $("#siteNo").change(function () {
         clearPager();
     });
@@ -89,7 +98,7 @@ function goActiveBtnClick() {
                 return;
             }
             if (data.code == 200) {
-                jQuery.messager.alert('提示:', "当前分拣计划激活成功", 'info');
+                jQuery.messager.alert('提示:', data.message, 'info');
                 // 对当前页做一次分页查询
                 onQueryBtnClick($("#pageNo").val());
             } else {

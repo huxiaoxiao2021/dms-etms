@@ -180,6 +180,13 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         return sortSchemeDetailList;
     }
 
+    @Override
+    public SortSchemeDetailResponse<List<SortSchemeDetail>> queryBySiteCode(SortSchemeDetailRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeDetailResponse<List<SortSchemeDetail>>>() {
+                });
+    }
+
     private void validateAndParseSingleCell(int rowIndex, // 当前行号
                                             int effectiveColumns, // 最大列数
                                             List<SortSchemeDetail> sortSchemeDetailList, //
