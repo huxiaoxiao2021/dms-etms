@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.sortscheme.service;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.DmsSortSchemeRouter;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
@@ -33,7 +32,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
-    private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2");
+    private List<String> stores ;
 
     private static final String sortSchemeUrl = "/autosorting/sortScheme/find/id";
     private static final String sortSchemeDetailUrl = "/autosorting/sortSchemeDetail/list/schemeId";
@@ -229,5 +228,13 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
             }
         }
         return mapMQs;
+    }
+
+    public List<String> getStores() {
+        return stores;
+    }
+
+    public void setStores(List<String> stores) {
+        this.stores = stores;
     }
 }

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.message.consumer.sortScheme;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.DmsSortSchemeRouter;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -10,7 +9,6 @@ import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -20,11 +18,10 @@ import java.util.Map;
  * 分拣方案MQ消费
  * Created by wuzuxiang on 2017/1/13.
  */
-@Service("sortSchemeConsumer")
 public class SortSchemeConsumer extends MessageBaseConsumer{
     private static final Log logger = LogFactory.getLog(SortSchemeConsumer.class);
 
-    private static List<String> stores = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2");
+    private List<String> stores ;
 
     @Autowired
     SortSchemeSyncService sortSchemeSyncService;
@@ -77,4 +74,11 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
         }
     }
 
+    public List<String> getStores() {
+        return stores;
+    }
+
+    public void setStores(List<String> stores) {
+        this.stores = stores;
+    }
 }
