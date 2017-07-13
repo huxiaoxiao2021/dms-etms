@@ -473,12 +473,17 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         if (StringUtils.isNotEmpty(machineId) && StringUtils.isNotEmpty(barCode)) {
             GantryException gantryException = new GantryException();
             gantryException.setMachineId(String.valueOf(machineId));
-            gantryException.setBarCode(domain.getBarCode());
+            gantryException.setBarCode(barCode);
+            if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+                gantryException.setPackageCode(barCode);
+                gantryException.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
+            }
             gantryException.setCreateSiteCode(Long.valueOf(config.getCreateSiteCode()));
             gantryException.setCreateSiteName(config.getCreateSiteName());
             gantryException.setOperateTime(domain.getScannerTime());
             gantryException.setType(type);
             gantryException.setSendCode(sendCode);
+            gantryException.setChuteCode(domain.getChuteCode());
             if (domain.getLength() != null && domain.getWidth() != null && domain.getHeight() != null) {
                 Float volume = domain.getLength() * domain.getWidth() * domain.getHeight();
                 gantryException.setVolume(Double.valueOf(volume));
