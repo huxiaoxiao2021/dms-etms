@@ -183,7 +183,11 @@ public class GantryExceptionController {
                     } else {
                         gantryExceptionExports = gantryExceptions;
                     }
-                    String filename = "龙门架编号" + request.getMachineId() + "的异常信息"
+                    String machineName = "龙门架";
+                    if(request.getBusiType() != null && request.getBusiType() == 2){
+                        machineName = "分拣机";
+                    }
+                    String filename = machineName + "编号" + request.getMachineId() + "的异常信息"
                             + DateHelper.formatDate(new Date(), Constants.DATE_TIME_MS_STRING) + ".xls";
                     response.setContentType("application/vnd.ms-excel");
                     response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
@@ -302,8 +306,14 @@ public class GantryExceptionController {
         for (int i = 0; i < gantryExceptions.size(); i++) {
             GantryException gantryException = gantryExceptions.get(i);
             HSSFRow row1 = sheet.createRow(i + 1);
-            createCellOfRow(row1, 0, gantryException.getMachineId(), styleContent);
-            createCellOfRow(row1, 1, gantryException.getBarCode(), styleContent);
+            if(busiType != null && busiType == 2){
+                createCellOfRow(row1, 0, gantryException.getChuteCode(), styleContent);
+                createCellOfRow(row1, 1, gantryException.getPackageCode(), styleContent);
+            }else {
+                createCellOfRow(row1, 0, gantryException.getMachineId(), styleContent);
+                createCellOfRow(row1, 1, gantryException.getBarCode(), styleContent);
+            }
+
             createCellOfRow(row1, 2, gantryException.getWaybillCode(),styleContent);
             createCellOfRow(row1, 3, gantryException.getSendCode(),styleContent);
             createCellOfRow(row1, 4, String.valueOf(gantryException.getVolume()), styleContent);
