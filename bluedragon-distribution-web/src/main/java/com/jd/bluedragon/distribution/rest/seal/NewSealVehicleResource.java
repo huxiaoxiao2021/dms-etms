@@ -7,9 +7,10 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -25,6 +26,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,6 +53,9 @@ public class NewSealVehicleResource {
     @Autowired
     private CarLicenseChangeUtil carLicenseChangeUtil;
 
+    @Autowired
+    private GoddessService goddessService;
+
 
     /**
      * 封车功能
@@ -59,7 +64,6 @@ public class NewSealVehicleResource {
     @Path("/new/vehicle/seal")
     public NewSealVehicleResponse seal(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-        long keyWord4 = request.getStatus();
         try {
             if (request == null) {
                 this.logger.error("NewSealVehicleResource seal --> 传入参数非法");
@@ -81,13 +85,18 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
+            if (request.getData() != null && request.getData().size() > 0){
+                Goddess goddess = new Goddess();
+                goddess.setKey(request.getData().get(0).getTransportCode());
+                goddess.setHead(request.getData().get(0).getSealSiteId() + "-" + request.getData().get(0).getDesealSiteId());
+                goddess.setBody(JsonHelper.toJson(request.getData()));
+                goddess.setDateTime(new Date());
+                goddessService.save(goddess);
+            }
+
         } catch (Exception e) {
-            keyWord4 = 30;
             this.logger.error("NewSealVehicleResource.seal-error", e);
         }
-        String keyWord3 = request.getStartSiteId() + "," + request.getEndSiteId();
-        //keyword1=sealCode;keyword2=vehicleName;keyword3=startSideId,endSiteId;keyword4=status;content=transportCode;type=13631
-        SystemLogUtil.log(request.getSealCode(),request.getVehicleNumber(),keyWord3,keyWord4,request.getTransportCode(),13631);
         return sealVehicleResponse;
     }
 
@@ -158,7 +167,6 @@ public class NewSealVehicleResource {
     @Path("/new/vehicle/unseal")
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-        long keyWord4 = request.getStatus();
         try {
             if (request == null) {
                 this.logger.error("NewSealVehicleResource unseal --> 传入参数非法");
@@ -179,13 +187,17 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
+            if (request.getData() != null && request.getData().size() > 0){
+                Goddess goddess = new Goddess();
+                goddess.setKey(request.getData().get(0).getSealCarCode());
+                goddess.setHead(request.getData().get(0).getSealSiteId() + "-" + request.getData().get(0).getDesealSiteId());
+                goddess.setBody(JsonHelper.toJson(request.getData()));
+                goddess.setDateTime(new Date());
+                goddessService.save(goddess);
+            }
         } catch (Exception e) {
-            keyWord4 = 30;
             this.logger.error("NewSealVehicleResource.unseal-error", e);
         }
-        String keyWord3 = request.getStartSiteId() + "," + request.getEndSiteId();
-        //keyword1=sealCode;keyword2=vehicleName;keyword3=startSideId,endSiteId;keyword4=status;content=transportCode;type=13631
-        SystemLogUtil.log(request.getSealCode(),request.getVehicleNumber(),keyWord3,keyWord4,request.getTransportCode(),13631);
         return sealVehicleResponse;
     }
 
