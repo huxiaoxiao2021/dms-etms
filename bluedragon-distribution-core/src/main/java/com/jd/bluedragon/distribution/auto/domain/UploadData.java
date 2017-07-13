@@ -72,6 +72,11 @@ public class UploadData implements Serializable {
     private String boxCode;
 
     /**
+     * 滑槽号
+     */
+    private String chuteCode;
+
+    /**
      * 分拣中心ID【可选，来源为自动分拣机时必填】
      */
     private Integer distributeId;
@@ -179,6 +184,14 @@ public class UploadData implements Serializable {
 
     public void setBoxCode(String boxCode) {
         this.boxCode = boxCode;
+    }
+
+    public String getChuteCode() {
+        return chuteCode;
+    }
+
+    public void setChuteCode(String chuteCode) {
+        this.chuteCode = chuteCode;
     }
 
     public Integer getDistributeId() {

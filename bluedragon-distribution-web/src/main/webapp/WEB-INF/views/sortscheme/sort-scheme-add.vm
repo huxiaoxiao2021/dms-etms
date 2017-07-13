@@ -89,17 +89,6 @@
         </div>
         <div class="column_div">
             <div class="column_title">
-                <span>是否自动发货：</span>
-            </div>
-            <div class="column_text">
-                <select id="autoSend" class="sortscheme_query_select">
-                    <option value="0">否</option>
-                    <option value="1">是</option>
-                </select>
-            </div>
-        </div>
-        <div class="column_div">
-            <div class="column_title">
                 <span>分拣模式：</span>
             </div>
             <div class="column_text">
