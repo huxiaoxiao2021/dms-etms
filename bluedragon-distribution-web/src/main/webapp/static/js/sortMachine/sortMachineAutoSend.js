@@ -1,8 +1,4 @@
 var flashTime = 10000;//页面刷新时间
-//发货组
-var sendGroupSelect = $('#sendGroup');
-//机器码
-// var sortMachineSelect = $("#sortMachine");
 
 $(document).ready(function(){
     //初始化分拣机
@@ -13,7 +9,7 @@ $(document).ready(function(){
         query();
     });
     //发货组改变时，加载关联的滑道
-    $(sendGroupSelect).change(function () {
+    $('#sendGroup').change(function () {
         var currentGroupId = $(this).val();
         querySendGroupConfig(currentGroupId);
     });
@@ -23,7 +19,7 @@ $(document).ready(function(){
         if($("#sortMachine").val() !=null && $("#sortMachine").val()!= ""){
             toGantryExceptionPage();
         }
-    })
+    });
 
     /** 定时刷新数据 **/
     var flashT;
@@ -37,10 +33,182 @@ $(document).ready(function(){
         }
     })
 
-    //点击添加分组
+    /**点击添加分组*/
+    $("#newGroupbtn").click(function () {
+        var sortMachineCode = $("#sortMachine").val();
+        if(!sortMachineCode){
+            jQuery.messager.alert("提示","请选择分拣机编号","error");
+            return;
+        }
+        //清空内容
+        $("#sendGroupName").val("");
+        popUp('addSendGroupDiv',333,206);
+    });
+    /** 点击保存分组**/
+    $("#addGroupSaveBtn").click(function () {
+        var sendGroupName = $("#sendGroupName").val();
+        var sortMachineCode = $("#sortMachine").val();
+        if(!sortMachineCode){
+            jQuery.messager.alert("提示","请选择分拣机编号","error");
+            return;
+        }
+        if(!sendGroupName ){
+            jQuery.messager.alert("提示","请填写组名","error");
+            return;
+        }
+            var chuteCodes = getChuteCodes();
+        if(chuteCodes == null || chuteCodes.length == 0){
+            if(!sendGroupName ){
+                jQuery.messager.alert("提示","请选择滑槽","error");
+                return;
+            }
+        }
+        addSendGroup(sendGroupName, sortMachineCode, chuteCodes);
+    });
 
+    /** 点击取消添加分组**/
+    $("#addGroupCancelBtn").click(function () {
+        popClose('addSendGroupDiv');//关闭弹出层
+    });
+
+    /**
+     * 点击修改发货组
+     */
+    $("#modifyGroupbtn").click(function () {
+        var sortMachineCode = $("#sortMachine").val();
+        if(!sortMachineCode){
+            jQuery.messager.alert("提示","请选择分拣机编号","error");
+            return;
+        }
+        var currentSendGroup = $('#sendGroup').val();
+        if(!currentSendGroup){
+            if(!sortMachineCode){
+                jQuery.messager.alert("提示","请选择发货组","error");
+                return;
+            }
+        }
+        var chuteCodes = getChuteCodes();
+        if(chuteCodes == null || chuteCodes.length == 0){
+            if(!sendGroupName ){
+                jQuery.messager.alert("提示","请选择滑槽","error");
+                return;
+            }
+        }
+        updateSendGroup(currentSendGroup, sortMachineCode, chuteCodes);
+    });
+
+    /**
+     * 点击删除发货组
+     */
+    $("#delGroupbtn").click(function () {
+        var currentSendGroup = $('#sendGroup').val();
+        if(!currentSendGroup){
+            if(!sortMachineCode){
+                jQuery.messager.alert("提示","请选择发货组","error");
+                return;
+            }
+        }
+        deleteSendGroup(currentSendGroup);
+    });
+
+    /**
+     * 滑槽信息全选checkbox
+     */
+    $("#all").click(function(){
+        $("tbody input[type='checkbox']").prop("checked", $("#all").prop("checked"));
+    });
 });
 
+function deleteSendGroup(groupId) {
+    var param= {};
+    param.groupId = groupId;
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/deleteSendGroup";
+    CommonClient.postJson(url,param,function (data) {
+        if (data == undefined || data == null) {
+            jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
+            return;
+        }
+        if ( data.code == 200) {
+            jQuery.messager.alert("提示：","删除成功！","error");
+            //刷新发货组
+            sortMachineGroupInit(sortMachineCode);
+            $("tbody input[type='checkbox']").prop("checked",false);
+        }else if(data.code == 500) {
+            jQuery.messager.alert("提示：",data.message,"error");
+        }
+    });
+}
+
+function updateSendGroup(groupId, sortMachineCode, chuteCodes) {
+    var param= {};
+    param.groupId = groupId;
+    param.machineCode = sortMachineCode;
+    param.chuteCodes = chuteCodes;
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/updateSendGroup";
+    CommonClient.postJson(url,param,function (data) {
+        var sendGroupConfigs = data.data;
+        if (data == undefined || data == null) {
+            jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
+            return;
+        }
+        if ( data.code == 200) {
+            jQuery.messager.alert("提示：","修改成功！","error");
+            //刷新发货组
+            sortMachineGroupInit(sortMachineCode);
+            $("tbody input[type='checkbox']").prop("checked",false);
+        }else if(data.code == 500) {
+            jQuery.messager.alert("提示：",data.message,"error");
+        }
+    });
+}
+/**
+ * 添加发货组
+ * @param sendGroupName
+ * @param sortMachineCode
+ */
+function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
+    var param= {};
+    param.groupName = sendGroupName;
+    param.machineCode = sortMachineCode;
+    param.chuteCodes =  chuteCodes;
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/addSendGroup";
+    CommonClient.postJson(url,param,function (data) {
+        var sendGroupConfigs = data.data;
+        if (data == undefined || data == null) {
+            jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
+            return;
+        }
+        if ( data.code == 200) {
+            jQuery.messager.alert("提示：","添加成功！","error");
+            popClose('addSendGroupDiv');
+            //刷新发货组
+            sortMachineGroupInit(sortMachineCode);
+            $("tbody input[type='checkbox']").prop("checked",false);
+        }else if(data.code == 500) {
+            jQuery.messager.alert("提示：",data.message,"error");
+        }
+    });
+}
+
+/**
+ * 取得发货组关联的滑槽号
+ */
+function getChuteCodes() {
+    var chutecodes =  new Array();
+    $.each($("tbody input[type='checkbox']"), function(index, chk){
+        if($(this).prop('checked')){
+            var chuteCode = $(this).parents("tr").find("[name=chuteCode]").text();
+            if(chuteCode){
+                chutecodes.push(chuteCode);
+            }
+
+        }
+    });
+    return chutecodes;
+}
+/**
+ * 点击查询按钮
+ */
 function query() {
     var currentSortMachineCode = $("#sortMachine").val();
     //查询机器号下的滑道信息
@@ -121,7 +289,7 @@ function sortMachineGroupInit(machineCode) {
 
     }else {
         var option = '<option value="">无发货组</option>';
-        $(sendGroupSelect).html(option);
+        $('#sendGroup').html(option);
     }
 }
 /**
@@ -134,9 +302,9 @@ function loadSendGroups(sendGroups) {
         $.each(sendGroups, function (index, sendGroup) {
             option = option + "<option value='" + id + "'>" + groupName + "</option>";
         });
-        $(sendGroupSelect).html(option);
+        $('#sendGroup').html(option);
     }else {
-        $(sendGroupSelect).html('<option value="">无发货组</option> ');
+        $('#sendGroup').html('<option value="">无发货组</option> ');
     }
 
 
@@ -160,9 +328,10 @@ function loadMachineCodes(machineCodes) {
  * @param sendGroupConfigs
  */
 function loadSendGroupConfigs(sendGroupConfigs) {
+    $("tbody input[type='checkbox']").prop("checked",false);
     if(sendGroupConfigs){
         $.each(sendGroupConfigs, function (index, groupConfig) {
-            $("#ckbox"+ groupConfig.chuteCode).attr("checked",'checked');
+            $("#ckbox"+ groupConfig.chuteCode).prop("checked",true);
         })
     }
 }

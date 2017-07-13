@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineBatchSendResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupConfig;
+import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupRequest;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineSendGroup;
 import com.jd.bluedragon.distribution.sendGroup.service.SortMachineSendGroupService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
@@ -97,9 +98,9 @@ public class SortMachineAutoSendController {
         }
         //获取分拣中心本地服务url
         String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
-/*        String url = "dmsvertest.360buy.com";
-        BaseStaffSiteOrgDto bssod = new BaseStaffSiteOrgDto();
-        bssod.setSiteCode(910);*/
+//        String url = "dmsvertest.360buy.com";
+//        BaseStaffSiteOrgDto bssod = new BaseStaffSiteOrgDto();
+//        bssod.setSiteCode(910);
         //todo dev test end
         if (StringUtils.isBlank(url)) {
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
@@ -276,21 +277,17 @@ public class SortMachineAutoSendController {
 
     /**
      * 添加发货组
-     * @param machineCode
-     * @param groupName
-     * @param chuteCodes
+     * @param request
      * @return
      */
     @RequestMapping(value = "/addSendGroup", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult addSendGroup(String machineCode,
-                                     String groupName,
-                                     @RequestParam(value = "chuteCodes[]") String[] chuteCodes){
+    public InvokeResult addSendGroup(SortMachineGroupRequest request){
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         try{
-            InvokeResult addResult = sortMachineSendGroupService.addSendGroup(machineCode,
-                    groupName, chuteCodes, erpUser.getStaffNo(), erpUser.getUserName());
+            InvokeResult addResult = sortMachineSendGroupService.addSendGroup(request.getMachineCode(),
+                    request.getGroupName(), request.getChuteCodes(), erpUser.getStaffNo(), erpUser.getUserName());
             if(addResult.getCode() != 200){
                 return addResult;
             }
@@ -304,21 +301,18 @@ public class SortMachineAutoSendController {
 
     /**
      * 更新发货组
-     * @param groupId 发货组ID
-     * @param machineCode 分拣机编号
-     * @param chuteCodes 滑槽号
+     * @param request
      * @return
      */
     @RequestMapping(value = "/updateSendGroup", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult updateSendGroup(Long groupId,
-                                        String machineCode,
-                                     @RequestParam(value = "chuteCodes[]") String[] chuteCodes){
+    public InvokeResult updateSendGroup(SortMachineGroupRequest request){
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         try{
-             sortMachineSendGroupService.updateSendGroup(groupId,
-                    machineCode,chuteCodes, erpUser.getStaffNo(), erpUser.getUserName());
+             sortMachineSendGroupService.updateSendGroup(request.getGroupId(),
+                     request.getMachineCode(),request.getChuteCodes(),
+                     erpUser.getStaffNo(), erpUser.getUserName());
         }catch (Exception e){
             e.printStackTrace();
             respone.customMessage(500, "修改发货组时系统异常！");

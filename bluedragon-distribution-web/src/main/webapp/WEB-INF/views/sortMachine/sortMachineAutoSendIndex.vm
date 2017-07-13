@@ -20,7 +20,7 @@
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js?t=6')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js?t=10')"></script>
     <style  type="text/css">
         .part {
             margin-top: 30px;
@@ -218,6 +218,30 @@
                     <td></td>
                     <td></td>
                     <td><input type="button" id="printSettingSaveBtn" value="保存" class="btn_c"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="popup_block" id="addSendGroupDiv">
+        <div style="border:1px solid black;width:300px;height: 180px;padding30px;margin-left: auto;margin-top: auto;margin-right: auto;margin-bottom: auto;">
+            <table>
+                <tr class="trHeight">
+                    <td colspan="3" class="divTitle">添加发货组：</td>
+                </tr>
+                <tr style="height: 5px;">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td>组名：</td>
+                    <td><input id="sendGroupName" value=""/></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td><input type="button" id="addGroupSaveBtn" value="保存" class="btn_c"></td>
+                    <td><input type="button" style="float: right" id="addGroupCancelBtn" value="取消" class="btn_c"></td>
                 </tr>
             </table>
         </div>
