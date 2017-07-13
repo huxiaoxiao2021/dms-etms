@@ -230,14 +230,14 @@ function querySendGroupConfig(groupId) {
         var param= {};
         param.groupId = groupId;
         var url = $("#contextPath").val() + "/sortMachineAutoSend/findSendGroupConfigByGroupId";
-        CommonClient.postJson(url,param,function (data) {
+        CommonClient.ajax("POST",url,param,function (data) {
             var sendGroupConfigs = data.data;
             if (data == undefined || data == null) {
                 jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
                 return;
             }
             if ( data.code == 200) {
-                loadSendGroupConfigs(sendGroupConfigs);
+                    loadSendGroupConfigs(sendGroupConfigs);
             }else if(data.code == 500) {
                 jQuery.messager.alert("提示：",data.message,"error");
             }
