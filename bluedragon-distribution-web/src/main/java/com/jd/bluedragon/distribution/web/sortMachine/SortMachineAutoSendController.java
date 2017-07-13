@@ -285,6 +285,11 @@ public class SortMachineAutoSendController {
     public InvokeResult addSendGroup(SortMachineGroupRequest request){
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        //todo dev test
+/*        erpUser = new ErpUserClient.ErpUser();
+        erpUser.setStaffNo(9901);
+        erpUser.setUserName("tester1");*/
+        //todo dev test end
         try{
             InvokeResult addResult = sortMachineSendGroupService.addSendGroup(request.getMachineCode(),
                     request.getGroupName(), request.getChuteCodes(), erpUser.getStaffNo(), erpUser.getUserName());

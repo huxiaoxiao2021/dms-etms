@@ -179,13 +179,16 @@ function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
             return;
         }
         if ( data.code == 200) {
-            jQuery.messager.alert("提示：","添加成功！","error");
             popClose('addSendGroupDiv');
+            jQuery.messager.alert("提示：","添加成功！","error");
+
             //刷新发货组
             sortMachineGroupInit(sortMachineCode);
             $("tbody input[type='checkbox']").prop("checked",false);
         }else if(data.code == 500) {
+            popClose('addSendGroupDiv');
             jQuery.messager.alert("提示：",data.message,"error");
+
         }
     });
 }
