@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -72,6 +73,7 @@ public class GantryExceptionController {
 
     @RequestMapping(value = "/autoMachineExceptionList", method = RequestMethod.GET)
     public String autoMachineExceptionList(GantryExceptionRequest request, Model model) {
+        model.addAttribute("queryParam", request);
         return "gantryException/sortMachineExceptionList";
     }
 
@@ -215,7 +217,7 @@ public class GantryExceptionController {
      *
      */
     private Boolean checkAddParam(GantryExceptionRequest request) {
-        if(request.getMachineId() == null ||
+        if(StringUtils.isBlank(request.getMachineId())||
                 ! StringHelper.isNotEmpty(request.getStartTime()) ||
                 ! StringHelper.isNotEmpty(request.getEndTime())) {
             return false;

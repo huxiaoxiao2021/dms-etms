@@ -10,13 +10,7 @@ $(document).ready(function(){
 
     //查询按钮
     $('#queryBtn').click(function () {
-        var currentSortMachineCode = $("#sortMachine").val();
-        //查询机器号下的滑道信息
-        queryChuteBySortMachineCode(currentSortMachineCode);
-        //初始化发货组
-        sortMachineGroupInit(currentSortMachineCode);
-        //查询异常信息
-        queryExceptionNum();
+        query();
     });
     //发货组改变时，加载关联的滑道
     $(sendGroupSelect).change(function () {
@@ -30,7 +24,32 @@ $(document).ready(function(){
             toGantryExceptionPage();
         }
     })
+
+    /** 定时刷新数据 **/
+    var flashT;
+    $("#flash").click(function () {
+        if($(this).is(":checked")){
+            // $(function() {
+            flashT = setInterval("flashChuteInfo()",flashTime);
+            // })
+        }else{
+            flashT = window.clearInterval(flashT);
+        }
+    })
+
+    //点击添加分组
+
 });
+
+function query() {
+    var currentSortMachineCode = $("#sortMachine").val();
+    //查询机器号下的滑道信息
+    queryChuteBySortMachineCode(currentSortMachineCode);
+    //初始化发货组
+    sortMachineGroupInit(currentSortMachineCode);
+    //查询异常信息
+    queryExceptionNum();
+}
 /**
  * 查询该分拣机下的发货组
  * @param groupId
@@ -189,22 +208,26 @@ function loadChutes(chutes) {
             var url = $("#contextPath").val() + "/gantryAutoSend/summaryBySendCode";
             var packageSum = 0.00;//总数量
             var volumeSum = 0.00;//总体积
-            CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
-                if (data != undefined && data != null){
-                    var sum = data.data;
-                    if(sum.packageSum != null && sum.volumeSum != null){
-                        packageSum = sum.packageSum;
-                        volumeSum = sum.volumeSum;
+            if(chute.sendCode){
+                CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
+                    if (data != undefined && data != null){
+                        var sum = data.data;
+                        if(sum.packageSum != null && sum.volumeSum != null){
+                            packageSum = sum.packageSum;
+                            volumeSum = sum.volumeSum;
+                        }
                     }
-                }
-            });
+                });
+            }
+
             var tr = '';
             tr += '<tr>';
-            tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode + '"></td>';
+            tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode1 + '"></td>';
+            tr += '<td name="chuteCode">' + sortSchemeDetail.chuteCode1 + '</td>';
             tr += '<td name="sendSiteCode">' + sortSchemeDetail.sendSiteCode + '</td>';
             tr += '<td name="sendSiteName">' + sortSchemeDetail.sendSiteName + '</td>';
             tr += '<td name="sendCode">' + chute.sendCode + '</td>';
-            tr += '<td name="createTime">' + chute.createTime + '</td>';
+            tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
             tr += '<td name="packageSum">' + packageSum+ '</td>';
             tr += '<td name="volumeSum">' + volumeSum + '</td>';
             tr += '</tr>';
@@ -399,17 +422,7 @@ function generateSendCode(list) {
     })
 }
 
-/** 定时刷新数据 **/
-var flashT;
-$("#flash").click(function () {
-    if($(this).is(":checked")){
-        // $(function() {
-        flashT = setInterval("flashChuteInfo()",flashTime);
-        // })
-    }else{
-        flashT = window.clearInterval(flashT);
-    }
-})
+
 
 /**
  * 页面定时刷新函数(设置10秒刷新一次)
@@ -419,8 +432,7 @@ function flashChuteInfo(){
     if(!machineId){
         return;
     }
-    //模拟点击查询按钮
-    document.getElementById("queryBtn").onclick();
+    query();
 }
 
 /**
@@ -481,23 +493,29 @@ function toReplenishPrintPage(){
  * 点击异常数据跳转到异常发货界面
  */
 function toGantryExceptionPage(){
-    var url = $("#contextPath").val() + "/gantryException/gantryExceptionList";
-    // if(gantryParams == undefined || gantryParams == null || gantryParams.machineId == null || gantryParams.machineId == 0){
-    //     var machineId = $("#gantryDevice option:selected").val();
-    //     var siteCode = $("#siteOrg option:selected").val();
-    //     if(machineId != "" || machineId != 0){
-    //         url += "?machineId=" + gantryParams.machineId;
-    //     }
-    //     if(siteCode != "" || siteCode != 0){
-    //         url += "&siteCode=" + siteCode;
-    //     }
-    //     location.href = url;
-    //     return;
-    // }
+    var url = $("#contextPath").val() + "/gantryException/autoMachineExceptionList";
     if(!$("#sortMachine").val()){
         return;
     }
     location.href = url + "?machineId=" + $("#sortMachine").val()
         // + "&siteCode=" + gantryParams.createSiteCode
         // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+}
+function add0(m) {
+    return m < 10 ? '0' + m : m;
+}
+function dateFormat(date) {
+    if(date == null || date == ""){
+        return "";
+    }
+    var time = new Date(date);
+    var y = time.getFullYear();
+    var m = time.getMonth() + 1;
+    var d = time.getDate();
+    var h = time.getHours();
+    var mm = time.getMinutes();
+    var s = time.getSeconds();
+
+    return y + '-' + add0(m) + '-' + add0(d) + ' ' + add0(h) + ':' + add0(mm)
+        + ':' + add0(s);
 }

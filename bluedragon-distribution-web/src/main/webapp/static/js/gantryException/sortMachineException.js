@@ -2,7 +2,6 @@
  * Created by hanjiaxing on 2016/12/14.
  */
 //机器码
-var sortMachineSelect = $("#sortMachine");
 $(document).ready(init);
 
 /**
@@ -10,8 +9,8 @@ $(document).ready(init);
  * */
 function init() {
 
-    //加载分拣机代码
-    sortMachineInit();
+    // //加载分拣机代码
+    // sortMachineInit();
 
     $("#gantry_exception_query_sub").click(function () {
         gantry_exception_query_sub(1);
@@ -55,7 +54,7 @@ function loadMachineCodes(machineCodes) {
     $.each(machineCodes, function (index, machineCode) {
         option = option + "<option value='" + machineCode + "'>" + machineCode + "</option>";
     });
-    $(sortMachineSelect).html(option);
+    $("#sortMachine").html(option);
 }
 
 
@@ -94,7 +93,7 @@ function gantry_exception_export_sub() {
  * */
 function getParams() {
     var params = {};
-    params.machineId = $.trim($(sortMachineSelect).val());
+    params.machineId = $.trim($("#sortMachine").val());
     params.startTime = $.trim($("#gantry_exception_startTime").val());
     params.endTime = $.trim($("#gantry_exception_endTime").val());
     var sendStatusValue = $.trim($("#gantry_exception_sendStatus").val());

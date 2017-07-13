@@ -84,6 +84,11 @@ public class GantryException {
      */
     private String sendCode;
 
+    /**
+     * 滑槽号
+     * */
+    private String chuteCode;
+
     public Long getId() {
         return id;
     }
@@ -203,5 +208,13 @@ public class GantryException {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public String getChuteCode() {
+        return chuteCode;
+    }
+
+    public void setChuteCode(String chuteCode) {
+        this.chuteCode = chuteCode;
     }
 }

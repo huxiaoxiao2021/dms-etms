@@ -20,7 +20,7 @@ public class GantryExceptionRequest implements Serializable {
     /**
      * 龙门架设备编号
      */
-    private Integer machineId;
+    private String machineId;
 
     /**
      * 失败类型
@@ -56,11 +56,11 @@ public class GantryExceptionRequest implements Serializable {
         this.id = id;
     }
 
-    public Integer getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(Integer machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 

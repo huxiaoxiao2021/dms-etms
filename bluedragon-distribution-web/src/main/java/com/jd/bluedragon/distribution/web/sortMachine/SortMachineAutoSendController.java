@@ -56,6 +56,8 @@ public class SortMachineAutoSendController {
     private final static int SENDCODE_PRINT_TYPE = 1;//批次打印
 
     private final static int SUMMARY_PRINT_TYPE = 2;//汇总单打印
+
+    private final static int MAX_PAGE_SIZE = 1000;
     @Autowired
     BaseMajorManager baseMajorManager;
     @Resource
@@ -107,7 +109,7 @@ public class SortMachineAutoSendController {
         SortSchemeRequest sortSchemeRequest = new SortSchemeRequest();
         sortSchemeRequest.setSiteNo(String.valueOf(bssod.getSiteCode()));
         sortSchemeRequest.setPageNo(1);
-        sortSchemeRequest.setPageSize(Integer.MAX_VALUE);
+        sortSchemeRequest.setPageSize(MAX_PAGE_SIZE);
         SortSchemeResponse<Pager<List<SortScheme>>> remoteResponse = sortSchemeService.
                 pageQuerySortScheme(sortSchemeRequest, HTTP + url + "/autosorting/sortScheme/list");
         if(remoteResponse == null
@@ -177,6 +179,7 @@ public class SortMachineAutoSendController {
     @ResponseBody
     public InvokeResult<List<SortMachineBatchSendResult>> queryChuteBySortMachineCode(String machineCode){
         InvokeResult<List<SortMachineBatchSendResult>> response = new InvokeResult<List<SortMachineBatchSendResult>>();
+        //todo dev test
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         //获取分拣站点失败
@@ -186,6 +189,10 @@ public class SortMachineAutoSendController {
         }
         //获取分拣中心本地服务url
         String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+/*        String url = "dmsvertest.360buy.com";
+        BaseStaffSiteOrgDto bssod = new BaseStaffSiteOrgDto();
+        bssod.setSiteCode(910);*/
+        //todo dev test end
         if (StringUtils.isBlank(url)) {
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
             return response;
@@ -194,9 +201,9 @@ public class SortMachineAutoSendController {
         request.setMachineCode(machineCode);
         request.setSortSchemeYn(1);
         request.setPageNo(1);
-        request.setPageSize(Integer.MAX_VALUE);
-        SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = sortSchemeService.
-                pageQuerySortSchemeDetail(request, HTTP + url + "/autosorting/sortSchemeDetail/list");
+        request.setPageSize(MAX_PAGE_SIZE);
+        SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = null;
+        remoteResponse = sortSchemeService.pageQuerySortSchemeDetail(request, HTTP + url + "/services/sortSchemeDetail/list");
         if(remoteResponse == null ||
                 remoteResponse.getData() == null ||
                 remoteResponse.getData().getData() == null ||
@@ -241,7 +248,7 @@ public class SortMachineAutoSendController {
             SortMachineBatchSendResult sortMachineBatchSendResult = new SortMachineBatchSendResult();
             sortMachineBatchSendResult.setSortSchemeDetail(sortSchemeDetail);
             ScannerFrameBatchSend batchSend = stringScannerFrameBatchSendMap.get(siteCode + "-" + sortSchemeDetail.getSendSiteCode());
-            String sendCode = batchSend == null ? "none" : batchSend.getSendCode();
+            String sendCode = batchSend == null ? "" : batchSend.getSendCode();
             Date createTime = batchSend == null ? null : batchSend.getCreateTime();
             sortMachineBatchSendResult.setSendCode(sendCode);
             sortMachineBatchSendResult.setSendCodeCreateTime(createTime);
@@ -257,7 +264,7 @@ public class SortMachineAutoSendController {
      */
     private Map<String, ScannerFrameBatchSend> convert2Map(List<ScannerFrameBatchSend> scannerFrameBatchSends){
         if(scannerFrameBatchSends == null || scannerFrameBatchSends.isEmpty()){
-            return null;
+            return Collections.EMPTY_MAP;
         }
         Map<String, ScannerFrameBatchSend> resultMap = new HashMap<String, ScannerFrameBatchSend>(scannerFrameBatchSends.size());
         for(ScannerFrameBatchSend scannerFrameBatchSend : scannerFrameBatchSends){

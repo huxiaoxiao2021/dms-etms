@@ -17,12 +17,14 @@
         <result column="YN" property="yn" jdbcType="TINYINT"/>
         <result column="SEND_STATUS" property="sendStatus" jdbcType="TINYINT"/>
         <result column="SEND_CODE" property="sendCode" jdbcType="VARCHAR"/>
+        <result column="CHUTE_CODE" property="chuteCode" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="gantryExceptionColumn" >
         ID, MACHINE_ID, BAR_CODE, WAYBILL_CODE,
         CREATE_SITE_CODE, CREATE_SITE_NAME, VOLUME,
-        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE,
+        CHUTE_CODE
     </sql>
     <sql id="gantryExceptionColumnNoID" >
             MACHINE_ID,
@@ -39,7 +41,7 @@
         <if test = "volume != null">
             VOLUME,
         </if>
-        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE,CHUTE_CODE
     </sql>
 
     <insert id="addGantryException" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryException">
@@ -61,7 +63,10 @@
         </if>
            #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
           now(), now(), 1, 0 ,
-          #{sendCode, jdbcType=VARCHAR}
+          #{sendCode, jdbcType=VARCHAR},
+        <if test="chuteCode ！= null">
+            #{chuteCode, jdbcType=VARCHAR}
+        </if>
         )
     </insert>
 

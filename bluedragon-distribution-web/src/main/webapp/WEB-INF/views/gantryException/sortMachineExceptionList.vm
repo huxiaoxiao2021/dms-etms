@@ -66,9 +66,7 @@
         <div id="gantry_exception_query_machine_div" style="padding-top: 10px; height: 30px;" >
             <span class="gantry_exception_query_span">
 				分拣机编号：
-				<select name="sortMachine" id="sortMachine">
-                    <option value="">请选择分拣机</option>
-                </select>
+                <input id="sortMachine" value="$!queryParam.machineId"/>
 			</span>
 
             <span class="gantry_exception_query_span">

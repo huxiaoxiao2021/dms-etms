@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.gantry;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
+import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
@@ -370,7 +371,7 @@ public class GantryAutoSendController {
 
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Integer> queryExceptionNum(GantryDeviceConfigRequest request) {
+    public InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
         this.logger.debug("获取龙门架异常信息 --> queryExceptionNum");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
@@ -380,8 +381,8 @@ public class GantryAutoSendController {
             logger.error("龙门架参数异常，获取异常数据失败");
         }
         try {
-            if (null != request.getMachineId()) {
-                Integer count = gantryExceptionService.getGantryExceptionCount( String.valueOf(request.getMachineId()), request.getStartTime(), request.getEndTime());
+            if (StringUtils.isNotBlank(request.getMachineId())) {
+                Integer count = gantryExceptionService.getGantryExceptionCount( request.getMachineId(), request.getStartTime(), request.getEndTime());
                 result.setCode(200);
                 result.setMessage("龙门架异常数据获取成功");
                 result.setData(count);
