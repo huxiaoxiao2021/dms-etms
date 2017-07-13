@@ -303,11 +303,11 @@ function loadSendGroups(sendGroups) {
     if(sendGroups){
         var option = '<option value="">请选择发货组</option>';
         $.each(sendGroups, function (index, sendGroup) {
-            option = option + "<option value='" + id + "'>" + groupName + "</option>";
+            option = option + "<option value='" + sendGroup.id + "'>" + sendGroup.groupName + "</option>";
         });
         $('#sendGroup').html(option);
     }else {
-        $('#sendGroup').html('<option value="">无发货组</option> ');
+        $('#sendGroup').html('<option value="">请选择发货组</option> ');
     }
 
 

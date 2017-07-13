@@ -9,7 +9,7 @@ import java.util.List;
  * Created by jinjingcheng on 2017/6/28.
  */
 public class SortMachineGroupConfigDao extends BaseDao<SortMachineGroupConfig> {
-    public static final String namespace = SortMachineSendGroupDao.class.getName();
+    public static final String namespace = SortMachineGroupConfigDao.class.getName();
 
     public List<SortMachineGroupConfig> findSendGroupConfigByGroupId(Integer groupId) {
         return super.getSqlSession().selectList(namespace + ".findSendGroupConfigByGroupId", groupId);
