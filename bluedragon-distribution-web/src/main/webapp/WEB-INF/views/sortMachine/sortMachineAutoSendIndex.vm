@@ -20,7 +20,7 @@
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js?t=15')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js?t=22')"></script>
     <style  type="text/css">
         .part {
             margin-top: 30px;
@@ -77,6 +77,8 @@
 </head>
 <body>
     <input type="hidden" id="contextPath" value="#springUrl('')">
+    <input type="hidden" class="textField" id="createSiteCode" value="$!{createSiteCode}">
+    <input type="hidden" class="textField" id="createSiteName" value="$!{createSiteName}">
     <div id="breadcrumb">
         <P>
             <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣机自动发货</a>
@@ -175,7 +177,7 @@
                             <th>总体积</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="chuteTb">
 
                         </tbody>
                     </table>

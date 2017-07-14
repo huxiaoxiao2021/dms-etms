@@ -11,6 +11,7 @@ $(document).ready(function(){
     //发货组改变时，加载关联的滑道
     $('#sendGroup').change(function () {
         var currentGroupId = $(this).val();
+        $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
         querySendGroupConfig(currentGroupId);
     });
 
@@ -38,6 +39,11 @@ $(document).ready(function(){
         var sortMachineCode = $("#sortMachine").val();
         if(!sortMachineCode){
             jQuery.messager.alert("提示","请选择分拣机编号","error");
+            return;
+        }
+        var checkedGroup = $("tbody[id='chuteTb'] input[type='checkbox']:checked");
+        if(!checkedGroup.size()){
+            jQuery.messager.alert("提示","请选择关联的滑道号","error");
             return;
         }
         //清空内容
@@ -89,10 +95,8 @@ $(document).ready(function(){
         }
         var chuteCodes = getChuteCodes();
         if(chuteCodes == null || chuteCodes.length == 0){
-            if(!sendGroupName ){
                 jQuery.messager.alert("提示","请选择滑槽","error");
                 return;
-            }
         }
         updateSendGroup(currentSendGroup, sortMachineCode, chuteCodes);
     });
@@ -115,7 +119,92 @@ $(document).ready(function(){
      * 滑槽信息全选checkbox
      */
     $("#all").click(function(){
-        $("tbody input[type='checkbox']").prop("checked", $("#all").prop("checked"));
+        $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked", $("#all").prop("checked"));
+    });
+
+    /** 设置打印机的保存点击事件 **/
+    $("#printSettingSaveBtn").click(function () {
+        printSettingSave();
+    });
+
+    /** 打印并完结批次点击事件 **/
+    $("#printAndEndSend").click(function () {
+        var machineId = $("#sortMachine :selected").val();
+        if(machineId == undefined || machineId == "" || machineId == 0 ){
+            return;
+        }
+
+        /** 第一步：读取需要打印的方式(逻辑与)：1.打批次号 2.打汇总单 3.both**/
+        var type = 0;
+        $("input[name=printStyle]:checked").each(function () {
+            type |= $(this).val();
+        });
+
+        /** 读取cookie中设置的打印机的值 **/
+        var labelPrinterValue = $.cookie("labelPrinterValue");
+        var listPrinterValue = $.cookie("listPrinterValue");
+        if(type&1 == 1 && labelPrinterValue == null){
+            jQuery.messager.alert("提示","没有设置标签打印机，请前往设置","info");
+            return;
+        }
+        if(type&2 == 2 && listPrinterValue == null){
+            jQuery.messager.alert("提示","没有设置清单打印机，请前往设置","info");
+            return;
+        }
+        var printerNames = {"labelPrinter":labelPrinterValue,"listPrinter":listPrinterValue};
+
+        /** 第二步判断是否有选中单个进行打印并完结的事件 **/
+        var list = [];
+        list.push({"machineId":$("#sortMachine :selected").val(),
+            "printType": type
+            // ,
+            // "createSiteCode":$("#siteOrg :selected").val()
+        });
+        $("tbody[id='chuteTb'] input[type='checkbox']:checked").each(function () {
+            var param = {};
+            param.machineId = $("#sortMachine").val();
+            param.createSiteCode = $("#createSiteCode").val();
+            param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
+            param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+            param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
+            list.push(param);
+        });
+
+        if(list.length == 1){
+            if(!confirm("您将要打印并完结当前所有批次，是否继续？")){
+                return;
+            }
+        }
+
+        /** 第三步：打印，批次打印和汇总打印 **/
+        printAndEndSendCodeBtn(list,printerNames);//打印事件
+
+        /** 刷新当前页面 **/
+        // var currentPage = $(".current").text();
+        // queryBatchSendSub(currentPage);
+
+    });
+
+    /** 换批次按钮点击事件 **/
+    $("#generateSendCodeBtn").click(function () {
+        //得到勾选框的值
+        var list = [];
+        $("input[name=item]:checked").each(function () {
+            var param = {};
+            param.machineId = $("#sortMachine :selected").val();
+            param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
+            param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
+            param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
+            list.push(param);
+        });
+        if(list.length == 0){
+            return;
+        }
+        generateSendCode(list);
+    });
+    /** 补打印按钮点击事件 **/
+    $("#replenishPrint").click(function () {
+        toReplenishPrintPage();
     });
 });
 
@@ -123,7 +212,7 @@ function deleteSendGroup(groupId) {
     var param= {};
     param.groupId = groupId;
     var url = $("#contextPath").val() + "/sortMachineAutoSend/deleteSendGroup";
-    CommonClient.postJson(url,param,function (data) {
+    CommonClient.ajax("POST",url,param,function (data){
         if (data == undefined || data == null) {
             jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
             return;
@@ -131,8 +220,8 @@ function deleteSendGroup(groupId) {
         if ( data.code == 200) {
             jQuery.messager.alert("提示：","删除成功！","error");
             //刷新发货组
-            sortMachineGroupInit(sortMachineCode);
-            $("tbody input[type='checkbox']").prop("checked",false);
+            sortMachineGroupInit($("#sortMachine").val());
+            $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
         }else if(data.code == 500) {
             jQuery.messager.alert("提示：",data.message,"error");
         }
@@ -155,7 +244,7 @@ function updateSendGroup(groupId, sortMachineCode, chuteCodes) {
             jQuery.messager.alert("提示：","修改成功！","error");
             //刷新发货组
             sortMachineGroupInit(sortMachineCode);
-            $("tbody input[type='checkbox']").prop("checked",false);
+            $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
         }else if(data.code == 500) {
             jQuery.messager.alert("提示：",data.message,"error");
         }
@@ -173,7 +262,6 @@ function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
     param.chuteCodes =  chuteCodes;
     var url = $("#contextPath").val() + "/sortMachineAutoSend/addSendGroup";
     CommonClient.postJson(url,param,function (data) {
-        var sendGroupConfigs = data.data;
         if (data == undefined || data == null) {
             jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
             return;
@@ -181,11 +269,10 @@ function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
         if ( data.code == 200) {
             popClose('addSendGroupDiv');
             jQuery.messager.alert("提示：","添加成功！","error");
-
             //刷新发货组
             sortMachineGroupInit(sortMachineCode);
-            $("tbody input[type='checkbox']").prop("checked",false);
-        }else if(data.code == 500) {
+            $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
+        }else{
             popClose('addSendGroupDiv');
             jQuery.messager.alert("提示：",data.message,"error");
 
@@ -198,7 +285,7 @@ function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
  */
 function getChuteCodes() {
     var chutecodes =  new Array();
-    $.each($("tbody input[type='checkbox']"), function(index, chk){
+    $.each($("tbody[id='chuteTb'] input[type='checkbox']"), function(index, chk){
         if($(this).prop('checked')){
             var chuteCode = $(this).parents("tr").find("[name=chuteCode]").text();
             if(chuteCode){
@@ -331,7 +418,6 @@ function loadMachineCodes(machineCodes) {
  * @param sendGroupConfigs
  */
 function loadSendGroupConfigs(sendGroupConfigs) {
-    $("tbody input[type='checkbox']").prop("checked",false);
     if(sendGroupConfigs){
         $.each(sendGroupConfigs, function (index, groupConfig) {
             $("#ckbox"+ groupConfig.chuteCode).prop("checked",true);
@@ -458,69 +544,6 @@ function printSettingSave(){
     popClose('printSettingPopUp');//关闭弹出层
 }
 
-/** 设置打印机的保存点击事件 **/
-$("#printSettingSaveBtn").click(function () {
-    printSettingSave();
-});
-
-/** 打印并完结批次点击事件 **/
-$("#printAndEndSend").click(function () {
-    var machineId = $("#sortMachine :selected").val();
-    if(machineId == undefined || machineId == "" || machineId == 0 ){
-        return;
-    }
-
-    /** 第一步：读取需要打印的方式(逻辑与)：1.打批次号 2.打汇总单 3.both**/
-    var type = 0;
-    $("input[name=printStyle]:checked").each(function () {
-        type |= $(this).val();
-    });
-
-    /** 读取cookie中设置的打印机的值 **/
-    var labelPrinterValue = $.cookie("labelPrinterValue");
-    var listPrinterValue = $.cookie("listPrinterValue");
-    if(type&1 == 1 && labelPrinterValue == null){
-        jQuery.messager.alert("提示","没有设置标签打印机，请前往设置","info");
-        return;
-    }
-    if(type&2 == 2 && listPrinterValue == null){
-        jQuery.messager.alert("提示","没有设置清单打印机，请前往设置","info");
-        return;
-    }
-    var printerNames = {"labelPrinter":labelPrinterValue,"listPrinter":listPrinterValue};
-
-    /** 第二步判断是否有选中单个进行打印并完结的事件 **/
-    var list = [];
-    list.push({"machineId":$("#sortMachine :selected").val(),
-        "printType": type
-        // ,
-        // "createSiteCode":$("#siteOrg :selected").val()
-    });
-    $("input[name=item]:checked").each(function () {
-        var param = {};
-        param.machineId = $("#sortMachine :selected").val();
-        // param.createSiteCode = $("#siteOrg :selected").val();
-        param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
-        param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
-        param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
-        list.push(param);
-    });
-
-    if(list.length == 1){
-        if(!confirm("您将要打印并完结当前所有批次，是否继续？")){
-            return;
-        }
-    }
-
-    /** 第三步：打印，批次打印和汇总打印 **/
-    printAndEndSendCodeBtn(list,printerNames);//打印事件
-
-    /** 刷新当前页面 **/
-    // var currentPage = $(".current").text();
-    // queryBatchSendSub(currentPage);
-
-});
-
 /**
  * 打印并完结批次事件
  */
@@ -556,23 +579,7 @@ function printAndEndSendCodeBtn(param,printerNames){
 }
 
 
-/** 换批次按钮点击事件 **/
-$("#generateSendCodeBtn").click(function () {
-    //得到勾选框的值
-    var list = [];
-    $("input[name=item]:checked").each(function () {
-        var param = {};
-        param.machineId = $("#sortMachine :selected").val();
-        param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
-        param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
-        param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
-        list.push(param);
-    });
-    if(list.length == 0){
-        return;
-    }
-    generateSendCode(list);
-});
+
 
 
 /**
@@ -639,10 +646,7 @@ function queryExceptionNum(){
     })
 }
 
-/** 补打印按钮点击事件 **/
-$("#replenishPrint").click(function () {
-    toReplenishPrintPage();
-});
+
 
 /**
  * 点击补打印跳转到补打印界面

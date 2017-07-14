@@ -71,7 +71,29 @@ public class SortMachineAutoSendController {
     GantryExceptionService gantryExceptionService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String index() {
+    public String index(Model model) {
+        this.logger.debug("分拣机自动发货 --> index");
+        try {
+            //todo dev test
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                Integer siteCode = 0;
+                String siteName = "";
+                String userCode = erpUser.getUserCode() == null ? "none" : erpUser.getUserCode();
+                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+                if (bssod != null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+                    siteCode = bssod.getSiteCode();
+                    siteName = bssod.getSiteName();
+                }
+                model.addAttribute("createSiteCode", String.valueOf(siteCode));
+                model.addAttribute("createSiteName", siteName);
+            }
+/*            model.addAttribute("createSiteCode", "910");
+            model.addAttribute("createSiteName", "马驹桥分拣中心");*/
+            //todo dev test end
+        } catch (Exception e) {
+            logger.info("没有维护分拣中心，初始化加载失败");
+        }
         return "sortMachine/sortMachineAutoSendIndex";
     }
 
@@ -286,9 +308,9 @@ public class SortMachineAutoSendController {
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         //todo dev test
-/*        erpUser = new ErpUserClient.ErpUser();
+        erpUser = new ErpUserClient.ErpUser();
         erpUser.setStaffNo(9901);
-        erpUser.setUserName("tester1");*/
+        erpUser.setUserName("tester1");
         //todo dev test end
         try{
             InvokeResult addResult = sortMachineSendGroupService.addSendGroup(request.getMachineCode(),
@@ -311,9 +333,14 @@ public class SortMachineAutoSendController {
      */
     @RequestMapping(value = "/updateSendGroup", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult updateSendGroup(SortMachineGroupRequest request){
+    public InvokeResult updateSendGroup(@RequestBody SortMachineGroupRequest request){
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        //todo dev test
+        erpUser = new ErpUserClient.ErpUser();
+        erpUser.setStaffNo(9901);
+        erpUser.setUserName("tester1");
+        //todo dev test end
         try{
              sortMachineSendGroupService.updateSendGroup(request.getGroupId(),
                      request.getMachineCode(),request.getChuteCodes(),
@@ -335,7 +362,6 @@ public class SortMachineAutoSendController {
     @ResponseBody
     public InvokeResult deleteSendGroup(Long groupId){
         InvokeResult respone = new InvokeResult();
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         try{
             sortMachineSendGroupService.deleteSendGroup(groupId);
         }catch (Exception e){
@@ -362,9 +388,9 @@ public class SortMachineAutoSendController {
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
 
-        Integer machineId = requests[0].getMachineId();
+        String machineId = requests[0].getMachineId();
         Integer printType = requests[0].getPrintType();//打印方式逻辑与：1 批次号打印 2 汇总单 3 两者
-        if (machineId == null || machineId == 0 || printType == null) {
+        if (StringUtils.isBlank(machineId) || printType == null) {
             result.setCode(200);
             result.setMessage("龙门架参数错误");
             return result;
