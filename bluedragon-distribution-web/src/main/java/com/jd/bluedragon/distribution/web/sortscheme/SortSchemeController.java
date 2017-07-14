@@ -70,33 +70,33 @@ public class SortSchemeController {
 
     // 页面跳转控制 增加参数跳转
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String index(Integer siteCode,String siteName,Model model) {
+    public String index(Integer siteCode, String siteName, Model model) {
 
-        if(null == siteName || "".equals(siteName)){
+        if (null == siteName || "".equals(siteName)) {
             /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
             logger.info("开始获取当前登录用户的ERP信息......");
-            try{
+            try {
                 ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-                logger.info("获取用户ERP："+ user.getUserCode());
+                logger.info("获取用户ERP：" + user.getUserCode());
                 BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
-                if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                if (bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
                     siteCode = bssod.getSiteCode();
                     siteName = bssod.getSiteName();
                 }
-            }catch(Exception e){
-                logger.error("用户分拣中心初始化失败：",e);
+            } catch (Exception e) {
+                logger.error("用户分拣中心初始化失败：", e);
             }
-        }else{
-            try{
-                siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));//需要截取字段
+        } else {
+            try {
+                siteName = getSiteNameParam(URLDecoder.decode(siteName, "UTF-8"));//需要截取字段
 
-            }catch(UnsupportedEncodingException e){
-                logger.error("分拣中心参数解码异常：",e);
+            } catch (UnsupportedEncodingException e) {
+                logger.error("分拣中心参数解码异常：", e);
             }
         }
 
-        model.addAttribute("siteCode",siteCode);
-        model.addAttribute("siteName",siteName);
+        model.addAttribute("siteCode", siteCode);
+        model.addAttribute("siteName", siteName);
 
         return "sortscheme/sort-scheme-index";
     }
@@ -122,14 +122,14 @@ public class SortSchemeController {
     }
 
     @RequestMapping(value = "/goAdd", method = RequestMethod.GET)
-    public String goAdd(Integer siteCode,String siteName,Model model) {
+    public String goAdd(Integer siteCode, String siteName, Model model) {
 
-        try{
-            siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));
-            model.addAttribute("siteCode",siteCode);
-            model.addAttribute("siteName",siteName);
-        }catch(UnsupportedEncodingException e){
-            logger.error("分拣中心参数解码异常：",e);
+        try {
+            siteName = getSiteNameParam(URLDecoder.decode(siteName, "UTF-8"));
+            model.addAttribute("siteCode", siteCode);
+            model.addAttribute("siteName", siteName);
+        } catch (UnsupportedEncodingException e) {
+            logger.error("分拣中心参数解码异常：", e);
         }
         return "sortscheme/sort-scheme-add";
     }
@@ -204,7 +204,7 @@ public class SortSchemeController {
 
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ResponseBody
-    public void doExportExcel(@RequestParam("id")Long id, @RequestParam("siteNo")String siteNo, HttpServletRequest request, HttpServletResponse response) {
+    public void doExportExcel(@RequestParam("id") Long id, @RequestParam("siteNo") String siteNo, HttpServletRequest request, HttpServletResponse response) {
         try {
             response.setHeader("Content-type", "text/html;charset=UTF-8");
             if (id == null || siteNo == null) {
@@ -392,6 +392,12 @@ public class SortSchemeController {
         return response;
     }
 
+    /**
+     * 开启分拣机自动发货
+     *
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/update/open/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> ableAutoSendById(@RequestBody SortSchemeRequest request) {
@@ -422,6 +428,12 @@ public class SortSchemeController {
         return response;
     }
 
+    /**
+     * 关闭分拣机自动发货
+     *
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/update/close/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> disableAutoSendById(@RequestBody SortSchemeRequest request) {
@@ -452,14 +464,16 @@ public class SortSchemeController {
         return response;
     }
 
-    /** 去掉参数中的ID，保留中午分拣中心名 **/
-    private String getSiteNameParam(String str){
+    /**
+     * 去掉参数中的ID，保留中午分拣中心名
+     **/
+    private String getSiteNameParam(String str) {
         String siteName = "";
         String regEX = "[\\u4e00-\\u9fa5]+";
         Pattern pattern = Pattern.compile(regEX);
         Matcher matcher = pattern.matcher(str);
         logger.info("分拣中心参数截取......");
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group(0);
         }
         logger.error("getSiteNameParam()方法执行异常。。。");
