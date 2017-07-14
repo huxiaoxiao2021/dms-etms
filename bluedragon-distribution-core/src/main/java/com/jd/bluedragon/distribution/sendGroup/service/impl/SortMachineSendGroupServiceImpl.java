@@ -41,8 +41,11 @@ public class SortMachineSendGroupServiceImpl implements SortMachineSendGroupServ
                                      Integer staffNo,
                                      String userName) {
         //检查
-        InvokeResult saveResult =  addSendGroupCheck();
-        //
+        InvokeResult saveResult =  addSendGroupCheck(machineCode, groupName);
+        if(saveResult.getCode() != 200){
+            return saveResult;
+        }
+
         SortMachineSendGroup sendGroup = new SortMachineSendGroup();
         sendGroup.setGroupName(groupName);
         sendGroup.setMachineCode(machineCode);
@@ -105,9 +108,18 @@ public class SortMachineSendGroupServiceImpl implements SortMachineSendGroupServ
         return sortMachineGroupConfig;
     }
 
-    //todo
-    private InvokeResult addSendGroupCheck(){
+    //检查发货组名称是否已存在
+    private InvokeResult addSendGroupCheck(String machineCode,
+                                           String groupName){
         InvokeResult checkResut = new InvokeResult();
+        SortMachineSendGroup sendGroup = new SortMachineSendGroup();
+        sendGroup.setGroupName(groupName);
+        sendGroup.setMachineCode(machineCode);
+        List<SortMachineSendGroup> sortMachineSendGroups = sortMachineSendGroupDao.findSendGroupByEntity(sendGroup);
+        if(sortMachineSendGroups != null && !sortMachineSendGroups.isEmpty()){
+            checkResut.parameterError("发货组名称已存在");
+            return checkResut;
+        }
         return checkResut;
     }
 }

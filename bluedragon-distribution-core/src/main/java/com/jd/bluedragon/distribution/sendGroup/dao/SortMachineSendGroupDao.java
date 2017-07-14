@@ -30,4 +30,8 @@ public class SortMachineSendGroupDao extends BaseDao<SortMachineSendGroup>{
     public void deleteSendGroupById(Long groupId) {
         super.getSqlSession().delete(namespace + ".deleteSendGroupById", groupId);
     }
+
+    public List<SortMachineSendGroup> findSendGroupByEntity(SortMachineSendGroup sendGroup) {
+        return super.getSqlSession().selectList(namespace + ".findSendGroupByEntity", sendGroup);
+    }
 }

@@ -405,9 +405,9 @@ public class GantryAutoSendController {
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
 
-        Integer machineId = requests[0].getMachineId();
+        String machineId = requests[0].getMachineId();
         Integer printType = requests[0].getPrintType();//打印方式逻辑与：1 批次号打印 2 汇总单 3 两者
-        if (machineId == null || machineId == 0 || printType == null) {
+        if (StringUtils.isBlank(machineId) || printType == null) {
             result.setCode(200);
             result.setMessage("龙门架参数错误");
             return result;
@@ -432,7 +432,7 @@ public class GantryAutoSendController {
         }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
-        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有龙门架ID
+        sfbssa.setMachineId(machineId);//查询参数只有龙门架ID
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(MAX_DATA_TO_PRINT);
