@@ -189,7 +189,7 @@ $(document).ready(function(){
     $("#generateSendCodeBtn").click(function () {
         //得到勾选框的值
         var list = [];
-        $("input[name=item]:checked").each(function () {
+        $("tbody[id='chuteTb'] input[type='checkbox']:checked").each(function () {
             var param = {};
             param.machineId = $("#sortMachine :selected").val();
             param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
@@ -593,7 +593,8 @@ function generateSendCode(list) {
             return;
         }
         if(data.code == 200){
-            queryBatchSendSub(1);
+            jQuery.messager.alert("提示：","更换批次成功！","info");
+            query();
         }else{
             jQuery.messager.alert("错误：","本次换批次失败！！","error");
             return;
@@ -653,15 +654,17 @@ function queryExceptionNum(){
  */
 function toReplenishPrintPage(){
     var url = $("#contextPath").val() + "/sortMachineAutoSend/replenishPrintIndex";
-    var param = {};
 
     if(!$("#sortMachine").val()){
         jQuery.messager.alert("提示：","请选择分拣机编号","info");
         return;
     }
+    var createSiteCode = $("#createSiteCode").val();
+    var createSiteName = $("#createSiteName").val();
     location.href = url + "?machineId=" + $("#sortMachine").val()
-        // + "&createSiteCode=" + gantryParams.createSiteCode
-        // + "&createSiteName=" + encodeURIComponent(encodeURIComponent(gantryParams.createSiteName)) + "&startTime="
+        + "&createSiteCode=" + createSiteCode
+        + "&createSiteName=" + encodeURIComponent(encodeURIComponent(createSiteName))
+        // + "&startTime="
         // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
 }
 
@@ -673,8 +676,9 @@ function toGantryExceptionPage(){
     if(!$("#sortMachine").val()){
         return;
     }
+    var createSiteCode = $("#createSiteCode").val();
     location.href = url + "?machineId=" + $("#sortMachine").val()
-        // + "&siteCode=" + gantryParams.createSiteCode
+        + "&siteCode=" + createSiteCode
         // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }
 function add0(m) {
