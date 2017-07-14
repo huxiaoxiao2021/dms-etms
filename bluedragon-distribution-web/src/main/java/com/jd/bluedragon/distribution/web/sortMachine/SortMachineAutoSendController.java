@@ -81,7 +81,7 @@ public class SortMachineAutoSendController {
                 String siteName = "";
                 String userCode = erpUser.getUserCode() == null ? "none" : erpUser.getUserCode();
                 BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-                if (bssod != null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+                if (bssod != null && bssod.getSiteType() == 64) {
                     siteCode = bssod.getSiteCode();
                     siteName = bssod.getSiteName();
                 }
@@ -143,9 +143,14 @@ public class SortMachineAutoSendController {
             return response;
         }
         List<SortScheme> sortSchemes = remoteResponse.getData().getData();
-        List<String> machineCodes = new ArrayList<String>(sortSchemes.size());
+        List<String> machineCodes = new ArrayList<String>();
+        Map<String, String> machineCodeMap = new HashMap<String, String>();
         for(SortScheme sortScheme : sortSchemes){
-            machineCodes.add(sortScheme.getMachineCode());
+            //去除重复的
+            if(machineCodeMap.get(sortScheme.getMachineCode()) == null){
+                machineCodes.add(sortScheme.getMachineCode());
+                machineCodeMap.put(sortScheme.getMachineCode(), sortScheme.getMachineCode());
+            }
         }
         response.setData(machineCodes);
 
@@ -337,9 +342,9 @@ public class SortMachineAutoSendController {
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         //todo dev test
-        erpUser = new ErpUserClient.ErpUser();
+/*        erpUser = new ErpUserClient.ErpUser();
         erpUser.setStaffNo(9901);
-        erpUser.setUserName("tester1");
+        erpUser.setUserName("tester1");*/
         //todo dev test end
         try{
              sortMachineSendGroupService.updateSendGroup(request.getGroupId(),
@@ -566,8 +571,12 @@ public class SortMachineAutoSendController {
     }
 
 
-    @RequestMapping(value = "/replenishPrintIndex")
-    public String index(Model model, Integer machineId, Integer createSiteCode, String createSiteName, String startTime, String endTime) {
+    @RequestMapping(value = "/replenishPrintIndex", method = RequestMethod.GET)
+    public String index(Model model, String machineId,
+                        Integer createSiteCode,
+                        String createSiteName,
+                        String startTime,
+                        String endTime) {
         if (machineId != null && createSiteCode != null) {
             model.addAttribute("machineId", machineId);
             model.addAttribute("createSiteCode", createSiteCode);
