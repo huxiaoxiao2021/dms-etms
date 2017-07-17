@@ -12,6 +12,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.ql.basic.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -73,6 +74,17 @@ public class GantryExceptionController {
 
     @RequestMapping(value = "/autoMachineExceptionList", method = RequestMethod.GET)
     public String autoMachineExceptionList(GantryExceptionRequest request, Model model) {
+
+        Date nowTime = new Date();
+        String endTime = request.getEndTime();
+        String startTime = request.getStartTime();
+        endTime = com.jd.jsf.gd.util.StringUtils.isBlank(endTime) ? DateUtil.format(nowTime, DateUtil.FORMAT_DATE_TIME) : endTime;
+        if(com.jd.jsf.gd.util.StringUtils.isBlank(startTime)){
+            Date startDateTime = DateHelper.add(nowTime, Calendar.HOUR,-24);
+            startTime = DateUtil.format(startDateTime, DateUtil.FORMAT_DATE_TIME);
+        }
+        request.setEndTime(endTime);
+        request.setStartTime(startTime);
         model.addAttribute("queryParam", request);
         return "gantryException/sortMachineExceptionList";
     }

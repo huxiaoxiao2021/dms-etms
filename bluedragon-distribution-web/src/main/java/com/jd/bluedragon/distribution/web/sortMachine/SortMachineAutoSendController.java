@@ -660,30 +660,4 @@ public class SortMachineAutoSendController {
         return result;
     }
 
-    @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
-    @ResponseBody
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
-        this.logger.debug("获取分拣机异常信息 --> queryExceptionNum");
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
-        result.setCode(400);
-        result.setMessage("服务处理异常");
-        result.setData(0);
-        if (null == request) {
-            logger.error("分拣机参数异常，获取异常数据失败");
-        }
-        try {
-            if (com.jd.common.util.StringUtils.isNotBlank(request.getMachineId())) {
-                Integer count = gantryExceptionService.getGantryExceptionCount( request.getMachineId(), request.getStartTime(), request.getEndTime());
-                result.setCode(200);
-                result.setMessage("分拣机异常数据获取成功");
-                result.setData(count);
-            } else {
-                logger.error("分拣机ID参数错误");
-            }
-        } catch (NullPointerException e) {
-            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + request.getMachineId());
-        }
-
-        return result;
-    }
 }

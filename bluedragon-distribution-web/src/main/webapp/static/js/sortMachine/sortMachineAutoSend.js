@@ -95,7 +95,7 @@ $(document).ready(function(){
         }
         var chuteCodes = getChuteCodes();
         if(chuteCodes == null || chuteCodes.length == 0){
-                jQuery.messager.alert("提示","请选择滑槽","error");
+                jQuery.messager.alert("提示","请选择目的地记录","error");
                 return;
         }
         updateSendGroup(currentSendGroup, sortMachineCode, chuteCodes);
