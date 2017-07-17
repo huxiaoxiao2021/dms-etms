@@ -115,11 +115,11 @@ public class GantryExceptionController {
                 pager.setData(gantryExceptionList);
                 result.setData(pager);
                 result.setCode(200);
-                result.setMessage("查询龙门架异常信息成功");
+                result.setMessage("查询异常信息成功");
             } catch (Exception e) {
                 result.setCode(10000);
-                result.setMessage("查询龙门架异常信息失败");
-                logger.error("查询龙门架异常信息失败", e);
+                result.setMessage("查询异常信息失败");
+                logger.error("查询异常信息失败", e);
             }
         } else {
             result.setCode(10000);

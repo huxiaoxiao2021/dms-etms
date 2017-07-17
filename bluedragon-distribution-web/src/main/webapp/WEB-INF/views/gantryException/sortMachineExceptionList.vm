@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>龙门架异常数据查询</title>
+    <title>分拣机异常数据查询</title>
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
     <link rel="stylesheet" type="text/css"
@@ -58,7 +58,7 @@
 <input type="hidden" id="contextPath" value="#springUrl('')"/>
 <div id="breadcrumb">
     <p>
-        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">龙门架配置中心</a>
+        <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣机配置中心</a>
     </p>
 </div>
 <div id="content">
