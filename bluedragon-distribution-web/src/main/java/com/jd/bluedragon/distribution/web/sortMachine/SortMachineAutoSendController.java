@@ -5,6 +5,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
+import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
@@ -14,8 +15,11 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineBatchSendResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupConfig;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupRequest;
@@ -24,12 +28,15 @@ import com.jd.bluedragon.distribution.sendGroup.service.SortMachineSendGroupServ
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +47,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.annotation.meta.TypeQualifier;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -69,6 +78,12 @@ public class SortMachineAutoSendController {
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
     @Autowired
     GantryExceptionService gantryExceptionService;
+
+    @Autowired
+    GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    WaybillService waybillService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
@@ -237,7 +252,7 @@ public class SortMachineAutoSendController {
                 remoteResponse.getData().getData() == null ||
                 remoteResponse.getData().getData().isEmpty()
                 ){
-            response.parameterError("根据分拣机编码获取分解计划详情失败！");
+            response.parameterError("根据分拣机编码获取分拣计划详情失败！");
             return response;
         }
         response.setData(getSortMachineBatchSendResult(remoteResponse.getData().getData(),
@@ -313,9 +328,9 @@ public class SortMachineAutoSendController {
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         //todo dev test
-        erpUser = new ErpUserClient.ErpUser();
+/*        erpUser = new ErpUserClient.ErpUser();
         erpUser.setStaffNo(9901);
-        erpUser.setUserName("tester1");
+        erpUser.setUserName("tester1");*/
         //todo dev test end
         try{
             InvokeResult addResult = sortMachineSendGroupService.addSendGroup(request.getMachineCode(),
@@ -388,7 +403,7 @@ public class SortMachineAutoSendController {
             @RequestBody ScannerFrameBatchSendPrint[] requests) {
         com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> result =
                 new com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>>();
-        logger.info("已打印并完结批次动作开始-->打印的龙门架ID为：" + requests[0].getMachineId());
+        logger.info("已打印并完结批次动作开始-->打印的分拣机ID为：" + requests[0].getMachineId());
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
@@ -397,7 +412,7 @@ public class SortMachineAutoSendController {
         Integer printType = requests[0].getPrintType();//打印方式逻辑与：1 批次号打印 2 汇总单 3 两者
         if (StringUtils.isBlank(machineId) || printType == null) {
             result.setCode(200);
-            result.setMessage("龙门架参数错误");
+            result.setMessage("分拣机参数错误");
             return result;
         }
 
@@ -420,13 +435,13 @@ public class SortMachineAutoSendController {
         }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
-        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有龙门架ID
+        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有分拣机ID
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(Integer.MAX_VALUE);
         argumentPager.setData(sfbssa);
         try {
-            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该龙门架的所有批次信息
+            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该分拣机的所有批次信息
             List<ScannerFrameBatchSend> dataRequestOld = pagerResult.getData();//取所有批次信息
             List<ScannerFrameBatchSend> dataRequest = new ArrayList<ScannerFrameBatchSend>();//取所有批次信息
             if (requests.length > 1) {
@@ -451,8 +466,8 @@ public class SortMachineAutoSendController {
             }
             logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
-            String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/print";
-            String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/summaryPrint";
+            String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineBatchPrint";
+            String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineSummaryPrint";
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
@@ -488,13 +503,13 @@ public class SortMachineAutoSendController {
                 logger.info("换批次动作实心成功，执行打印获取base64。");
                 /** ==================换批次动作执行完毕================ **/
                 if ((printType & 1) == 1) {//批次打印逻辑
-                    logger.info("龙门架自动发货页面--批次打印开始");
+                    logger.info("分拣机自动发货页面--批次打印开始");
                     BatchSendPrintImageResponse itemSendCodeResponse = scannerFrameBatchSendService.batchPrint(urlBatchPrint, item, userId, userName);
                     itemSendCodeResponse.setPrintType(SENDCODE_PRINT_TYPE);//批次打印单
                     results.add(itemSendCodeResponse);
                 }
                 if ((printType & 2) == 2) {//汇总打印逻辑
-                    logger.info("龙门架自动发货页面-打印汇总单开始");
+                    logger.info("分拣机自动发货页面-打印汇总单开始");
                     BatchSendPrintImageResponse itemSummaryResponse = scannerFrameBatchSendService.summaryPrint(urlSummaryPrint, item, userId, userName);
                     itemSummaryResponse.setPrintType(SUMMARY_PRINT_TYPE);//汇总打印单
                     results.add(itemSummaryResponse);
@@ -514,17 +529,16 @@ public class SortMachineAutoSendController {
 
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(String machineCode,
-                                                                                              Date startTime,
-                                                                                              Date endTime) {
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(@RequestBody SendExceptionRequest request) {
         this.logger.debug("获取分拣机发货异常信息 --> queryExceptionNum");
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result =
                 new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
         try {
-            Integer count = gantryExceptionService.getGantryExceptionCount(machineCode, startTime, endTime);
+            Integer count = gantryExceptionService.getGantryExceptionCount(request.getMachineId(),
+                    request.getStartTime(), request.getEndTime());
             result.setData(count);
         } catch (NullPointerException e) {
-            logger.error("获取龙门架自动发货异常数据失败，龙门架ID为：" + machineCode);
+            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + request.getMachineId());
         }
         return result;
     }
@@ -586,9 +600,63 @@ public class SortMachineAutoSendController {
                 logger.info("补打界面跳转参数解码异常", e);
                 model.addAttribute("createSiteName", "未知分拣中心");
             }
+            Date nowTime = new Date();
+            endTime = StringUtils.isBlank(endTime) ? DateUtil.format(nowTime, DateUtil.FORMAT_DATE_TIME) : endTime;
+            if(StringUtils.isBlank(startTime)){
+                Date startDateTime = DateHelper.add(nowTime, Calendar.HOUR,-24);
+                startTime = DateUtil.format(startDateTime, DateUtil.FORMAT_DATE_TIME);
+            }
             model.addAttribute("startTime", startTime);
             model.addAttribute("endTime", endTime);
         }
         return "/sortMachine/replenishPrint";
     }
+
+    @RequestMapping(value = "/summaryBySendCode", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult> summaryBySendCode(String sendCode) {
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult>();
+        result.setCode(500);
+        result.setMessage("服务器处理异常");
+        if (sendCode != null) {
+            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
+            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
+            Integer packageSum = 0;//批次总包裹数量
+            Double volumeSum = 0.00;//取分拣体积
+            if (sendDetailList != null && sendDetailList.size() > 0) {
+                HashSet<String> sendDByBoxCode = new HashSet<String>();
+                for (SendDetail sendD : sendDetailList) {
+                    //根据sendD的boxCode去重
+                    try {
+                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
+                            continue;
+                        }
+                        sendDByBoxCode.add(sendD.getBoxCode());
+                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
+                        if (waybillPackageDTO == null) {
+                            continue;
+                        }
+                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
+                    } catch (Exception e) {
+                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+                    }
+                }
+                packageSum = sendDetailList.size();//获取包裹的数量
+            }
+            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
+            sendBoxSum.setSendCode(sendCode);
+            sendBoxSum.setPackageSum(packageSum);
+            sendBoxSum.setVolumeSum(bg.doubleValue());
+            result.setCode(200);
+            result.setData(sendBoxSum);
+            result.setMessage("获取批次号的总数量和总体积成功");
+        } else {
+            logger.error("获取参数批次的总体积和总数量失败：批次号为空");
+            result.setCode(400);
+            result.setMessage("参数错误");
+            result.setData(null);
+        }
+        return result;
+    }
+
 }

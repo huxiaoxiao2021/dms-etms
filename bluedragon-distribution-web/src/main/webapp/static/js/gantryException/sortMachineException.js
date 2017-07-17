@@ -211,7 +211,7 @@ function exportData(params) {
             var url = $("#contextPath").val() + "/gantryException/doExport?machineId="
                 + params.machineId + "&startTime="
                 + params.startTime + "&endTime="
-                + params.endTime + "&busiType = 2";
+                + params.endTime + "&busiType=2";
             if (params.sendStatus != null)
                 url += "&sendStatus=" + params.sendStatus;
             window.open(url, "_parent");
