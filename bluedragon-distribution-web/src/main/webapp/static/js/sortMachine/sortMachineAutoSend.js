@@ -483,8 +483,8 @@ function loadChutes(chutes) {
             tr += '<tr>';
             tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode1 + '"></td>';
             tr += '<td name="chuteCode">' + sortSchemeDetail.chuteCode1 + '</td>';
-            tr += '<td name="sendSiteCode">' + sortSchemeDetail.sendSiteCode + '</td>';
-            tr += '<td name="sendSiteName">' + sortSchemeDetail.sendSiteName + '</td>';
+            tr += '<td name="sendSiteCode">' + (sortSchemeDetail.sendSiteCode || '') + '</td>';
+            tr += '<td name="sendSiteName">' + (sortSchemeDetail.sendSiteName || '') + '</td>';
             tr += '<td name="sendCode">' + chute.sendCode + '</td>';
             tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
             tr += '<td name="packageSum">' + packageSum+ '</td>';
