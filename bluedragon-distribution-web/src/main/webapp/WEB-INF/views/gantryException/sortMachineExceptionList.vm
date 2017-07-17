@@ -20,7 +20,7 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
-    <script type="text/javascript" src="#springUrl("/static/js/gantryException/sortMachineException.js")"></script>
+    <script type="text/javascript" src="#springUrl("/static/js/gantryException/sortMachineException.js?t=1")"></script>
     <style type="text/css">
         #content {
             margin: 0 auto;
@@ -80,7 +80,7 @@
         </div>
         <div id="gantry_exception_query_date_div" style="padding-top: 20px">
 
-            <span class="gantry_exception_query_type_span">
+            <span class="gantry_exception_query_type_span" style="display:none">
                 发货状态：
                 <select id="gantry_exception_sendStatus" class="gantry_exception_query_select">
                     <option value="2">全部</option>
@@ -93,12 +93,10 @@
                 异常类型：
                 <select id="gantry_exception_type" class="gantry_exception_query_select">
                     <option value="0">全部</option>
-                    <option value="1">无预分拣站点</option>
-                    <option value="2">无运单信息</option>
-                    <option value="3">无箱号信息</option>
-                    <option value="4">拦截订单</option>
-                    <option value="5">分拣机未绑该站点</option>
-                    <option value="6">无启用方案信息</option>
+                    <option value="21">发货始发地站点无效</option>
+                    <option value="22">无发货目的站点</option>
+                    <option value="23">订单拦截</option>
+                    <option value="24">无落格时间</option>
                 </select>
             </span>
 

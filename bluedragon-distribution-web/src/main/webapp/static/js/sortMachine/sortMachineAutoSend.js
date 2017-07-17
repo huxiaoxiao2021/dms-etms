@@ -635,7 +635,7 @@ function queryExceptionNum(){
     //     }
     // }
     params.machineId = $("#sortMachine :selected").val();
-    CommonClient.post(url,params,function (data) {
+    CommonClient.postJson(url,params,function (data) {
         if(data.data == undefined || data.data == null){
             jQuery.messager.alert("提示：","HTTP请求无数据返回!!","info")
         }

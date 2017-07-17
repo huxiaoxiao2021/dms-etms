@@ -360,6 +360,14 @@ public class GantryExceptionController {
             exceptionReasonStr = "拦截订单";
         } else if (type == 5) {
             exceptionReasonStr = "龙门架未绑该站点";
+        }else if (type == 21){
+            exceptionReasonStr = "发货始发地站点无效";
+        }else if (type == 22){
+            exceptionReasonStr = "无发货目的站点";
+        }else if (type == 23){
+            exceptionReasonStr = "订单拦截";
+        }else if (type == 24){
+            exceptionReasonStr = "无落格时间";
         }
         return exceptionReasonStr;
     }

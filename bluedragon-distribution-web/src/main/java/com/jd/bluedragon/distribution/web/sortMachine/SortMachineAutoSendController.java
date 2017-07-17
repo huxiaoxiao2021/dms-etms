@@ -529,17 +529,16 @@ public class SortMachineAutoSendController {
 
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(String machineCode,
-                                                                                              Date startTime,
-                                                                                              Date endTime) {
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(@RequestBody SendExceptionRequest request) {
         this.logger.debug("获取分拣机发货异常信息 --> queryExceptionNum");
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result =
                 new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
         try {
-            Integer count = gantryExceptionService.getGantryExceptionCount(machineCode, startTime, endTime);
+            Integer count = gantryExceptionService.getGantryExceptionCount(request.getMachineId(),
+                    request.getStartTime(), request.getEndTime());
             result.setData(count);
         } catch (NullPointerException e) {
-            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + machineCode);
+            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + request.getMachineId());
         }
         return result;
     }
