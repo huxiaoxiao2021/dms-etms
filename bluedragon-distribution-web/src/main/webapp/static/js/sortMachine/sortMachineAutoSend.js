@@ -464,7 +464,7 @@ function loadChutes(chutes) {
         $.each(chutes, function (index, chute) {
 
             var sortSchemeDetail = chute.sortSchemeDetail;
-            var url = $("#contextPath").val() + "/gantryAutoSend/summaryBySendCode";
+            var url = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
             var packageSum = 0.00;//总数量
             var volumeSum = 0.00;//总体积
             if(chute.sendCode){
@@ -623,7 +623,7 @@ function queryExceptionNum(){
     if(!$("#sortMachine :selected").val()){
         return;
     }
-    var url = $("#contextPath").val() + "/gantryAutoSend/queryExceptionNum";
+    var url = $("#contextPath").val() + "/sortMachineAutoSend/queryExceptionNum";
     var params = {};
     // if(gantryParams != undefined && gantryParams != null ){
     //     params.machineId = gantryParams.machineId;

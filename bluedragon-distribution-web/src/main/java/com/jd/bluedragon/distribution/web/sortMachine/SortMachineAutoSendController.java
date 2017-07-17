@@ -5,6 +5,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
+import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
@@ -14,8 +15,11 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineBatchSendResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupConfig;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupRequest;
@@ -24,6 +28,8 @@ import com.jd.bluedragon.distribution.sendGroup.service.SortMachineSendGroupServ
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -41,6 +47,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.annotation.meta.TypeQualifier;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -70,6 +78,12 @@ public class SortMachineAutoSendController {
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
     @Autowired
     GantryExceptionService gantryExceptionService;
+
+    @Autowired
+    GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    WaybillService waybillService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
@@ -452,8 +466,8 @@ public class SortMachineAutoSendController {
             }
             logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
-            String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/print";
-            String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/summaryPrint";
+            String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineBatchPrint";
+            String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineSummaryPrint";
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
@@ -597,5 +611,79 @@ public class SortMachineAutoSendController {
             model.addAttribute("endTime", endTime);
         }
         return "/sortMachine/replenishPrint";
+    }
+
+    @RequestMapping(value = "/summaryBySendCode", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult> summaryBySendCode(String sendCode) {
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult>();
+        result.setCode(500);
+        result.setMessage("服务器处理异常");
+        if (sendCode != null) {
+            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
+            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
+            Integer packageSum = 0;//批次总包裹数量
+            Double volumeSum = 0.00;//取分拣体积
+            if (sendDetailList != null && sendDetailList.size() > 0) {
+                HashSet<String> sendDByBoxCode = new HashSet<String>();
+                for (SendDetail sendD : sendDetailList) {
+                    //根据sendD的boxCode去重
+                    try {
+                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
+                            continue;
+                        }
+                        sendDByBoxCode.add(sendD.getBoxCode());
+                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
+                        if (waybillPackageDTO == null) {
+                            continue;
+                        }
+                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
+                    } catch (Exception e) {
+                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+                    }
+                }
+                packageSum = sendDetailList.size();//获取包裹的数量
+            }
+            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
+            sendBoxSum.setSendCode(sendCode);
+            sendBoxSum.setPackageSum(packageSum);
+            sendBoxSum.setVolumeSum(bg.doubleValue());
+            result.setCode(200);
+            result.setData(sendBoxSum);
+            result.setMessage("获取批次号的总数量和总体积成功");
+        } else {
+            logger.error("获取参数批次的总体积和总数量失败：批次号为空");
+            result.setCode(400);
+            result.setMessage("参数错误");
+            result.setData(null);
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
+        this.logger.debug("获取分拣机异常信息 --> queryExceptionNum");
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
+        result.setCode(400);
+        result.setMessage("服务处理异常");
+        result.setData(0);
+        if (null == request) {
+            logger.error("分拣机参数异常，获取异常数据失败");
+        }
+        try {
+            if (com.jd.common.util.StringUtils.isNotBlank(request.getMachineId())) {
+                Integer count = gantryExceptionService.getGantryExceptionCount( request.getMachineId(), request.getStartTime(), request.getEndTime());
+                result.setCode(200);
+                result.setMessage("分拣机异常数据获取成功");
+                result.setData(count);
+            } else {
+                logger.error("分拣机ID参数错误");
+            }
+        } catch (NullPointerException e) {
+            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + request.getMachineId());
+        }
+
+        return result;
     }
 }
