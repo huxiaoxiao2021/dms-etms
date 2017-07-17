@@ -62,12 +62,11 @@
         <if test = "volume != null">
             #{volume, jdbcType=DECIMAL},
         </if>
-           #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
-          now(), now(), 1, 0 ,
-          #{sendCode, jdbcType=VARCHAR},
-        <if test="chuteCode ！= null">
-            #{chuteCode, jdbcType=VARCHAR}
-        </if>
+            #{type, jdbcType=TINYINT},
+            #{operateTime, jdbcType=TIMESTAMP},
+            now(), now(), 1, 0 ,
+            #{sendCode, jdbcType=VARCHAR},
+            #{chuteCode, jdbcType=VARCHAR},
         <if test="packageCode != null">
             #{packageCode, jdbcType=VARCHAR}
         </if>

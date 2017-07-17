@@ -221,7 +221,7 @@ function doQueryCrossSorting(params) {
             var temp = "";
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
-                temp += "<td><input id='" + dataList[i].id + "' value='" + dataList[i].yn + "' status='" + dataList[i].autoSend + "' name='singleBtn' type='checkbox'/></td>";
+                temp += "<td><input id='" + dataList[i].id + "' value='" + dataList[i].yn + "' data='" + dataList[i].autoSend + "' name='singleBtn' type='checkbox'/></td>";
                 temp += "<td>" + (dataList[i].name == null ? '' : dataList[i].name) + "</td>";
                 siteNo = dataList[i].siteNo;
                 temp += "<td>" + (dataList[i].siteNo == null ? '' : dataList[i].siteNo) + "</td>";
@@ -304,7 +304,7 @@ function goOpenBtnClick() {
         return;
     }
     // 校验状态:如果已经启用，则提示不用启用
-    if (singleBtns[0].status == 1) {
+    if (singleBtns[0].getAttribute("data") == 1) {
         jQuery.messager.alert('提示:', "分拣计划已开启自动发货，无需重复开启!", 'info');
         return;
     }
@@ -350,7 +350,7 @@ function goCloseBtnClick() {
         return;
     }
     // 校验状态:如果已经关闭，则提示不用关闭
-    if (singleBtns[0].status == 0) {
+    if (singleBtns[0].getAttribute("data") == 0) {
         jQuery.messager.alert('提示:', "分拣计划未启用自动发货，无需关闭!", 'info');
         return;
     }

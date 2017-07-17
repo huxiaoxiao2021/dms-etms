@@ -185,6 +185,7 @@ public class SortSchemeController {
                 logger.error("导入分拣计划明细失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
             }
+            e.printStackTrace();
             writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
         }
         writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
