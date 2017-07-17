@@ -14,6 +14,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
 --
 -- Table structure for table `abnormal_order`
 --
@@ -43,7 +44,7 @@ CREATE TABLE `abnormal_order` (
   `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_ABNORMAL_ORDER` (`SYSTEM_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736528986218497 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=882458739918413825 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,7 +106,7 @@ CREATE TABLE `area_dest_config` (
   KEY `IDX_AREA_DEST_CONFIG_PID_CSC_RSC` (`PLAN_ID`,`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`),
   KEY `IDX_AREA_DEST_CONFIG_PID_RT` (`PLAN_ID`,`ROUTE_TYPE`),
   KEY `IDX_CREATE_RECEIVE_SITE_CODE` (`CREATE_SITE_CODE`,`RECEIVE_SITE_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=33650 DEFAULT CHARSET=utf8 COMMENT='区域批次目的配置表';
+) ENGINE=InnoDB AUTO_INCREMENT=87732 DEFAULT CHARSET=utf8 COMMENT='区域批次目的配置表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +132,7 @@ CREATE TABLE `area_dest_plan` (
   `STATE` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态:0-未启用,1-启用',
   PRIMARY KEY (`PLAN_ID`),
   KEY `IDX_AREA_DEST_PLAN_M_ID` (`OPERATE_SITE_CODE`,`MACHINE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=utf8 COMMENT='é¾™é—¨æž¶å‘è´§å…³ç³»æ–¹æ¡ˆè¡¨';
+) ENGINE=InnoDB AUTO_INCREMENT=375 DEFAULT CHARSET=utf8 COMMENT='é¾™é—¨æž¶å‘è´§å…³ç³»æ–¹æ¡ˆè¡¨';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +152,7 @@ CREATE TABLE `area_dest_plan_detail` (
   `TS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'æ•°æ®åº“æ—¶é—´',
   PRIMARY KEY (`ID`),
   KEY `IDX_AREA_DEST_PLAN_DETAIL_OSC_MID_ST` (`OPERATE_SITE_CODE`,`MACHINE_ID`,`START_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=630 DEFAULT CHARSET=utf8 COMMENT='é¾™é—¨æž¶å‘è´§å…³ç³»æ–¹æ¡ˆè¡¨';
+) ENGINE=InnoDB AUTO_INCREMENT=2334 DEFAULT CHARSET=utf8 COMMENT='é¾™é—¨æž¶å‘è´§å…³ç³»æ–¹æ¡ˆè¡¨';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -183,7 +184,7 @@ CREATE TABLE `batch_send` (
   KEY `IND_BATCH_SEND_BCODE` (`BATCH_CODE`),
   KEY `IND_BATCH_SEND_SCODE` (`SEND_CODE`),
   KEY `IDX_CREATE_SITE_TIME` (`CREATE_SITE_CODE`,`CREATE_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=12721091 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15436462 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -206,7 +207,7 @@ CREATE TABLE `batchinfo` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_BATCHINFO` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=9766 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11525 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -244,7 +245,7 @@ CREATE TABLE `car_schedule_info` (
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '数据更新时间',
   `ts` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '数据库时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=432258 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=996871 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -264,7 +265,7 @@ CREATE TABLE `client_config` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`CONFIG_ID`),
   UNIQUE KEY `PK_CLIENT_CONFIG` (`CONFIG_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=281 DEFAULT CHARSET=utf8 COMMENT='客户端版本配置';
+) ENGINE=InnoDB AUTO_INCREMENT=289 DEFAULT CHARSET=utf8 COMMENT='客户端版本配置';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -284,7 +285,7 @@ CREATE TABLE `client_config_history` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`CONFIG_HISTORY_ID`),
   UNIQUE KEY `PK_CLIENT_CONFIG_HISTORY` (`CONFIG_HISTORY_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3176 DEFAULT CHARSET=utf8 COMMENT='客户端版本配置变更历史';
+) ENGINE=InnoDB AUTO_INCREMENT=3869 DEFAULT CHARSET=utf8 COMMENT='客户端版本配置变更历史';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -305,7 +306,31 @@ CREATE TABLE `client_version` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`VERSION_ID`),
   UNIQUE KEY `PK_CLIENT_VERSION` (`VERSION_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8 COMMENT='客户端的版本（PDA、Wwinform）';
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8 COMMENT='客户端的版本（PDA、Wwinform）';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `container_relation`
+--
+
+DROP TABLE IF EXISTS `container_relation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `container_relation` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `container_code` varchar(30) NOT NULL COMMENT '编码',
+  `box_code` varchar(30) DEFAULT NULL COMMENT '箱号',
+  `site_code` bigint(20) DEFAULT NULL COMMENT '储位对应的站点',
+  `package_count` tinyint(4) DEFAULT '0' COMMENT '包裹个数',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  `create_user` varchar(100) NOT NULL COMMENT '创建用户',
+  `update_user` varchar(100) NOT NULL COMMENT '更新用户',
+  `is_delete` int(1) NOT NULL DEFAULT '0' COMMENT '是否有效',
+  `ts` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '默认时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_container_code` (`container_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=450 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -338,7 +363,7 @@ CREATE TABLE `cross_box` (
   `ORIGIN_ID` int(11) DEFAULT NULL COMMENT '源序号',
   `YN` tinyint(4) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6762 DEFAULT CHARSET=utf8 COMMENT='跨中转箱号';
+) ENGINE=InnoDB AUTO_INCREMENT=6986 DEFAULT CHARSET=utf8 COMMENT='跨中转箱号';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -400,7 +425,7 @@ CREATE TABLE `dbs_objectid` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_DBS_OBJECTID_ID` (`ID`),
   UNIQUE KEY `idx_object_name` (`OBJECTNAME`)
-) ENGINE=InnoDB AUTO_INCREMENT=158550 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=163353 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -437,7 +462,7 @@ CREATE TABLE `departure_car` (
   UNIQUE KEY `PK_DEPARTURE_CAR` (`DEPARTURE_CAR_ID`),
   KEY `IND_DEPARTURE_CAR_CCODE` (`SHIELDS_CAR_CODE`),
   KEY `IND_DEPARTURE_CAR_FPRINT` (`FINGERPRINT`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736007667752961 DEFAULT CHARSET=utf8 COMMENT='发车表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458689809129473 DEFAULT CHARSET=utf8 COMMENT='发车表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -485,7 +510,7 @@ CREATE TABLE `departure_send` (
   PRIMARY KEY (`DEPARTURE_SEND_ID`),
   UNIQUE KEY `PK_DEPARTURE_SEND` (`DEPARTURE_SEND_ID`),
   KEY `IND_DEPARTURE_SEND_SCODE` (`SEND_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864569930186911745 DEFAULT CHARSET=utf8 COMMENT='发转车批次对应关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=882455529497542657 DEFAULT CHARSET=utf8 COMMENT='发转车批次对应关系表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -530,7 +555,7 @@ CREATE TABLE `fbarcode` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否删除 ''0'' 删除 ''1'' 使用',
   PRIMARY KEY (`FBARCODE_ID`),
   UNIQUE KEY `PK_FBARCODE` (`FBARCODE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=117957 DEFAULT CHARSET=utf8 COMMENT='F条码信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=134518 DEFAULT CHARSET=utf8 COMMENT='F条码信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -589,7 +614,7 @@ CREATE TABLE `gantry_device_config` (
   `LOCK_USER_NAME` varchar(20) DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7770 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9836 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -616,7 +641,7 @@ CREATE TABLE `gantry_device_info` (
   `YN` bigint(20) DEFAULT NULL,
   `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`MACHINE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=842 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=894 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -645,7 +670,7 @@ CREATE TABLE `gantry_exception` (
   PRIMARY KEY (`ID`),
   KEY `IDX_MACHINE_ID` (`MACHINE_ID`,`OPERATE_TIME`),
   KEY `IDX_BAR_CODE` (`BAR_CODE`,`CREATE_SITE_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=7225049 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11866304 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -679,7 +704,7 @@ CREATE TABLE `inspection_e_c` (
   KEY `INSPECTION_E_C_WC` (`WAYBILL_CODE`),
   KEY `IND_INSPECTION_E_C_BCODE_P` (`BOX_CODE`),
   KEY `IND_INSPECTION_E_C_PCODE_P` (`PACKAGE_BARCODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736834357080065 DEFAULT CHARSET=utf8 COMMENT='验货异常比对表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458816813015041 DEFAULT CHARSET=utf8 COMMENT='验货异常比对表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -728,7 +753,7 @@ CREATE TABLE `load_bill` (
   KEY `IDX_SEND_TIME` (`SEND_TIME`),
   KEY `IDX_LOADBILL_BOXCODE` (`BOX_CODE`),
   KEY `IND_LOAD_BILL_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=10429845 DEFAULT CHARSET=utf8 COMMENT='全球购业务表';
+) ENGINE=InnoDB AUTO_INCREMENT=11718214 DEFAULT CHARSET=utf8 COMMENT='全球购业务表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -749,7 +774,7 @@ CREATE TABLE `load_bill_report` (
   `ORDER_ID` varchar(500) DEFAULT NULL COMMENT '成功的订单号,多个以逗号分割',
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=300746 DEFAULT CHARSET=utf8 COMMENT='装载单状态回传表';
+) ENGINE=InnoDB AUTO_INCREMENT=343517 DEFAULT CHARSET=utf8 COMMENT='装载单状态回传表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -776,7 +801,7 @@ CREATE TABLE `loss_order` (
   `LOSS_CODE` bigint(20) DEFAULT NULL COMMENT '报损单号',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `LOSS_ORDER_PK` (`SYSTEM_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=203281 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=271886 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -862,7 +887,7 @@ CREATE TABLE `offline_log` (
   `STATUS` bigint(20) DEFAULT NULL COMMENT '状态0失败1成功',
   PRIMARY KEY (`OFFLINE_LOG_ID`),
   UNIQUE KEY `UNQ_OFFLINE_LOG_ID` (`OFFLINE_LOG_ID`,`CREATE_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=19445076 DEFAULT CHARSET=utf8 COMMENT='离线日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=23362012 DEFAULT CHARSET=utf8 COMMENT='离线日志表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -901,141 +926,6 @@ CREATE TABLE `operation_log_0` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `pamirs_schedule_queue`
---
-
-DROP TABLE IF EXISTS `pamirs_schedule_queue`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pamirs_schedule_queue` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `TASK_TYPE` varchar(50) NOT NULL,
-  `QUEUE_ID` varchar(50) NOT NULL,
-  `OWN_SIGN` varchar(50) NOT NULL,
-  `BASE_TASK_TYPE` varchar(50) DEFAULT NULL,
-  `CUR_SERVER` varchar(100) DEFAULT NULL,
-  `REQ_SERVER` varchar(100) DEFAULT NULL,
-  `GMT_CREATE` datetime NOT NULL,
-  `GMT_MODIFIED` datetime NOT NULL,
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `IND_PAMIRS_SCHEDULE_QUEUEID` (`TASK_TYPE`,`QUEUE_ID`,`OWN_SIGN`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `pamirs_schedule_server`
---
-
-DROP TABLE IF EXISTS `pamirs_schedule_server`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pamirs_schedule_server` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `UUID` varchar(100) NOT NULL,
-  `TASK_TYPE` varchar(50) NOT NULL,
-  `OWN_SIGN` varchar(50) NOT NULL,
-  `BASE_TASK_TYPE` varchar(50) NOT NULL,
-  `IP` varchar(50) NOT NULL,
-  `HOST_NAME` varchar(50) NOT NULL,
-  `MANAGER_PORT` bigint(20) NOT NULL,
-  `THREAD_NUM` bigint(20) NOT NULL,
-  `REGISTER_TIME` datetime NOT NULL,
-  `HEARTBEAT_TIME` datetime NOT NULL,
-  `VERSION` bigint(20) NOT NULL,
-  `JMX_URL` varchar(200) DEFAULT NULL,
-  `DEALINFO_DESC` varchar(1000) DEFAULT NULL,
-  `NEXT_RUN_START_TIME` varchar(100) DEFAULT NULL,
-  `NEXT_RUN_END_TIME` varchar(100) DEFAULT NULL,
-  `GMT_CREATE` datetime NOT NULL,
-  `GMT_MODIFIED` datetime NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `IND_PAMIRS_SCHEDULE_UUID` (`UUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `pamirs_schedule_server_his`
---
-
-DROP TABLE IF EXISTS `pamirs_schedule_server_his`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pamirs_schedule_server_his` (
-  `id` bigint(20) DEFAULT NULL,
-  `uuid` varchar(100) DEFAULT NULL,
-  `task_type` varchar(100) DEFAULT NULL,
-  `own_sign` varchar(100) DEFAULT NULL,
-  `base_task_type` varchar(100) DEFAULT NULL,
-  `ip` varchar(100) DEFAULT NULL,
-  `host_name` varchar(100) DEFAULT NULL,
-  `manager_port` int(11) DEFAULT NULL,
-  `thread_num` int(11) DEFAULT NULL,
-  `register_time` datetime DEFAULT NULL,
-  `heartbeat_time` datetime DEFAULT NULL,
-  `version` int(11) DEFAULT NULL,
-  `jmx_url` varchar(100) DEFAULT NULL,
-  `dealinfo_desc` varchar(100) DEFAULT NULL,
-  `next_run_start_time` varchar(100) DEFAULT NULL,
-  `next_run_end_time` varchar(100) DEFAULT NULL,
-  `gmt_create` datetime DEFAULT NULL,
-  `gmt_modified` datetime DEFAULT NULL,
-  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `pamirs_schedule_tasktrun`
---
-
-DROP TABLE IF EXISTS `pamirs_schedule_tasktrun`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pamirs_schedule_tasktrun` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `TASK_TYPE` varchar(100) NOT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT NULL,
-  `BASE_TASK_TYPE` varchar(50) DEFAULT NULL,
-  `LAST_ASSIGN_TIME` datetime DEFAULT NULL,
-  `LAST_ASSIGN_UUID` varchar(100) DEFAULT NULL,
-  `GMT_CREATE` datetime NOT NULL,
-  `GMT_MODIFIED` datetime NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `IND_PAMIRS_SCHEDULE_RUN_TASK` (`TASK_TYPE`,`OWN_SIGN`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `pamirs_schedule_tasktype`
---
-
-DROP TABLE IF EXISTS `pamirs_schedule_tasktype`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pamirs_schedule_tasktype` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `TASK_TYPE` varchar(100) NOT NULL,
-  `DEAL_BEAN_NAME` varchar(100) NOT NULL,
-  `HEARTBEAT_RATE` bigint(20) NOT NULL,
-  `JUDGE_DEAD_INTERVAL` bigint(20) NOT NULL,
-  `THREAD_NUMBER` bigint(20) NOT NULL,
-  `EXECUTE_NUMBER` bigint(20) DEFAULT NULL,
-  `FETCH_NUMBER` bigint(20) DEFAULT NULL,
-  `SLEEP_TIME_NODATA` bigint(20) DEFAULT NULL,
-  `SLEEP_TIME_INTERVAL` bigint(20) DEFAULT NULL,
-  `PROCESSOR_TYPE` varchar(20) DEFAULT NULL,
-  `PERMIT_RUN_START_TIME` varchar(100) DEFAULT NULL,
-  `PERMIT_RUN_END_TIME` varchar(100) DEFAULT NULL,
-  `LAST_ASSIGN_TIME` datetime DEFAULT NULL,
-  `LAST_ASSIGN_UUID` varchar(100) DEFAULT NULL,
-  `EXPIRE_OWN_SIGN_INTERVAL` bigint(20) DEFAULT NULL,
-  `GMT_CREATE` datetime NOT NULL,
-  `GMT_MODIFIED` datetime NOT NULL,
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `IND_PAMIRS_TASKTYPE_TASKTYPE` (`TASK_TYPE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `partner_waybill`
 --
 
@@ -1059,7 +949,7 @@ CREATE TABLE `partner_waybill` (
   `YN` bigint(20) DEFAULT '1',
   PRIMARY KEY (`RELATION_ID`),
   UNIQUE KEY `PK_PARTNER_WAYBILL` (`RELATION_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=848065749226188801 DEFAULT CHARSET=utf8 COMMENT='三方运单关联信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=867402372669579265 DEFAULT CHARSET=utf8 COMMENT='三方运单关联信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1087,7 +977,7 @@ CREATE TABLE `pick_ware` (
   PRIMARY KEY (`PICKWARE_ID`),
   UNIQUE KEY `PK_PICKWARE` (`PICKWARE_ID`),
   KEY `IND_PICK_WARE_FINGPT` (`FINGERPRINT`)
-) ENGINE=InnoDB AUTO_INCREMENT=218972554 DEFAULT CHARSET=utf8 COMMENT='备件库取件单';
+) ENGINE=InnoDB AUTO_INCREMENT=223534116 DEFAULT CHARSET=utf8 COMMENT='备件库取件单';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1123,7 +1013,7 @@ CREATE TABLE `pop_abnormal` (
   `ORDER_CODE` varchar(32) DEFAULT NULL COMMENT '订单号',
   PRIMARY KEY (`ABNORMAL_ID`),
   UNIQUE KEY `PK_POP_ABNORMAL` (`ABNORMAL_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=182655 DEFAULT CHARSET=utf8 COMMENT='POP差异列表';
+) ENGINE=InnoDB AUTO_INCREMENT=212133 DEFAULT CHARSET=utf8 COMMENT='POP差异列表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1146,7 +1036,7 @@ CREATE TABLE `pop_abnormal_detail` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`ABNORMAL_DETAIL_ID`),
   UNIQUE KEY `PK_POP_ABNORMAL_DETAIL` (`ABNORMAL_DETAIL_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=190532 DEFAULT CHARSET=utf8 COMMENT='POP差异明细列表';
+) ENGINE=InnoDB AUTO_INCREMENT=220015 DEFAULT CHARSET=utf8 COMMENT='POP差异明细列表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1216,7 +1106,7 @@ CREATE TABLE `pop_pickup` (
   UNIQUE KEY `PK_POP_PICKUP` (`PICKUP_ID`),
   KEY `IND_POP_PICKUP_CID_OTIME` (`CREATE_SITE_CODE`,`OPERATE_TIME`),
   KEY `IND_POP_PICKUP_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736833450713089 DEFAULT CHARSET=utf8 COMMENT='POP上门取货表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458822487531521 DEFAULT CHARSET=utf8 COMMENT='POP上门取货表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1262,7 +1152,7 @@ CREATE TABLE `pop_print` (
   KEY `IND_POP_PRINT_WC` (`WAYBILL_CODE`),
   KEY `IDX_POP_PRINT_C_C` (`CREATE_SITE_CODE`,`CREATE_TIME`),
   KEY `IDX_POP_PRINT_C` (`CREATE_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736835635929089 DEFAULT CHARSET=utf8 COMMENT='POP打印记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458823980638209 DEFAULT CHARSET=utf8 COMMENT='POP打印记录表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1294,7 +1184,7 @@ CREATE TABLE `pop_queue` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `UNQ_POP_QUEUE_ID` (`ID`,`CREATE_TIME`),
   KEY `IND_POP_QUEUE_QNO` (`QUEUE_NO`)
-) ENGINE=InnoDB AUTO_INCREMENT=864735893318430721 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=882451899721687041 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1355,7 +1245,7 @@ CREATE TABLE `pop_signin` (
   UNIQUE KEY `UNQ_POP_SIGNIN_ID` (`ID`,`CREATE_TIME`),
   KEY `IND_POP_SIGNIN_QNO` (`QUEUE_NO`),
   KEY `IND_POP_SIGNIN_TWCODE` (`THIRD_WAYBILL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864731977269174273 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=882435916110278657 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1387,7 +1277,7 @@ CREATE TABLE `reassign_waybill` (
   UNIQUE KEY `PK_REASSIGN_WAYBILL` (`REASSIGN_WAYBILL_ID`),
   KEY `IND_RE_WAYBILL_PCODE` (`PACKAGE_BARCODE`),
   KEY `IND_RE_WAYBILL_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=201477723 DEFAULT CHARSET=utf8 COMMENT='返调度重打包裹标签';
+) ENGINE=InnoDB AUTO_INCREMENT=201939292 DEFAULT CHARSET=utf8 COMMENT='返调度重打包裹标签';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1421,7 +1311,7 @@ CREATE TABLE `receive` (
   UNIQUE KEY `UNQ_RECEIVE_P` (`RECEIVE_ID`,`CREATE_TIME`),
   KEY `IND_RECEIVE_BCODE` (`BOX_CODE`),
   KEY `IDX_CREATE_SITE_TIME` (`CREATE_SITE_CODE`,`CREATE_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736792015642625 DEFAULT CHARSET=utf8 COMMENT='收货表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458818591371265 DEFAULT CHARSET=utf8 COMMENT='收货表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1447,7 +1337,7 @@ CREATE TABLE `reverse_label` (
   `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_REVERSE_LABEL` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=82419 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=103071 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1476,7 +1366,7 @@ CREATE TABLE `reverse_receive` (
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `REVERSE_RECEIVE_PK` (`SYSTEM_ID`),
   KEY `IND_REVERSE_RECEIVE_PCODE` (`PACKAGE_BARCODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736835606605825 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=882458828808302593 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1509,7 +1399,7 @@ CREATE TABLE `reverse_reject` (
   `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_REVERSE_REJECT_NEW` (`SYSTEM_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=200177564 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=200235708 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1547,7 +1437,29 @@ CREATE TABLE `reverse_spare` (
   KEY `IND_REVERSE_SPARE_CODE_NEW` (`SPARE_CODE`),
   KEY `IND_REVERSE_SPARE_STCODE_N` (`SPARE_TRAN_CODE`),
   KEY `IDX_WAYBILL_SEND_CODE` (`WAYBILL_SEND_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864735941805023233 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=882458193061269505 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `roll_container`
+--
+
+DROP TABLE IF EXISTS `roll_container`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roll_container` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `container_code` varchar(30) NOT NULL COMMENT '编码',
+  `status` int(11) DEFAULT '0' COMMENT '状态',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  `create_user` varchar(100) NOT NULL COMMENT '创建用户',
+  `update_user` varchar(100) NOT NULL COMMENT '更新用户',
+  `is_delete` int(1) NOT NULL DEFAULT '0' COMMENT '是否有效',
+  `ts` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '默认时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_container_code` (`container_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=840 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1577,7 +1489,7 @@ CREATE TABLE `scanner_frame_batch_send` (
   `TS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '时间截',
   PRIMARY KEY (`ID`),
   KEY `IDX_ID_SITECODE_TIME` (`MACHINE_ID`,`RECEIVE_SITE_CODE`,`CREATE_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=105801 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=220347 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1605,7 +1517,7 @@ CREATE TABLE `seal_box` (
   UNIQUE KEY `UNQ_SEAL_BOX_P` (`SYSTEM_ID`,`CREATE_TIME`),
   KEY `IND_SEAL_BOX_SC` (`SEAL_CODE`),
   KEY `IND_SEAL_BOX_BCODE_PL` (`BOX_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736796964454401 DEFAULT CHARSET=utf8 COMMENT='封箱信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458779332390913 DEFAULT CHARSET=utf8 COMMENT='封箱信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1638,7 +1550,7 @@ CREATE TABLE `seal_vehicle` (
   PRIMARY KEY (`SYSTEM_ID`),
   UNIQUE KEY `PK_SEAL_VEHICLE` (`SYSTEM_ID`),
   KEY `IND_SEAL_VEHICLE_SC` (`SEAL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864731734997405697 DEFAULT CHARSET=utf8 COMMENT='封车信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=882458515405774849 DEFAULT CHARSET=utf8 COMMENT='封车信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1685,7 +1597,7 @@ CREATE TABLE `send_code_to_car_code` (
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `ts` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '数据库时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=243912 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=916296 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1710,127 +1622,7 @@ CREATE TABLE `send_query` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_SEND_QUERY` (`ID`),
   KEY `IND_SEND_QUERY_SEND_CODE` (`SEND_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=686562 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_0`
---
-
-DROP TABLE IF EXISTS `sequence_0`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_0` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_1`
---
-
-DROP TABLE IF EXISTS `sequence_1`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_1` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_2`
---
-
-DROP TABLE IF EXISTS `sequence_2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_2` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_3`
---
-
-DROP TABLE IF EXISTS `sequence_3`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_3` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_4`
---
-
-DROP TABLE IF EXISTS `sequence_4`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_4` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_5`
---
-
-DROP TABLE IF EXISTS `sequence_5`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_5` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_6`
---
-
-DROP TABLE IF EXISTS `sequence_6`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_6` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `sequence_7`
---
-
-DROP TABLE IF EXISTS `sequence_7`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sequence_7` (
-  `seqName` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `currentValue` bigint(20) NOT NULL,
-  `increment` bigint(20) NOT NULL,
-  PRIMARY KEY (`seqName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=879564 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1883,7 +1675,7 @@ CREATE TABLE `sorting_ec` (
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `PK_SORTING_EC` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=9300 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12665 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1915,7 +1707,7 @@ CREATE TABLE `sorting_ret` (
   UNIQUE KEY `PK_SORTING_RET` (`SORTING_RET_ID`),
   KEY `IND_SORTING_RET_PCODE` (`PACKAGE_CODE`),
   KEY `IND_SORTING_RET_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=864736375475048449 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=882458819363127297 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1940,7 +1732,7 @@ CREATE TABLE `spare` (
   `SPARE_TYPE` varchar(4) DEFAULT NULL,
   PRIMARY KEY (`SPARE_ID`),
   UNIQUE KEY `SPARE_PK` (`SPARE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=960032 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1181854 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2005,656 +1797,7 @@ CREATE TABLE `system_log` (
   `CREATE_TIME` datetime DEFAULT NULL,
   `YN` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8520699 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_boundary`
---
-
-DROP TABLE IF EXISTS `task_boundary`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_boundary` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词2',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `PK_TASK_BOUNDARY` (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='对外服务相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_crossbox`
---
-
-DROP TABLE IF EXISTS `task_crossbox`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_crossbox` (
-  `TASK_ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT 'KEYWORD1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT 'KEYWORD2',
-  `CREATE_SITE_CODE` int(11) DEFAULT NULL COMMENT '创建站点ID',
-  `RECEIVE_SITE_CODE` int(11) DEFAULT NULL COMMENT '接收站点ID',
-  `BOX_CODE` varchar(64) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(1000) DEFAULT NULL COMMENT '主体',
-  `EXECUTE_COUNT` int(11) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` int(11) DEFAULT NULL COMMENT '任务类型',
-  `TASK_STATUS` int(11) DEFAULT NULL COMMENT '任务状态',
-  `OWN_SIGN` varchar(32) DEFAULT NULL COMMENT 'OWN_SIGN',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '执行时间',
-  `YN` tinyint(4) DEFAULT NULL COMMENT '有效标示',
-  PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8 COMMENT='跨中转箱号任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_failqueue`
---
-
-DROP TABLE IF EXISTS `task_failqueue`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_failqueue` (
-  `FAILQUEUE_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `BUSI_ID` bigint(20) DEFAULT NULL COMMENT '业务主键',
-  `BUSI_TYPE` bigint(20) DEFAULT NULL COMMENT '业务类型',
-  `BODY` varchar(1000) DEFAULT NULL COMMENT 'JSON序列内容',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
-  `YN` bigint(20) DEFAULT NULL COMMENT '删除标志',
-  `FAIL_STATUS` bigint(20) DEFAULT NULL COMMENT '失败状态',
-  `EXCUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `EXCUTE_TIME` datetime DEFAULT NULL COMMENT '执行时间',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`FAILQUEUE_ID`),
-  KEY `IDX_TASK_FAILQUEUE_BID_P` (`BUSI_ID`),
-  KEY `IDX_TASK_FAILQUEUE_FS` (`FAIL_STATUS`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='失败及综合任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_global_trade`
---
-
-DROP TABLE IF EXISTS `task_global_trade`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_global_trade` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(64) DEFAULT NULL,
-  `BODY` varchar(1000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT NULL,
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_handover`
---
-
-DROP TABLE IF EXISTS `task_handover`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_handover` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '分拣中心编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(64) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(1000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT NULL COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `UNQ_TASK_HANDOVER` (`TASK_ID`,`CREATE_TIME`),
-  KEY `IDX_TASK_HANDOVER_FP` (`FINGERPRINT`),
-  KEY `IDX_TASK_HANDOVER_KWORD` (`KEYWORD2`),
-  KEY `IDX_TASK_HANDOVER_STATUS` (`TASK_STATUS`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='分拣相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_inspection`
---
-
-DROP TABLE IF EXISTS `task_inspection`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_inspection` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` varchar(16) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IDX_TASK_INSPECTION_FP_P` (`FINGERPRINT`),
-  KEY `IDX_TASK_INSPECTION_STATUS` (`TASK_STATUS`),
-  KEY `idx_task_inspection_statuscount` (`TASK_STATUS`,`EXECUTE_COUNT`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='验货任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_message`
---
-
-DROP TABLE IF EXISTS `task_message`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_message` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '任务ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT 'keyword1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT 'keyword2',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建站点',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收站点',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '主体',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '任务类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '任务状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '域',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IDX_TASK_STATUS` (`TASK_STATUS`),
-  KEY `IDX_FINGERPRINT` (`FINGERPRINT`)
-) ENGINE=InnoDB AUTO_INCREMENT=2798 DEFAULT CHARSET=utf8 COMMENT='记录异步消息信息';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_offline`
---
-
-DROP TABLE IF EXISTS `task_offline`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_offline` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词2',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `OWN_SIGN` varchar(50) DEFAULT NULL COMMENT '部署环境',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '执行时间',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '防重标识',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否有效',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `UNQ_TASK_OFFLINE_ID` (`TASK_ID`,`CREATE_TIME`),
-  KEY `IND_TASK_OFFLINE_STAT` (`TASK_STATUS`)
-) ENGINE=InnoDB AUTO_INCREMENT=492327 DEFAULT CHARSET=utf8 COMMENT='离线任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_pda`
---
-
-DROP TABLE IF EXISTS `task_pda`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_pda` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_pop`
---
-
-DROP TABLE IF EXISTS `task_pop`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_pop` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IND_TASK_POP_KEYWORD1` (`KEYWORD1`),
-  KEY `IND_TASK_POP_STATUS` (`TASK_STATUS`),
-  KEY `idx_task_pop_statuscount` (`TASK_STATUS`,`EXECUTE_COUNT`)
-) ENGINE=InnoDB AUTO_INCREMENT=256792799 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_pop_recieve_count`
---
-
-DROP TABLE IF EXISTS `task_pop_recieve_count`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_pop_recieve_count` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `WAYBILL_CODE` varchar(32) DEFAULT NULL COMMENT '订单号',
-  `THIRD_WAYBILL_CODE` varchar(128) DEFAULT NULL COMMENT '三方运单号',
-  `EXPRESS_CODE` varchar(32) DEFAULT NULL COMMENT '快递公司编号',
-  `EXPRESS_NAME` varchar(64) DEFAULT NULL COMMENT '快递公司名称',
-  `ACTUAL_NUM` bigint(20) DEFAULT NULL COMMENT '实收数量',
-  `OPERATE_TIME` datetime DEFAULT NULL COMMENT '收货时间',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '回传时间',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
-  `YN` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '任务状态',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `OWN_SIGN` varchar(50) DEFAULT NULL COMMENT '部署环境',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `PK_TASK_POP_RECIEVE_COUNT` (`TASK_ID`),
-  KEY `IND_TASK_POP_RE_CNT_STAT` (`OWN_SIGN`,`TASK_STATUS`),
-  KEY `IND_TASK_POP_RE_CNT_WCODE` (`WAYBILL_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_receive_exception`
---
-
-DROP TABLE IF EXISTS `task_receive_exception`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_receive_exception` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `PK_TASK_RECEIVE_EXCEPTION` (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='接货中心异常相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_receive_pickup`
---
-
-DROP TABLE IF EXISTS `task_receive_pickup`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_receive_pickup` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `PK_TASK_RECEIVE_PICKUP` (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='接货相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_receive_receive`
---
-
-DROP TABLE IF EXISTS `task_receive_receive`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_receive_receive` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `PK_TASK_RECEIVE_RECEIVE` (`TASK_ID`),
-  KEY `IND_TASK_RECEIVE_RECEIVE_FS_P` (`TASK_STATUS`,`TASK_TYPE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='收货验货相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_reverse`
---
-
-DROP TABLE IF EXISTS `task_reverse`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_reverse` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '创建单位编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IND_TASK_REVERSE_TS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB AUTO_INCREMENT=765165 DEFAULT CHARSET=utf8 COMMENT='运单状态相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_scanner_frame`
---
-
-DROP TABLE IF EXISTS `task_scanner_frame`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_scanner_frame` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2773397 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_send`
---
-
-DROP TABLE IF EXISTS `task_send`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_send` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(50) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IND_TASK_SEND_FP_P` (`FINGERPRINT`),
-  KEY `IND_TASK_SEND_TS` (`TASK_STATUS`),
-  KEY `idx_box_code` (`BOX_CODE`)
-) ENGINE=InnoDB AUTO_INCREMENT=32759312 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_sorting`
---
-
-DROP TABLE IF EXISTS `task_sorting`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_sorting` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IND_TASK_SORTING_BCODE_P` (`BOX_CODE`),
-  KEY `IND_TASK_SORTING_FP_P` (`FINGERPRINT`),
-  KEY `IND_TASK_SORTING_STATUS` (`TASK_STATUS`),
-  KEY `idx_task_sorting_statuscount` (`TASK_STATUS`,`EXECUTE_COUNT`)
-) ENGINE=InnoDB AUTO_INCREMENT=130667216 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_sorting_ec`
---
-
-DROP TABLE IF EXISTS `task_sorting_ec`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_sorting_ec` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '分拣中心编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `PK_TASK_SORTING_EC` (`TASK_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=297 DEFAULT CHARSET=utf8 COMMENT='分拣相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_waybill`
---
-
-DROP TABLE IF EXISTS `task_waybill`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_waybill` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`),
-  KEY `IND_TASK_WAYBILL_FP_P` (`FINGERPRINT`),
-  KEY `IND_TASK_WAYBILL_TS_P` (`TASK_STATUS`)
-) ENGINE=InnoDB AUTO_INCREMENT=169360375 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_weight`
---
-
-DROP TABLE IF EXISTS `task_weight`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_weight` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
-  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-  `UPDATE_TIME` datetime DEFAULT NULL COMMENT '修改时间',
-  `KEYWORD1` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `KEYWORD2` varchar(64) DEFAULT NULL COMMENT '关键词1',
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '分拣中心编号',
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL COMMENT '接收单位编号',
-  `BOX_CODE` varchar(32) DEFAULT NULL COMMENT '箱号',
-  `BODY` varchar(2000) DEFAULT NULL COMMENT '数据内容',
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL COMMENT '执行次数',
-  `TASK_TYPE` bigint(20) DEFAULT NULL COMMENT '类型',
-  `TASK_STATUS` bigint(20) DEFAULT NULL COMMENT '状态',
-  `YN` bigint(20) DEFAULT NULL COMMENT '是否删除',
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS' COMMENT '部署环境',
-  `FINGERPRINT` varchar(64) DEFAULT NULL COMMENT '信息指纹',
-  `EXECUTE_TIME` datetime DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`TASK_ID`),
-  UNIQUE KEY `UNQ_TASK_WEIGHT` (`TASK_ID`,`CREATE_TIME`),
-  KEY `IND_TASK_WEIGHT_STAT` (`TASK_STATUS`),
-  KEY `idx_status_count` (`TASK_STATUS`,`EXECUTE_COUNT`)
-) ENGINE=InnoDB AUTO_INCREMENT=18175450 DEFAULT CHARSET=utf8 COMMENT='称重相关任务表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `task_weight1`
---
-
-DROP TABLE IF EXISTS `task_weight1`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_weight1` (
-  `TASK_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `CREATE_TIME` datetime DEFAULT NULL,
-  `UPDATE_TIME` datetime DEFAULT NULL,
-  `KEYWORD1` varchar(64) DEFAULT NULL,
-  `KEYWORD2` varchar(64) DEFAULT NULL,
-  `CREATE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `RECEIVE_SITE_CODE` bigint(20) DEFAULT NULL,
-  `BOX_CODE` varchar(32) DEFAULT NULL,
-  `BODY` varchar(2000) DEFAULT NULL,
-  `EXECUTE_COUNT` bigint(20) DEFAULT NULL,
-  `TASK_TYPE` bigint(20) DEFAULT NULL,
-  `TASK_STATUS` bigint(20) DEFAULT NULL,
-  `YN` bigint(20) DEFAULT NULL,
-  `OWN_SIGN` varchar(50) DEFAULT 'DMS',
-  `FINGERPRINT` varchar(64) DEFAULT NULL,
-  `EXECUTE_TIME` datetime DEFAULT NULL,
-  PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10845622 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2690,8 +1833,10 @@ CREATE TABLE `transbill_m` (
   `partition_time` datetime NOT NULL COMMENT '分区时间',
   `ts_m` bigint(20) NOT NULL COMMENT '时间戳',
   `yn` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否有效',
-  PRIMARY KEY (`m_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='城配运单m表';
+  PRIMARY KEY (`m_id`),
+  KEY `idx_waybill_code` (`waybill_code`) USING BTREE,
+  KEY `idx_schedule_bill_code` (`schedule_bill_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8 COMMENT='城配运单m表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2717,7 +1862,7 @@ CREATE TABLE `turnoverbox` (
   `OPERATE_TYPE` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`TURNOVERBOX_ID`),
   UNIQUE KEY `PK_TURNOVERBOX` (`TURNOVERBOX_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=268010 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=273314 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -2729,48 +1874,4 @@ CREATE TABLE `turnoverbox` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-05-17 14:58:22
-
-CREATE TABLE TASK_DELIVERY_TO_FINANCE (
-	`task_id` bigint (20) UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT '自增id',
-	`create_time` datetime DEFAULT NULL COMMENT '创建时间',
-	`update_time` datetime DEFAULT NULL COMMENT '更新时间',
-	`keyword1` VARCHAR (64) DEFAULT NULL COMMENT '关键字1',
-	`keyword2` VARCHAR (64) DEFAULT NULL COMMENT '关键字2',
-	`create_site_code` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '始发分拣中心',
-	`receive_site_code` bigint (20) UNSIGNED DEFAULT NULL COMMENT '目的分拣中心',
-	`box_code` VARCHAR (32) DEFAULT NULL COMMENT '箱号',
-	`body` VARCHAR (2000) DEFAULT NULL COMMENT '任务主体',
-	`execute_count` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '执行次数',
-	`task_type` bigint (20) UNSIGNED  DEFAULT NULL COMMENT '任务烈性',
-	`task_status` bigint (20) UNSIGNED DEFAULT NULL COMMENT '任务状态',
-	`yn` bigint (20) UNSIGNED DEFAULT NULL COMMENT '是否生效',
-	`own_sign` VARCHAR (50) DEFAULT 'DMS' COMMENT '部署环境',
-	`execute_time` datetime DEFAULT NULL COMMENT '执行时间',
-	`fingerprint` VARCHAR (64) DEFAULT NULL COMMENT '指纹信息',
-	PRIMARY KEY (`task_id`),
-	KEY `idx_box_code` (`box_code`),
-	KEY `idx_status_count` (`task_status`,`execute_count`)
-) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8 COMMENT="第三方发货数据推财务任务表";
-
-
-CREATE TABLE TASK_DELIVERY_TO_FINANCE_BATCH (
-	`task_id` bigint (20) UNSIGNED NOT NULL AUTO_INCREMENT  COMMENT '自增id',
-	`create_time` datetime DEFAULT NULL COMMENT '创建时间',
-	`update_time` datetime DEFAULT NULL COMMENT '更新时间',
-	`keyword1` VARCHAR (64) DEFAULT NULL COMMENT '关键字1',
-	`keyword2` VARCHAR (64) DEFAULT NULL COMMENT '关键字2',
-	`create_site_code` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '始发分拣中心',
-	`receive_site_code` bigint (20) UNSIGNED DEFAULT NULL COMMENT '目的分拣中心',
-	`box_code` VARCHAR (32) DEFAULT NULL COMMENT '箱号',
-	`body` VARCHAR (2000) DEFAULT NULL COMMENT '任务主体',
-	`execute_count` bigint (20)  UNSIGNED DEFAULT NULL COMMENT '执行次数',
-	`task_type` bigint (20) UNSIGNED  DEFAULT NULL COMMENT '任务烈性',
-	`task_status` bigint (20) UNSIGNED DEFAULT NULL COMMENT '任务状态',
-	`yn` bigint (20) UNSIGNED DEFAULT NULL COMMENT '是否生效',
-	`own_sign` VARCHAR (50) DEFAULT 'DMS' COMMENT '部署环境',
-	`execute_time` datetime DEFAULT NULL COMMENT '执行时间',
-	`fingerprint` VARCHAR (64) DEFAULT NULL COMMENT '指纹信息',
-	PRIMARY KEY (`task_id`),
-	KEY `idx_status_count` (`task_status`,`execute_count`)
-) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8 COMMENT="第三方发货数据推财务批处理任务表";
+-- Dump completed on 2017-07-05 12:39:15
