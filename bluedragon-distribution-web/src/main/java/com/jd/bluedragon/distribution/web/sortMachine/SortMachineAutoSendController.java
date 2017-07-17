@@ -89,7 +89,6 @@ public class SortMachineAutoSendController {
     public String index(Model model) {
         this.logger.debug("分拣机自动发货 --> index");
         try {
-            //todo dev test
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 Integer siteCode = 0;
@@ -103,9 +102,6 @@ public class SortMachineAutoSendController {
                 model.addAttribute("createSiteCode", String.valueOf(siteCode));
                 model.addAttribute("createSiteName", siteName);
             }
-/*            model.addAttribute("createSiteCode", "910");
-            model.addAttribute("createSiteName", "马驹桥分拣中心");*/
-            //todo dev test end
         } catch (Exception e) {
             logger.info("没有维护分拣中心，初始化加载失败");
         }
@@ -120,7 +116,6 @@ public class SortMachineAutoSendController {
     @ResponseBody
     public InvokeResult<List<String>> findSortMachineByErp(){
         InvokeResult<List<String>> response = new InvokeResult<List<String>>();
-        //todo dev test
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         //获取分拣站点失败
@@ -135,10 +130,6 @@ public class SortMachineAutoSendController {
         }
         //获取分拣中心本地服务url
         String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
-/*        String url = "dmsvertest.360buy.com";
-        BaseStaffSiteOrgDto bssod = new BaseStaffSiteOrgDto();
-        bssod.setSiteCode(910);*/
-        //todo dev test end
         if (StringUtils.isBlank(url)) {
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
             return response;
@@ -222,7 +213,6 @@ public class SortMachineAutoSendController {
     @ResponseBody
     public InvokeResult<List<SortMachineBatchSendResult>> queryChuteBySortMachineCode(String machineCode){
         InvokeResult<List<SortMachineBatchSendResult>> response = new InvokeResult<List<SortMachineBatchSendResult>>();
-        //todo dev test
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
         //获取分拣站点失败
@@ -232,10 +222,6 @@ public class SortMachineAutoSendController {
         }
         //获取分拣中心本地服务url
         String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
-/*        String url = "dmsvertest.360buy.com";
-        BaseStaffSiteOrgDto bssod = new BaseStaffSiteOrgDto();
-        bssod.setSiteCode(910);*/
-        //todo dev test end
         if (StringUtils.isBlank(url)) {
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
             return response;
@@ -327,11 +313,6 @@ public class SortMachineAutoSendController {
     public InvokeResult addSendGroup(@RequestBody SortMachineGroupRequest request){
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        //todo dev test
-/*        erpUser = new ErpUserClient.ErpUser();
-        erpUser.setStaffNo(9901);
-        erpUser.setUserName("tester1");*/
-        //todo dev test end
         try{
             InvokeResult addResult = sortMachineSendGroupService.addSendGroup(request.getMachineCode(),
                     request.getGroupName(), request.getChuteCodes(), erpUser.getStaffNo(), erpUser.getUserName());
@@ -356,11 +337,6 @@ public class SortMachineAutoSendController {
     public InvokeResult updateSendGroup(@RequestBody SortMachineGroupRequest request){
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        //todo dev test
-/*        erpUser = new ErpUserClient.ErpUser();
-        erpUser.setStaffNo(9901);
-        erpUser.setUserName("tester1");*/
-        //todo dev test end
         try{
              sortMachineSendGroupService.updateSendGroup(request.getGroupId(),
                      request.getMachineCode(),request.getChuteCodes(),

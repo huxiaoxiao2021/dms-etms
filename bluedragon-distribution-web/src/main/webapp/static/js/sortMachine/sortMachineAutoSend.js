@@ -173,6 +173,7 @@ $(document).ready(function(){
 
         if(list.length == 1){
             jQuery.messager.alert("提示","请选择要结束的目的地","info");
+            return;
         }
 
         /** 第三步：打印，批次打印和汇总打印 **/
@@ -197,6 +198,7 @@ $(document).ready(function(){
             list.push(param);
         });
         if(list.length == 0){
+            jQuery.messager.alert("提示","请选择要结束的目的地","info");
             return;
         }
         generateSendCode(list);
