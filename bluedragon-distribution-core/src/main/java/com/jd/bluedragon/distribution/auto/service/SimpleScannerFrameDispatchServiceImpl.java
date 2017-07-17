@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -71,6 +73,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Autowired
     private GantryExceptionService gantryExceptionService;
+
+    @Autowired
+    WaybillService waybillService;
 
     /**
      * 此处只能使用@Resource注解，使用@Autowired会报错
@@ -484,10 +489,18 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             gantryException.setType(type);
             gantryException.setSendCode(sendCode);
             gantryException.setChuteCode(domain.getChuteCode());
-            if (domain.getLength() != null && domain.getWidth() != null && domain.getHeight() != null) {
-                Float volume = domain.getLength() * domain.getWidth() * domain.getHeight();
-                gantryException.setVolume(Double.valueOf(volume));
+            if (domain.getSource() == 2) {
+                WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(barCode);
+                if (waybillPackageDTO != null) {
+                    gantryException.setVolume(waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume());
+                }
+            } else {
+                if (domain.getLength() != null && domain.getWidth() != null && domain.getHeight() != null) {
+                    Float volume = domain.getLength() * domain.getWidth() * domain.getHeight();
+                    gantryException.setVolume(Double.valueOf(volume));
+                }
             }
+
             gantryExceptionService.addGantryException(gantryException);
             return;
         }
