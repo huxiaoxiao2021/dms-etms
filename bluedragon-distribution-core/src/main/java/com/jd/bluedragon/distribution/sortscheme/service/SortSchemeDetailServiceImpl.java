@@ -197,7 +197,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         String boxSiteCode = ""; // 格口箱号目的地代码
         String pkgLabelName = ""; // 格口箱号目的地名称
         String currChuteCode = "";// 当前使用滑槽
-        String sendSiteCode = ""; // 发货目的地代码
+        Integer sendSiteCode = null; // 发货目的地代码
         String sendSiteName = ""; // 发货目的地名称
         String siteStrs = ""; // 站点字符串
         List<String> siteList = new ArrayList<String>();
@@ -274,11 +274,13 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
             } else if (i == 2) {
                 pkgLabelName = cellValue;
             } else if (i == 3) {
-                sendSiteCode = cellValue;
-                validateSite(siteMap, cellValue, notExsitErrorList, rowIndex, i);
-                BaseStaffSiteOrgDto site = siteMap.get(cellValue);
-                if (site != null) {
-                    sendSiteName = site.getSiteName();
+                if (StringUtils.isNotEmpty(cellValue)){
+                    sendSiteCode = Integer.parseInt(cellValue);
+                    validateSite(siteMap, cellValue, notExsitErrorList, rowIndex, i);
+                    BaseStaffSiteOrgDto site = siteMap.get(cellValue);
+                    if (site != null) {
+                        sendSiteName = site.getSiteName();
+                    }
                 }
             } else if (i == 4) {
                 if (StringUtils.isEmpty(sendSiteName.trim())) {
@@ -303,7 +305,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         }
         // 均没有错误,才能创建domain对象
         if (repeatChuteErrorList.size() == 0 && repeatSiteErrorList.size() == 0 && emptyErrorList.size() == 0 && notExsitErrorList.size() == 0) {
-            sortSchemeDetailList.add(new SortSchemeDetail(chuteCode1, currChuteCode, boxSiteCode, pkgLabelName, Integer.parseInt(sendSiteCode), sendSiteName, siteStrs));
+            sortSchemeDetailList.add(new SortSchemeDetail(chuteCode1, currChuteCode, boxSiteCode, pkgLabelName, sendSiteCode, sendSiteName, siteStrs));
         }
 
     }
