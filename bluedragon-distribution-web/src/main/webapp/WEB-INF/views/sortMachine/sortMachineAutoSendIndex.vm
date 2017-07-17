@@ -20,7 +20,7 @@
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js?t=24')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/sortMachine/sortMachineAutoSend.js?t=27')"></script>
     <style  type="text/css">
         .part {
             margin-top: 30px;
@@ -154,6 +154,10 @@
                             </tr>
                         </table>
                     </div>
+                    <br/><br/><br/><br/><br/><br/><br/>
+                    <div>
+                        <a href="javascript:void(0)" id="warning"">提示：一个批次最多用24个小时!</a>
+                    </div>
                     <div style="clear: both;height: 0;line-height: 0;font-size: 0;"></div>
                 </div>
                 <div id="part-3" style="margin-top: 30px;">
@@ -188,9 +192,7 @@
             </div>
         </div>
     </div>
-    <div id="food" width="300px" align="center" style="margin-right: auto;margin-left: auto;">
-        <a href="javascript:void(0)" id="warning"">提示：一个批次最多用24个小时!</a>
-    </div>
+
     <div class="popup_block" id="printSettingPopUp">
         <div style="border:1px solid black;width:300px;height: 180px;padding30px;margin-left: auto;margin-top: auto;margin-right: auto;margin-bottom: auto;">
             <table>

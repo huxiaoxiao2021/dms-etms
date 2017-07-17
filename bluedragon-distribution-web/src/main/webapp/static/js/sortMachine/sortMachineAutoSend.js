@@ -43,7 +43,7 @@ $(document).ready(function(){
         }
         var checkedGroup = $("tbody[id='chuteTb'] input[type='checkbox']:checked");
         if(!checkedGroup.size()){
-            jQuery.messager.alert("提示","请选择关联的滑道号","error");
+            jQuery.messager.alert("提示","请选择目的地记录！","error");
             return;
         }
         //清空内容
@@ -107,10 +107,11 @@ $(document).ready(function(){
     $("#delGroupbtn").click(function () {
         var currentSendGroup = $('#sendGroup').val();
         if(!currentSendGroup){
-            if(!sortMachineCode){
                 jQuery.messager.alert("提示","请选择发货组","error");
                 return;
-            }
+        }
+        if(!confirm("确定要删除该组么？")){
+            return;
         }
         deleteSendGroup(currentSendGroup);
     });
@@ -171,9 +172,7 @@ $(document).ready(function(){
         });
 
         if(list.length == 1){
-            if(!confirm("您将要打印并完结当前所有批次，是否继续？")){
-                return;
-            }
+            jQuery.messager.alert("提示","请选择要结束的目的地","info");
         }
 
         /** 第三步：打印，批次打印和汇总打印 **/
@@ -218,7 +217,7 @@ function deleteSendGroup(groupId) {
             return;
         }
         if ( data.code == 200) {
-            jQuery.messager.alert("提示：","删除成功！","error");
+            jQuery.messager.alert("提示：","删除成功！","info");
             //刷新发货组
             sortMachineGroupInit($("#sortMachine").val());
             $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
@@ -235,16 +234,18 @@ function updateSendGroup(groupId, sortMachineCode, chuteCodes) {
     param.chuteCodes = chuteCodes;
     var url = $("#contextPath").val() + "/sortMachineAutoSend/updateSendGroup";
     CommonClient.postJson(url,param,function (data) {
-        var sendGroupConfigs = data.data;
         if (data == undefined || data == null) {
             jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
             return;
         }
         if ( data.code == 200) {
-            jQuery.messager.alert("提示：","修改成功！","error");
+            jQuery.messager.alert("提示：","修改成功！","info");
             //刷新发货组
-            sortMachineGroupInit(sortMachineCode);
-            $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
+            // sortMachineGroupInit(sortMachineCode);
+            // var currentGroupId = $(this).val();
+            // $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);
+            // querySendGroupConfig(currentGroupId);
+            //
         }else if(data.code == 500) {
             jQuery.messager.alert("提示：",data.message,"error");
         }
@@ -268,7 +269,7 @@ function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
         }
         if ( data.code == 200) {
             popClose('addSendGroupDiv');
-            jQuery.messager.alert("提示：","添加成功！","error");
+            jQuery.messager.alert("提示：","添加成功！","info");
             //刷新发货组
             sortMachineGroupInit(sortMachineCode);
             $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked",false);

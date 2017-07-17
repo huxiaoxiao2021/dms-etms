@@ -30,6 +30,7 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,7 +238,7 @@ public class SortMachineAutoSendController {
                 remoteResponse.getData().getData() == null ||
                 remoteResponse.getData().getData().isEmpty()
                 ){
-            response.parameterError("根据分拣机编码获取分解计划详情失败！");
+            response.parameterError("根据分拣机编码获取分拣计划详情失败！");
             return response;
         }
         response.setData(getSortMachineBatchSendResult(remoteResponse.getData().getData(),
@@ -313,9 +314,9 @@ public class SortMachineAutoSendController {
         InvokeResult respone = new InvokeResult();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         //todo dev test
-        erpUser = new ErpUserClient.ErpUser();
+/*        erpUser = new ErpUserClient.ErpUser();
         erpUser.setStaffNo(9901);
-        erpUser.setUserName("tester1");
+        erpUser.setUserName("tester1");*/
         //todo dev test end
         try{
             InvokeResult addResult = sortMachineSendGroupService.addSendGroup(request.getMachineCode(),
@@ -388,7 +389,7 @@ public class SortMachineAutoSendController {
             @RequestBody ScannerFrameBatchSendPrint[] requests) {
         com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> result =
                 new com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>>();
-        logger.info("已打印并完结批次动作开始-->打印的龙门架ID为：" + requests[0].getMachineId());
+        logger.info("已打印并完结批次动作开始-->打印的分拣机ID为：" + requests[0].getMachineId());
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
@@ -397,7 +398,7 @@ public class SortMachineAutoSendController {
         Integer printType = requests[0].getPrintType();//打印方式逻辑与：1 批次号打印 2 汇总单 3 两者
         if (StringUtils.isBlank(machineId) || printType == null) {
             result.setCode(200);
-            result.setMessage("龙门架参数错误");
+            result.setMessage("分拣机参数错误");
             return result;
         }
 
@@ -420,13 +421,13 @@ public class SortMachineAutoSendController {
         }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
-        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有龙门架ID
+        sfbssa.setMachineId(String.valueOf(machineId));//查询参数只有分拣机ID
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         argumentPager.setStartIndex(0);
         argumentPager.setPageSize(Integer.MAX_VALUE);
         argumentPager.setData(sfbssa);
         try {
-            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该龙门架的所有批次信息
+            Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);//查询该分拣机的所有批次信息
             List<ScannerFrameBatchSend> dataRequestOld = pagerResult.getData();//取所有批次信息
             List<ScannerFrameBatchSend> dataRequest = new ArrayList<ScannerFrameBatchSend>();//取所有批次信息
             if (requests.length > 1) {
@@ -488,13 +489,13 @@ public class SortMachineAutoSendController {
                 logger.info("换批次动作实心成功，执行打印获取base64。");
                 /** ==================换批次动作执行完毕================ **/
                 if ((printType & 1) == 1) {//批次打印逻辑
-                    logger.info("龙门架自动发货页面--批次打印开始");
+                    logger.info("分拣机自动发货页面--批次打印开始");
                     BatchSendPrintImageResponse itemSendCodeResponse = scannerFrameBatchSendService.batchPrint(urlBatchPrint, item, userId, userName);
                     itemSendCodeResponse.setPrintType(SENDCODE_PRINT_TYPE);//批次打印单
                     results.add(itemSendCodeResponse);
                 }
                 if ((printType & 2) == 2) {//汇总打印逻辑
-                    logger.info("龙门架自动发货页面-打印汇总单开始");
+                    logger.info("分拣机自动发货页面-打印汇总单开始");
                     BatchSendPrintImageResponse itemSummaryResponse = scannerFrameBatchSendService.summaryPrint(urlSummaryPrint, item, userId, userName);
                     itemSummaryResponse.setPrintType(SUMMARY_PRINT_TYPE);//汇总打印单
                     results.add(itemSummaryResponse);
@@ -524,7 +525,7 @@ public class SortMachineAutoSendController {
             Integer count = gantryExceptionService.getGantryExceptionCount(machineCode, startTime, endTime);
             result.setData(count);
         } catch (NullPointerException e) {
-            logger.error("获取龙门架自动发货异常数据失败，龙门架ID为：" + machineCode);
+            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + machineCode);
         }
         return result;
     }
@@ -585,6 +586,12 @@ public class SortMachineAutoSendController {
             } catch (UnsupportedEncodingException e) {
                 logger.info("补打界面跳转参数解码异常", e);
                 model.addAttribute("createSiteName", "未知分拣中心");
+            }
+            Date nowTime = new Date();
+            endTime = StringUtils.isBlank(endTime) ? DateUtil.format(nowTime, DateUtil.FORMAT_DATE_TIME) : endTime;
+            if(StringUtils.isBlank(startTime)){
+                Date startDateTime = DateHelper.add(nowTime, Calendar.HOUR,-24);
+                startTime = DateUtil.format(startDateTime, DateUtil.FORMAT_DATE_TIME);
             }
             model.addAttribute("startTime", startTime);
             model.addAttribute("endTime", endTime);
