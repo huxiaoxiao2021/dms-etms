@@ -155,9 +155,9 @@ function doQuery(params) {
             var reason = "";
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
-                temp += "<td>" + (dataList[i].chuteCode) + "</td>";
-                temp += "<td>" + (dataList[i].packageCode) + "</td>";
-                temp += "<td>" + (dataList[i].waybillCode) + "</td>";
+                temp += "<td>" + (dataList[i].chuteCode || '') + "</td>";
+                temp += "<td>" + (dataList[i].packageCode  || '') + "</td>";
+                temp += "<td>" + (dataList[i].waybillCode  || '') + "</td>";
                 temp += "<td>" + (dataList[i].sendCode == null ? "" : dataList[i].sendCode) + "</td>";
                 temp += "<td>" + (dataList[i].volume) + "</td>";
                 if (dataList[i].type == 1)

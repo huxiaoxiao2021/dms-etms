@@ -20,7 +20,7 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
-    <script type="text/javascript" src="#springUrl("/static/js/gantryException/sortMachineException.js?t=1")"></script>
+    <script type="text/javascript" src="#springUrl("/static/js/gantryException/sortMachineException.js?t=2")"></script>
     <style type="text/css">
         #content {
             margin: 0 auto;
