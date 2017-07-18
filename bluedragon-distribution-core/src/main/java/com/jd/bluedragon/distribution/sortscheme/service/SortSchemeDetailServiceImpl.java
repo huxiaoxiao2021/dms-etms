@@ -99,8 +99,8 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 0, sortSchemeDetail.getChuteCode1());
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 1, sortSchemeDetail.getBoxSiteCode());
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 2, sortSchemeDetail.getPkgLabelName());
-                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 3, String.valueOf(sortSchemeDetail.getSendSiteCode()));
-                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 4, sortSchemeDetail.getSendSiteName());
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 3, String.valueOf(sortSchemeDetail.getSendSiteCode() == null ? "" : sortSchemeDetail.getSendSiteCode()));
+                    ExportByPOIUtil.createHSSFCell(currentIndexRow, 4, String.valueOf(sortSchemeDetail.getSendSiteName() == null ? "" : sortSchemeDetail.getSendSiteName()));
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 5, sortSchemeDetail.getCurrChuteCode());
                     ExportByPOIUtil.createHSSFCell(currentIndexRow, 6, sortSchemeDetail.getSiteCode());
                     isFirst = false;
@@ -274,7 +274,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
             } else if (i == 2) {
                 pkgLabelName = cellValue;
             } else if (i == 3) {
-                if (StringUtils.isNotEmpty(cellValue)){
+                if (StringUtils.isNotEmpty(cellValue)) {
                     sendSiteCode = Integer.parseInt(cellValue);
                     validateSite(siteMap, cellValue, notExsitErrorList, rowIndex, i);
                     BaseStaffSiteOrgDto site = siteMap.get(cellValue);

@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -48,6 +49,9 @@ public class GantryBatchSendReplenishPrintController {
 
     @Autowired
     GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    BaseService baseService;
 
     @RequestMapping(value = "/index")
     public String index(Model model, Integer machineId, Integer createSiteCode, String createSiteName, String startTime, String endTime) {
@@ -164,9 +168,13 @@ public class GantryBatchSendReplenishPrintController {
                 BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
                 itemRequest.setSendCode(item.getSendCode());
                 itemRequest.setCreateSiteCode(item.getCreateSiteCode());
-                itemRequest.setCreateSiteName(item.getCreateSiteName());
+                String createSiteName = "";
+                String receiveSiteName = "";
+                createSiteName = baseService.getSiteNameBySiteID(item.getCreateSiteCode());
+                receiveSiteName = baseService.getSiteNameBySiteID(item.getReceiveSiteCode());
+                itemRequest.setCreateSiteName(createSiteName);
                 itemRequest.setReceiveSiteCode(item.getReceiveSiteCode());
-                itemRequest.setReceiveSiteName(item.getReceiveSiteName());
+                itemRequest.setReceiveSiteName(receiveSiteName);
                 Integer packageSum = 0;
                 /** 获取包裹的数据量 **/
                 List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(item.getSendCode());
