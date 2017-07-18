@@ -63,6 +63,8 @@ public class DepartureServiceImpl implements DepartureService {
 
 	private static final String URL = DMS_ADDRESS + "/services/departure/createDepartue";
 
+	private static final Integer BUSINESS_TYPE_ONE = 10;
+
 	@Autowired
 	private SendMDao sendMDao;
 	@Autowired
@@ -73,8 +75,6 @@ public class DepartureServiceImpl implements DepartureService {
 	private DepartureSendDao departureSendDao;
 	@Autowired
 	private SealVehicleService sealVehicleService;
-	@Autowired
-	private IFailQueueService failQueueService;
 	@Autowired
 	private TaskService taskService;
 	@Autowired
@@ -161,7 +161,7 @@ public class DepartureServiceImpl implements DepartureService {
 			}
 			
 			// 推财务
-			pushFinancialData(departure, sendMs, shieldsCarId);
+			pushFinancialData(departure, sendMs);
 			
 			//三方运单,推全程跟踪,修改为干支线发车推送全称跟踪2014/009/09
 			this.thirdDepartureToTMS(sendMs,shieldsCarId);
@@ -214,17 +214,28 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	/****************************************************************
-	 * yp 2012-06-05 推财务数据 只有支线发车才推送数据 同时承运人类型必须是承运商
+	 * xumei 2017-07-03 推财务数据 发车产生的businessType = 10发货数据推财务
 	 ****************************************************************/
-	private void pushFinancialData(Departure departure, List<SendM> sendMs,
-			long shieldsCarId) {
-		boolean pushDeparture = departure.getType() == Departure.DEPARTRUE_TYPE_ZHIXIAN
-				&& departure.getSendUserType().equals(
-						Constants.SENDUSERTYEP_CARRIER) ? true : false;
-		departure.setSendUser(getSendUserFromSendMs(sendMs));
-		departure.setSendUserCode(getSendUserCodeFromSendMs(sendMs));
-		failQueueService.departureNewData(departure, shieldsCarId,
-				pushDeparture);
+	private void pushFinancialData(Departure departure, List<SendM> sendMLists) {
+		logger.info("[departureServiceImpl.pushFinancialData]发车产生的businessType = 10发货数据推财务");
+		departure.setSendUser(getSendUserFromSendMs(sendMLists));
+		departure.setSendUserCode(getSendUserCodeFromSendMs(sendMLists));
+
+		List<SendM> sendMs = departure.getSendMs();
+		//组装task写入task_delivery_to_finance_batch表
+		for (SendM sendm : sendMs) {
+			String sendCode = sendm.getSendCode();
+			Task task = new Task();
+			task.setKeyword1(BUSINESS_TYPE_ONE+"");
+			task.setBody(sendCode);
+			//将task的状态设置为执行成功
+			task.setStatus(2);
+			task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH);
+			task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH);
+			task.setOwnSign(BusinessHelper.getOwnSign());
+
+			taskService.doAddWithStatus(task);
+		}
 	}
 
 	private void createSealVehicle(Departure departure, List<SendM> sendMs) {

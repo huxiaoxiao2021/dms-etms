@@ -454,4 +454,28 @@
         <property name="type" value="1250"/>
         <property name="desc" value="智配中心分拣任务"/>
     </bean>
+
+    <!-- 第三方发货数据推送财务 -->
+    <bean id="deliveryToFinanceTask"
+          class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="DeliveryToFinanceTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="1910" />
+        <property name="desc" value="第三方发货数据推送财务" />
+    </bean>
+
+    <bean id="deliveryToFinanceConvertTask"
+          class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceConvertTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="DeliveryToFinanceConvertTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="1900" />
+        <property name="desc" value="第三方发货数据推送财务批处理" />
+    </bean>
+
 </beans>

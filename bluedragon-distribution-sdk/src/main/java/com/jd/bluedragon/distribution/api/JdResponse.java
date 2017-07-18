@@ -48,6 +48,7 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_NOT_3PL_SITE = 504;
     public static final Integer CODE_NOT_EXIST_SORTINGRET = 505;
     public static final Integer CODE_REDISPATCH = 506;
+    public static final Integer CODE_NOT_CONTAINER_RELATION = 20003;
     
     public static final String MESSAGE_DRIVERS_EMPTY = "获取司机信息为空";
     public static final String MESSAGE_VEHICLES_EMPTY = "获取车牌号信息为空";

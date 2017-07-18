@@ -59,7 +59,7 @@ public class GantryExceptionServiceImpl implements GantryExceptionService{
     }
 
     @Override
-    public Integer getGantryExceptionCount(Long machineId, Date startTime, Date endTime) {
+    public Integer getGantryExceptionCount(String machineId, Date startTime, Date endTime) {
         HashMap<String, Object> param = new HashMap();
         param.put("machineId", machineId);
         param.put("startTime", startTime);

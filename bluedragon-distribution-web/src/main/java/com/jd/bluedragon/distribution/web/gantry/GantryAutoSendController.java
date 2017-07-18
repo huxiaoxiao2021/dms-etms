@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.gantry;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
+import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
@@ -183,7 +184,7 @@ public class GantryAutoSendController {
             if (logger.isInfoEnabled()) {
                 logger.info("用户" + userName + "正在尝试第一次配置该龙门架设备ID：" + request.getMachineId());
             }
-            gantryDeviceConfig.setMachineId(request.getMachineId());
+            gantryDeviceConfig.setMachineId(request.getMachineId().toString());
             gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
             gantryDeviceConfig.setYn(1);
             if (request.getBusinessType() == 4 || request.getBusinessType() == 3 || request.getBusinessType() == 7) {
@@ -260,7 +261,7 @@ public class GantryAutoSendController {
             argumentPager.setPageNo(pager.getPageNo());
             argumentPager.init();
         }
-        sfbssa.setMachineId(request.getMachineId());
+        sfbssa.setMachineId(String.valueOf(request.getMachineId()));
 //        sfbssa.setStartTime(request.getStartTime());
 //        sfbssa.setEndTime(request.getEndTime());
         sfbssa.setHasPrinted(false);
@@ -370,7 +371,7 @@ public class GantryAutoSendController {
 
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Integer> queryExceptionNum(GantryDeviceConfigRequest request) {
+    public InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
         this.logger.debug("获取龙门架异常信息 --> queryExceptionNum");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
@@ -380,8 +381,8 @@ public class GantryAutoSendController {
             logger.error("龙门架参数异常，获取异常数据失败");
         }
         try {
-            if (null != request.getMachineId()) {
-                Integer count = gantryExceptionService.getGantryExceptionCount((long) request.getMachineId(), request.getStartTime(), request.getEndTime());
+            if (StringUtils.isNotBlank(request.getMachineId())) {
+                Integer count = gantryExceptionService.getGantryExceptionCount( request.getMachineId(), request.getStartTime(), request.getEndTime());
                 result.setCode(200);
                 result.setMessage("龙门架异常数据获取成功");
                 result.setData(count);
@@ -404,9 +405,9 @@ public class GantryAutoSendController {
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
 
-        Integer machineId = requests[0].getMachineId();
+        String machineId = requests[0].getMachineId();
         Integer printType = requests[0].getPrintType();//打印方式逻辑与：1 批次号打印 2 汇总单 3 两者
-        if (machineId == null || machineId == 0 || printType == null) {
+        if (StringUtils.isBlank(machineId) || printType == null) {
             result.setCode(200);
             result.setMessage("龙门架参数错误");
             return result;
@@ -540,7 +541,7 @@ public class GantryAutoSendController {
     /**********************转换domain************************/
     private GantryDeviceConfig transformDomainToGantryDeviceConfig(GantryDeviceConfigRequest request, String userCode, String userName, Integer userId) {
         GantryDeviceConfig gantryDeviceConfig = new GantryDeviceConfig();
-        gantryDeviceConfig.setMachineId(request.getMachineId());
+        gantryDeviceConfig.setMachineId(String.valueOf(request.getMachineId()));
         gantryDeviceConfig.setOperateUserId(userId);
         gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
         gantryDeviceConfig.setOperateUserName(userName);

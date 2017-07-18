@@ -14,7 +14,7 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
     /**
      * 龙门架编号
      */
-    private long machineId;
+    private String machineId;
 
     /**
      * 批次创建开始时间
@@ -36,11 +36,11 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
      */
     private Boolean hasPrinted;
 
-    public long getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(long machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 

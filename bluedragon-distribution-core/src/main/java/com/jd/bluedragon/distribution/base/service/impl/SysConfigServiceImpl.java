@@ -27,6 +27,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 		return this.sysConfigDao.getList(sysConfig);
 	}
 
+
 	/**
 	 * 此接口仅用于查询sysconfig表的redis开关,其他接口禁止调用
      * fix 4/22 关闭redis缓存
@@ -40,6 +41,17 @@ public class SysConfigServiceImpl implements SysConfigService {
 		config.setConfigName(conName);
 		return this.sysConfigDao.getList(config);
 	}
+
+	@Override
+	@Cache(key = "Test1SysConfigServiceImpl.findConfigContentByConfigName@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000
+			,redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
+	public SysConfig findConfigContentByConfigName(String configName) {
+		SysConfig result=this.sysConfigDao.findConfigContentByConfigName(configName);
+		return result;
+		//return this.sysConfigDao.findConfigContentByConfigName(configName);
+	}
+
+
 
 	@Override
 	public int del(Long pk) {

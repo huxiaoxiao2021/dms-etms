@@ -240,4 +240,13 @@ public class TaskDao extends BaseDao<Task> {
 		task.setTableName(Task.getTableName(task.getType()));
 		return (Integer) super.getSqlSession().update(TaskDao.namespace + ".updateTaskStatus", task);
 	}
+
+	public List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum) {
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("fetchNum", fetchNum);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findDeliveryToFinanceConvertTasks", request);
+	}
+
 }

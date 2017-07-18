@@ -206,6 +206,11 @@ public class DeliveryResource {
                 JdResponse.MESSAGE_UNLOADBILL);
     }
 
+    /**
+     * 老发货接口
+     * @param request
+     * @return
+     */
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/delivery/send")
