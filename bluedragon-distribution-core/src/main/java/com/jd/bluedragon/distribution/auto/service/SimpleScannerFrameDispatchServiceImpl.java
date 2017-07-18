@@ -91,7 +91,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     public boolean dispatch(UploadData domain) throws Exception {
         GantryDeviceConfig config = null;
         boolean result = false;
-        if (domain.getSource() == 2) {
+        if (domain.getSource() != null && domain.getSource().intValue() == 2) {
             config = new GantryDeviceConfig();
             if (!this.getSortMachineAutoSendConfig(domain, config)) {
                 return true;

@@ -280,7 +280,7 @@ public class TaskResource {
     public InvokeResult saveTask(@Context HttpServletRequest request, UploadData domain) {
         Integer source = domain.getSource();
         // 判断请求来源 2-分拣机 其他来源目前均为走龙门架逻辑
-        if (source == 2) { //分拣机
+        if (source != null && source.intValue() == 2) { //分拣机
             return saveSortMachineTask(domain);
         } else { // 龙门架
             return saveScannerFrameTask(request, domain);
