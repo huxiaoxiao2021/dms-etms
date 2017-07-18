@@ -489,7 +489,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             gantryException.setType(type);
             gantryException.setSendCode(sendCode);
             gantryException.setChuteCode(domain.getChuteCode());
-            if (domain.getSource() == 2) {
+            if (domain.getSource() != null && domain.getSource() == 2) {
                 WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(barCode);
                 if (waybillPackageDTO != null) {
                     gantryException.setVolume(waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume());
