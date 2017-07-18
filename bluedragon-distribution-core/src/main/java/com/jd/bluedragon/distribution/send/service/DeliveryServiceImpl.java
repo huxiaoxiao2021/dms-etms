@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -254,6 +255,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
         queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
+        //查询箱子发货记录
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
         if (null != sendMList && sendMList.size() > 0) {
@@ -283,7 +285,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 response = jsfSortingResourceService.check(sortingCheck);
             } catch (Exception ex) {
                 logger.error("调用VER", ex);
-                return new SendResult(4, "调用分拣验证异常", 100, 0);
+                return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
             }
             Profiler.registerInfoEnd(info1);
             if (!response.getCode().equals(200)) {//如果校验不OK
@@ -302,8 +304,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
-                        return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-                } else {
+                        return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
+                } else{
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
@@ -311,8 +313,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         Profiler.registerInfoEnd(temp_info2);
         DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
-        if(!verificationResult.getCode()){
-            return new SendResult(2, verificationResult.getMessage());
+        if(!verificationResult.getCode() && !isForceSend){//按照箱发货，校验派车单是否齐全，判断是否强制发货
+            return new SendResult(4, verificationResult.getMessage());
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
@@ -556,7 +558,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         tTask.setBody(sendM.getSendCode());
 
-
         tTask.setKeyword1("3");// 3回传dmc
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
@@ -568,10 +569,20 @@ public class DeliveryServiceImpl implements DeliveryService {
             tTaskService.add(tTask);
         }
 
-		/* 推送财务信息 */
-        if (businessTypeTHR.equals(sendM.getSendType()))
-            newFailQueueService.sendCodeNewData(sendM.getSendCode(),
-                    IFailQueueService.DMS_SEND_3PL);
+		/* 第三方发货推送财务
+		*  写到task_delviery_to_finance_batch表*/
+        if (businessTypeTHR.equals(sendM.getSendType())){
+            String sendCode = sendM.getSendCode();
+            Task task = new Task();
+            task.setKeyword1(businessTypeTHR+"");
+            task.setBody(sendCode);
+            task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH);
+            task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH);
+            task.setOwnSign(BusinessHelper.getOwnSign());
+
+            taskService.add(task);
+        }
+
         /*添加自动化分拣发货回传波次表*/
         BatchSend batchSend = new BatchSend();
         batchSend.setSendCode(sendM.getSendCode());
@@ -798,9 +809,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
                     DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),true);
+        //老发货升级需求 调用verification 的checkPackage的值由true 改成fals byjinjingcheng
+        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),false);
         if(!verificationResult.getCode()){
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ALL_CHECK,verificationResult.getMessage());
+            return new DeliveryResponse(DeliveryResponse.CODE_CITY_BILL_CHECK,
+                    verificationResult.getMessage());
         }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());

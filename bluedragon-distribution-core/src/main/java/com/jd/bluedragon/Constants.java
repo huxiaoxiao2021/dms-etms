@@ -310,4 +310,5 @@ public class Constants {
     
     // 一次邮件发送最大收件人数
     public static final int MAX_SEND_SIZE = 500;
+    
 }

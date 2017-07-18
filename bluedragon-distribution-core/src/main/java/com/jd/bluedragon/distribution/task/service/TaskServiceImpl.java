@@ -715,4 +715,11 @@ public class TaskServiceImpl implements TaskService {
     public Integer updateTaskStatus(Task task) {
        return taskDao.updateTaskStatus(task);
     }
+
+	public List<Task> findDeliveryToFinanceConvertTasks(Integer type,Integer fetchNum){
+		Assert.notNull(type, "type must not be null");
+		Assert.notNull(fetchNum, "fetchNum must not be null");
+		TaskDao routerDao = taskDao;
+		return routerDao.findDeliveryToFinanceConvertTasks(type, fetchNum);
+	}
 }

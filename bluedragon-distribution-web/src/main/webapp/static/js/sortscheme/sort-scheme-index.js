@@ -13,6 +13,10 @@ function main() {
     $('#queryBtn').click(function () {
         onQueryBtnClick(1);
     });
+    //查询已删缓存
+    $('#queryCacheBtn').click(function () {
+        onCacheCleanBtnClick(1);
+    });
 
     // 添加按钮
     $('#addBtn').click(function () {
@@ -42,6 +46,10 @@ function main() {
     $("#siteNo").change(function () {
         clearPager();
     });
+    //清除缓存
+    $("#cacheCleanBtn").click(function() {
+        onExcuteCacheCleanBtnClick();
+    });
 
     // 加载所有的分拣中心
     initDms();
@@ -53,6 +61,7 @@ function goAddBtnClick() {
     var siteName = $("#siteNo").find("option:selected").text();
     location.href = $("#contextPath").val() + "/autosorting/sortScheme/goAdd?siteCode=" + siteCode + "&siteName=" + encodeURIComponent(encodeURIComponent(siteName));
 }
+
 
 function goDetailClick(id) {
     location.href = $("#contextPath").val() + "/autosorting/sortScheme/goDetail?id=" + id + "&siteNo=" + siteNo;
@@ -197,6 +206,25 @@ function checkParams(params) {
     }
     return true;
 }
+//显示已删缓存
+function onCacheCleanBtnClick(pageNo){
+
+     var params = getCacheParams();
+     params.pageNo = pageNo;
+     if (params.siteNo == null ||params.siteNo == "") {
+        jQuery.messager.alert('提示:', '分拣中心不能为空!', 'info');
+        return false;
+    }
+    if(params.machineCode==null || params.machineCode==""){
+        jQuery.messager.alert('提示:', '分拣机代码不能为空!', 'info');
+        return false;
+    }
+    if(params.chuteCode1==null || params.chuteCode1=="") {
+        jQuery.messager.alert('提示:', '滑槽号不能为空!', 'info');
+        return false;
+    }
+    doCacheCleanSorting(params);
+}
 
 function getParams() {
     var params = {};
@@ -205,6 +233,81 @@ function getParams() {
     params.sortMode = $.trim($("#sortMode").val());
     params.name = $.trim($("#name").val());
     return params;
+}
+
+function getCacheParams(){
+    var params={};
+    params.siteNo = $.trim($("#siteNo").val());
+    params.machineCode = $.trim($("#machineCode").val());
+    params.chuteCode1=$.trim($("#chuteCode1").val());
+    return params;
+}
+//执行删除缓存操作（更新缓存状态)
+function onExcuteCacheCleanBtnClick(){
+    var params = getCacheParams();
+
+    if (params.siteNo == null ||params.siteNo == "") {
+        jQuery.messager.alert('提示:', '分拣中心不能为空!', 'info');
+        return false;
+    }
+    if(params.machineCode==null || params.machineCode==""){
+        jQuery.messager.alert('提示:', '分拣机代码不能为空!', 'info');
+        return false;
+    }
+    if(params.chuteCode1==null || params.chuteCode1=="") {
+        jQuery.messager.alert('提示:', '滑槽号不能为空!', 'info');
+        return false;
+    }
+    if (confirm("确定要删除符合该条件的缓存 ?")) {
+        var url = $("#contextPath").val() + "/autosorting/sortScheme/excuteCacheClean";
+            CommonClient.postJson(url, params, function (data) {
+                //返回符合查询条件的最近删除缓存(带上次删除缓存时间)
+
+                var temp = "<span>本次删除缓存条数："+(data.data == null ? 0 : data.data) + "</span>";
+                $("#cacheCleanNumber div").html(temp);
+
+            doCacheCleanSorting(params);
+        });
+    }
+}
+
+//返回符合查询条件的最近删除缓存(带上次删除缓存时间)
+function doCacheCleanSorting(params){
+    var url=$("#contextPath").val()+ "/autosorting/sortScheme/cacheClean";
+    CommonClient.postJson(url,params,function(data){
+        if (data == undefined || data == null) {
+            jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+            return;
+        }
+        if (data.code == 200) {
+            var pager = data.data;
+            var dataList = pager.data;
+            var temp="";
+            for (var i = 0; i < dataList.length; i++) {
+                temp += "<tr class='a2' style=''>";
+                temp += "<td>" + (dataList[i].boxCode == null ? '' : dataList[i].boxCode) + "</td>";
+                temp += "<td>" + (dataList[i].createSiteCode == null ? '' : dataList[i].createSiteCode) + "</td>";
+                temp += "<td>" + (dataList[i].createSiteName == null ? '' : dataList[i].createSiteName) + "</td>";
+                temp += "<td>" + (dataList[i].receiveSiteCode== null? '' :dataList[i].receiveSiteCode) + "</td>";
+                temp += "<td>" + (dataList[i].receiveSiteName== null? '' :dataList[i].receiveSiteName) + "</td>";
+                temp += "<td>" + (dataList[i].router == null? '' :dataList[i].router) + "</td>";
+                temp += "<td>" + (dataList[i].updateTime == null? '' :dataList[i].updateTime) + "</td>";
+                temp += "</tr>";
+            }
+
+            $("#paperTable tbody").html(temp);
+            $("#pageNo").val(pager.pageNo); // 当前页码
+            // 添加分页显示
+            $("#pager").html(PageBar.getHtml("onCacheCleanBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
+        } else {
+            siteNo = null;
+            $("#paperTable tbody").html("");
+            $("#pager").html("");
+            jQuery.messager.alert('提示:', data.message, 'info');
+        }
+
+    });
+
 }
 
 // 查询请求
