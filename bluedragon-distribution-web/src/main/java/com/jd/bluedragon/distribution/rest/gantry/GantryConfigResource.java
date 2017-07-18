@@ -67,7 +67,7 @@ public class GantryConfigResource {
         temp.setLockStatus(config.getLockStatus());
         temp.setLockUserErp(config.getLockUserErp());
         temp.setLockUserName(config.getLockUserName());
-        temp.setMachineId(Integer.parseInt(config.getMachineId()));
+        temp.setMachineId(Integer.valueOf(config.getMachineId()));
         temp.setOperateTypeRemark(config.getBusinessTypeRemark());
         temp.setOperateUserErp(config.getOperateUserErp());
         temp.setOperateUserId(config.getOperateUserId());

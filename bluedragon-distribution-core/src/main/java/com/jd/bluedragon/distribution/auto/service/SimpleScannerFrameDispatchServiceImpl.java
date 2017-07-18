@@ -97,7 +97,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 return true;
             }
         } else {
-            config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.parseInt(domain.getRegisterNo()), domain.getScannerTime());
+            config = gantryDeviceConfigService.findGantryDeviceConfigByOperateTime(Integer.valueOf(domain.getRegisterNo()), domain.getScannerTime());
             this.printInfoLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果{2}", domain.getRegisterNo(), domain.getScannerTime(), JsonHelper.toJson(config));
             if (null == config) {
                 this.printWarnLog("获取龙门架操作方式registerNo={0},operateTime={1}|结果为NULL", domain.getRegisterNo(), domain.getScannerTime());
@@ -105,7 +105,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             }
             domain.setBarCode(StringUtils.remove(domain.getBarCode(), BOX_SUFFIX));/*龙门加校正箱号后面-CF*/
 
-            Byte version = getVersion(Integer.getInteger(config.getMachineId()));
+            Byte version = getVersion(Integer.valueOf(config.getMachineId()));
             config.setVersion(version);
             // 多批次发货龙门架
             if (version != null && version.intValue() == 1) {
@@ -288,7 +288,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSendCodeByBox(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
         boolean isSuccess = false;
-        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(Integer.parseInt(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
+        AreaDestPlanDetail detail = areaDestPlanDetailService.getByScannerTime(Integer.valueOf(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
         if (detail != null && detail.getPlanId() != null) {
             String sendCode = getSendCodeBySiteCode(detail.getPlanId(), destSiteCode, domain, config);
             if (StringUtils.isNotEmpty(sendCode)) {
@@ -355,7 +355,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSendCodeByPackage(UploadData domain, GantryDeviceConfig config, Integer destSiteCode) throws Exception {
         boolean isSuccess = false;
-        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(Integer.parseInt(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
+        AreaDestPlanDetail planDetail = areaDestPlanDetailService.getByScannerTime(Integer.valueOf(config.getMachineId()), config.getCreateSiteCode(), domain.getScannerTime());
         if (planDetail != null && planDetail.getPlanId() != null && planDetail.getPlanId() > 0) {
             String sendCode = getSendCodeBySiteCode(planDetail.getPlanId(), destSiteCode, domain, config);
             if (StringUtils.isNotEmpty(sendCode)) {
