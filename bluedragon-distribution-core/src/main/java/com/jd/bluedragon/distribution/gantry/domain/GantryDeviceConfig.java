@@ -31,7 +31,7 @@ public class GantryDeviceConfig {
     /*
     龙门架编号全国维一编号
      */
-    private Integer machineId;
+    private String machineId;
 
     /*
     龙门架序列号,
@@ -134,11 +134,11 @@ public class GantryDeviceConfig {
         this.id = id;
     }
 
-    public Integer getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(Integer machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 

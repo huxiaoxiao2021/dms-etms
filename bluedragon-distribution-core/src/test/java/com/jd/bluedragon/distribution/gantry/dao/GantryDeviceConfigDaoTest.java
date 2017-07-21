@@ -53,7 +53,7 @@ public class GantryDeviceConfigDaoTest extends AbstractDaoIntegrationTest{
         gantryDeviceConfig.setLockStatus(0);
         gantryDeviceConfig.setLockUserErp("james5");
         gantryDeviceConfig.setLockUserName("james");
-        gantryDeviceConfig.setMachineId(11);
+        gantryDeviceConfig.setMachineId("11");
         gantryDeviceConfig.setOperateUserErp("james5");
         gantryDeviceConfig.setOperateUserName("james");
         gantryDeviceConfig.setUpdateUserErp("james5");
@@ -84,7 +84,7 @@ public class GantryDeviceConfigDaoTest extends AbstractDaoIntegrationTest{
         gantryDeviceConfig.setLockStatus(0);
         gantryDeviceConfig.setLockUserErp("james8");
         gantryDeviceConfig.setLockUserName("james");
-        gantryDeviceConfig.setMachineId(11);
+        gantryDeviceConfig.setMachineId("11");
         gantryDeviceConfig.setOperateUserErp("james8");
         gantryDeviceConfig.setOperateUserName("james");
         gantryDeviceConfig.setUpdateUserErp("james5");

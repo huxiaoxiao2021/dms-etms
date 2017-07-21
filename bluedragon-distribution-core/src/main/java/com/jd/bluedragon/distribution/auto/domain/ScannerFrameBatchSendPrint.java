@@ -10,7 +10,7 @@ public class ScannerFrameBatchSendPrint implements Serializable{
 
     private static final long serialVersionUID = 147883762545714549L;
 
-    private Integer machineId;
+    private String machineId;
     private String SendCode;
     private Integer createSiteCode;
     private String createSiteName;
@@ -21,11 +21,11 @@ public class ScannerFrameBatchSendPrint implements Serializable{
 
     private Integer printType;//新增打印方式求逻辑与 1 批次打印, 2 汇总单, 3 both
 
-    public Integer getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(Integer machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 
