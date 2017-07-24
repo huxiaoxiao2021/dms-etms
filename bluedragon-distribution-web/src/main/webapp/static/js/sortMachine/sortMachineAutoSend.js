@@ -180,8 +180,7 @@ $(document).ready(function(){
         printAndEndSendCodeBtn(list,printerNames);//打印事件
 
         /** 刷新当前页面 **/
-        // var currentPage = $(".current").text();
-        // queryBatchSendSub(currentPage);
+        query();
 
     });
 
