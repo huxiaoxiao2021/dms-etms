@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.util.StringUtils;
+import com.jd.ql.basic.util.DateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -70,6 +72,23 @@ public class GantryExceptionController {
         return "gantryException/gantryExceptionList";
     }
 
+    @RequestMapping(value = "/autoMachineExceptionList", method = RequestMethod.GET)
+    public String autoMachineExceptionList(GantryExceptionRequest request, Model model) {
+
+        Date nowTime = new Date();
+        String endTime = request.getEndTime();
+        String startTime = request.getStartTime();
+        endTime = com.jd.jsf.gd.util.StringUtils.isBlank(endTime) ? DateUtil.format(nowTime, DateUtil.FORMAT_DATE_TIME) : endTime;
+        if(com.jd.jsf.gd.util.StringUtils.isBlank(startTime)){
+            Date startDateTime = DateHelper.add(nowTime, Calendar.HOUR,-24);
+            startTime = DateUtil.format(startDateTime, DateUtil.FORMAT_DATE_TIME);
+        }
+        request.setEndTime(endTime);
+        request.setStartTime(startTime);
+        model.addAttribute("queryParam", request);
+        return "gantryException/sortMachineExceptionList";
+    }
+
     /**
      * 查询符合条件的异常数据
      *
@@ -96,11 +115,11 @@ public class GantryExceptionController {
                 pager.setData(gantryExceptionList);
                 result.setData(pager);
                 result.setCode(200);
-                result.setMessage("查询龙门架异常信息成功");
+                result.setMessage("查询异常信息成功");
             } catch (Exception e) {
                 result.setCode(10000);
-                result.setMessage("查询龙门架异常信息失败");
-                logger.error("查询龙门架异常信息失败", e);
+                result.setMessage("查询异常信息失败");
+                logger.error("查询异常信息失败", e);
             }
         } else {
             result.setCode(10000);
@@ -176,12 +195,16 @@ public class GantryExceptionController {
                     } else {
                         gantryExceptionExports = gantryExceptions;
                     }
-                    String filename = "龙门架编号" + request.getMachineId() + "的异常信息"
+                    String machineName = "龙门架";
+                    if(request.getBusiType() != null && request.getBusiType() == 2){
+                        machineName = "分拣机";
+                    }
+                    String filename = machineName + "编号" + request.getMachineId() + "的异常信息"
                             + DateHelper.formatDate(new Date(), Constants.DATE_TIME_MS_STRING) + ".xls";
                     response.setContentType("application/vnd.ms-excel");
                     response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
                     outputStream = response.getOutputStream();
-                    HSSFWorkbook wb = createWorkbook(gantryExceptionExports);
+                    HSSFWorkbook wb = createWorkbook(gantryExceptionExports, request.getBusiType());
                     wb.write(outputStream);
                     outputStream.flush();
                     outputStream.close();
@@ -210,7 +233,7 @@ public class GantryExceptionController {
      *
      */
     private Boolean checkAddParam(GantryExceptionRequest request) {
-        if(request.getMachineId() == null ||
+        if(StringUtils.isBlank(request.getMachineId())||
                 ! StringHelper.isNotEmpty(request.getStartTime()) ||
                 ! StringHelper.isNotEmpty(request.getEndTime())) {
             return false;
@@ -251,7 +274,13 @@ public class GantryExceptionController {
      * 创建excel
      *
      */
-    private HSSFWorkbook createWorkbook(List<GantryException> gantryExceptions){
+    private HSSFWorkbook createWorkbook(List<GantryException> gantryExceptions, Integer busiType){
+        String machineName = "龙门架编号";
+        String pkgNumberName = "条码号";
+        if(busiType != null && busiType == 2){
+            machineName = "物理滑槽";
+            pkgNumberName = "包裹号";
+        }
         HSSFWorkbook wb = new HSSFWorkbook();
 
         // create sheet
@@ -270,8 +299,8 @@ public class GantryExceptionController {
         style.setRightBorderColor((short) 10);
 
 //        createCellOfRow(row, 0, "规则类型", style);
-        createCellOfRow(row, 0, "龙门架编号", style);
-        createCellOfRow(row, 1, "条码号", style);
+        createCellOfRow(row, 0, machineName, style);
+        createCellOfRow(row, 1, pkgNumberName, style);
         createCellOfRow(row, 2, "运单号", style);
         createCellOfRow(row, 3, "批次号", style);
         createCellOfRow(row, 4, "体积", style);
@@ -289,8 +318,14 @@ public class GantryExceptionController {
         for (int i = 0; i < gantryExceptions.size(); i++) {
             GantryException gantryException = gantryExceptions.get(i);
             HSSFRow row1 = sheet.createRow(i + 1);
-            createCellOfRow(row1, 0, String.valueOf(gantryException.getMachineId()), styleContent);
-            createCellOfRow(row1, 1, gantryException.getBarCode(), styleContent);
+            if(busiType != null && busiType == 2){
+                createCellOfRow(row1, 0, gantryException.getChuteCode(), styleContent);
+                createCellOfRow(row1, 1, gantryException.getPackageCode(), styleContent);
+            }else {
+                createCellOfRow(row1, 0, gantryException.getMachineId(), styleContent);
+                createCellOfRow(row1, 1, gantryException.getBarCode(), styleContent);
+            }
+
             createCellOfRow(row1, 2, gantryException.getWaybillCode(),styleContent);
             createCellOfRow(row1, 3, gantryException.getSendCode(),styleContent);
             createCellOfRow(row1, 4, String.valueOf(gantryException.getVolume()), styleContent);
@@ -325,6 +360,14 @@ public class GantryExceptionController {
             exceptionReasonStr = "拦截订单";
         } else if (type == 5) {
             exceptionReasonStr = "龙门架未绑该站点";
+        }else if (type == 21){
+            exceptionReasonStr = "发货始发地站点无效";
+        }else if (type == 22){
+            exceptionReasonStr = "无发货目的站点";
+        }else if (type == 23){
+            exceptionReasonStr = "订单拦截";
+        }else if (type == 24){
+            exceptionReasonStr = "无落格时间";
         }
         return exceptionReasonStr;
     }

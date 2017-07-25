@@ -4,7 +4,7 @@
 
     <resultMap id="gantryExceptionMap" type="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         <id column="ID" property="id" jdbcType="BIGINT"/>
-        <id column="MACHINE_ID" property="machineId" jdbcType="BIGINT"/>
+        <id column="MACHINE_ID" property="machineId" jdbcType="VARCHAR"/>
         <result column="BAR_CODE" property="barCode" jdbcType="VARCHAR"/>
         <result column="WAYBILL_CODE" property="waybillCode" jdbcType="VARCHAR"/>
         <result column="CREATE_SITE_CODE" property="createSiteCode" jdbcType="BIGINT"/>
@@ -17,12 +17,15 @@
         <result column="YN" property="yn" jdbcType="TINYINT"/>
         <result column="SEND_STATUS" property="sendStatus" jdbcType="TINYINT"/>
         <result column="SEND_CODE" property="sendCode" jdbcType="VARCHAR"/>
+        <result column="CHUTE_CODE" property="chuteCode" jdbcType="VARCHAR"/>
+        <result column="PACKAGE_CODE" property="packageCode" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="gantryExceptionColumn" >
         ID, MACHINE_ID, BAR_CODE, WAYBILL_CODE,
         CREATE_SITE_CODE, CREATE_SITE_NAME, VOLUME,
-        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE,
+        CHUTE_CODE,PACKAGE_CODE
     </sql>
     <sql id="gantryExceptionColumnNoID" >
             MACHINE_ID,
@@ -39,14 +42,14 @@
         <if test = "volume != null">
             VOLUME,
         </if>
-        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE,CHUTE_CODE,PACKAGE_CODE
     </sql>
 
     <insert id="addGantryException" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         INSERT INTO GANTRY_EXCEPTION
           (<include refid="gantryExceptionColumnNoID" />)
         VALUES (
-        #{machineId, jdbcType=BIGINT}, #{barCode, jdbcType=VARCHAR},
+        #{machineId,jdbcType=VARCHAR}, #{barCode, jdbcType=VARCHAR},
         <if test = "waybillCode != null">
             #{waybillCode, jdbcType=VARCHAR},
         </if>
@@ -59,16 +62,21 @@
         <if test = "volume != null">
             #{volume, jdbcType=DECIMAL},
         </if>
-           #{type, jdbcType=TINYINT}, #{operateTime, jdbcType=TIMESTAMP},
-          now(), now(), 1, 0 ,
-          #{sendCode, jdbcType=VARCHAR}
+            #{type, jdbcType=TINYINT},
+            #{operateTime, jdbcType=TIMESTAMP},
+            now(), now(), 1, 0 ,
+            #{sendCode, jdbcType=VARCHAR},
+            #{chuteCode, jdbcType=VARCHAR},
+        <if test="packageCode != null">
+            #{packageCode, jdbcType=VARCHAR}
+        </if>
         )
     </insert>
 
     <sql id="gantryExceptionQueryParam" >
         <where>
             <if test="machineId != null">
-                AND MACHINE_ID = #{machineId, jdbcType=BIGINT}
+                AND MACHINE_ID = #{machineId,jdbcType=VARCHAR}
             </if>
             <if test="startTime != null and startTime != ''">
                 AND OPERATE_TIME <![CDATA[>=]]> #{startTime, jdbcType=TIMESTAMP}

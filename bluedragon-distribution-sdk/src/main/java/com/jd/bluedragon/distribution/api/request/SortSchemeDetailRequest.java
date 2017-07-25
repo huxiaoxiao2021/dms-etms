@@ -66,6 +66,13 @@ public class SortSchemeDetailRequest implements Serializable {
 
     private String sortSchemeDetailJson;
 
+    /**
+     * 分拣计划表
+     * @return
+     */
+    private String machineCode;
+    private Integer SortSchemeYn;
+
     public SortSchemeDetailRequest() {
     }
 
@@ -175,5 +182,21 @@ public class SortSchemeDetailRequest implements Serializable {
 
     public void setSortSchemeDetailJson(String sortSchemeDetailJson) {
         this.sortSchemeDetailJson = sortSchemeDetailJson;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
+    }
+
+    public Integer getSortSchemeYn() {
+        return SortSchemeYn;
+    }
+
+    public void setSortSchemeYn(Integer sortSchemeYn) {
+        SortSchemeYn = sortSchemeYn;
     }
 }

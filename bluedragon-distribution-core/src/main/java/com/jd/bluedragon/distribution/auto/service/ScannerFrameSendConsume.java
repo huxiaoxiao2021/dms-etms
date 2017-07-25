@@ -30,7 +30,7 @@ import java.util.Date;
  */
 @Service("scannerFrameSendConsume")
 public class ScannerFrameSendConsume implements ScannerFrameConsume {
-    private static final Log logger= LogFactory.getLog(ScannerFrameSendConsume.class);
+    private static final Log logger = LogFactory.getLog(ScannerFrameSendConsume.class);
 
     @Resource
     private DeliveryService deliveryService;
@@ -43,13 +43,13 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
 
         SendM domain = new SendM();
-        if(StringHelper.isEmpty(config.getSendCode())){
-            logger.error(MessageFormat.format("龙门架发货批次号为空机器号：{0},发货站点：{1},操作号：{2}",config.getMachineId(),config.getCreateSiteName(),config.getId()));
+        if (StringHelper.isEmpty(config.getSendCode())) {
+            logger.error(MessageFormat.format("龙门架发货批次号为空机器号：{0},发货站点：{1},操作号：{2}", config.getMachineId(), config.getCreateSiteName(), config.getId()));
             return false;
         }
 
         domain.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()));
-        if(null==domain.getReceiveSiteCode()) {
+        if (null == domain.getReceiveSiteCode()) {
             logger.error(MessageFormat.format("从批次号{0}获取目的站点为空", config.getSendCode()));
             return false;
         }
@@ -67,7 +67,7 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
                         .append(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()))
                         .append("-")
                         .append(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)).toString();
-                GantryDeviceConfig model = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(config.getMachineId());
+                GantryDeviceConfig model = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(Integer.valueOf(config.getMachineId()));
                 model.setSendCode(sendCode);
                 model.setStartTime(new Date(uploadData.getScannerTime().getTime() - 1000));
                 model.setEndTime(new Date(model.getStartTime().getTime() + 1000 * 60 * 60 * 24));
@@ -81,9 +81,9 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
         domain.setCreateUserCode(config.getOperateUserId());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(1);
-        domain.setCreateTime(new Date( System.currentTimeMillis() + 30000));
+        domain.setCreateTime(new Date(System.currentTimeMillis() + 30000));
         domain.setOperateTime(new Date(uploadData.getScannerTime().getTime() + 30000));
-        SendResult result= deliveryService.atuoPackageSend(domain, true);
+        SendResult result = deliveryService.atuoPackageSend(domain, true);
         return result.getKey().equals(SendResult.CODE_OK);
     }
 }

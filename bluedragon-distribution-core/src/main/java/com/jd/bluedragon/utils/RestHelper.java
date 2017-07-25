@@ -54,6 +54,7 @@ public class RestHelper {
                 return JSON.parseObject(JSON.toJSONString(result.getBody()), typeReference);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
