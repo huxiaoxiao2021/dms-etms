@@ -89,14 +89,8 @@ public class SendPrintServiceImpl implements SendPrintService{
 		List<SendM> sendMs =this.selectUniquesSendMs(nSendM); //this.sendMDao.selectBySendSiteCode(nSendM);
 		if (sendMs != null && !sendMs.isEmpty()) {
 			logger.info("打印交接清单-批次汇总数目"+sendMs.size());
-		    Set<SendM> sendmset = new CollectionHelper<SendM>().toSet(sendMs);
             try {
-                for (SendM sendM : sendmset) {
-                    SummaryPrintResult result = summaryPrintQuery(sendM,sendMs,criteria);
-                    if(result!=null){
-                        results.add(result);
-                    }
-                }
+            	results = this.summaryPrintResultToList(sendMs, criteria);
             } catch (Exception e) {
                 logger.error("批次汇总&&批次汇总打印异常", e);
                 tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
@@ -140,15 +134,61 @@ public class SendPrintServiceImpl implements SendPrintService{
         }
         return nSendM;
     }
-
+    /**
+     * 汇总多个发车批次统计信息,sendMList先按sendCode分组，然后统计每个分组的箱子、包裹信息
+     * @param sendMList
+     * @param criteria
+     * @return
+     */
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	public List<SummaryPrintResult> summaryPrintResultToList(List<SendM> sendMList,PrintQueryCriteria criteria) {
+		List<SummaryPrintResult> res = new ArrayList<SummaryPrintResult>(8);
+		if(sendMList==null||sendMList.isEmpty()){
+			return res;
+		}
+		//记录发车批次号和首条SendM映射关系
+		Map<String,List<SendM>> sendMsMap = new HashMap<String,List<SendM>>();
+		for (SendM sendM : sendMList) {
+			String sendCode = sendM.getSendCode();
+			if(StringHelper.isEmpty(sendCode)){
+				continue;
+			}
+		    if(!sendMsMap.containsKey(sendCode)){
+		    	sendMsMap.put(sendCode, new ArrayList<SendM>(4));
+		    }
+		    sendMsMap.get(sendCode).add(sendM);
+		}
+		if(!sendMsMap.isEmpty()){
+			for(String sendCode:sendMsMap.keySet()){
+				List<SendM> tmpList = sendMsMap.get(sendCode);
+				res.add(summaryPrintResult(tmpList.get(0),tmpList,criteria));
+			}
+		}
+		return res;
+	}
 	/**
-	 * 
-	 * 
-	 * 汇总&&汇总打印
+	 * 汇总单个批次的统计信息
+	 * @param sendM
+	 * @param sendMList
+	 * @param criteria
+	 * @return
 	 */
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public SummaryPrintResult summaryPrintQuery(SendM sendM,List<SendM> sendMs,PrintQueryCriteria criteria) {
+	public SummaryPrintResult summaryPrintResult(SendM sendM,List<SendM> sendMList,PrintQueryCriteria criteria) {
 		Date startDate = new Date();
+		String roadCode = null;
+		/**
+		 * 用于查询路区的运单数,增加获取路区成功的机会,查询运单接口为批量处理，性能影响不大
+		 */
+		int waybillCodeNums = 5;
+	    /**
+	     * 用于保存当前批次用于查询路区号的运单号
+	     */
+	    List<String> waybillCodeList = new ArrayList<String>();
+	    /**
+	     * 用于记录waybillCodeList的个数
+	     */
+	    int cn = 0;
 		logger.info("打印交接清单-summaryPrintQuery开始"+DateHelper.formatDate(startDate));
 		SummaryPrintResult result = new SummaryPrintResult();
 		List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
@@ -156,13 +196,6 @@ public class SendPrintServiceImpl implements SendPrintService{
 		result.setReceiveSiteName(toSiteName(criteria.getReceiveSiteCode()));
 		result.setSendSiteName(toSiteName(criteria.getSiteCode()));
 		result.setSendTime(DateHelper.formatDateTime(sendM.getOperateTime()));
-		List<SendM> sendMList = new ArrayList<SendM>();
-		for (SendM dendM : sendMs) {
-		    //当前批次的所有箱号
-		    if(sendM.getSendCode().equals(dendM.getSendCode())){
-		        sendMList.add(dendM);
-		    }
-		}
 		logger.info("打印交接清单-批次汇总箱子数量"+sendMList.size());
 		for (SendM dendM : sendMList) {
 			Date startDate1 = new Date();
@@ -178,7 +211,7 @@ public class SendPrintServiceImpl implements SendPrintService{
 		    List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
 			sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
 //		    if(sendDetails!=null && !sendDetails.isEmpty()){ 使打印交接汇总清单时带出空箱，之前不打印空箱
-		    for (SendDetail sendDatail : sendDetails) {
+			for (SendDetail sendDatail : sendDetails) {
 	            String packageBarcode = sendDatail.getPackageBarcode();
 	            if(criteria.getPackageBarcode()!=null && !"".equals(criteria.getPackageBarcode()) &&
 	            		!criteria.getPackageBarcode().equals(packageBarcode)){
@@ -187,6 +220,10 @@ public class SendPrintServiceImpl implements SendPrintService{
 				String waybillCode = sendDatail.getWaybillCode();
 				packageBarcodeSet.add(packageBarcode);
 				waybillCodeSet.add(waybillCode);
+				//取第一条运单号，用于获取本批次的路区号
+				if(++cn<=waybillCodeNums){
+					waybillCodeList.add(waybillCode);
+				}
 	        }
 		    SummaryPrintBoxEntity detail = new SummaryPrintBoxEntity();
 		    detail.setBoxCode(dendM.getBoxCode());
@@ -232,6 +269,21 @@ public class SendPrintServiceImpl implements SendPrintService{
 		    Date endDate1 = new Date();
 			logger.info("打印交接清单-批次单独批次结束-"+(startDate1.getTime() - endDate1.getTime()));
         }
+		/**
+		 * 加载本批次的路区信息
+		 */
+	    if(cn>0){
+	    	HashMap<String, BigWaybillDto> waybillInfos = new HashMap<String, BigWaybillDto>();
+	    	sendToWaybill(waybillInfos, waybillCodeList);
+	    	for(String waybillCode:waybillCodeList){
+	    		BigWaybillDto v = waybillInfos.get(waybillCode);
+	    		if(v!=null&&v.getWaybill()!=null&&StringHelper.isNotEmpty(v.getWaybill().getRoadCode())){
+	    			roadCode = v.getWaybill().getRoadCode();
+	    			break;
+	    		}
+	    	}
+	    }
+		result.setRoadCode(roadCode);
 		result.setTotalBoxNum(sendMList.size());
 		result.setDetails(details);
 		Date endDate = new Date();
