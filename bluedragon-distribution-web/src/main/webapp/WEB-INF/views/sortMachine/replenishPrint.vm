@@ -54,7 +54,7 @@
          * 执行子站点的初始化
          */
         function querySubSite() {
-            var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/querySubSiteNo"
+            var url = $("#contextPath").val() + "/sortMachineAutoSend/querySubSiteNo"
             var slefSites = "";
             var selfSiteArray;
             CommonClient.post(url,getParams(),function(msg){
@@ -85,8 +85,8 @@
          * 提交查询参数
          */
         function doQuery(params) {
-            var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/query";
-            var url2 = $("#contextPath").val() + "/gantryAutoSend/summaryBySendCode";
+            var url = $("#contextPath").val() + "/sortMachineAutoSend/query";
+            var url2 = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
             CommonClient.post(url,params,function (data) {
                 if(data == undefined && data == null){
                     jQuery.messager.alert("提示：","HTTP请求没有数据返回!!","info");
@@ -179,9 +179,12 @@
                 param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
                 param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
                 param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
+                param.createSiteName = $("#createSiteName").val();
+                param.receiveSiteName = $("#receiveSiteCodeInputName").val();
                 list.push(param);
             });
             if(list.length == 0){
+                jQuery.messager.alert("提示","请选择要打印的目的地","info");
                 return;
             }
 
@@ -200,7 +203,7 @@
             var width = 200;
             var height = 100;
             var imageStr = "";
-            var url = $("#contextPath").val() + "/GantryBatchSendReplenishPrint/sendCodePrint";
+            var url = $("#contextPath").val() + "/sortMachineAutoSend/sendCodePrint";
             CommonClient.postJson(url,param,function (data) {
                 if(data == undefined && data == null){
                     jQuery.messager.alert("提示：","获取打印内容异常，请稍后再试","info");
@@ -211,8 +214,12 @@
                     $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理打印,请不要关闭页面...</span>"});
                     for(var i = 0;i<responseList.length;i++){
                         imageStr = responseList[i].sendCodeImgStr;
-                        printPic(printerNames.labelPrinter,imageStr,width,height);
-                        printPic(printerNames.listPrinter,imageStr,width,height);
+                        if(responseList[i].printType == 1){
+                            printPic(printerNames.labelPrinter,imageStr,width,height);
+                        }
+                        if(responseList[i].printType == 2){
+                            printPic(printerNames.listPrinter,imageStr,width,height);
+                        }
                     }
                     $.unblockUI();
                 }else{
