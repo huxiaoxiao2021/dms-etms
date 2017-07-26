@@ -92,7 +92,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
             int size = sortSchemeDetails.size();
             maxSiteNum = maxSiteNum > size ? maxSiteNum : size;
             // 将多条数据组装成Excel中的一条数据
-            int siteIndex = 5;
+            int siteIndex = 7;
             boolean isFirst = true;
             for (SortSchemeDetail sortSchemeDetail : sortSchemeDetails) {
                 if (isFirst) {
