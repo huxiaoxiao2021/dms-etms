@@ -180,7 +180,7 @@ public class PopPrintResource {
 					&&PopPrintRequest.BUS_TYPE_SITE_PLATFORM_PRINT.equals(popPrintRequest.getBusinessType())){
 				PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
 				BeanUtils.copyProperties(popPrint, popPrintSmsMsg);
-				popPrintToSmsProducer.send(popPrintSmsMsg.getWaybillCode(), JsonHelper.toJson(popPrintSmsMsg));
+				popPrintToSmsProducer.send(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
 			}
 			PopPrintResponse popPrintResponse = new PopPrintResponse(
 					JdResponse.CODE_OK, JdResponse.MESSAGE_OK);

@@ -1,7 +1,10 @@
 package com.jd.bluedragon.common.service;
 
+import java.util.Map;
+
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 
 
 /**
@@ -81,4 +84,12 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	public Waybill findWaybillAndGoods(String waybillCode);
+	
+	/**
+	 * 根据运单号和操作类型，获取运单称重流水,运单号为空/opeType为空直接返回空Map
+	 * @param waybillCode
+	 * @param opeType
+	 * @return 以包裹号为key的map
+	 */
+	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType);
 }
