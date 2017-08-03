@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.type.JavaType;
 
 import java.io.StringWriter;
 import java.lang.reflect.Type;
@@ -226,4 +227,12 @@ public class JsonHelper {
         return GSON_COMMON.toJson(object);
     }
 
+
+    public static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
+        return mapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
+    }
+
+    public static ObjectMapper getMapper() {
+        return mapper;
+    }
 }
