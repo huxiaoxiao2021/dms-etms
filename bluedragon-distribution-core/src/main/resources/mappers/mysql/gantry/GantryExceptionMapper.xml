@@ -67,9 +67,7 @@
             now(), now(), 1, 0 ,
             #{sendCode, jdbcType=VARCHAR},
             #{chuteCode, jdbcType=VARCHAR},
-        <if test="packageCode != null">
             #{packageCode, jdbcType=VARCHAR}
-        </if>
         )
     </insert>
 
