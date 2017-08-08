@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.framework;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.bluedragon.utils.JsonUtil;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -36,6 +35,12 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
      * @return
      */
     protected BigWaybillDto getWaybill(String waybillCode){
+        if(!SerialRuleUtil.isMatchCommonWaybillCode(waybillCode)){
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(MessageFormat.format("运单号正则校验不通过{0}",waybillCode));
+            }
+            throw new WayBillCodeIllegalException(MessageFormat.format("运单号正则校验不通过{0}",waybillCode));
+        }
         if(LOGGER.isInfoEnabled()){
             LOGGER.info(MessageFormat.format("获取运单信息{0}",waybillCode));
         }

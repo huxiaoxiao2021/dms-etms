@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
-import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
@@ -18,10 +17,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +69,12 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             return context;
         }
         String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
+
         BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
+        if(bigWaybillDto == null){    //没有查到运单信息，可能运单号不存在等
+            context.setPassCheck(false);
+            return context;
+        }
         context.setBigWaybillDto(bigWaybillDto);
         resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
         resetStoreId(request, bigWaybillDto);
