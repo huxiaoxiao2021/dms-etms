@@ -494,7 +494,7 @@ public class SerialRuleUtil {
         {
             time=new Date();
         }
-        String timeString = DateHelper.formatDate(time,DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSS);
+        String timeString = DateHelper.formatDate(time,DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
         timeString= timeString.substring(0,timeString.length()-1);
         long magic=Long.valueOf(String.valueOf(createSiteCode).substring(0,1)+String.valueOf(receiveSiteCode).substring(0,1)+timeString)%7;
         StringBuilder sendCode=new StringBuilder();

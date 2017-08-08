@@ -47,7 +47,25 @@
 
     <insert id="addGantryException" parameterType="com.jd.bluedragon.distribution.gantry.domain.GantryException">
         INSERT INTO GANTRY_EXCEPTION
-          (<include refid="gantryExceptionColumnNoID" />)
+        (MACHINE_ID,
+        BAR_CODE,
+        <if test="waybillCode != null">
+            WAYBILL_CODE,
+        </if>
+        <if test="createSiteCode != null">
+            CREATE_SITE_CODE,
+        </if>
+        <if test="createSiteName != null">
+            CREATE_SITE_NAME,
+        </if>
+        <if test="volume != null">
+            VOLUME,
+        </if>
+        TYPE, OPERATE_TIME, CREATE_TIME,UPDATE_TIME,YN,SEND_STATUS,SEND_CODE,CHUTE_CODE
+        <if test="packageCode != null">
+            ,PACKAGE_CODE
+        </if>
+        )
         VALUES (
         #{machineId,jdbcType=VARCHAR}, #{barCode, jdbcType=VARCHAR},
         <if test = "waybillCode != null">
@@ -66,9 +84,9 @@
             #{operateTime, jdbcType=TIMESTAMP},
             now(), now(), 1, 0 ,
             #{sendCode, jdbcType=VARCHAR},
-            #{chuteCode, jdbcType=VARCHAR},
+            #{chuteCode, jdbcType=VARCHAR}
         <if test="packageCode != null">
-            #{packageCode, jdbcType=VARCHAR}
+            ,#{packageCode, jdbcType=VARCHAR}
         </if>
         )
     </insert>
