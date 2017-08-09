@@ -310,5 +310,30 @@ public class Constants {
     
     // 一次邮件发送最大收件人数
     public static final int MAX_SEND_SIZE = 500;
+    /**
+     * Integer类型标识-false
+     */
+    public static final Integer INTEGER_FLG_FALSE = 0;
+    /**
+     * Integer类型标识-true
+     */
+    public static final Integer INTEGER_FLG_TRUE = 1;
+    
+    /**
+     * 包裹称重流水-操作类型-分拣
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_SORTING = 1;
+    /**
+     * 包裹称重流水-操作类型-接货中心-配送员接货操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_PSY_REC = 2;
+    /**
+     * 包裹称重流水-操作类型-接货中心-驻场操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_ZC_REC = 3;
+    /**
+     * 包裹称重流水-操作类型-仓储操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
     
 }
