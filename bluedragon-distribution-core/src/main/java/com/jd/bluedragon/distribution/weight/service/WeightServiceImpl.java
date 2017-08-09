@@ -133,21 +133,30 @@ public class WeightServiceImpl implements WeightService {
 
             List<OpeObject> opeDetails = opeEntity.getOpeDetails();
             if (opeDetails != null && opeDetails.size() > 0) {
+                boolean update = false;
                 for (OpeObject ope : opeDetails) {
                     if(ope.getpWeight() == null || ope.getpWeight() < 0){
                         ope.setpWeight(0f);
+                        update = true;
                     }
                     if(ope.getpLength() == null || ope.getpLength() < 0){
                         ope.setpLength(0f);
+                        update = true;
                     }
                     if(ope.getpWidth() == null || ope.getpWidth() < 0){
                         ope.setpWidth(0f);
+                        update = true;
                     }
                     if(ope.getpHigh() == null || ope.getpHigh() < 0){
                         ope.setpHigh(0f);
+                        update = true;
                     }
                 }
-                return   JsonHelper.toJson(opeEntities);
+                //如果有修改，才重新生成json格式数据
+                if(update){
+                    return   JsonHelper.toJson(opeEntities);
+                }
+
             }
         }catch (Exception e){
             this.logger.error("处理长宽高重量为空或小于0置为0时异常", e);
