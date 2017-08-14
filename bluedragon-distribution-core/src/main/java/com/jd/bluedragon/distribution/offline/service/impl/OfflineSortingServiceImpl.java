@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
+import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,9 +39,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * 离线分拣service
- * 
+ *
  * @author libin
- * 
+ *
  */
 @Service
 public class OfflineSortingServiceImpl implements OfflineSortingService {
@@ -54,10 +58,10 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	WaybillPackageApi waybillPackageApi;
 	@Autowired
 	private InspectionDao inspectionDao;
+	@Autowired
+	private OperationLogService operationLogService;    //操作日志service
 
-
-
- 
+	public static final String OFFLINE_SORTING_REMARK = "离线分拣";    //离线分拣操作备注
 
 	/**
 	 * 插入分拣任务表
@@ -85,6 +89,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 							return 0;
 						}
 						int m = this.taskService.add(task);
+						addOperationLog(request);    //添加离线分拣操作日志
 						request.setPackageCode(null);
 						n += m;
 					}
@@ -104,6 +109,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 				return 0;
 			}
 			n = this.taskService.add(task);
+			addOperationLog(request);    //添加离线分拣操作日志
 			if(n==0){
 				log.error("离线分拣:执行新增task返回结果为0.");
 			}
@@ -114,7 +120,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 
 	/**
 	 * 封箱
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -129,7 +135,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 
 	/**
 	 * 超区处理,取消分拣，取消验货（可有可无） 可以按照运单号或者包裹号进行超区退回, 往分拣任务表插入一条取消分拣的任务
-	 * 
+	 *
 	 * @return
 	 */
 	public int exceedArea(OfflineLogRequest request) {
@@ -153,13 +159,13 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		return n;
 
 	}
-	
-	
+
+
 	public int cancelSorting(OfflineLogRequest request){
 		int n = this.taskService.add(this.exceedAreaTaskToSortingTask(request));
 		return n;
 	}
-	
+
 	public int cancelThirdInspection(OfflineLogRequest request){
 		Box box = boxService.findBoxByCode(request.getBoxCode());
 		if (box == null) {
@@ -174,6 +180,29 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		inspection.setPackageBarcode(request.getPackageCode());
 		inspection.setReceiveSiteCode(box.getReceiveSiteCode());
 		return this.inspectionDao.updateYnByPackage(inspection);
+	}
+
+	/**
+	 * 增加离线分拣操作日志
+	 * @param offlineLogRequest
+	 * @return
+	 */
+	private void addOperationLog(OfflineLogRequest offlineLogRequest) {
+		OperationLog operationLog = new OperationLog();
+		operationLog.setBoxCode(offlineLogRequest.getBoxCode());
+		operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());
+		operationLog.setPackageCode(offlineLogRequest.getPackageCode());
+		operationLog.setSendCode(offlineLogRequest.getBatchCode());
+		operationLog.setCreateSiteCode(offlineLogRequest.getSiteCode());
+		operationLog.setCreateSiteName(offlineLogRequest.getSiteName());
+		operationLog.setReceiveSiteCode(offlineLogRequest.getReceiveSiteCode());
+		operationLog.setCreateUser(offlineLogRequest.getUserName());
+		operationLog.setCreateUserCode(offlineLogRequest.getUserCode());
+		operationLog.setCreateTime(new Date());
+		operationLog.setOperateTime(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
+		operationLog.setLogType(OperationLog.LOG_TYPE_SORTING);
+		operationLog.setRemark(OFFLINE_SORTING_REMARK);
+		operationLogService.add(operationLog);
 	}
 
 	private SealBox toSealBox(OfflineLogRequest request) {
@@ -191,17 +220,17 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		}
 
 		sealBox.setUpdateUserCode(request.getUserCode());
-		
+
 		Box box = boxService.findBoxByCode(request.getBoxCode());
 		sealBox.setReceiveSiteCode(box.getReceiveSiteCode());
-		
+
 		sealBox.setCreateTime(DateHelper.parseDateTime(request.getOperateTime()));
 		return sealBox;
 	}
 
 	/**
 	 * 将离线work消息体，转化为正式分拣表对象
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -246,7 +275,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		map.put("userCode", request.getUserCode());
 		map.put("siteCode", request.getSiteCode());
 		map.put("operateTime", request.getOperateTime());
-		
+
 		System.out.println("request.getSiteCode()------------------##"+request.getSiteCode()+"##");
 		BaseStaffSiteOrgDto site = baseService.getSiteBySiteID(request
 				.getSiteCode());
@@ -347,7 +376,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 
 	/**
 	 * 分拣数据检查
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -358,7 +387,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 
 	/**
 	 * 超区退回数据检查
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -375,7 +404,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 
 	/**
 	 * 封箱数据检查
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */

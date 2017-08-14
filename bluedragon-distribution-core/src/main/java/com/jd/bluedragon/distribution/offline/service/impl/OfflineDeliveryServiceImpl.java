@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,9 +44,16 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 	@Autowired
 	private WaybillService waybillService;
-	
+
 	@Autowired
-	private OfflineLogService offlineLogService;;
+	private OfflineLogService offlineLogService;
+
+	@Autowired
+	private OperationLogService operationLogService;    //操作日志service
+
+	public static final String OFFLINE_DELIVERY_REMARK = "离线发货";    //离线发货操作备注
+
+
 
 	@Override
 	public int parseToTask(OfflineLogRequest offlineLogRequest) {
@@ -56,7 +65,9 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		}
 
 		List<SendM> sendMList = new ArrayList<SendM>();
-		
+
+		List<OperationLog> operationLogs = new ArrayList<OperationLog>();    //离线发货操作日志集合
+
 		List<OfflineLog> offlineLogs = new ArrayList<OfflineLog>();
 
 		String[] boxCodes = offlineLogRequest.getBoxCode().split(
@@ -140,19 +151,21 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 			}
 			sendMList.add(toSendDatail(offlineLogRequest));
 			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS));
+			operationLogs.add(RequestConvertOperationLog(offlineLogRequest));
 		}
 
 		if (sendMList.size() > 0) {
 			this.logger.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
 			this.deliveryService.dellDeliveryMessage(sendMList);
 			this.addOfflineLog(offlineLogs);
+			this.addOperationLogs(operationLogs);    //记录离线发货操作日志
 			this.logger.info("OfflineDeliveryServiceImpl --> 结束写入发货信息");
 			return Constants.RESULT_SUCCESS;
 		}
 
 		return Constants.RESULT_FAIL;
 	}
-	
+
 	private void addOfflineLog(List<OfflineLog> offlineLogs) {
 		if (offlineLogs != null && offlineLogs.size() > 0) {
 			for (OfflineLog offlineLog : offlineLogs) {
@@ -195,7 +208,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 		return sendM;
 	}
-	
+
 	private OfflineLog requestToOffline(OfflineLogRequest offlineLogRequest, Integer status) {
 		if (offlineLogRequest == null) {
 			return null;
@@ -225,10 +238,45 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		offlineLog.setVolume(offlineLogRequest.getVolume());
 		offlineLog.setWeight(offlineLogRequest.getWeight());
 		offlineLog.setTurnoverBoxCode(offlineLogRequest.getTurnoverBoxCode());
-		
+
 		offlineLog.setStatus(status);
 
 		return offlineLog;
+	}
+
+	/**
+	 * 添加离线发货操作日志记录
+	 * @param operationLogs
+	 */
+	private void addOperationLogs(List<OperationLog> operationLogs){
+		if (operationLogs != null && operationLogs.size() > 0) {
+			for(OperationLog operationLog : operationLogs){
+				operationLogService.add(operationLog);
+			}
+		}
+	}
+
+	/**
+	 * 将OfflineLogRequest转化为OperationLog（操作日志）
+	 * @param offlineLogRequest
+	 * @return
+	 */
+	private OperationLog RequestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
+		OperationLog operationLog = new OperationLog();
+		operationLog.setBoxCode(offlineLogRequest.getBoxCode());
+		operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());
+		operationLog.setPackageCode(offlineLogRequest.getPackageCode());
+		operationLog.setSendCode(offlineLogRequest.getBatchCode());
+		operationLog.setCreateSiteCode(offlineLogRequest.getSiteCode());
+		operationLog.setCreateSiteName(offlineLogRequest.getSiteName());
+		operationLog.setReceiveSiteCode(offlineLogRequest.getReceiveSiteCode());
+		operationLog.setCreateUser(offlineLogRequest.getUserName());
+		operationLog.setCreateUserCode(offlineLogRequest.getUserCode());
+		operationLog.setCreateTime(new Date());
+		operationLog.setOperateTime(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
+		operationLog.setLogType(OperationLog.LOG_TYPE_SEND_DELIVERY);
+		operationLog.setRemark(OFFLINE_DELIVERY_REMARK);
+		return operationLog;
 	}
 
 }
