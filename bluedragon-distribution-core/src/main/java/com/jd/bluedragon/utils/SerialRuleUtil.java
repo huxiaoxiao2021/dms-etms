@@ -69,9 +69,9 @@ public class SerialRuleUtil {
 
     /***********************************************运单号正则校验******************************************/
     /******************  Add by shipeilin for simple filtration wayBillCode 2017年8月7日  ******************/
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,32}$");    //纯数字运单号正则
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,32}$");      //V开头的运单号正则
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Z0-9]{1}[0-9]{8,32})$");      //W|T|F|[Q|q]开头的运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,31}$");    //纯数字运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,30}$");      //V开头的运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Z0-9]{1}[0-9]{8,30})$");      //W|T|F|[Q|q]开头的运单号正则
 
     /**
      * 生成包裹列表专用正则

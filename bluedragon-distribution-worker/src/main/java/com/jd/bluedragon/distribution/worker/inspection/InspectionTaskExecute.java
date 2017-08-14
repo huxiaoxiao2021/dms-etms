@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
@@ -62,16 +63,16 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         } else if (BusinessHelper.isWaybillCode(code)) {// 否则为运单号
             request.setWaybillCode(code);
         } else {
+            String errorMsg = MessageFormat.format("验货条码不符合规则{0}",code);
             if(logger.isErrorEnabled()){
-                logger.error(MessageFormat.format("验货条码不符合规则{0}",code));
+                logger.error(errorMsg);
             }
-            context.setPassCheck(false);
-            return context;
+            throw new WayBillCodeIllegalException(errorMsg);
         }
         String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
 
         BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
-        if(bigWaybillDto == null){    //没有查到运单信息，可能运单号不存在等
+        if(bigWaybillDto == null){    //没有查到运单信息，可能运单号不存在或者服务暂不可用等
             context.setPassCheck(false);
             return context;
         }
