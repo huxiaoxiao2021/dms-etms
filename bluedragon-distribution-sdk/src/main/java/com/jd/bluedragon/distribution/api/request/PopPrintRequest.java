@@ -21,6 +21,20 @@ public class PopPrintRequest extends JdObject {
 	 * 打印发票
 	 */
 	public static final Integer PRINT_INVOICE_TYPE = 2;
+	
+	/**
+	 * 接货类型-4-配送员接货
+	 */
+	public static final Integer POP_RECEIVE_TYPE_4 = 4;
+	
+	/**
+	 * 业务类型-平台打印
+	 */
+	public static final Integer BUS_TYPE_PLATFORM_PRINT = 1;
+	/**
+	 * 业务类型-站点平台打印
+	 */
+	public static final Integer BUS_TYPE_SITE_PLATFORM_PRINT = 2;
 
 	/**
 	 * 运单号
@@ -86,6 +100,7 @@ public class PopPrintRequest extends JdObject {
      * POP收货类型：
      * 	商家直送：1
      * 	托寄送货：2
+     *  配送员接货4
      */
     private Integer popReceiveType;
     
@@ -114,7 +129,10 @@ public class PopPrintRequest extends JdObject {
 	 * B商家名称
 	 */
 	private String busiName;
-
+	/**
+	 * 业务类型-区分1-平台打印和2-站点平台打印
+	 */
+	private Integer businessType;
 	public String getWaybillCode() {
 		return waybillCode;
 	}
@@ -281,5 +299,19 @@ public class PopPrintRequest extends JdObject {
 
 	public void setBusiName(String busiName) {
 		this.busiName = busiName;
+	}
+
+	/**
+	 * @return the businessType
+	 */
+	public Integer getBusinessType() {
+		return businessType;
+	}
+
+	/**
+	 * @param businessType the businessType to set
+	 */
+	public void setBusinessType(Integer businessType) {
+		this.businessType = businessType;
 	}
 }
