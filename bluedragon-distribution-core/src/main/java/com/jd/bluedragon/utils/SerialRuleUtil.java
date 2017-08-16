@@ -69,9 +69,9 @@ public class SerialRuleUtil {
 
     /***********************************************运单号正则校验******************************************/
     /******************  Add by shipeilin for simple filtration wayBillCode 2017年8月7日  ******************/
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,31}$");    //纯数字运单号正则
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,30}$");      //V开头的运单号正则
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Z0-9]{1}[0-9]{8,30})$");      //W|T|F|[Q|q]开头的运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,29}$");    //纯数字运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,28}$");      //V开头的运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Z0-9]{1}[0-9]{8,28})$");      //W|T|F|[Q|q]开头的运单号正则
 
     /**
      * 生成包裹列表专用正则
@@ -126,7 +126,7 @@ public class SerialRuleUtil {
     /**
      *对龙门架扫描到的运单号进行简单的正则过滤。
      * 目前过滤条件首字符严格限制（(V|W|T|F|[1-9])）。
-     * 根据不同类型限制长度的最小值，最大长度按数据库最大长度32进行过滤。
+     * 根据不同类型限制长度的最小值，最大长度按数据库最大长度30进行过滤。
      * Add by shipeilin on 2017/08/07
      * @param wayBillCode
      * @return boolean
