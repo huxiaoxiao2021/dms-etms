@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -68,6 +69,9 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
                 logger.error(errorMsg);
             }
             throw new WayBillCodeIllegalException(errorMsg);
+        }
+        if(BusinessHelper.isPackageCode(code) && !SerialRuleUtil.isMatchCommonPackageCode(code)){
+            throw new WayBillCodeIllegalException(MessageFormat.format("验货包裹号不符合正则规则{0}",code));
         }
         String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
 
