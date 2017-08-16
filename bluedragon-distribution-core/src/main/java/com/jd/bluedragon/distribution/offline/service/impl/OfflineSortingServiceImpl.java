@@ -199,7 +199,12 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		operationLog.setCreateUser(offlineLogRequest.getUserName());
 		operationLog.setCreateUserCode(offlineLogRequest.getUserCode());
 		operationLog.setCreateTime(new Date());
-		operationLog.setOperateTime(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
+
+		//因为后续的分拣操作会根据操作时间冲掉这里的记录，所以这里将时间的long值减一，以确保不会被冲掉
+		Date OperateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT);
+		OperateTime.setTime(OperateTime.getTime()-1);
+		operationLog.setOperateTime(OperateTime);
+
 		operationLog.setLogType(OperationLog.LOG_TYPE_SORTING);
 		operationLog.setRemark(OFFLINE_SORTING_REMARK);
 		operationLogService.add(operationLog);
