@@ -1,27 +1,17 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,13 +19,21 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
@@ -43,11 +41,21 @@ import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
-import org.springframework.util.Assert;
 
 @Component
 @Path(Constants.REST_URL)
@@ -339,14 +347,19 @@ public class WaybillResource {
 		}
 		return signs;
 	}
-
-    private Waybill findWaybillMessage(String waybillCode) {
+	/**
+	 * 获取运单信息
+	 * @param waybillCode 运单号
+	 * @param packOpeFlowFlg 是否获取称重信息
+	 * @return
+	 */
+    private Waybill findWaybillMessage(String waybillCode,Integer packOpeFlowFlg) {
 		Waybill waybill = this.waybillCommonService.findWaybillAndPack(waybillCode);
 
 		if (waybill == null) {
 		    return waybill;
 		}
-
+		
 		// 获取该运单号的打印记录
 		try {
 			List<Pack> packs = waybill.getPackList();
@@ -362,6 +375,20 @@ public class WaybillResource {
 		    				}
 		    			} else if (Constants.PRINT_INVOICE_TYPE.equals(popPrint.getOperateType())) {
 		    				waybill.setIsPrintInvoice(Waybill.IS_PRINT_INVOICE);
+		    			}
+		    		}
+		    		/**
+		    		 * 获取称重流水，并设置包裹信息pWeight
+		    		 */
+		    		if(Constants.INTEGER_FLG_TRUE.equals(packOpeFlowFlg)){
+		    			Map<String,PackOpeFlowDto> packOpeFlows = this.waybillCommonService.getPackOpeFlowsByOpeType(waybillCode,Constants.PACK_OPE_FLOW_TYPE_PSY_REC);
+		    			if(packOpeFlows!=null&&!packOpeFlows.isEmpty()){
+		    				for(Pack pack:packs){
+			    				PackOpeFlowDto packOpeFlow = packOpeFlows.get(pack.getPackCode());
+			    				if(packOpeFlow!=null&&packOpeFlow.getpWeight()!=null){
+			    					pack.setpWeight(packOpeFlow.getpWeight().toString());
+			    				}
+			    			}
 		    			}
 		    		}
 		    		this.logger.info("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrintList：" + popPrintList);
@@ -407,7 +434,9 @@ public class WaybillResource {
 				.getWaybillCode(waybillCodeOrPackage);
 		// 调用服务
 		try {
-			Waybill waybill = findWaybillMessage(waybillCode);
+			
+			Waybill waybill = findWaybillMessage(waybillCode,Constants.INTEGER_FLG_FALSE);
+			
 			if (waybill == null) {
 				this.logger.info("运单号【" + waybillCode
 						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
@@ -516,7 +545,6 @@ public class WaybillResource {
 					+ "】 获取预分拣的包裹打印信息接口 --> 异常", ee);
 		}
 	}
-
 	/**
 	 * 根据运单号或包裹号获取运单包裹信息接口
 	 * 新接口调用预分拣接口获取基础资料信息
@@ -528,6 +556,23 @@ public class WaybillResource {
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless,@PathParam("startSiteType") Integer startSiteType) {
+		return this.getWaybillPack(startDmsCode, waybillCodeOrPackage, localSchedule, paperless, startSiteType, Constants.INTEGER_FLG_FALSE);
+	}
+	/**
+	 * 根据运单号或包裹号获取运单包裹信息接口
+	 * @param startDmsCode
+	 * @param waybillCodeOrPackage
+	 * @param localSchedule
+	 * @param paperless
+	 * @param startSiteType
+	 * @param packOpeFlowFlg - 是否获取称重流水信息
+	 * @return
+	 */
+	@GET
+	@Path("waybill/getWaybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}/{packOpeFlowFlg}")
+	public WaybillResponse<Waybill> getWaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
+												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
+			,@PathParam("paperless") Integer paperless,@PathParam("startSiteType") Integer startSiteType,@PathParam("packOpeFlowFlg") Integer packOpeFlowFlg) {
 		// 判断传入参数
 		if (startDmsCode == null || startDmsCode.equals(0)
 				|| StringUtils.isEmpty(waybillCodeOrPackage)) {
@@ -536,18 +581,22 @@ public class WaybillResource {
 			return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
+		if(packOpeFlowFlg==null){
+			packOpeFlowFlg = Constants.INTEGER_FLG_FALSE;
+		}
 		// 转换运单号
 		String waybillCode = BusinessHelper
 				.getWaybillCode(waybillCodeOrPackage);
 		// 调用服务
 		try {
-			Waybill waybill = findWaybillMessage(waybillCode);
+			Waybill waybill = findWaybillMessage(waybillCode,packOpeFlowFlg);
 			if (waybill == null) {
 				this.logger.info("运单号【" + waybillCode
 						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
 				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
 			}
+			
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,startSiteType);
 

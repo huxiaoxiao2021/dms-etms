@@ -2,11 +2,9 @@ package com.jd.bluedragon.common.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.domain.Goods;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,15 +15,21 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.utils.BigDecimalHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -36,6 +40,8 @@ import com.jd.ump.annotation.JProfiler;
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
+    
+    private static final int REST_CODE_SUC = 1; 
 
     @Autowired
     private ProductService productService;
@@ -43,6 +49,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     /* 运单查询 */
     @Autowired
     private WaybillQueryApi waybillQueryApi;
+    /**
+     * 运单包裹查询
+     */
+    @Autowired
+    WaybillPackageApi waybillPackageApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -407,4 +418,44 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         return waybill;
     }
+
+	@Override
+	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType) {
+		Map<String,PackOpeFlowDto> res = new TreeMap<String,PackOpeFlowDto>();
+		//校验传入参数是否合法
+		if(StringHelper.isEmpty(waybillCode)||opeType==null){
+			return res;
+		}
+		//调用运单接口，获取称重流水信息
+		BaseEntity<List<PackOpeFlowDto>> rest = this.waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+		if(rest.getResultCode()==REST_CODE_SUC){
+			List<PackOpeFlowDto> packOpeFlowList = rest.getData();
+			PackOpeFlowDto oldData = null;
+			if(packOpeFlowList!=null&&!packOpeFlowList.isEmpty()){
+				for(PackOpeFlowDto newData:packOpeFlowList){
+					String key = newData.getPackageCode();
+					Integer key0 = newData.getOpeType();
+					if(!opeType.equals(key0)){
+						continue;
+					}
+					oldData = res.get(key);
+					if(oldData==null){
+						res.put(key, newData);
+					}else{
+						if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
+							newData.setpWeight(newData.getpWeight());
+							newData.setWeighTime(newData.getWeighTime());
+						}else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
+							oldData.setpWeight(newData.getpWeight());
+							oldData.setWeighTime(newData.getWeighTime());
+						}
+					}
+				}
+			}
+		}else{
+			this.logger.warn(String.format("没有获取到包裹称重信息，{code:{},msg:{}}", rest.getResultCode(),rest.getMessage()));
+		}
+		return res;
+	}
+    
 }
