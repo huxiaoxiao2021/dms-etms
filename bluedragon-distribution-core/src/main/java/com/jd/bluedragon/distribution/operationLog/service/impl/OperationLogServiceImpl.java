@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.operationLog.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,17 +36,27 @@ public class OperationLogServiceImpl implements OperationLogService {
 	//cassandra开关
 	public static final String CASSANDRA_GLOBAL_ON_KEY = "cassandra.global.on";
 
-	@JProfiler(jKey= "DMSWEB.OperationLogService.add")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	/**
+	 * 记录log到cassandra中
+	 * @param operationLog
+	 * @return int
+     */
 	public int add(OperationLog operationLog) {
+		//增加侵入式监控开始
+		CallerInfo info = null;
 		try {
+			info = Profiler.registerInfo("DMSWEB.OperationLogService.add", false, true);
 			String cassandraOn = configManager.getProperty(CASSANDRA_GLOBAL_ON_KEY);
-			if(cassandraOn!=null && cassandraOn.equalsIgnoreCase("true")){
+			if(cassandraOn!=null && "true".equalsIgnoreCase(cassandraOn)){
 				logCassandra.batchInsert(operationLog);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
+			Profiler.functionError(info);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
+		//监控结束
 		return 1;
 	}
 
