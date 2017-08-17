@@ -36,6 +36,10 @@ public class Pack implements Serializable {
 	 * 包裹重量
 	 */
 	private String weight;
+	/**
+	 * 记录运单称重流水中类型为2的重量信息
+	 */
+	private String pWeight;
 	
 	/** 是否打印包裹 */
 	private int isPrintPack;
@@ -86,5 +90,19 @@ public class Pack implements Serializable {
 
 	public void setIsPrintPack(int isPrintPack) {
 		this.isPrintPack = isPrintPack;
+	}
+
+	/**
+	 * @return the pWeight
+	 */
+	public String getpWeight() {
+		return pWeight;
+	}
+
+	/**
+	 * @param pWeight the pWeight to set
+	 */
+	public void setpWeight(String pWeight) {
+		this.pWeight = pWeight;
 	}
 }
