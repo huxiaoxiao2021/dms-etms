@@ -36,10 +36,11 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
      */
     protected BigWaybillDto getWaybill(String waybillCode){
         if(!SerialRuleUtil.isMatchCommonWaybillCode(waybillCode)){
+            String errorMsg = "运单号正则校验不通过:" + waybillCode;
             if(LOGGER.isInfoEnabled()){
-                LOGGER.info(MessageFormat.format("运单号正则校验不通过{0}",waybillCode));
+                LOGGER.info(errorMsg);
             }
-            throw new WayBillCodeIllegalException(MessageFormat.format("运单号正则校验不通过{0}",waybillCode));
+            throw new WayBillCodeIllegalException(errorMsg);
         }
         if(LOGGER.isInfoEnabled()){
             LOGGER.info(MessageFormat.format("获取运单信息{0}",waybillCode));

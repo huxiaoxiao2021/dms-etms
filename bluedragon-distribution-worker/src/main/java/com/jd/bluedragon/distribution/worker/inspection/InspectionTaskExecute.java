@@ -64,14 +64,14 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         } else if (BusinessHelper.isWaybillCode(code)) {// 否则为运单号
             request.setWaybillCode(code);
         } else {
-            String errorMsg = MessageFormat.format("验货条码不符合规则{0}",code);
+            String errorMsg = "验货条码不符合规则:" + code;
             if(logger.isErrorEnabled()){
                 logger.error(errorMsg);
             }
             throw new WayBillCodeIllegalException(errorMsg);
         }
         if(BusinessHelper.isPackageCode(code) && !SerialRuleUtil.isMatchCommonPackageCode(code)){
-            throw new WayBillCodeIllegalException(MessageFormat.format("验货包裹号不符合正则规则{0}",code));
+            throw new WayBillCodeIllegalException("验货包裹号不符合规则:" + code);
         }
         String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
 
