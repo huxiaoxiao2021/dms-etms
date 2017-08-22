@@ -50,6 +50,10 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(waybill.getWaybillSign().length() > 26 && waybill.getWaybillSign().charAt(26) == '1'){
             builder.append(ALLOW_HALF_ACCEPT);
         }
+        //当前打“空”的逻辑不变，“空”字变为“航”，同时增加waybillsign 第31为1 打“航”逻辑。Waybillsign标识 2017年8月22日16:23:47
+        if(waybill.getWaybillSign().length() > 30 && waybill.getWaybillSign().charAt(30) == '1'){
+            builder.append(SPECIAL_MARK_AIRTRANSPORT);
+        }
         if((builder.indexOf(CITY_DISTRIBUTION_JI) < 0 && builder.indexOf(CITY_DISTRIBUTION_CHENG) < 0) && waybill.getIsSelfService()){//城配与配送方式柜互斥，优先城配
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
         }
