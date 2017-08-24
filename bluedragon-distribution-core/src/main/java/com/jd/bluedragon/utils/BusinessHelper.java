@@ -1,9 +1,10 @@
 package com.jd.bluedragon.utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.Bus;
 import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.Constants;
@@ -23,7 +24,10 @@ public class BusinessHelper {
 	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
 	private static final String SOURCE_CODE_ECLP = "ECLP";
 	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
-
+	private static Map<Integer,Map<Character,String>> SIGN_DIC = new HashMap<Integer,Map<Character,String>>();
+	static{
+		init();
+	}
 	public static String getWaybillCodeByPackageBarcode(String s) {
 		if (!BusinessHelper.isPackageCode(s)) {
 			return null;
@@ -41,6 +45,28 @@ public class BusinessHelper {
 		}
 
 		return null;
+	}
+
+	private static void init() {
+		// TODO Auto-generated method stub
+		Map<Character,String> sign4 = new HashMap<Character,String>(2);
+		sign4.put('1',"签单返还");
+		Map<Character,String> sign10 = new HashMap<Character,String>(16);
+		sign10.put('1',"普通");
+		sign10.put('2',"常温");
+		sign10.put('3',"填仓");
+		sign10.put('4',"特配");
+		sign10.put('5',"鲜活");
+		sign10.put('6',"控温");
+		sign10.put('7',"冷藏");
+		sign10.put('8',"冷冻");
+		sign10.put('9',"深冷");
+		Map<Character,String> sign31 = new HashMap<Character,String>(2);
+		sign31.put('0',"特惠送");
+		sign31.put('1',"特准送");
+		SIGN_DIC.put(4, sign4);
+		SIGN_DIC.put(10, sign10);
+		SIGN_DIC.put(31, sign31);
 	}
 
 	/**
@@ -378,24 +404,32 @@ public class BusinessHelper {
 	public static Boolean checkIntNumNotInRange(Integer intNum) {
 		return !BusinessHelper.checkIntNumRange(intNum);
 	}
-	
-	public static void main(String[] args){
-		System.out.println(!BusinessHelper.isPickupCode("46666748985"));
-		System.out.println(BusinessHelper.isPackageCode("46666748985"));
-		System.out.println(BusinessHelper.isWaybillCode("46666748985"));
-		System.out.println("----------");
-		System.out.println(!BusinessHelper.isPickupCode("46666748985-1-1-"));
-		System.out.println(BusinessHelper.isPackageCode("46666748985-1-1-"));
-		System.out.println(BusinessHelper.isWaybillCode("46666748985-1-1-"));
-		System.out.println("----------");
-		System.out.println(BusinessHelper.isPickupCode("WA814409699876159488"));
-		System.out.println(BusinessHelper.isPackageCode("WA814409699876159488"));
-		System.out.println(BusinessHelper.isWaybillCode("WA814409699876159488"));
-		System.out.println(BusinessHelper.getWaybillCode("WA814409699876159488"));
-		System.out.println("----------");
-		System.out.println(BusinessHelper.isPickupCode("WA814409699876159488-1-1-"));
-		System.out.println(BusinessHelper.isPackageCode("WA814409699876159488-1-1-"));
-		System.out.println(BusinessHelper.isWaybillCode("WA814409699876159488-1-1-"));
+	/**
+	 * 获取waybillSign，标识对应的描述信息
+	 * @param waybillSign
+	 * @param points
+	 * @return
+	 */
+	public static Map<Integer,String> getWaybillSignTexts(String waybillSign,int... points){
+		Map<Integer,String> res = new HashMap<Integer,String>(8);
+		if(StringHelper.isNotEmpty(waybillSign)
+				&&points!=null){
+			char[] cs = waybillSign.toCharArray();
+			String sign = "";
+			for(int index:points){
+				sign = null;
+				if(index<=cs.length){
+					if(SIGN_DIC.containsKey(index)){
+						sign = SIGN_DIC.get(index).get(cs[index-1]);
+					}
+				}
+				if(sign==null){
+					sign = "";
+				}
+				res.put(index, sign);
+			}
+		}
+		return res;
 	}
 
 }

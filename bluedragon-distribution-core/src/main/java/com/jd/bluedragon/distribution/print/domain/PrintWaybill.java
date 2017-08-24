@@ -1,15 +1,14 @@
 package com.jd.bluedragon.distribution.print.domain;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * 运单打印基本信息
  * Created by wangtingwei on 2015/12/23.
  */
-public class PrintWaybill implements Serializable {
+public class PrintWaybill extends BasePrintWaybill {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     private transient Boolean isAir;
 
@@ -68,17 +67,6 @@ public class PrintWaybill implements Serializable {
     * 是否已经打印发票
     */
     private boolean isPrintInvoice ;
-
-    /**
-     * B商家ID
-     */
-    private Integer busiId ;
-
-    /**
-     * B商家名称
-     */
-    private String busiName ;
-
     /**
     * 库房号
     */
@@ -345,22 +333,6 @@ public class PrintWaybill implements Serializable {
 
     public void setPrintInvoice(boolean isPrintInvoice) {
         this.isPrintInvoice = isPrintInvoice;
-    }
-
-    public Integer getBusiId() {
-        return busiId;
-    }
-
-    public void setBusiId(Integer busiId) {
-        this.busiId = busiId;
-    }
-
-    public String getBusiName() {
-        return busiName;
-    }
-
-    public void setBusiName(String busiName) {
-        this.busiName = busiName;
     }
 
     public Integer getStoreId() {

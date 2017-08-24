@@ -335,5 +335,9 @@ public class Constants {
      * 包裹称重流水-操作类型-仓储操作
      */
     public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
+    /**
+     * Text-保价
+     */
+    public static final String TEXT_PRICE_PROTECT = "保价";
     
 }

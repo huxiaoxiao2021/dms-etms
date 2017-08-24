@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
-import java.io.Serializable;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
  */
-public class LabelPrintingResponse implements Serializable {
+public class LabelPrintingResponse extends BasePrintWaybill {
 
     /**
      *
@@ -95,7 +95,8 @@ public class LabelPrintingResponse implements Serializable {
 
     /** 承诺信息 */
     private String promiseText;
-
+    /** 订单号 */
+    private String busiOrderCode;
 
     public LabelPrintingResponse() {
         super();
@@ -298,5 +299,19 @@ public class LabelPrintingResponse implements Serializable {
     public void setPromiseText(String promiseText) {
         this.promiseText = promiseText;
     }
+
+	/**
+	 * @return the busiOrderCode
+	 */
+	public String getBusiOrderCode() {
+		return busiOrderCode;
+	}
+
+	/**
+	 * @param busiOrderCode the busiOrderCode to set
+	 */
+	public void setBusiOrderCode(String busiOrderCode) {
+		this.busiOrderCode = busiOrderCode;
+	}
 
 }

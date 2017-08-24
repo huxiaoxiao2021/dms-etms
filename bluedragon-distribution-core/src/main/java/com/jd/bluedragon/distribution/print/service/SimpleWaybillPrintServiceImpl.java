@@ -1,37 +1,44 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.urban.domain.TransbillM;
-import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.domain.Assort;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -61,7 +68,8 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
 
     private List<ComposeService> composeServiceList;
-
+    @Autowired
+    private BaseService baseService;
     /**
      * 奢侈品订单打标位起始值
      */
@@ -278,6 +286,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 commonWaybill.setPackList(packageList);
             }
+            /**
+             * 设置通用打印信息
+             */
+            setBasePrintWaybill(commonWaybill, tmsWaybill);
         }
     }
 
@@ -381,6 +393,36 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
     }
-
+    /**
+     * 设置通用打印信息
+     * @param labelPrinting
+     * @param waybill
+     */
+    private void setBasePrintWaybill(BasePrintWaybill labelPrinting, Waybill waybill){
+    	//面单打印新增始发城市、运输类型字段
+        labelPrinting.setBusiId(waybill.getBusiId());
+        labelPrinting.setOriginalCityCode(waybill.getSendCityId());
+        if(waybill.getSendCityId()!=null){
+        	Assort cityInfo =baseService.getAssortById(waybill.getSendCityId());
+        	if(cityInfo!=null){
+        		labelPrinting.setOriginalCityName(cityInfo.getAssName());
+        	}
+        }
+        //面单打印新增寄件人信息、始发城市、运输类型字段
+        labelPrinting.setConsigner(waybill.getConsigner());
+        labelPrinting.setConsignerTel(waybill.getConsignerTel());
+        labelPrinting.setConsignerMobile(waybill.getConsignerMobile());
+        labelPrinting.setConsignerAddress(waybill.getConsignerAddress());
+        String priceProtectText = "";
+        labelPrinting.setPriceProtectFlag(waybill.getPriceProtectFlag());
+        if(Constants.INTEGER_FLG_TRUE.equals(waybill.getPriceProtectFlag())){
+        	priceProtectText = Constants.TEXT_PRICE_PROTECT;
+        }
+        labelPrinting.setPriceProtectText(priceProtectText);
+        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(waybill.getWaybillSign(),4,10,31);
+        labelPrinting.setSignBackText(waybillSignTexts.get(4));
+        labelPrinting.setDistributTypeText(waybillSignTexts.get(10));
+        labelPrinting.setTransportMode(waybillSignTexts.get(31));
+    }
     
 }
