@@ -463,42 +463,51 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		return res;
 	}
     /**
-     * 设置通用打印信息
-     * @param basePrintWaybill
-     * @param waybill
+     * 通过运单对象，设置基础打印信息
+     * <p>设置商家id和name(busiId、busiName)
+     * <p>以始发分拣中心获取始发城市code和名称(originalCityCode、originalCityName)
+     * <p>设置寄件人、电话、手机号、地址信息(consigner、consignerTel、consignerMobile、consignerAddress)
+     * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
+     * <p>设置打标信息：签单返还、配送类型、运输产品(signBackText、distributTypeText、transportMode)
+     * @param target 目标对象(BasePrintWaybill类型)
+     * @param waybill 原始运单对象
      */
-    public void setBasePrintWaybill(BasePrintWaybill basePrintWaybill, com.jd.etms.waybill.domain.Waybill waybill){
-    	if(basePrintWaybill==null||waybill==null){
-    		return;
+    public BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill){
+    	if(target==null||waybill==null){
+    		return target;
     	}
-    	//面单打印新增始发城市、运输类型字段
-        basePrintWaybill.setBusiId(waybill.getBusiId());
-        //以始发分拣中心获取始发城市
-        if(basePrintWaybill.getOriginalDmsCode()!=null){
-        	BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(basePrintWaybill.getOriginalDmsCode().toString());
+    	//设置商家id和name
+        target.setBusiId(waybill.getBusiId());
+        target.setBusiName(waybill.getBusiName());
+        //以始发分拣中心获取始发城市id和名称
+        if(target.getOriginalDmsCode()!=null){
+        	BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(target.getOriginalDmsCode().toString());
         	if(siteInfo!=null){
-        		basePrintWaybill.setOriginalCityCode(siteInfo.getCityId());
-        		basePrintWaybill.setOriginalCityName(siteInfo.getCityName());
+        		target.setOriginalCityCode(siteInfo.getCityId());
+        		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
-        //面单打印新增寄件人信息、始发城市、运输类型字段
-        basePrintWaybill.setConsigner(waybill.getConsigner());
-        basePrintWaybill.setConsignerTel(waybill.getConsignerTel());
-        basePrintWaybill.setConsignerMobile(waybill.getConsignerMobile());
-        basePrintWaybill.setConsignerAddress(waybill.getConsignerAddress());
+        //面单打印新增寄件人、电话、手机号、地址信息
+        target.setConsigner(waybill.getConsigner());
+        target.setConsignerTel(waybill.getConsignerTel());
+        target.setConsignerMobile(waybill.getConsignerMobile());
+        target.setConsignerAddress(waybill.getConsignerAddress());
+        //设置价格保护标识和显示值
         String priceProtectText = "";
-        basePrintWaybill.setPriceProtectFlag(waybill.getPriceProtectFlag());
+        target.setPriceProtectFlag(waybill.getPriceProtectFlag());
         if(Constants.INTEGER_FLG_TRUE.equals(waybill.getPriceProtectFlag())){
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
-        basePrintWaybill.setPriceProtectText(priceProtectText);
+        target.setPriceProtectText(priceProtectText);
         Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(
         		waybill.getWaybillSign(),
-        		Constants.WAYBILL_SIGN_POINT_SIGN_BACK,
-        		Constants.WAYBILL_SIGN_POINT_DISTRIBUT_TYPE,
-        		Constants.WAYBILL_SIGN_POINT_TRANSPORT_MODE);
-        basePrintWaybill.setSignBackText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POINT_SIGN_BACK));
-        basePrintWaybill.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POINT_DISTRIBUT_TYPE));
-        basePrintWaybill.setTransportMode(waybillSignTexts.get(Constants.WAYBILL_SIGN_POINT_TRANSPORT_MODE));
+        		Constants.WAYBILL_SIGN_POSITION_SIGN_BACK,
+        		Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE,
+        		Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE);
+        //设置签单返还、配送类型、运输产品
+        target.setSignBackText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_SIGN_BACK));
+        target.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE));
+        target.setTransportMode(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE));
+        return target;
     }
 }

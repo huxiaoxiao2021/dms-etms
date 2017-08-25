@@ -282,7 +282,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //路区
         labelPrinting.setRoad(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
         labelPrinting.setBusiOrderCode(waybill.getBusiOrderCode());
-        waybillCommonService.setBasePrintWaybill(labelPrinting,waybill);
+        waybillCommonService.setBasePrintInfoByWaybill(labelPrinting,waybill);
         return labelPrinting;
     }
 

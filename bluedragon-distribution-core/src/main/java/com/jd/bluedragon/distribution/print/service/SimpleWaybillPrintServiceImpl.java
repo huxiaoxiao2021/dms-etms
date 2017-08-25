@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.print.service;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -16,25 +15,20 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -286,7 +280,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 commonWaybill.setPackList(packageList);
             }
-           waybillCommonService.setBasePrintWaybill(commonWaybill, tmsWaybill);
+           waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }
 
