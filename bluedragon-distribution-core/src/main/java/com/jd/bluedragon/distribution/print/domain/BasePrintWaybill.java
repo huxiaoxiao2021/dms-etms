@@ -11,6 +11,11 @@ import java.io.Serializable;
  *
  */
 public class BasePrintWaybill implements Serializable {
+    /**始发分拣中心编码*/
+    private Integer originalDmsCode;
+
+    /**始发分拣中心名称*/
+    private String originalDmsName;
     /**
 	 * 
 	 */
@@ -63,6 +68,30 @@ public class BasePrintWaybill implements Serializable {
      * 寄件人地址
      */
     private String consignerAddress;
+	/**
+	 * @return the originalDmsCode
+	 */
+	public Integer getOriginalDmsCode() {
+		return originalDmsCode;
+	}
+	/**
+	 * @param originalDmsCode the originalDmsCode to set
+	 */
+	public void setOriginalDmsCode(Integer originalDmsCode) {
+		this.originalDmsCode = originalDmsCode;
+	}
+	/**
+	 * @return the originalDmsName
+	 */
+	public String getOriginalDmsName() {
+		return originalDmsName;
+	}
+	/**
+	 * @param originalDmsName the originalDmsName to set
+	 */
+	public void setOriginalDmsName(String originalDmsName) {
+		this.originalDmsName = originalDmsName;
+	}
 	/**
 	 * @return the busiId
 	 */

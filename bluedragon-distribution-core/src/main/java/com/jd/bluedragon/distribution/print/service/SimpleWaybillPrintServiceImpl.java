@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
@@ -65,11 +66,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private TransbillMService transbillMService;
-
+    @Autowired
+    private WaybillCommonService waybillCommonService;
 
     private List<ComposeService> composeServiceList;
-    @Autowired
-    private BaseService baseService;
     /**
      * 奢侈品订单打标位起始值
      */
@@ -286,10 +286,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 commonWaybill.setPackList(packageList);
             }
-            /**
-             * 设置通用打印信息
-             */
-            setBasePrintWaybill(commonWaybill, tmsWaybill);
+           waybillCommonService.setBasePrintWaybill(commonWaybill, tmsWaybill);
         }
     }
 
@@ -392,37 +389,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
-    }
-    /**
-     * 设置通用打印信息
-     * @param labelPrinting
-     * @param waybill
-     */
-    private void setBasePrintWaybill(BasePrintWaybill labelPrinting, Waybill waybill){
-    	//面单打印新增始发城市、运输类型字段
-        labelPrinting.setBusiId(waybill.getBusiId());
-        labelPrinting.setOriginalCityCode(waybill.getSendCityId());
-        if(waybill.getSendCityId()!=null){
-        	Assort cityInfo =baseService.getAssortById(waybill.getSendCityId());
-        	if(cityInfo!=null){
-        		labelPrinting.setOriginalCityName(cityInfo.getAssName());
-        	}
-        }
-        //面单打印新增寄件人信息、始发城市、运输类型字段
-        labelPrinting.setConsigner(waybill.getConsigner());
-        labelPrinting.setConsignerTel(waybill.getConsignerTel());
-        labelPrinting.setConsignerMobile(waybill.getConsignerMobile());
-        labelPrinting.setConsignerAddress(waybill.getConsignerAddress());
-        String priceProtectText = "";
-        labelPrinting.setPriceProtectFlag(waybill.getPriceProtectFlag());
-        if(Constants.INTEGER_FLG_TRUE.equals(waybill.getPriceProtectFlag())){
-        	priceProtectText = Constants.TEXT_PRICE_PROTECT;
-        }
-        labelPrinting.setPriceProtectText(priceProtectText);
-        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(waybill.getWaybillSign(),4,10,31);
-        labelPrinting.setSignBackText(waybillSignTexts.get(4));
-        labelPrinting.setDistributTypeText(waybillSignTexts.get(10));
-        labelPrinting.setTransportMode(waybillSignTexts.get(31));
     }
     
 }

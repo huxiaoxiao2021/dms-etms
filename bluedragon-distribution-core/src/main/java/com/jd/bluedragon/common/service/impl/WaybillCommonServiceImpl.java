@@ -11,12 +11,15 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.utils.BigDecimalHelper;
@@ -60,7 +63,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     @Autowired
     private OrderWebService orderWebService;
-
+    @Autowired
+    private BaseService baseService;
+    
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -457,5 +462,39 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		}
 		return res;
 	}
-    
+    /**
+     * 设置通用打印信息
+     * @param basePrintWaybill
+     * @param waybill
+     */
+    public void setBasePrintWaybill(BasePrintWaybill basePrintWaybill, com.jd.etms.waybill.domain.Waybill waybill){
+    	if(basePrintWaybill==null||waybill==null){
+    		return;
+    	}
+    	//面单打印新增始发城市、运输类型字段
+        basePrintWaybill.setBusiId(waybill.getBusiId());
+        //以始发分拣中心获取始发城市
+        if(basePrintWaybill.getOriginalDmsCode()!=null){
+        	BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(basePrintWaybill.getOriginalDmsCode().toString());
+        	if(siteInfo!=null){
+        		basePrintWaybill.setOriginalCityCode(siteInfo.getCityId());
+        		basePrintWaybill.setOriginalCityName(siteInfo.getCityName());
+        	}
+        }
+        //面单打印新增寄件人信息、始发城市、运输类型字段
+        basePrintWaybill.setConsigner(waybill.getConsigner());
+        basePrintWaybill.setConsignerTel(waybill.getConsignerTel());
+        basePrintWaybill.setConsignerMobile(waybill.getConsignerMobile());
+        basePrintWaybill.setConsignerAddress(waybill.getConsignerAddress());
+        String priceProtectText = "";
+        basePrintWaybill.setPriceProtectFlag(waybill.getPriceProtectFlag());
+        if(Constants.INTEGER_FLG_TRUE.equals(waybill.getPriceProtectFlag())){
+        	priceProtectText = Constants.TEXT_PRICE_PROTECT;
+        }
+        basePrintWaybill.setPriceProtectText(priceProtectText);
+        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(waybill.getWaybillSign(),4,10,31);
+        basePrintWaybill.setSignBackText(waybillSignTexts.get(4));
+        basePrintWaybill.setDistributTypeText(waybillSignTexts.get(10));
+        basePrintWaybill.setTransportMode(waybillSignTexts.get(31));
+    }
 }

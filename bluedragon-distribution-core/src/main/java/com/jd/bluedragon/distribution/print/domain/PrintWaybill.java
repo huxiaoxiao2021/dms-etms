@@ -82,13 +82,6 @@ public class PrintWaybill extends BasePrintWaybill {
     */
     private String normalText ;
 
-    /**
-    * 始发分拣中心
-    */
-    private String originalDmsName;
-
-    private Integer originalDmsCode;
-
     private Integer purposefulDmsCode;
 
     private String newAddress;
@@ -255,14 +248,6 @@ public class PrintWaybill extends BasePrintWaybill {
         this.newAddress = newAddress;
     }
 
-    public Integer getOriginalDmsCode() {
-        return originalDmsCode;
-    }
-
-    public void setOriginalDmsCode(Integer originalDmsCode) {
-        this.originalDmsCode = originalDmsCode;
-    }
-
     public Integer getPurposefulDmsCode() {
         return purposefulDmsCode;
     }
@@ -357,14 +342,6 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setNormalText(String normalText) {
         this.normalText = normalText;
-    }
-
-    public String getOriginalDmsName() {
-        return originalDmsName;
-    }
-
-    public void setOriginalDmsName(String originalDmsName) {
-        this.originalDmsName = originalDmsName;
     }
 
     public String getPurposefulDmsName() {

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 
 
@@ -92,4 +93,10 @@ public interface WaybillCommonService {
 	 * @return 以包裹号为key的map
 	 */
 	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType);
+	/**
+	 * 设置面单通用打印信息
+	 * @param BasePrintWaybill
+	 * @param waybill
+	 */
+	void setBasePrintWaybill(BasePrintWaybill asePrintWaybill, com.jd.etms.waybill.domain.Waybill waybill);
 }
