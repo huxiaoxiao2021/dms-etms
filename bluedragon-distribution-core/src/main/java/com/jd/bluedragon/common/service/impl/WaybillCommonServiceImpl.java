@@ -492,9 +492,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
         basePrintWaybill.setPriceProtectText(priceProtectText);
-        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(waybill.getWaybillSign(),4,10,31);
-        basePrintWaybill.setSignBackText(waybillSignTexts.get(4));
-        basePrintWaybill.setDistributTypeText(waybillSignTexts.get(10));
-        basePrintWaybill.setTransportMode(waybillSignTexts.get(31));
+        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(
+        		waybill.getWaybillSign(),
+        		Constants.WAYBILL_SIGN_POINT_SIGN_BACK,
+        		Constants.WAYBILL_SIGN_POINT_DISTRIBUT_TYPE,
+        		Constants.WAYBILL_SIGN_POINT_TRANSPORT_MODE);
+        basePrintWaybill.setSignBackText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POINT_SIGN_BACK));
+        basePrintWaybill.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POINT_DISTRIBUT_TYPE));
+        basePrintWaybill.setTransportMode(waybillSignTexts.get(Constants.WAYBILL_SIGN_POINT_TRANSPORT_MODE));
     }
 }

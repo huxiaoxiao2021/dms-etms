@@ -61,12 +61,12 @@ public class BusinessHelper {
 		sign10.put('7',"冷藏");
 		sign10.put('8',"冷冻");
 		sign10.put('9',"深冷");
-		Map<Character,String> sign31 = new HashMap<Character,String>(2);
+		Map<Character,String> sign31 = new HashMap<Character,String>(4);
 		sign31.put('0',"特惠送");
 		sign31.put('1',"特准送");
-		SIGN_DIC.put(4, sign4);
-		SIGN_DIC.put(10, sign10);
-		SIGN_DIC.put(31, sign31);
+		SIGN_DIC.put(Constants.WAYBILL_SIGN_POINT_SIGN_BACK, sign4);
+		SIGN_DIC.put(Constants.WAYBILL_SIGN_POINT_DISTRIBUT_TYPE, sign10);
+		SIGN_DIC.put(Constants.WAYBILL_SIGN_POINT_TRANSPORT_MODE, sign31);
 	}
 
 	/**
@@ -405,18 +405,18 @@ public class BusinessHelper {
 		return !BusinessHelper.checkIntNumRange(intNum);
 	}
 	/**
-	 * 获取waybillSign，标识对应的描述信息
+	 * 获取waybillSign，标识位对应的描述信息，字典中没有设置，则返回""
 	 * @param waybillSign
 	 * @param points
 	 * @return
 	 */
-	public static Map<Integer,String> getWaybillSignTexts(String waybillSign,int... points){
+	public static Map<Integer,String> getWaybillSignTexts(String waybillSign,Integer... points){
 		Map<Integer,String> res = new HashMap<Integer,String>(8);
 		if(StringHelper.isNotEmpty(waybillSign)
 				&&points!=null){
 			char[] cs = waybillSign.toCharArray();
 			String sign = "";
-			for(int index:points){
+			for(Integer index:points){
 				sign = null;
 				if(index<=cs.length){
 					if(SIGN_DIC.containsKey(index)){

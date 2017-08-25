@@ -339,5 +339,16 @@ public class Constants {
      * Text-保价
      */
     public static final String TEXT_PRICE_PROTECT = "保价";
-    
+    /**
+     * waybillSign-point-4-签单反还
+     */
+    public static final Integer WAYBILL_SIGN_POINT_SIGN_BACK = 4;
+    /**
+     * waybillSign.point-10-配送业务类型
+     */
+    public static final Integer WAYBILL_SIGN_POINT_DISTRIBUT_TYPE = 10;
+    /**
+     * waybillSign-point-31运输产品
+     */
+    public static final Integer WAYBILL_SIGN_POINT_TRANSPORT_MODE = 31;
 }
