@@ -95,8 +95,8 @@ public interface WaybillCommonService {
 	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType);
 	/**
 	 * 设置面单通用打印信息
-	 * @param BasePrintWaybill
+	 * @param basePrintWaybill
 	 * @param waybill
 	 */
-	void setBasePrintWaybill(BasePrintWaybill asePrintWaybill, com.jd.etms.waybill.domain.Waybill waybill);
+	void setBasePrintWaybill(BasePrintWaybill basePrintWaybill, com.jd.etms.waybill.domain.Waybill waybill);
 }
