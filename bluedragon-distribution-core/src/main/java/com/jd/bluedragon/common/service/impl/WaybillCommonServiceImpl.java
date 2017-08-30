@@ -265,7 +265,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setPopSupName(waybillWS.getConsigner());
         waybill.setBusiId(waybillWS.getBusiId());
         waybill.setBusiName(waybillWS.getBusiName());
-
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
         if (isSetName) {
@@ -487,6 +486,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
+        //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
+        if(waybill.getWaybillSign().length()>14 && waybill.getWaybillSign().charAt(14)=='3' && !BusinessHelper.isQWD(waybill.getWaybillCode()))
+        {
+            target.setBusiOrderCode(waybill.getSpareColumn3());
+        }
+        else{
+            target.setBusiOrderCode(waybill.getBusiOrderCode());
+        }
+
+
+
         //面单打印新增寄件人、电话、手机号、地址信息
         target.setConsigner(waybill.getConsigner());
         target.setConsignerTel(waybill.getConsignerTel());
