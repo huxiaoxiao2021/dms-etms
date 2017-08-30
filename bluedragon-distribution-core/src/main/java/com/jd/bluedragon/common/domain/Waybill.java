@@ -1,7 +1,6 @@
 package com.jd.bluedragon.common.domain;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.jd.bluedragon.Constants;

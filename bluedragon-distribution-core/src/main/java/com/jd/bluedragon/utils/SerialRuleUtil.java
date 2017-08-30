@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.registry.util.DateTime;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -66,6 +67,16 @@ public class SerialRuleUtil {
      */
     private static final Pattern RULE_GENERATE_WAYBILL_ALL_REGEX = Pattern.compile("^([A-Z0-9]{8,32})$");
 
+    /***********************************************运单号正则校验******************************************/
+    /******************  Add by shipeilin for simple filtration wayBillCode 2017年8月7日  ******************/
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,29}$");    //纯数字运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,28}$");      //V开头的运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Z0-9]{1}[0-9]{8,28})$");      //W|T|F|[Q|q]开头的运单号正则
+
+    //貌似最大支持到5000，这里把正则运单包裹数大小放到4位数
+    private static final Pattern RULE_COMMON_PACKAGE_ALL_REGEX = Pattern.compile("^([A-Za-z0-9]{8,})(-(?=\\d{1,4}-)|N(?=\\d{1,4}S))([1-9]\\d{0,3})(-(?=\\d{1,4}-)|S(?=\\d{1,4}H))([1-9]\\d{0,3})([-|H][A-Za-z0-9]*)$");
+
+
     /**
      * 生成包裹列表专用正则
      * 【分组一：运单号】
@@ -115,6 +126,43 @@ public class SerialRuleUtil {
      * 提取发货批次号中站点正则
      */
     private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
+
+    /**
+     *对龙门架扫描到的运单号进行简单的正则过滤。
+     * 目前过滤条件首字符严格限制（(V|W|T|F|[1-9])）。
+     * 根据不同类型限制长度的最小值，最大长度按数据库最大长度30进行过滤。
+     * Add by shipeilin on 2017/08/07
+     * @param wayBillCode
+     * @return boolean
+     */
+    public static final boolean isMatchCommonWaybillCode(String wayBillCode){
+        if(StringUtils.isEmpty(wayBillCode)){
+            return false;
+        }
+        if(RULE_GENERATE_WAYBILL_COMMON_REGEX_D.matcher(wayBillCode.trim()).matches() ||
+                RULE_GENERATE_WAYBILL_COMMON_REGEX_V.matcher(wayBillCode).matches() ||
+                RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ.matcher(wayBillCode).matches()){
+            return true;
+        }
+        return false;
+    }
+    /**
+     *对龙门架扫描到的包裹号进行简单的正则过滤。
+     * 主要校验是否包含3个"-"或者"NSH"
+     * Add by shipeilin on 2017年8月16日
+     * @param wayBillCode
+     * @return boolean
+     */
+    public static final boolean isMatchCommonPackageCode(String wayBillCode){
+        if(StringUtils.isEmpty(wayBillCode)){
+            return false;
+        }
+        if(RULE_COMMON_PACKAGE_ALL_REGEX.matcher(wayBillCode.trim()).matches()){
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 获取收货站点
