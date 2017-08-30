@@ -1102,7 +1102,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     continue;
                 }
 
-                if (msgResult.getReturnFlag() != 200) {
+                if (null != msgResult.getReturnFlag() && msgResult.getReturnFlag() != 200) {
                     this.logger.error("msgResult.getReturnFlag() != 200 [" + msgResult.getReturnFlag() + "]");
                     continue;
                 }
