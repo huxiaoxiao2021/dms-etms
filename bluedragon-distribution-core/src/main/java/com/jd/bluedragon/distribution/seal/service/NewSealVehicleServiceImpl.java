@@ -1,12 +1,13 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.Constants;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	private VosBusinessWS vosBusinessWS;
 
 	@Autowired
-	private BaseMinorManager baseMinorManager;
+	private VtsQueryWS vtsQueryWS;
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP})
@@ -54,8 +55,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
 	@Override
-	public MainBranchSchedule getMainBranchScheduleByTranCode(String batchCode) {
-		MainBranchSchedule mainBranchSchedule = baseMinorManager.getMainBranchScheduleByTranCode(batchCode);
-		return mainBranchSchedule;
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransportResourceByTransCode", mState = {JProEnum.TP})
+	public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode) {
+		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(batchCode);
+		return dto;
 	}
 }

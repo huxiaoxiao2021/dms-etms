@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.seal.service;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.ql.basic.domain.MainBranchSchedule;
+import com.jd.etms.vts.dto.VtsTransportResourceDto;
 
 import java.util.List;
 
@@ -27,6 +27,6 @@ public interface NewSealVehicleService {
      * @param batchCode
      * @return
      */
-    public MainBranchSchedule getMainBranchScheduleByTranCode(String batchCode);
+    public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode);
 
 }

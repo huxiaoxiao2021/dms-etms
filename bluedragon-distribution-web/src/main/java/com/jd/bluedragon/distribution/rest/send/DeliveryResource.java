@@ -121,7 +121,7 @@ public class DeliveryResource {
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-            result.setMessage("错误的批次号编码！");
+            result.setMessage("请输入正确的批次号！");
         }else{
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);

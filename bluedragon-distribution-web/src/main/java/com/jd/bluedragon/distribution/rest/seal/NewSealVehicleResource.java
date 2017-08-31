@@ -16,6 +16,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.ql.basic.domain.MainBranchSchedule;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
@@ -80,13 +81,12 @@ public class NewSealVehicleResource {
                 checkBatchCode(sealVehicleResponse, batchCode);
                 if(sealVehicleResponse.getCode().equals(JdResponse.CODE_OK)){//批次号校验通过
                     //3.获取运力信息
-                    MainBranchSchedule transportInfo  = newsealVehicleService.getMainBranchScheduleByTranCode(transportCode);
-                    //4.对比目标站点是否一致
-                    if(transportInfo == null || StringUtils.isBlank(transportInfo.getDesSiteCode())){//查询运力信息出错
+                    com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto  = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+                    if(vtsDto == null || vtsDto.getCode() != Constants.RESULT_SUCCESS || vtsDto.getData() == null || vtsDto.getData().getEndNodeId() == null){    //查询运力信息出错
                         sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                         sealVehicleResponse.setMessage("查询运力信息出错！");
                         logger.info("查询运力信息出错:" + transportCode);
-                    }else if(transportInfo.getDesSiteCode().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode).toString())){// 目标站点一致
+                    }else if(vtsDto.getData().getEndNodeId().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode))){// 目标站点一致
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     }else{// 目标站点不一致
@@ -126,10 +126,10 @@ public class NewSealVehicleResource {
             return ;
         }
 
-        if( 1 == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
+        if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
             sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
-        }else if( 1 == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
+        }else if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
             sealVehicleResponse.setCode(JdResponse.CODE_OK);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
         }else{//服务异常
@@ -156,7 +156,7 @@ public class NewSealVehicleResource {
 
             CommonDto<String> returnCommonDto = newsealVehicleService.seal(paramList);
             if(returnCommonDto != null){
-                if(returnCommonDto.getCode() == 1){
+                if(returnCommonDto.getCode() == Constants.RESULT_SUCCESS){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
@@ -202,7 +202,7 @@ public class NewSealVehicleResource {
             sealCarDto.setTransportCode(request.getTransportCode());
             //查询7天内的带解任务
             Calendar c = Calendar.getInstance();
-            c.add(Calendar.DATE, ROLL_BACK_DAY);
+            c.add(Calendar.DATE, -100);
             sealCarDto.setSealCarTimeBegin(c.getTime());
 
             if(StringHelper.isNotEmpty(request.getVehicleNumber())){
@@ -229,13 +229,19 @@ public class NewSealVehicleResource {
             CommonDto<PageDto<SealCarDto>> returnCommonDto = newsealVehicleService.findSealInfo(sealCarDto,pageDto);
 
             if(returnCommonDto != null){
-                if(returnCommonDto.getCode() == 1){
+                if(returnCommonDto.getCode() == Constants.RESULT_SUCCESS){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     List<SealCarDto> sealCarDtos =  returnCommonDto.getData().getResult();
-                    sealCarDtos = mergeBatchCode(sealCarDtos);
-                    sortSealCarDtos(sealCarDtos);
-                    sealVehicleResponse.setData(sealCarDtos);
+                    if(sealCarDtos != null && sealCarDtos.size() > 0){    //合并批次号并按创建时间倒序排序
+                        sealCarDtos = mergeBatchCode(sealCarDtos);
+                        sortSealCarDtos(sealCarDtos);
+                        sealVehicleResponse.setData(sealCarDtos);
+                    }else{
+                        sealVehicleResponse.setCode(JdResponse.CODE_OK_NULL);
+                        sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
+                        sealVehicleResponse.setData(null);
+                    }
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
@@ -275,7 +281,7 @@ public class NewSealVehicleResource {
     }
 
     /**
-     * 按创建时间倒叙排序
+     * 按创建时间倒序排序
      * @param SealCarDtos
      */
     private void sortSealCarDtos(List<SealCarDto> SealCarDtos){
@@ -304,7 +310,7 @@ public class NewSealVehicleResource {
 
             CommonDto<String> returnCommonDto = newsealVehicleService.unseal(paramList);
             if(returnCommonDto != null){
-                if(returnCommonDto.getCode() == 1){
+                if(returnCommonDto.getCode() == Constants.RESULT_SUCCESS){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
