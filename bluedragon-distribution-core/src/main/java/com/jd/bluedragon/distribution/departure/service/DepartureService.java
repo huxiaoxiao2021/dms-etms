@@ -29,7 +29,12 @@ public interface DepartureService {
 	 * @param siteCode 发车相关数据
 	 */
 	public ServiceMessage<String> checkSendStatus (Integer siteCode, String sendCode);
-	
+	/**
+	 * 从运输系统检查批次是否已经发车
+	 * @param sendCode 批次号
+	 */
+	public ServiceMessage<Boolean> checkSendStatusFromVOS ( String sendCode);
+
 	/**
 	 * 根据发货单号获得体积和重量
 	 * @param sendCode 交接单号

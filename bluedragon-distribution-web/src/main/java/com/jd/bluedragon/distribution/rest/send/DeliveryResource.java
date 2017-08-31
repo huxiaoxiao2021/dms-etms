@@ -26,6 +26,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,18 +118,26 @@ public class DeliveryResource {
     @Path("/delivery/checksendcodestatus/{sendCode}")
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
-        try {
-            ServiceMessage<String> data = departureService.checkSendStatus(SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode), sendCode);
-            if (data.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-                result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次已经发车，不能继续发货"));
-            } else {
-                BaseStaffSiteOrgDto site = siteService.getSite(SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode));
-                String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
-                result.setData(new AbstractMap.SimpleEntry<Integer, String>(1, siteName));
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("错误的批次号编码！");
+        }else{
+            try {
+                ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
+                if (data.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {//已被封车
+                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次号已操作封车，无法重复操作！"));
+                } else if(data.getResult().equals(ServiceResultEnum.SUCCESS)){//未被封车
+                    BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+                    String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
+                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(1, siteName));
+                }else{
+                    result.error(data.getErrorMsg());
+                }
+            } catch (Exception ex) {
+                result.error(ex);
+                logger.error(ex);
             }
-        } catch (Exception ex) {
-            result.error(ex);
-            logger.error(ex);
         }
         return result;
     }

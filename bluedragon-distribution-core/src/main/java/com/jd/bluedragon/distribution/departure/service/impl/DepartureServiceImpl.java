@@ -36,12 +36,16 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -98,6 +102,9 @@ public class DepartureServiceImpl implements DepartureService {
     @Autowired
     @Qualifier("receiveArteryInfoMQ")
     private DefaultJMQProducer receiveArteryInfoMQ;
+
+	@Autowired
+	private VosQueryWS vosQueryWS;
 
     @Autowired
     private SequenceGenAdaptor sequenceGenAdaptor;
@@ -547,6 +554,33 @@ public class DepartureServiceImpl implements DepartureService {
 			} else {
 				result.setResult(ServiceResultEnum.SUCCESS);
 			}
+		}
+		return result;
+	}
+
+	@Override
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.departure.service.impl.DepartureServiceImpl.checkSendStatusFromVOS", mState = {JProEnum.TP})
+	public ServiceMessage<Boolean> checkSendStatusFromVOS(String sendCode) {
+
+		ServiceMessage<Boolean> result = new ServiceMessage<Boolean>();
+		CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealed(sendCode);
+
+		if(isSealed == null){
+			result.setErrorMsg("服务异常，运输系统查询批次号状态为空！");
+			result.setResult(ServiceResultEnum.NOT_FOUND);
+			logger.info("服务异常，运输系统查询批次号状态为空, 批次号:" + sendCode);
+			return result;
+		}
+
+		if( 1 == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
+			result.setResult(ServiceResultEnum.WRONG_STATUS);
+		}else if( 1 == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
+			result.setResult(ServiceResultEnum.SUCCESS);
+		}else{//服务异常
+			result.setResult(ServiceResultEnum.FAILED);
+			result.setErrorMsg("服务异常，运输系统查询批次号状态失败！");
+			logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
+			logger.info("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
 		}
 		return result;
 	}

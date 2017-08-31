@@ -12,6 +12,10 @@ public class NewSealVehicleResponse<T> extends JdResponse {
 	public static final String MESSAGE_SEAL_SUCCESS = "封车成功！";
 	public static final String MESSAGE_UNSEAL_SUCCESS = "解封车成功！";
 
+	public static final String TIPS_BATCHCODE_PARAM_ERROR = "请输入正确的批次号!";
+	public static final String TIPS_BATCHCODE_SEALED_ERROR = "该发货批次号已操作封车，无法重复操作!";
+	public static final String TIPS_RECEIVESITE_DIFF_ERROR = "所扫批次号目的地与运力编码目的地不一致，请核准后重新操作!";
+
 	public NewSealVehicleResponse(){
 
 	}
