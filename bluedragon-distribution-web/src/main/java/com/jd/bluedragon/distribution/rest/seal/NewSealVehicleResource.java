@@ -17,7 +17,6 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
-import com.jd.ql.basic.domain.MainBranchSchedule;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -102,43 +101,7 @@ public class NewSealVehicleResource {
         }
         return sealVehicleResponse;
     }
-    /**
-     * 1.检查批次号是否有且符合编码规则
-     * 否则提示“请输入正确的批次号!”
-     * 2.检查批次号是否已经封车
-     * 已封车则提示“该发货批次号已操作封车，无法重复操作！”
-     * @param batchCode
-     * @return
-     */
-    private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, String batchCode){
-        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
-        if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
-            sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
-            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
-            return ;
-        }
 
-        CommonDto<Boolean> isSealed =  newsealVehicleService.isBatchCodeHasSealed(batchCode);
-        if(isSealed == null){
-            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
-            logger.info("服务异常，运输系统查询批次号状态结果为空, 批次号:" + batchCode);
-            return ;
-        }
-
-        if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
-            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
-        }else if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
-            sealVehicleResponse.setCode(JdResponse.CODE_OK);
-            sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
-        }else{//服务异常
-            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
-            logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
-            logger.info("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
-        }
-    }
     /**
      * 封车功能
      */
@@ -202,7 +165,7 @@ public class NewSealVehicleResource {
             sealCarDto.setTransportCode(request.getTransportCode());
             //查询7天内的带解任务
             Calendar c = Calendar.getInstance();
-            c.add(Calendar.DATE, -100);
+            c.add(Calendar.DATE, ROLL_BACK_DAY);
             sealCarDto.setSealCarTimeBegin(c.getTime());
 
             if(StringHelper.isNotEmpty(request.getVehicleNumber())){
@@ -254,44 +217,6 @@ public class NewSealVehicleResource {
         return sealVehicleResponse;
     }
 
-    /**
-     * 合并同一运力编码、同意操作时间的批次号
-     * @param SealCarDtos
-     * @return
-     */
-    private List<SealCarDto> mergeBatchCode(List<SealCarDto> SealCarDtos){
-        Map<String, SealCarDto> mergeMap = new HashedMap();
-        for (SealCarDto dto : SealCarDtos){
-            String key = dto.getTransportCode()+dto.getSealCarTime().getTime();
-            if(mergeMap.containsKey(key)){
-               mergeMap.get(key).getBatchCodes().addAll(dto.getBatchCodes());
-            }else{
-                mergeMap.put(key, dto);
-            }
-        }
-        List<SealCarDto> mergeResult = new ArrayList<SealCarDto>(mergeMap.size());
-        for(SealCarDto dto : mergeMap.values()){
-            String batchCodes = dto.getBatchCodes().toString();
-            dto.getBatchCodes().clear();
-            dto.getBatchCodes().add(batchCodes);
-            mergeResult.add(dto);
-        }
-
-        return mergeResult;
-    }
-
-    /**
-     * 按创建时间倒序排序
-     * @param SealCarDtos
-     */
-    private void sortSealCarDtos(List<SealCarDto> SealCarDtos){
-        Collections.sort(SealCarDtos, new Comparator<SealCarDto>() {
-            @Override
-            public int compare(SealCarDto dto1, SealCarDto dto2) {
-                return dto2.getCreateTime().compareTo(dto1.getCreateTime());
-            }
-        });
-    }
 
     /**
      * 解封车功能
@@ -377,6 +302,8 @@ public class NewSealVehicleResource {
         sealCarDto.setRemark(sourceSealDto.getRemark());
         sealCarDto.setYn(sourceSealDto.getYn());
         sealCarDto.setSealCode(sourceSealDto.getSealCode());//封车号
+        //sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
+        splitAndSetBatchCodes(sealCarDto, sourceSealDto.getBatchCodes());    //展开批次号并set
         sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
         sealCarDto.setDesealCodes(sourceSealDto.getDesealCodes());
         sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
@@ -409,4 +336,98 @@ public class NewSealVehicleResource {
 
         return sealCarDto;
     }
+
+    /**
+     * 展开并设置批次号
+     * @param sealCarDto
+     * @param batchCodes
+     */
+    private void splitAndSetBatchCodes(SealCarDto sealCarDto, List<String> batchCodes){
+        List<String> split = new ArrayList<String>();
+        if(batchCodes != null && batchCodes.size() > 0){//需要展开批次号
+            for(String batchCode : batchCodes){
+                split.addAll(Arrays.asList(batchCode.split(", "))); //分隔符逗号空格
+            }
+        }
+        sealCarDto.setBatchCodes(split);
+
+    }
+
+    /**
+     * 1.检查批次号是否有且符合编码规则
+     * 否则提示“请输入正确的批次号!”
+     * 2.检查批次号是否已经封车
+     * 已封车则提示“该发货批次号已操作封车，无法重复操作！”
+     * @param batchCode
+     * @return
+     */
+    private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, String batchCode){
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
+        if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
+            sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
+            return ;
+        }
+
+        CommonDto<Boolean> isSealed =  newsealVehicleService.isBatchCodeHasSealed(batchCode);
+        if(isSealed == null){
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
+            logger.info("服务异常，运输系统查询批次号状态结果为空, 批次号:" + batchCode);
+            return ;
+        }
+
+        if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
+            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
+        }else if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
+            sealVehicleResponse.setCode(JdResponse.CODE_OK);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+        }else{//服务异常
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
+            logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
+            logger.info("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
+        }
+    }
+
+    /**
+     * 合并同一运力编码、同意操作时间的批次号
+     * @param SealCarDtos
+     * @return
+     */
+    private List<SealCarDto> mergeBatchCode(List<SealCarDto> SealCarDtos){
+        Map<String, SealCarDto> mergeMap = new HashedMap();
+        for (SealCarDto dto : SealCarDtos){
+            String key = dto.getTransportCode()+dto.getSealCarTime().getTime();
+            if(mergeMap.containsKey(key)){
+                mergeMap.get(key).getBatchCodes().addAll(dto.getBatchCodes());
+            }else{
+                mergeMap.put(key, dto);
+            }
+        }
+        List<SealCarDto> mergeResult = new ArrayList<SealCarDto>(mergeMap.size());
+        for(SealCarDto dto : mergeMap.values()){
+            String batchCodes = dto.getBatchCodes().toString();
+            dto.getBatchCodes().clear();
+            dto.getBatchCodes().add(StringUtils.strip(batchCodes, "[]"));    //去掉中括号
+            mergeResult.add(dto);
+        }
+
+        return mergeResult;
+    }
+
+    /**
+     * 按创建时间倒序排序
+     * @param SealCarDtos
+     */
+    private void sortSealCarDtos(List<SealCarDto> SealCarDtos){
+        Collections.sort(SealCarDtos, new Comparator<SealCarDto>() {
+            @Override
+            public int compare(SealCarDto dto1, SealCarDto dto2) {
+                return dto2.getCreateTime().compareTo(dto1.getCreateTime());
+            }
+        });
+    }
+
 }

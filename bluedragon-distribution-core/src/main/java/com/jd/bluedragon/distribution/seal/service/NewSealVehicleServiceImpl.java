@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import com.jd.bluedragon.Constants;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
