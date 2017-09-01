@@ -24,10 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -64,17 +61,15 @@ public class NewSealVehicleResource {
     /**
      * 检查运力编码和批次号目的地是否一致
      */
-    @POST
+    @GET
     @Path("/new/vehicle/seal/check")
-    public NewSealVehicleResponse checkTranCodeAndBatchCode(NewSealVehicleCheckRequest request) {
+    public NewSealVehicleResponse checkTranCodeAndBatchCode(@QueryParam("batchCode") String batchCode, @QueryParam("transportCode") String transportCode) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         //1.检查请求体及参数非空
-        if (request == null || StringUtils.isBlank(request.getBatchCode()) || StringUtils.isBlank(request.getTransportCode())) {
+        if (StringUtils.isBlank(batchCode) || StringUtils.isBlank(transportCode)) {
             sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
         }else{
-            String batchCode = request.getBatchCode();            //批次号
-            String transportCode = request.getTransportCode();    //运力编码
             try {
                 //2.检查批次号
                 checkBatchCode(sealVehicleResponse, batchCode);
