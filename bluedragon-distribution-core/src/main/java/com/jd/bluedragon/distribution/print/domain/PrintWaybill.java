@@ -1,15 +1,14 @@
 package com.jd.bluedragon.distribution.print.domain;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * 运单打印基本信息
  * Created by wangtingwei on 2015/12/23.
  */
-public class PrintWaybill implements Serializable {
+public class PrintWaybill extends BasePrintWaybill {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     private transient Boolean isAir;
 
@@ -19,10 +18,7 @@ public class PrintWaybill implements Serializable {
 
     private Integer cky2;
 
-    /**
-     * 商家订单号
-     */
-    private String busiOrderCode;
+
 
     /**
      * 库房号
@@ -68,17 +64,6 @@ public class PrintWaybill implements Serializable {
     * 是否已经打印发票
     */
     private boolean isPrintInvoice ;
-
-    /**
-     * B商家ID
-     */
-    private Integer busiId ;
-
-    /**
-     * B商家名称
-     */
-    private String busiName ;
-
     /**
     * 库房号
     */
@@ -93,13 +78,6 @@ public class PrintWaybill implements Serializable {
     * 普 标识文本
     */
     private String normalText ;
-
-    /**
-    * 始发分拣中心
-    */
-    private String originalDmsName;
-
-    private Integer originalDmsCode;
 
     private Integer purposefulDmsCode;
 
@@ -267,14 +245,6 @@ public class PrintWaybill implements Serializable {
         this.newAddress = newAddress;
     }
 
-    public Integer getOriginalDmsCode() {
-        return originalDmsCode;
-    }
-
-    public void setOriginalDmsCode(Integer originalDmsCode) {
-        this.originalDmsCode = originalDmsCode;
-    }
-
     public Integer getPurposefulDmsCode() {
         return purposefulDmsCode;
     }
@@ -347,22 +317,6 @@ public class PrintWaybill implements Serializable {
         this.isPrintInvoice = isPrintInvoice;
     }
 
-    public Integer getBusiId() {
-        return busiId;
-    }
-
-    public void setBusiId(Integer busiId) {
-        this.busiId = busiId;
-    }
-
-    public String getBusiName() {
-        return busiName;
-    }
-
-    public void setBusiName(String busiName) {
-        this.busiName = busiName;
-    }
-
     public Integer getStoreId() {
         return StoreId;
     }
@@ -385,14 +339,6 @@ public class PrintWaybill implements Serializable {
 
     public void setNormalText(String normalText) {
         this.normalText = normalText;
-    }
-
-    public String getOriginalDmsName() {
-        return originalDmsName;
-    }
-
-    public void setOriginalDmsName(String originalDmsName) {
-        this.originalDmsName = originalDmsName;
     }
 
     public String getPurposefulDmsName() {
@@ -627,13 +573,7 @@ public class PrintWaybill implements Serializable {
         this.isSelfService = isSelfService;
     }
 
-    public String getBusiOrderCode() {
-        return busiOrderCode;
-    }
 
-    public void setBusiOrderCode(String busiOrderCode) {
-        this.busiOrderCode = busiOrderCode;
-    }
 
     public String getUserLevel() {
         return userLevel;
