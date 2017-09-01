@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.NewSealVehicleCheckRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -57,6 +56,8 @@ public class NewSealVehicleResource {
     private GoddessService goddessService;
 
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
+
+    private static final int SEAL_SOURCE = 1;  //封车解封车操作源（代表我们DMS系统）
 
     /**
      * 检查运力编码和批次号目的地是否一致
@@ -265,7 +266,7 @@ public class NewSealVehicleResource {
         sealCarDto.setId(sourceSealDto.getId());
         sealCarDto.setSealCarCode(sourceSealDto.getSealCarCode());
         sealCarDto.setStatus(sourceSealDto.getStatus());
-        sealCarDto.setSource(sourceSealDto.getSource());
+        sealCarDto.setSource(SEAL_SOURCE);
         sealCarDto.setVehicleNumber(sourceSealDto.getVehicleNumber());//车牌号
         sealCarDto.setTransportCode(sourceSealDto.getTransportCode());
         sealCarDto.setStartOrgCode(sourceSealDto.getStartOrgCode());
@@ -321,22 +322,6 @@ public class NewSealVehicleResource {
         }
 
         return sealCarDto;
-    }
-
-    /**
-     * 展开并设置批次号
-     * @param sealCarDto
-     * @param batchCodes
-     */
-    private void splitAndSetBatchCodes(SealCarDto sealCarDto, List<String> batchCodes){
-        List<String> split = new ArrayList<String>();
-        if(batchCodes != null && batchCodes.size() > 0){//需要展开批次号
-            for(String batchCode : batchCodes){
-                split.addAll(Arrays.asList(batchCode.split(", "))); //分隔符逗号空格
-            }
-        }
-        sealCarDto.setBatchCodes(split);
-
     }
 
     /**
