@@ -250,7 +250,7 @@ public class NewSealVehicleResource {
 
     private List<SealCarDto> convertList(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
         List<SealCarDto> sealCarDtos = new ArrayList<SealCarDto>();
-        Date nowTime = new Date();//服务器当前时间
+        Date nowTime = new Date();//封车取当前服务器当前时间
         for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
             sealCarDtos.add(convert(sourceSealDto, nowTime));
         }
@@ -291,18 +291,15 @@ public class NewSealVehicleResource {
         sealCarDto.setRemark(sourceSealDto.getRemark());
         sealCarDto.setYn(sourceSealDto.getYn());
         sealCarDto.setSealCode(sourceSealDto.getSealCode());//封车号
-        //sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
-        splitAndSetBatchCodes(sealCarDto, sourceSealDto.getBatchCodes());    //展开批次号并set
         sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
         sealCarDto.setDesealCodes(sourceSealDto.getDesealCodes());
         sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
 
-        //封车时间取服务器当前时间
-        sealCarDto.setSealCarTime(nowTime);
-
         try {
-            if(sourceSealDto.getDesealCarTime() != null && sourceSealDto.getDesealCarTime().length() > 0) {
+            if(sourceSealDto.getDesealCarTime() != null && sourceSealDto.getDesealCarTime().length() > 0) {    //解封车
                 sealCarDto.setDesealCarTime(simpleDateFormat.parse(sourceSealDto.getDesealCarTime()));
+            }else{    //封车
+                sealCarDto.setSealCarTime(nowTime);    //封车时间取服务器当前时间
             }
         }catch(Exception e){
             this.logger.error("解封车日期[DesealCarTime]转换异常", e);
