@@ -1,14 +1,16 @@
 package com.jd.bluedragon.utils;
 
-import com.jd.registry.util.DateTime;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.*;
 
 /**
  * 序列号规则判断
@@ -18,6 +20,9 @@ import java.util.*;
 public class SerialRuleUtil {
 
     public static final String SPLIT_CHAR_STRING = "-";
+
+    private static final String RULE_PACKAGECODE_REGEX_CHECK = "RULE_PACKAGECODE_REGEX_CHECK"; //包裹号正则
+    private static final String RULE_WAYBILLCODE_REGEX_CHECK = "RULE_WAYBILLCODE_REGEX_CHECK"; //运单号正则
 
     /**
      * 结果
@@ -72,7 +77,6 @@ public class SerialRuleUtil {
     private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,29}$");    //纯数字运单号正则
     private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,28}$");      //V开头的运单号正则
     private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Za-z0-9]{9,29})$");      //W|T|F|[Q|q]开头的运单号正则
-
     //貌似最大支持到5000，这里把正则运单包裹数大小放到4位数
     private static final Pattern RULE_COMMON_PACKAGE_ALL_REGEX = Pattern.compile("^([A-Za-z0-9]{8,})(-(?=\\d{1,4}-)|N(?=\\d{1,4}S))([1-9]\\d{0,3})(-(?=\\d{1,4}-)|S(?=\\d{1,4}H))([1-9]\\d{0,3})([-|H][A-Za-z0-9]*)$");
 
@@ -139,9 +143,8 @@ public class SerialRuleUtil {
         if(StringUtils.isEmpty(wayBillCode)){
             return false;
         }
-        if(RULE_GENERATE_WAYBILL_COMMON_REGEX_D.matcher(wayBillCode.trim()).matches() ||
-                RULE_GENERATE_WAYBILL_COMMON_REGEX_V.matcher(wayBillCode).matches() ||
-                RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ.matcher(wayBillCode).matches()){
+        String rule = getRegexRule(RULE_WAYBILLCODE_REGEX_CHECK);
+        if(StringUtils.isNotBlank(rule) && Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用包裹号正则
             return true;
         }
         return false;
@@ -157,12 +160,28 @@ public class SerialRuleUtil {
         if(StringUtils.isEmpty(wayBillCode)){
             return false;
         }
-        if(RULE_COMMON_PACKAGE_ALL_REGEX.matcher(wayBillCode.trim()).matches()){
+        String rule = getRegexRule(RULE_PACKAGECODE_REGEX_CHECK);
+        if(StringUtils.isNotBlank(rule) && Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用包裹号正则
             return true;
         }
         return false;
     }
 
+    /**
+     * 获取正则规则
+     * @param key
+     * @return
+     */
+    private static String getRegexRule(String key){
+        BaseService baseService = (BaseService) SpringHelper.getBean("baseService");
+        List<SysConfig> configs = baseService.queryConfigByKeyWithCache(key);
+        if(configs == null && configs.size() != 1 && !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
+            return null;
+        }
+
+        String rule = configs.get(0).getConfigContent().split(Constants.SEPARATOR_COMMA)[1];
+        return rule;
+    }
 
     /**
      * 获取收货站点
