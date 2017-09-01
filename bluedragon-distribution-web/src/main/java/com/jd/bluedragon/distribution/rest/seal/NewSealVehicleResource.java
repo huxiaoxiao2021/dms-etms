@@ -62,37 +62,31 @@ public class NewSealVehicleResource {
      * 检查运力编码和批次号目的地是否一致
      */
     @GET
-    @Path("/new/vehicle/seal/check")
-    public NewSealVehicleResponse checkTranCodeAndBatchCode(@QueryParam("batchCode") String batchCode, @QueryParam("transportCode") String transportCode) {
+    @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}")
+    public NewSealVehicleResponse checkTranCodeAndBatchCode(@PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-        //1.检查请求体及参数非空
-        if (StringUtils.isBlank(batchCode) || StringUtils.isBlank(transportCode)) {
-            sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
-            sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-        }else{
-            try {
-                //2.检查批次号
-                checkBatchCode(sealVehicleResponse, batchCode);
-                if(sealVehicleResponse.getCode().equals(JdResponse.CODE_OK)){//批次号校验通过
-                    //3.获取运力信息
-                    com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto  = newsealVehicleService.getTransportResourceByTransCode(transportCode);
-                    if(vtsDto == null || vtsDto.getCode() != Constants.RESULT_SUCCESS || vtsDto.getData() == null || vtsDto.getData().getEndNodeId() == null){    //查询运力信息出错
-                        sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-                        sealVehicleResponse.setMessage("查询运力信息出错！");
-                        logger.info("查询运力信息出错:" + transportCode);
-                    }else if(vtsDto.getData().getEndNodeId().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode))){// 目标站点一致
-                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                        sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
-                    }else{// 目标站点不一致
-                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                        sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
-                    }
+        try {
+            //1.检查批次号
+            checkBatchCode(sealVehicleResponse, batchCode);
+            if(sealVehicleResponse.getCode().equals(JdResponse.CODE_OK)){//批次号校验通过
+                //2.获取运力信息并检查目的站点
+                com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto  = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+                if(vtsDto == null || vtsDto.getCode() != Constants.RESULT_SUCCESS || vtsDto.getData() == null || vtsDto.getData().getEndNodeId() == null){    //查询运力信息出错
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage("查询运力信息出错！");
+                    logger.info("查询运力信息出错:" + transportCode);
+                }else if(vtsDto.getData().getEndNodeId().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode))){// 目标站点一致
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                }else{// 目标站点不一致
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                 }
-            } catch (Exception e) {
-                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-                sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-                this.logger.error("NewSealVehicleResource.seal-error", e);
             }
+        } catch (Exception e) {
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.logger.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
     }
