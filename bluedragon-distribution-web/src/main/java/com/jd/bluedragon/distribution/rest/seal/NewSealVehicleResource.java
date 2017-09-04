@@ -72,16 +72,27 @@ public class NewSealVehicleResource {
             if(sealVehicleResponse.getCode().equals(JdResponse.CODE_OK)){//批次号校验通过
                 //2.获取运力信息并检查目的站点
                 com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto  = newsealVehicleService.getTransportResourceByTransCode(transportCode);
-                if(vtsDto == null || vtsDto.getCode() != Constants.RESULT_SUCCESS || vtsDto.getData() == null || vtsDto.getData().getEndNodeId() == null){    //查询运力信息出错
+                if(vtsDto == null){    //JSF接口返回空
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
+                    return sealVehicleResponse;
+                }
+                if(vtsDto.getCode() == Constants.RESULT_SUCCESS){ //JSF接口调用成功
+                    if(vtsDto.getData().getEndNodeId().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode))){  // 目标站点一致
+                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                        sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                    }else{// 目标站点不一致
+                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                        sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
+                    }
+                }else if( vtsDto.getCode() == Constants.RESULT_WARN){    //查询运力信息接口返回警告，给出前台提示
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage(vtsDto.getMessage());
+                }else { //服务出错或者出异常，打日志
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                     sealVehicleResponse.setMessage("查询运力信息出错！");
-                    logger.info("查询运力信息出错:" + transportCode);
-                }else if(vtsDto.getData().getEndNodeId().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode))){// 目标站点一致
-                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
-                }else{// 目标站点不一致
-                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
+                    logger.info("查询运力信息出错,出错原因:" + vtsDto.getMessage());
+                    logger.info("查询运力信息出错,运力编码:" + transportCode);
                 }
             }
         } catch (Exception e) {
@@ -348,17 +359,22 @@ public class NewSealVehicleResource {
             return ;
         }
 
-        if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
-            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
-        }else if(Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
-            sealVehicleResponse.setCode(JdResponse.CODE_OK);
-            sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
-        }else{//服务异常
+        if(Constants.RESULT_SUCCESS == isSealed.getCode()){//服务正常
+            if(Boolean.TRUE.equals(isSealed.getData())){//已被封车
+                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
+            }else {//未被封车
+                sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+            }
+        }else if(Constants.RESULT_WARN == isSealed.getCode()){ //接口返回警告信息，给前台提示
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(isSealed.getMessage());
+        }else {//服务出错或者出异常，打日志
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
             logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
-            logger.info("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
+            logger.info("服务异常，运输系统查询批次号状态失败，失败原因:" + isSealed.getMessage());
         }
     }
 

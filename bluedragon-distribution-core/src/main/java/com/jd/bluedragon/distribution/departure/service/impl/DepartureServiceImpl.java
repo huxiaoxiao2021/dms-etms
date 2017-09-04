@@ -571,11 +571,16 @@ public class DepartureServiceImpl implements DepartureService {
 			return result;
 		}
 
-		if( Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
-			result.setResult(ServiceResultEnum.WRONG_STATUS);
-		}else if( Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
-			result.setResult(ServiceResultEnum.SUCCESS);
-		}else{//服务异常
+		if( Constants.RESULT_SUCCESS == isSealed.getCode() ){//服务正常
+			if(Boolean.TRUE.equals(isSealed.getData())){      //已被封车
+				result.setResult(ServiceResultEnum.WRONG_STATUS);
+			}else if(Boolean.FALSE.equals(isSealed.getData())) {//未被封车
+				result.setResult(ServiceResultEnum.SUCCESS);
+			}
+		}else if(Constants.RESULT_WARN == isSealed.getCode()){//服务报警告，给前台提示
+			result.setResult(ServiceResultEnum.FAILED);
+			result.setErrorMsg(isSealed.getMessage());
+		}else{// 服务出错或内部异常，打出日志
 			result.setResult(ServiceResultEnum.FAILED);
 			result.setErrorMsg("服务异常，运输系统查询批次号状态失败！");
 			logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
