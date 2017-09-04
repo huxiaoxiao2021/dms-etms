@@ -571,9 +571,9 @@ public class DepartureServiceImpl implements DepartureService {
 			return result;
 		}
 
-		if( 1 == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
+		if( Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.TRUE.equals(isSealed.getData())){//服务正常，且已被封车
 			result.setResult(ServiceResultEnum.WRONG_STATUS);
-		}else if( 1 == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
+		}else if( Constants.RESULT_SUCCESS == isSealed.getCode() && Boolean.FALSE.equals(isSealed.getData())){//服务正常，且未被封车
 			result.setResult(ServiceResultEnum.SUCCESS);
 		}else{//服务异常
 			result.setResult(ServiceResultEnum.FAILED);
