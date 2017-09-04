@@ -1101,9 +1101,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     this.logger.error("distributionReceiveJsfService接口返回 msgResult 为空");
                     continue;
                 }
-
-                if (msgResult.getReturnFlag() != 200) {
-                    this.logger.error("msgResult.getReturnFlag() != 200 [" + msgResult.getReturnFlag() + "]");
+                //getReturnFlag ：100 - 成功 ，200 - 异常
+                if (null != msgResult.getReturnFlag() && msgResult.getReturnFlag() != 100) {
+                    this.logger.error("msgResult.getReturnFlag() != 100 [" + msgResult.getReturnFlag() + "]");
                     continue;
                 }
                 String transferId = StringHelper.getStringValue(msgResult.getTransferId());
@@ -1241,6 +1241,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 break;
             case 661:
                 orgType = "PI";
+                break;
+            case 740://南京拍拍公司
+                orgType = "PN";
                 break;
             default:
                 this.logger.error("获取机构id失败");
