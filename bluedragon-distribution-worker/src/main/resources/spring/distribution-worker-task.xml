@@ -467,11 +467,11 @@
         <property name="desc" value="第三方发货数据推送财务" />
     </bean>
 
-    <bean id="deliveryToFinanceConvertTask"
+    <bean id="deliveryToFinanceBatchTask"
           class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceConvertTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource" />
-        <property name="taskType" value="DeliveryToFinanceConvertTask" />
+        <property name="taskType" value="DeliveryToFinanceBatchTask" />
         <property name="managerFactory" ref="managerFactory" />
         <property name="ownSign" value="${ownSign}" />
         <property name="type" value="1900" />
