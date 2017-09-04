@@ -71,7 +71,7 @@ public class SerialRuleUtil {
     /******************  Add by shipeilin for simple filtration wayBillCode 2017年8月7日  ******************/
     private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_D = Pattern.compile("^[1-9]{1}[0-9]{8,29}$");    //纯数字运单号正则
     private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_V = Pattern.compile("^V[A-Z0-9]{1}[0-9]{11,28}$");      //V开头的运单号正则
-    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Z0-9]{1}[0-9]{8,28})$");      //W|T|F|[Q|q]开头的运单号正则
+    private static final Pattern RULE_GENERATE_WAYBILL_COMMON_REGEX_WTFQ = Pattern.compile("^(W|T|F|[Q|q]){1}([A-Za-z0-9]{9,29})$");      //W|T|F|[Q|q]开头的运单号正则
 
     //貌似最大支持到5000，这里把正则运单包裹数大小放到4位数
     private static final Pattern RULE_COMMON_PACKAGE_ALL_REGEX = Pattern.compile("^([A-Za-z0-9]{8,})(-(?=\\d{1,4}-)|N(?=\\d{1,4}S))([1-9]\\d{0,3})(-(?=\\d{1,4}-)|S(?=\\d{1,4}H))([1-9]\\d{0,3})([-|H][A-Za-z0-9]*)$");
