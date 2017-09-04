@@ -224,6 +224,10 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
 	@Override
 	public List<CenConfirm> queryHandoverInfo(CenConfirm cenConfirm) {
+		if(cenConfirm.getCreateSiteCode()==null){
+			log.error("[CenConfirmServiceImpl.queryHandoverInfo]create_site_code为null");
+			return null;
+		}
 		return cenConfirmDao.queryHandoverInfo(cenConfirm);
 	}
 

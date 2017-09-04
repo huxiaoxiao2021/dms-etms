@@ -486,8 +486,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
-        //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(waybill.getWaybillSign().length()>14 && waybill.getWaybillSign().charAt(14)=='3' && !BusinessHelper.isQWD(waybill.getWaybillCode()))
+        // luochengyi :2017年8月30日    waybillsign 21位是1的情况下 ，取getSpareColumn3
+        if(waybill.getWaybillSign().length()>20 && waybill.getWaybillSign().charAt(20)=='1')
         {
             target.setBusiOrderCode(waybill.getSpareColumn3());
         }

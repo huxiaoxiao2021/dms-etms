@@ -21,6 +21,7 @@
 		<org.springframework.version>3.1.0.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
+		<jmq.version>2.1.1</jmq.version>
 	</properties>
 
 	<dependencies>
@@ -71,7 +72,7 @@
         <dependency>
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
-            <version>2.0.5</version>
+            <version>${jmq.version}</version>
         </dependency>
 
         <dependency>
@@ -610,6 +611,14 @@
                      <artifactId>fastjson</artifactId>
                      <groupId>com.alibaba</groupId>
                  </exclusion>
+                 <exclusion>
+					<groupId>com.jd.jmq</groupId>
+					<artifactId>jmq-client-core</artifactId>
+                 </exclusion>
+                 <exclusion>
+					<groupId>com.jd.jmq</groupId>
+					<artifactId>jmq-client-ump</artifactId>
+                 </exclusion>                 
              </exclusions>
         </dependency>
         
