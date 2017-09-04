@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.seal.service;
 
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -24,6 +26,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
+
+	@Autowired
+	private SendMDao sendMDao;
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP})
@@ -58,5 +63,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode) {
 		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(batchCode);
 		return dto;
+	}
+
+	public boolean checkSendIsExsite( String sendCode) {
+		boolean result = true;
+		SendM sendM = sendMDao.selectOneBySiteAndSendCode( /* 分拣中心 siteCode */null, sendCode);
+		// 查询不到该批次
+		if (sendM == null) {
+			result = false;
+		}
+		return result;
 	}
 }

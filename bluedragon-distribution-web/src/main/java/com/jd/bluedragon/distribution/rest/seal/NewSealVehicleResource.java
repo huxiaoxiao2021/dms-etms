@@ -350,7 +350,10 @@ public class NewSealVehicleResource {
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
             return ;
         }
-
+        if(!newsealVehicleService.checkSendIsExsite(batchCode)){//批次号不存在
+            sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+        }
         CommonDto<Boolean> isSealed =  newsealVehicleService.isBatchCodeHasSealed(batchCode);
         if(isSealed == null){
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);

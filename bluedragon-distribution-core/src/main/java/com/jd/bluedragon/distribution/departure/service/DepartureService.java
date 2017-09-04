@@ -29,6 +29,13 @@ public interface DepartureService {
 	 * @param siteCode 发车相关数据
 	 */
 	public ServiceMessage<String> checkSendStatus (Integer siteCode, String sendCode);
+
+	/**
+	 * 检查批次是否存在
+	 * @param sendCode
+	 * @return
+	 */
+	public boolean checkSendIsExsite( String sendCode);
 	/**
 	 * 从运输系统检查批次是否已经发车
 	 * @param sendCode 批次号

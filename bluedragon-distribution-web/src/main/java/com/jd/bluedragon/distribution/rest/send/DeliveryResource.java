@@ -123,15 +123,20 @@ public class DeliveryResource {
             result.setMessage("请输入正确的批次号！");
         }else{
             try {
-                ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
-                if (data.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {//已被封车
-                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次号已操作封车，无法重复操作！"));
-                } else if(data.getResult().equals(ServiceResultEnum.SUCCESS)){//未被封车
-                    BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
-                    String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
-                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(1, siteName));
+                if(departureService.checkSendIsExsite(sendCode)){
+                    ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
+                    if (data.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {//已被封车
+                        result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次号已操作封车，无法重复操作！"));
+                    } else if(data.getResult().equals(ServiceResultEnum.SUCCESS)){//未被封车
+                        BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+                        String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
+                        result.setData(new AbstractMap.SimpleEntry<Integer, String>(1, siteName));
+                    }else{
+                        result.error(data.getErrorMsg());
+                    }
                 }else{
-                    result.error(data.getErrorMsg());
+                    result.setCode(InvokeResult.RESULT_SELECT_ERROR_CODE);
+                    result.setMessage("该批次号不存在，是否继续？");
                 }
             } catch (Exception ex) {
                 result.error(ex);

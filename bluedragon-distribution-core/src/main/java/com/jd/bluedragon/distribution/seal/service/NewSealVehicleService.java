@@ -29,4 +29,11 @@ public interface NewSealVehicleService {
      */
     public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode);
 
+    /**
+     * 检查批次是否存在
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendIsExsite( String sendCode);
+
 }
