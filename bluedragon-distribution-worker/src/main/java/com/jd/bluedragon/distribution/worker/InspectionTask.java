@@ -1,17 +1,14 @@
 package com.jd.bluedragon.distribution.worker;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
-import com.jd.bluedragon.distribution.framework.TaskExecutorHanlder;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
-import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExecute;
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -67,6 +63,15 @@ public class InspectionTask extends DBSingleScheduler {
                     domain.setBody(JsonHelper.toJson(request));
                     taskExecute.execute(domain);
                 }
+			}catch (WayBillCodeIllegalException wayBillCodeIllegalEx){
+                StringBuilder sb=new StringBuilder("验货执行失败,已知异常");
+                sb.append(wayBillCodeIllegalEx.getMessage());
+                sb.append(SPLIT_CHAR).append(task.getBoxCode());
+                sb.append(SPLIT_CHAR).append(task.getKeyword1());
+                sb.append(SPLIT_CHAR).append(task.getKeyword2());
+                logger.warn(sb.toString());
+                task.setExecuteCount(4);    //非法运单号异常讲执行次数设置为4
+                return false;
 			}catch (InspectionException inspectionEx){
                 StringBuilder sb=new StringBuilder("验货执行失败,已知异常");
                 sb.append(inspectionEx.getMessage());

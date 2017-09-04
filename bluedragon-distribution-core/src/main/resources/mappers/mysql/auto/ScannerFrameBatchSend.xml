@@ -37,7 +37,7 @@
         <include refid="allFieldsExcludeIdAndTs"/>
         )
         VALUES (
-        #{machineId,jdbcType=BIGINT},
+        #{machineId,jdbcType=VARCHAR},
         #{createSiteCode,jdbcType=BIGINT},
         #{createSiteName,jdbcType=VARCHAR},
         #{receiveSiteCode,jdbcType=BIGINT},
@@ -61,7 +61,7 @@
         FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=TIMESTAMP}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
-              AND machine_id=#{machineId,jdbcType=INTEGER}
+              AND machine_id=#{machineId,jdbcType=VARCHAR}
               AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
         order by CREATE_TIME DESC
         limit 1
@@ -75,7 +75,7 @@
 
     <sql id="getSplitPageListWhere">
         WHERE
-        MACHINE_ID=#{data.machineId,jdbcType=BIGINT}
+        MACHINE_ID=#{data.machineId,jdbcType=VARCHAR}
         <if test="data.startTime != null">
             AND CREATE_TIME>=#{data.startTime,jdbcType=TIMESTAMP}
         </if>
@@ -136,18 +136,19 @@
 
     <select id="queryByMachineIdAndTime" parameterType="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument" resultMap="resultListMap">
         SELECT
-          <include refid="allFieldsExcludeIdAndTs"/>
+          <include refid="allFieldsExcludeTs"/>
         FROM SCANNER_FRAME_BATCH_SEND
         <where>
           <if test="machineId != null">
-            MACHINE_ID = #{machineId,jdbcType=BIGINT}
+            MACHINE_ID = #{machineId,jdbcType=VARCHAR}
           </if>
           <if test="startTime != null">
-            AND CREATE_TIME > #{startTime,jdbcType=TIMESTAMP}
+            AND CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
           </if>
           <if test="endTime != null">
             AND CREATE_TIME <![CDATA[<=]]> #{endTime,jdbcType=TIMESTAMP}
           </if>
+            AND YN = 1
         </where>
     </select>
 
@@ -156,7 +157,7 @@
         FROM SCANNER_FRAME_BATCH_SEND
         <where>
             <if test="machineId != null">
-                MACHINE_ID = #{machineId,jdbcType=BIGINT}
+                MACHINE_ID = #{machineId,jdbcType=VARCHAR}
             </if>
             <if test="createSiteCode != null">
                 AND CREATE_SITE_CODE = #{createSiteCode}

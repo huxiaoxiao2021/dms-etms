@@ -2,30 +2,37 @@ package com.jd.bluedragon.common.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.domain.Goods;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.utils.BigDecimalHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -36,6 +43,8 @@ import com.jd.ump.annotation.JProfiler;
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
+    
+    private static final int REST_CODE_SUC = 1; 
 
     @Autowired
     private ProductService productService;
@@ -43,13 +52,20 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     /* 运单查询 */
     @Autowired
     private WaybillQueryApi waybillQueryApi;
+    /**
+     * 运单包裹查询
+     */
+    @Autowired
+    WaybillPackageApi waybillPackageApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
     private OrderWebService orderWebService;
-
+    @Autowired
+    private BaseService baseService;
+    
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -249,7 +265,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setPopSupName(waybillWS.getConsigner());
         waybill.setBusiId(waybillWS.getBusiId());
         waybill.setBusiName(waybillWS.getBusiName());
-
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
         if (isSetName) {
@@ -406,5 +421,103 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         return waybill;
+    }
+
+	@Override
+	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType) {
+		Map<String,PackOpeFlowDto> res = new TreeMap<String,PackOpeFlowDto>();
+		//校验传入参数是否合法
+		if(StringHelper.isEmpty(waybillCode)||opeType==null){
+			return res;
+		}
+		//调用运单接口，获取称重流水信息
+		BaseEntity<List<PackOpeFlowDto>> rest = this.waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+		if(rest.getResultCode()==REST_CODE_SUC){
+			List<PackOpeFlowDto> packOpeFlowList = rest.getData();
+			PackOpeFlowDto oldData = null;
+			if(packOpeFlowList!=null&&!packOpeFlowList.isEmpty()){
+				for(PackOpeFlowDto newData:packOpeFlowList){
+					String key = newData.getPackageCode();
+					Integer key0 = newData.getOpeType();
+					if(!opeType.equals(key0)){
+						continue;
+					}
+					oldData = res.get(key);
+					if(oldData==null){
+						res.put(key, newData);
+					}else{
+						if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
+							newData.setpWeight(newData.getpWeight());
+							newData.setWeighTime(newData.getWeighTime());
+						}else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
+							oldData.setpWeight(newData.getpWeight());
+							oldData.setWeighTime(newData.getWeighTime());
+						}
+					}
+				}
+			}
+		}else{
+			this.logger.warn(String.format("没有获取到包裹称重信息，{code:{},msg:{}}", rest.getResultCode(),rest.getMessage()));
+		}
+		return res;
+	}
+    /**
+     * 通过运单对象，设置基础打印信息
+     * <p>设置商家id和name(busiId、busiName)
+     * <p>以始发分拣中心获取始发城市code和名称(originalCityCode、originalCityName)
+     * <p>设置寄件人、电话、手机号、地址信息(consigner、consignerTel、consignerMobile、consignerAddress)
+     * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
+     * <p>设置打标信息：签单返还、配送类型、运输产品(signBackText、distributTypeText、transportMode)
+     * @param target 目标对象(BasePrintWaybill类型)
+     * @param waybill 原始运单对象
+     */
+    public BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill){
+    	if(target==null||waybill==null){
+    		return target;
+    	}
+    	//设置商家id和name
+        target.setBusiId(waybill.getBusiId());
+        target.setBusiName(waybill.getBusiName());
+        //以始发分拣中心获取始发城市id和名称
+        if(target.getOriginalDmsCode()!=null){
+        	BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(target.getOriginalDmsCode().toString());
+        	if(siteInfo!=null){
+        		target.setOriginalCityCode(siteInfo.getCityId());
+        		target.setOriginalCityName(siteInfo.getCityName());
+        	}
+        }
+        // luochengyi :2017年8月30日    waybillsign 21位是1的情况下 ，取getSpareColumn3
+        if(waybill.getWaybillSign().length()>20 && waybill.getWaybillSign().charAt(20)=='1')
+        {
+            target.setBusiOrderCode(waybill.getSpareColumn3());
+        }
+        else{
+            target.setBusiOrderCode(waybill.getBusiOrderCode());
+        }
+
+
+
+        //面单打印新增寄件人、电话、手机号、地址信息
+        target.setConsigner(waybill.getConsigner());
+        target.setConsignerTel(waybill.getConsignerTel());
+        target.setConsignerMobile(waybill.getConsignerMobile());
+        target.setConsignerAddress(waybill.getConsignerAddress());
+        //设置价格保护标识和显示值
+        String priceProtectText = "";
+        target.setPriceProtectFlag(waybill.getPriceProtectFlag());
+        if(Constants.INTEGER_FLG_TRUE.equals(waybill.getPriceProtectFlag())){
+        	priceProtectText = Constants.TEXT_PRICE_PROTECT;
+        }
+        target.setPriceProtectText(priceProtectText);
+        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(
+        		waybill.getWaybillSign(),
+        		Constants.WAYBILL_SIGN_POSITION_SIGN_BACK,
+        		Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE,
+        		Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE);
+        //设置签单返还、配送类型、运输产品
+        target.setSignBackText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_SIGN_BACK));
+        target.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE));
+        target.setTransportMode(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE));
+        return target;
     }
 }

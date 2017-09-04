@@ -1,18 +1,19 @@
 package com.jd.bluedragon.core.jmq.producer;
 
+import java.text.MessageFormat;
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.text.MessageFormat;
-import java.util.Date;
 
 /**
  * Created by wangtingwei on 2015/12/22.
@@ -34,12 +35,12 @@ public class DefaultJMQProducer {
     private String topic;
 
     /**
-     * 超时时间
+     * 超时时间-默认值1000ms
      */
-    private int timeout;
+    private int timeout = 1000;
 
     /**
-     * JMQ消息发送
+     * JMQ消息发送,抛出异常，需要自行处理
      * @param businessId    业务ID号
      * @param body          消息体
      * @throws JMQException
@@ -51,8 +52,6 @@ public class DefaultJMQProducer {
         Message message = new Message(this.topic, body, businessId);
         jmqProducer.send(message, this.timeout);
     }
-
-
     public void sendOnFailPersistent(String businessId,String body){
         try {
             send(businessId,body);
@@ -97,4 +96,21 @@ public class DefaultJMQProducer {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+
+
+	/**
+	 * @return the jmqProducer
+	 */
+	public com.jd.jmq.client.producer.MessageProducer getJmqProducer() {
+		return jmqProducer;
+	}
+
+
+	/**
+	 * @param jmqProducer the jmqProducer to set
+	 */
+	public void setJmqProducer(
+			com.jd.jmq.client.producer.MessageProducer jmqProducer) {
+		this.jmqProducer = jmqProducer;
+	}
 }

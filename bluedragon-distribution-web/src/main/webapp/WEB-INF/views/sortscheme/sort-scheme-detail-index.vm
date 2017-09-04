@@ -116,6 +116,8 @@
                             <th style="width:20px;">目的地代码</th>
                             <th style="width:30px;">格口箱号目的地代码</th>
                             <th style="width:30px;">格口箱号目的地名称</th>
+                            <th style="width:30px;">发货目的地代码</th>
+                            <th style="width:30px;">发货目的地名称</th>
                             <th style="width:20px;">当前使用滑槽</th>
                             <th style="width:20px;">是否激活</th>
                             <th style="width:20px;">是否接收</th>

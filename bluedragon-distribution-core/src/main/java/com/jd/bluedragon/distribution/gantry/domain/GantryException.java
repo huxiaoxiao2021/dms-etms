@@ -17,7 +17,7 @@ public class GantryException {
     /**
      * 龙门架设备编号
      */
-    private Long machineId;
+    private String machineId;
 
     /**
      * 条码
@@ -84,6 +84,16 @@ public class GantryException {
      */
     private String sendCode;
 
+    /**
+     * 滑槽号
+     * */
+    private String chuteCode;
+
+    /**
+     * 包裹号
+     */
+    private String packageCode;
+
     public Long getId() {
         return id;
     }
@@ -92,11 +102,11 @@ public class GantryException {
         this.id = id;
     }
 
-    public Long getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(Long machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 
@@ -203,5 +213,21 @@ public class GantryException {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public String getChuteCode() {
+        return chuteCode;
+    }
+
+    public void setChuteCode(String chuteCode) {
+        this.chuteCode = chuteCode;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 }

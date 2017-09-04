@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://code.jd.com/schema/jmq
-    http://code.jd.com/schema/jmq/jmq-1.0.xsd"
+    http://code.jd.com/schema/jmq/jmq-1.1.xsd"
        xmlns:jmq="http://code.jd.com/schema/jmq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="http://www.springframework.org/schema/beans">
@@ -11,6 +11,12 @@
                    user="${jmq.BlueDragonDistribution.user}"
                    address="${jmq.BlueDragonDistribution.address}" />
     <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3" />
+    <!--dmsweb生产者配置-->
+    <jmq:producer id="dmsWebProducer" transport="jmq.dmsWeb.transport" retryTimes="3" />
+    <bean id="dmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="dmsWebProducer"/>
+    </bean>
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
     <bean id="bdMonitorMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -207,7 +213,10 @@
         <property name="topic" value="delivery_to_finance"/>
         <property name="timeout" value="1000"/>
     </bean>
-
+    <!--配送员接货，打印后发送mq信息给sms-->
+    <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
+    </bean>
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 

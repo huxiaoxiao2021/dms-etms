@@ -42,6 +42,11 @@ public class SortSchemeRequest {
      */
     private String receTime;
 
+    /**
+     * 是否自动发货 0：否 1：是
+     */
+    private Integer autoSend;
+
     private Integer pageNo;
 
     private Integer pageSize;
@@ -137,6 +142,14 @@ public class SortSchemeRequest {
 
     public void setReceTime(String receTime) {
         this.receTime = receTime;
+    }
+
+    public Integer getAutoSend() {
+        return autoSend;
+    }
+
+    public void setAutoSend(Integer autoSend) {
+        this.autoSend = autoSend;
     }
 
     public Integer getPageNo() {

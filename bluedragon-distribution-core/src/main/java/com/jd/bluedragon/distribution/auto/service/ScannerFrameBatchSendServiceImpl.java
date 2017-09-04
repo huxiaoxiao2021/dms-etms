@@ -171,7 +171,7 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     }
 
     @Override
-    public ScannerFrameBatchSend selectCurrentBatchSend(long machineId, long receiveSiteCode, Date operateTime) {
+    public ScannerFrameBatchSend selectCurrentBatchSend(String machineId, long receiveSiteCode, Date operateTime) {
         ScannerFrameBatchSend result = new ScannerFrameBatchSend();
         result = scannerFrameBatchSendDao.selectCurrentBatchSend(machineId, receiveSiteCode, operateTime);
         return result;

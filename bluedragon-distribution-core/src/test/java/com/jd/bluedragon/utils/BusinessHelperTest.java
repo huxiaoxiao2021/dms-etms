@@ -17,6 +17,7 @@ public class BusinessHelperTest {
 		String waybillCode="T18655150305";
 		isBoxCode = helper.isBoxcode(waybillCode).booleanValue();
 		assertFalse(isBoxCode);
+		System.err.println(BusinessHelper.getWaybillSignTexts("30011000051000020000000000000000000000000000000000", 4,10,31));
 	}
 
 	@Test

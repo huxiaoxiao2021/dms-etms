@@ -33,6 +33,16 @@ function main() {
         goDownSortSchemeModel();
     });
 
+    // 开启自动发货按钮
+    $("#openBtn").click(function () {
+        goOpenBtnClick();
+    });
+
+    // 关闭自动发货按钮
+    $("#closeBtn").click(function () {
+        goCloseBtnClick();
+    });
+
     $("#siteNo").change(function () {
         clearPager();
     });
@@ -58,7 +68,8 @@ function goDetailClick(id) {
 }
 
 function goDownSortSchemeModel() {
-    location.href = "http://sq.jd.com/dXSzs3";
+    //location.href = "http://sq.jd.com/dXSzs3";
+    location.href = "http://3.cn/bAfe5o";
 }
 
 //--------------激活方案-----------------
@@ -313,7 +324,7 @@ function doQueryCrossSorting(params) {
             var temp = "";
             for (var i = 0; i < dataList.length; i++) {
                 temp += "<tr class='a2' style=''>";
-                temp += "<td><input id='" + dataList[i].id + "' value='" + dataList[i].yn + "' name='singleBtn' type='checkbox'/></td>";
+                temp += "<td><input id='" + dataList[i].id + "' value='" + dataList[i].yn + "' data='" + dataList[i].autoSend + "' name='singleBtn' type='checkbox'/></td>";
                 temp += "<td>" + (dataList[i].name == null ? '' : dataList[i].name) + "</td>";
                 siteNo = dataList[i].siteNo;
                 temp += "<td>" + (dataList[i].siteNo == null ? '' : dataList[i].siteNo) + "</td>";
@@ -328,6 +339,7 @@ function doQueryCrossSorting(params) {
                 }
                 temp += "<td>" + (dataList[i].receFlag == 1 ? '接收' : '未接收') + "</td>";
                 temp += "<td>" + (dataList[i].receTime == null ? '' : dataList[i].receTime) + "</td>";
+                temp += "<td>" + (dataList[i].autoSend == 1 ? '<font color="red">是</font>' : '否') + "</td>";
                 temp += "<td>" + (dataList[i].yn == 1 ? '<font color="red">激活</font>' : '未激活') + "</td>";
                 temp += "<td>" + "<input type='button' value='导入' onclick='goImportExcel(" + dataList[i].id + ")' style='margin-right:5px;'>"
                     + "<input type='button' value='导出' onclick='exportExcel(" + dataList[i].id + ")' style='margin-right:5px;'>"
@@ -378,3 +390,94 @@ function doSortSchemeDelete(params) {
     });
 }
 
+//--------------开启自动发货-----------------
+function goOpenBtnClick() {
+    var singleBtns = $("input[name='singleBtn']:checked");
+    if (singleBtns == null || singleBtns.length < 1) {
+        jQuery.messager.alert('提示:', "至少选择 1 条数据!", 'info');
+        return;
+    }
+    if (singleBtns.length > 1) {
+        jQuery.messager.alert('提示:', "最多选择 1 条数据!", 'info');
+        return;
+    }
+    // 校验状态:如果是未激活分拣计划，则提示不允许操作
+    if (singleBtns[0].value == 0) {
+        jQuery.messager.alert('提示:', "请选择状态为激活的分拣计划!", 'info');
+        return;
+    }
+    // 校验状态:如果已经启用，则提示不用启用
+    if (singleBtns[0].getAttribute("data") == 1) {
+        jQuery.messager.alert('提示:', "分拣计划已开启自动发货，无需重复开启!", 'info');
+        return;
+    }
+
+    jQuery.messager.confirm('确认', '确定要启用自动发货？', function (r) {
+        if (r) {
+            var url = $("#contextPath").val() + "/autosorting/sortScheme/update/open/id";
+            var params = {};
+            params.id = singleBtns[0].id;
+            params.siteNo = $.trim($("#siteNo").val());
+            CommonClient.postJson(url, params, function (data) {
+                if (data == undefined || data == null) {
+                    jQuery.messager.alert('提示:', 'HTTP请求无数据返回!', 'info');
+                    return;
+                }
+                if (data.code == 200) {
+                    jQuery.messager.alert('提示:', "当前分拣计划自动发货启动成功!", 'info');
+                    // 对当前页做一次分页查询
+                    onQueryBtnClick($("#pageNo").val());
+                } else {
+                    jQuery.messager.alert('提示:', data.message, 'info');
+                }
+            });
+        }
+    });
+
+}
+
+//--------------关闭自动发货-----------------
+function goCloseBtnClick() {
+    var singleBtns = $("input[name='singleBtn']:checked");
+    if (singleBtns == null || singleBtns.length < 1) {
+        jQuery.messager.alert('提示:', "至少选择 1 条数据!", 'info');
+        return;
+    }
+    if (singleBtns.length > 1) {
+        jQuery.messager.alert('提示:', "最多选择 1 条数据!", 'info');
+        return;
+    }
+    // 校验状态:如果是未激活分拣计划，则提示不允许操作
+    if (singleBtns[0].value == 0) {
+        jQuery.messager.alert('提示:', "请选择状态为激活的分拣计划!", 'info');
+        return;
+    }
+    // 校验状态:如果已经关闭，则提示不用关闭
+    if (singleBtns[0].getAttribute("data") == 0) {
+        jQuery.messager.alert('提示:', "分拣计划未启用自动发货，无需关闭!", 'info');
+        return;
+    }
+
+    jQuery.messager.confirm('警告', '自动分拣机将停止自动发货功能，在此之前的发货批次自动完结，并不再生成新的发货批次，建议清场之后再停止！！！确认关闭？', function (r) {
+        if (r) {
+            var url = $("#contextPath").val() + "/autosorting/sortScheme/update/close/id";
+            var params = {};
+            params.id = singleBtns[0].id;
+            params.siteNo = $.trim($("#siteNo").val());
+            CommonClient.postJson(url, params, function (data) {
+                if (data == undefined || data == null) {
+                    jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+                    return;
+                }
+                if (data.code == 200) {
+                    jQuery.messager.alert('提示:', "当前分拣计划自动发货关闭成功", 'info');
+                    // 对当前页做一次分页查询
+                    onQueryBtnClick($("#pageNo").val());
+                } else {
+                    jQuery.messager.alert('提示:', data.message, 'info');
+                }
+            });
+        }
+    });
+
+}
