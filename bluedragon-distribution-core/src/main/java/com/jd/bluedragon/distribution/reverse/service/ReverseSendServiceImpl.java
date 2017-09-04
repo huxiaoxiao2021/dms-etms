@@ -1242,6 +1242,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             case 661:
                 orgType = "PI";
                 break;
+            case 740://南京拍拍公司
+                orgType = "PN";
+                break;
             default:
                 this.logger.error("获取机构id失败");
         }
