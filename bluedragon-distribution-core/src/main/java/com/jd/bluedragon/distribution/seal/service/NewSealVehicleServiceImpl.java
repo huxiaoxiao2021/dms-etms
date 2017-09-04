@@ -67,7 +67,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	public boolean checkSendIsExsite( String sendCode) {
 		boolean result = true;
-		SendM sendM = sendMDao.selectOneBySiteAndSendCode( /* 分拣中心 siteCode */null, sendCode);
+		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
 		// 查询不到该批次
 		if (sendM == null) {
 			result = false;

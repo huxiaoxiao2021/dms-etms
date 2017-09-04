@@ -353,6 +353,7 @@ public class NewSealVehicleResource {
         if(!newsealVehicleService.checkSendIsExsite(batchCode)){//批次号不存在
             sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+            return;
         }
         CommonDto<Boolean> isSealed =  newsealVehicleService.isBatchCodeHasSealed(batchCode);
         if(isSealed == null){
