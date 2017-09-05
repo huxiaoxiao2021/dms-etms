@@ -135,7 +135,7 @@ public class SerialRuleUtil {
             return false;
         }
         String rule = getRegexRule(RULE_WAYBILLCODE_REGEX_CHECK);
-        if(StringUtils.isNotBlank(rule) || !Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用运单号正则但校验不通过
+        if(StringUtils.isNotBlank(rule) && !Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用运单号正则但校验不通过
             return false;
         }
         return true;
@@ -152,7 +152,7 @@ public class SerialRuleUtil {
             return false;
         }
         String rule = getRegexRule(RULE_PACKAGECODE_REGEX_CHECK);
-        if(StringUtils.isNotBlank(rule) || !Pattern.compile(rule).matcher(packageCode.trim()).matches()){  //启用包裹号正则但校验不通过
+        if(StringUtils.isNotBlank(rule) && !Pattern.compile(rule).matcher(packageCode.trim()).matches()){  //启用包裹号正则但校验不通过
             return false;
         }
         return true;
