@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.task.asynBuffer;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -44,11 +45,13 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	 * @return
      */
 	public Set<String> getNotEnabledKeyWord(){
-		String [] notEnabledKeyWords = configManager.getProperty(NOT_ENBALED_KEY_WORD1).trim().split(";");
 		Set<String> type_keyword = new HashSet<String>();
+		if(StringUtils.isNotBlank(configManager.getProperty(NOT_ENBALED_KEY_WORD1))){
+			String [] notEnabledKeyWords = configManager.getProperty(NOT_ENBALED_KEY_WORD1).trim().split(";");
 			for(String s : notEnabledKeyWords){
 				type_keyword.add(s);
 			}
+		}
 		return type_keyword;
 	}
 
