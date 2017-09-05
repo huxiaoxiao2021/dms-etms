@@ -144,7 +144,7 @@ public class SerialRuleUtil {
             return false;
         }
         String rule = getRegexRule(RULE_WAYBILLCODE_REGEX_CHECK);
-        if(StringUtils.isNotBlank(rule) && Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用包裹号正则
+        if(StringUtils.isBlank(rule) || Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用运单号正则
             return true;
         }
         return false;
@@ -153,18 +153,19 @@ public class SerialRuleUtil {
      *对龙门架扫描到的包裹号进行简单的正则过滤。
      * 主要校验是否包含3个"-"或者"NSH"
      * Add by shipeilin on 2017年8月16日
-     * @param wayBillCode
+     * @param packageCode
      * @return boolean
      */
-    public static final boolean isMatchCommonPackageCode(String wayBillCode){
-        if(StringUtils.isEmpty(wayBillCode)){
+    public static final boolean isMatchCommonPackageCode(String packageCode){
+        if(StringUtils.isEmpty(packageCode)){
             return false;
         }
         String rule = getRegexRule(RULE_PACKAGECODE_REGEX_CHECK);
-        if(StringUtils.isNotBlank(rule) && Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用包裹号正则
+        if(StringUtils.isBlank(rule) || Pattern.compile(rule).matcher(packageCode.trim()).matches()){  //启用包裹号正则
             return true;
+        }else{
+            return false;
         }
-        return false;
     }
 
     /**
@@ -175,11 +176,12 @@ public class SerialRuleUtil {
     private static String getRegexRule(String key){
         BaseService baseService = (BaseService) SpringHelper.getBean("baseService");
         List<SysConfig> configs = baseService.queryConfigByKeyWithCache(key);
-        if(configs == null && configs.size() != 1 && !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
+        if(configs == null || configs.size() != 1 || StringUtils.isBlank(configs.get(0).getConfigContent())
+                || !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
             return null;
         }
-
-        String rule = configs.get(0).getConfigContent().split(Constants.SEPARATOR_COMMA)[1];
+        String content = configs.get(0).getConfigContent();
+        String rule = content.substring(content.indexOf(Constants.SEPARATOR_COMMA) + 1);
         return rule;
     }
 
