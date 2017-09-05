@@ -345,16 +345,13 @@ public class NewSealVehicleResource {
      */
     private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, String batchCode){
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
-        if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
+        //1.批次号是否符合编码规范，不合规范直接返回参数错误
+        if(receiveSiteCode == null){
             sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
             return ;
         }
-        if(!newsealVehicleService.checkSendIsExsite(batchCode)){//批次号不存在
-            sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
-            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
-            return;
-        }
+        //2.是否已经封车
         CommonDto<Boolean> isSealed =  newsealVehicleService.isBatchCodeHasSealed(batchCode);
         if(isSealed == null){
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -379,6 +376,11 @@ public class NewSealVehicleResource {
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
             logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
             logger.info("服务异常，运输系统查询批次号状态失败，失败原因:" + isSealed.getMessage());
+        }
+        //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
+        if(JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExsite(batchCode)){//批次号不存在
+            sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
         }
     }
 
