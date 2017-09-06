@@ -35,7 +35,7 @@ public interface DepartureService {
 	 * @param sendCode
 	 * @return
 	 */
-	public boolean checkSendIsExsite( String sendCode);
+	public boolean checkSendIsExist( String sendCode);
 	/**
 	 * 从运输系统检查批次是否已经发车
 	 * @param sendCode 批次号

@@ -558,14 +558,9 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 
-	public boolean checkSendIsExsite( String sendCode) {
-		boolean result = true;
+	public boolean checkSendIsExist( String sendCode) {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
-		// 查询不到该批次
-		if (sendM == null) {
-			result = false;
-		}
-		return result;
+		return sendM != null;
 	}
 
 	@Override
@@ -578,7 +573,7 @@ public class DepartureServiceImpl implements DepartureService {
 		if(isSealed == null){
 			result.setErrorMsg("服务异常，运输系统查询批次号状态为空！");
 			result.setResult(ServiceResultEnum.NOT_FOUND);
-			logger.info("服务异常，运输系统查询批次号状态为空, 批次号:" + sendCode);
+			logger.error("服务异常，运输系统查询批次号状态为空, 批次号:" + sendCode);
 			return result;
 		}
 
@@ -594,8 +589,8 @@ public class DepartureServiceImpl implements DepartureService {
 		}else{// 服务出错或内部异常，打出日志
 			result.setResult(ServiceResultEnum.FAILED);
 			result.setErrorMsg("服务异常，运输系统查询批次号状态失败！");
-			logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
-			logger.info("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
+			logger.error("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
+			logger.error("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
 		}
 		return result;
 	}

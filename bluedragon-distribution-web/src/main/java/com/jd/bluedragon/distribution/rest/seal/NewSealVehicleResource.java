@@ -69,7 +69,7 @@ public class NewSealVehicleResource {
         try {
             //1.检查批次号
             checkBatchCode(sealVehicleResponse, batchCode);
-            if(sealVehicleResponse.getCode().equals(JdResponse.CODE_OK)){//批次号校验通过
+            if(JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())){//批次号校验通过
                 //2.获取运力信息并检查目的站点
                 com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto  = newsealVehicleService.getTransportResourceByTransCode(transportCode);
                 if(vtsDto == null){    //JSF接口返回空
@@ -77,22 +77,22 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
                     return sealVehicleResponse;
                 }
-                if(vtsDto.getCode() == Constants.RESULT_SUCCESS){ //JSF接口调用成功
-                    if(vtsDto.getData().getEndNodeId().equals(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode))){  // 目标站点一致
+                if(Constants.RESULT_SUCCESS == vtsDto.getCode() ){ //JSF接口调用成功
+                    if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode).equals(vtsDto.getData().getEndNodeId())){  // 目标站点一致
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     }else{// 目标站点不一致
                         sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                     }
-                }else if( vtsDto.getCode() == Constants.RESULT_WARN){    //查询运力信息接口返回警告，给出前台提示
+                }else if( Constants.RESULT_WARN == vtsDto.getCode()){    //查询运力信息接口返回警告，给出前台提示
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                     sealVehicleResponse.setMessage(vtsDto.getMessage());
                 }else { //服务出错或者出异常，打日志
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                     sealVehicleResponse.setMessage("查询运力信息出错！");
-                    logger.info("查询运力信息出错,出错原因:" + vtsDto.getMessage());
-                    logger.info("查询运力信息出错,运力编码:" + transportCode);
+                    logger.error("查询运力信息出错,出错原因:" + vtsDto.getMessage());
+                    logger.error("查询运力信息出错,运力编码:" + transportCode);
                 }
             }
         } catch (Exception e) {
@@ -120,7 +120,7 @@ public class NewSealVehicleResource {
 
             CommonDto<String> returnCommonDto = newsealVehicleService.seal(paramList);
             if(returnCommonDto != null){
-                if(returnCommonDto.getCode() == Constants.RESULT_SUCCESS){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
@@ -193,7 +193,7 @@ public class NewSealVehicleResource {
             CommonDto<PageDto<SealCarDto>> returnCommonDto = newsealVehicleService.findSealInfo(sealCarDto,pageDto);
 
             if(returnCommonDto != null){
-                if(returnCommonDto.getCode() == Constants.RESULT_SUCCESS){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     List<SealCarDto> sealCarDtos =  returnCommonDto.getData().getResult();
@@ -236,7 +236,7 @@ public class NewSealVehicleResource {
 
             CommonDto<String> returnCommonDto = newsealVehicleService.unseal(paramList);
             if(returnCommonDto != null){
-                if(returnCommonDto.getCode() == Constants.RESULT_SUCCESS){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
@@ -356,7 +356,7 @@ public class NewSealVehicleResource {
         if(isSealed == null){
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
-            logger.info("服务异常，运输系统查询批次号状态结果为空, 批次号:" + batchCode);
+            logger.error("服务异常，运输系统查询批次号状态结果为空, 批次号:" + batchCode);
             return ;
         }
 
@@ -374,11 +374,11 @@ public class NewSealVehicleResource {
         }else {//服务出错或者出异常，打日志
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
-            logger.info("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
-            logger.info("服务异常，运输系统查询批次号状态失败，失败原因:" + isSealed.getMessage());
+            logger.error("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
+            logger.error("服务异常，运输系统查询批次号状态失败，失败原因:" + isSealed.getMessage());
         }
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
-        if(JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExsite(batchCode)){//批次号不存在
+        if(JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)){//批次号不存在
             sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
         }
@@ -393,6 +393,9 @@ public class NewSealVehicleResource {
         Map<String, SealCarDto> mergeMap = new HashedMap();
         for (SealCarDto dto : SealCarDtos){
             String key = dto.getTransportCode()+dto.getSealCarTime().getTime();
+            if(dto.getBatchCodes() == null){
+                dto.setBatchCodes(new ArrayList<String>());
+            }
             if(mergeMap.containsKey(key)){
                 mergeMap.get(key).getBatchCodes().addAll(dto.getBatchCodes());
             }else{

@@ -65,13 +65,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		return dto;
 	}
 
-	public boolean checkSendIsExsite( String sendCode) {
-		boolean result = true;
+	public boolean checkSendIsExist( String sendCode) {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
-		// 查询不到该批次
-		if (sendM == null) {
-			result = false;
-		}
-		return result;
+		return sendM != null;
 	}
 }

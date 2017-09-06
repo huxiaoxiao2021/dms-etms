@@ -34,6 +34,6 @@ public interface NewSealVehicleService {
      * @param sendCode
      * @return
      */
-    public boolean checkSendIsExsite( String sendCode);
+    public boolean checkSendIsExist( String sendCode);
 
 }
