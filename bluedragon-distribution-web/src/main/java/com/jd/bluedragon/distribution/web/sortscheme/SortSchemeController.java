@@ -302,6 +302,15 @@ public class SortSchemeController {
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setData(remoteResponse.getData());
+            }else {
+                if(remoteResponse == null){
+                    logger.error("请求分拣中心本地获取分拣计划时remoteResponse为null,request:" + JsonHelper.toJson(request));
+                }else {
+                    response.setCode(remoteResponse.getCode());
+                    response.setMessage(remoteResponse.getMessage());
+                    logger.error("请求分拣中心本地获取分拣计划失败request：" + JsonHelper.toJson(request) +
+                    "remoteResponse:" + JsonHelper.toJson(remoteResponse));
+                }
             }
         } catch (Exception e) {
             logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
@@ -426,6 +435,15 @@ public class SortSchemeController {
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage("分拣计划添加成功!");
+            }else {
+                if(remoteResponse == null){
+                    logger.error("请求分拣中心本地添加分拣计划失败remoteResponse为null,request:" + JsonHelper.toJson(request));
+                }else {
+                    response.setCode(remoteResponse.getCode());
+                    response.setMessage(remoteResponse.getMessage());
+                    logger.error("请求分拣中心本地添加分拣计划失败request：" + JsonHelper.toJson(request) +
+                            "remoteResponse:" + JsonHelper.toJson(remoteResponse));
+                }
             }
         } catch (Exception e) {
             logger.error("SortSchemeResource.addSortScheme-error!", e);
