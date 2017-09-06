@@ -122,6 +122,8 @@ public class SerialRuleUtil {
      */
     private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
 
+    private static final SimpleCache<Pattern> patternCache = new SimpleCache<Pattern>(); //25分钟有效期
+
     /**
      *对龙门架扫描到的运单号进行简单的正则过滤。
      * 目前过滤条件首字符严格限制（(V|W|T|F|[1-9])）。
@@ -134,8 +136,8 @@ public class SerialRuleUtil {
         if(StringUtils.isEmpty(wayBillCode)){
             return false;
         }
-        String rule = getRegexRule(RULE_WAYBILLCODE_REGEX_CHECK);
-        if(StringUtils.isNotBlank(rule) && !Pattern.compile(rule).matcher(wayBillCode.trim()).matches()){  //启用运单号正则但校验不通过
+        Pattern pattern = getRegexPattern(RULE_WAYBILLCODE_REGEX_CHECK);
+        if(pattern != null && !pattern.matcher(wayBillCode.trim()).matches()){  //启用运单号正则但校验不通过
             return false;
         }
         return true;
@@ -151,8 +153,8 @@ public class SerialRuleUtil {
         if(StringUtils.isEmpty(packageCode)){
             return false;
         }
-        String rule = getRegexRule(RULE_PACKAGECODE_REGEX_CHECK);
-        if(StringUtils.isNotBlank(rule) && !Pattern.compile(rule).matcher(packageCode.trim()).matches()){  //启用包裹号正则但校验不通过
+        Pattern pattern = getRegexPattern(RULE_PACKAGECODE_REGEX_CHECK);
+        if(pattern != null && !pattern.matcher(packageCode.trim()).matches()){  //启用包裹号正则但校验不通过
             return false;
         }
         return true;
@@ -163,16 +165,25 @@ public class SerialRuleUtil {
      * @param key
      * @return
      */
-    private static String getRegexRule(String key){
+    private static Pattern getRegexPattern(String key){
+        Pattern pattern = null;
         BaseService baseService = (BaseService) SpringHelper.getBean("baseService");
         List<SysConfig> configs = baseService.queryConfigByKeyWithCache(key);
         if(configs == null || configs.size() != 1 || StringUtils.isBlank(configs.get(0).getConfigContent())
                 || !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
-            return null;
+            return pattern;
         }
         String content = configs.get(0).getConfigContent();
         String rule = content.substring(content.indexOf(Constants.SEPARATOR_COMMA) + 1);
-        return rule;
+        if(StringUtils.isBlank(rule)){
+            return pattern;
+        }
+        pattern =  patternCache.get(rule);
+        if(pattern == null){
+            pattern =  Pattern.compile(rule);
+            patternCache.put(rule, pattern);
+        }
+        return pattern;
     }
 
     /**
