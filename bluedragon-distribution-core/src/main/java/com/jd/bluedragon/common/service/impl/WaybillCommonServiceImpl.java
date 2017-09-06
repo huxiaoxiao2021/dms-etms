@@ -265,7 +265,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setPopSupName(waybillWS.getConsigner());
         waybill.setBusiId(waybillWS.getBusiId());
         waybill.setBusiName(waybillWS.getBusiName());
-
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
         if (isSetName) {
@@ -487,6 +486,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
+        // luochengyi :2017年8月30日    waybillsign 21位是1的情况下 ，取getSpareColumn3
+        if(waybill.getWaybillSign().length()>20 && waybill.getWaybillSign().charAt(20)=='1')
+        {
+            target.setBusiOrderCode(waybill.getSpareColumn3());
+        }
+        else{
+            target.setBusiOrderCode(waybill.getBusiOrderCode());
+        }
+
+
+
         //面单打印新增寄件人、电话、手机号、地址信息
         target.setConsigner(waybill.getConsigner());
         target.setConsignerTel(waybill.getConsignerTel());

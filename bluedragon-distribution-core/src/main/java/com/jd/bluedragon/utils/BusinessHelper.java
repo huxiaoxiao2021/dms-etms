@@ -24,6 +24,7 @@ public class BusinessHelper {
 	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
 	private static final String SOURCE_CODE_ECLP = "ECLP";
 	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
+	private static final String BUSI_ORDER_CODE_QWD = "QWD";
 	/**
 	 * waybillSign打标字符字典，存放打标
 	 */
@@ -339,6 +340,21 @@ public class BusinessHelper {
 			return Boolean.TRUE;
 		}
 
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * “QWD”开头的单子 返回true
+	 * @param
+	 * @return 开头的单子 返回true
+	 */
+	public  static Boolean isQWD(String waybillCode){
+		if (StringHelper.isEmpty(waybillCode)) {
+			return Boolean.FALSE;
+		}
+		if(waybillCode.indexOf(BUSI_ORDER_CODE_QWD)==0 && waybillCode.startsWith(BusinessHelper.BUSI_ORDER_CODE_QWD)){
+			return Boolean.TRUE;
+		}
 		return Boolean.FALSE;
 	}
 	

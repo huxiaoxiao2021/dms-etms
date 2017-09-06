@@ -18,10 +18,7 @@ public class PrintWaybill extends BasePrintWaybill {
 
     private Integer cky2;
 
-    /**
-     * 商家订单号
-     */
-    private String busiOrderCode;
+
 
     /**
      * 库房号
@@ -576,13 +573,7 @@ public class PrintWaybill extends BasePrintWaybill {
         this.isSelfService = isSelfService;
     }
 
-    public String getBusiOrderCode() {
-        return busiOrderCode;
-    }
 
-    public void setBusiOrderCode(String busiOrderCode) {
-        this.busiOrderCode = busiOrderCode;
-    }
 
     public String getUserLevel() {
         return userLevel;

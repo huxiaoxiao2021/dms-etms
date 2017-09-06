@@ -68,6 +68,17 @@ public class BasePrintWaybill implements Serializable {
      * 寄件人地址
      */
     private String consignerAddress;
+
+	private String busiOrderCode;
+
+	public String getBusiOrderCode() {
+		return busiOrderCode;
+	}
+
+	public void setBusiOrderCode(String busiOrderCode) {
+		this.busiOrderCode = busiOrderCode;
+	}
+
 	/**
 	 * @return the originalDmsCode
 	 */

@@ -28,6 +28,10 @@ import com.jd.jmq.common.message.Message;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.rd.unpack.jsf.distributionReceive.in.InOrderDto;
+import com.jd.rd.unpack.jsf.distributionReceive.in.OrderDetailDto;
+import com.jd.rd.unpack.jsf.distributionReceive.result.MessageResult;
+import com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -104,6 +108,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Qualifier("bdDmsReverseSendEclp")
     @Autowired
     private DefaultJMQProducer bdDmsReverseSendEclp;
+
+    @Autowired
+    private DistributionReceiveJsfService distributionReceiveJsfService;//备件库配送入
 
     @Resource
     @Qualifier("workerProducer")
@@ -214,13 +221,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 baseOrgId = bDto.getOrgId();
                 baseStoreId = bDto.getCustomCode();
                 this.logger.info("站点类型为" + siteType);
-                this.logger.info("baseOrgId" + baseOrgId);
-                this.logger.info("baseStoreId" + baseStoreId);
+                this.logger.info("baseOrgId" + baseOrgId);//区域号
+                this.logger.info("baseStoreId" + baseStoreId);//仓储号
             }
 
-            String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
-            String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
-            String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+            String asm_type = PropertiesHelper.newInstance().getValue("asm_type");//售后
+            String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
+            String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
             if (siteType == Integer.parseInt(asm_type)) {
                 bl = this.sendReverseMessageToAms(sendM);
             } else if (siteType == Integer.parseInt(wms_type)) {
@@ -882,10 +889,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @SuppressWarnings("rawtypes")
     public boolean sendReverseMessageToSpwms(SendM sendM, Integer baseOrgId, String baseStoreId) throws Exception {
-        String spwmsToken = PropertiesHelper.newInstance().getValue("spwms_token");
-        String spwmsUrl = PropertiesHelper.newInstance().getValue("spwms.service.url");
-        this.logger.info("spwmsToken=" + spwmsToken + ",spwmsUrl=" + spwmsUrl);
-
         if (sendM == null) {
             this.logger.error("reverse_spwms:sendM数据为空");
             return true;
@@ -993,14 +996,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 dealWithWaybillCode(sendDetails);
 
                 String waybillSendCode = sendM.getSendCode() + "-" + waybillCode;
-                // 开始包装发货对象
-                InOrder order = new InOrder();
+                // 开始包装发货对象 (改用unpack包下的实体类)
+                InOrderDto order = new InOrderDto();
                 order.setSourceId(sendDetail.getCreateSiteCode());
                 order.setFromPin(sendDetail.getCreateUserCode().toString());
                 order.setFromName(sendDetail.getCreateUser());
                 order.setCreateReason(sendDetail.getSpareReason());
                 order.setOrderId(Long.parseLong(sendDetail.getWaybillCode()));
-                order.setCreateReason(sendDetail.getSpareReason());
                 order.setAimOrgId(baseOrgId);
                 // 逆向退备件库报文兼容性更改，唯一标识，用于备件库新老系统兼容并行
                 order.setWaybillSendCode(waybillSendCode);
@@ -1025,39 +1027,39 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 // 判断是否奢侈品订单
                 // 还需要再次确认运单返回的结果
-                List<OrderDetail> de = new ArrayList<OrderDetail>();
+                List<OrderDetailDto> de = new ArrayList<OrderDetailDto>();
                 for (ReverseSpare reverseSpare : sendReverseSpare) {
-                    OrderDetail orderDetail = new OrderDetail();
-                    orderDetail.setWareId(reverseSpare.getProductId());
+                    OrderDetailDto orderDetail = new OrderDetailDto();
+                    orderDetail.setWareId(Long.parseLong(reverseSpare.getProductId()));
                     orderDetail.setWareName(reverseSpare.getProductName());
                     orderDetail.setLossType(this.getLossType(waybill, sendDetail));
 
                     if (reverseSpare.getArrtCode3() == null || reverseSpare.getArrtCode3().intValue() == 0) {
-                        orderDetail.setMainWareFunctionType("1024");
+                        orderDetail.setMainWareFunctionType(1024);
                     } else {
-                        orderDetail.setMainWareFunctionType(ReverseSendServiceImpl.tempMap.get(reverseSpare
-                                .getArrtCode3().toString()));
+                        orderDetail.setMainWareFunctionType(Integer.parseInt(ReverseSendServiceImpl.tempMap.get(reverseSpare
+                                .getArrtCode3().toString())));
                     }
 
                     if (reverseSpare.getArrtCode2() == null || reverseSpare.getArrtCode2().intValue() == 0) {
-                        orderDetail.setMainWareAppearance("2");
+                        orderDetail.setMainWareAppearance(2);
                     } else {
-                        orderDetail.setMainWareAppearance(ReverseSendServiceImpl.tempMap.get(reverseSpare
-                                .getArrtCode2().toString()));
+                        orderDetail.setMainWareAppearance(Integer.parseInt(ReverseSendServiceImpl.tempMap.get(reverseSpare
+                                .getArrtCode2().toString())));
                     }
 
                     if (reverseSpare.getArrtCode1() == null || reverseSpare.getArrtCode1().intValue() == 0) {
-                        orderDetail.setMainWarePackage("1");
+                        orderDetail.setMainWarePackage(1);
                     } else {
-                        orderDetail.setMainWarePackage(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode1()
-                                .toString()));
+                        orderDetail.setMainWarePackage(Integer.parseInt(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode1()
+                                .toString())));
                     }
 
                     if (reverseSpare.getArrtCode4() == null || reverseSpare.getArrtCode4().intValue() == 0) {
-                        orderDetail.setAttachments("8");
+                        orderDetail.setAttachments(8);
                     } else {
-                        orderDetail.setAttachments(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode4()
-                                .toString()));
+                        orderDetail.setAttachments(Integer.parseInt(ReverseSendServiceImpl.tempMap.get(reverseSpare.getArrtCode4()
+                                .toString())));
                     }
 
                     WChoice wChoice = new WChoice();
@@ -1092,43 +1094,28 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 String jsonString = JsonHelper.toJson(order);
 
                 this.logger.info("处理备件库退货,生成的json串为：" + jsonString);
-                PostMethod postMethod = new PostMethod(spwmsUrl);
 
-                String contentType = "application/json";
-                String charset = "UTF-8";
-                RequestEntity requestEntity = new StringRequestEntity(jsonString, contentType, charset);
-                postMethod.setRequestEntity(requestEntity);
-                postMethod.addRequestHeader("Accept", contentType);
-                // headedr
-                // spwms.360buy.com线上需要去配置文件中获取
-                ReverseSendServiceImpl.setMethodHeaders(postMethod, spwmsToken, "");
-
-                HttpClient httpClient = new HttpClient();
-                httpClient.executeMethod(postMethod);
-                try {
-                    // 业务流程监控, 备件库埋点
-                    Map<String, String> data = new HashMap<String, String>();
-                    data.put("orderId", order.getOrderId().toString());
-                    Profiler.bizNode("Reverse_ws_dms2spare", data);
-                } catch (Exception e) {
-                    this.logger.error("推送UMP发生异常.", e);
-                }
-                if (postMethod.getStatusCode() != 200) {
-                    this.logger.error("postMethod.getStatusCode() != 200 [" + postMethod.getStatusCode() + "]");
+                //调用备货仓 jsf 接口 distributionReceiveJsfService
+                MessageResult msgResult = distributionReceiveJsfService.createIn(order);
+                if(null == msgResult ){
+                    this.logger.error("distributionReceiveJsfService接口返回 msgResult 为空");
                     continue;
                 }
-                String bodyContent = postMethod.getResponseBodyAsString();
-                String transferId = JsonHelper.fromJson(bodyContent, MessageResult.class).getTransferId();
-                this.logger.info(waybillCode + "返回json结果:" + bodyContent);
-                if (null == transferId) {
-                    this.logger.error(waybillCode + "spwms发货备件库失败，返回json结果:" + bodyContent);
+                //getReturnFlag ：100 - 成功 ，200 - 异常
+                if (null != msgResult.getReturnFlag() && msgResult.getReturnFlag() != 100) {
+                    this.logger.error("msgResult.getReturnFlag() != 100 [" + msgResult.getReturnFlag() + "]");
+                    continue;
+                }
+                String transferId = StringHelper.getStringValue(msgResult.getTransferId());
+                this.logger.info(waybillCode + "返回 transferId 结果:" + transferId);
+                if (StringHelper.isEmpty(transferId)) {
+                    this.logger.error(waybillCode + "spwms发货备件库失败，返回 ErrorMessage 结果:" + msgResult.getErrorMessage());
                 } else {
                     //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
                     sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
                 }
 
-                postMethod.releaseConnection();
-                if (null != transferId) {
+                if (StringHelper.isNotEmpty(transferId)) {
                     List<ReverseSpare> reverseSpares = new ArrayList<ReverseSpare>();
                     for (ReverseSpare aReverseSpare : sendReverseSpare) {
                         if (null == aReverseSpare.getSpareTranCode()) {
@@ -1254,6 +1241,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 break;
             case 661:
                 orgType = "PI";
+                break;
+            case 740://南京拍拍公司
+                orgType = "PN";
                 break;
             default:
                 this.logger.error("获取机构id失败");
