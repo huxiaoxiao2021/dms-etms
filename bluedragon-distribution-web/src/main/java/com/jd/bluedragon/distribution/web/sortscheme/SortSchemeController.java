@@ -304,12 +304,14 @@ public class SortSchemeController {
                 response.setData(remoteResponse.getData());
             }else {
                 if(remoteResponse == null){
-                    logger.error("请求分拣中心本地获取分拣计划时remoteResponse为null,request:" + JsonHelper.toJson(request));
+                    logger.error("请求分拣中心本地获取分拣计划时remoteResponse为null,request:" + JsonHelper.toJson(request)
+                    + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
                 }else {
                     response.setCode(remoteResponse.getCode());
                     response.setMessage(remoteResponse.getMessage());
                     logger.error("请求分拣中心本地获取分拣计划失败request：" + JsonHelper.toJson(request) +
-                    "remoteResponse:" + JsonHelper.toJson(remoteResponse));
+                    "remoteResponse:" + JsonHelper.toJson(remoteResponse)
+                            + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
                 }
             }
         } catch (Exception e) {
