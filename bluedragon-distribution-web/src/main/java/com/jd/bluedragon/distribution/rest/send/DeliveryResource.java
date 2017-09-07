@@ -133,10 +133,6 @@ public class DeliveryResource {
                 }else{
                     result.error(data.getErrorMsg());
                 }
-                if(ServiceResultEnum.SUCCESS.equals(data.getResult()) && !departureService.checkSendIsExist(sendCode)){
-                    result.setCode(InvokeResult.RESULT_SELECT_ERROR_CODE);
-                    result.setMessage("该批次号不存在，是否继续？");
-                }
             } catch (Exception ex) {
                 result.error(ex);
                 logger.error(ex);
