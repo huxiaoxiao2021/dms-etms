@@ -93,6 +93,11 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
         return list;
     }
 
+    @Override
+    public Integer querySendDCountBySendCode(String sendCode) {
+        return sendDatailDao.querySendDCountBySendCode(sendCode);
+    }
+
     /**
      * gantry velocity
      * added by zhanglei

@@ -596,33 +596,39 @@ public class SortMachineAutoSendController {
         result.setCode(500);
         result.setMessage("服务器处理异常");
         if (sendCode != null) {
-            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
-            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
-            Integer packageSum = 0;//批次总包裹数量
             Double volumeSum = 0.00;//取分拣体积
-            if (sendDetailList != null && sendDetailList.size() > 0) {
-                HashSet<String> sendDByBoxCode = new HashSet<String>();
-                for (SendDetail sendD : sendDetailList) {
-                    //根据sendD的boxCode去重
-                    try {
-                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
-                            continue;
-                        }
-                        sendDByBoxCode.add(sendD.getBoxCode());
-                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
-                        if (waybillPackageDTO == null) {
-                            continue;
-                        }
-                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
-                    } catch (Exception e) {
-                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
-                    }
-                }
-                packageSum = sendDetailList.size();//获取包裹的数量
-            }
+            //批次总包裹数量
+            Integer packageSum = gantryDeviceService.querySendDCountBySendCode(sendCode);
+            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
+            // author by lixin456 注释掉取体积逻辑，因为每个包裹都需要调用一次运单接口，如果分拣机绑定站点较多，就会大量调用运单接口，页面响应速度特别慢，现将取体积逻辑注释
+//            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
+//            if (sendDetailList != null && sendDetailList.size() > 0) {
+//                HashSet<String> sendDByBoxCode = new HashSet<String>();
+//                for (SendDetail sendD : sendDetailList) {
+//                    //根据sendD的boxCode去重
+//                    try {
+//                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
+//                            continue;
+//                        }
+//                        sendDByBoxCode.add(sendD.getBoxCode());
+//                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
+//                        if (waybillPackageDTO == null) {
+//                            continue;
+//                        }
+//                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
+//                    } catch (Exception e) {
+//                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+//                    }
+//                }
+//                packageSum = sendDetailList.size();//获取包裹的数量
+//            }
             BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
             sendBoxSum.setSendCode(sendCode);
-            sendBoxSum.setPackageSum(packageSum);
+            if (packageSum != null ){
+                sendBoxSum.setPackageSum(packageSum.intValue());
+            } else {
+                sendBoxSum.setPackageSum(0);
+            }
             sendBoxSum.setVolumeSum(bg.doubleValue());
             result.setCode(200);
             result.setData(sendBoxSum);
