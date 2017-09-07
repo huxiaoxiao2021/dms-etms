@@ -241,4 +241,5 @@
     <jsf:consumer id="distributionReceiveJsfService" interface="com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService"
                   protocol="jsf" alias="${unpack.jsf.alias}" serialization="hessian" timeout="10000" retries="3">
     </jsf:consumer>
+
 </beans>
