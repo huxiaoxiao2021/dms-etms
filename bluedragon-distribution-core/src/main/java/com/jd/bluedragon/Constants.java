@@ -42,9 +42,11 @@ public class Constants {
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
     
-    public static final int RESULT_SUCCESS = 1;
-    public static final int RESULT_FAIL = 0;
-    
+    public static final int RESULT_SUCCESS = 1; //成功
+    public static final int RESULT_FAIL = 0;    //接口异常或者失败
+    public static final int RESULT_ERROR = -1;  //接口内部错误
+    public static final int RESULT_WARN = 2;    //接口内部警告
+
     public static final Integer YN_YES = 1; // 使用
     public static final Integer YN_NO = 0; // 已删除
     

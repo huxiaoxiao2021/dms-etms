@@ -27,6 +27,8 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_MULTI_ERROR=600;
     public static final String MULTI_ERROR = "数据已存在";
 
+    public static final int RESULT_SELECT_ERROR_CODE=30001; //前台据此判断是否提供“是否”选择
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

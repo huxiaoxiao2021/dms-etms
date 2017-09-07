@@ -117,18 +117,30 @@ public class DeliveryResource {
     @Path("/delivery/checksendcodestatus/{sendCode}")
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
-        try {
-            ServiceMessage<String> data = departureService.checkSendStatus(SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode), sendCode);
-            if (data.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-                result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次已经发车，不能继续发货"));
-            } else {
-                BaseStaffSiteOrgDto site = siteService.getSite(SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode));
-                String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
-                result.setData(new AbstractMap.SimpleEntry<Integer, String>(1, siteName));
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("请输入正确的批次号！");
+        }else{
+            try {
+                ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
+                if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车
+                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次号已操作封车，无法重复操作！"));
+                } else if(ServiceResultEnum.SUCCESS.equals(data.getResult())){//未被封车
+                    BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+                    String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
+                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(1, siteName));
+                }else{
+                    result.error(data.getErrorMsg());
+                }
+                if(ServiceResultEnum.SUCCESS.equals(data.getResult()) && !departureService.checkSendIsExist(sendCode)){
+                    result.setCode(InvokeResult.RESULT_SELECT_ERROR_CODE);
+                    result.setMessage("该批次号不存在，是否继续？");
+                }
+            } catch (Exception ex) {
+                result.error(ex);
+                logger.error(ex);
             }
-        } catch (Exception ex) {
-            result.error(ex);
-            logger.error(ex);
         }
         return result;
     }
