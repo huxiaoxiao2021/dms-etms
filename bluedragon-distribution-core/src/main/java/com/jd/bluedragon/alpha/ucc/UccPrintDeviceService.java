@@ -20,39 +20,39 @@ public interface UccPrintDeviceService {
      * 添加ISV信息
      * @param PrintDevice 对象
      */
-    public void addPrintDevice(PrintDevice PrintDevice);
+    public void addPrintDevice(PrintDevice PrintDevice) throws Exception;
 
     /**
      * 根据ISVID查询该ISVID是否已经存在
      * @param printDeviceId
      * @return 不存在返回false 存在发挥true
      */
-    public boolean isPrintDeviceExist(String printDeviceId);
+    public boolean isPrintDeviceExist(String printDeviceId) throws Exception;
 
     /**
      * 批量删除ISV信息，根据UCCkey的值删除，UCCKey == ISVID
      */
-    public void deleteAllPrintDevice(List<String> KeyList);
+    public void deleteAllPrintDevice(List<String> KeyList) throws Exception;
 
     /**
      * 修改ISV信息
      * @param PrintDevice 对象
      */
-    public void modifyPrintDevice(PrintDevice PrintDevice);
+    public void modifyPrintDevice(PrintDevice PrintDevice) throws Exception;
 
     /**
      * 根据ISVID查询对应的版本编号
      * @param printDeviceId
      * @return
      */
-    public String searchVersionIdByPrintDeviceId(String printDeviceId);
+    public String searchVersionIdByPrintDeviceId(String printDeviceId) throws Exception;
 
     /**
      * 根据ISVID查询该ISV的状态
      * @param printDeviceId ISVID
      * @return 状态为1返回true 状态为0返回false
      */
-    public boolean printDeviceState(String printDeviceId);
+    public boolean printDeviceState(String printDeviceId) throws Exception;
 
     /**
      * 更改ISV的状态

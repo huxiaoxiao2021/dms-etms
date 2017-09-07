@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,14 +44,7 @@ public class PrintDeviceController {
      */
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String printDeviceBaseInfo(Model model){
-        List<PrintDevice> printDeviceList = null;
-        try{
-            printDeviceList = printDeviceService.allPrintDeviceInfo();
-
-        }catch (Exception e){
-            logger.error("获取所有ISV信息失败：",e);
-            e.printStackTrace();
-        }
+        List<PrintDevice> printDeviceList = printDeviceService.allPrintDeviceInfo();
         model.addAttribute("printDeviceList",printDeviceList);
         return "printDevice/printDeviceIndex";
     }
@@ -85,8 +77,10 @@ public class PrintDeviceController {
     public String printDeviceAddPager(Model model){
         List<Version> versionList = versionInfoInUccService.versionList();
         List<String> versionIdList = new ArrayList<String>();
-        for ( Version version:versionList) {
-            versionIdList.add(version.getVersionId());
+        if (versionList!=null){
+            for ( Version version:versionList) {
+                versionIdList.add(version.getVersionId());
+            }
         }
         model.addAttribute("versionIdList",versionIdList);
         return "printDevice/printDeviceAdd";
@@ -122,9 +116,14 @@ public class PrintDeviceController {
      */
     @RequestMapping(value = "/toModifyPager",method = RequestMethod.GET)
     public ModelAndView toModifyPager(PrintDeviceRequest request){
-
-
-        List<PrintDevice> list = printDeviceService.searchPrintDevice(request.getVersionId(),request.getPrintDeviceId());
+        List<PrintDevice> list = new ArrayList<PrintDevice>();
+        ModelAndView mav = new ModelAndView("printDevice/printDeviceModify");
+        try{
+            list = printDeviceService.searchPrintDevice(request.getVersionId(),request.getPrintDeviceId());
+        } catch (Exception e){
+            logger.error("查询ISV的版本信息失败");
+            return mav;
+        }
         List<Version> versionList = new ArrayList<Version>();
         versionList = versionInfoInUccService.versionList();//获取下拉框的下拉列表
         PrintDevice printDevice = list.get(0);
@@ -135,7 +134,6 @@ public class PrintDeviceController {
         printDeviceParamsMap.put("state",printDevice.isState());
         printDeviceParamsMap.put("createTime",printDevice.getCreateTime());
 
-        ModelAndView mav = new ModelAndView("printDevice/printDeviceModify");
         mav.addObject("printDeviceParamsMap",printDeviceParamsMap);
         mav.addObject("versionList",versionList);
 
@@ -171,7 +169,9 @@ public class PrintDeviceController {
         InvokeResult result = new InvokeResult();
         try{
             if(request.getList().contains("00000")){
-                throw new IOException("不可删除ID为00000的ISV设备信息");
+                result.setCode(20000);
+                result.setMessage("不可删除ID为00000的ISV设备信息");
+                return result;
             }
             printDeviceService.deletePrintDeviceById(request.getList());
             result.setCode(200);
