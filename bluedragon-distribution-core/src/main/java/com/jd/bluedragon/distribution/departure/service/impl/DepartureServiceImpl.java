@@ -557,12 +557,6 @@ public class DepartureServiceImpl implements DepartureService {
 		return result;
 	}
 
-
-	public boolean checkSendIsExist( String sendCode) {
-		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
-		return sendM != null;
-	}
-
 	@Override
 	@JProfiler(jKey = "com.jd.bluedragon.distribution.departure.service.impl.DepartureServiceImpl.checkSendStatusFromVOS", mState = {JProEnum.TP})
 	public ServiceMessage<Boolean> checkSendStatusFromVOS(String sendCode) {
