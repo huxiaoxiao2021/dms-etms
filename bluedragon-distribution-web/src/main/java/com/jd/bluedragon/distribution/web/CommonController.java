@@ -88,13 +88,8 @@ public class CommonController {
     @SuppressWarnings("unchecked")
     @ResponseBody
     @RequestMapping("/getSiteByName")
-    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.CommonController.getSiteByName", mState = {JProEnum.TP,JProEnum.Heartbeat,JProEnum.FunctionError})
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.CommonController.getSiteByName", mState = {JProEnum.TP})
     public Object getSiteByName(String name) {
-        //增加监控和systemlog，以便确定该接口是否还被使用
-        String keyword = "com.jd.bluedragon.distribution.web.CommonController.getSiteByName";
-        String content = "记录监控方法被使用：REST接口/common/getSiteByName被使用";
-        SystemLogUtil.log(keyword, name, DateFormatUtils.format(new Date()), Long.valueOf(0), content, Long.valueOf(0));
-
         List<BaseStaffSiteOrgDto> list = null;
         String temp = redisManager.get(CommonController.ALL_SITES_KEY);
         if (JsonHelper.isJsonString(temp)) {
