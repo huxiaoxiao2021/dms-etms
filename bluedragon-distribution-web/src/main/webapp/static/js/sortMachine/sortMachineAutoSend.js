@@ -168,6 +168,10 @@ $(document).ready(function(){
             param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
             param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
             param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
+            //检查参数
+            if(!checkGenerateSendCodeParam(param)){
+                return false;
+            }
             list.push(param);
         });
 
@@ -194,6 +198,10 @@ $(document).ready(function(){
             param.receiveSiteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
             param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
             param.createTime = new Date($(this).parents("tr").find("[name=createTime]").text());
+            //检查参数
+            if(!checkGenerateSendCodeParam(param)){
+                return false;
+            }
             list.push(param);
         });
         if(list.length == 0){
@@ -207,6 +215,27 @@ $(document).ready(function(){
         toReplenishPrintPage();
     });
 });
+
+function checkGenerateSendCodeParam(param) {
+    var messageTemplet = "为空的记录，此记录无法更换批次，请不勾选此记录，然后重试！";
+    if(!param.machineId){
+        jQuery.messager.alert("提示","存在物理滑槽" + messageTemplet,"info");
+        return false;
+    }
+    if(!param.receiveSiteCode){
+        jQuery.messager.alert("提示","存在发货目的地代码" + messageTemplet,"info");
+        return false;
+    }
+    if(!param.sendCode){
+        jQuery.messager.alert("提示","存在批次号" + messageTemplet,"info");
+        return false;
+    }
+    if(!param.createTime){
+        jQuery.messager.alert("提示","存在批次开始时间" + messageTemplet,"info");
+        return false;
+    }
+    return true;
+}
 
 function deleteSendGroup(groupId) {
     var param= {};
@@ -598,7 +627,7 @@ function generateSendCode(list) {
             jQuery.messager.alert("提示：","更换批次成功！","info");
             query();
         }else{
-            jQuery.messager.alert("错误：","本次换批次失败！！","error");
+            jQuery.messager.alert("错误：",data.message,"error");
             return;
         }
     })
