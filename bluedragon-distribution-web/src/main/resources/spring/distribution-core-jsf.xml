@@ -237,4 +237,9 @@
 
     <!--封车解封车jsf接口  added by zhanglei 20170519 -->
 
+    <!-- 备件库配送入 新增jsf接口 author：zhongyicun 2017-08-29 -->
+    <jsf:consumer id="distributionReceiveJsfService" interface="com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService"
+                  protocol="jsf" alias="${unpack.jsf.alias}" serialization="hessian" timeout="10000" retries="3">
+    </jsf:consumer>
+
 </beans>

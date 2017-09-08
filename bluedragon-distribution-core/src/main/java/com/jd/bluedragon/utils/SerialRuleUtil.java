@@ -1,13 +1,16 @@
 package com.jd.bluedragon.utils;
 
-import com.jd.registry.util.DateTime;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.*;
 
 /**
  * 序列号规则判断
@@ -17,6 +20,9 @@ import java.util.*;
 public class SerialRuleUtil {
 
     public static final String SPLIT_CHAR_STRING = "-";
+
+    private static final String RULE_PACKAGECODE_REGEX_CHECK = "RULE_PACKAGECODE_REGEX_CHECK"; //包裹号正则
+    private static final String RULE_WAYBILLCODE_REGEX_CHECK = "RULE_WAYBILLCODE_REGEX_CHECK"; //运单号正则
 
     /**
      * 结果
@@ -115,6 +121,70 @@ public class SerialRuleUtil {
      * 提取发货批次号中站点正则
      */
     private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
+
+    private static final SimpleCache<Pattern> patternCache = new SimpleCache<Pattern>(); //25分钟有效期
+
+    /**
+     *对龙门架扫描到的运单号进行简单的正则过滤。
+     * 目前过滤条件首字符严格限制（(V|W|T|F|[1-9])）。
+     * 根据不同类型限制长度的最小值，最大长度按数据库最大长度30进行过滤。
+     * Add by shipeilin on 2017/08/07
+     * @param wayBillCode
+     * @return boolean
+     */
+    public static final boolean isMatchCommonWaybillCode(String wayBillCode){
+        if(StringUtils.isEmpty(wayBillCode)){
+            return false;
+        }
+        Pattern pattern = getRegexPattern(RULE_WAYBILLCODE_REGEX_CHECK);
+        if(pattern != null && !pattern.matcher(wayBillCode.trim()).matches()){  //启用运单号正则但校验不通过
+            return false;
+        }
+        return true;
+    }
+    /**
+     *对龙门架扫描到的包裹号进行简单的正则过滤。
+     * 主要校验是否包含3个"-"或者"NSH"
+     * Add by shipeilin on 2017年8月16日
+     * @param packageCode
+     * @return boolean
+     */
+    public static final boolean isMatchCommonPackageCode(String packageCode){
+        if(StringUtils.isEmpty(packageCode)){
+            return false;
+        }
+        Pattern pattern = getRegexPattern(RULE_PACKAGECODE_REGEX_CHECK);
+        if(pattern != null && !pattern.matcher(packageCode.trim()).matches()){  //启用包裹号正则但校验不通过
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 获取正则规则
+     * @param key
+     * @return
+     */
+    private static Pattern getRegexPattern(String key){
+        Pattern pattern = null;
+        BaseService baseService = (BaseService) SpringHelper.getBean("baseService");
+        List<SysConfig> configs = baseService.queryConfigByKeyWithCache(key);
+        if(configs == null || configs.size() != 1 || StringUtils.isBlank(configs.get(0).getConfigContent())
+                || !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
+            return pattern;
+        }
+        String content = configs.get(0).getConfigContent();
+        String rule = content.substring(content.indexOf(Constants.SEPARATOR_COMMA) + 1);
+        if(StringUtils.isBlank(rule)){
+            return pattern;
+        }
+        pattern =  patternCache.get(rule);
+        if(pattern == null){
+            pattern =  Pattern.compile(rule);
+            patternCache.put(rule, pattern);
+        }
+        return pattern;
+    }
 
     /**
      * 获取收货站点

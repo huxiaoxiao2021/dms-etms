@@ -9,8 +9,8 @@ import com.jcloud.jss.domain.ObjectSummary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,12 +60,17 @@ public class JssVersionServiceImpl implements JssVersionService {
      */
     public void addVersion(String keyName, long length, InputStream inputStream){
         JingdongStorageService jss = getJss();
-        try{
+        try {
             jss.bucket(bucket).object(keyName).entity(length,inputStream).put();
             inputStream.close();
-        }catch(Throwable e){
-            logger.error("UCC连接失败：",e);
-            e.printStackTrace();
+        } catch(IOException e){
+            logger.error("关闭输入流失败：",e);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException ioe){
+                logger.error("关闭输入流再失败：",ioe);
+            }
         }
     }
 
@@ -73,13 +78,11 @@ public class JssVersionServiceImpl implements JssVersionService {
      * 批量删除版本信息
      * @param
      */
-    public void deleteVersion(List<String> versionIdList)throws Exception{
+    public void deleteVersion(List<String> versionIdList){
         JingdongStorageService jss = getJss();
         for (String versionId : versionIdList) {
             String key = versionId + ".rar";
-
             jss.bucket(bucket).object(key).delete();
-
         }
 
     }
@@ -88,7 +91,7 @@ public class JssVersionServiceImpl implements JssVersionService {
      * 获取对应版本的下载地址
      * 抛出异常
      */
-    public URI downloadVersion(String versionId)throws MalformedURLException {
+    public URI downloadVersion(String versionId){
         JingdongStorageService jss = getJss();
 
         String key = versionId + ".rar";/** JSS的key值是版本号加上.rar的文件后缀 **/

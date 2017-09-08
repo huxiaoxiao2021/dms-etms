@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -33,14 +34,13 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
     @Override
     public Integer uploadNewVersion(String versionId, long length , InputStream inputStream) {
         String keyName = versionId + ".rar";
+        jssVersionService.addVersion(keyName,length,inputStream);
         try{
-            jssVersionService.addVersion(keyName,length,inputStream);
             inputStream.close();
-            return 1;//上传成功
-        }catch(Exception e){
-            logger.error("上传版本失败：",e);
-            return -1;//上传失败
+        }catch (IOException e){
+            logger.error("输入流关闭失败",e);
         }
+        return 1;//上传成功
     }
 
     @Override
@@ -60,16 +60,11 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
     }
 
     @Override
-    public Integer deleteVersionByVersionId(List<String> versionIdList) {
+    public Integer deleteVersionByVersionId(List<String> versionIdList){
         Integer result = null;
 
-            try{
-                jssVersionService.deleteVersion(versionIdList);
-                result = 1;
-            }catch(Exception e){
-                logger.error("版本删除失败：",e);
-                result = -1;
-            }
+        jssVersionService.deleteVersion(versionIdList);
+        result = 1;
 
         return result;
     }

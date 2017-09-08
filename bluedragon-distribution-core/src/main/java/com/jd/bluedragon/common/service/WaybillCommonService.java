@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 
 
@@ -92,4 +93,15 @@ public interface WaybillCommonService {
 	 * @return 以包裹号为key的map
 	 */
 	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType);
+    /**
+     * 通过运单对象，设置基础打印信息
+     * <p>设置商家id和name(busiId、busiName)
+     * <p>以始发分拣中心获取始发城市code和名称(originalCityCode、originalCityName)
+     * <p>设置寄件人、电话、手机号、地址信息(consigner、consignerTel、consignerMobile、consignerAddress)
+     * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
+     * <p>设置打标信息：签单返还、配送类型、运输产品(signBackText、distributTypeText、transportMode)
+     * @param target 目标对象(BasePrintWaybill类型)
+     * @param waybill 原始运单对象
+     */
+	BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill);
 }
