@@ -277,4 +277,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".querySendCodesByDepartID", departureID);
     }
+
+    public Integer querySendDCountBySendCode(String sendCode) {
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if (null == createSiteCode) { //为null说明不是合法的批次号,直接返回空List
+            return 0;
+        }
+        SendDetail query = new SendDetail();
+        query.setSendCode(sendCode);
+        query.setCreateSiteCode(createSiteCode);
+        return this.getSqlSession().selectOne(SendDatailDao.namespace + ".querySendDCountBySendCode", sendCode);
+    }
+
 }
