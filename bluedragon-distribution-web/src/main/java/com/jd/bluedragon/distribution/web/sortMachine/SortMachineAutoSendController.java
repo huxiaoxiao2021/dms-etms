@@ -530,32 +530,34 @@ public class SortMachineAutoSendController {
             userCode = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
             userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
         }
-        try {
+            boolean allSuccess = true;
+            String errorMsg = "";
             for (ScannerFrameBatchSend item : lists) {
-                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
-                scannerFrameBatchSend.setPrintTimes((byte) 0);
-                scannerFrameBatchSend.setLastPrintTime(null);
-                scannerFrameBatchSend.setCreateUserCode(userCode);
-                scannerFrameBatchSend.setCreateUserName(userName);
-                scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
-                scannerFrameBatchSend.setUpdateUserName(userName);
-                scannerFrameBatchSend.setCreateTime(new Date());
-                scannerFrameBatchSend.setUpdateTime(new Date());
-                scannerFrameBatchSend.setYn((byte) 1);
-                scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(), scannerFrameBatchSend.getReceiveSiteCode(), scannerFrameBatchSend.getCreateTime()));
-                boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
-                if (!bool) {
-                    result.setCode(500);
-                    result.setMessage("部分批次转换失败，失败原始批次为：" + item.getSendCode());
-                    return result;
-                } else {
-                    result.setCode(200);
-                    result.setMessage("换批次成功");
+                try {
+                    ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
+                    scannerFrameBatchSend.setPrintTimes((byte) 0);
+                    scannerFrameBatchSend.setLastPrintTime(null);
+                    scannerFrameBatchSend.setCreateUserCode(userCode);
+                    scannerFrameBatchSend.setCreateUserName(userName);
+                    scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
+                    scannerFrameBatchSend.setUpdateUserName(userName);
+                    scannerFrameBatchSend.setCreateTime(new Date());
+                    scannerFrameBatchSend.setUpdateTime(new Date());
+                    scannerFrameBatchSend.setYn((byte) 1);
+                    scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(), scannerFrameBatchSend.getReceiveSiteCode(), scannerFrameBatchSend.getCreateTime()));
+                    scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
+                } catch (Exception e) {
+                    allSuccess = false;
+                    errorMsg += ("【物理滑槽:" + item.getMachineId() + "发货目的代码:" + item.getReceiveSiteCode()
+                            + "批次开始时间：" + item.getCreateTime() + "换批失败】");
+                    logger.error("物理滑槽:" + item.getMachineId() + "发货目的代码:" + item.getReceiveSiteCode()
+                            + "批次开始时间：" + item.getCreateTime() + "换批异常",e);
                 }
             }
-        } catch (Exception e) {
-            logger.error("生产新的批次号失败", e);
-        }
+            if(!allSuccess){
+                result.setCode(500);
+                result.setMessage("换批次完成，以下数据失败:" + errorMsg);
+            }
         return result;
     }
 
