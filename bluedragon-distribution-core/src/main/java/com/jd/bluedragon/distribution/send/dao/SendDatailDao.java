@@ -286,7 +286,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         SendDetail query = new SendDetail();
         query.setSendCode(sendCode);
         query.setCreateSiteCode(createSiteCode);
-        return this.getSqlSession().selectOne(SendDatailDao.namespace + ".querySendDCountBySendCode", sendCode);
+        return this.getSqlSession().selectOne(SendDatailDao.namespace + ".querySendDCountBySendCode", query);
     }
 
 }
