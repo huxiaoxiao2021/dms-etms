@@ -78,7 +78,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
         String result = "";
         if(StringUtils.isNotBlank(waybillCode)){
             try{
-                Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode,true,true,false,false);
+                Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode,true,false,false,false);
                 if(waybillDto != null && StringUtils.isNotBlank(waybillDto.getRoad())){
                     result = waybillDto.getRoad();
                 }

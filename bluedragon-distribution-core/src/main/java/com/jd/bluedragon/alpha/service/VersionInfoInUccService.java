@@ -36,19 +36,19 @@ public interface VersionInfoInUccService {
      * 上传版本文件的的同时，执行ucc信息备份
      * @param version 版本信息
      */
-    public Integer uploadVersion(Version version);
+    public Integer uploadVersion(Version version)throws Exception;
 
     /**
      * 根据版本编号批量删除
      * @param versionIdList 版本编号
      */
-    public Integer deleteVersion(List<String> versionIdList);
+    public Integer deleteVersion(List<String> versionIdList)throws Exception;
 
     /**
      * 更新版本信息
      * @params
      */
-    public Integer modifyVersion(Version version);
+    public Integer modifyVersion(Version version)throws Exception;
 
     /**
      * 获取版本的状态
@@ -63,7 +63,7 @@ public interface VersionInfoInUccService {
      * @param state 要更改的状态
      * @return
      */
-    public Integer changeVersionState(String verisonId,boolean state);
+    public Integer changeVersionState(String verisonId,boolean state)throws Exception;
 
 
 }

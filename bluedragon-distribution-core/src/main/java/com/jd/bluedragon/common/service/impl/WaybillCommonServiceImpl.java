@@ -243,7 +243,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param
      * @return
      */
-    public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack) {
+    private Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack) {
         if (bigWaybillDto == null) {
             this.logger.debug("转换运单基本信息 --> 原始运单数据集bigWaybillDto为空");
             return null;
@@ -254,17 +254,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             this.logger.debug("转换运单基本信息 --> 原始运单数据集waybillWS为空");
             return null;
         }
-        WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
-        if (manageDomain == null) {
-            this.logger.debug("转换运单基本信息 --> 原始运单数据集manageDomain为空");
-            return null;
-        }
+//        WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
+//        if (manageDomain == null) {
+//            this.logger.debug("转换运单基本信息 --> 原始运单数据集manageDomain为空");
+//            return null;
+//        }
         Waybill waybill = new Waybill();
         waybill.setWaybillCode(waybillWS.getWaybillCode());
         waybill.setPopSupId(waybillWS.getConsignerId());
         waybill.setPopSupName(waybillWS.getConsigner());
         waybill.setBusiId(waybillWS.getBusiId());
         waybill.setBusiName(waybillWS.getBusiName());
+        waybill.setRoad(waybillWS.getRoadCode());
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
         if (isSetName) {

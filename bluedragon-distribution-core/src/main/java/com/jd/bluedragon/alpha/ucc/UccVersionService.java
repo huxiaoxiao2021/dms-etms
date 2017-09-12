@@ -15,7 +15,7 @@ public interface UccVersionService {
      * 获取所有的version信息
      * @return
      */
-    public List<Version> versionList();
+    public List<Version> versionList() throws Exception;
 
     /**
      * 根据版本编号、版本状态查询版本信息
@@ -36,24 +36,24 @@ public interface UccVersionService {
      * 上传版本文件的的同时，需要处理ucc信息备份
      * @param version 版本编号信息
      */
-    public void uploadVersion(Version version);
+    public void uploadVersion(Version version) throws Exception;
     /**
      * 根据版本编号批量删除
      * @param versionIdList 版本编号
      */
-    public void deleteVersion(List<String> versionIdList);
+    public void deleteVersion(List<String> versionIdList)  throws Exception;
 
     /**
      * 修改UCC上的版本信息
      * @param version
      */
-    public void modifyVersion(Version version);
+    public void modifyVersion(Version version) throws Exception;
     /**
      * 获取版本信息的状态
      * @param versionId 版本号
      * @return 状态为0返回false 状态为1返回true
      */
-    public boolean versionState(String versionId);
+    public boolean versionState(String versionId) throws Exception;
 
     /**
      * 更改版本状态

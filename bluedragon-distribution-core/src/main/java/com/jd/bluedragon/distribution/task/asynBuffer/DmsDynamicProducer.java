@@ -46,9 +46,9 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	public Set<String> getNotEnabledKeyWord(){
 		String [] notEnabledKeyWords = configManager.getProperty(NOT_ENBALED_KEY_WORD1).trim().split(";");
 		Set<String> type_keyword = new HashSet<String>();
-			for(String s : notEnabledKeyWords){
-				type_keyword.add(s);
-			}
+		for(String s : notEnabledKeyWords){
+			type_keyword.add(s);
+		}
 		return type_keyword;
 	}
 

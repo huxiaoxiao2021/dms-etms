@@ -279,12 +279,8 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	/**
-	 * author by lixin456
-	 * 强制指定事务隔离级别为RC，解决数据插入时死锁报错问题
-	 */
     @JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean doSorting(Task task) {
         List<Sorting> sortings = this.prepareSorting(task);
         if (null == sortings || sortings.isEmpty()) {
@@ -746,15 +742,15 @@ public class SortingServiceImpl implements SortingService {
         /*updated by wangtingwei@jd.com  正向逆向三方发货全部补全数据，下线com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask该WORKER*/
         if(null != sendM){
             sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
-            this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-            sendDetail.setYn(1);
+			this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
+			sendDetail.setYn(1);
             /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-            sendDetail.setOperateTime(sendM.getOperateTime());
-            sendDetail.setCreateUser(sendM.getCreateUser());
-            sendDetail.setCreateUserCode(sendM.getCreateUserCode());
-            List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-            sendDetails.add(sendDetail);
-            deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
+			sendDetail.setOperateTime(sendM.getOperateTime());
+			sendDetail.setCreateUser(sendM.getCreateUser());
+			sendDetail.setCreateUserCode(sendM.getCreateUserCode());
+			List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+			sendDetails.add(sendDetail);
+			deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
         }else{
             this.deliveryService.saveOrUpdate(sendDetail);
         }

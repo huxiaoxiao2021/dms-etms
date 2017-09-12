@@ -3,6 +3,8 @@ package com.jd.bluedragon.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -18,7 +20,7 @@ import java.util.Map;
  * Created by yangbo7 on 2016/7/5.
  */
 public class RestHelper {
-
+    private final static Log logger = LogFactory.getLog(RestHelper.class);
     private RestHelper() {
     }
 
@@ -53,6 +55,7 @@ public class RestHelper {
             if (result.getStatusCode() == HttpStatus.OK) {
                 return JSON.parseObject(JSON.toJSONString(result.getBody()), typeReference);
             }
+            logger.error("rest jsonPostForEntity  fail url:" + url + "result:" + JsonHelper.toJson(result));
         } catch (Exception e) {
             e.printStackTrace();
         }
