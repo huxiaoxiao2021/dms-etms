@@ -387,7 +387,7 @@ public class NewSealVehicleResource {
         }
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
         if(JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)){//批次号不存在
-            sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
+            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
         }
     }
