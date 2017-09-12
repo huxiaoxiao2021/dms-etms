@@ -131,15 +131,7 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
-            if (request.getData() != null && request.getData().size() > 0){
-                Goddess goddess = new Goddess();
-                goddess.setKey(request.getData().get(0).getTransportCode());
-                goddess.setHead(request.getData().get(0).getSealSiteId() + "-" + request.getData().get(0).getDesealSiteId());
-                goddess.setBody(JsonHelper.toJson(request.getData()));
-                goddess.setDateTime(new Date());
-                goddessService.save(goddess);
-            }
-
+            addSystemLog(request);
         } catch (Exception e) {
             this.logger.error("NewSealVehicleResource.seal-error", e);
         }
@@ -246,18 +238,34 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
-            if (request.getData() != null && request.getData().size() > 0){
-                Goddess goddess = new Goddess();
-                goddess.setKey(request.getData().get(0).getSealCarCode());
-                goddess.setHead(request.getData().get(0).getSealSiteId() + "-" + request.getData().get(0).getDesealSiteId());
-                goddess.setBody(JsonHelper.toJson(request.getData()));
-                goddess.setDateTime(new Date());
-                goddessService.save(goddess);
-            }
+            addSystemLog(request);
         } catch (Exception e) {
             this.logger.error("NewSealVehicleResource.unseal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    /**
+     * 增加封车解封车系统日志
+     * @param request
+     */
+    private void addSystemLog(NewSealVehicleRequest request){
+        if (request.getData() == null && request.getData().size() == 0){
+            return;
+        }
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> list = request.getData();
+        for(com.jd.bluedragon.distribution.wss.dto.SealCarDto dto : list){
+            Goddess goddess = new Goddess();
+            goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
+            goddess.setBody(JsonHelper.toJson(dto));
+            goddess.setDateTime(new Date());
+            if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
+                goddess.setKey(dto.getTransportCode());
+            }else if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
+                goddess.setKey(dto.getSealCarCode());
+            }
+            goddessService.save(goddess);
+        }
     }
 
     private List<SealCarDto> convertList(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
@@ -379,7 +387,7 @@ public class NewSealVehicleResource {
         }
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
         if(JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)){//批次号不存在
-            sealVehicleResponse.setCode(JdResponse.RESULT_SELECT_ERROR_CODE);
+            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
         }
     }
