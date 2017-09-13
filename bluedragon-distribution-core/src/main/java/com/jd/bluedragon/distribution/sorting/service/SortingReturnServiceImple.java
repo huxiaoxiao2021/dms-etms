@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -28,20 +15,22 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BaseInfoHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.etms.erp.ws.BizServiceInterface;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service("sortingReturnService")
 public class SortingReturnServiceImple implements SortingReturnService {
@@ -117,8 +106,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	/**
 	 * 执行数据导入功能
 	 *
-	 * @param Task
-	 *            task
+	 * @param  task
 	 * @throws Exception
 	 */
 	private void execReturns(Task task) throws Exception {
@@ -141,8 +129,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	/**
 	 * 增加或更新分拣退货信息
 	 *
-	 * @param Set
-	 *            <ReturnsRequest> returnsRequests
+	 * @param  returnsRequests
 	 */
 	private ArrayList<SortingReturn> addReturnLog(Set<ReturnsRequest> returnsRequests) {
 		ArrayList<SortingReturn> resultList = new ArrayList<SortingReturn>();
@@ -162,17 +149,12 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	/**
 	 * 根据站点号，查询站点信息
 	 *
-	 * @param Integer
-	 *            sitecode
+	 * @param  sitecode
 	 * @return BaseStaffSiteOrgDto
 	 */
-	private com.jd.ql.basic.dto.BaseStaffSiteOrgDto getSiteDtoBySiteCode(Integer sitecode) {
-		com.jd.ql.basic.dto.BaseStaffSiteOrgDto dto = BaseInfoHelper.getSiteInfoMap(sitecode);
-		if (dto == null) {
-			/** 如果缓存中没有查询到数据，则重新加载数据库数据，再进行读取 */
-			BaseInfoHelper.setSiteInfoMap(this.baseMajorManager.getBaseSiteAll());
-			dto = BaseInfoHelper.getSiteInfoMap(sitecode);
-		}
+	private BaseStaffSiteOrgDto getSiteDtoBySiteCode(Integer sitecode) {
+		//去除自己写的缓存，改为单个查（自带缓存）
+		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(sitecode);
 		/** 可能为空 */
 		return dto;
 	}
@@ -181,7 +163,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * 增加或更新分拣退货信息
 	 *
 	 * @param returns
-	 * @param createTime
 	 */
 	private void saveOrUpdate(SortingReturn returns) {
 		/** 如果更新的数据位空，则插入数据 */
@@ -200,8 +181,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	/**
 	 * 更新数据
 	 *
-	 * @param SortingReturn
-	 *            returns
+	 * @param   returns
 	 * @return
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -212,7 +192,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	/**
 	 * 插入pda操作日志表
 	 *
-	 * @param requestBean
+	 * @param sortingReturn
 	 */
 	private void addOperationLog(SortingReturn sortingReturn) {
 		OperationLog operationLog = new OperationLog();
@@ -274,10 +254,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	/**
 	 * 处理运单
 	 *
-	 * @param ArrayList
-	 *            <WaybillParameter> paramal_waybill
-	 * @param ArrayList
-	 *            <Returns> normalreturnsal_waybill
+	 * @param  normalreturnsal_waybill
 	 */
 	private void addUpdateWaybillTask(ArrayList<SortingReturn> normalreturnsal_waybill) {
 		try {

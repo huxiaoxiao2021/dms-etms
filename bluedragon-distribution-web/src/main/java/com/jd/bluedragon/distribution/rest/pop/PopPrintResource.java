@@ -1,9 +1,28 @@
 package com.jd.bluedragon.distribution.rest.pop;
 
+import java.util.Date;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
@@ -11,21 +30,13 @@ import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrintSmsMsg;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.Date;
 
 @Component
 @Path(Constants.REST_URL)
@@ -46,6 +57,10 @@ public class PopPrintResource {
 	
 	@Autowired
 	private RedisManager redisManager;
+	
+    @Autowired
+    @Qualifier("popPrintToSmsProducer")
+    private DefaultJMQProducer popPrintToSmsProducer;
 	
 	private static boolean isRedisModeAllowed = false;
 	
@@ -105,6 +120,10 @@ public class PopPrintResource {
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		try {
+			/**
+			 * 判断是否打印包裹
+			 */
+			boolean isPrintPack = PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType());
 			// 验证运单号
 			Waybill waybill = this.waybillCommonService.findByWaybillCode(popPrintRequest.getWaybillCode());
 			if (waybill == null) {
@@ -124,7 +143,7 @@ public class PopPrintResource {
 			}
 			boolean savePopPrintToRedis = false;
 			if (uptCount <= 0) {
-				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
+				if (isPrintPack) {
 					popPrint.setPrintCount(1);
 				}
 				if (isRedisModeAllowed) { // isRedisModeAllowed 开关控制是否存Redis
@@ -140,20 +159,29 @@ public class PopPrintResource {
 					savePopPrintToRedis(popPrint);
 				}
 				this.logger.info("插入POP打印信息savePopPrint成功，运单号【" + popPrint.getWaybillCode() + "】");
-				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
+				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
 						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印"));
 					}
 				}
 			} else {
 				this.logger.info("更新POP打印信息savePopPrint，运单号【" + popPrint.getWaybillCode() + "】");
-				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
+				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
 						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印"));
 					}
 				}
 			}
-
+			/**
+			 * 需求：R2017M07N00868配送员接货，打印后发送mq信息给终端-sms
+			 */
+			if(isPrintPack
+					&&PopPrintRequest.POP_RECEIVE_TYPE_4.equals(popPrintRequest.getPopReceiveType())
+					&&PopPrintRequest.BUS_TYPE_SITE_PLATFORM_PRINT.equals(popPrintRequest.getBusinessType())){
+				PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
+				BeanUtils.copyProperties(popPrint, popPrintSmsMsg);
+				popPrintToSmsProducer.send(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
+			}
 			PopPrintResponse popPrintResponse = new PopPrintResponse(
 					JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 			BeanUtils.copyProperties(popPrint, popPrintResponse);

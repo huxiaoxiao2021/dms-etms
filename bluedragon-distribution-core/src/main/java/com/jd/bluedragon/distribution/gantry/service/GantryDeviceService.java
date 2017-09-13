@@ -79,6 +79,14 @@ public interface GantryDeviceService {
     public List<SendDetail> queryBoxCodeBySendCode(String sendCode);
 
     /**
+     * 根据批次号获取包裹总数
+     *
+     * @param sendCode
+     * @return
+     */
+    Integer querySendDCountBySendCode(String sendCode);
+
+    /**
      * 根据
      * */
     public Integer getGantryVelocity(Integer dmsCode,String gantryNumber,Date startTime,Date endTime);

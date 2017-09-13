@@ -30,21 +30,21 @@ public interface PrintDeviceService {
      * @param printDevice
      * @return
      */
-    public Integer addPrintDevice(PrintDevice printDevice);
+    public Integer addPrintDevice(PrintDevice printDevice) throws Exception;
 
     /**
      * 通过ISV的id批量删除ISV的信息
      * @param KeyList ISV的删除列表
      * @return
      */
-    public Integer deletePrintDeviceById(List<String> KeyList);
+    public Integer deletePrintDeviceById(List<String> KeyList) throws Exception;
 
     /**
      * 修改ISV的信息
      * @param printDevice
      * @return
      */
-    public Integer modifyPrintDevice(PrintDevice printDevice);
+    public Integer modifyPrintDevice(PrintDevice printDevice) throws Exception;
 
     /**
      * 通过ISVID查询版本号
@@ -66,7 +66,7 @@ public interface PrintDeviceService {
      * @param State
      * @return
      */
-    public Integer changePrintDeviceState(String printDeviceId,boolean State);
+    public Integer changePrintDeviceState(String printDeviceId,boolean State) throws Exception;
 
 
 }

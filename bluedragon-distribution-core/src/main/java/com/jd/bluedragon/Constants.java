@@ -42,9 +42,11 @@ public class Constants {
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
     
-    public static final int RESULT_SUCCESS = 1;
-    public static final int RESULT_FAIL = 0;
-    
+    public static final int RESULT_SUCCESS = 1; //成功
+    public static final int RESULT_FAIL = 0;    //接口异常或者失败
+    public static final int RESULT_ERROR = -1;  //接口内部错误
+    public static final int RESULT_WARN = 2;    //接口内部警告
+
     public static final Integer YN_YES = 1; // 使用
     public static final Integer YN_NO = 0; // 已删除
     
@@ -310,5 +312,45 @@ public class Constants {
     
     // 一次邮件发送最大收件人数
     public static final int MAX_SEND_SIZE = 500;
+    /**
+     * Integer类型标识-false
+     */
+    public static final Integer INTEGER_FLG_FALSE = 0;
+    /**
+     * Integer类型标识-true
+     */
+    public static final Integer INTEGER_FLG_TRUE = 1;
     
+    /**
+     * 包裹称重流水-操作类型-分拣
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_SORTING = 1;
+    /**
+     * 包裹称重流水-操作类型-接货中心-配送员接货操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_PSY_REC = 2;
+    /**
+     * 包裹称重流水-操作类型-接货中心-驻场操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_ZC_REC = 3;
+    /**
+     * 包裹称重流水-操作类型-仓储操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
+    /**
+     * Text-保价
+     */
+    public static final String TEXT_PRICE_PROTECT = "保价";
+    /**
+     * waybillSign-point-4-签单反还
+     */
+    public static final Integer WAYBILL_SIGN_POSITION_SIGN_BACK = 4;
+    /**
+     * waybillSign.point-10-配送业务类型
+     */
+    public static final Integer WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE = 10;
+    /**
+     * waybillSign-point-31运输产品
+     */
+    public static final Integer WAYBILL_SIGN_POSITION_TRANSPORT_MODE = 31;
 }

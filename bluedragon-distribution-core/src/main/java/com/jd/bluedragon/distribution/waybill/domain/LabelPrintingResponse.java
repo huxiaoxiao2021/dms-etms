@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
-import java.io.Serializable;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
  */
-public class LabelPrintingResponse implements Serializable {
+public class LabelPrintingResponse extends BasePrintWaybill {
 
     /**
      *
@@ -38,12 +38,6 @@ public class LabelPrintingResponse implements Serializable {
 
     /**预分拣站点名称*/
     private String prepareSiteName;
-
-    /**始发分拣中心编码*/
-    private Integer originalDmsCode;
-
-    /**始发分拣中心名称*/
-    private String originalDmsName;
 
     /**目的分拣中心编码*/
     private Integer purposefulDmsCode;
@@ -144,22 +138,6 @@ public class LabelPrintingResponse implements Serializable {
 
     public void setPrepareSiteName(String prepareSiteName) {
         this.prepareSiteName = prepareSiteName;
-    }
-
-    public Integer getOriginalDmsCode() {
-        return originalDmsCode;
-    }
-
-    public void setOriginalDmsCode(Integer originalDmsCode) {
-        this.originalDmsCode = originalDmsCode;
-    }
-
-    public String getOriginalDmsName() {
-        return originalDmsName;
-    }
-
-    public void setOriginalDmsName(String originalDmsName) {
-        this.originalDmsName = originalDmsName;
     }
 
     public Integer getPurposefulDmsCode() {
@@ -298,5 +276,9 @@ public class LabelPrintingResponse implements Serializable {
     public void setPromiseText(String promiseText) {
         this.promiseText = promiseText;
     }
+
+
+
+
 
 }

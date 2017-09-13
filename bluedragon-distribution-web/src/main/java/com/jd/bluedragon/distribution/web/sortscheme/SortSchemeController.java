@@ -224,15 +224,15 @@ public class SortSchemeController {
                 throw new DataFormatException(remoteResponse.getMessage());
             }
         } catch (Exception e) {
+            logger.error("导入分拣计划明细失败", e);
             if (e instanceof IOException) {
-                logger.error("导入分拣计划明细失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
             } else if (e instanceof DataFormatException) {
-                logger.error("导入分拣计划明细失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+            }else{
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
             }
-            e.printStackTrace();
-            writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
+
         }
         writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
     }
@@ -306,6 +306,17 @@ public class SortSchemeController {
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setData(remoteResponse.getData());
+            }else {
+                if(remoteResponse == null){
+                    logger.error("请求分拣中心本地获取分拣计划时remoteResponse为null,request:" + JsonHelper.toJson(request)
+                    + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
+                }else {
+                    response.setCode(remoteResponse.getCode());
+                    response.setMessage(remoteResponse.getMessage());
+                    logger.error("请求分拣中心本地获取分拣计划失败request：" + JsonHelper.toJson(request) +
+                    "remoteResponse:" + JsonHelper.toJson(remoteResponse)
+                            + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
+                }
             }
         } catch (Exception e) {
             logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
@@ -430,6 +441,15 @@ public class SortSchemeController {
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage("分拣计划添加成功!");
+            }else {
+                if(remoteResponse == null){
+                    logger.error("请求分拣中心本地添加分拣计划失败remoteResponse为null,request:" + JsonHelper.toJson(request));
+                }else {
+                    response.setCode(remoteResponse.getCode());
+                    response.setMessage(remoteResponse.getMessage());
+                    logger.error("请求分拣中心本地添加分拣计划失败request：" + JsonHelper.toJson(request) +
+                            "remoteResponse:" + JsonHelper.toJson(remoteResponse));
+                }
             }
         } catch (Exception e) {
             logger.error("SortSchemeResource.addSortScheme-error!", e);

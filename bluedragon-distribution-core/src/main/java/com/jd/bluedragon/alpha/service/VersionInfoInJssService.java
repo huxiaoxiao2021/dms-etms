@@ -16,7 +16,7 @@ public interface VersionInfoInJssService {
     /**
      * 获取所有的版本编号
      */
-    public List<String> allVersionIdInJss();
+    public List<String> allVersionIdInJss() throws Exception;
 
     /**
      * 上传新版本

@@ -15,7 +15,7 @@
        default-autowire="byName">
 
 	<http-conf:conduit name="*"> 
-		<http-conf:client ConnectionTimeout="1000" ReceiveTimeout="10000" />
+		<http-conf:client ConnectionTimeout="${http.config.connectionTimeOut}" ReceiveTimeout="10000" />
 	</http-conf:conduit>
 	
 	<import resource="classpath:META-INF/cxf/cxf.xml" /> 

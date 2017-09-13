@@ -123,6 +123,7 @@
 									<th>创建站点</th>
 									<th>接收站点</th>
 									<th>操作时间</th>
+                                    <th>备注</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -139,6 +140,7 @@
 										<td>$!operatelog.createSiteCode|$!operatelog.createSiteName</td>
 										<td>$!operatelog.receiveSiteCode|$!operatelog.receiveSiteName</td>
 										<td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!operatelog.operateTime)</td>
+                                        <td>$!operatelog.remark</td>
 									</tr>
 								#end
 							</tbody>

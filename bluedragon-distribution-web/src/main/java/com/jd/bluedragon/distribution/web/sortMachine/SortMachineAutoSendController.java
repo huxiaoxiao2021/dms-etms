@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.web.sortMachine;
 
 import IceInternal.Ex;
+import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
-import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
-import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
-import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
@@ -31,9 +29,7 @@ import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
@@ -50,6 +46,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -62,6 +59,8 @@ public class SortMachineAutoSendController {
     private final static String prefixKey = "localdmsIp$";
     private final static String HTTP = "http://";
     private final static String PREFIX_VER_URL = "DMSVER_ADDRESS";
+
+    private final static String prefixKey2 = "HeadquartersIp";
 
     private final static int SENDCODE_PRINT_TYPE = 1;//批次打印
 
@@ -531,32 +530,34 @@ public class SortMachineAutoSendController {
             userCode = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
             userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
         }
-        try {
+            boolean allSuccess = true;
+            String errorMsg = "";
             for (ScannerFrameBatchSend item : lists) {
-                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
-                scannerFrameBatchSend.setPrintTimes((byte) 0);
-                scannerFrameBatchSend.setLastPrintTime(null);
-                scannerFrameBatchSend.setCreateUserCode(userCode);
-                scannerFrameBatchSend.setCreateUserName(userName);
-                scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
-                scannerFrameBatchSend.setUpdateUserName(userName);
-                scannerFrameBatchSend.setCreateTime(new Date());
-                scannerFrameBatchSend.setUpdateTime(new Date());
-                scannerFrameBatchSend.setYn((byte) 1);
-                scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(), scannerFrameBatchSend.getReceiveSiteCode(), scannerFrameBatchSend.getCreateTime()));
-                boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
-                if (!bool) {
-                    result.setCode(500);
-                    result.setMessage("部分批次转换失败，失败原始批次为：" + item.getSendCode());
-                    return result;
-                } else {
-                    result.setCode(200);
-                    result.setMessage("换批次成功");
+                try {
+                    ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
+                    scannerFrameBatchSend.setPrintTimes((byte) 0);
+                    scannerFrameBatchSend.setLastPrintTime(null);
+                    scannerFrameBatchSend.setCreateUserCode(userCode);
+                    scannerFrameBatchSend.setCreateUserName(userName);
+                    scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
+                    scannerFrameBatchSend.setUpdateUserName(userName);
+                    scannerFrameBatchSend.setCreateTime(new Date());
+                    scannerFrameBatchSend.setUpdateTime(new Date());
+                    scannerFrameBatchSend.setYn((byte) 1);
+                    scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(), scannerFrameBatchSend.getReceiveSiteCode(), scannerFrameBatchSend.getCreateTime()));
+                    scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
+                } catch (Exception e) {
+                    allSuccess = false;
+                    errorMsg += ("【物理滑槽:" + item.getMachineId() + "发货目的代码:" + item.getReceiveSiteCode()
+                            + "批次开始时间：" + item.getCreateTime() + "换批失败】");
+                    logger.error("物理滑槽:" + item.getMachineId() + "发货目的代码:" + item.getReceiveSiteCode()
+                            + "批次开始时间：" + item.getCreateTime() + "换批异常",e);
                 }
             }
-        } catch (Exception e) {
-            logger.error("生产新的批次号失败", e);
-        }
+            if(!allSuccess){
+                result.setCode(500);
+                result.setMessage("换批次完成，以下数据失败:" + errorMsg);
+            }
         return result;
     }
 
@@ -595,33 +596,39 @@ public class SortMachineAutoSendController {
         result.setCode(500);
         result.setMessage("服务器处理异常");
         if (sendCode != null) {
-            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
-            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
-            Integer packageSum = 0;//批次总包裹数量
             Double volumeSum = 0.00;//取分拣体积
-            if (sendDetailList != null && sendDetailList.size() > 0) {
-                HashSet<String> sendDByBoxCode = new HashSet<String>();
-                for (SendDetail sendD : sendDetailList) {
-                    //根据sendD的boxCode去重
-                    try {
-                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
-                            continue;
-                        }
-                        sendDByBoxCode.add(sendD.getBoxCode());
-                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
-                        if (waybillPackageDTO == null) {
-                            continue;
-                        }
-                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
-                    } catch (Exception e) {
-                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
-                    }
-                }
-                packageSum = sendDetailList.size();//获取包裹的数量
-            }
+            //批次总包裹数量
+            Integer packageSum = gantryDeviceService.querySendDCountBySendCode(sendCode);
+            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
+            // author by lixin456 注释掉取体积逻辑，因为每个包裹都需要调用一次运单接口，如果分拣机绑定站点较多，就会大量调用运单接口，页面响应速度特别慢，现将取体积逻辑注释
+//            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
+//            if (sendDetailList != null && sendDetailList.size() > 0) {
+//                HashSet<String> sendDByBoxCode = new HashSet<String>();
+//                for (SendDetail sendD : sendDetailList) {
+//                    //根据sendD的boxCode去重
+//                    try {
+//                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
+//                            continue;
+//                        }
+//                        sendDByBoxCode.add(sendD.getBoxCode());
+//                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
+//                        if (waybillPackageDTO == null) {
+//                            continue;
+//                        }
+//                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
+//                    } catch (Exception e) {
+//                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+//                    }
+//                }
+//                packageSum = sendDetailList.size();//获取包裹的数量
+//            }
             BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
             sendBoxSum.setSendCode(sendCode);
-            sendBoxSum.setPackageSum(packageSum);
+            if (packageSum != null ){
+                sendBoxSum.setPackageSum(packageSum.intValue());
+            } else {
+                sendBoxSum.setPackageSum(0);
+            }
             sendBoxSum.setVolumeSum(bg.doubleValue());
             result.setCode(200);
             result.setData(sendBoxSum);
@@ -635,4 +642,163 @@ public class SortMachineAutoSendController {
         return result;
     }
 
+    /**
+     * 补打印
+     */
+    @RequestMapping(value = "/sendCodePrint", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests) {
+        this.logger.info("分拣机补打印数据开始-->需要打印的分拣机ID为" + requests[0].getMachineId());
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>>();
+        result.setCode(400);
+        result.setMessage("服务调用成功，数据为空");
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        Integer userId = 0;
+        String userName = "none";//用户姓名
+        if (erpUser != null) {
+            userId = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
+            userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
+        }
+
+        String machineId = requests[0].getMachineId();
+        if (com.jd.common.util.StringUtils.isBlank(machineId)) {
+            result.setCode(200);
+            result.setMessage("服务调用成功，分拣机参数错误");
+            return result;
+        }
+
+
+        try {
+            logger.info("需要执行该打印并完结批次的条数为：" + requests.length);
+            Map<String, ScannerFrameBatchSend> scannerFrameBatchSendMap = getScannerFrameBatchSendMap(machineId);
+            List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
+            String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineBatchPrint";
+            String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineSummaryPrint";
+            for (ScannerFrameBatchSendPrint item : requests) {
+                if (item.getReceiveSiteCode() == 0 || "".equals(item.getSendCode()) || item.getCreateSiteCode() == 0) {
+                    //没有目的站点，自动退出循环
+                    logger.error("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
+                    continue;
+                }
+                /** 2. ==================获取打印图片================= **/
+                BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
+                itemRequest.setSendCode(item.getSendCode());
+                itemRequest.setCreateSiteCode(item.getCreateSiteCode());
+                itemRequest.setCreateSiteName(item.getCreateSiteName());
+                itemRequest.setReceiveSiteCode(item.getReceiveSiteCode());
+                itemRequest.setReceiveSiteName(item.getReceiveSiteName());
+                Integer packageSum = 0;
+                /** 获取包裹的数据量 **/
+                List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(item.getSendCode());
+                if (sendDetailList != null && sendDetailList.size() > 0) {
+                    packageSum = sendDetailList.size();//获取包裹的数量
+                }
+                itemRequest.setPackageNum(packageSum);
+                if(logger.isInfoEnabled()){
+                    logger.info(MessageFormat.format("分拣机自动发货调用批次号打印接口，基本数据为：{0}", JsonHelper.toJson(itemRequest)));
+                }
+
+
+                BatchSendPrintImageResponse batchPrintItemResponse = RestHelper.jsonPostForEntity(urlBatchPrint, itemRequest,
+                        new TypeReference<BatchSendPrintImageResponse>() {
+                });
+                batchPrintItemResponse.setPrintType(SENDCODE_PRINT_TYPE);
+                results.add(batchPrintItemResponse);
+                ScannerFrameBatchSend request = scannerFrameBatchSendMap.get(item.getSendCode());
+                BatchSendPrintImageResponse summaryPrintItemResponse =scannerFrameBatchSendService.summaryPrint(urlSummaryPrint, request, userId, userName);
+                summaryPrintItemResponse.setPrintType(SUMMARY_PRINT_TYPE);
+                results.add(summaryPrintItemResponse);
+                logger.info("获取图片的base64结束。");
+                /** ===================获取打印图片获取base64图片码结束================= **/
+
+                logger.info("更新打印时间次数结束。返回结果");
+                result.setCode(200);
+                result.setMessage("服务调用成功");
+                result.setData(results);
+            }
+        } catch (Exception e) {
+            logger.error("获取数据异常");
+            e.printStackTrace();
+            result.setCode(500);
+            result.setMessage("服务调用异常");
+        }
+        return result;
+    }
+
+    /**
+     * 查询 ScannerFrameBatchSend 并转为 sendCode : ScannerFrameBatchSend 形式
+     * @param machineId
+     * @return
+     */
+    private Map<String, ScannerFrameBatchSend> getScannerFrameBatchSendMap(String machineId){
+        ScannerFrameBatchSendSearchArgument argument = new ScannerFrameBatchSendSearchArgument();
+        argument.setMachineId(machineId);
+        List<ScannerFrameBatchSend> scannerFrameBatchSends = scannerFrameBatchSendService.queryByMachineIdAndTime(argument);//查询该分拣机的所有批次信息
+        if(scannerFrameBatchSends == null || scannerFrameBatchSends.isEmpty()){
+            return Collections.EMPTY_MAP;
+        }
+        Map<String, ScannerFrameBatchSend> result = new HashMap<String, ScannerFrameBatchSend>(scannerFrameBatchSends.size());
+        for(ScannerFrameBatchSend scannerFrameBatchSend : scannerFrameBatchSends){
+            result.put(scannerFrameBatchSend.getSendCode(), scannerFrameBatchSend);
+        }
+        return result;
+    }
+
+
+    /**
+     * 补打页面 查询子站点
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/querySubSiteNo", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<ScannerFrameBatchSend>> querySubSiteNo(ScannerFrameBatchSendSearchArgument request) {
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<List<ScannerFrameBatchSend>> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<List<ScannerFrameBatchSend>>();
+        result.setCode(400);
+        result.setMessage("服务调用异常");
+        result.setData(null);
+        if (request == null) {
+            return null;
+        }
+        try {
+            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null,request.getMachineId());
+            result.setCode(200);
+            result.setData(list);
+            result.setMessage("获取分拣机的目的站点成功");
+        } catch (Exception e) {
+            result.setMessage("获取分拣机的目的站点失败");
+            logger.error("加载分拣机的目的站点失败。。", e);
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @ResponseBody
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager) {
+        logger.debug("获取补打印数据 --> ");
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
+        result.setCode(400);
+        result.setMessage("服务器处理信息异常，查询补打印数据失败!!");
+        result.setData(null);
+        if (request != null) {
+            Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
+            if (pager.getPageNo() != null) {
+                argumentPager.setPageNo(pager.getPageNo());
+                argumentPager.init();
+            }
+            request.setHasPrinted(false);//未打印标示
+            argumentPager.setData(request);
+            try {
+                result.setData(scannerFrameBatchSendService.queryAllHistoryBatchSend(argumentPager));
+                result.setCode(200);
+                result.setMessage("补打数据获取成功");
+            } catch (Exception e) {
+                result.setCode(500);
+                result.setMessage("服务调用异常");
+                result.setData(null);
+                logger.error("补打数据获取失败..", e);
+            }
+        }
+        return result;
+    }
 }

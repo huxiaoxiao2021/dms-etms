@@ -314,4 +314,8 @@
 	<bean id="transbillMDao" class="com.jd.bluedragon.distribution.urban.dao.TransbillMDao">
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
+
+	<bean id="gantryExceptionDao" class="com.jd.bluedragon.distribution.gantry.dao.GantryExceptionDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
 </beans>

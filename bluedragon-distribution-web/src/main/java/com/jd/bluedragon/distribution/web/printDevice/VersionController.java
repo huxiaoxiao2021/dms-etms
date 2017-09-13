@@ -44,12 +44,8 @@ public class VersionController {
 
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String versionInfo(Model model){
-        try{
-            List<Version> versionList = versionInfoInUccService.versionList();
-            model.addAttribute("versionList",versionList);
-        }catch(Exception e){
-            logger.error("获取版本信息失败：",e);
-        }
+        List<Version> versionList = versionInfoInUccService.versionList();
+        model.addAttribute("versionList",versionList);
         return "printDevice/versionIndex";
     }
 
@@ -89,21 +85,23 @@ public class VersionController {
 
         try {
             if ( null == versionId || null == des) {
-                throw new IOException("版本信息不完善，请重试!!");
+                result.setCode(10000);
+                result.setMessage("版本号为空");
+            }else if(versionInfoInJssService.allVersionIdInJss().contains(versionId)){
+                result.setCode(10000);
+                result.setMessage("版本信息已经存在，请取消！");
+            } else {
+                Version version = new Version();
+                version.setVersionId(versionId);
+                version.setState(state);
+                version.setDes(des);
+                version.setCreateTime(DateHelper.formatDateTime(new Date()));
+                version.setUpdateTime(DateHelper.formatDateTime(new Date()));
+                versionInfoInJssService.uploadNewVersion(versionId,file.getSize(),file.getInputStream());//执行JSS添加
+                versionInfoInUccService.uploadVersion(version);//执行UCC备份数据
+                result.setCode(200);
+                result.setMessage("版本上传成功");
             }
-            if(versionInfoInJssService.allVersionIdInJss().contains(versionId)){
-                throw new IOException("版本信息已经存在，情取消！！");
-            }
-            Version version = new Version();
-            version.setVersionId(versionId);
-            version.setState(state);
-            version.setDes(des);
-            version.setCreateTime(DateHelper.formatDateTime(new Date()));
-            version.setUpdateTime(DateHelper.formatDateTime(new Date()));
-            versionInfoInJssService.uploadNewVersion(versionId,file.getSize(),file.getInputStream());//执行JSS添加
-            versionInfoInUccService.uploadVersion(version);//执行UCC备份数据
-            result.setCode(200);
-            result.setMessage("版本上传成功");
         } catch (Exception e) {
             logger.error("版本上传失败", e);
             result.setCode(10000);
@@ -196,7 +194,7 @@ public class VersionController {
         request.setState(request.isState()?false:true);//改变状态
         try{
             Integer i = versionInfoInUccService.changeVersionState(request.getVersionId(),request.isState());
-            if(i==1){
+            if(1==i){
                 result.setCode(200);
                 result.setMessage("修改状态成功");
             }else{

@@ -136,7 +136,7 @@
 
     <select id="queryByMachineIdAndTime" parameterType="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument" resultMap="resultListMap">
         SELECT
-          <include refid="allFieldsExcludeIdAndTs"/>
+          <include refid="allFieldsExcludeTs"/>
         FROM SCANNER_FRAME_BATCH_SEND
         <where>
           <if test="machineId != null">

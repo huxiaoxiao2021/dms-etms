@@ -1,11 +1,16 @@
 package com.jd.bluedragon.distribution.web;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.common.reflect.TypeToken;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.common.util.DateFormatUtils;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +46,6 @@ public class CommonController {
     /**
      * 获取机构
      *
-     * @param orgId
      * @return
      */
     @ResponseBody
@@ -84,6 +88,7 @@ public class CommonController {
     @SuppressWarnings("unchecked")
     @ResponseBody
     @RequestMapping("/getSiteByName")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.CommonController.getSiteByName", mState = {JProEnum.TP})
     public Object getSiteByName(String name) {
         List<BaseStaffSiteOrgDto> list = null;
         String temp = redisManager.get(CommonController.ALL_SITES_KEY);
