@@ -78,13 +78,13 @@ public class IndexController {
         model.addAttribute("roleName", roleName);
         return "topFrame";
     }
-    
+
     @RequestMapping(value = "/left", method = RequestMethod.GET)
     public String left() {
         this.logger.debug("IndexController --> left");
         return "leftFrame";
     }
-    
+
     @RequestMapping("/quit")
     public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
 //        this.cookieUtils.invalidate(request, response);
