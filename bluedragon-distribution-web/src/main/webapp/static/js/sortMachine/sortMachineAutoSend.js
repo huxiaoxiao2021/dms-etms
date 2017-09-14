@@ -502,8 +502,8 @@ function loadChutes(chutes) {
                 // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
                     if (data != undefined && data != null){
                         var sum = data.data;
-                        $("#packageSum"+sum.sendCode).text(sum.packageSum);
-                        $("#volumeSum"+sum.sendCode).text(sum.volumeSum);
+                        $(".packageSum"+sum.sendCode).text(sum.packageSum);
+                        $(".volumeSum"+sum.sendCode).text(sum.volumeSum);
                     }
                 });
             }
@@ -516,8 +516,8 @@ function loadChutes(chutes) {
             tr += '<td name="sendSiteName">' + (sortSchemeDetail.sendSiteName || '') + '</td>';
             tr += '<td name="sendCode">' + chute.sendCode + '</td>';
             tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
-            tr += '<td name="packageSum" id="packageSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
-            tr += '<td name="volumeSum" id="volumeSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+            tr += '<td name="packageSum" class="packageSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+            tr += '<td name="volumeSum" class="volumeSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
             tr += '</tr>';
             $("#pagerTable tbody").append(tr);
         });
