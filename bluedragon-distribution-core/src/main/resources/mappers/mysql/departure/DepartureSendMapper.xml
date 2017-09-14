@@ -23,7 +23,7 @@
 	</insert>
 	
 	<select id="getDepartureSendByCarId" parameterType="long" resultMap="BaseResultMap">
-		select * from DEPARTURE_SEND where departure_car_id=#{departureCarId]}
+		select send_code,capacity_Code,create_user,third_waybill_code from DEPARTURE_SEND where departure_car_id=#{departureCarId]}
 	</select>
 	
 	<select id="getByThirdWaybillCode" parameterType="String" resultMap="BaseResultMap">
