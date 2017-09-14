@@ -78,13 +78,15 @@ public class IndexController {
         model.addAttribute("roleName", roleName);
         return "topFrame";
     }
-    
+
     @RequestMapping(value = "/left", method = RequestMethod.GET)
-    public String left() {
+    public String left(Model model) {
         this.logger.debug("IndexController --> left");
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        model.addAttribute("userName", erpUser.getUserName());
+        model.addAttribute("userCode", erpUser.getStaffNo());
         return "leftFrame";
     }
-    
     @RequestMapping("/quit")
     public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
 //        this.cookieUtils.invalidate(request, response);
