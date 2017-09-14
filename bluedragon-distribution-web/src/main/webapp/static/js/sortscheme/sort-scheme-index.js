@@ -124,7 +124,7 @@ function goImportExcel(id) {
     var html = '';
     html += '<div class="div_btn" style="float:left;margin-left: 10px; margin-top: 20px;">';
     html += '<div style="width: 200px;float: right;">';
-    html += '<input id="loadInBtn" value="导入" style="margin-left:50px;" type="button" onclick="importExcel(' + id + ')" class="btn_c"></input>';
+    html += '<input id="loadInBtn" value="导入" style="margin-left:50px;" type="button" onclick="importExcel(' + id + ')" class="btn_c" />';
     html += '</div>';
     html += '<form action="" method="post" id="importFileForm" name="importFileForm" style="float:left;width:200px;">';
     html += '<input type="file" id="importFileIpt" name="importExcelFile" style="height: 28px;display: block;margin-top:5px;"/>';

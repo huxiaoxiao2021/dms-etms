@@ -206,8 +206,8 @@
     <bean id="sortSchemeConsumer" class="com.jd.bluedragon.core.message.consumer.sortScheme.SortSchemeConsumer">
         <property name="stores">
             <list>
-                <value>6,010,002</value>
-                <value>6,1,2</value>
+                <value>6,6,80</value>
+                <value>006,006,080</value>
             </list>
         </property>
     </bean>
@@ -216,8 +216,8 @@
     <bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl">
         <property name="stores">
             <list>
-                <value>6,010,002</value>
-                <value>6,1,2</value>
+                <value>6,6,80</value>
+                <value>006,006,080</value>
             </list>
         </property>
     </bean>
