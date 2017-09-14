@@ -80,8 +80,11 @@ public class IndexController {
     }
 
     @RequestMapping(value = "/left", method = RequestMethod.GET)
-    public String left() {
+    public String left(Model model) {
         this.logger.debug("IndexController --> left");
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        model.addAttribute("userName", erpUser.getUserName());
+        model.addAttribute("userCode", erpUser.getStaffNo());
         return "leftFrame";
     }
 
