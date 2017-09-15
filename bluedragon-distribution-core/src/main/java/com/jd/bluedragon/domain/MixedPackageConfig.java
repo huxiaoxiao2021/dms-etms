@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jsf.domain;
+package com.jd.bluedragon.domain;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -6,7 +6,7 @@ import com.jd.bluedragon.distribution.api.request.CrossSortingRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingResponse;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
-import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfig;
+import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfigResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.YNEnum;
@@ -97,15 +97,15 @@ public class CrossSortingResource {
      * @return 混装集合
      */
     private List<CrossSorting> getMixedConfigsBySitesAndTypes(Integer createSiteCode, Integer receiveSiteCode, Integer transportType, Integer ruleType) {
-        List<MixedPackageConfig> mixedPackageConfigList = jsfSortingResourceService.getMixedConfigsBySitesAndTypes(createSiteCode, receiveSiteCode, transportType, ruleType);
+        List<MixedPackageConfigResponse> mixedPackageConfigList = jsfSortingResourceService.getMixedConfigsBySitesAndTypes(createSiteCode, receiveSiteCode, transportType, ruleType);
         List<CrossSorting> mixDmsList = new ArrayList<CrossSorting>();
-        for (MixedPackageConfig mixedPackageConfig : mixedPackageConfigList) {
+        for (MixedPackageConfigResponse mixedPackageConfigResponse : mixedPackageConfigList) {
             CrossSorting crossSorting = new CrossSorting();
-            crossSorting.setId(mixedPackageConfig.getId().longValue());
-            crossSorting.setCreateDmsCode(mixedPackageConfig.getCreateSiteCode());
-            crossSorting.setDestinationDmsCode(mixedPackageConfig.getReceiveSiteCode());
-            crossSorting.setMixDmsCode(mixedPackageConfig.getMixedSiteCode());
-            crossSorting.setMixDmsName(mixedPackageConfig.getMixedSiteName());
+            crossSorting.setId(mixedPackageConfigResponse.getId().longValue());
+            crossSorting.setCreateDmsCode(mixedPackageConfigResponse.getCreateSiteCode());
+            crossSorting.setDestinationDmsCode(mixedPackageConfigResponse.getReceiveSiteCode());
+            crossSorting.setMixDmsCode(mixedPackageConfigResponse.getMixedSiteCode());
+            crossSorting.setMixDmsName(mixedPackageConfigResponse.getMixedSiteName());
             mixDmsList.add(crossSorting);
         }
         return mixDmsList;
