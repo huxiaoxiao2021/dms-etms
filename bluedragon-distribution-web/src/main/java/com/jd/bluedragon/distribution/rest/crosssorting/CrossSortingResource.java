@@ -66,6 +66,8 @@ public class CrossSortingResource {
                 return response;
             }
             //如果使用新混装规则，则走新的混装规则
+            logger.info("是否使用新混装规则："+useNewMixedConfig);
+
             if (YNEnum.Y.getCode().equals(useNewMixedConfig)) {
                 logger.info("进入新混装规则");
                 mixDmsList = getMixedConfigsBySitesAndTypes(request.getCreateDmsCode(), request.getDestinationDmsCode(), request.getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
