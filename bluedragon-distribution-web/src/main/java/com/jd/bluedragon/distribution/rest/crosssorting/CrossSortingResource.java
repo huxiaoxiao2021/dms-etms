@@ -101,7 +101,6 @@ public class CrossSortingResource {
         List<CrossSorting> mixDmsList = new ArrayList<CrossSorting>();
         for (MixedPackageConfigResponse mixedPackageConfigResponse : mixedPackageConfigList) {
             CrossSorting crossSorting = new CrossSorting();
-            crossSorting.setId(mixedPackageConfigResponse.getId().longValue());
             crossSorting.setCreateDmsCode(mixedPackageConfigResponse.getCreateSiteCode());
             crossSorting.setDestinationDmsCode(mixedPackageConfigResponse.getReceiveSiteCode());
             crossSorting.setMixDmsCode(mixedPackageConfigResponse.getMixedSiteCode());
