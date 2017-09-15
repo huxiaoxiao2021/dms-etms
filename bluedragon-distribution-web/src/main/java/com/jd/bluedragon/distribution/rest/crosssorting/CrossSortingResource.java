@@ -44,7 +44,7 @@ public class CrossSortingResource {
     @Autowired(required = false)
     private JsfSortingResourceService jsfSortingResourceService;
 
-    @Value("${dms.useNewMixedConfig}")
+    @Value("${useNewMixedConfig}")
     private String useNewMixedConfig;
 
     @POST
