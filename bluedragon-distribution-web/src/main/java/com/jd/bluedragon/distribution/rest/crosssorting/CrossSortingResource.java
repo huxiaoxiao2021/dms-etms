@@ -67,9 +67,7 @@ public class CrossSortingResource {
             }
             //如果使用新混装规则，则走新的混装规则
             logger.info("是否使用新混装规则："+useNewMixedConfig);
-
             if (YNEnum.Y.getCode().equals(useNewMixedConfig)) {
-                logger.info("进入新混装规则");
                 mixDmsList = getMixedConfigsBySitesAndTypes(request.getCreateDmsCode(), request.getDestinationDmsCode(), request.getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
             } else {
                 Map<String, Object> params = new HashMap<String, Object>();
@@ -108,7 +106,6 @@ public class CrossSortingResource {
             crossSorting.setDestinationDmsCode(mixedPackageConfigResponse.getReceiveSiteCode());
             crossSorting.setMixDmsCode(mixedPackageConfigResponse.getMixedSiteCode());
             crossSorting.setMixDmsName(mixedPackageConfigResponse.getMixedSiteName());
-            logger.info(mixedPackageConfigResponse.getMixedSiteName());
             mixDmsList.add(crossSorting);
         }
         return mixDmsList;
