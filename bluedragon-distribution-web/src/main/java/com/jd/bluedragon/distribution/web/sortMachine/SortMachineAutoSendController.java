@@ -231,7 +231,7 @@ public class SortMachineAutoSendController {
         request.setPageNo(1);
         request.setPageSize(MAX_PAGE_SIZE);
         SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> remoteResponse = null;
-        remoteResponse = sortSchemeService.pageQuerySortSchemeDetail(request, HTTP + url + "/services/sortSchemeDetail/list");
+        remoteResponse = sortSchemeService.pageQuerySortSchemeDetail(request, HTTP + url + "/services/sortSchemeDetail/mergeList");
         if(remoteResponse == null ||
                 remoteResponse.getData() == null ||
                 remoteResponse.getData().getData() == null ||

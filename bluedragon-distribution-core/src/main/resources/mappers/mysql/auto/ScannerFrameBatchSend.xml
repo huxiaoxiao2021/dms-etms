@@ -28,7 +28,7 @@
         UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
     <sql id="allFieldsExcludeTs">
-        ID,MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
+        SCANNER_FRAME_BATCH_SEND.ID,MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
         RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODE, CREATE_USER_NAME,
         UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
@@ -108,12 +108,12 @@
     <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
         <include refid="allFieldsExcludeTs"/>
-        FROM SCANNER_FRAME_BATCH_SEND
-        WHERE Id IN(SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
+        FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
-        GROUP BY RECEIVE_SITE_CODE)
-        ORDER BY Id DESC
-        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        GROUP BY RECEIVE_SITE_CODE
+        ORDER BY ID DESC
+        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}) T1
+        INNER JOIN SCANNER_FRAME_BATCH_SEND ON T1.ID = SCANNER_FRAME_BATCH_SEND.ID
     </select>
     <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
         SELECT COUNT(1)
