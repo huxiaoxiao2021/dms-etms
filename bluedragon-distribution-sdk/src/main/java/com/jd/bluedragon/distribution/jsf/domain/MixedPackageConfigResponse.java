@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.jsf.domain;
 
 
+import java.io.Serializable;
+
 /**
  * 混装配置类
  * Created by zhangleqi on 2017/8/27
  */
-public class MixedPackageConfigResponse {
+public class MixedPackageConfigResponse implements Serializable{
 
+    private static final long serialVersionUID = -1453531573126040041L;
     /**
      * id
      */
