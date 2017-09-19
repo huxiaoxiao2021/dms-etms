@@ -148,8 +148,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType) {
-//		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
-        return getBaseSiteByOrgIdSiteTypeAll(orgId, targetType);
+		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSiteType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType) {
+        return getBaseSiteByOrgIdSiteTypeAll(orgId, siteType);
     }
 
     public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromStore(
@@ -238,10 +244,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
         return null;
     }
-
+    @Cache(key = "baseMajorManagerImpl.getDmsListByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsListByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId) {
-//		return basicPrimaryWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
         List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = getBaseSiteByOrgIdSiteTypeAll(orgId, Constants.DMS_SITE_TYPE);
         return convertBaseStaffSiteOrgDto2SimpleBaseSite(baseStaffSiteOrgDtos);
     }
@@ -263,6 +269,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return simpleBaseSites;
     }
 
+    /**
+     * VO装换
+     * @param bdto
+     * @return
+     */
     private SimpleBaseSite convertBaseStaffSiteOrgDto(BaseStaffSiteOrgDto bdto) {
         SimpleBaseSite sbs = new SimpleBaseSite();
         sbs.setAddress(bdto.getAddress());
@@ -307,6 +318,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             if (pageDto.getCurPage() == pageDto.getTotalPage()) {
                 break;
             }
+            pageIndex++;
         }
         return result;
     }
