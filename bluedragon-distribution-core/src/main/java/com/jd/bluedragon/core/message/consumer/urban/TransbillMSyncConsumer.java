@@ -32,7 +32,7 @@ public class TransbillMSyncConsumer extends MessageBaseConsumer{
     @Autowired
     private TransbillMService transbillMService;
     @Override
-    public void consume(Message message) {
+    public void consume(Message message) throws Exception {
         if(!JsonHelper.isJsonString(message.getText())){
             logger.warn(MessageFormat.format("城配运单推送MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
             return;
