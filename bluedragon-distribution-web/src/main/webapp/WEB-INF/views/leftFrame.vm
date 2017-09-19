@@ -44,7 +44,7 @@
         <dd><a href="#springUrl('/reverseReceive/index')" target="mainFrame">逆向收货查询</a></dd>
         <dd><a href="#springUrl('/sortingCenter/index')" target="mainFrame">分拣中心测试查询工具</a></dd>
         <dd><a href="#springUrl('/areaDestPlan/index')" target="mainFrame">龙门架发货关系维护</a></dd>
-        <dd><a href="http://dmsver.etms.360buy.com/mixedPackageConfig/index?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
+        <dd><a href="http://dmsver.etms.jd.com/mixedPackageConfig/index?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
         <dt><a href="#" class="curr">离线管理</a></dt>
