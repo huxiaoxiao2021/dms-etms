@@ -29,6 +29,11 @@ public class CanalHelper {
 					CanalRow.class);
 			if (null != canalRow) {
 				CanalEvent<T> canalEvent = new CanalEvent<T>();
+				/**
+				 * 1、插入事件，设置dataAfter
+				 * 2、更新事件，设置dataBefore和dataAfter
+				 * 3、删除事件，设置dataAfter
+				 */
 				if (DbOperation.INSERT.equals(DbOperation.parse(canalRow
 						.getEventType()))) {
 					canalEvent.setDbOperation(DbOperation.INSERT);
@@ -63,6 +68,10 @@ public class CanalHelper {
 		if (null != columns && !columns.isEmpty()) {
 			T obj = targetType.newInstance();
 			Map<String, Field> fields = ObjectHelper.getAllFields(targetType);
+			/**
+			 * 1、获取类对象的所有属性
+			 * 2、将数据字段设置到对应的属性中
+			 */
 			for (CanalColumn column : columns) {
 				String columnName = column.getName();
 				String columnValue = column.getValue();
@@ -120,7 +129,7 @@ public class CanalHelper {
         return param;
     }
 	/**
-	 * 数据库字段转换成属性名
+	 * 数据库字段转换成属性名,create_time->createTime
 	 * @param dbName
 	 * @return
 	 */
