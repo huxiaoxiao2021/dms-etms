@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +79,8 @@ public class IndexController {
         model.addAttribute("roleName", roleName);
         return "topFrame";
     }
+    @Value("${mixedConfigUrl}")
+    private  String mixedConfigUrl;
 
     @RequestMapping(value = "/left", method = RequestMethod.GET)
     public String left(Model model) {
@@ -85,6 +88,8 @@ public class IndexController {
         ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
         try {
             erpUser = ErpUserClient.getCurrUser();
+
+            model.addAttribute("mixedConfigUrl", mixedConfigUrl);
             model.addAttribute("userName", erpUser.getUserName());
             model.addAttribute("userCode", erpUser.getStaffNo());
         }catch (Exception e){
