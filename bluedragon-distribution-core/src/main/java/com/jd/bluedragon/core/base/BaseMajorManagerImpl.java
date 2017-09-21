@@ -386,7 +386,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     @Override
-    public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp) {
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffByErpNoCache", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp) {
         return basicPrimaryWS.getBaseStaffByErp(erp);
     }
 
