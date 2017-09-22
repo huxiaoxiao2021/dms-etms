@@ -26,6 +26,7 @@
                 <bean class="com.jd.bluedragon.distribution.print.service.SpecialMarkComposeServiceImpl"/>
                 <bean class="com.jd.bluedragon.distribution.print.service.SpecialSiteComposeServiceImpl"/>
                 <bean class="com.jd.bluedragon.distribution.print.service.PromiseComposeServiceImpl"/>
+                <bean class="com.jd.bluedragon.distribution.print.service.HideInfoComposeServiceImpl"/>
             </list>
         </property>
     </bean>
