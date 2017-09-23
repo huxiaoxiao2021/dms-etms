@@ -314,30 +314,10 @@ public class NewSealVehicleResource {
         sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
         sealCarDto.setDesealCodes(sourceSealDto.getDesealCodes());
         sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
-
-        try {
-            if(sourceSealDto.getDesealCarTime() != null && sourceSealDto.getDesealCarTime().length() > 0) {    //解封车
-                sealCarDto.setDesealCarTime(simpleDateFormat.parse(sourceSealDto.getDesealCarTime()));
-            }else{    //封车
-                sealCarDto.setSealCarTime(nowTime);    //封车时间取服务器当前时间
-            }
-        }catch(Exception e){
-            this.logger.error("解封车日期[DesealCarTime]转换异常", e);
-        }
-        try {
-            if(sourceSealDto.getCreateTime() != null && sourceSealDto.getCreateTime().length() > 0) {
-                sealCarDto.setCreateTime(simpleDateFormat.parse(sourceSealDto.getCreateTime()));
-            }
-        }catch(Exception e){
-            this.logger.error("创建日期[CreateTime]转换异常", e);
-        }
-
-        try {
-            if(sourceSealDto.getUpdateTime() != null && sourceSealDto.getUpdateTime().length() > 0) {
-                sealCarDto.setUpdateTime(simpleDateFormat.parse(sourceSealDto.getUpdateTime()));
-            }
-        }catch(Exception e){
-            this.logger.error("创建日期[UpdateTime]转换异常", e);
+        if(sourceSealDto.getDesealCarTime() != null && sourceSealDto.getDesealCarTime().length() > 0) {    //解封车
+            sealCarDto.setDesealCarTime(nowTime);  //解封车时间取服务器当前时间
+        }else{//封车
+            sealCarDto.setSealCarTime(nowTime);    //封车时间取服务器当前时间
         }
 
         return sealCarDto;
