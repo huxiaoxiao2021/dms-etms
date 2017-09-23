@@ -184,6 +184,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
         this.logger.info("task处理的批次号为" + task.getBoxCode());
         try {
+            String taskId = String.valueOf(task.getId());
             List<SendM> allsendList = null;
             List<SendM> sendList = new ArrayList<SendM>();
 
@@ -239,7 +240,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                         .getReceiveSiteCode())))
                     bl = this.sendReverseMessageToAsiaWms(sendM, bDto);
                 else
-                    bl = this.sendReverseMessageToWms(sendM, bDto);
+                    bl = this.sendReverseMessageToWms(sendM, bDto,taskId);
             } else if (siteType == Integer.parseInt(spwms_type)) {
                 bl = this.sendReverseMessageToSpwms(sendM, baseOrgId, baseStoreId);
             } else {
@@ -558,7 +559,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     @SuppressWarnings("rawtypes")
-    public boolean sendReverseMessageToWms(SendM sendM, BaseStaffSiteOrgDto bDto)
+    public boolean sendReverseMessageToWms(SendM sendM, BaseStaffSiteOrgDto bDto, String taskId)
             throws Exception {
 
         this.logger.info("处理仓储退货数据开始");
@@ -618,7 +619,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wayBillCode)) {
                 	send.setBusiOrderCode(operCodeMap.get(wayBillCode));
-                	ifSendSuccess&=sendWMS(send, wayBillCode, sendM, entry, 0, bDto);
+                	ifSendSuccess&=sendWMS(send, wayBillCode, sendM, entry, 0, bDto,taskId);
                 }
             }
 
@@ -685,7 +686,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     send.setProList(sendLossProducts);
                 }
                 send.setBusiOrderCode(operCodeMap.get(wayBillCode));
-                ifSendSuccess&=sendWMS(send, wayBillCode, sendM, entry, lossCount, bDto);
+                ifSendSuccess&=sendWMS(send, wayBillCode, sendM, entry, lossCount, bDto,taskId);
             }
             return ifSendSuccess;
         } catch (Exception e) {
@@ -697,7 +698,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @SuppressWarnings("rawtypes")
     public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
-                        BaseStaffSiteOrgDto bDto) throws Exception {
+                        BaseStaffSiteOrgDto bDto, String taskId) throws Exception {
         Integer orgId = bDto.getOrgId();
         String dmdStoreId = bDto.getStoreCode();
 
@@ -721,6 +722,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setOrderId(wallBillCode);
         send.setIsInStore(0);
         send.setPackageCodes((String) entry.getValue());
+        send.setReverseWaybillType(send.getWaybillSign().charAt(4));//TODO zyc
+        send.setToken(taskId);//TODO zyc
         try {
             //按收货仓进行赋值，覆盖运单中发货仓值，支持异仓退货
             send.setOrgId(orgId);

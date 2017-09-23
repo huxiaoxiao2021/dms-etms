@@ -51,7 +51,11 @@ public class ReverseSendWms {
     private String sourceCode;
     
     private String busiOrderCode;
-    
+
+	private char reverseWaybillType;//逆向运单类型 0 - 普通型逆向单，1 - 病单型逆向单
+
+	private String token;//防重码 取 task_send 表task_id
+
     public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -190,4 +194,19 @@ public class ReverseSendWms {
 		this.proList = proList;
 	}
 
+	public char getReverseWaybillType() {
+		return reverseWaybillType;
+	}
+
+	public void setReverseWaybillType(char reverseWaybillType) {
+		this.reverseWaybillType = reverseWaybillType;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 }
