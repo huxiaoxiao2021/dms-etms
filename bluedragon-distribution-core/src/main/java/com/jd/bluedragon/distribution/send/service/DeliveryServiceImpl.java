@@ -261,12 +261,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (null != sendMList && sendMList.size() > 0) {
             return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
-
-        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
-        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-            return new SendResult(2, "该发货批次已经发车，不能继续发货");
-        }
         Profiler.registerInfoEnd(temp_info1);
+
         CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
