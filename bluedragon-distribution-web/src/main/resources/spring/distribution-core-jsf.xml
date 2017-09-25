@@ -147,6 +147,11 @@
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
     </jsf:consumer>
 
+    <jsf:consumer id="basicTraderAPI" interface="com.jd.ldop.basic.api.BasicTraderAPI" protocol="jsf"
+                  alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}">
+        <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
+    </jsf:consumer>
+
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
     <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
         <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
@@ -42,6 +43,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("basicPrimaryWS")
     private BasicPrimaryWS basicPrimaryWS;
+
+    @Autowired
+    @Qualifier("basicTraderAPI")
+    private BasicTraderAPI basicTraderAPI;
 
     @Autowired
     @Qualifier("basicSecondaryWS")
@@ -206,6 +211,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if (dtoStaff != null)
             return dtoStaff;
         else
+//            dtoTrade = basicSecondaryWS.getBaseTraderByCode(siteCode);
             dtoTrade = basicSecondaryWS.getBaseTraderByCode(siteCode);
 
         if (dtoTrade != null)

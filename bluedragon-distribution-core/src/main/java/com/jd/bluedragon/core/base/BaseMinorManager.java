@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import java.util.List;
 
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 
@@ -24,7 +25,7 @@ public interface BaseMinorManager {
 	
 	public List<BaseTradeInfoDto> getBaseAllTrader();
 	
-	public List<BaseTradeInfoDto> getBaseTraderByName(String name);
+	public List<BasicTraderInfoDTO> getBaseTraderByName(String name);
     /**
      * 获取签约商家ID列表
      * @return 签约商家ID列表
