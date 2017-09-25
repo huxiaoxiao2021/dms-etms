@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -61,8 +62,11 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
                             + body + "</Response>");
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("推送武汉邮政运单数据，接口异常，将持久化消息到task",e);
-            reverseDelivery.pushWhemsWaybill(Arrays.asList(message.getBusinessId()));//消息的业务主键就是运单号
+            logger.error("推送武汉邮政运单数据，接口异常",e);
+            if (e instanceof SocketException){
+                logger.error("推送武汉邮政运单数据，接口超时 :socket time out");
+                reverseDelivery.pushWhemsWaybill(Arrays.asList(message.getBusinessId()));//消息的业务主键就是运单号
+            }
         }
         if (logger.isInfoEnabled()){
             logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
