@@ -308,9 +308,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         }
         Profiler.registerInfoEnd(temp_info2);
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
-        if(!verificationResult.getCode() && !isForceSend){//按照箱发货，校验派车单是否齐全，判断是否强制发货
-            return new SendResult(4, verificationResult.getMessage());
+        if(!isForceSend){
+            DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
+            if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
+                return new SendResult(4, verificationResult.getMessage());
+            }
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
@@ -2351,7 +2353,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return (!domain.getCreateSiteCode().equals(box.getCreateSiteCode()))
                 || (domain.getCreateSiteCode().equals(box.getCreateSiteCode())
                 && !domain.getReceiveSiteCode().equals(box.getReceiveSiteCode())
-                && sendReceiveSiteType.equals("64")
+                && sendReceiveSiteType.equals(Constants.DMS_SITE_TYPE)
         );
     }
 
