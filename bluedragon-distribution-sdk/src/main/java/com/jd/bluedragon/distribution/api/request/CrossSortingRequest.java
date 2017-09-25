@@ -40,6 +40,18 @@ public class CrossSortingRequest extends JdObject {
 
 	/** 批量请求 */
 	private String data;
+	/**
+	 * 运输类型
+	 */
+	private Integer transportType;
+
+	public Integer getTransportType() {
+		return transportType;
+	}
+
+	public void setTransportType(Integer transportType) {
+		this.transportType = transportType;
+	}
 
 	public Long getId() {
 		return id;

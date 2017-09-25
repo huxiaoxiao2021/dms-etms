@@ -36,4 +36,6 @@ public interface SortSchemeService {
 
     SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(SortSchemeDetailRequest request, String url);
 
+    SortSchemeResponse<List<SortScheme>> queryBySiteCode(SortSchemeRequest request,String url);
+
 }

@@ -32,8 +32,9 @@ public interface BaseMajorManager {
 	
 	public List<BaseStaffSiteOrgDto> getBaseSiteAll();
 	
-	List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId,
-			Integer targetType);
+	List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType);
+
+	public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType);
 
 	public abstract BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode);
 
