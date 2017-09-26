@@ -48,6 +48,10 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(waybill.getWaybillSign().length() > 26 && waybill.getWaybillSign().charAt(26) == '1'){
             builder.append(ALLOW_HALF_ACCEPT);
         }
+        //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
+        if(waybill.getWaybillSign().length() > 34 && waybill.getWaybillSign().charAt(34) == '1'){
+            builder.append(SPECIAL_MARK_SENIOR);
+        }
         //当前打“空”的逻辑不变，“空”字变为“航”，同时增加waybillsign 第31为1 打“航”逻辑。Waybillsign标识 2017年8月22日16:23:47
         if(waybill.getWaybillSign().length() > 30 && waybill.getWaybillSign().charAt(30) == '1'){
             builder.append(SPECIAL_MARK_AIRTRANSPORT);
