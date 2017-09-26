@@ -58,7 +58,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     @Override
     public int parseToTask(OfflineLogRequest request) {
         if (request == null || request.getBoxCode() == null || request.getSiteCode() == null || request.getBusinessType() == null) {
-            this.logger.error("OfflineDeliveryServiceImpl --> 传入参数有误！");
+            this.logger.error("OfflineAcarAbillDeliveryServiceImpl --> 传入参数有误！");
             return Constants.RESULT_FAIL;
         }
 
@@ -91,11 +91,11 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         }
 
         if (sendMList.size() > 0) {
-            this.logger.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
+            this.logger.info("OfflineAcarAbillDeliveryServiceImpl --> 开始写入发货信息");
             this.sendPackge(sendMList);
             this.addOfflineLog(offlineLogs);
             this.addOperationLogs(operationLogs);    //记录离线发货操作日志
-            this.logger.info("OfflineDeliveryServiceImpl --> 结束写入发货信息");
+            this.logger.info("OfflineAcarAbillDeliveryServiceImpl --> 结束写入发货信息");
             return Constants.RESULT_SUCCESS;
         }
 
@@ -136,13 +136,13 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                         && !bigWaybillDto.getWaybill().getOldSiteId().equals(0)) {
                     receiveSiteCode = bigWaybillDto.getWaybill().getOldSiteId();
                 } else {
-                    this.logger.error("OfflineDeliveryServiceImpl --> 传入参数有误--原包【" + boxCode + "】预分拣站点问题！");
+                    this.logger.error("OfflineAcarAbillDeliveryServiceImpl --> 传入参数有误--原包【" + boxCode + "】预分拣站点问题！");
                     tempGoOn = Boolean.FALSE;
                 }
             } else { // 正常箱号，根据箱号获取目的站点信息
                 Box box = this.boxService.findBoxByCode(boxCode);
                 if (box == null) {
-                    this.logger.error("OfflineDeliveryServiceImpl --> 传入参数有误--箱号【" + boxCode + "】不存在！");
+                    this.logger.error("OfflineAcarAbillDeliveryServiceImpl --> 传入参数有误--箱号【" + boxCode + "】不存在！");
                     tempGoOn = Boolean.FALSE;
                 } else { // 设置目的站点
                     receiveSiteCode = box.getReceiveSiteCode();
