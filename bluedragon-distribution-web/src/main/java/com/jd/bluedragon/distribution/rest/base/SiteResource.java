@@ -13,6 +13,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -56,7 +57,7 @@ public class SiteResource {
 	@GET
 	@GZIP
 	@Path("/trader/{siteCode}")
-	public BaseTradeInfoDto getTrader(@PathParam("siteCode") Integer siteCode) {
+	public BasicTraderInfoDTO getTrader(@PathParam("siteCode") Integer siteCode) {
 		return this.siteService.getTrader(siteCode);
 	}
 	

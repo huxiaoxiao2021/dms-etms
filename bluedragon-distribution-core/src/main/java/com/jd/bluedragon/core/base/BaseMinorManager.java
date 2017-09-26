@@ -9,7 +9,7 @@ import com.jd.ql.basic.dto.*;
 
 public interface BaseMinorManager {
 	
-	public abstract BaseTradeInfoDto getBaseTraderById(Integer paramInteger);
+	public abstract BasicTraderInfoDTO getBaseTraderById(Integer paramInteger);
 	
 	public abstract MainBranchSchedule getMainBranchScheduleByTranCode(String paramString);
 
@@ -23,7 +23,7 @@ public interface BaseMinorManager {
 	public List<BaseGoodsPositionDto> getBaseGoodsPositionTaskAreaNoDmsId(Integer dmsID,String flage, Integer taskAreaNo) ;
 	public BaseResult<CrossPackageTagNew> getCrossPackageTagByPara(BaseDmsStore bds, Integer siteCode, Integer startDmsCode);
 	
-	public List<BaseTradeInfoDto> getBaseAllTrader();
+	public List<BasicTraderInfoDTO> getBaseAllTrader();
 	
 	public List<BasicTraderInfoDTO> getBaseTraderByName(String name);
     /**
