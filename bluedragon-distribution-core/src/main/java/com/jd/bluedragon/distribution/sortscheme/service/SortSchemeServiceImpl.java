@@ -76,6 +76,12 @@ public class SortSchemeServiceImpl implements SortSchemeService {
     }
 
     @Override
+    public SortSchemeResponse<List<SortScheme>> queryBySiteCode(SortSchemeRequest request, String url) {
+        return RestHelper.jsonPostForEntity(url, request, //
+                new TypeReference<SortSchemeResponse<List<SortScheme>>>() {
+                });
+    }
+    @Override
     public SortSchemeResponse<String> disableAutoSendById(SortSchemeRequest request, String url) {
         return RestHelper.jsonPostForEntity(url, request, //
                 new TypeReference<SortSchemeResponse<String>>() {
