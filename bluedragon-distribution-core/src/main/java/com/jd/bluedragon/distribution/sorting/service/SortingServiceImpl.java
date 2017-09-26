@@ -626,7 +626,7 @@ public class SortingServiceImpl implements SortingService {
 					String waybillsign = waybill.getWaybillSign();
 					if(waybillsign != null && waybillsign.length()>0){
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
-						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6') && waybill.getWaybillSign().charAt(9) != 's'){//TODO zyc
+						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6') && waybill.getWaybillSign().charAt(34) != '2'){
 							//组装FastRefundBlockerComplete
 							FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(sorting);
 							String json = JsonHelper.toJson(frbc);
