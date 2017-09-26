@@ -2663,23 +2663,25 @@ public class DeliveryServiceImpl implements DeliveryService {
             int hasDiff = 0;
             ;
             List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
-            for (SendDetail item : list) {
+            for (SendDetail item : list) {//遍历该箱的所有包裹
                 SendThreeDetail diff = new SendThreeDetail();
                 diff.setBoxCode(item.getBoxCode());
                 diff.setPackageBarcode(item.getPackageBarcode());
                 diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
                 diff.setIsWaybillFull(1);
-                if (!item.getWaybillCode().equals(lastWaybillCode)) {
+                if (!item.getWaybillCode().equals(lastWaybillCode)) {//初次验单 或 每验完一单货，下一单开始验时 进入分支
+                    //1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
+                    //2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
                     hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
-                    lastWaybillCode = item.getWaybillCode();
-                    pacageSumShoudBe = BusinessHelper.getPackageNum(item.getPackageBarcode());
+                    lastWaybillCode = item.getWaybillCode();//获取当前要验证的运单号
+                    pacageSumShoudBe = BusinessHelper.getPackageNum(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
                     scanCount = 0;
                 }
-                ++scanCount;//扫描计数器
-                diffrenceList.add(diff);
+                ++scanCount;//扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
+                diffrenceList.add(diff);//每次循环均加入结果diffrenceList，如中间某单的包裹不齐，会在invoke中将不齐的单子加入diffrenceList 以便最终结算时 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
             }
-            hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
-            if (hasDiff > 0) {
+            hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);//遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
+            if (hasDiff > 0) {//hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
                 List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
                 Integer createSiteCode = list.get(0).getCreateSiteCode();
                 Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
@@ -2828,6 +2830,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (counter != scanCount) {/* 有差异*/
 
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
+                if(waybill.getWaybillSign().charAt(34) == '2'){//病单则直接返回0 不验证包裹是否集齐
+                    return 0;
+                }
                 List<String> geneList = null;
                 if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());
