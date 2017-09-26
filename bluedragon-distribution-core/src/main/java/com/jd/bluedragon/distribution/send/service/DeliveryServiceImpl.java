@@ -332,6 +332,39 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(temp_info3);
         return new SendResult(1, "发货成功");
     }
+    /**
+     * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
+     * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
+     * （2）写SEND_M表
+     * （3）推送运单状态及回传周转箱
+     * （4）对中转发货写入补全SEND_D任务
+     * UPDATED BY wangtingwei@jd.com
+     *
+     * @param domain 发货对象
+     * @return 1：发货成功  2：发货失败  4：需要用户确认
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.offlinePackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public SendResult offlinePackageSend(SendM domain) {
+
+        CallerInfo temp_info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.offlinePackageSend.temp_info", false, true);
+        //插入SEND_M
+        this.sendMDao.insertSendM(domain);
+        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            pushSorting(domain);//大件写TASK_SORTING
+        } else {
+            SendDetail tSendDatail = new SendDetail();
+            tSendDatail.setBoxCode(domain.getBoxCode());
+            tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+            tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+            this.updateCancel(tSendDatail);//更新SEND_D状态
+
+        }
+        this.transitSend(domain);
+        this.pushStatusTask(domain);
+        Profiler.registerInfoEnd(temp_info);
+        return new SendResult(1, "发货成功");
+    }
 
 
     private void pushSorting(SendM domain) {

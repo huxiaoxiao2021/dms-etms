@@ -21,6 +21,17 @@ public class OfflineLogRequest extends JdRequest {
 	private String exceptionType;
 	private Integer operateType;
 
+	/** 航标发货标示*/
+	private Integer transporttype;
+
+	public Integer getTransporttype() {
+		return transporttype;
+	}
+
+	public void setTransporttype(Integer transporttype) {
+		this.transporttype = transporttype;
+	}
+
 	public Integer getOperateType() {
 		return operateType;
 	}

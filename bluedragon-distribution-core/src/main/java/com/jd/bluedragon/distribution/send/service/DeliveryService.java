@@ -16,6 +16,13 @@ public interface DeliveryService {
      * @return Map.Entiry<code,message> 改到SendResult
      */
     SendResult packageSend(SendM domain,boolean isForceSend);
+
+	/**
+	 * 一车一单离线发货
+	 * @param domain
+     * @return
+     */
+	SendResult offlinePackageSend(SendM domain );
     
     /**
      * 龙门架自动发货原包发货，去掉原有的分拣发货拦截验证

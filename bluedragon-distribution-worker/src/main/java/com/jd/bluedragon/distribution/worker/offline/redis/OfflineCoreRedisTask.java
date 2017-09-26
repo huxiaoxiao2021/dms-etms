@@ -30,6 +30,9 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 	@Resource(name = "offlineDeliveryService")
 	private OfflineService offlineDeliveryService;
 
+	@Resource(name = "OfflineAcarAbillDeliveryService")
+	private OfflineService offlineAcarAbillDeliveryService;
+
 	@Resource(name = "offlinePopPickupService")
 	private OfflineService offlinePopPickupService;
 
@@ -81,6 +84,9 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 						// 发货
 						resultCode = this.offlineDeliveryService
 								.parseToTask(offlineLogRequest);
+					} else if (Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) {
+						// 一车一单发货
+						resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
 					} else if (Task.TASK_TYPE_BOUNDARY.equals(offlineLogRequest
 							.getTaskType())) {
 						// pop上门接货

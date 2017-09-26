@@ -57,6 +57,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /** 发货发车相关　 */
     public static final Integer TASK_TYPE_DEPARTURE = 1400; // 发车
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
+    public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1311; // 运单通知
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
 
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
