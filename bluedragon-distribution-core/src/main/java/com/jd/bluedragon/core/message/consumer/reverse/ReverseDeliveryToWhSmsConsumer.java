@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.message.consumer.reverse;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.send.domain.whems.Ems4JingDongPortType;
+import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * Created by wuzuxiang on 2017/2/7.
@@ -30,6 +33,9 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
 
     @Autowired
     private Ems4JingDongPortType whemsClientService;
+
+    @Autowired
+    ReverseDeliveryService reverseDelivery;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -46,13 +52,22 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
         String emsstring = null;
         String md5tempstring = encrypt(body + whEmsKey.trim());
         CallerInfo info = Profiler.registerInfo("dms.web.consumer.ReverseDeliveryToWhSmsConsumer",false,true);//方法监控开始
-        emsstring = whemsClientService
-                .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                        + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
-                        + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
-                        + md5tempstring
-                        + "</ValidationData>"
-                        + body + "</Response>");
+        try {
+            emsstring = whemsClientService
+                    .sendMsg("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                            + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"
+                            + "<ProductProviderID>360BUY</ProductProviderID><ValidationData>"
+                            + md5tempstring
+                            + "</ValidationData>"
+                            + body + "</Response>");
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            logger.error("推送武汉邮政运单数据，接口异常",e);
+            if (e instanceof SocketException){
+                logger.error("推送武汉邮政运单数据，接口超时 :socket time out");
+                reverseDelivery.pushWhemsWaybill(Arrays.asList(message.getBusinessId()));//消息的业务主键就是运单号
+            }
+        }
         if (logger.isInfoEnabled()){
             logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
                     + "<Response><ActionCode>03</ActionCode><ParternCode>WHEMS</ParternCode>"

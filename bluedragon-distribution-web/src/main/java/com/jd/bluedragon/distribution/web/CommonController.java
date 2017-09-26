@@ -66,7 +66,7 @@ public class CommonController {
         List<BaseStaffSiteOrgDto> list = null;
         for (int m = 1; m < 4; m++) {
             try {
-                list = this.baseMajorManager.getBaseSiteByOrgIdSubType(orgCode,
+                list = this.baseMajorManager.getBaseSiteByOrgIdSiteType(orgCode,
                         Constants.DMS_SITE_TYPE);
                 if (list != null) {
                     break;

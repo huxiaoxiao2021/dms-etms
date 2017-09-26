@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -35,265 +36,344 @@ import java.util.List;
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
 
-	private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
-    private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")+"/services/bases/siteString/";
+    private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
+    private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
 
-	@Autowired
-	@Qualifier("basicPrimaryWS")
-	private BasicPrimaryWS basicPrimaryWS;
-	
-	@Autowired
-	@Qualifier("basicSecondaryWS")
-	private BasicSecondaryWS basicSecondaryWS;
-	
-	@Autowired
-	@Qualifier("basicPrimaryWSProxy")
-	private BasicPrimaryWSProxy basicPrimaryWSProxy;
-	
-	@Autowired
-	@Qualifier("basicSecondaryWSProxy")
-	private BasicSecondaryWSProxy basicSecondaryWSProxy;
+    @Autowired
+    @Qualifier("basicPrimaryWS")
+    private BasicPrimaryWS basicPrimaryWS;
 
-	/**
-	 * 站点ID
-	 * */
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-		BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-		BaseTradeInfoDto dtoTrade = null;
-		if (dtoStaff != null)
-			return dtoStaff;
-		else
-			dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+    @Autowired
+    @Qualifier("basicSecondaryWS")
+    private BasicSecondaryWS basicSecondaryWS;
 
-		if (dtoStaff != null)
-			return dtoStaff;
-		else
-			dtoTrade = basicSecondaryWS.getBaseTraderById(paramInteger);
+    @Autowired
+    @Qualifier("basicPrimaryWSProxy")
+    private BasicPrimaryWSProxy basicPrimaryWSProxy;
 
-		if (dtoTrade != null)
-			dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
-		return dtoStaff;
-	}
+    @Autowired
+    @Qualifier("basicSecondaryWSProxy")
+    private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
-	@Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseDataDict> getBaseDataDictList(Integer paramInteger1,
-			Integer paramInteger2, Integer paramInteger3) {
-		List<BaseDataDict> result = basicPrimaryWS.getBaseDataDictList(paramInteger1,
-				paramInteger2, paramInteger3);
-		if(result==null) result = new ArrayList<BaseDataDict>();
-		return result;
-	}
+    /**
+     * 站点ID
+     */
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+        BaseTradeInfoDto dtoTrade = null;
+        if (dtoStaff != null)
+            return dtoStaff;
+        else
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
 
-	@Cache(key = "baseMajorManagerImpl.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseStaffByStaffId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer paramInteger) {
-		return getBaseStaffByStaffIdNoCache(paramInteger);
-	}
+        if (dtoStaff != null)
+            return dtoStaff;
+        else
+            dtoTrade = basicSecondaryWS.getBaseTraderById(paramInteger);
 
-	@Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = false,
-	redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
-		List<BaseStaffSiteOrgDto> allSite = new ArrayList<BaseStaffSiteOrgDto>();
-		
-		//基础站点
-		List<BaseStaffSiteOrgDto> baseSite = basicPrimaryWSProxy.getBaseSiteAll();
-		allSite.addAll(baseSite);
-		
-		//库房站点
-		List<BaseStoreInfoDto> baseStore = basicPrimaryWSProxy.getBaseAllStore();
-		for(BaseStoreInfoDto dto : baseStore){
-			allSite.add(getBaseStaffSiteOrgDtoFromStore(dto));
-		}
-		
-		//商家站点
-		List<BaseTradeInfoDto> baseTrader = basicSecondaryWSProxy.getBaseAllTrader();
-		for(BaseTradeInfoDto dto : baseTrader){
-			allSite.add(getBaseStaffSiteOrgDtoFromTrader(dto));
-		}
-		
-		return allSite;
-	}
+        if (dtoTrade != null)
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+        return dtoStaff;
+    }
 
-	@Cache(key = "baseMajorManagerImpl.getBaseOrgByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseOrgByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseOrg getBaseOrgByOrgId(Integer orgId) {
-		return basicPrimaryWS.getBaseOrgByOrgId(orgId);
-	}
+    @Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseDataDict> getBaseDataDictList(Integer paramInteger1,
+                                                  Integer paramInteger2, Integer paramInteger3) {
+        List<BaseDataDict> result = basicPrimaryWS.getBaseDataDictList(paramInteger1,
+                paramInteger2, paramInteger3);
+        if (result == null) result = new ArrayList<BaseDataDict>();
+        return result;
+    }
 
-	@Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
-	public Integer getBaseGoodsPositionDmsCodeSiteCode(String createCode,
-			String receiveCode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteAll", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseStaffSiteOrgDto> getBaseSiteAll() {
-		return basicPrimaryWSProxy.getBaseSiteAll();
-	}
-	
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId,
-			Integer targetType) {
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseStaffByStaffId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer paramInteger) {
+        return getBaseStaffByStaffIdNoCache(paramInteger);
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getDmsSiteAll", memoryEnable = false,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
+        List<BaseStaffSiteOrgDto> allSite = new ArrayList<BaseStaffSiteOrgDto>();
+
+        //基础站点
+        List<BaseStaffSiteOrgDto> baseSite = basicPrimaryWSProxy.getBaseSiteAll();
+        allSite.addAll(baseSite);
+
+        //库房站点
+        List<BaseStoreInfoDto> baseStore = basicPrimaryWSProxy.getBaseAllStore();
+        for (BaseStoreInfoDto dto : baseStore) {
+            allSite.add(getBaseStaffSiteOrgDtoFromStore(dto));
+        }
+
+        //商家站点
+        List<BaseTradeInfoDto> baseTrader = basicSecondaryWSProxy.getBaseAllTrader();
+        for (BaseTradeInfoDto dto : baseTrader) {
+            allSite.add(getBaseStaffSiteOrgDtoFromTrader(dto));
+        }
+
+        return allSite;
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getBaseOrgByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseOrgByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseOrg getBaseOrgByOrgId(Integer orgId) {
+        return basicPrimaryWS.getBaseOrgByOrgId(orgId);
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    public Integer getBaseGoodsPositionDmsCodeSiteCode(String createCode,
+                                                       String receiveCode) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteAll", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteAll", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getBaseSiteAll() {
+        return basicPrimaryWSProxy.getBaseSiteAll();
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType) {
 		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
-	}
-	
-	public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromStore(
-			BaseStoreInfoDto store) {
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-		baseStaffSiteOrgDto.setDmsSiteCode(store.getDmsSiteCode());
-		baseStaffSiteOrgDto.setStoreCode(store.getDmsStoreId());
-		baseStaffSiteOrgDto.setSiteCode(store.getStoreSiteCode());
-		baseStaffSiteOrgDto.setSiteName(store.getDmsStoreName());
-		baseStaffSiteOrgDto.setCustomCode(store.getCustomCode());
-		baseStaffSiteOrgDto.setSiteType(store.getDmsType());
-		baseStaffSiteOrgDto.setOrgId(store.getParentId());
-		baseStaffSiteOrgDto.setOrgName(store.getOrgName());
-		return baseStaffSiteOrgDto;
-	}
-	
-	
-	
-	public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromTrader(
-			BaseTradeInfoDto trader) {
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-		baseStaffSiteOrgDto.setDmsSiteCode(trader.getTraderCode());
-		baseStaffSiteOrgDto.setSiteCode(trader.getId());
-		baseStaffSiteOrgDto.setSiteName(trader.getTraderName());
-		baseStaffSiteOrgDto.setSiteType(BaseContants.BASIC_B_TRADER_SITE_TYPE);
-		baseStaffSiteOrgDto.setOrgId(BaseContants.BASIC_B_TRADER_ORG);
-		baseStaffSiteOrgDto.setOrgName(BaseContants.BASIC_B_TRADER_ORG_NAME);
-		baseStaffSiteOrgDto.setTraderTypeEbs(trader.getTraderTypeEbs());
-		baseStaffSiteOrgDto.setAccountingOrg(trader.getAccountingOrg());
-		baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
-		return baseStaffSiteOrgDto;
-	}
-	/**
-	 * 7位编码
-	 * */
-	@Override
-	@Cache(key = "baseMajorManagerImpl.getBaseSiteByDmsCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
-		BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
-		BaseTradeInfoDto dtoTrade = null;
-		if (dtoStaff != null)
-			return dtoStaff;
-		else
-			dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
+    }
 
-		if (dtoStaff != null)
-			return dtoStaff;
-		else
-			dtoTrade = basicSecondaryWS.getBaseTraderByCode(siteCode);
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSiteType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgIdSiteType", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType) {
+        return getBaseSiteByOrgIdSiteTypeAll(orgId, siteType);
+    }
 
-		if (dtoTrade != null)
-			dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
-		return dtoStaff;
-	}
-
-	@Cache(key = "baseMajorManagerImpl.getBaseDataDictById@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictById", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseDataDict getBaseDataDictById(Integer id) {
-		return basicPrimaryWS.getBaseDataDictById(id);
-	}
+    public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromStore(
+            BaseStoreInfoDto store) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        baseStaffSiteOrgDto.setDmsSiteCode(store.getDmsSiteCode());
+        baseStaffSiteOrgDto.setStoreCode(store.getDmsStoreId());
+        baseStaffSiteOrgDto.setSiteCode(store.getStoreSiteCode());
+        baseStaffSiteOrgDto.setSiteName(store.getDmsStoreName());
+        baseStaffSiteOrgDto.setCustomCode(store.getCustomCode());
+        baseStaffSiteOrgDto.setSiteType(store.getDmsType());
+        baseStaffSiteOrgDto.setOrgId(store.getParentId());
+        baseStaffSiteOrgDto.setOrgName(store.getOrgName());
+        return baseStaffSiteOrgDto;
+    }
 
 
-	@Override
-	@Cache(key = "baseMajorManagerImpl.getStoreByCky2@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
-	public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID, String sys) {
-		CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getStoreByCky2", false, true);
-		try{
-			BaseResult<PsStoreInfo> storeInfoResult =  basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, sys);
-			if(0 == storeInfoResult.getResultCode()){
-				return storeInfoResult.getData();
-			}else{
-				logger.warn("根据cky2获取仓库信息失败，接口返回code "
-						+ storeInfoResult.getResultCode() + ", message " + storeInfoResult.getMessage());
-			}
-		}catch (Exception ex){
-			logger.warn("根据cky2获取仓库信息失败",ex);
-			Profiler.functionError(info);
-			return null;
-		}finally {
-			Profiler.registerInfoEnd(info);
-		}
+    public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromTrader(
+            BaseTradeInfoDto trader) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        baseStaffSiteOrgDto.setDmsSiteCode(trader.getTraderCode());
+        baseStaffSiteOrgDto.setSiteCode(trader.getId());
+        baseStaffSiteOrgDto.setSiteName(trader.getTraderName());
+        baseStaffSiteOrgDto.setSiteType(BaseContants.BASIC_B_TRADER_SITE_TYPE);
+        baseStaffSiteOrgDto.setOrgId(BaseContants.BASIC_B_TRADER_ORG);
+        baseStaffSiteOrgDto.setOrgName(BaseContants.BASIC_B_TRADER_ORG_NAME);
+        baseStaffSiteOrgDto.setTraderTypeEbs(trader.getTraderTypeEbs());
+        baseStaffSiteOrgDto.setAccountingOrg(trader.getAccountingOrg());
+        baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
+        return baseStaffSiteOrgDto;
+    }
 
-		return null;
-	}
+    /**
+     * 7位编码
+     */
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByDmsCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
+        BaseTradeInfoDto dtoTrade = null;
+        if (dtoStaff != null)
+            return dtoStaff;
+        else
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
 
-	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsListByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId){
-		return basicPrimaryWSProxy.getSiteByOrgSubTypeAll(orgId, new Integer(64).toString());
-	}
-	
-	@Override
-	@Cache(key = "baseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
-		redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
-	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {
-		CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver", false, true);
-		try {
+        if (dtoStaff != null)
+            return dtoStaff;
+        else
+            dtoTrade = basicSecondaryWS.getBaseTraderByCode(siteCode);
+
+        if (dtoTrade != null)
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+        return dtoStaff;
+    }
+
+    @Cache(key = "baseMajorManagerImpl.getBaseDataDictById@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictById", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseDataDict getBaseDataDictById(Integer id) {
+        return basicPrimaryWS.getBaseDataDictById(id);
+    }
+
+
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getStoreByCky2@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID, String sys) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getStoreByCky2", false, true);
+        try {
+            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, sys);
+            if (0 == storeInfoResult.getResultCode()) {
+                return storeInfoResult.getData();
+            } else {
+                logger.warn("根据cky2获取仓库信息失败，接口返回code "
+                        + storeInfoResult.getResultCode() + ", message " + storeInfoResult.getMessage());
+            }
+        } catch (Exception ex) {
+            logger.warn("根据cky2获取仓库信息失败", ex);
+            Profiler.functionError(info);
+            return null;
+        } finally {
+            Profiler.registerInfoEnd(info);
+        }
+
+        return null;
+    }
+    @Cache(key = "baseMajorManagerImpl.getDmsListByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsListByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId) {
+        List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = getBaseSiteByOrgIdSiteTypeAll(orgId, Constants.DMS_SITE_TYPE);
+        return convertBaseStaffSiteOrgDto2SimpleBaseSite(baseStaffSiteOrgDtos);
+    }
+
+    /**
+     * 转换BaseStaffSiteOrgDto到SimpleBaseSite
+     *
+     * @param baseStaffSiteOrgDtos
+     * @return
+     */
+    private List<SimpleBaseSite> convertBaseStaffSiteOrgDto2SimpleBaseSite(List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos) {
+        if (baseStaffSiteOrgDtos == null || baseStaffSiteOrgDtos.size() == 0) {
+            return new ArrayList<SimpleBaseSite>();
+        }
+        List<SimpleBaseSite> simpleBaseSites = new ArrayList<SimpleBaseSite>(baseStaffSiteOrgDtos.size());
+        for (BaseStaffSiteOrgDto bdto : baseStaffSiteOrgDtos) {
+            simpleBaseSites.add(convertBaseStaffSiteOrgDto(bdto));
+        }
+        return simpleBaseSites;
+    }
+
+    /**
+     * VO装换
+     * @param bdto
+     * @return
+     */
+    private SimpleBaseSite convertBaseStaffSiteOrgDto(BaseStaffSiteOrgDto bdto) {
+        SimpleBaseSite sbs = new SimpleBaseSite();
+        sbs.setAddress(bdto.getAddress());
+        sbs.setAirTransport(bdto.getAirTransport());
+        sbs.setCityId(bdto.getCityId());
+        sbs.setCountryId(bdto.getCountryId());
+        sbs.setCustomCode(bdto.getCustomCode());
+        sbs.setDmsId(bdto.getDmsId());
+        sbs.setDmsName(bdto.getDmsName());
+        sbs.setAreaId((int) bdto.getAreaId());
+        sbs.setTelphone(bdto.getSitePhone());
+        sbs.setDmsCode(bdto.getDmsSiteCode());
+        sbs.setIsMiniWarehouse(bdto.getIsMiniWarehouse());
+        sbs.setOperateState(bdto.getOperateState());
+        sbs.setOrgId(bdto.getOrgId());
+        sbs.setProvinceId(bdto.getProvinceId());
+        sbs.setSiteCode(bdto.getSiteCode());
+        sbs.setTownId(bdto.getTownId());
+        sbs.setSubType(bdto.getSubType());
+        sbs.setSiteType(bdto.getSiteType());
+        sbs.setSiteName(bdto.getSiteName());
+        sbs.setSiteBusinessType(bdto.getSiteBusinessType());
+        return sbs;
+    }
+
+    /**
+     * 根据type和orgID查询所有站点
+     *
+     * @param orgId
+     * @param type
+     * @return
+     */
+    private List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteTypeAll(Integer orgId, Integer type) {
+        List<BaseStaffSiteOrgDto> result = new ArrayList<BaseStaffSiteOrgDto>();
+        Integer pageIndex = 1;
+        while (true) {
+            PageDto<List<BaseStaffSiteOrgDto>> pageDto = basicPrimaryWS.getBaseSiteByOrgIdSiteTypePage(orgId, type, pageIndex);
+            if (pageDto == null || pageDto.getData() == null || 0 == pageDto.getTotalRow() || 0 == pageDto.getTotalPage()) {
+                break;
+            }
+            result.addAll(pageDto.getData());
+            if (pageDto.getCurPage() == pageDto.getTotalPage()) {
+                break;
+            }
+            pageIndex++;
+        }
+        return result;
+    }
+
+    @Override
+    @Cache(key = "baseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver@args0", memoryEnable = false, memoryExpiredTime = 60 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 3 * 60 * 60 * 1000)
+    public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.queryDmsBaseSiteByCodeDmsver", false, true);
+        try {
             String uri = PROTOCOL + siteCode;
             ClientRequest request = new ClientRequest(uri);
             request.accept(MediaType.APPLICATION_JSON);
-            
+
             BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
 
             ClientResponse<JdResponse> response = request.get(JdResponse.class);
             if (200 == response.getStatus()) {
-            	JdResponse base = response.getEntity();
-                if(logger.isInfoEnabled()) {
+                JdResponse base = response.getEntity();
+                if (logger.isInfoEnabled()) {
                     logger.debug(com.jd.bluedragon.utils.JsonHelper.toJson(base));
                 }
-            	if(base!=null&&JdResponse.CODE_OK.equals(base.getCode())){
-                    SiteEntity site= com.jd.bluedragon.utils.JsonHelper.fromJsonUseGson(base.getRequest(),SiteEntity.class);
-            		dto.setSiteCode(site.getCode());
-            		dto.setSiteName(site.getName());
-            		dto.setSiteType(site.getType());
-            		return dto;
-            	}
+                if (base != null && JdResponse.CODE_OK.equals(base.getCode())) {
+                    SiteEntity site = com.jd.bluedragon.utils.JsonHelper.fromJsonUseGson(base.getRequest(), SiteEntity.class);
+                    dto.setSiteCode(site.getCode());
+                    dto.setSiteName(site.getName());
+                    dto.setSiteType(site.getType());
+                    return dto;
+                }
             }
         } catch (Exception e) {
             logger.error("dmsver获取站点[" + siteCode + "]信息失败，异常为：", e);
-			Profiler.functionError(info);
+            Profiler.functionError(info);
         } finally {
-			Profiler.registerInfoEnd(info);
-		}
+            Profiler.registerInfoEnd(info);
+        }
         logger.error("dmsver获取站点[" + siteCode + "]信息失败");
         return null;
-	}
+    }
 
-	@Override
-	@Cache(key = "baseMajorManagerImpl.getValidBaseDataDictList@args0@args1@args2" , memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 20 * 60 * 1000 )
-	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getValidBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup) {
-		return basicPrimaryWS.getValidDataDict(parentGroup, nodeLevel, typeGroup);
-	}
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getValidBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getValidBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup) {
+        return basicPrimaryWS.getValidDataDict(parentGroup, nodeLevel, typeGroup);
+    }
 
-	@Override
-	@Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid, int num) {
-		// TODO Auto-generated method stub
-		return basicPrimaryWSProxy.getBaseStaffListByOrgId(orgid,2);
-	}
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid, int num) {
+        // TODO Auto-generated method stub
+        return basicPrimaryWSProxy.getBaseStaffListByOrgId(orgid, 2);
+    }
 
     @Override
     public BaseStaffSiteOrgDto getThirdStaffByJdAccountNoCache(String jdAccount) {
@@ -302,7 +382,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Override
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger) {
-       return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
+        return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
     }
 
     @Override
@@ -312,9 +392,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     public Pager<List<SiteWareHouseMerchant>> getBaseSiteByPage(int pageIndex) {
-        PageDto<List<BaseStaffSiteOrgDto>> resPageDto= basicPrimaryWS.getBaseSiteAllByPage(pageIndex);
-        Pager<List<SiteWareHouseMerchant>> result=new Pager<List<SiteWareHouseMerchant>>();
-        if(null==resPageDto||null==resPageDto.getData()){
+        PageDto<List<BaseStaffSiteOrgDto>> resPageDto = basicPrimaryWS.getBaseSiteAllByPage(pageIndex);
+        Pager<List<SiteWareHouseMerchant>> result = new Pager<List<SiteWareHouseMerchant>>();
+        if (null == resPageDto || null == resPageDto.getData()) {
             result.setTotalSize(0);
             result.setTotalNo(1);
             return result;
@@ -327,12 +407,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return result;
     }
 
-    private List<SiteWareHouseMerchant> convertFromSite(List<BaseStaffSiteOrgDto> list){
-        if(null==list)
+    private List<SiteWareHouseMerchant> convertFromSite(List<BaseStaffSiteOrgDto> list) {
+        if (null == list)
             return new ArrayList<SiteWareHouseMerchant>();
-        List<SiteWareHouseMerchant> result=new ArrayList<SiteWareHouseMerchant>(list.size());
-        for (BaseStaffSiteOrgDto item:list){
-            SiteWareHouseMerchant site=new SiteWareHouseMerchant();
+        List<SiteWareHouseMerchant> result = new ArrayList<SiteWareHouseMerchant>(list.size());
+        for (BaseStaffSiteOrgDto item : list) {
+            SiteWareHouseMerchant site = new SiteWareHouseMerchant();
             site.setId(item.getSiteCode());
             site.setName(item.getSiteName());
             site.setDmsCode(item.getDmsSiteCode());
@@ -352,16 +432,17 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
         return result;
     }
+
     /**
      * 分页获取库房
      *
      * @param pageIndex
      * @return
      */
-    public Pager<List<SiteWareHouseMerchant>> getBaseStoreInfoByPage(Integer pageIndex){
-        PageDto<List<BaseStoreInfoDto>> resPageDto= basicPrimaryWS.getBaseStoreInfoByPage(pageIndex);
-        Pager<List<SiteWareHouseMerchant>> result=new Pager<List<SiteWareHouseMerchant>>();
-        if(null==resPageDto||null==resPageDto.getData()){
+    public Pager<List<SiteWareHouseMerchant>> getBaseStoreInfoByPage(Integer pageIndex) {
+        PageDto<List<BaseStoreInfoDto>> resPageDto = basicPrimaryWS.getBaseStoreInfoByPage(pageIndex);
+        Pager<List<SiteWareHouseMerchant>> result = new Pager<List<SiteWareHouseMerchant>>();
+        if (null == resPageDto || null == resPageDto.getData()) {
             result.setTotalSize(0);
             result.setTotalNo(1);
             return result;
@@ -373,12 +454,13 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         result.setData(convertFromStore(resPageDto.getData()));
         return result;
     }
-    private List<SiteWareHouseMerchant> convertFromStore(List<BaseStoreInfoDto> list){
-        if(null==list)
+
+    private List<SiteWareHouseMerchant> convertFromStore(List<BaseStoreInfoDto> list) {
+        if (null == list)
             return new ArrayList<SiteWareHouseMerchant>();
-        List<SiteWareHouseMerchant> result=new ArrayList<SiteWareHouseMerchant>(list.size());
-        for (BaseStoreInfoDto item:list){
-            SiteWareHouseMerchant site=new SiteWareHouseMerchant();
+        List<SiteWareHouseMerchant> result = new ArrayList<SiteWareHouseMerchant>(list.size());
+        for (BaseStoreInfoDto item : list) {
+            SiteWareHouseMerchant site = new SiteWareHouseMerchant();
             site.setId(item.getStoreSiteCode());
             site.setName(item.getDmsStoreName());
             site.setDmsCode(item.getDmsSiteCode());
@@ -397,10 +479,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
         return result;
     }
-    public Pager<List<SiteWareHouseMerchant>> getTraderListByPage(int pageIndex){
-        PageDto<List<BaseTradeInfoDto>> resPageDto= this.basicSecondaryWS.getTraderListByPage(pageIndex);
-        Pager<List<SiteWareHouseMerchant>> result=new Pager<List<SiteWareHouseMerchant>>();
-        if(null==resPageDto||null==resPageDto.getData()){
+
+    public Pager<List<SiteWareHouseMerchant>> getTraderListByPage(int pageIndex) {
+        PageDto<List<BaseTradeInfoDto>> resPageDto = this.basicSecondaryWS.getTraderListByPage(pageIndex);
+        Pager<List<SiteWareHouseMerchant>> result = new Pager<List<SiteWareHouseMerchant>>();
+        if (null == resPageDto || null == resPageDto.getData()) {
             result.setTotalSize(0);
             result.setTotalNo(1);
             return result;
@@ -413,12 +496,13 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         result.setData(convertFromTrade(resPageDto.getData()));
         return result;
     }
-    private List<SiteWareHouseMerchant> convertFromTrade(List<BaseTradeInfoDto> list){
-        if(null==list)
+
+    private List<SiteWareHouseMerchant> convertFromTrade(List<BaseTradeInfoDto> list) {
+        if (null == list)
             return new ArrayList<SiteWareHouseMerchant>();
-        List<SiteWareHouseMerchant> result=new ArrayList<SiteWareHouseMerchant>(list.size());
-        for (BaseTradeInfoDto item:list){
-            SiteWareHouseMerchant site=new SiteWareHouseMerchant();
+        List<SiteWareHouseMerchant> result = new ArrayList<SiteWareHouseMerchant>(list.size());
+        for (BaseTradeInfoDto item : list) {
+            SiteWareHouseMerchant site = new SiteWareHouseMerchant();
             site.setId(item.getId());
             site.setName(item.getTraderName());
             site.setDmsCode(item.getTraderCode());

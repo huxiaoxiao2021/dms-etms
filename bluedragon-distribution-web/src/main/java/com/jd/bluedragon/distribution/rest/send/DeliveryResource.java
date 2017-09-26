@@ -379,7 +379,7 @@ public class DeliveryResource {
         String emsIp = PropertiesHelper.newInstance().getValue("EMSIP");
         if (realIP != null && !realIP.contains(emsIp)) {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
-                    JdResponse.MESSAGE_PARAM_ERROR);
+                    "非法IP调用");
         }
         if (request == null || request.isEmpty() || request.size() > 50) {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
