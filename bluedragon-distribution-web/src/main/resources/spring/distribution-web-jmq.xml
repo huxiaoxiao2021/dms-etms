@@ -137,4 +137,10 @@
     <jmq:consumer id="jmq.transbillMSyncConsumer" transport="jmq.dmsWeb.transport">
         <jmq:listener topic="bd_transbill_m" listener="transbillMSyncConsumer"/>
     </jmq:consumer>
+
+    <!-- 分拣计划发送至DTC，自消费 create by wzx -->
+    <jmq:consumer id="jmq.sortSchemeSelfConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="bd_sortScheme_send_DTC" listener="sortSchemeConsumer"/>
+    </jmq:consumer>
 </beans>
+
