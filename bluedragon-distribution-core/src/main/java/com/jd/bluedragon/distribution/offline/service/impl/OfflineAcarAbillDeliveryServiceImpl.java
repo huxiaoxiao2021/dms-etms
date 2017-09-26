@@ -151,12 +151,6 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
             if (!tempGoOn) {
                 offlineLogs.add(requestToOffline(request, Constants.RESULT_FAIL));
             }
-
-            if (StringUtils.isBlank(request.getBatchCode())) {
-                // 设置批次号
-                request.setBatchCode(request.getSiteCode() + "-" + receiveSiteCode + "-"
-                        + DateHelper.formatDate(DateHelper.parseDate( request.getOperateTime(), Constants.DATE_TIME_MS_FORMAT), Constants.DATE_TIME_MS_STRING));
-            }
         }
         return tempGoOn;
     }
