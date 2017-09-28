@@ -218,7 +218,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 String detailJson = JsonHelper.toJson(dmsSortSchemeRouter);
                 mapMq.put("target",orgId + "," + cky2 + "," + storeId);
                 mapMq.put("messageValue",detailJson);
-                mapMq.put("outboundNo",itemDetail.getSiteCode()+ "-" +itemDetail.getId().toString());
+                mapMq.put("outboundNo",itemDetail.getSiteCode()+ "-" + String.valueOf(itemDetail.getId()));
                 mapMq.put("methodName","sortSchemeDetailDownload");
                 mapMq.put("outboundType","sortSchemeDetailDownload");
                 mapMq.put("source","DMS");
