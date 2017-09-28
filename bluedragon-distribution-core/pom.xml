@@ -687,7 +687,18 @@
 			<groupId>com.jd.orderbank</groupId>
 			<artifactId>order-bank-export</artifactId>
 			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>pay-common</artifactId>
+					<groupId>com.jd.payment</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jd-common-cached</artifactId>
+					<groupId>com.jd.common</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
 		<!-- 发送邮件 -->	
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
