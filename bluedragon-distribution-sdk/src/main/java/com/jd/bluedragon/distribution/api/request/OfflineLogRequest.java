@@ -162,17 +162,17 @@ public class OfflineLogRequest extends JdRequest {
 	@Override
 	public String toString(){
 		StringBuilder  str= new StringBuilder("{");
-		str.append("batchCode"+this.batchCode).append(",");
-		str.append("boxCode"+this.boxCode).append(",");
-		str.append("carCode"+this.carCode).append(",");
-		str.append("exceptionType"+this.exceptionType).append(",");
-		str.append("packageCode"+this.packageCode).append(",");
-		str.append("sealBoxCode"+this.sealBoxCode).append(",");
-		str.append("sendUser"+this.sendUser).append(",");
-		str.append("shieldsCarCode"+this.shieldsCarCode).append(",");
-		str.append("turnoverBoxCode"+this.turnoverBoxCode).append(",");
-		str.append("waybillCode"+this.waybillCode).append("}");
+		str.append("batchCode:"+this.batchCode).append(",");
+		str.append("boxCode:"+this.boxCode).append(",");
+		str.append("carCode:"+this.carCode).append(",");
+		str.append("exceptionType:"+this.exceptionType).append(",");
+		str.append("packageCode:"+this.packageCode).append(",");
+		str.append("sealBoxCode:"+this.sealBoxCode).append(",");
+		str.append("sendUser:"+this.sendUser).append(",");
+		str.append("shieldsCarCode:"+this.shieldsCarCode).append(",");
+		str.append("turnoverBoxCode:"+this.turnoverBoxCode).append(",");
+		str.append("transporttype:"+this.transporttype).append(",");
+		str.append("waybillCode:"+this.waybillCode).append("}");
 		return str.toString();
 	}
-
 }

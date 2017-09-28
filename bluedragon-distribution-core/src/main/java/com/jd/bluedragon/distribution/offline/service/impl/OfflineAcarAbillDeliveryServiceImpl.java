@@ -58,73 +58,32 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     @Override
     public int parseToTask(OfflineLogRequest request) {
         if (request == null || request.getBoxCode() == null || request.getSiteCode() == null || request.getBusinessType() == null) {
-            this.logger.error("OfflineAcarAbillDeliveryServiceImpl --> 传入参数有误！");
+            this.logger.error("一车一单离线发货 --> 传入参数有误：" + request.toString());
             return Constants.RESULT_FAIL;
         }
 
-        List<SendM> sendMList = new ArrayList<SendM>();
-        List<OperationLog> operationLogs = new ArrayList<OperationLog>();    //离线发货操作日志集合
-        List<OfflineLog> offlineLogs = new ArrayList<OfflineLog>();
-
-        String[] boxCodes = request.getBoxCode().split(Constants.SEPARATOR_COMMA);
-        String[] turnoverBoxCodes = null;
-        if (StringUtils.isNotBlank(request.getTurnoverBoxCode()) && StringUtils.isNotBlank(request.getTurnoverBoxCode().replace(Constants.SEPARATOR_COMMA, ""))) {
-            turnoverBoxCodes = request.getTurnoverBoxCode().split(Constants.SEPARATOR_COMMA);
-        } else {
-            request.setTurnoverBoxCode(null);
-        }
-
-        Integer receiveSiteCode = null;
-        for (int i = 0; i < boxCodes.length; i++) {
-            String boxCode = boxCodes[i];
-
-            if(setReceiveSiteCodeAndBatchCode(request, offlineLogs, boxCode, receiveSiteCode)){
-                request.setBoxCode(boxCode);
-                request.setReceiveSiteCode(receiveSiteCode);
-                if (turnoverBoxCodes != null && turnoverBoxCodes.length > 0) {
-                    request.setTurnoverBoxCode(turnoverBoxCodes[i]);
-                }
-                sendMList.add(toSendDatail(request));
-                offlineLogs.add(requestToOffline(request, Constants.RESULT_SUCCESS));
-                operationLogs.add(RequestConvertOperationLog(request));
-            }
-        }
-
-        if (sendMList.size() > 0) {
-            this.logger.info("OfflineAcarAbillDeliveryServiceImpl --> 开始写入发货信息");
-            this.sendPackge(sendMList);
-            this.addOfflineLog(offlineLogs);
-            this.addOperationLogs(operationLogs);    //记录离线发货操作日志
-            this.logger.info("OfflineAcarAbillDeliveryServiceImpl --> 结束写入发货信息");
+        if(checkReceiveSiteCode(request)){
+            this.logger.info("一车一单离线发货 --> 开始写入发货信息");
+            deliveryService.offlinePackageSend(toSendDatail(request));
+            offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_SUCCESS));
+            operationLogService.add(requestConvertOperationLog(request));
+            this.logger.info("一车一单离线发货 --> 结束写入发货信息");
             return Constants.RESULT_SUCCESS;
         }
 
         return Constants.RESULT_FAIL;
     }
 
-    /**
-     * 一车一单离线发货
-     * @param sendMList
-     */
-    private void sendPackge(List<SendM> sendMList){
-        for (SendM domain : sendMList){
-            deliveryService.offlinePackageSend(domain);
-        }
-    }
 
     /**
      * 设置接收站点和批次号
      * @param request
-     * @param offlineLogs
-     * @param boxCode
-     * @param receiveSiteCode
      * @return
      */
-    private boolean setReceiveSiteCodeAndBatchCode(OfflineLogRequest request, List<OfflineLog> offlineLogs, String boxCode, Integer receiveSiteCode) {
-        if(receiveSiteCode != null){
-            return true;
-        }
-        Boolean tempGoOn = Boolean.TRUE;
+    private boolean checkReceiveSiteCode(OfflineLogRequest request) {
+        Integer receiveSiteCode = null;
+        Boolean result = Boolean.TRUE;
+        String boxCode = request.getBoxCode();
         if (checkBaseSite(request.getReceiveSiteCode())) {
             receiveSiteCode = request.getReceiveSiteCode();
         }
@@ -136,32 +95,27 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                         && !bigWaybillDto.getWaybill().getOldSiteId().equals(0)) {
                     receiveSiteCode = bigWaybillDto.getWaybill().getOldSiteId();
                 } else {
-                    this.logger.error("OfflineAcarAbillDeliveryServiceImpl --> 传入参数有误--原包【" + boxCode + "】预分拣站点问题！");
-                    tempGoOn = Boolean.FALSE;
+                    this.logger.error("参数有误--原包【" + boxCode + "】预分拣站点问题！");
+                    result = Boolean.FALSE;
                 }
             } else { // 正常箱号，根据箱号获取目的站点信息
                 Box box = this.boxService.findBoxByCode(boxCode);
                 if (box == null) {
-                    this.logger.error("OfflineAcarAbillDeliveryServiceImpl --> 传入参数有误--箱号【" + boxCode + "】不存在！");
-                    tempGoOn = Boolean.FALSE;
+                    this.logger.error("参数有误--箱号【" + boxCode + "】不存在！");
+                    result = Boolean.FALSE;
                 } else { // 设置目的站点
                     receiveSiteCode = box.getReceiveSiteCode();
                 }
             }
-            if (!tempGoOn) {
-                offlineLogs.add(requestToOffline(request, Constants.RESULT_FAIL));
+            if (!result) {
+                offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_FAIL));
+            }else{
+                request.setReceiveSiteCode(receiveSiteCode);
             }
         }
-        return tempGoOn;
+        return result;
     }
 
-    private void addOfflineLog(List<OfflineLog> offlineLogs) {
-        if (offlineLogs != null && offlineLogs.size() > 0) {
-            for (OfflineLog offlineLog : offlineLogs) {
-                this.offlineLogService.addOfflineLog(offlineLog);
-            }
-        }
-    }
 
     private boolean checkBaseSite(Integer receiveSiteCode) {
         if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
@@ -233,18 +187,6 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         return offlineLog;
     }
 
-    /**
-     * 添加离线发货操作日志记录
-     *
-     * @param operationLogs
-     */
-    private void addOperationLogs(List<OperationLog> operationLogs) {
-        if (operationLogs != null && operationLogs.size() > 0) {
-            for (OperationLog operationLog : operationLogs) {
-                operationLogService.add(operationLog);
-            }
-        }
-    }
 
     /**
      * 将OfflineLogRequest转化为OperationLog（操作日志）
@@ -252,7 +194,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
      * @param offlineLogRequest
      * @return
      */
-    private OperationLog RequestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
+    private OperationLog requestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode(offlineLogRequest.getBoxCode());
         operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());
