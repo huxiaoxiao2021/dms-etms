@@ -5,7 +5,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
-import com.jd.bluedragon.core.message.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 
 
@@ -40,8 +39,8 @@ public class ReverseReceiveNotifyStockServiceTestCase {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReceiveRequest>    <sendCode>24965235</sendCode>    <orderId>344584322</orderId>    <receiveType>3</receiveType>    <operateTime>2012-10-19 17:24:20</operateTime>    <userName>收货人</userName>    <userCode>123</userCode>    <orgId>6</orgId>    <storeId>1</storeId>    <canReceive>0</canReceive>    <rejectCode>100</rejectCode>    <rejectMessage>货物破损</rejectMessage></ReceiveRequest>";
 		Message msg = new Message();
 		msg.setText(xml);
-		ReversePopConsumer service = new ReversePopConsumer();
-		service.consume(msg);
+//		ReversePopConsumer service = new ReversePopConsumer();
+//		service.consume(msg);
 	}
 	
 	@Test
@@ -51,7 +50,7 @@ public class ReverseReceiveNotifyStockServiceTestCase {
 				+ "  <canReceive>1</canReceive></ReceiveRequest>";
 		Message msg = new Message();
 		msg.setText(xml);
-		ReversePopConsumer service = new ReversePopConsumer();
+//		ReversePopConsumer service = new ReversePopConsumer();
 		//service.consume(msg);
 	}
 }

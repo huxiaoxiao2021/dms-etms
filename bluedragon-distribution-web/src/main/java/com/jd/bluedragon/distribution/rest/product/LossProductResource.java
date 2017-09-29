@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.rest.product;
 
 import com.jd.bluedragon.core.message.MessageDto;
-import com.jd.bluedragon.core.message.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
+import com.jd.bluedragon.distribution.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.jmq.common.message.Message;
