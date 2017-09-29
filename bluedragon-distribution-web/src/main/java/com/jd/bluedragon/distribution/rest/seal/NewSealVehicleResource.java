@@ -124,11 +124,13 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
+                    request.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
 
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(returnCommonDto.getData());
+                    request.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                 }
             }
             addSystemLog(request);
@@ -232,10 +234,12 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
+                    request.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(returnCommonDto.getData());
+                    request.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                 }
             }
             addSystemLog(request);
