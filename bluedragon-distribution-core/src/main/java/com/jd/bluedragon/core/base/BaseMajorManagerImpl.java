@@ -72,7 +72,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
         BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-        BasicTraderInfoDTO dtoTrade = null;
         ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
         if (dtoStaff != null)
             return dtoStaff;
@@ -84,8 +83,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         else
             responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
 
-        if (responseDTO != null && dtoTrade != null)
-            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+        if (responseDTO != null && responseDTO.getResult() != null)
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
         return dtoStaff;
     }
 
