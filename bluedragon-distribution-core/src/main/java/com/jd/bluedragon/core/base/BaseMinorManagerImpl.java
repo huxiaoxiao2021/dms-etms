@@ -1,33 +1,46 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ldop.basic.api.BasicTraderAPI;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.PageDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BasePdaUserDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicAirConfigWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service("baseMinorManager")
 public class BaseMinorManagerImpl implements BaseMinorManager {
+	private Log log = LogFactory.getLog(BaseMinorManagerImpl.class);
 	
 	public static final String SEPARATOR_HYPHEN = "-";
+
+	@Autowired
+	@Qualifier("basicTraderAPI")
+	private BasicTraderAPI basicTraderAPI;
 
 	@Autowired
 	@Qualifier("basicSecondaryWS")
 	private BasicSecondaryWS basicSecondaryWS;
 	
-	@Autowired
-	@Qualifier("basicSecondaryWSProxy")
-	private BasicSecondaryWSProxy basicSecondaryWSProxy;
+//	@Autowired
+//	@Qualifier("basicSecondaryWSProxy")
+//	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 	
 	/**
 	 * 
@@ -41,8 +54,13 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@Cache(key = "baseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderById", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseTradeInfoDto getBaseTraderById(Integer paramInteger) {
-		return basicSecondaryWS.getBaseTraderById(paramInteger);
+	public BasicTraderInfoDTO getBaseTraderById(Integer paramInteger) {
+		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+		responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
+		if(responseDTO != null){
+			return responseDTO.getResult();
+		}
+		return null;
 	}
 
 	@Cache(key = "baseMinorManagerImpl.getMainBranchScheduleByTranCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
@@ -93,20 +111,18 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return basicSecondaryWS.getCrossPackageTagByPara(bds, siteCode, startDmsCode);
 	}
 
-	@Cache(key = "baseMinorManagerImpl.getBaseAllTrader", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseAllTrader", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseTradeInfoDto> getBaseAllTrader() {
-		// TODO Auto-generated method stub
-		return basicSecondaryWSProxy.getBaseAllTrader();
-	}
 
 	@Cache(key = "baseMinorManagerImpl.getBaseTraderByName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderByName", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public List<BaseTradeInfoDto> getBaseTraderByName(String name) {
+	public List<BasicTraderInfoDTO> getBaseTraderByName(String name) {
 		// TODO Auto-generated method stub
-		return basicSecondaryWS.getBaseTraderByName(name);
+//		return basicSecondaryWS.getBaseTraderByName(name);
+		ResponseDTO<List<BasicTraderInfoDTO>> responseDTO =  basicTraderAPI.getBaseTraderByName(name);
+		if(responseDTO == null){
+			return Collections.emptyList();
+		}
+		return responseDTO.getResult();
 	}
 
     /**
@@ -117,13 +133,46 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
             redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getSignCustomer", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<String> getSignCustomer(){
-        return basicSecondaryWS.getTraderInfoPopCodeAll();
+		ResponseDTO<List<String>> responseDTO = null;
+         responseDTO = basicTraderAPI.getTraderInfoPopCodeAll();
+         if(responseDTO == null){
+         	return null;
+		 }
+		return responseDTO.getResult();
     }
 
 	@Override
 	public BasePdaUserDto pdaUserLogin(String erpcode, String password) {
 		// TODO Auto-generated method stub
 		return basicSecondaryWS.pdaUserLogin(erpcode, password);
+	}
+
+	@Cache(key = "baseMinorManagerImpl.getBaseAllTrader", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseAllTrader", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public List<BasicTraderInfoDTO> getBaseAllTrader() {
+		log.info("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
+		List<BasicTraderInfoDTO> traderList = new ArrayList();
+		int count = 0;
+		long startTime = System.currentTimeMillis();
+		ResponseDTO<PageDTO<BasicTraderInfoDTO>> resPageDto = this.basicTraderAPI.getTraderListByPage(1);
+		if(null != resPageDto && null != resPageDto.getResult() && null != resPageDto.getResult().getData()
+				&& (resPageDto.getResult().getData()).size() > 0) {
+			PageDTO<BasicTraderInfoDTO> pageDTO = resPageDto.getResult();
+			traderList.addAll((Collection)pageDTO.getData());
+			count = pageDTO.getTotalRow();
+			int totalPage = pageDTO.getTotalPage();
+
+			for(int i = 2; i <= totalPage; ++i) {
+				traderList.addAll((Collection)this.basicTraderAPI.getTraderListByPage(i).getResult().getData());
+			}
+		} else {
+			log.error("getBaseAllTrader获取数据为空");
+		}
+
+		log.info("getBaseAllTrader获取数据count[" + count + "]");
+		log.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
+		return traderList;
 	}
 
 }

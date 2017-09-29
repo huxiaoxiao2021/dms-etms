@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class AirTransportServiceImpl implements AirTransportService{
 			}
 			Integer destinationProvinceId = baseDto.getProvinceId();
 			Integer destinationCityId = baseDto.getCityId();
-			BaseTradeInfoDto infoDto = siteService.getTrader(busiId);
+			BasicTraderInfoDTO infoDto = siteService.getTrader(busiId);
 			if (infoDto == null || infoDto.getAirTransport()==null) {
 				return 0;
 			}
@@ -71,7 +72,7 @@ public class AirTransportServiceImpl implements AirTransportService{
 	@Override
 	public boolean getAirSigns(Integer busiId) {
 
-		BaseTradeInfoDto infoDto = siteService.getTrader(busiId);
+		BasicTraderInfoDTO infoDto = siteService.getTrader(busiId);
 
 		if (infoDto == null || infoDto.getAirTransport() == null) {
 			return false;

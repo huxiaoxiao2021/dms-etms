@@ -5,6 +5,7 @@ import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -266,14 +267,14 @@ public class PopJoinResource {
         try {
             List<String> resultBusiNames = new ArrayList<String>();
 
-            List<BaseTradeInfoDto> baseTradeInfoDtos = null;
+            List<BasicTraderInfoDTO> baseTradeInfoDtos = null;
 
             if (popJoinQuery == null || StringUtils.isBlank(popJoinQuery.getBusiName())) {
                 baseTradeInfoDtos = this.baseMinorManager.getBaseAllTrader();
             } else {
                 baseTradeInfoDtos = this.baseMinorManager.getBaseTraderByName(popJoinQuery.getBusiName());
             }
-            for (BaseTradeInfoDto baseTradeInfoDto : baseTradeInfoDtos) {
+            for (BasicTraderInfoDTO baseTradeInfoDto : baseTradeInfoDtos) {
                 if (baseTradeInfoDto != null && StringUtils.isNotBlank(baseTradeInfoDto.getTraderName())) {
                     resultBusiNames.add(baseTradeInfoDto.getTraderName());
                 }

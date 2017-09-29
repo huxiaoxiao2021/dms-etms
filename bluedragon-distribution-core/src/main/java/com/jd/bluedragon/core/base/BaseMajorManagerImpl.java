@@ -8,6 +8,10 @@ import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ldop.basic.api.BasicTraderAPI;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.PageDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
@@ -31,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service("baseMajorManager")
@@ -44,8 +49,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     private BasicPrimaryWS basicPrimaryWS;
 
     @Autowired
-    @Qualifier("basicSecondaryWS")
-    private BasicSecondaryWS basicSecondaryWS;
+    @Qualifier("basicTraderAPI")
+    private BasicTraderAPI basicTraderAPI;
+
+//    @Autowired
+//    @Qualifier("basicSecondaryWS")
+//    private BasicSecondaryWS basicSecondaryWS;
 
     @Autowired
     @Qualifier("basicPrimaryWSProxy")
@@ -63,7 +72,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
         BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-        BaseTradeInfoDto dtoTrade = null;
+        BasicTraderInfoDTO dtoTrade = null;
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
         if (dtoStaff != null)
             return dtoStaff;
         else
@@ -72,9 +82,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if (dtoStaff != null)
             return dtoStaff;
         else
-            dtoTrade = basicSecondaryWS.getBaseTraderById(paramInteger);
+            responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
 
-        if (dtoTrade != null)
+        if (responseDTO != null && dtoTrade != null)
             dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
         return dtoStaff;
     }
@@ -114,8 +124,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
 
         //商家站点
-        List<BaseTradeInfoDto> baseTrader = basicSecondaryWSProxy.getBaseAllTrader();
-        for (BaseTradeInfoDto dto : baseTrader) {
+        List<BasicTraderInfoDTO> baseTrader = this.getBaseAllTrader();
+        for (BasicTraderInfoDTO dto : baseTrader) {
             allSite.add(getBaseStaffSiteOrgDtoFromTrader(dto));
         }
 
@@ -174,7 +184,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
 
     public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromTrader(
-            BaseTradeInfoDto trader) {
+            BasicTraderInfoDTO trader) {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
         baseStaffSiteOrgDto.setDmsSiteCode(trader.getTraderCode());
         baseStaffSiteOrgDto.setSiteCode(trader.getId());
@@ -197,7 +207,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
         BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
-        BaseTradeInfoDto dtoTrade = null;
+        BasicTraderInfoDTO dtoTrade = null;
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
         if (dtoStaff != null)
             return dtoStaff;
         else
@@ -206,10 +217,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if (dtoStaff != null)
             return dtoStaff;
         else
-            dtoTrade = basicSecondaryWS.getBaseTraderByCode(siteCode);
+            responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
 
-        if (dtoTrade != null)
-            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(dtoTrade);
+        if (responseDTO != null && responseDTO.getResult() != null)
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
         return dtoStaff;
     }
 
@@ -481,14 +492,16 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     public Pager<List<SiteWareHouseMerchant>> getTraderListByPage(int pageIndex) {
-        PageDto<List<BaseTradeInfoDto>> resPageDto = this.basicSecondaryWS.getTraderListByPage(pageIndex);
+        ResponseDTO<PageDTO<BasicTraderInfoDTO>> responseDTO = null;
+        PageDTO<BasicTraderInfoDTO> resPageDto = null;
+        responseDTO = this.basicTraderAPI.getTraderListByPage(pageIndex);
         Pager<List<SiteWareHouseMerchant>> result = new Pager<List<SiteWareHouseMerchant>>();
-        if (null == resPageDto || null == resPageDto.getData()) {
+        if (null == responseDTO || null == responseDTO.getResult() || null == responseDTO.getResult().getData()) {
             result.setTotalSize(0);
             result.setTotalNo(1);
             return result;
         }
-
+        resPageDto = responseDTO.getResult();
         result.setPageSize(resPageDto.getPageSize());
         result.setTotalSize(resPageDto.getTotalRow());
         result.setTotalNo(resPageDto.getTotalPage());
@@ -497,11 +510,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return result;
     }
 
-    private List<SiteWareHouseMerchant> convertFromTrade(List<BaseTradeInfoDto> list) {
+    private List<SiteWareHouseMerchant> convertFromTrade(List<BasicTraderInfoDTO> list) {
         if (null == list)
             return new ArrayList<SiteWareHouseMerchant>();
         List<SiteWareHouseMerchant> result = new ArrayList<SiteWareHouseMerchant>(list.size());
-        for (BaseTradeInfoDto item : list) {
+        for (BasicTraderInfoDTO item : list) {
             SiteWareHouseMerchant site = new SiteWareHouseMerchant();
             site.setId(item.getId());
             site.setName(item.getTraderName());
@@ -518,4 +531,31 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
         return result;
     }
+
+    private List<BasicTraderInfoDTO> getBaseAllTrader() {
+        logger.info("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
+        List<BasicTraderInfoDTO> traderList = new ArrayList();
+        int count = 0;
+        long startTime = System.currentTimeMillis();
+        ResponseDTO<PageDTO<BasicTraderInfoDTO>> responseDTO = this.basicTraderAPI.getTraderListByPage(1);
+        if(responseDTO != null && null != responseDTO.getResult() && null != responseDTO.getResult().getData()
+                && ((List)responseDTO.getResult().getData()).size() > 0) {
+            PageDTO<BasicTraderInfoDTO> resPageDto = responseDTO.getResult();
+            traderList.addAll((Collection)resPageDto.getData());
+            count = resPageDto.getTotalRow();
+            int totalPage = resPageDto.getTotalPage();
+
+            for(int i = 2; i <= totalPage; ++i) {
+                traderList.addAll((Collection)this.basicTraderAPI.getTraderListByPage(i).getResult().getData());
+            }
+        } else {
+            logger.error("getBaseAllTrader获取数据为空");
+        }
+
+        logger.info("getBaseAllTrader获取数据count[" + count + "]");
+        logger.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
+        return traderList;
+    }
+
+
 }
