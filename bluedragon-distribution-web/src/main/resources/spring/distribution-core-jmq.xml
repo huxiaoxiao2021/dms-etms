@@ -227,4 +227,8 @@
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
+     <!--封车mq-->
+    <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sealCar}"/>
+    </bean>
 </beans>
