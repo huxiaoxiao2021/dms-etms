@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.packageToMq.service.impl;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.message.consumer.MessageConstant;
+import com.jd.bluedragon.core.message.MessageConstant;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackageRequest;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackagesRequest;
 import com.jd.bluedragon.distribution.packageToMq.domain.Pack;
