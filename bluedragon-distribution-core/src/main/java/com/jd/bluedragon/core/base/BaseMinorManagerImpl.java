@@ -51,7 +51,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	
 	
 	
-	@Cache(key = "baseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderById", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicTraderInfoDTO getBaseTraderById(Integer paramInteger) {
@@ -112,7 +112,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	}
 
 
-	@Cache(key = "baseMinorManagerImpl.getBaseTraderByName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderByName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderByName", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BasicTraderInfoDTO> getBaseTraderByName(String name) {
@@ -147,7 +147,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return basicSecondaryWS.pdaUserLogin(erpcode, password);
 	}
 
-	@Cache(key = "baseMinorManagerImpl.getBaseAllTrader", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+	@Cache(key = "TbaseMinorManagerImpl.getBaseAllTrader", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseAllTrader", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BasicTraderInfoDTO> getBaseAllTrader() {
