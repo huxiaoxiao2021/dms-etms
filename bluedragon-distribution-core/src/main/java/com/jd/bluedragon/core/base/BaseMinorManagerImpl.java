@@ -38,9 +38,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@Qualifier("basicSecondaryWS")
 	private BasicSecondaryWS basicSecondaryWS;
 	
-	@Autowired
-	@Qualifier("basicSecondaryWSProxy")
-	private BasicSecondaryWSProxy basicSecondaryWSProxy;
+//	@Autowired
+//	@Qualifier("basicSecondaryWSProxy")
+//	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 	
 	/**
 	 * 
