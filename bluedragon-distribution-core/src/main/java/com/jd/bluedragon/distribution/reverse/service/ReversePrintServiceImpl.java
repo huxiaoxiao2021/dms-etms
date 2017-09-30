@@ -48,7 +48,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     private static final Integer EXCHANGE_OWN_WAYBILL_OP_TYPE=Integer.valueOf(4200);
 
-    private static final Integer SICK_WAYBILL_TYPE = 30;//仓储病单拦截
     @Autowired
     private TaskService taskService;
 
@@ -241,7 +240,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         try {
             CancelWaybill caybillCancel = jsfSortingResourceService.getWaybillCancelByWaybillCode(domain.getWaybillCode());
-            domain.setSickWaybillFlag(caybillCancel.getFeatureType() == SICK_WAYBILL_TYPE ? 1: 0);//病单类型 1 ，非病单类型 0
+            domain.setSickWaybillFlag(caybillCancel.getFeatureType());//病单类型 30 ，非病单类型 31
         }catch (Exception ex){
             logger.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
             result.error("获取订单拦截信息异常");
