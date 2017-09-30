@@ -56,6 +56,10 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     @Override
     public Boolean sendDtc(SortSchemeRequest request,String url,Integer siteCode) {
         boolean bool = false;
+        if (!"625130".equals(siteCode)){
+            logger.error("非北京亚一的分拣中心不能进行分拣计划同步" + siteCode);
+            return true;
+        }
         SortSchemeResponse<SortScheme> sortScheme = sortSchemeService.findById2(request,url + sortSchemeUrl);//获取激活的方案的主表
         SortSchemeDetailRequest sortSchemeDetailRequest = new SortSchemeDetailRequest();
         sortSchemeDetailRequest.setSchemeId(request.getId().toString());
@@ -68,7 +72,6 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
             bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         } catch (Exception e) {
             logger.error("获取分拣中心信息失败，ID为" + siteCode);
-            e.printStackTrace();
         }
 
         /** 发送MQ到DTC系统 **/
@@ -101,7 +104,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         try{
             bDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(siteCode));
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error("获取站点的基础资料信息失败："+ siteCode);
         }
 
         //通过siteCode得到分拣中心本地的激活的分拣方案
@@ -110,6 +113,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         List<SortScheme> sortSchemes = sortSchemeService.queryBySiteCode(request,url + "/autosorting/sortScheme/find/siteCode").getData();
         List<SortSchemeDetail> sortSchemeDetails = new ArrayList<SortSchemeDetail>();
         if(sortSchemes == null || sortSchemes.size() <= 0){
+            logger.info("没有获取到该站点的分拣计划主表信息" + siteCode);
             return bool;
         }
         for(int i = 0;i<sortSchemes.size();i++ ){
@@ -125,7 +129,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
             mapMq = JsonHelper.json2Map(jsonMqs.get(i));
             String target = mapMq.get("target").toString();
 
-            if (stores.contains(target)) {
+            if ("625130".equals(siteCode)) {//北京亚一分拣中心有这个需求，由于是基础资料维护失败，暂时先写死 只要北京亚一进行推送
                 String messageValue = mapMq.get("messageValue").toString();
                 String outboundNo = mapMq.get("outboundNo").toString();
                 String methodName = mapMq.get("methodName").toString();
@@ -216,7 +220,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 dmsSortSchemeRouter.setBody(detailJsonBuffer);
                 dmsSortSchemeRouter.setType("SortSchemeDetail");
                 String detailJson = JsonHelper.toJson(dmsSortSchemeRouter);
-                mapMq.put("target",orgId + "," + cky2 + "," + storeId);
+                mapMq.put("target","6,6,80");//北京亚一写死
                 mapMq.put("messageValue",detailJson);
                 mapMq.put("outboundNo",itemDetail.getSiteCode()+ "-" + String.valueOf(itemDetail.getId()));
                 mapMq.put("methodName","sortSchemeDetailDownload");
