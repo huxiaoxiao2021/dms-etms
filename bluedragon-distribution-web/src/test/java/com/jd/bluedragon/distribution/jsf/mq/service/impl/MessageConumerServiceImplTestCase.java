@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.jd.bluedragon.core.message.consumer.reverse.PickWareConsumer;
-import com.jd.bluedragon.core.message.consumer.sendCar.SendCarContext;
 import com.jd.bluedragon.distribution.reverse.domain.PickWare;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.domain.BaseEntity;
