@@ -341,9 +341,7 @@ public class SortingServiceImpl implements SortingService {
 							+ sorting.getWaybillCode());
 				}
 			}
-		}//FIXME:ELSE
-
-		if (StringHelper.isNotEmpty(sorting.getPackageCode())) { // 按包裹分拣
+		} else { // 按包裹分拣
 			sortings.add(sorting);
 		}
 
