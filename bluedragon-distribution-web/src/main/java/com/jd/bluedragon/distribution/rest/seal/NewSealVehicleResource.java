@@ -1,6 +1,33 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -16,17 +43,6 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * create by zhanglei 2017-05-10
@@ -54,7 +70,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private GoddessService goddessService;
-
+    @Autowired
+    @Qualifier("sealCarProducer")
+    private DefaultJMQProducer sealCarProducer;
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
 
     private static final int SEAL_SOURCE = 1;  //封车解封车操作源（代表我们DMS系统）
@@ -125,7 +143,21 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
                     request.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
-
+                    //封车成功，发送封车mq消息
+                    if(paramList!=null){
+                    	for(SealCarDto sealCarDto:paramList){
+                            SealCarMqDto sealCarMqDto = new SealCarMqDto();
+                            sealCarMqDto.setDmsSiteId(sealCarDto.getSealSiteId());
+                            sealCarMqDto.setTransportCode(sealCarDto.getTransportCode());
+                            sealCarMqDto.setVehicleNumber(sealCarDto.getVehicleNumber());
+                            sealCarMqDto.setOperUserCode(sealCarDto.getSealUserCode());
+                            sealCarMqDto.setOperUserName(sealCarDto.getSealUserName());
+                            sealCarMqDto.setOperTime(sealCarDto.getSealCarTime());
+                            sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
+                            sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
+                            sealCarProducer.send(request.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
+                        }
+                    }
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
