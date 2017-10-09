@@ -24,19 +24,19 @@ public class PrintDeviceServiceImpl implements PrintDeviceService {
     UccPrintDeviceService uccPrintDeviceService;
 
     @Override
-    public List<PrintDevice> allPrintDeviceInfo() {
+    public List<PrintDevice> allPrintDeviceInfo(){
         List<PrintDevice> list = uccPrintDeviceService.getPrintDevice();
         return list;
     }
 
     @Override
-    public List<PrintDevice> searchPrintDevice(String versionId, String printDeviceId) {
+    public List<PrintDevice> searchPrintDevice(String versionId, String printDeviceId){
         List<PrintDevice> list = uccPrintDeviceService.searchPrintDevice(versionId, printDeviceId);
         return list;
     }
 
     @Override
-    public Integer addPrintDevice(PrintDevice printDevice) {
+    public Integer addPrintDevice(PrintDevice printDevice) throws Exception{
 
         Date date = new Date();
         Integer result = -1;
@@ -55,64 +55,50 @@ public class PrintDeviceServiceImpl implements PrintDeviceService {
     }
 
     @Override
-    public Integer deletePrintDeviceById(List<String> KeyList) {
-        try {
-            uccPrintDeviceService.deleteAllPrintDevice(KeyList);
-            return 1;
-        } catch (Exception e) {
-            logger.error("删除ISVID失败：",e);
-            e.printStackTrace();
-            return -1;
-        }
+    public Integer deletePrintDeviceById(List<String> KeyList) throws Exception{
+        uccPrintDeviceService.deleteAllPrintDevice(KeyList);
+        return 1;
     }
 
     @Override
-    public Integer modifyPrintDevice(PrintDevice printDevice) {
+    public Integer modifyPrintDevice(PrintDevice printDevice) throws Exception{
         Date date = new Date();
         if (null != printDevice.getPrintDeviceId() && null != printDevice.getVersionId()) {
             printDevice.setUpdateTime(DateHelper.formatDateTime(date));
-            try {
-                uccPrintDeviceService.modifyPrintDevice(printDevice);
-                return 1;
-            } catch (Exception e) {
-                logger.error("修改ISV失败：",e);
-                e.printStackTrace();
-                return -1;
-            }
+            uccPrintDeviceService.modifyPrintDevice(printDevice);
+            return 1;
         } else {
             return -1;//表示修改任务失败
         }
     }
 
     @Override
-    public String searchVersionIdByPrintDeviceId(String printDeviceId) {
+    public String searchVersionIdByPrintDeviceId(String printDeviceId){
         String versionId = "";
-        try{
+        try {
             versionId = uccPrintDeviceService.searchVersionIdByPrintDeviceId(printDeviceId);
-        }catch (Exception e){
-            logger.error("根据ID查询ISV失败：",e);
-            e.printStackTrace();
+        } catch(Exception e){
+            logger.error("获取打印机设备的版本号失败，设备编号：" + printDeviceId ,e);
         }
         return versionId;
     }
 
     @Override
-    public boolean printDeviceState(String printDeviceId) {
-        boolean bool = uccPrintDeviceService.printDeviceState(printDeviceId);
+    public boolean printDeviceState(String printDeviceId){
+        boolean bool = Boolean.FALSE;
+        try{
+            bool = uccPrintDeviceService.printDeviceState(printDeviceId);
+        } catch (Exception e){
+            logger.error("获取打印机设备信息失败，设备ID：" + printDeviceId,e);
+        }
         return bool;
     }
 
     @Override
-    public Integer changePrintDeviceState(String printDeviceId, boolean state) {
+    public Integer changePrintDeviceState(String printDeviceId, boolean state) throws Exception{
         Integer result;
-        try{
-            uccPrintDeviceService.changePrintDeviceState(printDeviceId,state);//更改状态信息
-            result = 1;//状态修改成功
-        }catch(Exception e){
-            result = -1;//状态修改失败
-            logger.error("更改ISV状态失败：",e);
-            e.printStackTrace();
-        }
+        uccPrintDeviceService.changePrintDeviceState(printDeviceId,state);//更改状态信息
+        result = 1;//状态修改成功
         return result;
     }
 

@@ -243,10 +243,10 @@ public class OfflineController {
 					&& defaultSiteType.equals(Constants.DMS_SITE_TYPE)) {
 				siteList.add(baseStaffSiteOrgDto);
 			} else if (defaultOrgId != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(defaultOrgId,
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(defaultOrgId,
 						Constants.DMS_SITE_TYPE);
 			} else if (paramMap != null && paramMap.get("orgCode") != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(
 						(Integer) paramMap.get("orgCode"),
 						Constants.DMS_SITE_TYPE);
 			}

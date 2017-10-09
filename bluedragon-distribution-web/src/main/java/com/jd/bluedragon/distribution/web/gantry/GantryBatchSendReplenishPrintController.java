@@ -10,11 +10,13 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.RestHelper;
+import com.jd.common.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class GantryBatchSendReplenishPrintController {
 
     @Autowired
     GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    BaseService baseService;
 
     @RequestMapping(value = "/index")
     public String index(Model model, Integer machineId, Integer createSiteCode, String createSiteName, String startTime, String endTime) {
@@ -106,7 +111,7 @@ public class GantryBatchSendReplenishPrintController {
             return null;
         }
         try {
-            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null, String.valueOf(request.getMachineId()));
+            List<ScannerFrameBatchSend> list = scannerFrameBatchSendService.queryAllReceiveSites(null,request.getMachineId());
             result.setCode(200);
             result.setData(list);
             result.setMessage("获取龙门架的目的站点成功");
@@ -136,8 +141,8 @@ public class GantryBatchSendReplenishPrintController {
             userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
         }
 
-        Integer machineId = requests[0].getMachineId();
-        if (machineId == null || machineId == 0) {
+        String machineId = requests[0].getMachineId();
+        if (StringUtils.isBlank(machineId)) {
             result.setCode(200);
             result.setMessage("服务调用成功，龙门架参数错误");
             return result;
@@ -163,9 +168,13 @@ public class GantryBatchSendReplenishPrintController {
                 BatchSendPrintImageRequest itemRequest = new BatchSendPrintImageRequest();
                 itemRequest.setSendCode(item.getSendCode());
                 itemRequest.setCreateSiteCode(item.getCreateSiteCode());
-                itemRequest.setCreateSiteName(item.getCreateSiteName());
+                String createSiteName = "";
+                String receiveSiteName = "";
+                createSiteName = baseService.getSiteNameBySiteID(item.getCreateSiteCode());
+                receiveSiteName = baseService.getSiteNameBySiteID(item.getReceiveSiteCode());
+                itemRequest.setCreateSiteName(createSiteName);
                 itemRequest.setReceiveSiteCode(item.getReceiveSiteCode());
-                itemRequest.setReceiveSiteName(item.getReceiveSiteName());
+                itemRequest.setReceiveSiteName(receiveSiteName);
                 Integer packageSum = 0;
                 /** 获取包裹的数据量 **/
                 List<SendDetail> sendDetailList = gantryDeviceService.queryWaybillsBySendCode(item.getSendCode());
@@ -204,7 +213,7 @@ public class GantryBatchSendReplenishPrintController {
     private ScannerFrameBatchSendSearchArgument toScannerFrameBatchSend(GantryDeviceConfigRequest request, Integer receiveSiteCode, String receiveSiteName) {
         ScannerFrameBatchSendSearchArgument result = new ScannerFrameBatchSendSearchArgument();
         if (request != null) {
-            result.setMachineId(request.getMachineId());
+            result.setMachineId(String.valueOf(request.getMachineId()));
             result.setStartTime(request.getStartTime());
             result.setEndTime(request.getEndTime());
             result.setReceiveSiteCode(receiveSiteCode);

@@ -20,33 +20,35 @@ public class GantryExceptionDaoTest extends AbstractDaoIntegrationTest{
     @Autowired
     private GantryExceptionDao gantryExceptionDao;
 
-//    @Test
-//    public void testAddGantryException() {
-//        for (long i =0; i < 20; i++) {
-//            GantryException gantryException = new GantryException();
-//            gantryException.setMachineId(i);
-//            gantryException.setPackageCode("123");
-//            gantryException.setWaybillCode("123");
-//            gantryException.setCreateSiteCode(11L);
-//            gantryException.setCreateSiteName("123");
-//            gantryException.setVolume(1.0);
-//            gantryException.setType(1);
-//            gantryException.setOperateTime(new Date());
-//            gantryException.setCreateTime(new Date());
-//            gantryException.setUpdateTime(new Date());
-//            Assert.assertEquals(1, gantryExceptionDao.addGantryException(gantryException));
-//        }
-//
-//    }
-
     @Test
-    public void testQueryGantryExceptionCount() {
+    public void testAddGantryException() {
+        for (long i =0; i < 20; i++) {
+            GantryException gantryException = new GantryException();
+            gantryException.setMachineId("mId" + i);
+            gantryException.setPackageCode("pcode" + i);
+            gantryException.setChuteCode("cCode" + i);
+            gantryException.setBarCode("bar"+i);
+            gantryException.setWaybillCode("123");
+            gantryException.setCreateSiteCode(11L);
+            gantryException.setCreateSiteName("123");
+            gantryException.setVolume(1.0);
+            gantryException.setType(1);
+            gantryException.setOperateTime(new Date());
+            gantryException.setCreateTime(new Date());
+            gantryException.setUpdateTime(new Date());
+            Assert.assertEquals(1, gantryExceptionDao.addGantryException(gantryException));
+        }
 
-        HashMap<String, Object> param = new HashMap();
-//        param.put("machineId", new Long(0));
-        param.put("endTime", new Date());
-        Assert.assertEquals(new Integer(21), gantryExceptionDao.getGantryExceptionCount(param));
     }
+
+//    @Test
+//    public void testQueryGantryExceptionCount() {
+//
+//        HashMap<String, Object> param = new HashMap();
+////        param.put("machineId", new Long(0));
+//        param.put("endTime", new Date());
+//        Assert.assertEquals(new Integer(21), gantryExceptionDao.getGantryExceptionCount(param));
+//    }
 //    @Test
 //    public void testQueryGantryExceptionPage() {
 //

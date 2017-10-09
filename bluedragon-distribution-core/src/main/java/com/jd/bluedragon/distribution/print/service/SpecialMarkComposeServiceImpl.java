@@ -43,13 +43,24 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             builder.append(SPECIAL_MARK_PUBLIC_WELFARE);
         }
 
-        if(waybill.getIsAir()){
-            builder.append(SPECIAL_MARK_AIRTRANSPORT);
-        }
+
         //安利--waybillSign第27位等于1的为允许半收的订单，包裹标签打“半”
         if(waybill.getWaybillSign().length() > 26 && waybill.getWaybillSign().charAt(26) == '1'){
             builder.append(ALLOW_HALF_ACCEPT);
         }
+        //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
+        if(waybill.getWaybillSign().length() > 34 && waybill.getWaybillSign().charAt(34) == '1'){
+            builder.append(SPECIAL_MARK_SENIOR);
+        }
+        //当前打“空”的逻辑不变，“空”字变为“航”，同时增加waybillsign 第31为1 打“航”逻辑。Waybillsign标识 2017年8月22日16:23:47
+        if(waybill.getWaybillSign().length() > 30 && waybill.getWaybillSign().charAt(30) == '1'){
+            builder.append(SPECIAL_MARK_AIRTRANSPORT);
+        }else {
+            if(waybill.getIsAir()){
+                builder.append(SPECIAL_MARK_AIRTRANSPORT);
+            }
+        }
+
         if((builder.indexOf(CITY_DISTRIBUTION_JI) < 0 && builder.indexOf(CITY_DISTRIBUTION_CHENG) < 0) && waybill.getIsSelfService()){//城配与配送方式柜互斥，优先城配
             builder.append(SPECIAL_MARK_ARAYACAK_CABINET);
         }

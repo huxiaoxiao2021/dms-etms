@@ -28,7 +28,7 @@
         UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
     <sql id="allFieldsExcludeTs">
-        ID,MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
+        SCANNER_FRAME_BATCH_SEND.ID,MACHINE_ID, CREATE_SITE_CODE, CREATE_SITE_NAME, RECEIVE_SITE_CODE,
         RECEIVE_SITE_NAME, SEND_CODE, PRINT_TIMES, CREATE_USER_CODE, CREATE_USER_NAME,
         UPDATE_USER_CODE, UPDATE_USER_NAME, LAST_PRINT_TIME, CREATE_TIME, UPDATE_TIME, YN
     </sql>
@@ -37,7 +37,7 @@
         <include refid="allFieldsExcludeIdAndTs"/>
         )
         VALUES (
-        #{machineId,jdbcType=BIGINT},
+        #{machineId,jdbcType=VARCHAR},
         #{createSiteCode,jdbcType=BIGINT},
         #{createSiteName,jdbcType=VARCHAR},
         #{receiveSiteCode,jdbcType=BIGINT},
@@ -61,7 +61,7 @@
         FROM scanner_frame_batch_send
         WHERE     create_time>#{operateTimeSub24Hours,jdbcType=TIMESTAMP}
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
-              AND machine_id=#{machineId,jdbcType=INTEGER}
+              AND machine_id=#{machineId,jdbcType=VARCHAR}
               AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
         order by CREATE_TIME DESC
         limit 1
@@ -75,7 +75,7 @@
 
     <sql id="getSplitPageListWhere">
         WHERE
-        MACHINE_ID=#{data.machineId,jdbcType=BIGINT}
+        MACHINE_ID=#{data.machineId,jdbcType=VARCHAR}
         <if test="data.startTime != null">
             AND CREATE_TIME>=#{data.startTime,jdbcType=TIMESTAMP}
         </if>
@@ -108,12 +108,12 @@
     <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
         <include refid="allFieldsExcludeTs"/>
-        FROM SCANNER_FRAME_BATCH_SEND
-        WHERE Id IN(SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
+        FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
-        GROUP BY RECEIVE_SITE_CODE)
-        ORDER BY Id DESC
-        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        GROUP BY RECEIVE_SITE_CODE
+        ORDER BY ID DESC
+        LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}) T1
+        INNER JOIN SCANNER_FRAME_BATCH_SEND ON T1.ID = SCANNER_FRAME_BATCH_SEND.ID
     </select>
     <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
         SELECT COUNT(1)
@@ -136,18 +136,19 @@
 
     <select id="queryByMachineIdAndTime" parameterType="com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument" resultMap="resultListMap">
         SELECT
-          <include refid="allFieldsExcludeIdAndTs"/>
+          <include refid="allFieldsExcludeTs"/>
         FROM SCANNER_FRAME_BATCH_SEND
         <where>
           <if test="machineId != null">
-            MACHINE_ID = #{machineId,jdbcType=BIGINT}
+            MACHINE_ID = #{machineId,jdbcType=VARCHAR}
           </if>
           <if test="startTime != null">
-            AND CREATE_TIME > #{startTime,jdbcType=TIMESTAMP}
+            AND CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
           </if>
           <if test="endTime != null">
             AND CREATE_TIME <![CDATA[<=]]> #{endTime,jdbcType=TIMESTAMP}
           </if>
+            AND YN = 1
         </where>
     </select>
 
@@ -156,7 +157,7 @@
         FROM SCANNER_FRAME_BATCH_SEND
         <where>
             <if test="machineId != null">
-                MACHINE_ID = #{machineId,jdbcType=BIGINT}
+                MACHINE_ID = #{machineId,jdbcType=VARCHAR}
             </if>
             <if test="createSiteCode != null">
                 AND CREATE_SITE_CODE = #{createSiteCode}

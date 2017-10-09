@@ -508,13 +508,12 @@ public class PopReceiveAbnormalController {
 			return new JsonResult(false, "服务器异常，请稍后重试！");
 		}
 	}
-	
+
 	/**
 	 * 取消差异订单
-	 * 
-	 * @param popReceiveAbnormal
+	 * @param paramMap
 	 * @return
-	 */
+     */
 	@RequestMapping(value = "/cancelPopReceiveAbnormal", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult cancelPopReceiveAbnormal(@RequestBody Map<String, String> paramMap) {
@@ -563,12 +562,10 @@ public class PopReceiveAbnormalController {
 
 	/**
 	 * 导出POP差异订单数据
-	 * 
-	 * @param PopReceiveAbnormalDTO
-	 * @param pager
+	 * @param popAbnormalQuery
 	 * @param response
-	 * @return
-	 */
+     * @return
+     */
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
 	public String exportPopReceiveAbnormal(PopAbnormalQuery popAbnormalQuery,
 			HttpServletResponse response) {
@@ -748,10 +745,10 @@ public class PopReceiveAbnormalController {
 					&& defaultSiteType.equals(Constants.DMS_SITE_TYPE)) {
 				siteList.add(baseStaffSiteOrgDto);
 			} else if (defaultOrgId != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(defaultOrgId,
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(defaultOrgId,
 						Constants.DMS_SITE_TYPE);
 			} else if (paramMap != null && paramMap.get("orgCode") != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSubType(
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(
 						(Integer) paramMap.get("orgCode"),
 						Constants.DMS_SITE_TYPE);
 			}

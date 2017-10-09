@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -254,17 +255,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
         queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
+        //查询箱子发货记录
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
         if (null != sendMList && sendMList.size() > 0) {
             return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
-
-        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
-        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-            return new SendResult(2, "该发货批次已经发车，不能继续发货");
-        }
         Profiler.registerInfoEnd(temp_info1);
+
         CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
@@ -283,7 +281,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 response = jsfSortingResourceService.check(sortingCheck);
             } catch (Exception ex) {
                 logger.error("调用VER", ex);
-                return new SendResult(4, "调用分拣验证异常", 100, 0);
+                return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
             }
             Profiler.registerInfoEnd(info1);
             if (!response.getCode().equals(200)) {//如果校验不OK
@@ -302,17 +300,19 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
-                        return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-                } else {
+                        return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
+                } else{
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
 
         }
         Profiler.registerInfoEnd(temp_info2);
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
-        if(!verificationResult.getCode()){
-            return new SendResult(2, verificationResult.getMessage());
+        if(!isForceSend){
+            DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
+            if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
+                return new SendResult(4, verificationResult.getMessage());
+            }
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
@@ -807,9 +807,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
                     DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),true);
+        //老发货升级需求 调用verification 的checkPackage的值由true 改成fals byjinjingcheng
+        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),false);
         if(!verificationResult.getCode()){
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ALL_CHECK,verificationResult.getMessage());
+            return new DeliveryResponse(DeliveryResponse.CODE_CITY_BILL_CHECK,
+                    verificationResult.getMessage());
         }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());

@@ -37,7 +37,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from container_relation
-		where container_code = #{containerCode,jdbcType=VARCHAR} order by create_time desc limit 1
+		where container_code = #{containerCode,jdbcType=VARCHAR} and is_delete=0 order by create_time desc limit 1
 	</select>
 	
 	<!-- 根据条件查询列表 -->
@@ -91,7 +91,7 @@
 	        <if test="siteCode != null">
 					site_code = #{siteCode,jdbcType=BIGINT},
 	      		</if>
-			<if test="packageCount != 0">
+			<if test="packageCount != null">
 					package_count = #{packageCount,jdbcType=TINYINT},
 	      		</if>
 	        <if test="createTime != null">

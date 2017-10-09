@@ -17,9 +17,8 @@ import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
-import com.jd.ql.basic.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +46,7 @@ public class SiteServiceImpl implements SiteService {
 		return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
 	}
 
-	public BaseTradeInfoDto getTrader(Integer siteCode) {
+	public BasicTraderInfoDTO getTrader(Integer siteCode) {
 		return this.baseMinorManager.getBaseTraderById(siteCode);
 	}
 

@@ -44,7 +44,7 @@ public interface GantryExceptionService {
      * @param endTime 结束时间
      * @return
      */
-    public Integer getGantryExceptionCount(Long machineId, Date beginTime, Date endTime);
+    public Integer getGantryExceptionCount(String machineId, Date beginTime, Date endTime);
 
     /***
      * 更新发货状态

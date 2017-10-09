@@ -146,6 +146,9 @@
                   alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}">
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
     </jsf:consumer>
+    <jsf:consumer id="basicTraderAPI" interface="com.jd.ldop.basic.api.BasicTraderAPI" protocol="jsf"
+                  alias="${ldop.basic.jsf.alias}" timeout="${basic.jsf.timeout}">
+    </jsf:consumer>
 
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
     <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
@@ -235,6 +238,8 @@
                   protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
     </jsf:consumer>
 
-    <!--封车解封车jsf接口  added by zhanglei 20170519 -->
-
+    <!-- 备件库配送入 新增jsf接口 author：zhongyicun 2017-08-29 -->
+    <jsf:consumer id="distributionReceiveJsfService" interface="com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService"
+                  protocol="jsf" alias="${unpack.jsf.alias}" serialization="hessian" timeout="10000" retries="3">
+    </jsf:consumer>
 </beans>

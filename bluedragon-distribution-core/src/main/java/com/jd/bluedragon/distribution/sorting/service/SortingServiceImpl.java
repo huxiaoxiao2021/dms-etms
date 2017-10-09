@@ -181,6 +181,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancel(Sorting sorting) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.canCancel", false, true);
+				
 		// sorting & send_d ---> cancel=1
 		boolean result = this.canCancelSorting(sorting);
 
@@ -188,6 +191,9 @@ public class SortingServiceImpl implements SortingService {
 			// 更新三方验货异常比对表，由少验修改为正常
 			this.canCancelInspectionEC(sorting);
 		}
+		Profiler.registerInfoEnd(info);
+		//added end
+		
 		return result;
 	}
 
@@ -279,12 +285,8 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	/**
-	 * author by lixin456
-	 * 强制指定事务隔离级别为RC，解决数据插入时死锁报错问题
-	 */
     @JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean doSorting(Task task) {
         List<Sorting> sortings = this.prepareSorting(task);
         if (null == sortings || sortings.isEmpty()) {
@@ -321,7 +323,8 @@ public class SortingServiceImpl implements SortingService {
 		Profiler.registerInfoEnd(info);
 		//added end
 
-
+		//added by huangliang
+		CallerInfo info1 = Profiler.registerInfo("DMSWORKER.SortingService.getWaybillAndPackByWaybillCode", false, true);
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
@@ -345,12 +348,12 @@ public class SortingServiceImpl implements SortingService {
 							+ sorting.getWaybillCode());
 				}
 			}
-		}//FIXME:ELSE
-
-		if (StringHelper.isNotEmpty(sorting.getPackageCode())) { // 按包裹分拣
+		} else { // 按包裹分拣
 			sortings.add(sorting);
 		}
-
+		Profiler.registerInfoEnd(info1);
+		//added end
+		
 		Collections.sort(sortings);
 		return sortings;
 	}
@@ -459,6 +462,9 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void addSortingAdditionalTask(Sorting sorting) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
+				
 		// prepare:
 		// 拆分分析字段
 		Integer createSiteCode = sorting.getCreateSiteCode();
@@ -511,7 +517,9 @@ public class SortingServiceImpl implements SortingService {
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		this.taskService.add(task);
-
+		
+		Profiler.registerInfoEnd(info);
+		//added end
 	}
 
 	public Sorting toSorting(Task task) {
@@ -593,6 +601,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 	
 	private void addSorting(Sorting sorting, DeliveryPackageD aPackage) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSorting", false, true);
 		if (aPackage != null) {
 			sorting.setPackageCode(aPackage.getPackageBarcode());
 			if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
@@ -606,6 +616,8 @@ public class SortingServiceImpl implements SortingService {
 		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
 		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 		this.backwardSendMQ(sorting);
+		Profiler.registerInfoEnd(info);
+		//added end
 	}
 	
 	/**
@@ -724,6 +736,9 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void addSendDetail(Sorting sorting, DeliveryPackageD aPackage) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
+		
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
         sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + 30000));
 		if (aPackage != null) {
@@ -746,15 +761,15 @@ public class SortingServiceImpl implements SortingService {
         /*updated by wangtingwei@jd.com  正向逆向三方发货全部补全数据，下线com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask该WORKER*/
         if(null != sendM){
             sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
-            this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-            sendDetail.setYn(1);
+			this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
+			sendDetail.setYn(1);
             /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-            sendDetail.setOperateTime(sendM.getOperateTime());
-            sendDetail.setCreateUser(sendM.getCreateUser());
-            sendDetail.setCreateUserCode(sendM.getCreateUserCode());
-            List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-            sendDetails.add(sendDetail);
-            deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
+			sendDetail.setOperateTime(sendM.getOperateTime());
+			sendDetail.setCreateUser(sendM.getCreateUser());
+			sendDetail.setCreateUserCode(sendM.getCreateUserCode());
+			List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+			sendDetails.add(sendDetail);
+			deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
         }else{
             this.deliveryService.saveOrUpdate(sendDetail);
         }
@@ -798,6 +813,8 @@ public class SortingServiceImpl implements SortingService {
                 logger.error("分拣补中转发货异常" + sorting.getPackageCode());
             }
         }
+		Profiler.registerInfoEnd(info);
+		//added end
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {

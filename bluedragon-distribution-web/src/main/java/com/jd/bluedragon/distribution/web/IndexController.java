@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,26 +32,26 @@ import com.jd.ssa.utils.SSOHelper;
  */
 @Controller
 public class IndexController {
-    
+
     private final Log logger = LogFactory.getLog(this.getClass());
-    
+
     @Autowired
-	private BaseMajorManager baseMajorManager;
-    
+    private BaseMajorManager baseMajorManager;
+
 //    @Autowired
 //    private CookieUtils cookieUtils;
-    
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
         return "index";
     }
-    
+
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
         this.logger.debug("IndexController --> index");
         return "index";
     }
-    
+
     @RequestMapping(value = "/top", method = RequestMethod.GET)
     public String top(Model model) {
         this.logger.debug("IndexController --> top");
@@ -78,33 +79,47 @@ public class IndexController {
         model.addAttribute("roleName", roleName);
         return "topFrame";
     }
-    
+    @Value("${mixedConfigUrl}")
+    private  String mixedConfigUrl;
+
     @RequestMapping(value = "/left", method = RequestMethod.GET)
-    public String left() {
+    public String left(Model model) {
         this.logger.debug("IndexController --> left");
+        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+        try {
+            erpUser = ErpUserClient.getCurrUser();
+
+            model.addAttribute("mixedConfigUrl", mixedConfigUrl);
+            model.addAttribute("userName", erpUser.getUserName());
+            model.addAttribute("userCode", erpUser.getStaffNo());
+        }catch (Exception e){
+            //菜单不处理异常信息
+            logger.error("获取当前用户失败",e);
+        }
+
         return "leftFrame";
     }
-    
+
     @RequestMapping("/quit")
     public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
 //        this.cookieUtils.invalidate(request, response);
-        InputStream in = getClass().getResourceAsStream( "/authen.properties");
+        InputStream in = getClass().getResourceAsStream("/authen.properties");
         Properties pps = new Properties();
         try {
-           pps.load( in);
-           String logoutKey = "logout.address" ;
-           String logoutValue = pps .getProperty(logoutKey);
-           String domainName = "webapp.domain.name" ;
-           String domainValue = pps .getProperty(domainName);
-           String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
-           
-           if(!domainValue.contains(".jd.com")){
-        	   SSOHelper.logout(response, domainValue);
-           }
-           response.sendRedirect( newUrl);
-        } catch (IOException e ) {
-           // TODO Auto-generated catch block
-           e.printStackTrace();
+            pps.load(in);
+            String logoutKey = "logout.address";
+            String logoutValue = pps.getProperty(logoutKey);
+            String domainName = "webapp.domain.name";
+            String domainValue = pps.getProperty(domainName);
+            String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
+
+            if (!domainValue.contains(".jd.com")) {
+                SSOHelper.logout(response, domainValue);
+            }
+            response.sendRedirect(newUrl);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 }

@@ -4,6 +4,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 
 import java.io.Serializable;
 import java.util.*;
+
 /**
  * 龙门驾批量发货
  * Created by wangtingwei on 2016/12/8.
@@ -20,7 +21,7 @@ public class ScannerFrameBatchSend implements Serializable {
     /**
      * 龙门架注册号
      */
-    private long machineId;
+    private String machineId;
 
     /**
      * 发货站点Id
@@ -100,11 +101,11 @@ public class ScannerFrameBatchSend implements Serializable {
         this.id = id;
     }
 
-    public long getMachineId() {
+    public String getMachineId() {
         return machineId;
     }
 
-    public void setMachineId(long machineId) {
+    public void setMachineId(String machineId) {
         this.machineId = machineId;
     }
 
@@ -221,7 +222,7 @@ public class ScannerFrameBatchSend implements Serializable {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return JsonHelper.toJson(this);
     }
 

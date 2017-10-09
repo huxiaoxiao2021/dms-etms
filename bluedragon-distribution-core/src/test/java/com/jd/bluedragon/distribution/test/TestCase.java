@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jd.bluedragon.core.message.consumer.MessageConstant;
+import com.jd.bluedragon.core.message.MessageConstant;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;

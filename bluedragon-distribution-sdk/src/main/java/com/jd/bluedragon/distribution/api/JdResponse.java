@@ -18,7 +18,7 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_NO_POP_WAYBILL = 11000;
     public static final String MESSAGE_NO_POP_WAYBILL = "运单不存在或者为非POP";
-    
+
     public static final Integer CODE_POP_ABNORMAL_WAYBILL = 12000;
     public static final String MESSAGE_POP_ABNORMAL_WAYBILL = "运单正在进行POP差异订单审核，无法进行收货";
     
