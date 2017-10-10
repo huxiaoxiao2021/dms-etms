@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.core.message.MessageException;
 
+@Deprecated
 public class MessageBaseConsumerFactory extends MessageBaseAbstractFactory {
 	
 	List<MessageBaseConfig> msgConfigs;

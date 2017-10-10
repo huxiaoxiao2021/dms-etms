@@ -1,5 +1,5 @@
 package com.jd.bluedragon.core.message.base;
-
+@Deprecated
 public class MessageBaseConfig {
 	private String destination;
 	private String systemId;
