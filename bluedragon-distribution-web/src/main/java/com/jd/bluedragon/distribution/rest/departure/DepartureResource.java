@@ -18,11 +18,14 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.etms.vos.dto.CarriagePlanDto;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SendCarInfoDto;
 import com.jd.etms.vos.dto.SendCarParamDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -639,6 +642,48 @@ public class DepartureResource {
 
 		return new DepartureTmpResponse(DepartureTmpResponse.CODE_OK,
 				DepartureTmpResponse.MESSAGE_OK);
+	}
+	/**
+	 *  VOS根据运输计划号获取运输计划详情
+	 *  @param carriagePlanCode
+	 *  @return
+	 * */
+	@GET
+	@GZIP
+	@Path("/departure/queryCarriagePlanDetails/{carriagePlanCode}")
+	@JProfiler(jKey = "DMS.DepartureResource.queryCarriagePlanDetails", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public DepartureCarriagePlanResponse queryCarriagePlanDetails(@PathParam("carriagePlanCode") String carriagePlanCode) throws Exception {
+		DepartureCarriagePlanResponse departureCarriagePlanResponse = new DepartureCarriagePlanResponse();
+		departureCarriagePlanResponse.setCode(DepartureCarriagePlanResponse.CODE_OK);
+
+		CommonDto<CarriagePlanDto> repose;
+		try {
+			repose = this.vosManager.queryCarriagePlanDetails(carriagePlanCode);
+		} catch (Exception ex) {
+			logger.error("调用运输接口异常queryCarriagePlanDetails:" + carriagePlanCode);
+			throw new Exception("vosManager.queryCarriagePlanDetails jsf接口异常");
+		}
+
+		if (repose == null || repose.getData() == null) {
+			departureCarriagePlanResponse.setCode(DepartureCarriagePlanResponse.CODE_OK_NULL);
+			departureCarriagePlanResponse.setMessage(DepartureCarriagePlanResponse.MESSAGE_OK_NULL);
+		} else {
+			if (repose.getCode() == 0 || repose.getCode() == 2) {//运输返回的异常信息
+				departureCarriagePlanResponse.setCode(repose.getCode());
+				departureCarriagePlanResponse.setMessage(repose.getMessage());
+			} else {
+				CarriagePlanDto reposeData = repose.getData();
+				departureCarriagePlanResponse.setCarriagePlanCode(reposeData.getCarriagePlanCode());//运输计划号
+				departureCarriagePlanResponse.setOrderNum(reposeData.getOrderNum());//订单数
+				departureCarriagePlanResponse.setTransMode(reposeData.getTransMode());
+				departureCarriagePlanResponse.setDriverName(reposeData.getDriverName());
+				departureCarriagePlanResponse.setDrivingLicense(reposeData.getDrivingLicense());
+				departureCarriagePlanResponse.setCarrierName(reposeData.getCarrierName());
+				departureCarriagePlanResponse.setBeginSiteName(reposeData.getBeginSiteName());
+				departureCarriagePlanResponse.setParkingSpaceNum(reposeData.getParkingSpaceNum());
+			}
+		}
+		return departureCarriagePlanResponse;
 	}
 
 }
