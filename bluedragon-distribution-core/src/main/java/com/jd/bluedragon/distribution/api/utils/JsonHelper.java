@@ -97,5 +97,12 @@ public class JsonHelper {
             return null;
         }
     }
-    
+    /**
+     * 采用gson转换json,日期采用yyyy-MM-dd HH:mm:ss 格式
+     * @param object
+     * @return
+     */
+    public static String toJsonUseGson(Object object) {
+        return GSON_COMMON.toJson(object);
+    }    
 }
