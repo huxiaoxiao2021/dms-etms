@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.test.inspection;
 
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 
@@ -104,4 +105,28 @@ public class CheckWayBillCodeTest {
         }
     }
 
+    @Test
+    public void name() throws Exception {
+        try{testForException();}catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void testForException() throws Exception {
+        for(int i = 0;i<3;i++){
+                try{
+                    if(i==0){
+                        throw new Exception("Exc" +i);
+                    }
+                    System.out.println("第"+i+"行执行");
+                    break;
+                }catch(Exception e)
+                {
+                    if(i==2){
+                        throw new Exception("Game over~");
+                    }
+                }
+        }
+    }
 }

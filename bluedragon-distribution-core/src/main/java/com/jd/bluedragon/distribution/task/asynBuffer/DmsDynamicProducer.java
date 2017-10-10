@@ -19,13 +19,10 @@ import java.util.Set;
 public class DmsDynamicProducer extends DynamicProducer<Task> {
 	
 	public static final String PRODUCER_TYPE_KEY = "asynBuffer.dynamicProducer.producerType";
-
-	public static final String PRODUCER_TYPE_KEY_TEST = "asynBuffer.dynamicProducer.producerType.test";
-	
 	public static final String ENBALED_TASK_TYPE_KEY = "asynBuffer.enabled.task.type";
 
 	public static final String NOT_ENBALED_KEY_WORD1 = "asynBuffer.notenabled.task.keyword1";
-	
+
 	@Autowired
 	private ConfigManager configManager;
 
@@ -35,6 +32,9 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	public String getEnabledTypes() {
 		return configManager.getProperty(ENBALED_TASK_TYPE_KEY);
 	}
+
+	public static final String PRODUCER_TYPE_KEY_TEST = "asynBuffer.dynamicProducer.producerType.test";
+
 
 
 	/**

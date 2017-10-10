@@ -20,7 +20,7 @@
           class="com.jd.ql.framework.asynBuffer.comsumer.SimpleTaskProcessorJMQRouter">
         <constructor-arg name="mapping">
             <map>
-                <!-- 分拣中心收货 -->
+               <!-- &lt;!&ndash; 分拣中心收货 &ndash;&gt;
                 <entry key="${jmq.task.topic.receive.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -36,7 +36,7 @@
                     </bean>
                 </entry>
 
-                <!-- 分拣中心验货 -->
+                &lt;!&ndash; 分拣中心验货 &ndash;&gt;
                 <entry key="${jmq.task.topic.inspection.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -52,7 +52,7 @@
                     </bean>
                 </entry>
 
-                <!-- 处理运单号关联包裹任务 -->
+                &lt;!&ndash; 处理运单号关联包裹任务 &ndash;&gt;
                 <entry key="${jmq.task.topic.partnerWaybill.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -68,7 +68,7 @@
                     </bean>
                 </entry>
 
-                <!-- 封签[封箱]异常任务 -->
+                &lt;!&ndash; 封签[封箱]异常任务 &ndash;&gt;
                 <entry key="${jmq.task.topic.shieldsBoxError.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -84,7 +84,7 @@
                     </bean>
                 </entry>
 
-                <!-- 封签[封车]异常任务 -->
+                &lt;!&ndash; 封签[封车]异常任务 &ndash;&gt;
                 <entry key="${jmq.task.topic.shieldsCarError.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -100,7 +100,7 @@
                     </bean>
                 </entry>
 
-                <!-- 运单号关联包裹回传 -->
+                &lt;!&ndash; 运单号关联包裹回传 &ndash;&gt;
                 <entry key="${jmq.task.topic.partnerWaybillSynchro.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -116,7 +116,7 @@
                     </bean>
                 </entry>
 
-                <!-- 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务-->
+                &lt;!&ndash; 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务&ndash;&gt;
                 <entry key="${jmq.task.topic.send.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -132,7 +132,7 @@
                     </bean>
                 </entry>
 
-                <!-- 支线发车推送运单任务-->
+                &lt;!&ndash; 支线发车推送运单任务&ndash;&gt;
                 <entry key="${jmq.task.topic.thirdDeparture.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -148,7 +148,7 @@
                     </bean>
                 </entry>
 
-                <!-- 封箱解封箱Redis任务-->
+                &lt;!&ndash; 封箱解封箱Redis任务&ndash;&gt;
                 <entry key="${jmq.task.topic.sealBox.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -164,7 +164,7 @@
                     </bean>
                 </entry>
 
-                <!-- 分拣退货Redis任务-->
+                &lt;!&ndash; 分拣退货Redis任务&ndash;&gt;
                 <entry key="${jmq.task.topic.sortingReturn.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -180,7 +180,7 @@
                     </bean>
                 </entry>
 
-                <!-- 分拣-->
+                &lt;!&ndash; 分拣&ndash;&gt;
                 <entry key="${jmq.task.topic.sorting.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -196,7 +196,7 @@
                     </bean>
                 </entry>
 
-                <!-- 称重信息回传运单中心 -->
+                &lt;!&ndash; 称重信息回传运单中心 &ndash;&gt;
                 <entry key="${jmq.task.topic.weight.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -213,7 +213,7 @@
                 </entry>
 
 
-                <!-- 逆向备件库 -->
+                &lt;!&ndash; 逆向备件库 &ndash;&gt;
                 <entry key="${jmq.task.topic.reverse.spare.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -229,7 +229,7 @@
                     </bean>
                 </entry>
 
-                <!-- 运单状态-验货 -->
+                &lt;!&ndash; 运单状态-验货 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.inspection.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -250,7 +250,7 @@
                     </bean>
                 </entry>
 
-                <!-- 运单状态-分拣 -->
+                &lt;!&ndash; 运单状态-分拣 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.sorting.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -272,7 +272,7 @@
                 </entry>
 
 
-                <!-- 运单状态-逆向验货 -->
+                &lt;!&ndash; 运单状态-逆向验货 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.reverse.inspection.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -294,7 +294,7 @@
                 </entry>
 
 
-                <!-- 运单状态-逆向分拣 -->
+                &lt;!&ndash; 运单状态-逆向分拣 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.reverse.sorting.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -316,7 +316,7 @@
                 </entry>
 
 
-                <!-- 运单状态-分拣退货 -->
+                &lt;!&ndash; 运单状态-分拣退货 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.sorting.return.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -338,7 +338,7 @@
                 </entry>
 
 
-                <!-- 运单状态-三方验货 -->
+                &lt;!&ndash; 运单状态-三方验货 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.third.inspection.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -360,7 +360,7 @@
                 </entry>
 
 
-                <!-- 运单状态-发货 -->
+                &lt;!&ndash; 运单状态-发货 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.delivery.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -382,7 +382,7 @@
                 </entry>
 
 
-                <!-- 运单状态-售后备件库 -->
+                &lt;!&ndash; 运单状态-售后备件库 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.aftersale.spare.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -404,7 +404,7 @@
                 </entry>
 
 
-                <!-- 运单状态-妥投 -->
+                &lt;!&ndash; 运单状态-妥投 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.status.done.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -425,7 +425,7 @@
                     </bean>
                 </entry>
                 
-                <!-- 运单全程跟踪-6666 -->
+                &lt;!&ndash; 运单全程跟踪-6666 &ndash;&gt;
                 <entry key="${jmq.task.topic.waybill.track.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -444,7 +444,7 @@
                         </constructor-arg>
                         <constructor-arg name="methodName" value="doWaybillTraceTask"></constructor-arg>
                     </bean>
-                </entry>
+                </entry>-->
             </map>
         </constructor-arg>
     </bean>
