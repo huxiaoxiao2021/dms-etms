@@ -49,7 +49,7 @@ function main() {
             jQuery.messager.alert("提示：","没有选择分拣中心!!","info");
             return;
         }
-        location.href =  $("#contextPath").val() +　"/sortSchemeSync/index";
+        location.href =  $("#contextPath").val() + "/sortSchemeSync/index";
     });
 
     $("#siteNo").change(function () {

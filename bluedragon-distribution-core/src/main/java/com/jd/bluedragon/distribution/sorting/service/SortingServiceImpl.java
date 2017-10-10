@@ -181,6 +181,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancel(Sorting sorting) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.canCancel", false, true);
+				
 		// sorting & send_d ---> cancel=1
 		boolean result = this.canCancelSorting(sorting);
 
@@ -188,6 +191,9 @@ public class SortingServiceImpl implements SortingService {
 			// 更新三方验货异常比对表，由少验修改为正常
 			this.canCancelInspectionEC(sorting);
 		}
+		Profiler.registerInfoEnd(info);
+		//added end
+		
 		return result;
 	}
 
@@ -317,7 +323,8 @@ public class SortingServiceImpl implements SortingService {
 		Profiler.registerInfoEnd(info);
 		//added end
 
-
+		//added by huangliang
+		CallerInfo info1 = Profiler.registerInfo("DMSWORKER.SortingService.getWaybillAndPackByWaybillCode", false, true);
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
@@ -341,12 +348,12 @@ public class SortingServiceImpl implements SortingService {
 							+ sorting.getWaybillCode());
 				}
 			}
-		}//FIXME:ELSE
-
-		if (StringHelper.isNotEmpty(sorting.getPackageCode())) { // 按包裹分拣
+		} else { // 按包裹分拣
 			sortings.add(sorting);
 		}
-
+		Profiler.registerInfoEnd(info1);
+		//added end
+		
 		Collections.sort(sortings);
 		return sortings;
 	}
@@ -455,6 +462,9 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void addSortingAdditionalTask(Sorting sorting) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
+				
 		// prepare:
 		// 拆分分析字段
 		Integer createSiteCode = sorting.getCreateSiteCode();
@@ -507,7 +517,9 @@ public class SortingServiceImpl implements SortingService {
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		this.taskService.add(task);
-
+		
+		Profiler.registerInfoEnd(info);
+		//added end
 	}
 
 	public Sorting toSorting(Task task) {
@@ -589,6 +601,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 	
 	private void addSorting(Sorting sorting, DeliveryPackageD aPackage) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSorting", false, true);
 		if (aPackage != null) {
 			sorting.setPackageCode(aPackage.getPackageBarcode());
 			if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
@@ -602,6 +616,8 @@ public class SortingServiceImpl implements SortingService {
 		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
 		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 		this.backwardSendMQ(sorting);
+		Profiler.registerInfoEnd(info);
+		//added end
 	}
 	
 	/**
@@ -720,6 +736,9 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void addSendDetail(Sorting sorting, DeliveryPackageD aPackage) {
+		//added by huangliang
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
+		
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
         sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + 30000));
 		if (aPackage != null) {
@@ -794,6 +813,8 @@ public class SortingServiceImpl implements SortingService {
                 logger.error("分拣补中转发货异常" + sorting.getPackageCode());
             }
         }
+		Profiler.registerInfoEnd(info);
+		//added end
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {
