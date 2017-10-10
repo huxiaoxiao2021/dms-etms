@@ -238,8 +238,8 @@ function doQuery(params) {
 				temp += "<td>" + (getDateString(getData(dataList[i].sendTime))) + "</td>";
 				temp += "<td>" + (dataList[i].sendCode) + "</td>";
 				temp += "<td>" + (dataList[i].truckNo == null ? '' : dataList[i].truckNo) + "</td>";
-                if(dataList[i].approvalCode != null){
-                    var ciqCheckFlag = dataList[i].approvalCode;//国检布控状态  0:不需查验;1:需查验
+                if(dataList[i].ciqCheckFlag != null){
+                    var ciqCheckFlag = dataList[i].ciqCheckFlag;//国检布控状态  0:不需查验;1:需查验
                     if(ciqCheckFlag == 0){
                         temp += "<td>不需查验</td>";
                     }else{
