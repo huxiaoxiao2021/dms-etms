@@ -44,8 +44,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.jd.ump.profiler.proxy.Profiler.functionError;
-
 @Service("loadBillService")
 public class LoadBillServiceImpl implements LoadBillService {
 
@@ -187,7 +185,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-	public int updateLoadBillStatusByReport(LoadBillReport report) {
+	public int  updateLoadBillStatusByReport(LoadBillReport report) {
 		logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
 		//将orderId分割,长度不超过500
 		List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
@@ -371,6 +369,8 @@ public class LoadBillServiceImpl implements LoadBillService {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
 		loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
 		loadBillStatusMap.put("warehouseId", report.getWarehouseId());
+		loadBillStatusMap.put("ciqCheckFlag", report.getCiqCheckFlag());
+		loadBillStatusMap.put("custBillNo", report.getCustBillNo());
 		loadBillStatusMap.put("approvalCode", LoadBill.FAILED);
         return loadBillStatusMap;
     }
@@ -379,6 +379,9 @@ public class LoadBillServiceImpl implements LoadBillService {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
 		loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
 		loadBillStatusMap.put("warehouseId", report.getWarehouseId());
+        /****更新全部为失败时已经设置过以下两个字段，此处无需重复设置****/
+//		loadBillStatusMap.put("ciqCheckFlag", report.getCiqCheckFlag());
+//		loadBillStatusMap.put("custBillNo", report.getCustBillNo());
 		loadBillStatusMap.put("orderIdList", orderIdList);
         if (report.getStatus() == SUCCESS) {
             loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);

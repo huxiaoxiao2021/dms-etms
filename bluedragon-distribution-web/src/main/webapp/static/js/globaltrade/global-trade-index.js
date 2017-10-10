@@ -230,6 +230,7 @@ function doQuery(params) {
 				temp += "<tr class='a2' style=''>";
 				temp += "<td><input id='" + dataList[i].id + "' value='"+ dataList[i].approvalCode +"' name='singleBtn' alt=" + dataList[i].approvalCode + " onclick='singleClick()' type='checkbox'/></td>";
 				temp += "<td>" + (dataList[i].loadId == null ? '' : dataList[i].loadId) + "</td>";
+                temp += "<td>" + (dataList[i].custBillNo == null ? '' : dataList[i].custBillNo) + "</td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
 				temp += "<td>" + (dataList[i].orderId) + "</td>";
@@ -237,6 +238,16 @@ function doQuery(params) {
 				temp += "<td>" + (getDateString(getData(dataList[i].sendTime))) + "</td>";
 				temp += "<td>" + (dataList[i].sendCode) + "</td>";
 				temp += "<td>" + (dataList[i].truckNo == null ? '' : dataList[i].truckNo) + "</td>";
+                if(dataList[i].approvalCode != null){
+                    var ciqCheckFlag = dataList[i].approvalCode;//国检布控状态  0:不需查验;1:需查验
+                    if(ciqCheckFlag == 0){
+                        temp += "<td>不需查验</td>";
+                    }else{
+                        temp += "<td>需查验</td>";
+                    }
+                }else{
+                    temp += "<td></td>";
+                }
 				var type = dataList[i].approvalCode;
 				if (type == 10) {
 					temp += "<td>初始</td>";

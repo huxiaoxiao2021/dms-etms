@@ -92,6 +92,7 @@
                                                        style="display: block;width: 15px;float: left;margin-right: 3px;"/><span>全选</span>
                         </th>
                         <th style="width:40px;">装载单号</th>
+                        <th style="width:50px;">海关配载单号</th>
                         <th style="width:50px;">运单号</th>
                         <th style="width:50px;">包裹号</th>
                         <th style="width:50px;">订单号</th>
@@ -99,6 +100,7 @@
                         <th style="width:40px;">发货时间</th>
                         <th style="width:30px;">批次号</th>
                         <th style="width:50px;">车牌号</th>
+                        <th style="width:50px;">国检布控状态</th>
                         <th style="width:50px;">审批状态</th>
                         <th style="width:50px;">审批时间</th>
                         <th style="width:50px;">备注</th>

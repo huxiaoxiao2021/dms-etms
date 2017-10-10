@@ -60,6 +60,8 @@ public class JosServiceImpl implements JosService {
         report.setWarehouseId(request.getWarehouseId());
         report.setNotes(request.getNotes());
         report.setOrderId(request.getOrderId());
+        report.setCustBillNo(request.getCustBillNo());
+        report.setCiqCheckFlag(request.getCiqCheckFlag());
         return report;
     }
 

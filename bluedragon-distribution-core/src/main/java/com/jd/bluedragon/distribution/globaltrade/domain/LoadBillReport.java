@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.globaltrade.domain;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 public class LoadBillReport implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -12,6 +11,9 @@ public class LoadBillReport implements Serializable {
 
 	/** 装载单申报ID */
 	private String reportId;
+
+	/** 海关配载单号 */
+	private String custBillNo;
 
 	/** 装载单ID(随机号码),有多个,逗号隔开 */
 	private String loadId;
@@ -24,6 +26,9 @@ public class LoadBillReport implements Serializable {
 
 	/** 状态 1:成功，2:作废 */
 	private Integer status;
+
+    /** 国检布控状态  0:不需查验;1:需查验 */
+    private Integer ciqCheckFlag;
 
 	/** 备注 */
 	private String notes;
@@ -129,4 +134,19 @@ public class LoadBillReport implements Serializable {
 		this.yn = yn;
 	}
 
+    public Integer getCiqCheckFlag() {
+        return ciqCheckFlag;
+    }
+
+    public void setCiqCheckFlag(Integer ciqCheckFlag) {
+        this.ciqCheckFlag = ciqCheckFlag;
+    }
+
+    public String getCustBillNo() {
+        return custBillNo;
+    }
+
+    public void setCustBillNo(String custBillNo) {
+        this.custBillNo = custBillNo;
+    }
 }

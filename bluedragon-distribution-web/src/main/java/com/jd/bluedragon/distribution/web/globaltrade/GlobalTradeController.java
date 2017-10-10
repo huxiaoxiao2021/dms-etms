@@ -6,13 +6,11 @@ import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
 import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.GlobalTradeException;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -28,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -50,11 +47,6 @@ public class GlobalTradeController {
 
     @Autowired
     private LoadBillService loadBillService;
-    @Autowired
-    private LoadBillDao loadBillDao;
-
-    @Autowired
-    private TaskService taskService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
@@ -82,7 +74,6 @@ public class GlobalTradeController {
             for (String id : loadBillIdStr.split(",")) {
                 loadBillId.add(Long.valueOf(id));
             }
-//            taskService.addBtch(toGlobalTradeTask(loadBIlls,carCode));
             effectSize = loadBillService.preLoadBill(loadBillId, carCode);
         } catch (Exception ex) {
             logger.error("预装载操作失败，原因", ex);
@@ -95,27 +86,6 @@ public class GlobalTradeController {
             }
         }
         return new LoadBillReportResponse(200, "预装载成功[" + effectSize + "]条订单");
-    }
-
-    private List<Task> toGlobalTradeTask(List<LoadBill> loadBills, String trunkNo) {
-        List<Task> tasks = new ArrayList<Task>();
-        for (LoadBill bill : loadBills) {
-            bill.setTruckNo(trunkNo);
-            bill.setPackageAmount(1);
-            bill.setWaybillCode(null);
-            bill.setPackageUserCode(null);
-            bill.setWeight(null);
-            Task task = new Task();
-            task.setBody(JsonHelper.toJson(bill));
-            task.setFingerprint(Md5Helper.encode(bill.getLoadId()));
-            task.setKeyword1(bill.getWaybillCode());
-            task.setOwnSign(BusinessHelper.getOwnSign());
-            task.setType(Task.TASK_TYPE_GLOBAL_TRADE);
-            task.setTableName(Task.getTableName(task.getType()));
-            task.setSequenceName(Task.getSequenceName(task.getTableName()));
-            tasks.add(task);
-        }
-        return tasks;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -286,6 +256,8 @@ public class GlobalTradeController {
         report.setWarehouseId(request.getWarehouseId());
         report.setNotes(request.getNotes());
         report.setOrderId(request.getOrderId());
+        report.setCustBillNo(request.getCustBillNo());
+        report.setCiqCheckFlag(request.getCiqCheckFlag());
         return report;
     }
 
