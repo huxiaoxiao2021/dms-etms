@@ -58,6 +58,16 @@ public class DepartureCarriagePlanResponse  extends JdResponse {
      */
     private  Integer transMode;
 
+    private  String transmodeName;
+
+    public String getTransmodeName() {
+        return transmodeName;
+    }
+
+    public void setTransmodeName(String transmodeName) {
+        this.transmodeName = transmodeName;
+    }
+
     public String getCarriagePlanCode() {
         return carriagePlanCode;
     }
