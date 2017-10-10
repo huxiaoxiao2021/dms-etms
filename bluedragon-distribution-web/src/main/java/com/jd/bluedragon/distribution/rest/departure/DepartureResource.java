@@ -676,6 +676,12 @@ public class DepartureResource {
 				departureCarriagePlanResponse.setCarriagePlanCode(reposeData.getCarriagePlanCode());//运输计划号
 				departureCarriagePlanResponse.setOrderNum(reposeData.getOrderNum());//订单数
 				departureCarriagePlanResponse.setTransMode(reposeData.getTransMode());
+				if(reposeData.getTransMode()==1){
+					departureCarriagePlanResponse.setTransmodeName("分拣集货");
+				}else if(reposeData.getTransMode()==2){
+					departureCarriagePlanResponse.setTransmodeName("仓库直发");
+				}
+
 				departureCarriagePlanResponse.setDriverName(reposeData.getDriverName());
 				departureCarriagePlanResponse.setDrivingLicense(reposeData.getDrivingLicense());
 				departureCarriagePlanResponse.setCarrierName(reposeData.getCarrierName());
