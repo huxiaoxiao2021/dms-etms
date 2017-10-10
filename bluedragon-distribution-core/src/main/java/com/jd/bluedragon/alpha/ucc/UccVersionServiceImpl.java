@@ -33,18 +33,14 @@ public class UccVersionServiceImpl implements UccVersionService {
      * @return
      */
     @Override
-    public List<Version> versionList(){
+    public List<Version> versionList() throws Exception{
         Map<String,String> keyMap ;
         List<Version> list = new ArrayList<Version>();
         Version version;
-        try{
-            keyMap = confClient.getPathValues(path,readToken);
-            for (String value: keyMap.values()) {
-                version = gson.fromJson(value,Version.class);
-                list.add(version);
-            }
-        }catch(Exception e){
-            logger.error("UCC连接失败：",e);
+        keyMap = confClient.getPathValues(path,readToken);
+        for (String value: keyMap.values()) {
+            version = gson.fromJson(value,Version.class);
+            list.add(version);
         }
         return list;
     }
@@ -66,12 +62,12 @@ public class UccVersionServiceImpl implements UccVersionService {
                 result.add(version);
             }
         }else{
-                List<Version> list = versionList();
-                for(Version a:list){
-                    if(state == a.isState()){
-                        result.add(a);
-                    }
+            List<Version> list = versionList();
+            for(Version a:list){
+                if(state == a.isState()){
+                    result.add(a);
                 }
+            }
         }
         return result;
     }
@@ -81,16 +77,12 @@ public class UccVersionServiceImpl implements UccVersionService {
      * @param version 版本编号信息
      */
     @Override
-    public void uploadVersion(Version version){
+    public void uploadVersion(Version version)  throws Exception{
 
         version.setCreateTime(DateHelper.formatDateTime(new Date()));
         version.setUpdateTime(DateHelper.formatDateTime(new Date()));
 
-        try{
-            confClient.addConfValue(path,writeToken,version.getVersionId(),gson.toJson(version));
-        }catch (Exception e){
-            logger.error("UCC连接失败：",e);
-        }
+        confClient.addConfValue(path,writeToken,version.getVersionId(),gson.toJson(version));
     }
 
     /**
@@ -98,13 +90,9 @@ public class UccVersionServiceImpl implements UccVersionService {
      * @param versionIdList 版本编号
      */
     @Override
-    public void deleteVersion(List<String> versionIdList){
+    public void deleteVersion(List<String> versionIdList)  throws Exception{
         for (String versionId:versionIdList) {
-            try{
-                confClient.deleteConfKey(path,writeToken,versionId);
-            }catch (Exception e){
-                logger.error("UCC连接失败：",e);
-            }
+            confClient.deleteConfKey(path,writeToken,versionId);
         }
 
     }
@@ -114,12 +102,8 @@ public class UccVersionServiceImpl implements UccVersionService {
      * @param version
      */
     @Override
-    public void modifyVersion(Version version){
-        try{
-            confClient.updateConfValue(path,writeToken,version.getVersionId(),gson.toJson(version));
-        }catch(Exception e){
-            logger.error("UCC连接失败：",e);
-        }
+    public void modifyVersion(Version version) throws Exception{
+        confClient.updateConfValue(path,writeToken,version.getVersionId(),gson.toJson(version));
     }
 
     /**
@@ -128,16 +112,11 @@ public class UccVersionServiceImpl implements UccVersionService {
      * @return 状态为0返回false 状态为1返回true
      */
     @Override
-    public boolean versionState(String versionId){
+    public boolean versionState(String versionId) throws Exception{
         boolean bool = false;
-        try{
-            String value = confClient.getConfValue(path,readToken,versionId);
-            Version versionInfo = gson.fromJson(value,Version.class);
-            bool = versionInfo.isState();
-        }catch(Exception e){
-            bool = false;//停用
-            logger.error("UCC连接失败：",e);
-        }
+        String value = confClient.getConfValue(path,readToken,versionId);
+        Version versionInfo = gson.fromJson(value,Version.class);
+        bool = versionInfo.isState();
         return bool;
     }
 

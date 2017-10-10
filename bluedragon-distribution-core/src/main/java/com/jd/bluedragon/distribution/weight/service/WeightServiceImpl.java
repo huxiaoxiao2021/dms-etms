@@ -16,6 +16,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.type.JavaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,10 @@ public class WeightServiceImpl implements WeightService {
             if (!StringUtils.isNotBlank(body)) {
                 logger.error("向运单回传包裹称重信息失败，称重信息为空");
                 return false;
+            }
+            String newBody = dealMinusVolume(body);
+            if(StringUtils.isNotEmpty(newBody)){
+                body = newBody;
             }
 
             Map<String, Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
@@ -114,7 +120,49 @@ public class WeightServiceImpl implements WeightService {
                 this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
         }
     }
+    /**
+     * 处理长宽高重量为空或小于0 置为0
+     * @param body 数据内容
+     * @return
+     */
+    private String dealMinusVolume(String body){
+        try{
+            JavaType javaType = JsonHelper.getCollectionType(ArrayList.class, OpeEntity.class);
+            List<OpeEntity> opeEntities = JsonHelper.getMapper().readValue(body, javaType);
+            OpeEntity opeEntity = opeEntities.get(0);
 
+            List<OpeObject> opeDetails = opeEntity.getOpeDetails();
+            if (opeDetails != null && opeDetails.size() > 0) {
+                boolean update = false;
+                for (OpeObject ope : opeDetails) {
+                    if(ope.getpWeight() == null || ope.getpWeight() < 0){
+                        ope.setpWeight(0f);
+                        update = true;
+                    }
+                    if(ope.getpLength() == null || ope.getpLength() < 0){
+                        ope.setpLength(0f);
+                        update = true;
+                    }
+                    if(ope.getpWidth() == null || ope.getpWidth() < 0){
+                        ope.setpWidth(0f);
+                        update = true;
+                    }
+                    if(ope.getpHigh() == null || ope.getpHigh() < 0){
+                        ope.setpHigh(0f);
+                        update = true;
+                    }
+                }
+                //如果有修改，才重新生成json格式数据
+                if(update){
+                    return   JsonHelper.toJson(opeEntities);
+                }
+
+            }
+        }catch (Exception e){
+            this.logger.error("处理长宽高重量为空或小于0置为0时异常", e);
+        }
+        return null;
+    }
     /**
      * 根据字符串类型日期转换为时间戳
      * @param dateStr

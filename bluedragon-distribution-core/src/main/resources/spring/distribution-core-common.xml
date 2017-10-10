@@ -49,6 +49,7 @@
         <property name="url" value="${db.mysql.url}"/>
         <property name="username" value="${db.mysql.username}" />
         <property name="password" value="${db.mysql.password}" />
+        <property name="defaultTransactionIsolation" value="${db.mysql.isolationLevel}"/>
     </bean>
 
     <bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -197,6 +198,16 @@
                 <value>1011</value>
                 <value>1004</value>
                 <value>1001</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2") -->
+    <bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl">
+        <property name="stores">
+            <list>
+                <value>6,6,80</value>
+                <value>006,006,080</value>
             </list>
         </property>
     </bean>

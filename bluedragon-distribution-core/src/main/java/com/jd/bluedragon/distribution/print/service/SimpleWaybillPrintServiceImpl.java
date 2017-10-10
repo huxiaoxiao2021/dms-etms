@@ -1,6 +1,17 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
@@ -23,15 +34,6 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -58,10 +60,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private TransbillMService transbillMService;
-
+    @Autowired
+    private WaybillCommonService waybillCommonService;
 
     private List<ComposeService> composeServiceList;
-
     /**
      * 奢侈品订单打标位起始值
      */
@@ -176,7 +178,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
-            commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
+           // commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
             commonWaybill.setOriginalDmsCode(dmsCode);
             commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
             commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
@@ -247,13 +249,14 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
-            if(StringUtils.isNotBlank(tmsWaybill.getSendPay()) && tmsWaybill.getSendPay().charAt(145) == '1') {//城配的订单标识，remark打派车单号
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay()) && tmsWaybill.getSendPay().length()>145 && tmsWaybill.getSendPay().charAt(145) == '1') {//城配的订单标识，remark打派车单号
                 String scheduleCode = tmsWaybill.getImportantHint();
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
                     scheduleCode = transbillM.getScheduleBillCode();
                 }
-                commonWaybill.setRemark(scheduleCode);
+                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
+                commonWaybill.setRemark(str + scheduleCode);
             }
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
@@ -277,6 +280,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 commonWaybill.setPackList(packageList);
             }
+           waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }
 
@@ -380,6 +384,5 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
     }
-
     
 }

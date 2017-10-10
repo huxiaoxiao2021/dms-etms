@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
@@ -91,7 +92,7 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
 		// 对于始发站点和商家相同的ID特殊处理
 		if (box.getStatuses() != null && siteType.equals(box.getStatuses())) {
 			this.logger.info("商家站点打印箱号始发站");
-			BaseTradeInfoDto dto = baseMinorManager.getBaseTraderById(box
+			BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(box
 					.getCreateSiteCode());
 			if (dto == null || dto.getTraderCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-始发站商家接口"
@@ -123,7 +124,7 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
 		// 对于目的站点和商家相同的ID特殊处理
 		if (box.getUpdateUser() != null && siteType.equals(box.getUpdateUser())) {
 			this.logger.info("商家站点打印箱号目的站");
-			BaseTradeInfoDto dto = baseMinorManager.getBaseTraderById(box
+			BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(box
 					.getReceiveSiteCode());
 			if (dto == null || dto.getTraderCode() == null) {
 				this.logger.error("创建站点或接收站点信息为空.-目的站商家接口"

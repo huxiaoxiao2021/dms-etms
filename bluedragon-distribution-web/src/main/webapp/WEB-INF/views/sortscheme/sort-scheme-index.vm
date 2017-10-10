@@ -53,7 +53,7 @@
         .operate_spans {
             display: block;
             float: left;
-            width: 500px;
+            width: 800px;
             margin-left: 310px;
             margin-bottom: 5px;
         }
@@ -119,6 +119,9 @@
             <input id="addBtn" value="增加" type="button" class="btn_c">
             <input id="activeBtn" value="方案激活" type="button" class="btn_c">
             <input id="downBtn" value="模版下载" type="button" class="btn_c">
+            <input id="openBtn" value="开启自动发货" type="button" class="btn_c">
+            <input id="closeBtn" value="关闭自动发货" type="button" class="btn_c">
+            <input id="syncBtn" value="方案同步" title="目前只支持北京亚一" type="button" class="btn_c">
         </div>
         <div id="sortscheme_list_div" style="">
             <div id="sortscheme_list_table">
@@ -134,8 +137,9 @@
                                 <th style="width:15px;">分拣模式</th>
                                 <th style="width:15px;">接收标识</th>
                                 <th style="width:50px;">接收时间</th>
+                                <th style="width:15px;">是否自动发货</th>
                                 <th style="width:15px;">是否激活</th>
-                                <th style="width:50px;">操作</th>
+                                <th style="width:35px;">操作</th>
                             </tr>
                             </thead>
                             <tbody>

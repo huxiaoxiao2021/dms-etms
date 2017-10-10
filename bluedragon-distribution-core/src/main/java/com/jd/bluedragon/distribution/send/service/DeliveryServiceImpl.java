@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -87,7 +86,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
@@ -114,10 +112,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
-
-    @Autowired
-    @Qualifier("restTemplate")
-    private RestTemplate restTemplate;
 
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
@@ -241,8 +235,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
 
-    private static final String SMS_MESSAGE = "亲爱的顾客，京东提示您：京东不会用手机号或官方400电话联系您办理退款转账或推销商品等事宜；京东也不会以被列为经销商用户/订单异常等为由索要银行卡/验证码等支付信息，请您警惕此类诈骗电话！";
-
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
@@ -263,17 +255,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
         queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
+        //查询箱子发货记录
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
         if (null != sendMList && sendMList.size() > 0) {
             return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
-
-        ServiceMessage<String> result = departureService.checkSendStatus(domain.getReceiveSiteCode(), domain.getSendCode());
-        if (result.getResult().equals(ServiceResultEnum.WRONG_STATUS)) {
-            return new SendResult(2, "该发货批次已经发车，不能继续发货");
-        }
         Profiler.registerInfoEnd(temp_info1);
+
         CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
@@ -292,7 +281,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 response = jsfSortingResourceService.check(sortingCheck);
             } catch (Exception ex) {
                 logger.error("调用VER", ex);
-                return new SendResult(4, "调用分拣验证异常", 100, 0);
+                return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
             }
             Profiler.registerInfoEnd(info1);
             if (!response.getCode().equals(200)) {//如果校验不OK
@@ -300,7 +289,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Integer preSortingSiteCode = null;
                 try {
                     CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
-                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(BusinessHelper.getWaybillCode(domain.getBoxCode()));
+                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(domain.getBoxCode()), true, false, false, false);
                     Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                     if (null != waybill) {
                         preSortingSiteCode = waybill.getSiteCode();
@@ -311,17 +300,19 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
-                        return new SendResult(4, response.getMessage(), response.getCode(), preSortingSiteCode);
-                } else {
+                        return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
+                } else{
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
 
         }
         Profiler.registerInfoEnd(temp_info2);
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
-        if(!verificationResult.getCode()){
-            return new SendResult(2, verificationResult.getMessage());
+        if(!isForceSend){
+            DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
+            if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
+                return new SendResult(4, verificationResult.getMessage());
+            }
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         //插入SEND_M
@@ -565,7 +556,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         tTask.setBody(sendM.getSendCode());
 
-
         tTask.setKeyword1("3");// 3回传dmc
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
@@ -577,10 +567,20 @@ public class DeliveryServiceImpl implements DeliveryService {
             tTaskService.add(tTask);
         }
 
-		/* 推送财务信息 */
-        if (businessTypeTHR.equals(sendM.getSendType()))
-            newFailQueueService.sendCodeNewData(sendM.getSendCode(),
-                    IFailQueueService.DMS_SEND_3PL);
+		/* 第三方发货推送财务
+		*  写到task_delviery_to_finance_batch表*/
+        if (businessTypeTHR.equals(sendM.getSendType())){
+            String sendCode = sendM.getSendCode();
+            Task task = new Task();
+            task.setKeyword1(businessTypeTHR+"");
+            task.setBody(sendCode);
+            task.setTableName(Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH);
+            task.setType(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH);
+            task.setOwnSign(BusinessHelper.getOwnSign());
+
+            taskService.add(task);
+        }
+
         /*添加自动化分拣发货回传波次表*/
         BatchSend batchSend = new BatchSend();
         batchSend.setSendCode(sendM.getSendCode());
@@ -653,16 +653,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 写入发货表数据
         this.insertSendM(sendMList, list);
 
-        List<String> boxCodes = new ArrayList<String>();
-
         for (SendM domain : sendMList) {
             this.transitSend(domain);//插入中转任务
-//            if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-//                boxCodes.add(domain.getBoxCode());
-//            }
         }
-        // 更新箱号的状态
-//        boxService.batchUpdateStatus(boxCodes, Box.BOX_STATUS_SEND);
         // 写入任务
         addTaskSend(sendMList.get(0));
         Profiler.registerInfoEnd(info2);
@@ -814,9 +807,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
                     DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),true);
+        //老发货升级需求 调用verification 的checkPackage的值由true 改成fals byjinjingcheng
+        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),false);
         if(!verificationResult.getCode()){
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ALL_CHECK,verificationResult.getMessage());
+            return new DeliveryResponse(DeliveryResponse.CODE_CITY_BILL_CHECK,
+                    verificationResult.getMessage());
         }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());
@@ -875,7 +870,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
             }
         }
-
         return new DeliveryResponse(JdResponse.CODE_OK, reslut);
     }
 
@@ -1424,7 +1418,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         sb.append("</OrderSendDetail>");
 
         this.logger.info("snedMQpop----snedMQpop----" + sb.toString());
-        //messageClient.sendMessage("pop1", sb.toString(), tSendDatail.getWaybillCode());
         pop1MQ.sendOnFailPersistent(tSendDatail.getWaybillCode(), sb.toString());
     }
 
@@ -2086,6 +2079,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     /*******************
      * 发货已扫描数据
      ******************************************/
+    @Deprecated
     private Set<String> getDeliveryPackageCode(List<String> packlist, List<String> code) {
         Set<String> codeList = new HashSet<String>();
         for (String packageBarcode : packlist) {
@@ -2561,7 +2555,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                         rsiteCode + "站点箱号" + DeliveryResponse.MESSAGE_Delivery_ERROR);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             logger.error("dealWithSendBatch处理异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR,
@@ -2605,7 +2598,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                     rsiteCode = rsiteCode + ","
                             + String.valueOf(sendM.getReceiveSiteCode());
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return new DeliveryResponse(
                         DeliveryResponse.CODE_Delivery_ERROR,

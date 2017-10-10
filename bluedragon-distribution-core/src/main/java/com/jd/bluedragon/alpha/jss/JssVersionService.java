@@ -28,13 +28,13 @@ public interface JssVersionService {
      * 批量删除版本信息
      * @param
      */
-    public void deleteVersion(List<String> versionIdList)throws Exception;
+    public void deleteVersion(List<String> versionIdList);
 
     /**
      * 获取对应版本的下载地址
      * 抛出异常
      */
-    public URI downloadVersion(String versionId)throws MalformedURLException ;
+    public URI downloadVersion(String versionId) ;
 
 
 }

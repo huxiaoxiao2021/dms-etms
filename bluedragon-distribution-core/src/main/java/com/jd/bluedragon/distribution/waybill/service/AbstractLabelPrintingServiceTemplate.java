@@ -1,16 +1,16 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import com.jd.bluedragon.Constants;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -23,10 +23,6 @@ import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
@@ -48,7 +44,9 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
     @Autowired
     private BasicSecondaryWS basicSecondaryWS;
-
+    
+    @Autowired
+    private WaybillCommonService waybillCommonService;
     /**
      * 初始化基础资料对象
      */
@@ -283,11 +281,12 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         //路区
         labelPrinting.setRoad(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
-
+       // labelPrinting.setBusiOrderCode(waybill.getBusiOrderCode());
+        waybillCommonService.setBasePrintInfoByWaybill(labelPrinting,waybill);
         return labelPrinting;
     }
 
-    /**
+	/**
      * 查询基础资料
      * @param prepareSiteCode
      * @return
@@ -300,5 +299,4 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         if(baseStaffSite==null) return "";
         return baseStaffSite.getSiteName();
     }
-
 }

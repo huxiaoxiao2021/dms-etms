@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.sortscheme.service;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
-import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
-import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -28,4 +26,6 @@ public interface SortSchemeDetailService {
     SortSchemeDetailResponse<List<SortSchemeDetail>> findBySchemeId2(SortSchemeDetailRequest request, String url);
 
     HSSFWorkbook createWorkbook(List<SortSchemeDetail> sortSchemeDetailList);
+
+    SortSchemeDetailResponse<List<SortSchemeDetail>> queryBySiteCode(SortSchemeDetailRequest request, String url);
 }

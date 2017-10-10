@@ -122,6 +122,8 @@ function doQueryCrossSorting(params) {
                 temp += "<td>" + (dataList[i].siteCode) + "</td>";
                 temp += "<td>" + (dataList[i].boxSiteCode) + "</td>";
                 temp += "<td>" + (dataList[i].pkgLabelName) + "</td>";
+                temp += "<td>" + (dataList[i].sendSiteCode == null ? '' : dataList[i].sendSiteCode) + "</td>";
+                temp += "<td>" + (dataList[i].sendSiteName == null ? '' : dataList[i].sendSiteName) + "</td>";
                 temp += "<td>" + (dataList[i].currChuteCode) + "</td>";
                 temp += "<td>" + (dataList[i].yn == 1 ? '<font color="red">激活</font>' : '未激活') + "</td>";
                 temp += "<td>" + (dataList[i].receFlag == 1 ? '接收' : '未接收') + "</td>";

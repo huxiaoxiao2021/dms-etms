@@ -41,6 +41,8 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	@Autowired
 	PopSigninDao popSigninDao;
 
+	//FIXME:已经失效
+	@Deprecated
 	private String sendKey = "bd_pop_receivecount";
 
     @Autowired

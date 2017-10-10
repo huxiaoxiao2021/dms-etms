@@ -174,4 +174,5 @@ public  class SendMDao extends BaseDao<SendM>  {
         return	this.getSqlSession().selectList(
                 SendMDao.namespace + ".selectBoxCodeBySendCodeAndCreateSiteCode", sendM);
     }
+    
 }

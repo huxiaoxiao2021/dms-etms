@@ -42,12 +42,36 @@
 					url : url,
 					type : type,
 					dataType : dataType,
-					success : function(data) {
+					success : function (data) {
 					alert(data.message);
 						$('#hint1').html(data.message);
 					}
 				});
 			}
+		}
+
+//		武汉邮政数据重新下发
+		function checkWhWaybill(){
+            var waybillCode = $('#whWaybillCode').val();
+			var waybillCodes = waybillCode.split(",");
+            if (waybillCode == null || waybillCode.length <=0) {
+                $('#hint1').html('请输入运单号!');
+            }else {
+                var dataType = 'json';
+                var url = '/services/delivery/pushWhemsWaybill';
+                var type = 'POST';
+                $.ajax({
+                    url : url,
+                    type : type,
+                    dataType : dataType,
+                    contentType: "application/json; charset=utf-8",
+					data:JSON.stringify(waybillCodes),
+                    success : function (data) {
+                        alert(data.message);
+                        $('#hint1').html(data.message);
+                    }
+                });
+            }
 		}
 		
 	</script>
@@ -80,7 +104,7 @@
 					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
 						<tbody>
 							<tr>
-								<td> <b>1、运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
+								<td> <b>2、全国邮政运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
 							</tr>
 							<tr>
 								<td><textarea cols ="50" rows = "3" id="waybillCode" name="waybillCode"></textarea><font color="red"></font></td>
@@ -93,6 +117,24 @@
 						</tbody>
 					</table>
 				</div>
+
+                <div class="tbl-n">
+                    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+                        <tbody>
+                        <tr>
+                            <td> <b>3、武汉邮政运单重新下发：</b>运单号（多个运单按照&号隔开，一次最多20个单号）</td>
+                        </tr>
+                        <tr>
+                            <td><textarea cols ="50" rows = "3" id="whWaybillCode" name="whWaybillCode"></textarea><font color="red"></font></td>
+                        </tr>
+                        <tr>
+                            <td><input id="whsearch" type="button" value="运单重新下发" onclick="checkWhWaybill()" class="btn_c"/>
+                                <span id="hint1">&nbsp;</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 			</div>
 		</div>
 

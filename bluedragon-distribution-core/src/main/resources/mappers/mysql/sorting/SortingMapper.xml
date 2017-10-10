@@ -50,9 +50,10 @@
 			NOW(), NOW(),#{operateTime,jdbcType=TIMESTAMP}, #{isCancel,jdbcType=INTEGER}, 
 			0, NOW(), 1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER})
     </insert>
-	
+
+	<!-- Author by lixin456 指定更新时使用索引 解决更新死锁问题 若对该表索引进行调整 请注意修改此处 -->
 	<update id="update" parameterType="sorting" >
-		UPDATE Sorting
+		UPDATE Sorting FORCE INDEX(IND_SORTING_PCODE_P)
 		SET 
 		    bsend_code = #{bsendCode,jdbcType=VARCHAR},
 		    box_code = #{boxCode,jdbcType=VARCHAR},
@@ -69,7 +70,8 @@
 			is_cancel = #{isCancel,jdbcType=INTEGER},
 			is_loss = #{isLoss,jdbcType=INTEGER},
 			feature_type = #{featureType,jdbcType=INTEGER}
-	    WHERE yn = 1 AND box_code = #{boxCode}
+	    WHERE yn = 1
+	        AND box_code = #{boxCode}
 	        AND sorting_type = #{type}
 	        AND package_code = #{packageCode}
 		    AND create_site_code = #{createSiteCode}

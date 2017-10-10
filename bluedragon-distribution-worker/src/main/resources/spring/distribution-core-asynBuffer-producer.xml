@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://code.jd.com/schema/jmq
-	    http://code.jd.com/schema/jmq/jmq-1.0.xsd
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd
 	    http://www.springframework.org/schema/util
 	    http://www.springframework.org/schema/util/spring-util.xsd">
 	    
@@ -115,6 +115,9 @@
 					<entry key="task_waybill_6667_DMS" value="${jmq.task.topic.waybill.status.done.dms}"/>
 					<entry key="task_waybill_6667_PRE" value="${jmq.task.topic.waybill.status.done.pre}"/>
 
+					<!-- 运单状态-全程跟踪-6666 -->
+					<entry key="task_pop_6666_DMS" value="${jmq.task.topic.waybill.track.dms}"/>
+					<entry key="task_pop_6666_PRE" value="${jmq.task.topic.waybill.track.pre}"/>
 				</map>
 	    	</constructor-arg>
 	    </bean>

@@ -133,6 +133,14 @@ function doQuery(params) {
                     reason = "龙门架未绑该站点";
                 else if (dataList[i].type == 6)
                     reason = "无启用方案信息";
+                else if (dataList[i].type == 21)
+                    reason = "发货始发地站点无效";
+                else if (dataList[i].type == 22)
+                    reason = "无发货目的地站点";
+                else if (dataList[i].type == 23)
+                    reason = "订单拦截";
+                else if (dataList[i].type == 24)
+                    reason = "无落格时间";
                 temp += "<td>" + reason + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].operateTime)) + "</td>";
                 temp += "<td>" + (dataList[i].sendStatus ? "已发货" : "未发货") + "</td>";
@@ -167,7 +175,7 @@ function exportData(params) {
                 + params.endTime;
             if (params.sendStatus != null)
                 url += "&sendStatus=" + params.sendStatus;
-            window.open (url,"_parent");
+            window.open(url, "_parent");
         } else {
             alert(result.message);
         }
@@ -196,14 +204,14 @@ function getDateString(millis) {
  * @returns 1，大于24小时，2，开始日期大于结束日期
  *
  */
-function checkDate(startDateStr, endDateStr){
+function checkDate(startDateStr, endDateStr) {
     var gap = 1000 * 60 * (60 * 24 + 1);
-    var startDate = new Date(startDateStr.replace('-','/'));
-    var endDate = new Date(endDateStr.replace('-','/'));
-    if(startDate.getTime() > endDate.getTime()){
+    var startDate = new Date(startDateStr.replace('-', '/'));
+    var endDate = new Date(endDateStr.replace('-', '/'));
+    if (startDate.getTime() > endDate.getTime()) {
         return 2;
     }
-    if(endDate.getTime() - startDate.getTime() > gap){
+    if (endDate.getTime() - startDate.getTime() > gap) {
         return 1;
     }
     return 0;
@@ -234,14 +242,14 @@ Date.prototype.format = function (f) {
  * 当选择起始日期后，规定结束日期不能超过起始日期24小时
  *
  */
-function getMaxDate(){
+function getMaxDate() {
     var startDateStr = $.trim($("#gantry_exception_startTime").val());
 
     var now = new Date();
     if (startDateStr == null || startDateStr == "") {
         return now.format('yyyy-MM-dd HH:mm:ss');
     }
-    var startDate = new Date(startDateStr.replace('-','/'));
+    var startDate = new Date(startDateStr.replace('-', '/'));
 
     //timestamp
     var maxDate = new Date();

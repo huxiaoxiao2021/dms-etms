@@ -3,15 +3,20 @@ package com.jd.bluedragon.distribution.web.sortscheme;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CacheCleanRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
+import com.jd.bluedragon.distribution.api.response.CacheCleanResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.cacheClean.domain.CacheClean;
+import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
+import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.IntegerHelper;
@@ -26,7 +31,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,11 +71,49 @@ public class SortSchemeController {
     private SortSchemeDetailService sortSchemeDetailService;
 
     @Resource
+    private SortSchemeSyncService sortSchemeSyncService;
+
+    @Resource
     private BaseMajorManager baseMajorManager;
+
+    @Resource
+    private CacheCleanService cacheCleanService;
 
     // 页面跳转控制 增加参数跳转
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String index(Integer siteCode,String siteName,Model model) {
+    public String index(Integer siteCode, String siteName, Model model) {
+
+        if (null == siteName || "".equals(siteName)) {
+            /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
+            logger.info("开始获取当前登录用户的ERP信息......");
+            try {
+                ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+                logger.info("获取用户ERP：" + user.getUserCode());
+                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+                if (bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+                    siteCode = bssod.getSiteCode();
+                    siteName = bssod.getSiteName();
+                }
+            } catch (Exception e) {
+                logger.error("用户分拣中心初始化失败：", e);
+            }
+        } else {
+            try {
+                siteName = getSiteNameParam(URLDecoder.decode(siteName, "UTF-8"));//需要截取字段
+
+            } catch (UnsupportedEncodingException e) {
+                logger.error("分拣中心参数解码异常：", e);
+            }
+        }
+
+        model.addAttribute("siteCode", siteCode);
+        model.addAttribute("siteName", siteName);
+
+        return "sortscheme/sort-scheme-index";
+    }
+
+    @RequestMapping(value = "/cacheClean-index", method = RequestMethod.GET)
+    public String cacheCleanindex(Integer siteCode,String siteName,Model model) {
 
         if(null == siteName || "".equals(siteName)){
             /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
@@ -98,8 +141,11 @@ public class SortSchemeController {
         model.addAttribute("siteCode",siteCode);
         model.addAttribute("siteName",siteName);
 
-        return "sortscheme/sort-scheme-index";
+        return "sortscheme/sort-scheme-cache-clean";
     }
+
+
+
 
     @RequestMapping(value = "/goDetail", method = RequestMethod.GET)
     public String goDetail(SortSchemeRequest request, Model model) {
@@ -122,14 +168,14 @@ public class SortSchemeController {
     }
 
     @RequestMapping(value = "/goAdd", method = RequestMethod.GET)
-    public String goAdd(Integer siteCode,String siteName,Model model) {
+    public String goAdd(Integer siteCode, String siteName, Model model) {
 
-        try{
-            siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));
-            model.addAttribute("siteCode",siteCode);
-            model.addAttribute("siteName",siteName);
-        }catch(UnsupportedEncodingException e){
-            logger.error("分拣中心参数解码异常：",e);
+        try {
+            siteName = getSiteNameParam(URLDecoder.decode(siteName, "UTF-8"));
+            model.addAttribute("siteCode", siteCode);
+            model.addAttribute("siteName", siteName);
+        } catch (UnsupportedEncodingException e) {
+            logger.error("分拣中心参数解码异常：", e);
         }
         return "sortscheme/sort-scheme-add";
     }
@@ -178,14 +224,15 @@ public class SortSchemeController {
                 throw new DataFormatException(remoteResponse.getMessage());
             }
         } catch (Exception e) {
+            logger.error("导入分拣计划明细失败", e);
             if (e instanceof IOException) {
-                logger.error("导入分拣计划明细失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
             } else if (e instanceof DataFormatException) {
-                logger.error("导入分拣计划明细失败", e);
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+            }else{
+                writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
             }
-            writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
+
         }
         writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
     }
@@ -204,7 +251,7 @@ public class SortSchemeController {
 
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ResponseBody
-    public void doExportExcel(@RequestParam("id")Long id, @RequestParam("siteNo")String siteNo, HttpServletRequest request, HttpServletResponse response) {
+    public void doExportExcel(@RequestParam("id") Long id, @RequestParam("siteNo") String siteNo, HttpServletRequest request, HttpServletResponse response) {
         try {
             response.setHeader("Content-type", "text/html;charset=UTF-8");
             if (id == null || siteNo == null) {
@@ -259,9 +306,111 @@ public class SortSchemeController {
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setData(remoteResponse.getData());
+            }else {
+                if(remoteResponse == null){
+                    logger.error("请求分拣中心本地获取分拣计划时remoteResponse为null,request:" + JsonHelper.toJson(request)
+                    + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
+                }else {
+                    response.setCode(remoteResponse.getCode());
+                    response.setMessage(remoteResponse.getMessage());
+                    logger.error("请求分拣中心本地获取分拣计划失败request：" + JsonHelper.toJson(request) +
+                    "remoteResponse:" + JsonHelper.toJson(remoteResponse)
+                            + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
+                }
             }
         } catch (Exception e) {
             logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 查询已删缓存
+     *author zhoutao on 2017/6/19
+     */
+    @RequestMapping(value = "/cacheClean", method = RequestMethod.POST)
+    @ResponseBody
+    public  CacheCleanResponse<Pager<List<CacheClean>>> cacheClean(@RequestBody CacheCleanRequest cacheCleanRequest) {
+            CacheCleanResponse<Pager<List<CacheClean>>> response = new CacheCleanResponse<Pager<List<CacheClean>>> ();
+        try {
+            if (cacheCleanRequest == null || cacheCleanRequest.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣中心ID为空,请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest == null || cacheCleanRequest.getMachineCode()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣机代码为空，请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest==null||cacheCleanRequest.getChuteCode1()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("滑槽号为空，请输入!!");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + cacheCleanRequest.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            CacheCleanResponse<Pager<List<CacheClean>>> remoteResponse = cacheCleanService.findPageCacheClean(cacheCleanRequest,HTTP + url + "services/smartDistribution/smartBoxes/query");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setData(remoteResponse.getData());
+                response.setMessage("查找本次删除的缓存成功!");
+            }
+        } catch (Exception e) {
+            logger.error("findPageCacheClean-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 删除缓存
+     *author zhoutao on 2017/6/19
+     */
+
+    @RequestMapping(value = "/excuteCacheClean", method = RequestMethod.POST)
+    @ResponseBody
+    public  CacheCleanResponse<Integer> excuteCacheClean(@RequestBody CacheCleanRequest cacheCleanRequest) {
+        CacheCleanResponse<Integer> response = new CacheCleanResponse<Integer> ();
+        try {
+            if (cacheCleanRequest == null || cacheCleanRequest.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣中心ID为空,请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest == null || cacheCleanRequest.getMachineCode()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("分拣机代码为空，请输入!!");
+                return response;
+            }
+            if(cacheCleanRequest==null||cacheCleanRequest.getChuteCode1()==null){
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("滑槽号为空，请输入!!");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + cacheCleanRequest.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            CacheCleanResponse<Integer> remoteResponse = cacheCleanService.cacheClean(cacheCleanRequest,HTTP + url + "/services/smartDistribution/smartBoxes/clean");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setData(remoteResponse.getData());
+                response.setMessage("删除缓存成功!");
+            }
+        } catch (Exception e) {
+            logger.error("cacheClean-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -292,6 +441,15 @@ public class SortSchemeController {
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage("分拣计划添加成功!");
+            }else {
+                if(remoteResponse == null){
+                    logger.error("请求分拣中心本地添加分拣计划失败remoteResponse为null,request:" + JsonHelper.toJson(request));
+                }else {
+                    response.setCode(remoteResponse.getCode());
+                    response.setMessage(remoteResponse.getMessage());
+                    logger.error("请求分拣中心本地添加分拣计划失败request：" + JsonHelper.toJson(request) +
+                            "remoteResponse:" + JsonHelper.toJson(remoteResponse));
+                }
             }
         } catch (Exception e) {
             logger.error("SortSchemeResource.addSortScheme-error!", e);
@@ -366,7 +524,22 @@ public class SortSchemeController {
     @ResponseBody
     public SortSchemeResponse<String> ableSortSchemeById(@RequestBody SortSchemeRequest request) {
         SortSchemeResponse<String> response = new SortSchemeResponse<String>();
+        String siteName = "";
+        Integer siteCode = 0;
+        try{
+            ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+
+            logger.info("获取用户ERP："+ user.getUserCode());
+            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+            if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
+                siteCode = bssod.getSiteCode();
+                siteName = bssod.getSiteName();
+            }
+        }catch(Exception e){
+            logger.error("登录人没有维护基础资料信息");
+        }
         try {
+
             if (request == null || request.getId() == null || request.getId() < 1 || request.getSiteNo() == null) {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage("参数不能为空！");
@@ -380,8 +553,15 @@ public class SortSchemeController {
             }
             SortSchemeResponse remoteResponse = sortSchemeService.ableById2(request, HTTP + url + "/autosorting/sortScheme/update/able/id");
             if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage("分拣计划激活成功!");
+                boolean bool = sortSchemeSyncService.sendDtc(request,HTTP + url,siteCode);//添加方案同步到DTC的操作
+                if(bool){
+                    response.setCode(JdResponse.CODE_OK);
+                    response.setMessage("分拣计划激活成功!");
+                }else{
+                    response.setCode(JdResponse.CODE_OK);
+                    response.setMessage("分拣计划激活成功!仓库分拣方案同步失败，需要手动同步");
+                }
+
             }
         } catch (Exception e) {
             logger.error("SortSchemeResource.deleteSortSchemeById-error!", e);
@@ -392,14 +572,88 @@ public class SortSchemeController {
         return response;
     }
 
-    /** 去掉参数中的ID，保留中午分拣中心名 **/
-    private String getSiteNameParam(String str){
+    /**
+     * 开启分拣机自动发货
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/update/open/id", method = RequestMethod.POST)
+    @ResponseBody
+    public SortSchemeResponse<String> ableAutoSendById(@RequestBody SortSchemeRequest request) {
+        SortSchemeResponse<String> response = new SortSchemeResponse<String>();
+        try {
+            if (request == null || request.getId() == null || request.getId() < 1 || request.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("参数不能为空！");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            SortSchemeResponse remoteResponse = sortSchemeService.ableAutoSendById(request, HTTP + url + "/autosorting/sortScheme/update/open/id");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage("分拣计划自动发货开启成功!");
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeResource.ableAutoSendById-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 关闭分拣机自动发货
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/update/close/id", method = RequestMethod.POST)
+    @ResponseBody
+    public SortSchemeResponse<String> disableAutoSendById(@RequestBody SortSchemeRequest request) {
+        SortSchemeResponse<String> response = new SortSchemeResponse<String>();
+        try {
+            if (request == null || request.getId() == null || request.getId() < 1 || request.getSiteNo() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("参数不能为空！");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getSiteNo());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+            SortSchemeResponse remoteResponse = sortSchemeService.disableAutoSendById(request, HTTP + url + "/autosorting/sortScheme/update/close/id");
+            if (remoteResponse != null && IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage("分拣计划自动发货关闭成功!");
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeResource.disableAutoSendById-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setData(null);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 去掉参数中的ID，保留中午分拣中心名
+     **/
+    private String getSiteNameParam(String str) {
         String siteName = "";
         String regEX = "[\\u4e00-\\u9fa5]+";
         Pattern pattern = Pattern.compile(regEX);
         Matcher matcher = pattern.matcher(str);
         logger.info("分拣中心参数截取......");
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group(0);
         }
         logger.error("getSiteNameParam()方法执行异常。。。");
@@ -407,33 +661,3 @@ public class SortSchemeController {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

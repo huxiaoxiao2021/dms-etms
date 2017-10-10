@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.router;
 
+import org.apache.commons.lang.StringUtils;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -38,6 +39,14 @@ public class SendMRouter extends SendMDao {
         index.setKeyword(entity.getBoxCode());
         index.setValue(String.valueOf(entity.getCreateSiteCode()));
         kvIndexDao.add(index);
+        
+        String turnoverBoxCode = entity.getTurnoverBoxCode();
+    	if(StringUtils.isNotBlank(turnoverBoxCode)){
+    		index.setKeyword(turnoverBoxCode);
+    		index.setValue(String.valueOf(entity.getBoxCode()));
+    		kvIndexDao.add(index);
+        }
+        
         return super.add(SendMDao.namespace, entity);
     }
 
@@ -49,6 +58,13 @@ public class SendMRouter extends SendMDao {
             index.setKeyword(item.getBoxCode());
             index.setValue(String.valueOf(item.getCreateSiteCode()));
             kvIndexDao.add(index);
+            
+            String turnoverBoxCode = item.getTurnoverBoxCode();
+        	if(StringUtils.isNotBlank(turnoverBoxCode)){
+        		index.setKeyword(turnoverBoxCode);
+        		index.setValue(String.valueOf(item.getBoxCode()));
+        		kvIndexDao.add(index);
+            }
         }
         return super.addBatch(param);
     }
@@ -113,6 +129,14 @@ public class SendMRouter extends SendMDao {
         index.setKeyword(dSendM.getBoxCode());
         index.setValue(String.valueOf(dSendM.getCreateSiteCode()));
         kvIndexDao.add(index);
+        
+        String turnoverBoxCode = dSendM.getTurnoverBoxCode();
+    	if(StringUtils.isNotBlank(turnoverBoxCode)){
+    		index.setKeyword(turnoverBoxCode);
+    		index.setValue(String.valueOf(dSendM.getBoxCode()));
+    		kvIndexDao.add(index);
+        }
+    	
         return super.insertSendM(dSendM);
     }
 

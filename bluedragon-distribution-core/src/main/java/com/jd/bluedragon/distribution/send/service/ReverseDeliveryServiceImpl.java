@@ -30,10 +30,12 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -377,20 +379,46 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 								sendData[3] = waybill.getReceiverZipCode();
 							}
 							String province = waybill.getProvinceName();
-							if (null == province) {
-								sendData[4] = "";
+							if (StringUtils.isBlank(province)) {
+								if (waybill.getProvinceId() != null){
+									Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
+									if (assort != null){
+										sendData[4] = assort.getAssDis();
+									}else {
+										sendData[4] = "";								}
+								} else {
+									sendData[4] = "";
+								}
 							} else {
 								sendData[4] = province;
 							}
 							String city = waybill.getCityName();
-							if (null == city) {
-								sendData[5] = "";
+							if (StringUtils.isBlank(city)) {
+								if (waybill.getCityId() != null){
+									Assort assort = baseService.getOneAssortById(waybill.getCityId());
+									if (assort != null){
+										sendData[5] = assort.getAssDis();
+									}else {
+										sendData[5] = "";
+									}
+								} else {
+									sendData[5] = "";
+								}
 							} else {
 								sendData[5] = city;
 							}
 							String county = waybill.getCountryName();
-							if (null == county) {
-								sendData[6] = "";
+							if (StringUtils.isBlank(county)) {
+								if (waybill.getCountryId() != null){
+									Assort assort = baseService.getOneAssortById(waybill.getCountryId());
+									if (assort != null){
+										sendData[6] = assort.getAssDis();
+									}else {
+										sendData[6] = "";
+									}
+								} else {
+									sendData[6] = "";
+								}
 							} else {
 								sendData[6] = county;
 							}

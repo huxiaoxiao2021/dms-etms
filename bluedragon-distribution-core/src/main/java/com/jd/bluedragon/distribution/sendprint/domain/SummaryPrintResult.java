@@ -15,7 +15,8 @@ public class SummaryPrintResult implements Serializable {
 
 	/** 目的地 */
 	private String receiveSiteName;
-
+	/** 路区号，取该批次下第一个运单的路区号 */
+	private String roadCode;
 	/** 批次号 */
 	private String sendCode;
 
@@ -82,5 +83,19 @@ public class SummaryPrintResult implements Serializable {
 
 	public void setTotalpackageBarNum(int totalpackageBarNum) {
 		this.totalpackageBarNum = totalpackageBarNum;
+	}
+
+	/**
+	 * @return the roadCode
+	 */
+	public String getRoadCode() {
+		return roadCode;
+	}
+
+	/**
+	 * @param roadCode the roadCode to set
+	 */
+	public void setRoadCode(String roadCode) {
+		this.roadCode = roadCode;
 	}
 }

@@ -89,7 +89,8 @@
 			feature_type = #{featureType,jdbcType=INTEGER}
 		</set>
 		<where>
-		    yn = 1 AND box_code = #{boxCode,jdbcType=VARCHAR}
+		    yn = 1
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 			<if test="packageBarcode!=null">
@@ -754,4 +755,16 @@
 	<select id="querySendCodesByDepartID"  parameterType="java.lang.Long" resultType="String">
 		select SEND_CODE from DEPARTURE_SEND where departure_car_id=#{departureID]}
 	</select>
+
+	<select id="querySendDCountBySendCode" parameterType="SendDetail" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM send_d
+		WHERE is_cancel = 0
+		AND yn = 1
+		AND send_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="createSiteCode != null">
+			AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+	</select>
+
 </mapper>

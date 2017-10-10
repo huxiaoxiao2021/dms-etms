@@ -23,6 +23,13 @@
 		FROM kv_index
 		WHERE keyword = #{keyword}
 	</select>
+	
+	<select id="queryRecentOneByKeyword" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+			value
+		FROM kv_index
+		WHERE keyword = #{keyword} order by ts desc limit 1
+	</select>
 
 	<select id="queryOneByKeyword" resultType="java.lang.String" parameterType="java.lang.String">
 		SELECT

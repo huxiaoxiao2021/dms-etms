@@ -516,26 +516,37 @@ public class CrossBoxController {
 		}
 
 		if (null != crossBox.getTransferTwoId() && crossBox.getTransferTwoId() >= 0) {
-			String transferTwoName = getDmsName(crossBox.getTransferTwoId());
-			if (null != transferTwoName) {
-				crossBox.setTransferTwoName(transferTwoName);
-			} else {
-				resData.setCode(CrossBoxResponse.CODE_WARN);
-				errorString = "中转2_id[" + crossBox.getTransferTwoId() + "]不存在";
-				resData.setMessage(errorString);
-				return resData;
+			if(crossBox.getTransferTwoId() == 0){
+				crossBox.setTransferTwoId(null);
+				crossBox.setTransferTwoName(null);
+			}else {
+				String transferTwoName = getDmsName(crossBox.getTransferTwoId());
+				if (null != transferTwoName) {
+					crossBox.setTransferTwoName(transferTwoName);
+				} else {
+					resData.setCode(CrossBoxResponse.CODE_WARN);
+					errorString = "中转2_id[" + crossBox.getTransferTwoId() + "]不存在";
+					resData.setMessage(errorString);
+					return resData;
+				}
 			}
+
 		}
 
 		if (null != crossBox.getTransferThreeId() && crossBox.getTransferThreeId() >= 0) {
-			String transferThreeName = getDmsName(crossBox.getTransferThreeId());
-			if (null != transferThreeName) {
-				crossBox.setTransferThreeName(transferThreeName);
-			} else {
-				resData.setCode(CrossBoxResponse.CODE_WARN);
-				errorString = "中转3_id[" + crossBox.getTransferThreeId() + "]不存在";
-				resData.setMessage(errorString);
-				return resData;
+			if(crossBox.getTransferThreeId() == 0){
+				crossBox.setTransferThreeId(null);
+				crossBox.setTransferThreeName(null);
+			}else {
+				String transferThreeName = getDmsName(crossBox.getTransferThreeId());
+				if (null != transferThreeName) {
+					crossBox.setTransferThreeName(transferThreeName);
+				} else {
+					resData.setCode(CrossBoxResponse.CODE_WARN);
+					errorString = "中转3_id[" + crossBox.getTransferThreeId() + "]不存在";
+					resData.setMessage(errorString);
+					return resData;
+				}
 			}
 		}
 
