@@ -56,8 +56,8 @@ public class OfflineController {
 	@Resource(name = "offlineDeliveryService")
 	private OfflineService offlineDeliveryService;
 
-	@Resource(name = "OfflineAcarAbillDeliveryService")
-	private OfflineService OfflineAcarAbillDeliveryService;
+	@Resource(name = "offlineAcarAbillDeliveryService")
+	private OfflineService offlineAcarAbillDeliveryService;
 
 	@Autowired
 	private OfflineSortingService offlineSortingService;
@@ -137,7 +137,7 @@ public class OfflineController {
                 result=this.offlineDeliveryService.parseToTask(offlineLogRequest);
             } else if (Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) {
                 // 一车一单发货
-                result=this.OfflineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
+                result=this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
             } else if (Task.TASK_TYPE_SEAL_BOX.equals(offlineLogRequest
             .getTaskType())) {// 分拣封箱
 				result=this.offlineSortingService.insertSealBox(offlineLogRequest);

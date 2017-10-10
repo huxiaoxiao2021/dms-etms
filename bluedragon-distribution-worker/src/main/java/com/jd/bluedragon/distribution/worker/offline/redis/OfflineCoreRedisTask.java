@@ -30,7 +30,7 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 	@Resource(name = "offlineDeliveryService")
 	private OfflineService offlineDeliveryService;
 
-	@Resource(name = "OfflineAcarAbillDeliveryService")
+	@Resource(name = "offlineAcarAbillDeliveryService")
 	private OfflineService offlineAcarAbillDeliveryService;
 
 	@Resource(name = "offlinePopPickupService")
