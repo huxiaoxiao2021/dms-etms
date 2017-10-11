@@ -127,13 +127,18 @@
 
 	<update id="updateLoadBillStatus" parameterType="map">
 		UPDATE load_bill
-		SET approval_code = #{approvalCode,jdbcType=INTEGER}
-		<if test="ciqCheckFlag != null">
-			, ciq_check_flag = #{ciqCheckFlag,jdbcType=INTEGER}
-		</if>
-		<if test="custBillNo != null and custBillNo != ''">
-			, cust_billno = #{custBillNo,jdbcType=VARCHAR}
-		</if>
+        <set>
+            <if test="approvalCode != null">
+                approval_code = #{approvalCode,jdbcType=INTEGER},
+            </if>
+            <if test="ciqCheckFlag != null">
+                ciq_check_flag = #{ciqCheckFlag,jdbcType=INTEGER},
+            </if>
+            <if test="custBillNo != null and custBillNo != ''">
+                cust_billno = #{custBillNo,jdbcType=VARCHAR}
+            </if>
+        </set>
+
 		WHERE yn = 1 AND warehouse_id = #{warehouseId,jdbcType=VARCHAR}
 		      <if test="orderIdList != null">
 				  AND (
