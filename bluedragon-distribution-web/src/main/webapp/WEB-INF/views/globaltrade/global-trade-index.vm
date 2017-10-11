@@ -100,7 +100,7 @@
                         <th style="width:40px;">发货时间</th>
                         <th style="width:30px;">批次号</th>
                         <th style="width:50px;">车牌号</th>
-                        <th style="width:50px;">国检布控状态</th>
+                        <th style="width:60px;">国检布控状态</th>
                         <th style="width:50px;">审批状态</th>
                         <th style="width:50px;">审批时间</th>
                         <th style="width:50px;">备注</th>
