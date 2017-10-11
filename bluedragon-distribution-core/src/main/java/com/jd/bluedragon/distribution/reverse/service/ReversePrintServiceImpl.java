@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.ReceiveManager;
@@ -240,7 +241,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         try {
             CancelWaybill caybillCancel = jsfSortingResourceService.getWaybillCancelByWaybillCode(domain.getWaybillCode());
-            domain.setSickWaybillFlag(caybillCancel.getFeatureType());//病单类型 30 ，非病单类型 31
+            domain.setSickWaybillFlag(caybillCancel == null ? Constants.FEATURE_TYPCANCEE_UNSICKL :caybillCancel.getFeatureType());//病单类型 30 ，非病单类型 31
         }catch (Exception ex){
             logger.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
             result.error("获取订单拦截信息异常");

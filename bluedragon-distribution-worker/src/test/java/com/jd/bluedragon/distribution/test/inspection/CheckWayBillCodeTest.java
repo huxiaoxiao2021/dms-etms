@@ -1,13 +1,25 @@
 package com.jd.bluedragon.distribution.test.inspection;
 
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.events.Characters;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringWriter;
 
 /**
  * Created by shipeilin on 2017/8/4.
@@ -20,6 +32,46 @@ public class CheckWayBillCodeTest {
     private static final String waybill_error_URL = "D:\\waybill_error.txt";
     private static final String package_right_URL = "D:\\package_right.txt";
     private static final String package_error_URL = "D:\\package_error.txt";
+
+    @Test
+    public void testForChar() throws Exception {
+        String s = "10000000003000000000000000000000012000000000000000";
+        ReverseSendWms send = new ReverseSendWms();
+        send.setReverseWaybillType(Character.getNumericValue(s.charAt(33)));
+        char b = s.charAt(33);
+        System.out.println(toXml(send,ReverseSendWms.class));;
+        System.out.println(s.length());
+        System.out.println(b);
+        System.out.println(b == '2');
+        System.out.println(b == 48);
+    }
+
+    public static String toXml(Object request, Class<?> clazz) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.newDocument();
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.marshal(request, doc);
+
+            DOMSource domSource = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+
+            return writer.toString();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return null;
+    }
 
     public static void main(String[] args) {
         readFileByLines(package_right_URL, PACKAGE_TYPE);

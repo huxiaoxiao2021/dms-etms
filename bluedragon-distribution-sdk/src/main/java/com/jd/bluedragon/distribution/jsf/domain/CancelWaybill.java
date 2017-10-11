@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jsf.domain;
 
-public class CancelWaybill {
+public class CancelWaybill implements java.io.Serializable {
 
     public static final Integer FEATURE_TYPE_NORMAL = 1; // 正常解锁订单
     public static final Integer FEATURE_TYPE_CANCELED = -1; // 取消订单
@@ -19,6 +19,7 @@ public class CancelWaybill {
     public static final String FEATURE_MSG_SICKCANCEL = "SICKCANCEL";
     public static final String FEATURE_MSG_INTERCEPT = "INTERCEPT";
     public static final String FEATURE_MSG_INTERCEPT_BUSINESS = "INTERCEPT_BUSINESS";
+    private static final long serialVersionUID = 4711924279615099679L;
 
 
     private String waybillCode;
