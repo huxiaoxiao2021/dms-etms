@@ -721,7 +721,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setOrderId(wallBillCode);
         send.setIsInStore(0);
         send.setPackageCodes((String) entry.getValue());
-        send.setReverseWaybillType(send.getWaybillSign().charAt(34));
+        send.setReverseWaybillType(Character.getNumericValue(send.getWaybillSign().charAt(33)));
         send.setToken(taskId);
         try {
             //按收货仓进行赋值，覆盖运单中发货仓值，支持异仓退货

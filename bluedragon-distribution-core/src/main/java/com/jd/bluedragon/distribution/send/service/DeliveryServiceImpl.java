@@ -2828,7 +2828,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (counter != scanCount) {/* 有差异*/
 
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
-                if(waybill.getWaybillSign().charAt(34) == '2'){//病单则直接返回0 不验证包裹是否集齐
+                if(waybill.getWaybillSign().charAt(33) == '2'){//病单则直接返回0 不验证包裹是否集齐
                     return 0;
                 }
                 List<String> geneList = null;
