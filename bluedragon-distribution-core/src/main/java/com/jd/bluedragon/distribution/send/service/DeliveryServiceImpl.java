@@ -343,8 +343,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.offlinePackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult offlinePackageSend(SendM domain) {
-
-        CallerInfo temp_info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.offlinePackageSend.temp_info", false, true);
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
@@ -359,7 +357,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         this.transitSend(domain);
         this.pushStatusTask(domain);
-        Profiler.registerInfoEnd(temp_info);
         return new SendResult(1, "发货成功");
     }
 
