@@ -318,7 +318,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-            pushSorting(domain);//大件写TASK_SORTING
+            pushSorting(domain, false);//大件写TASK_SORTING
         } else {
             SendDetail tSendDatail = new SendDetail();
             tSendDatail.setBoxCode(domain.getBoxCode());
@@ -346,7 +346,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-            pushSorting(domain);//大件写TASK_SORTING
+            pushSorting(domain, true);//大件写TASK_SORTING
         } else {
             SendDetail tSendDatail = new SendDetail();
             tSendDatail.setBoxCode(domain.getBoxCode());
@@ -361,7 +361,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
 
-    private void pushSorting(SendM domain) {
+    /**
+     * 推分拣任务
+     * @param domain
+     * @param isOffLine 是否是离线数据
+     */
+    private void pushSorting(SendM domain, boolean isOffLine) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
         BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
@@ -376,11 +381,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(domain.getCreateSiteCode().toString());
         task.setKeyword2(domain.getBoxCode());
-        task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
+        if(!isOffLine){//实时发货
+            task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
+        }
         taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
         SortingRequest sortDomain = new SortingRequest();
-        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-30000)));
+        if(!isOffLine){//实时发货
+            sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-30000)));
+        }
         sortDomain.setBoxCode(domain.getBoxCode());
         sortDomain.setUserCode(domain.getCreateUserCode());
         sortDomain.setUserName(domain.getCreateUser());
@@ -2944,7 +2953,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             //插入SEND_M
             this.sendMDao.insertSendM(domain);
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                pushSorting(domain);//大件写TASK_SORTING
+                pushSorting(domain, false);//大件写TASK_SORTING
             } else {
                 SendDetail tSendDatail = new SendDetail();
                 tSendDatail.setBoxCode(domain.getBoxCode());
