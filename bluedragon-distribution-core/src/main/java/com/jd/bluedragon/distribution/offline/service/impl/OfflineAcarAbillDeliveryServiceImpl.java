@@ -143,8 +143,10 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         sendM.setSendType(offlineLogRequest.getBusinessType());
         sendM.setCreateUser(offlineLogRequest.getUserName());
         sendM.setSendCode(offlineLogRequest.getBatchCode());
-        sendM.setCreateTime(new Date());
-        sendM.setOperateTime(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
+        sendM.setCreateTime(new Date(System.currentTimeMillis() + 30000));
+        Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT);
+        operateTime.setTime(operateTime.getTime() + 30000);
+        sendM.setOperateTime(operateTime);
         sendM.setTurnoverBoxCode(offlineLogRequest.getTurnoverBoxCode());
         sendM.setTransporttype(offlineLogRequest.getTransporttype());
         sendM.setYn(1);
