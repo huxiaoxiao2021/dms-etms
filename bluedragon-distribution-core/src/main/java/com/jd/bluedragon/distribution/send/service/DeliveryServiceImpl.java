@@ -282,20 +282,22 @@ public class DeliveryServiceImpl implements DeliveryService {
             } catch (Exception ex) {
                 logger.error("调用VER", ex);
                 return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
+            }finally {
+                Profiler.registerInfoEnd(info1);
             }
-            Profiler.registerInfoEnd(info1);
             if (!response.getCode().equals(200)) {//如果校验不OK
                 //获得运单的预分拣站点
                 Integer preSortingSiteCode = null;
+                CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
                 try {
-                    CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
                     com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(domain.getBoxCode()), true, false, false, false);
-                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                     if (null != waybill) {
                         preSortingSiteCode = waybill.getSiteCode();
                     }
                 } catch (Throwable e) {
                     logger.error("一车一单获取预分拣站点异常", e);
+                }finally {
+                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                 }
 
                 if (response.getCode() >= 39000) {

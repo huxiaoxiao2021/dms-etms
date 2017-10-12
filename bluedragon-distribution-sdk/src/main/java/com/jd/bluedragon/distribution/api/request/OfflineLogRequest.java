@@ -24,14 +24,6 @@ public class OfflineLogRequest extends JdRequest {
 	/** 航标发货标示*/
 	private Integer transporttype;
 
-	public Integer getTransporttype() {
-		return transporttype;
-	}
-
-	public void setTransporttype(Integer transporttype) {
-		this.transporttype = transporttype;
-	}
-
 	public Integer getOperateType() {
 		return operateType;
 	}
@@ -159,6 +151,15 @@ public class OfflineLogRequest extends JdRequest {
 	public void setPackageCode(String packageCode) {
 		this.packageCode = packageCode;
 	}
+
+	public Integer getTransporttype() {
+		return transporttype;
+	}
+
+	public void setTransporttype(Integer transporttype) {
+		this.transporttype = transporttype;
+	}
+
 	@Override
 	public String toString(){
 		StringBuilder  str= new StringBuilder("{");
