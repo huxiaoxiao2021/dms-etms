@@ -102,7 +102,6 @@ public class DeliveryResource {
         domain.setSendType(request.getBusinessType());
         domain.setTransporttype(request.getTransporttype());
         domain.setYn(1);
-        //TODO 数据库时间
         domain.setCreateTime(new Date(System.currentTimeMillis() + 30000));
         domain.setOperateTime(new Date(System.currentTimeMillis() + 30000));
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
