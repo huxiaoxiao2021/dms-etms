@@ -107,9 +107,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                     receiveSiteCode = box.getReceiveSiteCode();
                 }
             }
-            if (!result) {
-                offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_FAIL));
-            }else{
+            if (result) {
                 request.setReceiveSiteCode(receiveSiteCode);
             }
         }

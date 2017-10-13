@@ -105,8 +105,8 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 						}
 					}
 
-					if (Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest
-							.getTaskType())
+					if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())
+							|| Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType()))
 							&& resultCode > 0) {
 						// 日志已处理，无需再处理
 						continue;
