@@ -6,17 +6,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.dao.common.SpringAppContextConfigPath;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-public class InspectionDaoTest extends AbstractDaoIntegrationTest{
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:spring/distribution-core-context-test.xml")
+public class InspectionDaoTest{
 	
 	@Autowired
 	private InspectionDao inspectionDao;

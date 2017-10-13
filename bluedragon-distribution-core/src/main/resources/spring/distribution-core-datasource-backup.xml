@@ -59,10 +59,25 @@
 		<constructor-arg index="0" ref="backupWriteSqlSessionFactory" />
 	</bean>
 	
-	<!--  
+
 	<bean id="backupWriteDataSourceDbStatementProcessor" class="com.jd.ql.framework.migration.replication.support.MirrorDbStatementProcessor">
 	   	<constructor-arg index="0" ref="backupWriteSqlSessionTemplate"></constructor-arg>
 	</bean>
-	-->
-	
+
+	<bean id="mainWriteReplicationSqlSessionFactory" class="com.jd.bluedragon.common.dao.migration.DynamicConfigReplicationSqlSessionFactory">
+		<constructor-arg index="0" ref="writeSqlSessionFactory"/>
+		<property name="enable" value="${db.backup.replicate.enable}" />
+		<property name="statementDecider">
+			<bean class="com.jd.bluedragon.common.dao.migration.DmsBackupDataSourceStatementDecider" />
+		</property>
+		<property name="statementProcessor" ref="backupWriteDataSourceDbStatementProcessor" />
+		<property name="ignoreExceptionWhenReplication" value="${db.backup.replicate.ignoreExp}" />
+		<property name="excludedStatements">
+			<list>
+				<value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
+				<value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
+				<value>com.jd.bluedragon.distribution.box.dao.BaseDao.reprint</value>
+			</list>
+		</property>
+	</bean>
 </beans>
