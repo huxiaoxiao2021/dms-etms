@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>分拣计划</title>
@@ -154,9 +154,23 @@
         </div>
         <div id="pager" class="tbl-n">
         </div>
-        <div id="dialog" title="导入对话框" style="width: 440px;height: 100px;">
+        <div id="dialog" title="导入对话框" style="width: 1320px;height: 100px;font-size: large;color: #a94442" >
+            注意：对于有多套自动化分拣设备的分拣场地，分拣计划维护需遵循以下原则：</br>
+            1、如果使用两套设备实现粗分和细分，在配置分拣计划时，粗分设备的分拣计划也需要维护到对应站点，多个站点对应一个格口。细分设备分拣计划维护至对应站点，一个站点对应一个格口。</br>
+            2、如果多套设备覆盖站点不重合，则分拣计划维护没有特殊限制。</br></br></br>
+
+            <hr></br></br>
+
+            最近：当一个目的地对应多个格口时，分拣机会默认将包裹投入物理格口1内</br>
+            瀑布：当一个目的地对应多个格口时，分拣机会按照物理格口1,2,3,4信息，优先装满格口1，然后装满格口2，再者装满格口3，最后装满格口4，当四个格口都装满时，货物又进入格口1</br>
+            循环：当一个目的地对应多个格口时，有A、B、C、D四个包裹过来，分拣机会按照物理格口1,2,3,4信息，将A、B、C、D四个包裹分别放入1,2,3,4的格口内</br>
 
         </div>
+
+
+
+
+
 
 </div>
 </body>

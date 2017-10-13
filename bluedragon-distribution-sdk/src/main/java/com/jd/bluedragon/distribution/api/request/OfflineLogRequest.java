@@ -21,6 +21,9 @@ public class OfflineLogRequest extends JdRequest {
 	private String exceptionType;
 	private Integer operateType;
 
+	/** 航标发货标示*/
+	private Integer transporttype;
+
 	public Integer getOperateType() {
 		return operateType;
 	}
@@ -148,20 +151,29 @@ public class OfflineLogRequest extends JdRequest {
 	public void setPackageCode(String packageCode) {
 		this.packageCode = packageCode;
 	}
+
+	public Integer getTransporttype() {
+		return transporttype;
+	}
+
+	public void setTransporttype(Integer transporttype) {
+		this.transporttype = transporttype;
+	}
+
 	@Override
 	public String toString(){
 		StringBuilder  str= new StringBuilder("{");
-		str.append("batchCode"+this.batchCode).append(",");
-		str.append("boxCode"+this.boxCode).append(",");
-		str.append("carCode"+this.carCode).append(",");
-		str.append("exceptionType"+this.exceptionType).append(",");
-		str.append("packageCode"+this.packageCode).append(",");
-		str.append("sealBoxCode"+this.sealBoxCode).append(",");
-		str.append("sendUser"+this.sendUser).append(",");
-		str.append("shieldsCarCode"+this.shieldsCarCode).append(",");
-		str.append("turnoverBoxCode"+this.turnoverBoxCode).append(",");
-		str.append("waybillCode"+this.waybillCode).append("}");
+		str.append("batchCode:"+this.batchCode).append(",");
+		str.append("boxCode:"+this.boxCode).append(",");
+		str.append("carCode:"+this.carCode).append(",");
+		str.append("exceptionType:"+this.exceptionType).append(",");
+		str.append("packageCode:"+this.packageCode).append(",");
+		str.append("sealBoxCode:"+this.sealBoxCode).append(",");
+		str.append("sendUser:"+this.sendUser).append(",");
+		str.append("shieldsCarCode:"+this.shieldsCarCode).append(",");
+		str.append("turnoverBoxCode:"+this.turnoverBoxCode).append(",");
+		str.append("transporttype:"+this.transporttype).append(",");
+		str.append("waybillCode:"+this.waybillCode).append("}");
 		return str.toString();
 	}
-
 }
