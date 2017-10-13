@@ -41,6 +41,9 @@ public class OfflineCoreTask extends DBSingleScheduler {
 	@Resource(name = "offlineDeliveryService")
 	private OfflineService offlineDeliveryService;
 
+	@Resource(name = "offlineAcarAbillDeliveryService")
+	private OfflineService offlineAcarAbillDeliveryService;
+
 	@Resource(name = "offlinePopPickupService")
 	private OfflineService offlinePopPickupService;
 
@@ -91,7 +94,10 @@ public class OfflineCoreTask extends DBSingleScheduler {
 						// 发货
 						resultCode = this.offlineDeliveryService
 								.parseToTask(offlineLogRequest);
-					} else if (Task.TASK_TYPE_BOUNDARY.equals(offlineLogRequest
+					} else if (Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) {
+						// 一车一单发货
+						resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
+					}else if (Task.TASK_TYPE_BOUNDARY.equals(offlineLogRequest
 							.getTaskType())) {
 						// pop上门接货
 						resultCode = this.offlinePopPickupService
@@ -109,9 +115,9 @@ public class OfflineCoreTask extends DBSingleScheduler {
 						}
 					}
 
-					if (Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest
-							.getTaskType())
-							&& resultCode > 0) {
+					if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())
+                            || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType()))
+                            && resultCode > 0) {
 						// 日志已处理，无需再处理
 						continue;
 					}
