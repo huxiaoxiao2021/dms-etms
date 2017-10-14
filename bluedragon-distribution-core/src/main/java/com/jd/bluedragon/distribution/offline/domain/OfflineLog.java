@@ -36,9 +36,10 @@ public class OfflineLog implements java.io.Serializable {
 	 * 创建机构CODE
 	 */
 	private Integer orgCode;
-	
-	
-	
+
+	/** 航标发货标示*/
+	private Integer transporttype;
+
 	public Integer getOrgCode() {
 		return orgCode;
 	}
@@ -261,5 +262,13 @@ public class OfflineLog implements java.io.Serializable {
 
 	public void setPackageCode(String packageCode) {
 		this.packageCode = packageCode;
+	}
+
+	public Integer getTransporttype() {
+		return transporttype;
+	}
+
+	public void setTransporttype(Integer transporttype) {
+		this.transporttype = transporttype;
 	}
 }

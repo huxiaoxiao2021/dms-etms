@@ -72,7 +72,7 @@
 	<select id="totalSizeByParams" resultType="Integer"
 		parameterType="OfflineLog">
 		SELECT count(offline_log_id)
-		FROM dms.offline_log
+		FROM offline_log
 		<include refid="Base_Where_List" />
 	</select>
 
@@ -80,7 +80,7 @@
 		parameterType="OfflineLog">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM dms.offline_log
+		FROM offline_log
 		<include refid="Base_Where_List" />
 		order by update_time desc
 		<if test="startIndex != null">
