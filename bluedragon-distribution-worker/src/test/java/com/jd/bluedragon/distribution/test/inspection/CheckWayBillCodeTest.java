@@ -37,7 +37,7 @@ public class CheckWayBillCodeTest {
     public void testForChar() throws Exception {
         String s = "10000000003000000000000000000000012000000000000000";
         ReverseSendWms send = new ReverseSendWms();
-        send.setReverseWaybillType(Character.getNumericValue(s.charAt(33)));
+//        send.setReverseWaybillType(Character.getNumericValue(s.charAt(33)));
         char b = s.charAt(33);
         System.out.println(toXml(send,ReverseSendWms.class));;
         System.out.println(s.length());

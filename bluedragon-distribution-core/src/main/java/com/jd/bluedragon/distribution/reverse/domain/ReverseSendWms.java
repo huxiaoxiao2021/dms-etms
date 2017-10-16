@@ -52,7 +52,7 @@ public class ReverseSendWms {
     
     private String busiOrderCode;
 
-	private Integer reverseWaybillType;//逆向运单类型 0 - 普通型逆向单，1 - 病单型逆向单
+	private boolean isSickWaybill;//true 病单， false 非病单
 
 	private String token;//防重码 取 task_send 表task_id
 
@@ -194,12 +194,12 @@ public class ReverseSendWms {
 		this.proList = proList;
 	}
 
-	public Integer getReverseWaybillType() {
-		return reverseWaybillType;
+	public boolean isSickWaybill() {
+		return isSickWaybill;
 	}
 
-	public void setReverseWaybillType(Integer reverseWaybillType) {
-		this.reverseWaybillType = reverseWaybillType;
+	public void setSickWaybill(boolean sickWaybill) {
+		isSickWaybill = sickWaybill;
 	}
 
 	public String getToken() {
