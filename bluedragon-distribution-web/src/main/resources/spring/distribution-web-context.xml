@@ -15,7 +15,10 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
 
-
+    <!-- 扩容Mysql主备配置表 -->
+    <import resource="classpath:spring/mysql8/distribution-core-common.xml" />
+    <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
+    
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<!--<import resource="classpath:spring/distribution-web-new-authen.xml" />-->

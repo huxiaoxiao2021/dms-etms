@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -16,6 +19,8 @@
         </property>
     </bean>
 
+	<import resource="classpath:spring/mysql8/distribution-core-datasource-backup.xml"/>
+	
     <bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
@@ -29,35 +34,19 @@
         <property name="poolPreparedStatements" value="false" />
     </bean>
 
-    <!-- bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
-          destroy-method="close">
-        <property name="driverClassName" value="${wss.dataSource.driverClassName}"/>
-        <property name="url" value="${wss.dataSource.new.url}"/>
-        <property name="username" value="${wss.dataSource.username}"/>
-        <property name="password" value="${wss.dataSource.password}"/>
-        <property name="defaultAutoCommit" value="${wss.dataSource.defaultAutoCommit}" />
-        <property name="maxActive" value="${wss.dataSource.maxActive}" />
-        <property name="maxIdle" value="${wss.dataSource.maxIdle}" />
-        <property name="maxWait" value="${wss.dataSource.maxWait}" />
-        <property name="initialSize" value="${wss.dataSource.initialSize}" />
-        <property name="minIdle" value="${wss.dataSource.minIdle}" />
-        <property name="minEvictableIdleTimeMillis" value="${wss.dataSource.minEvictableIdleTimeMillis}" />
-        <property name="timeBetweenEvictionRunsMillis" value="${wss.dataSource.timeBetweenEvictionRunsMillis}" />
-    </bean-->
-
     <bean id="dms_main" parent="parentDataSource">
-        <property name="url" value="${db.mysql.url}"/>
-        <property name="username" value="${db.mysql.username}" />
-        <property name="password" value="${db.mysql.password}" />
+        <property name="url" value="${db.mysql8.url}"/>
+        <property name="username" value="${db.mysql8.username}" />
+        <property name="password" value="${db.mysql8.password}" />
         <property name="defaultTransactionIsolation" value="${db.mysql.isolationLevel}"/>
     </bean>
 
     <bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="${dms.read.mysql.db.driverClassName}"/>
-        <property name="url" value="${dms.read.mysql.db.url}"/>
-        <property name="username" value="${dms.read.mysql.db.username}"/>
-        <property name="password" value="${dms.read.mysql.db.password}"/>
+        <property name="url" value="${dms.read.mysql8.db.url}"/>
+        <property name="username" value="${dms.read.mysql8.db.username}"/>
+        <property name="password" value="${dms.read.mysql8.db.password}"/>
         <property name="defaultAutoCommit" value="${dms.read.db.defaultAutoCommit}" />
         <property name="maxActive" value="${dms.read.db.maxActive}" />
         <property name="maxIdle" value="${dms.read.db.maxIdle}" />
@@ -68,23 +57,73 @@
         <property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
     </bean>
 
-    <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
-          <!--destroy-method="close">-->
-        <!--<property name="driverClassName" value="${dms.waybill.mysql.db.driverClassName}"/>-->
-        <!--<property name="url" value="${dms.waybill.mysql.db.url}"/>-->
-        <!--<property name="username" value="${dms.waybill.mysql.db.username}"/>-->
-        <!--<property name="password" value="${dms.waybill.mysql.db.password}"/>-->
-        <!--<property name="defaultAutoCommit" value="${dms.waybill.db.defaultAutoCommit}" />-->
-        <!--<property name="maxActive" value="${dms.waybill.db.maxActive}" />-->
-        <!--<property name="maxIdle" value="${dms.waybill.db.maxIdle}" />-->
-        <!--<property name="maxWait" value="${dms.waybill.db.maxWait}" />-->
-        <!--<property name="initialSize" value="${dms.waybill.db.initialSize}" />-->
-        <!--<property name="minIdle" value="${dms.waybill.db.minIdle}" />-->
-        <!--<property name="minEvictableIdleTimeMillis" value="${dms.waybill.db.minEvictableIdleTimeMillis}" />-->
-        <!--<property name="timeBetweenEvictionRunsMillis" value="${dms.waybill.db.timeBetweenEvictionRunsMillis}" />-->
-    <!--</bean>-->
+    <!-- 数据库双写主数据源配置  赵玉开  开始 -->
 
-    <!-- dms写库 数据源  -start-->
+    <bean id="sqlSessionFactoryMaster" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
+    </bean>
+
+    <bean id="dwSqlSessionFactory" class="com.jd.coo.sa.mybatis.plugins.dwr.SqlSessionFactoryBean">
+        <property name="masterSqlSessionFactory" ref="sqlSessionFactoryMaster"/>
+        <property name="daoContext" ref="daoContext"/>
+    </bean>
+
+    <bean class="com.jd.coo.sa.mybatis.plugins.dwr.ContextWithTransaction" name="daoContext">
+        <property name="swallowException" value="false"/>
+        <property name="slaveSqlSessionFactory" ref="sqlSessionFactorySlave"/>
+        <property name="slaveTransactionManager" ref="transactionManagerSlave"/>
+        <!-- set transaction isolation level as read-committed -->
+        <property name="slaveTransactionIsolationLevel" value="2"/>
+
+        <!-- 设置指定sqlId在master mybatis中存在而在slave中不存在 -->
+        <property name="knownMissingSqlIds">
+            <list>
+                <value>com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao.add</value>
+                <value>com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao.add</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.add</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.update</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateFail</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateSuccess</value>
+                <value>com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao.updateLock</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.add</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.update</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.addWithStatus</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateTaskById</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateBatchTask</value>
+                <value>com.jd.bluedragon.distribution.task.dao.TaskDao.updateTaskStatus</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.updateLoadBillStatus</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.add</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.update</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.updatePreLoadBillById</value>
+                <value>com.jd.bluedragon.distribution.globaltrade.dao.updateCancelLoadBillStatus</value>
+            </list>
+        </property>
+
+        <!-- 启动异步双写配置 -->
+        <property name="enableAsync" value="true"/>
+        <property name="taskExecutor" ref="doubleWriteExecutor"/>
+        <!-- 启动异步双写结束 -->
+    </bean>
+    <!--异步双写线程池配置, 线上注意配置线程池大小 pool-size属性-->
+    <task:executor id="doubleWriteExecutor" pool-size="0-15"/>
+
+    <bean name="transactionManager" class="com.jd.coo.sa.mybatis.plugins.dwr.TransactionManager">
+        <property name="daoContext" ref="daoContext"/>
+        <property name="dataSource" ref="dms_main" />
+        <property name="rollbackOnCommitFailure" value="true" />
+        <qualifier value="main"></qualifier>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="dwSqlSessionFactory"/>
+    </bean>
+
+    <!-- 数据库双写主数据源配置  赵玉开  结束 -->
+    
+<!--     dms写库 数据源 orignal  -start
     <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dms_main" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
@@ -101,7 +140,7 @@
     <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="mainSqlSessionFactory"/>
     </bean>
-    <!-- dms写库 数据源  -end-->
+    dms写库 数据源orignal  -end -->
 
 
     <!-- dms读库 数据源  -start-->
@@ -116,16 +155,6 @@
     </bean>
 
     <!-- dms读库 数据源  -end-->
-
-    <!-- 运单库 jproxy数据源 added by zhanglei 2016.12.15 start-->
-    <!--<bean id="sqlSessionFactory_waybill" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-        <!--<property name="configLocation" value="classpath:config/mysql/mybatis-config-waybill.xml" />-->
-        <!--<property name="dataSource" ref="dmsWaybillDataSource" />-->
-    <!--</bean>-->
-
-    <!--<bean id="sessionTemplate_waybill" class="org.mybatis.spring.SqlSessionTemplate">-->
-        <!--<constructor-arg index="0" ref="sqlSessionFactory_waybill" />-->
-    <!--</bean>-->
 
     <!-- worker配置数据源    -start-->
 
