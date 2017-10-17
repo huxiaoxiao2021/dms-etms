@@ -960,7 +960,7 @@ public class SortingServiceImpl implements SortingService {
 								DateHelper.formatDateTimeMs(sorting.getOperateTime()));
 						//bd_blocker_complete的MQ
 						this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
-						this.logger.error("退款100分MQ消息推送成功,运单号：" + waybill.getWaybillCode());
+						this.logger.info("退款100分MQ消息推送成功,运单号：" + waybill.getWaybillCode());
 						//【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
 						//这里需要暂时注释掉 逆向取件单不应该发送快退的mq,属于售后的范围  modified by zhanglei 20161025
                         //fastRefundService.execRefund(sorting);
