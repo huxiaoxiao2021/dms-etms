@@ -84,9 +84,9 @@ public class TaskServiceImpl implements TaskService {
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
         if (isDynamicProducerOn(task)) {
-			dynamicProducer.send(task);
-			return 1;
-		}
+            dynamicProducer.send(task);
+            return 1;
+        }
         return doAddTask(task, ifCheckTaskMode);
     }
 

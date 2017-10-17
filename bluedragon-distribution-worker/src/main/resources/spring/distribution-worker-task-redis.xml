@@ -23,7 +23,7 @@
 		<property name="ownSign" value="${ownSign}" />
 	</bean>
 
-	<!--<bean id="receiveRedisTask"
+	<bean id="receiveRedisTask"
 		class="com.jd.bluedragon.distribution.worker.redis.ReceiveRedisTask"
 		parent="parentRedisTask">
 		<property name="taskType" value="ReceiveRedisTask" />
@@ -99,123 +99,123 @@
 		<property name="taskType" value="ReverseRejectRedisTask" />
 		<property name="desc" value="逆向驳回Redis任务" />
 	</bean>
--->
+
 	<bean id="reverseSendRedisTask"
 		class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSendRedisTask"
 		parent="parentRedisTask">
 		<property name="taskType" value="ReverseSendRedisTask" />
 		<property name="desc" value="逆向发货回传Redis任务" />
 	</bean>
-	<!--
-        <bean id="reverseSpareRedisTask"
-            class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSpareRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="ReverseSpareRedisTask" />
-            <property name="desc" value="逆向备件库Redis任务" />
-        </bean>
 
-        <bean id="popPickupRedisTask"
-            class="com.jd.bluedragon.distribution.worker.pop.redis.PopPickupRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="PopPickupRedisTask" />
-            <property name="desc" value="Pop上门收货Redis任务" />
-        </bean>
+	<bean id="reverseSpareRedisTask"
+		class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSpareRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="ReverseSpareRedisTask" />
+		<property name="desc" value="逆向备件库Redis任务" />
+	</bean>
 
-        <bean id="thirdDepartureRedisTask"
-            class="com.jd.bluedragon.distribution.worker.departure.redis.ThirdDepartureRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="ThirdDepartureRedisTask" />
-            <property name="desc" value="支线发车推送运单Redis任务" />
-        </bean>
+	<bean id="popPickupRedisTask"
+		class="com.jd.bluedragon.distribution.worker.pop.redis.PopPickupRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="PopPickupRedisTask" />
+		<property name="desc" value="Pop上门收货Redis任务" />
+	</bean>
 
-        <bean id="inspectionRedisTask"
-            class="com.jd.bluedragon.distribution.worker.redis.InspectionRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="InspectionRedisTask" />
-            <property name="desc" value="分拣中心验货Redis任务" />
-        </bean>
+	<bean id="thirdDepartureRedisTask"
+		class="com.jd.bluedragon.distribution.worker.departure.redis.ThirdDepartureRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="ThirdDepartureRedisTask" />
+		<property name="desc" value="支线发车推送运单Redis任务" />
+	</bean>
 
-        <bean id="popReceiveRedisTask"
-            class="com.jd.bluedragon.distribution.worker.pop.redis.PopReceiveRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="PopReceiveRedisTask" />
-            <property name="desc" value="POP收货Redis任务" />
-        </bean>
+	<bean id="inspectionRedisTask"
+		class="com.jd.bluedragon.distribution.worker.redis.InspectionRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="InspectionRedisTask" />
+		<property name="desc" value="分拣中心验货Redis任务" />
+	</bean>
 
-        <bean id="sortingRedisTask"
-            class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="SortingRedisTask" />
-            <property name="desc" value="分拣Redis任务" />
-        </bean>
+	<bean id="popReceiveRedisTask"
+		class="com.jd.bluedragon.distribution.worker.pop.redis.PopReceiveRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="PopReceiveRedisTask" />
+		<property name="desc" value="POP收货Redis任务" />
+	</bean>
 
-        <bean id="offlineCoreRedisTask"
-            class="com.jd.bluedragon.distribution.worker.offline.redis.OfflineCoreRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="OfflineCoreRedisTask" />
-            <property name="desc" value="离线Redis任务" />
-        </bean>
+	<bean id="sortingRedisTask"
+		class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="SortingRedisTask" />
+		<property name="desc" value="分拣Redis任务" />
+	</bean>
 
-        <bean id="pushMQ2ArteryBillingSysRedisTask"
-            class="com.jd.bluedragon.distribution.worker.receive.redis.ReceivePushArteryMQRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="PushMQ2ArteryBillingSysRedisTask" />
-            <property name="desc" value="发干线计费系统MQ任务Redis任务" />
-        </bean>
+	<bean id="offlineCoreRedisTask"
+		class="com.jd.bluedragon.distribution.worker.offline.redis.OfflineCoreRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="OfflineCoreRedisTask" />
+		<property name="desc" value="离线Redis任务" />
+	</bean>
 
-        <bean id="sortingPrepareRedisTask"
-            class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingPrepareRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="sortingPrepareRedisTask" />
-            <property name="desc" value="自动分拣机分拣任务准备Redis任务" />
-        </bean>
+	<bean id="pushMQ2ArteryBillingSysRedisTask"
+		class="com.jd.bluedragon.distribution.worker.receive.redis.ReceivePushArteryMQRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="PushMQ2ArteryBillingSysRedisTask" />
+		<property name="desc" value="发干线计费系统MQ任务Redis任务" />
+	</bean>
 
-        <bean id="inspectionPrepareRedisTask"
-            class="com.jd.bluedragon.distribution.worker.inspection.redis.InspectionPrepareRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="InspectionPrepareRedisTask" />
-            <property name="desc" value="自动分拣交接数据存交接表Resis任务" />
-        </bean>
+	<bean id="sortingPrepareRedisTask"
+		class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingPrepareRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="sortingPrepareRedisTask" />
+		<property name="desc" value="自动分拣机分拣任务准备Redis任务" />
+	</bean>
 
-        <bean id="batchSendCarRedisTask"
-            class="com.jd.bluedragon.distribution.worker.departure.redis.BatchSendCarRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="BatchSendCarRedisTask" />
-            <property name="desc" value="批量发车Redis任务" />
-        </bean>
+	<bean id="inspectionPrepareRedisTask"
+		class="com.jd.bluedragon.distribution.worker.inspection.redis.InspectionPrepareRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="InspectionPrepareRedisTask" />
+		<property name="desc" value="自动分拣交接数据存交接表Resis任务" />
+	</bean>
 
-        <bean id="sortingExceptionRedisTask"
-            class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingExceptionRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="SortingExceptionRedisTask" />
-            <property name="desc" value="人工分拣异常记录日志到Redis任务" />
-        </bean>
+	<bean id="batchSendCarRedisTask"
+		class="com.jd.bluedragon.distribution.worker.departure.redis.BatchSendCarRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="BatchSendCarRedisTask" />
+		<property name="desc" value="批量发车Redis任务" />
+	</bean>
 
-        <bean id="qualityControlRedisTask"
-            class="com.jd.bluedragon.distribution.worker.QualityControl.redis.QualityControlRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="QualityControlRedisTask" />
-            <property name="desc" value="发送质控系统，配送外呼Resis任务" />
-        </bean>
+	<bean id="sortingExceptionRedisTask"
+		class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingExceptionRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="SortingExceptionRedisTask" />
+		<property name="desc" value="人工分拣异常记录日志到Redis任务" />
+	</bean>
 
-        <bean id="weightRedisTask"
-            class="com.jd.bluedragon.distribution.worker.weight.WeightRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="WeightRedisTask" />
-            <property name="desc" value="将称重信息回传到运单中心Resis任务" />
-        </bean>
-        <bean id="scannerFrameRedisTask"
-            class="com.jd.bluedragon.distribution.worker.ScannerFrameRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="ScannerFrameRedisTask" />
-            <property name="desc" value="将称重信息回传到运单中心Resis任务" />
-        </bean>
+	<bean id="qualityControlRedisTask"
+		class="com.jd.bluedragon.distribution.worker.QualityControl.redis.QualityControlRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="QualityControlRedisTask" />
+		<property name="desc" value="发送质控系统，配送外呼Resis任务" />
+	</bean>
 
-        <bean id="messageRedisTask" class="com.jd.bluedragon.distribution.worker.MessageRedisTask"
-            parent="parentRedisTask">
-            <property name="taskType" value="MessageRedisTask" />
-            <property name="desc" value="异步推送MQ" />
-        </bean>-->
+	<bean id="weightRedisTask"
+		class="com.jd.bluedragon.distribution.worker.weight.WeightRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="WeightRedisTask" />
+		<property name="desc" value="将称重信息回传到运单中心Resis任务" />
+	</bean>
+	<bean id="scannerFrameRedisTask"
+		class="com.jd.bluedragon.distribution.worker.ScannerFrameRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="ScannerFrameRedisTask" />
+		<property name="desc" value="将称重信息回传到运单中心Resis任务" />
+	</bean>
+
+	<bean id="messageRedisTask" class="com.jd.bluedragon.distribution.worker.MessageRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="MessageRedisTask" />
+		<property name="desc" value="异步推送MQ" />
+	</bean>
 
 </beans>
 
