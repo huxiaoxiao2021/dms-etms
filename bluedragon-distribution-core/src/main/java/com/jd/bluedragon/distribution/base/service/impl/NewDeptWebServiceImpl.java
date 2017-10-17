@@ -35,7 +35,7 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 			String remoteIp = InetAddress.getLocalHost().getHostAddress();
 			userInfo = ssoService.verify(username, pwd, remoteIp);
 		}catch(Exception e){
-			logger.error("SsoException verify error", e);
+			logger.error("SsoException verify error,认证失败");
 		}
 		
 		return userInfo;
