@@ -240,7 +240,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         try {
             Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(domain.getWaybillCode());
-            domain.setSickWaybillFlag(featureType == null ? Constants.FEATURE_TYPCANCEE_UNSICKL :featureType);//病单类型 30 ，非病单类型 31
+            domain.setSickWaybillFlag(featureType == null ? Constants.FEATURE_TYPCANCEE_UNSICKL :featureType);//30-病单，31-取消病单，32- 非病单
         }catch (Exception ex){
             logger.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
             result.error("获取订单拦截信息异常");
