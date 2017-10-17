@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.sortscheme.service;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CleanBoxCacheRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
@@ -37,5 +39,7 @@ public interface SortSchemeService {
     SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetail(SortSchemeDetailRequest request, String url);
 
     SortSchemeResponse<List<SortScheme>> queryBySiteCode(SortSchemeRequest request,String url);
+
+    JdResponse cleanBoxCache(String url);
 
 }

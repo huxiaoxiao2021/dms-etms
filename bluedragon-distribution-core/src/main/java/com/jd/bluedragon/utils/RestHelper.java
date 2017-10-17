@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 
@@ -58,6 +59,30 @@ public class RestHelper {
             logger.error("rest jsonPostForEntity  fail url:" + url + "result:" + JsonHelper.toJson(result));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 基于json交互的http访问
+     *
+     * @param url           访问的url
+     * @param typeReference 返回对象的泛型类型, 例如 new TypeReference<SortSchemeResponse<Pager<List<SortScheme>>>>(){}
+     * @param <T>
+     * @return
+     */
+    public static <T> T jsonGetForEntity(String url, Type typeReference) {
+        try {
+            HttpHeaders header = new HttpHeaders();
+            header.setContentType(MediaType.parseMediaType("application/text; charset=UTF-8"));
+            header.add("Accept", MediaType.APPLICATION_JSON.toString());
+            ResponseEntity result = restTemplate.getForEntity(url, Object.class);
+            if (result.getStatusCode() == HttpStatus.OK) {
+                return JsonHelper.fromJsonUseGson(JsonHelper.toJson(result.getBody()), typeReference);
+            }
+        } catch (Exception e) {
+            logger.error("HTTP post has something wrong when access " + url ,e);
         }
         return null;
     }
