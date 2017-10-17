@@ -56,6 +56,9 @@ public class OfflineController {
 	@Resource(name = "offlineDeliveryService")
 	private OfflineService offlineDeliveryService;
 
+	@Resource(name = "offlineAcarAbillDeliveryService")
+	private OfflineService offlineAcarAbillDeliveryService;
+
 	@Autowired
 	private OfflineSortingService offlineSortingService;
 
@@ -128,12 +131,15 @@ public class OfflineController {
 					.getTaskType())) {
 				// 分拣
 				result=this.offlineSortingService.insert(offlineLogRequest);
-			} else if (Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest
-					.getTaskType())) {
-				// 发货
-				result=this.offlineDeliveryService.parseToTask(offlineLogRequest);
-			} else if (Task.TASK_TYPE_SEAL_BOX.equals(offlineLogRequest
-					.getTaskType())) {// 分拣封箱
+            } else if (Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest
+                    .getTaskType())) {
+                // 发货
+                result=this.offlineDeliveryService.parseToTask(offlineLogRequest);
+            } else if (Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) {
+                // 一车一单发货
+                result=this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
+            } else if (Task.TASK_TYPE_SEAL_BOX.equals(offlineLogRequest
+            .getTaskType())) {// 分拣封箱
 				result=this.offlineSortingService.insertSealBox(offlineLogRequest);
 			} else if (Task.TASK_TYPE_OFFLINE_EXCEEDAREA
 					.equals(offlineLogRequest.getTaskType())) {// 三方超区退货
@@ -185,6 +191,7 @@ public class OfflineController {
 		offlineLogRequest.setVolume(offlineLog.getVolume());
 		offlineLogRequest.setWeight(offlineLog.getWeight());
 		offlineLogRequest.setTurnoverBoxCode(offlineLog.getTurnoverBoxCode());
+		offlineLogRequest.setTransporttype(offlineLog.getTransporttype());
 		return offlineLogRequest;
 	}
 

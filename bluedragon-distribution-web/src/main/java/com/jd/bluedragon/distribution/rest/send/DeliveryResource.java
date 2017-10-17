@@ -88,7 +88,9 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/newpackagesend")
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
-        logger.info(JsonHelper.toJson(request));
+        if(logger.isInfoEnabled()){
+            logger.info(JsonHelper.toJsonUseGson(request));
+        }
         SendM domain = new SendM();
         domain.setReceiveSiteCode(request.getReceiveSiteCode());
         domain.setSendCode(request.getSendCode());
@@ -109,7 +111,9 @@ public class DeliveryResource {
             result.error(ex);
             logger.error("一车一单发货", ex);
         }
-        logger.info(JsonHelper.toJson(result));
+        if(logger.isInfoEnabled()){
+            logger.info(JsonHelper.toJsonUseGson(result));
+        }
         return result;
     }
 
@@ -144,7 +148,7 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/cancel")
     public ThreeDeliveryResponse cancelDeliveryInfo(DeliveryRequest request) {
-        logger.info("取消发货JSON" + JsonHelper.toJson(request));
+        logger.info("取消发货JSON" + JsonHelper.toJsonUseGson(request));
         this.logger.info("开始写入取消发货信息");
         if (request.getBoxCode() == null || request.getSiteCode() == null) {
             return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
@@ -424,7 +428,7 @@ public class DeliveryResource {
         for (SendDetail sendd : sendds) {
             packs.add(sendd.getWaybillCode());
         }
-        return new WhBcrsQueryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, JsonHelper.toJson(packs));
+        return new WhBcrsQueryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, JsonHelper.toJsonUseGson(packs));
     }
 
     private SendM toSendM(DeliveryRequest request) {
@@ -493,7 +497,7 @@ public class DeliveryResource {
             sendDetails = deliveryService.findWaybillStatus(queueid);
             if (sendDetails != null && !sendDetails.isEmpty()) {
                 this.deliveryService.updateWaybillStatus(sendDetails);
-                result = JsonHelper.toJson(sendDetails);
+                result = JsonHelper.toJsonUseGson(sendDetails);
             } else
                 logger.error("findWaybillStatus查询无符合条件");
         } catch (Exception e) {

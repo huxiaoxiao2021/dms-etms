@@ -282,20 +282,22 @@ public class DeliveryServiceImpl implements DeliveryService {
             } catch (Exception ex) {
                 logger.error("调用VER", ex);
                 return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
+            }finally {
+                Profiler.registerInfoEnd(info1);
             }
-            Profiler.registerInfoEnd(info1);
             if (!response.getCode().equals(200)) {//如果校验不OK
                 //获得运单的预分拣站点
                 Integer preSortingSiteCode = null;
+                CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
                 try {
-                    CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
                     com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(domain.getBoxCode()), true, false, false, false);
-                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                     if (null != waybill) {
                         preSortingSiteCode = waybill.getSiteCode();
                     }
                 } catch (Throwable e) {
                     logger.error("一车一单获取预分拣站点异常", e);
+                }finally {
+                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                 }
 
                 if (response.getCode() >= 39000) {
@@ -332,8 +334,39 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(temp_info3);
         return new SendResult(1, "发货成功");
     }
+    /**
+     * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
+     * （2）写SEND_M表
+     * （3）推送运单状态及回传周转箱
+     * （4）对中转发货写入补全SEND_D任务
+     * @param domain 发货对象
+     * @return 1：发货成功
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.offlinePackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public SendResult offlinePackageSend(SendM domain) {
+        //插入SEND_M
+        this.sendMDao.insertSendM(domain);
+        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            pushSorting(domain);//大件写TASK_SORTING
+        } else {
+            SendDetail tSendDatail = new SendDetail();
+            tSendDatail.setBoxCode(domain.getBoxCode());
+            tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+            tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+            this.updateCancel(tSendDatail);//更新SEND_D状态
+
+        }
+        this.transitSend(domain);
+        this.pushStatusTask(domain);
+        return new SendResult(1, "发货成功");
+    }
 
 
+    /**
+     * 推分拣任务
+     * @param domain
+     */
     private void pushSorting(SendM domain) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
@@ -1564,6 +1597,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             newSendDetail.setCreateUserCode(sendDatail.getCreateUserCode());
             newSendDetail.setCreateUser(sendDatail.getCreateUser());
             newSendDetail.setSource("DMS");
+            newSendDetail.setBoxCode(sendDatail.getBoxCode());
             message.setTopic(MessageDestinationConstant.SendDetailMQ.getName());
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDatail.getPackageBarcode());

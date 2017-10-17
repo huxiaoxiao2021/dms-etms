@@ -69,7 +69,7 @@ public class CarScheduleResource {
             }catch (Exception e){
                 result.setCode(500);
                 result.setMessage("请求接口异常");
-                this.logger.error("请求接口异常..",e);
+                this.logger.error("请求接口异常:车牌号" + vehicleNumber + ";站点" + siteCode, e);
             }
             result.setCode(200);
             result.setMessage("请求成功");

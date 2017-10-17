@@ -6,7 +6,6 @@ import com.google.common.base.Function;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.cassandra.BaseCassandraDao;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
-import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,9 +85,8 @@ public class GoddessDao {
 
     public Pager<List<Goddess>> getSplitPage(Pager<String> pager) {
         Pager<List<Goddess>> result = new Pager<List<Goddess>>();
-        List<Goddess> list = null;
-        result.setData(list);
         result.setPageSize(pager.getPageSize());
+        result.setPageNo(pager.getPageNo());
 
         long startTime = System.currentTimeMillis();
         try {
