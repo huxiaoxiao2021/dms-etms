@@ -10,9 +10,6 @@ public class LoadBillReportRequest implements Serializable {
 	/** 装载单申报ID */
 	private String reportId;
 
-	/** 海关配载单号 */
-	private String custBillNo;
-
 	/** 装载单ID(随机号码),有多个,逗号隔开 */
 	private String loadId;
 
@@ -25,14 +22,17 @@ public class LoadBillReportRequest implements Serializable {
 	/** 状态 1:成功，2:作废 */
 	private Integer status;
 
-	/** 国检布控状态  0:不需查验;1:需查验 */
-	private Integer ciqCheckFlag;
-
 	/** 备注 */
 	private String notes;
 
 	/** 成功的订单号,多个以逗号分割 */
 	private String orderId;
+
+	/** 海关配载单号 */
+	private String custBillNo;
+
+	/** 国检布控状态  0:不需查验;1:需查验 */
+	private Integer ciqCheckFlag;
 
 	public String getReportId() {
 		return reportId;
