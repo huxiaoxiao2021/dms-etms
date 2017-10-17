@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import java.util.List;
 
+import com.jd.etms.vos.dto.CarriagePlanDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,10 @@ public class VosManagerImpl implements VosManager{
 	@Override
 	public CommonDto<List<SendCarInfoDto>> getSendCar(SendCarParamDto dto){
 		return vosQueryWS.getSendCar(dto);
+	}
+	@Override
+	public CommonDto<CarriagePlanDto> queryCarriagePlanDetails(String carriagePlanCode){
+		return vosQueryWS.queryCarriagePlanDetails(carriagePlanCode);
 	}
 
 }
