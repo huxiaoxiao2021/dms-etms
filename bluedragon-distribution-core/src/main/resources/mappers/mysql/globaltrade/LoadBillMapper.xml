@@ -144,10 +144,10 @@
 				  AND (
 					  <foreach collection="orderIdList" item="item" index="index" open="" close="" separator="">
 						  <if test="index == 0">
-							  order_id = #{item}
+							  order_id IN (${item})
 						  </if>
 						  <if test="index != 0">
-							  OR order_id = #{item}
+							  OR order_id IN (${item})
 						  </if>
 					  </foreach>
 				  )

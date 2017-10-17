@@ -203,7 +203,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 			subReport.setNotes(report.getNotes());
 			subReport.setOrderId(subOrderIds);
 			reportList.add(subReport);
-			orderIdList.add(subOrderIds);
+			orderIdList.add("'"+ subOrderIds.replaceAll(",", "','") + "'");
 		}
 		loadBillReportDao.addBatch(reportList);
         /**
