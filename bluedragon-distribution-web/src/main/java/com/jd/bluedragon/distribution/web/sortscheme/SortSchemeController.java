@@ -3,9 +3,7 @@ package com.jd.bluedragon.distribution.web.sortscheme;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.CacheCleanRequest;
-import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
-import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.CacheCleanResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
@@ -17,16 +15,21 @@ import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +45,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,6 +67,9 @@ public class SortSchemeController {
     private static final int FILE_SIZE_LIMIT = 2 * 1024 * 1024;
 
     private static final int EXPORT_ROW_LIMIT = 50000;
+
+    @Autowired
+    private GoddessService goddessService;
 
     @Resource
     private SortSchemeService sortSchemeService;
@@ -645,6 +652,52 @@ public class SortSchemeController {
     }
 
     /**
+     * 分拣机箱号缓存清理功能
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "cleanBoxCache", method = RequestMethod.POST)
+    @ResponseBody
+    public JdResponse cleanBoxCache(@RequestBody CleanBoxCacheRequest request) {
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        logger.info("获取用户ERP：" + erpUser.getUserCode());
+
+        JdResponse response = new JdResponse();
+        try {
+            if (request == null || request.getCreateSiteCode() == null) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("参数不能为空！");
+                return response;
+            }
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.getCreateSiteCode());
+            if (StringUtils.isBlank(url)) {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return response;
+            }
+
+            if(StringHelper.isNotEmpty(request.getSiteCode())){
+                response = sortSchemeService.cleanBoxCache(HTTP + url + "/services/smartDistribution/clearAllBoxCache/"+request.getSiteCode());
+            }else{
+                response = sortSchemeService.cleanBoxCache(HTTP + url + "/services/smartDistribution/clearAllBoxCache");
+            }
+
+
+            if (response != null && IntegerHelper.compare(response.getCode(), JdResponse.CODE_OK)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage("箱号缓存清理成功!");
+                addSystemLog(erpUser,request.getCreateSiteCode());
+            }
+        } catch (Exception e) {
+            logger.error("SortSchemeResource.disableAutoSendById-error!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    /**
      * 去掉参数中的ID，保留中午分拣中心名
      **/
     private String getSiteNameParam(String str) {
@@ -660,4 +713,19 @@ public class SortSchemeController {
         return str;
     }
 
+
+    /**
+     * 增加箱号缓存清理日志
+     */
+    private void addSystemLog(ErpUserClient.ErpUser user,String createSiteCode){
+
+        String erpUserCode = user.getUserCode();
+        String erpUserName = user.getUserName();
+        Goddess goddess = new Goddess();
+        goddess.setHead(erpUserCode + ":" + erpUserName);
+        goddess.setBody("用户["+erpUserCode + ":" + erpUserName+"],清理["+createSiteCode+"]分拣中心箱号缓存！");
+        goddess.setDateTime(new Date());
+        goddess.setKey("CleanBoxCache"+createSiteCode);
+        goddessService.save(goddess);
+    }
 }

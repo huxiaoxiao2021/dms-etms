@@ -14,12 +14,12 @@ public interface ReverseSendService {
 
 	boolean sendReverseMessageToSpwms(SendM m, Integer orgId, String storeId) throws Exception;
 
-	boolean sendReverseMessageToWms(SendM sendM, BaseStaffSiteOrgDto bDto) throws Exception;
+	boolean sendReverseMessageToWms(SendM sendM, BaseStaffSiteOrgDto bDto,String taskId) throws Exception;
 	
 	public boolean sendAsiaWMS(ReverseSendAsiaWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
 			BaseStaffSiteOrgDto bDto, Map<String, String> isPackageFullMap) throws Exception;
 	
 	public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
-			BaseStaffSiteOrgDto bDto) throws Exception;
+			BaseStaffSiteOrgDto bDto,String taskId) throws Exception;
 
 }
