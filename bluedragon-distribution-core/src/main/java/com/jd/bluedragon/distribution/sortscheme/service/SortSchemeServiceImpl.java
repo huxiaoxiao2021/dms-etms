@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.sortscheme.service;
 
 import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CleanBoxCacheRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
 import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
@@ -94,6 +96,11 @@ public class SortSchemeServiceImpl implements SortSchemeService {
         return RestHelper.jsonPostForEntity(url, request,
                 new TypeReference<SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>>>() {
                 });
+    }
+
+    @Override
+    public JdResponse cleanBoxCache(String url) {
+        return RestHelper.jsonGetForEntity(url, JdResponse.class);
     }
 
 }

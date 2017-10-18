@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.ReceiveManager;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -45,6 +47,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private static final String REVERSE_PRINT_MQ_MESSAGE_CATEGORY="BLOCKER_QUEUE_DMS_REVERSE_PRINT";
 
     private static final Integer EXCHANGE_OWN_WAYBILL_OP_TYPE=Integer.valueOf(4200);
+
     @Autowired
     private TaskService taskService;
 
@@ -72,6 +75,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     @Qualifier("ownWaybillTransformMQ")
     private DefaultJMQProducer ownWaybillTransformMQ;
+
+    @Autowired(required = false)
+    private JsfSortingResourceService jsfSortingResourceService;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -230,6 +236,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }catch (Exception ex){
             logger.error("获取站点",ex);
             result.error("获取站点异常"+ex.getMessage());
+            return result;
+        }
+        try {
+            Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(domain.getWaybillCode());
+            domain.setSickWaybillFlag(featureType == null ? Constants.FEATURE_TYPCANCEE_UNSICKL :featureType);//30-病单，31-取消病单，32- 非病单
+        }catch (Exception ex){
+            logger.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
+            result.error("获取订单拦截信息异常");
             return result;
         }
         try{

@@ -85,30 +85,22 @@ public class OperationlogCassandra {
 				operateTime = log.getOperateTime().getTime();
 
 			if (log.getWaybillCode() != null && !log.getWaybillCode().isEmpty()) {
-				if (preparedwaybill == null)
-					preparedwaybill = preparedwaybill();
-				BoundStatement bStatement = preparedwaybill.bind(log.getWaybillCode(), UUIDs.timeBased().toString(),
+				BoundStatement bStatement = getPreparedwaybill().bind(log.getWaybillCode(), UUIDs.timeBased().toString(),
 						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getBoxCode() != null && !log.getBoxCode().isEmpty()) {
-				if (preparedbox == null)
-					preparedbox = preparedbox();
-				BoundStatement bStatement = preparedbox.bind(log.getBoxCode(), UUIDs.timeBased().toString(),
+				BoundStatement bStatement = getPreparedbox().bind(log.getBoxCode(), UUIDs.timeBased().toString(),
 						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getPackageCode() != null && !log.getPackageCode().isEmpty()) {
-				if (preparedpackage == null)
-					preparedpackage = preparedpackage();
-				BoundStatement bStatement = preparedpackage.bind(log.getPackageCode(), UUIDs.timeBased().toString(),
+				BoundStatement bStatement = getPreparedpackage().bind(log.getPackageCode(), UUIDs.timeBased().toString(),
 						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
 			if (log.getPickupCode() != null && !log.getPickupCode().isEmpty()) {
-				if (preparedpickCode == null)
-					preparedpickCode = preparedpickCode();
-				BoundStatement bStatement = preparedpickCode().bind(log.getPickupCode(), UUIDs.timeBased().toString(),
+				BoundStatement bStatement = getPreparedpickCode().bind(log.getPickupCode(), UUIDs.timeBased().toString(),
 						JsonHelper.toJsonUseGson(log), operateTime);
 				bstatementList.add(bStatement);
 			}
@@ -158,28 +150,16 @@ public class OperationlogCassandra {
 		try {
 			BoundStatement bs = null;
 			if (type.equals("waybill")) {
-				if (preparedswaybill == null)
-					preparedswaybill = preparedSelectBywaybill();
-				else
-					bs = preparedswaybill.bind(code);
+				bs = getPreparedswaybill().bind(code);
 			}
 			if (type.equals("pick")) {
-				if (preparedspickCode == null)
-					preparedspickCode = preparedSelectBypickcode();
-				else
-					bs = preparedspickCode.bind(code);
+                bs = getPreparedspickCode().bind(code);
 			}
-			if (type.equals("package")){
-				if (preparedspackage == null)
-					preparedspackage = preparedSelectBypackagecode();
-				else
-					bs = preparedspackage.bind(code);
+            if (type.equals("package")){
+                bs = getPreparedspackage().bind(code);
 			}
 			if (type.equals("box")){
-				if (preparedsbox == null)
-					preparedsbox = preparedSelectByboxcode();
-				else
-					bs = preparedsbox.bind(code);
+                bs = getPreparedsbox().bind(code);
 			}
 			bs.setFetchSize(pager.getPageSize());
 			PagingState pagingState = null;
@@ -212,28 +192,16 @@ public class OperationlogCassandra {
 		try {
 			BoundStatement bs = null;
 			if (type.equals("waybill")) {
-				if (preparedswaybill == null)
-					preparedswaybill = preparedSelectBywaybill();
-				else
-					bs = preparedswaybill.bind(code);
+				bs = getPreparedswaybill().bind(code);
 			}
 			if (type.equals("pick")) {
-				if (preparedspickCode == null)
-					preparedspickCode = preparedSelectBypickcode();
-				else
-					bs = preparedspickCode.bind(code);
+				bs = getPreparedspickCode().bind(code);
 			}
 			if (type.equals("package")){
-				if (preparedspackage == null)
-					preparedspackage = preparedSelectBypackagecode();
-				else
-					bs = preparedspackage.bind(code);
+				bs = getPreparedspackage().bind(code);
 			}
 			if (type.equals("box")){
-				if (preparedsbox == null)
-					preparedsbox = preparedSelectByboxcode();
-				else
-					bs = preparedsbox.bind(code);
+				bs = getPreparedsbox().bind(code);
 			}
 			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
 			size = rs.getAvailableWithoutFetching();
@@ -269,4 +237,53 @@ public class OperationlogCassandra {
 			return log;
 		}
 	}
+
+    private PreparedStatement getPreparedbox() {
+        if (preparedbox == null)
+            preparedbox = preparedbox();
+        return preparedbox;
+    }
+
+    private PreparedStatement getPreparedpackage() {
+        if (preparedpackage == null)
+            preparedpackage = preparedpackage();
+        return preparedpackage;
+    }
+
+    private PreparedStatement getPreparedpickCode() {
+        if (preparedpickCode == null)
+            preparedpickCode = preparedpickCode();
+        return preparedpickCode;
+    }
+
+    private PreparedStatement getPreparedsbox() {
+        if (preparedsbox == null)
+            preparedsbox = preparedSelectByboxcode();
+        return preparedsbox;
+    }
+
+    private PreparedStatement getPreparedspackage() {
+        if (preparedspackage == null)
+            preparedspackage = preparedSelectBypackagecode();
+        return preparedspackage;
+    }
+
+    private PreparedStatement getPreparedspickCode() {
+        if (preparedspickCode == null)
+            preparedspickCode = preparedSelectBypickcode();
+        return preparedspickCode;
+    }
+
+    private PreparedStatement getPreparedswaybill() {
+        if (preparedswaybill == null)
+            preparedswaybill = preparedSelectBywaybill();
+        return preparedswaybill;
+    }
+
+    private PreparedStatement getPreparedwaybill() {
+        if (preparedwaybill == null)
+            preparedwaybill = preparedwaybill();
+        return preparedwaybill;
+    }
+
 }

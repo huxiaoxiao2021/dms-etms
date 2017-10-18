@@ -51,7 +51,11 @@ public class ReverseSendWms {
     private String sourceCode;
     
     private String busiOrderCode;
-    
+
+	private boolean isSickWaybill;//true 病单， false 非病单
+
+	private String token;//防重码 取 task_send 表task_id
+
     public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -190,4 +194,19 @@ public class ReverseSendWms {
 		this.proList = proList;
 	}
 
+	public boolean isSickWaybill() {
+		return isSickWaybill;
+	}
+
+	public void setSickWaybill(boolean sickWaybill) {
+		isSickWaybill = sickWaybill;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 }

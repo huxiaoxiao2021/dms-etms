@@ -633,8 +633,8 @@ public class SortingServiceImpl implements SortingService {
 		if(wayBillCode != null){
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
-            wChoice.setQueryWaybillE(true);
-            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryWaybillE(false);
+            wChoice.setQueryWaybillM(false);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
 			if(baseEntity != null && baseEntity.getData() != null){
 				Waybill waybill = baseEntity.getData().getWaybill();
@@ -642,7 +642,12 @@ public class SortingServiceImpl implements SortingService {
 					String waybillsign = waybill.getWaybillSign();
 					if(waybillsign != null && waybillsign.length()>0){
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
-						if(waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6'){
+						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
+							if( waybill.getWaybillSign().charAt(33) == '2'){
+								//TODO 上线观察一段时间 可删除该log
+								this.logger.error("分拣中心逆向病单屏蔽快退MQ,运单号：" + waybill.getWaybillCode());
+								return;
+							}
 							//组装FastRefundBlockerComplete
 							FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(sorting);
 							String json = JsonHelper.toJson(frbc);
@@ -934,13 +939,35 @@ public class SortingServiceImpl implements SortingService {
 		try {
 			if (Sorting.TYPE_REVERSE.equals(sorting.getType())) {
 //					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
-                String refundMessage = this.refundMessage(sorting.getWaybillCode(),
-						DateHelper.formatDateTimeMs(sorting.getOperateTime()));
-                //bd_blocker_complete的MQ
-				this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
-				//【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
-				//这里需要暂时注释掉 逆向取件单不应该发送快退的mq,属于售后的范围  modified by zhanglei 20161025
-//				fastRefundService.execRefund(sorting);
+				String wayBillCode = sorting.getWaybillCode();
+				WChoice wChoice = new WChoice();
+				wChoice.setQueryWaybillC(true);
+				wChoice.setQueryWaybillE(false);
+				wChoice.setQueryWaybillM(false);
+				BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
+				if(baseEntity != null && baseEntity.getData() != null) {
+					Waybill waybill = baseEntity.getData().getWaybill();
+					if (waybill != null) {
+						String waybillsign = waybill.getWaybillSign();
+						if (waybillsign != null && waybillsign.length() > 0) {
+							if( waybill.getWaybillSign().charAt(33) == '2'){
+								//TODO 上线观察一段时间 可删除该log
+								this.logger.error("分拣中心逆向病单屏蔽退款100分MQ,运单号：" + waybill.getWaybillCode());
+								return;
+							}
+						}
+						String refundMessage = this.refundMessage(sorting.getWaybillCode(),
+								DateHelper.formatDateTimeMs(sorting.getOperateTime()));
+						//bd_blocker_complete的MQ
+						this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
+						this.logger.info("退款100分MQ消息推送成功,运单号：" + waybill.getWaybillCode());
+						//【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
+						//这里需要暂时注释掉 逆向取件单不应该发送快退的mq,属于售后的范围  modified by zhanglei 20161025
+                        //fastRefundService.execRefund(sorting);
+					}else{
+						logger.info(wayBillCode + "对应的运单信息为空！");
+					}
+				}
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);

@@ -15,12 +15,16 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
 
-
+    <!-- 扩容Mysql主备配置表 -->
+    <import resource="classpath:spring/mysql/distribution-core-common.xml" />
+    <!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
+    <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
+    
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<!--<import resource="classpath:spring/distribution-web-new-authen.xml" />-->
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
-	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 
+	<import resource="classpath:spring/distribution-web-wss-service.xml" />
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
