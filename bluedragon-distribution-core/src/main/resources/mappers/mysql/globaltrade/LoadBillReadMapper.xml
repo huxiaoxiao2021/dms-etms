@@ -6,6 +6,7 @@
 		type="com.jd.bluedragon.distribution.globaltrade.domain.LoadBill">
 		<result column="id" property="id" />
 		<result column="load_id" property="loadId" />
+		<result column="cust_billno" property="custBillNo" />
 		<result column="warehouse_id" property="warehouseId" />
 		<result column="waybill_code" property="waybillCode" />
 		<result column="package_barcode" property="packageBarcode" />
@@ -16,6 +17,7 @@
 		<result column="dms_name" property="dmsName" />
 		<result column="send_time" property="sendTime" />
 		<result column="send_code" property="sendCode" />
+        <result column="ciq_check_flag" property="ciqCheckFlag" />
 		<result column="truck_no" property="truckNo" />
 		<result column="approval_code" property="approvalCode" />
 		<result column="approval_time" property="approvalTime" />
@@ -62,8 +64,8 @@
 	
 	<select id="findPage" resultMap="loadBill" parameterType="map">
 		SELECT
-		id, load_id, waybill_code, package_barcode, order_id, dms_name,
-		send_time, send_code, truck_no, approval_code, 
+		id, load_id, cust_billno, waybill_code, package_barcode, order_id, dms_name,
+		send_time, send_code, ciq_check_flag, truck_no, approval_code,
 		approval_time, remark
 		FROM load_bill
 		<include refid="Base_Where_List" />

@@ -28,6 +28,12 @@ public class LoadBillReportRequest implements Serializable {
 	/** 成功的订单号,多个以逗号分割 */
 	private String orderId;
 
+	/** 海关配载单号 */
+	private String custBillNo;
+
+	/** 国检布控状态  0:不需查验;1:需查验 */
+	private Integer ciqCheckFlag;
+
 	public String getReportId() {
 		return reportId;
 	}
@@ -84,4 +90,19 @@ public class LoadBillReportRequest implements Serializable {
 		this.orderId = orderId;
 	}
 
+    public String getCustBillNo() {
+        return custBillNo;
+    }
+
+    public void setCustBillNo(String custBillNo) {
+        this.custBillNo = custBillNo;
+    }
+
+    public Integer getCiqCheckFlag() {
+        return ciqCheckFlag;
+    }
+
+    public void setCiqCheckFlag(Integer ciqCheckFlag) {
+        this.ciqCheckFlag = ciqCheckFlag;
+    }
 }
