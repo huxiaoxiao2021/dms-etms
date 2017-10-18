@@ -135,9 +135,9 @@ public class WaybillServiceImpl implements WaybillService {
             if(box == null){
                 return null;
             }
-            double length = box.getLength();
-            double width = box.getWidth();
-            double height = box.getHeight();
+            double length = box.getLength() == null ? 0 : box.getLength();
+            double width = box.getWidth() == null ? 0 : box.getWidth();
+            double height = box.getHeight() == null ? 0 : box.getWidth();
             WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
             waybillPackageDTOTemp.setPackageCode(packageCode);
             //长宽高

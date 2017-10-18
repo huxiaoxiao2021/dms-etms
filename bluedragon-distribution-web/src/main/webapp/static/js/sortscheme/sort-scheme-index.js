@@ -52,6 +52,11 @@ function main() {
         location.href =  $("#contextPath").val() + "/sortSchemeSync/index";
     });
 
+    //清除箱号缓存
+    $("#cleanBoxBtn").click(function() {
+        onCleanBoxBtnClick();
+    });
+
     $("#siteNo").change(function () {
         clearPager();
     });
@@ -206,6 +211,15 @@ function onQueryBtnClick(pageNo) {
     doQueryCrossSorting(params);
 }
 
+function onCleanBoxBtnClick() {
+    var params = getCleanBoxParams();
+    if (!checkBoxCleanParams(params)) {
+        jQuery.messager.alert('提示:', '分拣中心不能为空!', 'info');
+        return false;
+    }
+    doCleanBoxCache(params);
+}
+
 function checkParams(params) {
     if (null == params) {
         return false;
@@ -215,6 +229,17 @@ function checkParams(params) {
     }
     return true;
 }
+
+function checkBoxCleanParams(params) {
+    if (null == params) {
+        return false;
+    }
+    if (params.createSiteCode == null || params.createSiteCode == "") {
+        return false;
+    }
+    return true;
+}
+
 //显示已删缓存
 function onCacheCleanBtnClick(pageNo){
 
@@ -251,6 +276,13 @@ function getCacheParams(){
     params.chuteCode1=$.trim($("#chuteCode1").val());
     return params;
 }
+
+function getCleanBoxParams(){
+    var params={};
+    params.createSiteCode = $.trim($("#siteNo").val());
+    return params;
+}
+
 //执行删除缓存操作（更新缓存状态)
 function onExcuteCacheCleanBtnClick(){
     var params = getCacheParams();
@@ -360,6 +392,28 @@ function doQueryCrossSorting(params) {
             $("#pageNo").val(pager.pageNo); // 当前页码
             // 添加分页显示
             $("#pager").html(PageBar.getHtml("onQueryBtnClick", pager.totalSize, pager.pageNo, pager.totalNo));
+        } else {
+            siteNo = null;
+            $("#paperTable tbody").html("");
+            $("#pager").html("");
+            jQuery.messager.alert('提示:', data.message, 'info');
+        }
+    });
+}
+
+// 查询请求
+function doCleanBoxCache(params) {
+    var url = $("#contextPath").val() + "/autosorting/sortScheme/cleanBoxCache";
+    CommonClient.postJson(url, params, function (data) {
+        if (data == undefined || data == null) {
+            jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+            return;
+        }
+        if (data.code == 200) {
+            siteNo = null;
+            $("#paperTable tbody").html("");
+            $("#pager").html("");
+            jQuery.messager.alert('提示:', '箱号缓存清理成功！', 'info');
         } else {
             siteNo = null;
             $("#paperTable tbody").html("");

@@ -18,6 +18,7 @@ public class OwnReverseTransferDomain implements Serializable {
     private Integer orgId;
     private String orgName;
     private Date operateTime;
+    private Integer sickWaybillFlag;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -90,4 +91,14 @@ public class OwnReverseTransferDomain implements Serializable {
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
     }
+
+    public Integer getSickWaybillFlag() {
+        return sickWaybillFlag;
+    }
+
+    public void setSickWaybillFlag(Integer sickWaybillFlag) {
+        this.sickWaybillFlag = sickWaybillFlag;
+    }
+
+
 }

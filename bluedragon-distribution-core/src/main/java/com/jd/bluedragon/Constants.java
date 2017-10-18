@@ -353,4 +353,9 @@ public class Constants {
      * waybillSign-point-31运输产品
      */
     public static final Integer WAYBILL_SIGN_POSITION_TRANSPORT_MODE = 31;
+
+    /**
+     * waybill_cancel 表 featureType ：30-病单，31-取消病单，32- 非病单
+     */
+    public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单
 }
