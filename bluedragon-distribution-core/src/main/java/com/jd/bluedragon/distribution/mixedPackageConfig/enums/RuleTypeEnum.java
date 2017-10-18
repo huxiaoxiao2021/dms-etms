@@ -58,7 +58,7 @@ public enum RuleTypeEnum {
     }
 
     public boolean equals(Integer code) {
-        return this.getCode()==code;
+        return this.getCode().equals(code);
     }
 
 
@@ -70,6 +70,7 @@ public enum RuleTypeEnum {
         return name;
     }
 
+    @Override
     public String toString() {
         return this.getCode() + "-" + this.getName();
     }
