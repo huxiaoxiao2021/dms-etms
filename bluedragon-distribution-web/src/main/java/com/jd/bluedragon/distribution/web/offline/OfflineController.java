@@ -210,7 +210,7 @@ public class OfflineController {
                 siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType((Integer) paramMap.get("orgCode"), Constants.DMS_SITE_TYPE);
             } else{
                 ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService.getBaseStaffByStaffId(10053);
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService.getBaseStaffByStaffId(erpUser.getStaffNo());
                 if(baseStaffSiteOrgDto.getOrgId() != null){
                     siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(baseStaffSiteOrgDto.getOrgId(), Constants.DMS_SITE_TYPE);
                 }
