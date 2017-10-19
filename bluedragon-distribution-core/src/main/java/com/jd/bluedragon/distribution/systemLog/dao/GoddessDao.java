@@ -75,7 +75,7 @@ public class GoddessDao {
             synchronized (this) {
                 if (null == selectStatement) {
                     RegularStatement toPrepare = new SimpleStatement(
-                            "select * from systemlogwaybill  where code = ? order by time  ");
+                            "select * from systemlogwaybill  where code = ? order by time desc");
                     toPrepare.setConsistencyLevel(consistencyLevel);
                     selectStatement = baseCassandraDao.getSession().prepare(toPrepare);
                 }

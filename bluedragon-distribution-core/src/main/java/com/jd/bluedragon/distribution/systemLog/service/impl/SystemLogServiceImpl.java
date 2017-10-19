@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.utils.StringHelper;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,9 @@ public class SystemLogServiceImpl implements SystemLogService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(SystemLog systemLog) {
+		if(StringUtils.isBlank(systemLog.getContent())){
+			systemLog.setContent("content 为空!");
+		}
 		try {
 			byte[] contentBytes = systemLog.getContent().getBytes();
 			if(contentBytes.length>4000) systemLog.setContent(new String(contentBytes, 0, 4000));
