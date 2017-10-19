@@ -7,6 +7,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.cassandra.BaseCassandraDao;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,6 +88,11 @@ public class GoddessDao {
         Pager<List<Goddess>> result = new Pager<List<Goddess>>();
         result.setPageSize(pager.getPageSize());
         result.setPageNo(pager.getPageNo());
+        //查询参数可能为空，为空时直接返回
+        if(StringUtils.isBlank(pager.getData())){
+            result.setTotalSize(0);
+            return result;
+        }
 
         long startTime = System.currentTimeMillis();
         try {
