@@ -4,7 +4,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-
+    <!-- 扩容Mysql主备配置表 -->
+    <import resource="classpath:spring/mysql/distribution-core-common.xml" />
+    <!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
+    <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
+    
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-worker-task.xml" />
 	<import resource="classpath:spring/distribution-worker-jmq.xml" />

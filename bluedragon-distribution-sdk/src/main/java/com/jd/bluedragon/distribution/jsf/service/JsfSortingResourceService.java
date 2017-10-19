@@ -10,5 +10,5 @@ public interface JsfSortingResourceService {
 	public SortingJsfResponse check(SortingCheck sortingCheck);
     public SortingJsfResponse isCancel(String packageCode);
     List<MixedPackageConfigResponse> getMixedConfigsBySitesAndTypes(Integer createSiteCode, Integer receiveSiteCode, Integer transportType, Integer ruleType);
-
+    public Integer getWaybillCancelByWaybillCode(String waybillCode);
 }

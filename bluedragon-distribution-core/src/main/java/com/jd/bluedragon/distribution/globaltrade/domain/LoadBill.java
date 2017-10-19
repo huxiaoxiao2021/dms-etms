@@ -99,6 +99,14 @@ public class LoadBill implements Serializable {
 	/** 有效标识 */
 	private Integer yn;
 
+
+	/** 海关配载单号 */
+	private String custBillNo;
+
+	/** 国检布控状态  0:不需查验;1:需查验 */
+	private Integer ciqCheckFlag;
+
+
 	public Long getId() {
 		return id;
 	}
@@ -331,4 +339,19 @@ public class LoadBill implements Serializable {
 		this.yn = yn;
 	}
 
+    public Integer getCiqCheckFlag() {
+        return ciqCheckFlag;
+    }
+
+    public void setCiqCheckFlag(Integer ciqCheckFlag) {
+        this.ciqCheckFlag = ciqCheckFlag;
+    }
+
+    public String getCustBillNo() {
+        return custBillNo;
+    }
+
+    public void setCustBillNo(String custBillNo) {
+        this.custBillNo = custBillNo;
+    }
 }

@@ -293,6 +293,7 @@ public class NewSealVehicleResource {
         for(com.jd.bluedragon.distribution.wss.dto.SealCarDto dto : list){
             Goddess goddess = new Goddess();
             goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
+            dto.setRemark(request.getMessage());
             goddess.setBody(JsonHelper.toJson(dto));
             goddess.setDateTime(new Date());
             if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
