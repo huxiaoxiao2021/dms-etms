@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,8 +211,7 @@ public class OfflineController {
 
 		try {
 			this.logger.info("初始化查询条件-->调用基础资料获取某个员工信息开始");
-			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
-					.getBaseStaffByStaffId(erpUser.getUserId());
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService.getBaseStaffByStaffId(10053);
 
 			Integer defaultSiteCode = null;
 			Integer defaultOrgId = null;
@@ -222,13 +222,11 @@ public class OfflineController {
 				defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 				defaultSiteType = baseStaffSiteOrgDto.getSiteType();
 
-				if (defaultSiteCode != null
-						&& Constants.DMS_SITE_TYPE.equals(defaultSiteType)) {
+				if (defaultSiteCode != null && Constants.DMS_SITE_TYPE.equals(defaultSiteType)) {
 					this.logger.info("初始化查询条件-->员工信息 属于分拣中心");
-					if (paramMap != null) {
+					if (paramMap != null && paramMap.get("createSiteCode") == null ) {
 						paramMap.put("createSiteCode", defaultSiteCode);
 					}
-
 					// 反馈页面需要参数
 					model.addAttribute("userInfo", baseStaffSiteOrgDto);
 				}
@@ -246,16 +244,12 @@ public class OfflineController {
 			model.addAttribute("orgList", orgList);
 
 			List<BaseStaffSiteOrgDto> siteList = new ArrayList<BaseStaffSiteOrgDto>();
-			if (defaultSiteType != null
-					&& defaultSiteType.equals(Constants.DMS_SITE_TYPE)) {
+			if (defaultSiteType != null && defaultSiteType.equals(Constants.DMS_SITE_TYPE)) {
 				siteList.add(baseStaffSiteOrgDto);
 			} else if (defaultOrgId != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(defaultOrgId,
-						Constants.DMS_SITE_TYPE);
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(defaultOrgId, Constants.DMS_SITE_TYPE);
 			} else if (paramMap != null && paramMap.get("orgCode") != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(
-						(Integer) paramMap.get("orgCode"),
-						Constants.DMS_SITE_TYPE);
+				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType((Integer) paramMap.get("orgCode"), Constants.DMS_SITE_TYPE);
 			}
 			model.addAttribute("siteList", siteList);
 		} catch (Exception e) {

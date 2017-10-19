@@ -26,9 +26,8 @@
 	
 			// 提交查询
 			$("#search").click(function() {
-                var options1 = ("#createSiteCode").find("option:selected");
                 var options = $("#createSiteCode option:selected");
-                if (options.value == '') {
+                if (options == undefined || options.attr("value") == '') {
                     alert('请选择分拣中心！');
                     return;
                 }
