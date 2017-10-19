@@ -26,38 +26,47 @@
 	
 			// 提交查询
 			$("#search").click(function() {
+                var options1 = ("#createSiteCode").find("option:selected");
+                var options = $("#createSiteCode option:selected");
+                if (options.value == '') {
+                    alert('请选择分拣中心！');
+                    return;
+                }
 			    $("#pageNo").val("");
 				$("#selectLogList").attr("action", '#springUrl("/offline/list")');
 				$("#selectLogList").attr("method", "GET");
 				$("#selectLogList").submit();
 			});
+
+            $("#orgCode").change(function(){
+                selectInt("#createSiteCode");
+                if (this.value == '') {
+                    return;
+                }
+                jQuery.ajax({
+                    type: "POST",
+                    url: "#springUrl('/common/getSiteByOrg')",
+                    data: {orgCode: this.value},
+                    success: function(msg){
+                        var tempStr = "";
+                        if(msg == 'exception'){
+                            Jd.alert("接口出现异常");
+                            return false;
+                        }
+                        jQuery.each(msg,function(infoIndex,info){
+                            $("#createSiteCode").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
+                        });
+                        if ("$!offlineLogqueryDto.createSiteCode" != "") {
+                            $("#createSiteCode").val("$!offlineLogqueryDto.createSiteCode");
+                        }
+                    }
+                });
+                return false;
+            });
 		});
-		
-		$("#orgCode").change(function(){
-		selectInt("#createSiteCode");
-		if (this.value == '') {
-			return;
-		}
-    	jQuery.ajax({
-           type: "POST",
-           url: "#springUrl('/common/getSiteByOrg')",
-           data: {orgCode: this.value},
-           success: function(msg){
-               var tempStr = "";
-               if(msg == 'exception'){
-                   Jd.alert("接口出现异常");
-                   return false;
-               }
-               jQuery.each(msg,function(infoIndex,info){
-               	   $("#createSiteCode").append("<option value='"+info.siteCode+"' >"+info.siteName+"</option>");
-               });
-			   if ("$!offlineLogqueryDto.createSiteCode" != "") {
-        		   $("#createSiteCode").val("$!offlineLogqueryDto.createSiteCode");
-        	   }
-           }
-        });
-		return false;
-	});
+        function selectInt(obj){
+            return $(obj).html("<option value=''>请选择</option>");
+        }
 	</script>
 
 	<body>
@@ -194,7 +203,13 @@
 											取消分拣
 										#elseif($!offlinelog.taskType == 1131)
 											取消三方验货
-										#end	
+										#elseif($!offlinelog.taskType == 6000)
+                                            三方超区退货
+										#elseif($!offlinelog.taskType == 1300)
+                                            发货
+										#elseif($!offlinelog.taskType == 1301)
+                                            一车一单发货
+										#end
 										</td>
 										<td>
 										<a href='#springUrl("")/offline/detail?offlineLogId=$!offlinelog.offlineLogId'>
