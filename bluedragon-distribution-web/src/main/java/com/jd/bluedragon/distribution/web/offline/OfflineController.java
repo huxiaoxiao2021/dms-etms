@@ -203,54 +203,18 @@ public class OfflineController {
 	 * @param model
 	 */
 	private void initSelectObject(Map<String, Object> paramMap, Model model) {
-		// 验证登陆信息
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
-		
-		model.addAttribute("erpUser", erpUser);
-
 		try {
-			this.logger.info("初始化查询条件-->调用基础资料获取某个员工信息开始");
-			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService.getBaseStaffByStaffId(10053);
-
-			Integer defaultSiteCode = null;
-			Integer defaultOrgId = null;
-			Integer defaultSiteType = null;
-
-			if (baseStaffSiteOrgDto != null) {
-				defaultOrgId = baseStaffSiteOrgDto.getOrgId();
-				defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
-				defaultSiteType = baseStaffSiteOrgDto.getSiteType();
-
-				if (defaultSiteCode != null && Constants.DMS_SITE_TYPE.equals(defaultSiteType)) {
-					this.logger.info("初始化查询条件-->员工信息 属于分拣中心");
-					if (paramMap != null && paramMap.get("createSiteCode") == null ) {
-						paramMap.put("createSiteCode", defaultSiteCode);
-					}
-					// 反馈页面需要参数
-					model.addAttribute("userInfo", baseStaffSiteOrgDto);
-				}
-				if (defaultOrgId != null) {
-					BaseOrg baseOrg = new BaseOrg();
-					baseOrg.setOrgId(defaultOrgId);
-					baseOrg.setOrgName(baseStaffSiteOrgDto.getOrgName());
-					orgList.add(baseOrg);
-				}
-			} else {
-				this.logger.info("初始化查询条件-->调用基础资料获取某个员工信息 为空");
-				orgList = baseService.getAllOrg();
-			}
-
-			model.addAttribute("orgList", orgList);
-
+            model.addAttribute("orgList", baseService.getAllOrg());
 			List<BaseStaffSiteOrgDto> siteList = new ArrayList<BaseStaffSiteOrgDto>();
-			if (defaultSiteType != null && defaultSiteType.equals(Constants.DMS_SITE_TYPE)) {
-				siteList.add(baseStaffSiteOrgDto);
-			} else if (defaultOrgId != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(defaultOrgId, Constants.DMS_SITE_TYPE);
-			} else if (paramMap != null && paramMap.get("orgCode") != null) {
-				siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType((Integer) paramMap.get("orgCode"), Constants.DMS_SITE_TYPE);
-			}
+			if (paramMap != null && paramMap.get("orgCode") != null) {
+                siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType((Integer) paramMap.get("orgCode"), Constants.DMS_SITE_TYPE);
+            } else{
+                ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService.getBaseStaffByStaffId(10053);
+                if(baseStaffSiteOrgDto.getOrgId() != null){
+                    siteList = this.baseMajorManager.getBaseSiteByOrgIdSiteType(baseStaffSiteOrgDto.getOrgId(), Constants.DMS_SITE_TYPE);
+                }
+            }
 			model.addAttribute("siteList", siteList);
 		} catch (Exception e) {
 			this.logger.error("初始化查询条件异常", e);
