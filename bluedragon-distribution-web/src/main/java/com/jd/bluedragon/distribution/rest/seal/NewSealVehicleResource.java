@@ -185,6 +185,11 @@ public class NewSealVehicleResource {
             if (request == null) {
                 this.logger.error("NewSealVehicleResource findSealInfo --> 传入参数非法");
             }
+            if (StringHelper.isEmpty(request.getEndSiteId()) || StringHelper.isAnyEmpty(request.getStartSiteId(), request.getVehicleNumber())) {
+                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_SITECODE_PARAM_NULL_ERROR);
+                return sealVehicleResponse;
+            }
 
             SealCarDto sealCarDto = new SealCarDto();
             sealCarDto.setStatus(request.getStatus());
