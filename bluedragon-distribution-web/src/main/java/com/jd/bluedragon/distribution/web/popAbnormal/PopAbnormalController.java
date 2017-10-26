@@ -130,7 +130,7 @@ public class PopAbnormalController {
 		paramMap.put("operatorName", erpUser.getUserName());
 		
 		// 获取用户分拣中心相关信息
-		Map<String, Object> dmsUserMap = getUserMap(erpUser.getUserId());
+		Map<String, Object> dmsUserMap = getUserMap(erpUser.getStaffNo());
 		if (!dmsUserMap.isEmpty()) {
 			// 设置用户分拣中心信息
 			paramMap.putAll(dmsUserMap);
@@ -280,7 +280,7 @@ public class PopAbnormalController {
 		try {
 			List<PopAbnormal> popAbnormals = null;
 			// 获取用户分拣中心相关信息
-			Map<String, Object> dmsUserMap = getUserMap(erpUser.getUserId());
+			Map<String, Object> dmsUserMap = getUserMap(erpUser.getStaffNo());
 			try {
 				if (!dmsUserMap.isEmpty()) {
 					// 设置用户分拣中心信息
