@@ -26,6 +26,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,12 @@ public class DeliveryResource {
         domain.setSendCode(request.getSendCode());
         domain.setCreateSiteCode(request.getSiteCode());
         domain.setBoxCode(request.getBoxCode());
-        domain.setTurnoverBoxCode(request.getTurnoverBoxCode());
+        String turnoverBoxCode = request.getTurnoverBoxCode();
+        if(StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30){
+            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
+        }else{
+            domain.setTurnoverBoxCode(turnoverBoxCode);
+        }
         domain.setCreateUser(request.getUserName());
         domain.setCreateUserCode(request.getUserCode());
         domain.setSendType(request.getBusinessType());

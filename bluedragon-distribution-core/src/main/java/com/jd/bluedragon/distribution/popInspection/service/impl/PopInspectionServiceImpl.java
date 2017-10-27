@@ -25,6 +25,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 
 /**
  * @author zhaohc 
@@ -109,7 +110,12 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 							ip.setQuantity(popRequest.getQuantity());
 							ip.setCrossCode(popRequest.getCrossCode());
 							ip.setWaybillType(popRequest.getType());
-							ip.setQueueNo(popRequest.getQueueNo());
+							if(StringHelper.isNotEmpty(popRequest.getQueueNo()) && popRequest.getQueueNo().length() > Constants.QUEUE_NO_LEGNTH){
+								ip.setQueueNo("OverLengthQueueNo");
+								logger.error("POP收货：QueueNo字段超长，异常值为： " + popRequest.getQueueNo());
+							}else {
+								ip.setQueueNo(popRequest.getQueueNo());
+							}
 							ip.setPopReceiveType(popRequest.getQueueType());
                             //新增 opTime  2016年3月16日10:43:10
                             ip.setOperateTime(DateHelper.getSeverTime(popRequest.getOperateTime()));

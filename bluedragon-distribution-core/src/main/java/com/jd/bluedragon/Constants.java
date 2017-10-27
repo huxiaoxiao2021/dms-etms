@@ -358,4 +358,8 @@ public class Constants {
      * waybill_cancel 表 featureType ：30-病单，31-取消病单，32- 非病单
      */
     public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单
+    /**
+     * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号
+     */
+    public static final Integer QUEUE_NO_LEGNTH = 32;
 }

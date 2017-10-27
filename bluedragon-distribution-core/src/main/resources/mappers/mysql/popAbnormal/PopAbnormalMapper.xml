@@ -51,10 +51,10 @@
 				AND waybill_code = #{waybillCode, jdbcType=VARCHAR}
 			</if>
 			<if test="startCreateTime != null">
-				AND create_time <![CDATA[>=]]> to_date(to_char(#{startCreateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+				AND create_time <![CDATA[>=]]> str_to_date(date_format(#{startCreateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="endCreateTime != null">
-				AND create_time <![CDATA[<=]]> to_date(to_char(#{endCreateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+				AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endCreateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="abnormalState != null">
 				AND abnormal_state = #{abnormalState, jdbcType=INTEGER}
