@@ -195,7 +195,11 @@ public class SerialRuleUtil {
     public static final Integer getReceiveSiteCodeFromSendCode(String sendCode) {
         Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
         if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(2));
+            try{
+                return Integer.parseInt(matcher.group(2));
+            }catch (NumberFormatException e){
+                //说明站点信息错误，这里只捕获异常，不做额外处理
+            }
         }
         return null;
     }
@@ -212,7 +216,11 @@ public class SerialRuleUtil {
         }
         Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
         if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(1));
+            try{
+                return Integer.parseInt(matcher.group(1));
+            }catch (NumberFormatException e){
+                //说明站点信息错误，这里只捕获异常，不做额外处理
+            }
         }
         return null;
     }
