@@ -28,6 +28,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
 import org.apache.commons.lang.StringUtils;
@@ -180,7 +181,7 @@ public class InspectionServiceImpl implements InspectionService {
 	 * 
 	 */
 	@Override
-	@JProfiler(jKey= "DMSWORKER.InspectionService.inspectionCore")
+	@JProfiler(jKey= "DMSWORKER.InspectionService.inspectionCore", mState = {JProEnum.TP, JProEnum.FunctionError})
 	
 	public void inspectionCore(List<Inspection> inspections) throws Exception {
 		if (null == inspections) {
