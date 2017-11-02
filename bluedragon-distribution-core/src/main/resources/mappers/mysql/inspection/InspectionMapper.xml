@@ -355,7 +355,7 @@
 		WHERE box_code = #{boxCode,jdbcType=VARCHAR} AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
 	</update>
   <update id="update" parameterType="Inspection" >
-	UPDATE inspection
+	UPDATE inspection FORCE INDEX(IND_INSPECTION_PCODE_D)
     <set> 
 		box_code = #{boxCode,jdbcType=VARCHAR},
 		exception_type = #{exceptionType,jdbcType=VARCHAR},
