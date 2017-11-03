@@ -275,9 +275,12 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		operationLog.setCreateTime(new Date());
 
         //因为后续的操作会根据操作时间冲掉这里的记录，所以这里将时间的long值减一，以确保不会被冲掉
-        Date OperateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT);
-        OperateTime.setTime(OperateTime.getTime()-1);
-        operationLog.setOperateTime(OperateTime);
+		Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT);
+		if(operateTime == null){//手工维护时，MySQL5.6没有毫秒，故作处理
+			operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_FORMAT);
+		}
+		operateTime.setTime(operateTime.getTime()-1);
+		operationLog.setOperateTime(operateTime);
 
 		operationLog.setLogType(OperationLog.LOG_TYPE_SEND_DELIVERY);
 		operationLog.setRemark(OFFLINE_DELIVERY_REMARK);
