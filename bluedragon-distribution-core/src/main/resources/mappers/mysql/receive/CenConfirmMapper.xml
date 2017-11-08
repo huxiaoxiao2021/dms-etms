@@ -99,7 +99,7 @@
 	</insert>
 	<update id="updateFillField"
 		parameterType="com.jd.bluedragon.distribution.receive.domain.CenConfirm">
-		update cen_confirm
+		update cen_confirm  FORCE INDEX(IND_CEN_CONFIRM_PCODE_P)
 		<set>
 			update_time=NOW(),
 			<if test="receiveUser!= null">
