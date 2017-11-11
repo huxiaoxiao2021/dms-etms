@@ -215,7 +215,7 @@
             <AppenderRef ref="bluedragon.base"/>
         </Logger>
 
-        <Logger name="com.jd.bluedragon" level="INFO">
+        <Logger name="com.jd.bluedragon" level="INFO" additivity="false">
             <AppenderRef ref="bluedragon.error"/>
             <AppenderRef ref="console"/>
         </Logger>
@@ -224,12 +224,12 @@
             <AppenderRef ref="bluedragon"/>
         </Logger>
 
-        <Logger name="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao" level="INFO">
+        <Logger name="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
         </Logger>
 
-        <Logger name="com.jd.bluedragon.distribution.weight.service" level="INFO">
+        <Logger name="com.jd.bluedragon.distribution.weight.service" level="INFO" additivity="false">
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="console"/>
         </Logger>
