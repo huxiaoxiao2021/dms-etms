@@ -362,4 +362,12 @@ public class Constants {
      * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号
      */
     public static final Integer QUEUE_NO_LEGNTH = 32;
+    /**
+     * 字符类型yn标识,1-是
+     */
+    public static final char FLG_CHAR_YN_Y = '1';
+    /**
+     * 字符类型yn标识-0-否
+     */
+    public static final char FLG_CHAR_YN_N = '0';
 }

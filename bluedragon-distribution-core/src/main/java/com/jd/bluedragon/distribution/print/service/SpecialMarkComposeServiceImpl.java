@@ -1,7 +1,13 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 
 /**
@@ -9,6 +15,8 @@ import com.jd.bluedragon.utils.StringHelper;
  * Created by wangtingwei on 2015/12/24.
  */
 public class SpecialMarkComposeServiceImpl implements ComposeService {
+    @Autowired
+    private TransbillMService transbillMService;
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
         StringBuilder builder=new StringBuilder();
@@ -19,6 +27,21 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
                 builder.append(CITY_DISTRIBUTION_JI);
             }else {
                 builder.append(CITY_DISTRIBUTION_CHENG);
+            }
+        }
+        //中石化需求
+        if(BusinessHelper.isUrban(waybill.getWaybillSign(), waybill.getSendPay())){
+        	TransbillM transbillM = transbillMService.getByWaybillCode(waybill.getWaybillCode());
+            if(transbillM != null){
+            	if("2".equals(transbillM.getRequireTransMode())){
+            		builder.append(CITY_DISTRIBUTION_ZHI);
+            	}else if("1".equals(transbillM.getRequireTransMode())){
+            		if(BusinessHelper.isSignChar(waybill.getSendPay(), 124, '3')){
+                        builder.append(CITY_DISTRIBUTION_JI);
+                    }else {
+                        builder.append(CITY_DISTRIBUTION_CHENG);
+                    }
+            	}
             }
         }
         if(null!=targetSiteCode&&targetSiteCode>0){

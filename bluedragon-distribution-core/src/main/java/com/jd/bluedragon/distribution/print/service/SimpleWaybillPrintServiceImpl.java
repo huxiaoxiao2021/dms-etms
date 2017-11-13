@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -249,7 +250,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
-            if(StringUtils.isNotBlank(tmsWaybill.getSendPay()) && tmsWaybill.getSendPay().length()>145 && tmsWaybill.getSendPay().charAt(145) == '1') {//城配的订单标识，remark打派车单号
+            if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = tmsWaybill.getImportantHint();
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){

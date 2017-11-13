@@ -450,5 +450,35 @@ public class BusinessHelper {
 		}
 		return res;
 	}
-
+	/**
+	 * 判断字符串位置是否标记为1
+	 * @param signStr
+	 * @param position 标识位
+	 * @return
+	 */
+	public static boolean isSignY(String signStr,int position){
+		return isSignChar(signStr,position,Constants.FLG_CHAR_YN_Y);
+	}
+	/**
+	 * 判断字符串位置是否标记为指定的字符
+	 * @param signStr
+	 * @param position
+	 * @param signChar
+	 * @return
+	 */
+	public static boolean isSignChar(String signStr,int position,char signChar){
+		if(StringHelper.isNotEmpty(signStr) && signStr.length() >= position){
+			return signStr.charAt(position-1)==signChar;
+		}
+		return false;
+	}
+	/**
+	 * 根据waybillSign和sendSign判断是否城配运单
+	 * @param waybillSign 36为1
+	 * @param sendPay 146为1
+	 * @return
+	 */
+	public static boolean isUrban(String waybillSign,String sendPay){
+		return isSignY(sendPay,146) || isSignY(waybillSign,36);
+	}
 }

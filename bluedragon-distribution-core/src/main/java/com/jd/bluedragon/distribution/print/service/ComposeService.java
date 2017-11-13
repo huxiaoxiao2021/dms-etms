@@ -34,6 +34,7 @@ public interface ComposeService {
      */
     String CITY_DISTRIBUTION_JI = "集";
     String CITY_DISTRIBUTION_CHENG = "城";
+    String CITY_DISTRIBUTION_ZHI = "直";
 
     /** 安利项目 waybillSign第27位为1的订单 打“半” **/
     String ALLOW_HALF_ACCEPT = "半";
