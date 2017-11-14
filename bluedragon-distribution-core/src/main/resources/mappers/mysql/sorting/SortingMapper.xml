@@ -306,5 +306,14 @@
 			WHERE  bsend_code = #{bsendCode,jdbcType=VARCHAR}
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		]]>
-	</select>	
+	</select>
+
+	<select id="findPackageBoxCodesByWaybillCode" resultType="sorting" parameterType="String">
+		SELECT package_code,box_code
+		FROM  sorting
+		WHERE yn=1  AND  waybill_code = #{waybillCode} AND is_cancel = 0
+	</select>
+
+
+
 </mapper>

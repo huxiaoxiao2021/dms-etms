@@ -133,4 +133,14 @@ public class InspectionDao extends BaseDao<Inspection>{
     public Integer queryCountByCondition(Inspection inspection) {
         return (Integer) this.getSqlSession().selectOne(namespace + ".selectCountSelective", inspection);
     }
+
+	/**
+	 * 根据运单号，查询所有包裹号
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	public List<Inspection>  findPackageBoxCodesByWaybillCode(String waybillCode){
+		return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", waybillCode);
+
+	}
 }
