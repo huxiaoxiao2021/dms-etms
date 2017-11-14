@@ -52,22 +52,21 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 
 			for (Map<String, Object> lossOrderDetailMap : lossOrderDetails) {
 				LossOrder lossOrder = new LossOrder();
+				String productId = lossOrderDetailMap.get("productId").toString();
+				//上游给productId设的值默认是SKU，有时会把SKU和productId拼接起来，统一取SKU
+				if(productId.contains("_")){
+					productId = productId.split("_")[0];
+				}
 				lossOrder.setLossCode(NumberHelper.getIntegerValue(lossOrderMap.get("id")));
 				lossOrder.setUserErp(StringHelper.getStringValue(lossOrderMap.get("userErp")));
 				lossOrder.setUserName(StringHelper.getStringValue(lossOrderMap.get("userName")));
 				lossOrder.setOrderId(NumberHelper.getLongValue(lossOrderMap.get("orderId")));
-				lossOrder.setProductId(NumberHelper.getLongValue(lossOrderDetailMap
-				        .get("productId")));
-				lossOrder.setProductName(StringHelper.getStringValue(lossOrderDetailMap
-				        .get("productName")));
-				lossOrder.setProductQuantity(NumberHelper.getIntegerValue(lossOrderDetailMap
-				        .get("productQuantity")));
-				lossOrder.setLossQuantity(NumberHelper.getIntegerValue(lossOrderDetailMap
-				        .get("lossQuantity")));
-				lossOrder.setLossType(NumberHelper.getIntegerValue(lossOrderDetailMap
-				        .get("lossType")));
-				lossOrder.setLossTime(DateHelper.toDate(NumberHelper.getLongValue(lossOrderMap
-				        .get("lossTime"))));
+				lossOrder.setProductId(NumberHelper.getLongValue(lossOrderDetailMap.get("productId")));
+				lossOrder.setProductName(StringHelper.getStringValue(lossOrderDetailMap.get("productName")));
+				lossOrder.setProductQuantity(NumberHelper.getIntegerValue(lossOrderDetailMap.get("productQuantity")));
+				lossOrder.setLossQuantity(NumberHelper.getIntegerValue(lossOrderDetailMap.get("lossQuantity")));
+				lossOrder.setLossType(NumberHelper.getIntegerValue(lossOrderDetailMap.get("lossType")));
+				lossOrder.setLossTime(DateHelper.toDate(NumberHelper.getLongValue(lossOrderMap.get("lossTime"))));
 
 				lossOrders.add(lossOrder);
 			}
