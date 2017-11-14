@@ -8,6 +8,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 
 	@Autowired
 	private LossOrderService lossOrderService;
+
+	private final Log logger = LogFactory.getLog(this.getClass());
 
 	public void consume(Message message) {
 		List<LossOrder> lossOrders = this.getLossOrders(message);
@@ -53,15 +57,20 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 			for (Map<String, Object> lossOrderDetailMap : lossOrderDetails) {
 				LossOrder lossOrder = new LossOrder();
 				String productId = lossOrderDetailMap.get("productId").toString();
-				//上游给productId设的值默认是SKU，有时会把SKU和productId拼接起来，统一取SKU
-				if(productId.contains("_")){
-					productId = productId.split("_")[0];
-				}
+                //上游给productId设的值默认是SKU，有时会把SKU和productId拼接起来，统一取SKU
+                if(!NumberHelper.isNumber(productId)){
+                    logger.error("消费逆向报损单MQ时productId非法：" + productId);
+                    if(productId.contains("_")){
+                        productId = productId.split("_")[0];
+                    }else {
+                        productId = "0";//如果出现其它的情况，给赋值为0，保证数据可以存进去
+                    }
+                }
 				lossOrder.setLossCode(NumberHelper.getIntegerValue(lossOrderMap.get("id")));
 				lossOrder.setUserErp(StringHelper.getStringValue(lossOrderMap.get("userErp")));
 				lossOrder.setUserName(StringHelper.getStringValue(lossOrderMap.get("userName")));
 				lossOrder.setOrderId(NumberHelper.getLongValue(lossOrderMap.get("orderId")));
-				lossOrder.setProductId(NumberHelper.getLongValue(lossOrderDetailMap.get("productId")));
+				lossOrder.setProductId(NumberHelper.getLongValue(productId));
 				lossOrder.setProductName(StringHelper.getStringValue(lossOrderDetailMap.get("productName")));
 				lossOrder.setProductQuantity(NumberHelper.getIntegerValue(lossOrderDetailMap.get("productQuantity")));
 				lossOrder.setLossQuantity(NumberHelper.getIntegerValue(lossOrderDetailMap.get("lossQuantity")));
