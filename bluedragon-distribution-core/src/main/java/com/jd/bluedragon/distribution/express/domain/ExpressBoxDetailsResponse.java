@@ -21,14 +21,30 @@ public class ExpressBoxDetailsResponse extends JdResponse {
     public ExpressBoxDetailsResponse() {
     }
 
-    private List<ExpressBoxDetail> expressBoxDetails;
+    /**
+     * 箱明细
+     */
+    private List<ExpressBoxDetail> boxDetails;
 
-    public List<ExpressBoxDetail> getExpressBoxDetails() {
-        return expressBoxDetails;
+    /**
+     * 箱包数量
+     */
+    private int boxSize;
+
+    public int getBoxSize() {
+        return boxSize;
     }
 
-    public void setExpressBoxDetails(List<ExpressBoxDetail> expressBoxDetails) {
-        this.expressBoxDetails = expressBoxDetails;
+    public void setBoxSize(int boxSize) {
+        this.boxSize = boxSize;
+    }
+
+    public List<ExpressBoxDetail> getBoxDetails() {
+        return boxDetails;
+    }
+
+    public void setBoxDetails(List<ExpressBoxDetail> boxDetails) {
+        this.boxDetails = boxDetails;
     }
 }
 

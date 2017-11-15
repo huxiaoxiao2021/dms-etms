@@ -17,7 +17,7 @@ public class ExpressPackageDetailsResponse extends JdResponse {
     /**
      * 未扫描包裹号列表
      */
-    private List<String> packageCodes;
+    private List<String> unScanPackageCodes;
 
     /**
      * 箱子总数
@@ -51,12 +51,12 @@ public class ExpressPackageDetailsResponse extends JdResponse {
         super(code, message);
     }
 
-    public List<String> getPackageCodes() {
-        return packageCodes;
+    public List<String> getUnScanPackageCodes() {
+        return unScanPackageCodes;
     }
 
-    public void setPackageCodes(List<String> packageCodes) {
-        this.packageCodes = packageCodes;
+    public void setUnScanPackageCodes(List<String> unScanPackageCodes) {
+        this.unScanPackageCodes = unScanPackageCodes;
     }
 
     public int getBoxSize() {

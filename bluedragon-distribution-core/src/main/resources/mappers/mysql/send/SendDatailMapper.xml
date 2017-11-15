@@ -768,7 +768,7 @@
 	</select>
 
 
-	<select id="findPackageBoxCodesByWaybillCode" resultType="SendDetail" parameterType="String">
+	<select id="findPackageBoxCodesByWaybillCode" resultMap="SendDetail" parameterType="String">
 		SELECT package_barcode ,box_code
 		FROM  send_d
 		WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR} AND is_cancel = 0

@@ -308,7 +308,7 @@
 		]]>
 	</select>
 
-	<select id="findPackageBoxCodesByWaybillCode" resultType="sorting" parameterType="String">
+	<select id="findPackageBoxCodesByWaybillCode" resultMap="sorting" parameterType="String">
 		SELECT package_code,box_code
 		FROM  sorting
 		WHERE yn=1  AND  waybill_code = #{waybillCode} AND is_cancel = 0

@@ -64,9 +64,8 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         //获取全部包裹
         List<Pack> packList = waybill.getPackList();
 
+        //获取扫描箱以及包裹明细数据
         Map<String, List<String>> boxCodesMap = new HashMap<String, List<String>>();
-
-
         if (null != packList && packList.size() > 0) {
             //获取已扫描箱号以及包裹号
             findScanPackagesByWaybillAndStatus(waybillCode, statusQueryCode, boxCodesMap);
@@ -104,7 +103,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
             //获取已扫描箱号以及包裹号
             findScanPackagesByWaybillAndStatus(waybillCode, statusQueryCode, boxCodesMap);
         }
-        return getExpressBoxDetailsResponse( expressBoxDetailsResponse,boxCodesMap);
+        return getExpressBoxDetailsResponse(expressBoxDetailsResponse, boxCodesMap);
     }
 
     /**
@@ -178,7 +177,9 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         }
 
         if (boxCodesMap.containsKey(boxCode)) {
-            boxCodesMap.get(boxCode).add(packageCode);
+            if (!boxCodesMap.get(boxCode).contains(packageCode)) {
+                boxCodesMap.get(boxCode).add(packageCode);
+            }
         } else {
             List packageCodeList = new ArrayList();
             packageCodeList.add(packageCode);
@@ -209,21 +210,36 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         } else {
             expressPackageDetailsResponse.setPackageSize(packList.size());
         }
-        //获取所有包裹号
+
+        //获取已扫描包裹号
         List<String> scanPackageCodes = new ArrayList<String>();
         for (List<String> packageCodesTemp : boxCodesMap.values()) {
             scanPackageCodes.addAll(packageCodesTemp);
         }
+
+        //获取未扫描包裹号
+        List<String> unScanPackageCodes = getUnScanPackages(packList,  scanPackageCodes);
+
         //设置已扫描数量
         expressPackageDetailsResponse.setHasScanPackageSize(scanPackageCodes.size());
 
         //设置未扫描数量
-        expressPackageDetailsResponse.setUnScanPackageSize(expressPackageDetailsResponse.getPackageSize() - expressPackageDetailsResponse.getHasScanPackageSize());
+        expressPackageDetailsResponse.setUnScanPackageSize(unScanPackageCodes.size());
 
         //设置未扫描明细
-        expressPackageDetailsResponse.setPackageCodes(scanPackageCodes);
+        expressPackageDetailsResponse.setUnScanPackageCodes(unScanPackageCodes);
 
         return expressPackageDetailsResponse;
+    }
+
+    private List<String> getUnScanPackages(List<Pack> packList, List<String> scanPackageCodes) {
+        List<String> unScanPackages = new ArrayList<String>();
+        for (Pack pack : packList) {
+            if (!scanPackageCodes.contains(pack.getPackCode())) {
+                unScanPackages.add(pack.getPackCode());
+            }
+        }
+        return unScanPackages;
     }
 
     /**
@@ -231,15 +247,16 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      *
      * @return
      */
-    ExpressBoxDetailsResponse getExpressBoxDetailsResponse(ExpressBoxDetailsResponse expressBoxDetailsResponse,Map<String, List<String>> boxCodesMap) {
+    ExpressBoxDetailsResponse getExpressBoxDetailsResponse(ExpressBoxDetailsResponse expressBoxDetailsResponse, Map<String, List<String>> boxCodesMap) {
         if (null == expressBoxDetailsResponse) {
             expressBoxDetailsResponse = new ExpressBoxDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         }
         List<ExpressBoxDetail> expressBoxDetailList = new ArrayList<ExpressBoxDetail>();
-        for(String boxCode :boxCodesMap.keySet()){
-            expressBoxDetailList.add(new ExpressBoxDetail(boxCode,boxCodesMap.get(boxCode).size()));
+        for (String boxCode : boxCodesMap.keySet()) {
+            expressBoxDetailList.add(new ExpressBoxDetail(boxCode, boxCodesMap.get(boxCode).size()));
         }
-        expressBoxDetailsResponse.setExpressBoxDetails(expressBoxDetailList);
+        expressBoxDetailsResponse.setBoxSize(expressBoxDetailList.size());
+        expressBoxDetailsResponse.setBoxDetails(expressBoxDetailList);
         return expressBoxDetailsResponse;
     }
 }
