@@ -63,9 +63,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**标签类型 0：有纸化，1：无纸化*/
     private Integer labelType;
 
-    /**特殊标识：柜、提、空等*/
-    private String specialMark;
-
     /**标签打印地址*/
     private String printAddress;
 
@@ -203,14 +200,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setLabelType(Integer labelType) {
         this.labelType = labelType;
-    }
-
-    public String getSpecialMark() {
-        return specialMark;
-    }
-
-    public void setSpecialMark(String specialMark) {
-        this.specialMark = specialMark;
     }
 
     public String getPrintAddress() {

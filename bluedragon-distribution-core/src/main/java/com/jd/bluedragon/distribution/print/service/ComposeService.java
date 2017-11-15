@@ -49,7 +49,10 @@ public interface ComposeService {
 
     //自提点标示
     static int ARAYACAK_SIGN = 64;
-
+    //运输模式 1-分拣集货 2-仓库直发
+    Integer TRANS_MODE_JI = 1;
+    Integer TRANS_MODE_ZHI = 2;
+    
 
     /**
      * 合成器
