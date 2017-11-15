@@ -30,6 +30,7 @@ public class ExpressCollectionResource {
     @Resource
     private ExpressCollectionService expressCollectionService;
 
+
     /**
      * 获取快运包裹明细信息
      * /express/queryPackageDetails/包裹号或者运单号/包裹扫描状态

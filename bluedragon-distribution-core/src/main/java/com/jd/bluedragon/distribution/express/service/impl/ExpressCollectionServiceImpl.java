@@ -30,6 +30,7 @@ import java.util.*;
 public class ExpressCollectionServiceImpl implements ExpressCollectionService {
 
 
+
     @Resource
     private WaybillCommonService waybillCommonService;
 
@@ -40,6 +41,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
     private SortingDao sortingDao;
     @Resource
     private SendDatailDao sendDatailDao;
+
+    /**
+     * 展示未扫描包裹个数
+     */
+    public static final int SHOW_UNSCAN_PACKAGE_NUM = 100;
 
     /**
      * 根据运单号和扫描状态获取快运到齐查询信息
@@ -226,8 +232,25 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         //设置未扫描数量
         expressPackageDetailsResponse.setUnScanPackageSize(unScanPackageCodes.size());
 
-        //设置未扫描明细
-        expressPackageDetailsResponse.setUnScanPackageCodes(unScanPackageCodes);
+        //设置显示的扫描包裹明细，最多100条
+        List<String> showUnScanPackageCodes;
+
+        //pda只展示100条包裹信息
+        if(SHOW_UNSCAN_PACKAGE_NUM < unScanPackageCodes.size() ){
+            showUnScanPackageCodes = new ArrayList<String>(SHOW_UNSCAN_PACKAGE_NUM);
+
+            for(int i=0;i<SHOW_UNSCAN_PACKAGE_NUM;i++){
+                showUnScanPackageCodes.add(unScanPackageCodes.get(i));
+            }
+
+         }else{
+            showUnScanPackageCodes = unScanPackageCodes;
+        }
+        //设置未扫描包裹明细
+        expressPackageDetailsResponse.setUnScanPackageCodes(showUnScanPackageCodes);
+
+
+
 
         return expressPackageDetailsResponse;
     }
