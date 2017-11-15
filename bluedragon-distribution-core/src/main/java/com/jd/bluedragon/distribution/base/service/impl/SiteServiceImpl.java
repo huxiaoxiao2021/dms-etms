@@ -19,6 +19,8 @@ import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,8 @@ public class SiteServiceImpl implements SiteService {
 	@Autowired
 	private VtsQueryWSProxy vtsQueryWSProxy;
 
+    private final Log logger = LogFactory.getLog(this.getClass());
+
 	public BaseStaffSiteOrgDto getSite(Integer siteCode) {
 		return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
 	}
@@ -53,21 +57,38 @@ public class SiteServiceImpl implements SiteService {
 	//车辆管理系统获取运力编码
 	@Override
 	public RouteTypeResponse getCapacityCodeInfo(String capacityCode) {
-		CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(capacityCode);
+		CommonDto<VtsTransportResourceDto> vtsDto = vtsQueryWS.getTransportResourceByTransCode(capacityCode);
 		RouteTypeResponse base = new RouteTypeResponse();
-		if(dto!=null && dto.getCode()==Constants.RESULT_SUCCESS){
-			VtsTransportResourceDto vtsDto = dto.getData();
-			if(vtsDto!=null){
-				base.setSiteCode(vtsDto.getEndNodeId());
-				base.setSendUserType(vtsDto.getTransType());
-				base.setDriverId(vtsDto.getCarrierId());
-	            base.setRouteType(vtsDto.getRouteType()); // 增加运输类型返回值
-				base.setDriver(vtsDto.getCarrierName());
-				base.setTransWay(vtsDto.getTransMode());
-				base.setCarrierType(vtsDto.getTransType());
-			}
+		if(vtsDto == null){    //JSF接口返回空
+			base.setCode(JdResponse.CODE_SERVICE_ERROR);
+			base.setMessage("查询运力信息结果为空:" + capacityCode);
+			return base;
 		}
-		
+		if(Constants.RESULT_SUCCESS == vtsDto.getCode() ){ //JSF接口调用成功
+            VtsTransportResourceDto vtrd = vtsDto.getData();
+            if(vtrd!=null){
+                base.setSiteCode(vtrd.getEndNodeId());
+                base.setSendUserType(vtrd.getTransType());
+                base.setDriverId(vtrd.getCarrierId());
+                base.setRouteType(vtrd.getRouteType()); // 增加运输类型返回值
+                base.setDriver(vtrd.getCarrierName());
+                base.setTransWay(vtrd.getTransMode());
+                base.setCarrierType(vtrd.getTransType());
+                base.setCode(JdResponse.CODE_OK);
+                base.setMessage(JdResponse.MESSAGE_OK);
+            }else{
+                base.setCode(JdResponse.CODE_SERVICE_ERROR);
+                base.setMessage("查询运力信息结果为空:" + capacityCode);
+            }
+		}else if( Constants.RESULT_WARN == vtsDto.getCode()){    //查询运力信息接口返回警告，给出前台提示
+            base.setCode(JdResponse.CODE_SERVICE_ERROR);
+            base.setMessage(vtsDto.getMessage());
+		}else { //服务出错或者出异常，打日志
+            base.setCode(JdResponse.CODE_SERVICE_ERROR);
+            base.setMessage("查询运力信息出错！");
+            logger.error("查询运力信息出错,出错原因:" + vtsDto.getMessage());
+            logger.error("查询运力信息出错,运力编码:" + capacityCode);
+		}
 		return base;
 	}
 	

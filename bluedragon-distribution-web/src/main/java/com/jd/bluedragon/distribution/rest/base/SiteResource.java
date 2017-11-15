@@ -74,12 +74,10 @@ public class SiteResource {
         RouteTypeResponse response = new RouteTypeResponse();
 		try {
 			response = siteService.getCapacityCodeInfo(capacityCode);
-			response.setCode(JdResponse.CODE_OK);
-			response.setMessage(JdResponse.MESSAGE_OK);
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-			e.printStackTrace();
+			logger.error("通过运力编码获取基础资料信息异常：", e);
 		}
 		
 		return response;

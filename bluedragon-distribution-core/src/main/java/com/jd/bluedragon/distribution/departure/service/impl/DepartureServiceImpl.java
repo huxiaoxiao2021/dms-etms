@@ -938,9 +938,8 @@ public class DepartureServiceImpl implements DepartureService {
 				operator = send.getCreateUser();
 				if (task.getBoxCode().equals(send.getSendCode())
 						&&StringHelper.isNotEmpty(send.getCapacityCode())) {
-					RouteTypeResponse response = siteService
-							.getCapacityCodeInfo(send.getCapacityCode());
-					if (response != null) {
+					RouteTypeResponse response = siteService.getCapacityCodeInfo(send.getCapacityCode());
+					if (response != null && JdResponse.CODE_OK.equals(response.getCode())) {
 						receiveSiteCode = response.getSiteCode();
 					}
 				}
