@@ -116,7 +116,7 @@ public class NewSealVehicleResource {
         } catch (Exception e) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            this.logger.error("NewSealVehicleResource.seal-error", e);
+            this.logger.error("封车检查运力编码和批次号目的地是否一致出错：批次号->" + batchCode + "运力编码->" + transportCode, e);
         }
         return sealVehicleResponse;
     }
