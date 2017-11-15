@@ -145,7 +145,7 @@ public class DeliveryResource {
                 }
             } catch (Exception ex) {
                 result.error(ex);
-                logger.error(ex);
+                logger.error("发货校验批次号异常：", ex);
             }
         }
         return result;
@@ -172,7 +172,7 @@ public class DeliveryResource {
         try {
             tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request));
         } catch (Exception e) {
-            this.logger.error("写入取消发货信息失败");
+            this.logger.error("写入取消发货信息失败", e);
         }
         this.logger.info("结束写入取消发货信息");
         if (tDeliveryResponse != null) {
@@ -295,7 +295,7 @@ public class DeliveryResource {
             tDeliveryResponse = deliveryService.checkSortingDiff(boxCode, createSiteCode, receiveSiteCode);
             this.logger.info("结束一单多件包裹不全验证");
         } catch (Exception e) {
-            this.logger.error("一单多件包裹不全验证异常");
+            this.logger.error("一单多件包裹不全验证异常", e);
         }
         if (tDeliveryResponse != null && !tDeliveryResponse.isEmpty()) {
             return new ThreeDeliveryResponse(
@@ -373,7 +373,7 @@ public class DeliveryResource {
                         JdResponse.MESSAGE_SERVICE_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(),e);
+            logger.error("发货校验异常",e);
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR);
         }
