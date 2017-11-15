@@ -294,9 +294,9 @@ function cancel(abnormalId) {
 					&nbsp;&nbsp;
                     <input id="exportData" type="button" value="导出" class="btn_c"/>
 				</th>
-				<td align="right">
+				#*<td align="right">
                     <input id="searchPopOld" type="button" value="查询老数据" class="btn_c"/>
-                </td>
+                </td>*#
 			</tr>
           </tbody>
         </table>
