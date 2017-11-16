@@ -176,8 +176,7 @@ public class OfflineController {
 		offlineLogRequest.setUserCode(offlineLog.getCreateUserCode());
 
 		offlineLogRequest.setExceptionType(offlineLog.getExceptionType());
-		offlineLogRequest.setOperateTime(DateHelper.formatDateTime(offlineLog
-				.getOperateTime()));
+		offlineLogRequest.setOperateTime(DateHelper.formatDateTimeMs(offlineLog.getOperateTime()));
 		offlineLogRequest.setOperateType(offlineLog.getOperateType());
 		offlineLogRequest.setWaybillCode(offlineLog.getWaybillCode());
 		offlineLogRequest.setPackageCode(offlineLog.getPackageCode());
