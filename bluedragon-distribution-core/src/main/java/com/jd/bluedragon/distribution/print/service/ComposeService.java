@@ -49,6 +49,27 @@ public interface ComposeService {
     //自提点标示
     static int ARAYACAK_SIGN = 64;
 
+    //b2b快运 运输产品类型
+    enum ExpressTypeEnum{
+        EXPRESS_PART_LOAD('1',"快运零担"),
+        WAREHOUSE_PART_LOAD('2',"仓配零担"),
+        CAR_LOAD('3',"整车");
+        private char code;
+        private String name;
+
+        ExpressTypeEnum(char code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+        public static String getNameByCode(char code){
+            for(ExpressTypeEnum et : ExpressTypeEnum.values()){
+                if(et.code == code){
+                    return et.name;
+                }
+            }
+            return "";
+        }
+    }
 
     /**
      * 合成器
