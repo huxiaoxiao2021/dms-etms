@@ -80,7 +80,7 @@ public class ReversePrintResource {
 
     /**
      * 自营逆向换单
-     * @param oldWaybillCode    原运单号
+     * @param domain
      * @return
      */
     @POST
@@ -88,7 +88,10 @@ public class ReversePrintResource {
     public InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain){
         InvokeResult<Boolean> result;
         try{
-            result= reversePrintService.exchangeOwnWaybill(domain);
+            result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
+            if(InvokeResult.RESULT_SUCCESS_CODE == result.getCode() && result.getData()){
+                result= reversePrintService.exchangeOwnWaybill(domain);
+            }
         }catch (Throwable e){
             result=new InvokeResult<Boolean>();
             logger.error("自营逆向换单",e);
@@ -97,6 +100,23 @@ public class ReversePrintResource {
         return result;
     }
 
-
+    /**
+     * 自营逆向换单
+     * @param domain
+     * @return
+     */
+    @POST
+    @Path("reverse/exchange/check")
+    public InvokeResult<Boolean> exchangeCheck(OwnReverseTransferDomain domain){
+        InvokeResult<Boolean> result;
+        try{
+            result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
+        }catch (Throwable e){
+            result=new InvokeResult<Boolean>();
+            logger.error("逆向换单检查异常",e);
+            result.error(e);
+        }
+        return result;
+    }
 
 }

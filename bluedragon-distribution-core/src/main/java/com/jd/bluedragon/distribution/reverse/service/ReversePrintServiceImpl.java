@@ -5,24 +5,29 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
-import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.jmq.common.exception.JMQException;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.time.DateUtils;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +76,12 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    AbnormalWayBillService abnormalWayBillService;
 
     @Autowired
     @Qualifier("ownWaybillTransformMQ")
@@ -256,6 +267,64 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         return result;
     }
+
+
+    /**
+     * 逆向换单限制校验
+     * 拒收和异常处理的运单才可以执行逆向换单（该限制仅限手工逆向换单操作）
+     * @param wayBillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.ReversePrintServiceImpl.checkWayBillForExchange", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode){
+        InvokeResult result = new InvokeResult();
+        //1.运单号为空
+        if(StringUtils.isBlank(wayBillCode) || siteCode == null){
+            result.setData(false);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("运单号或站点信息为空");
+            return result;
+        }
+
+        //2.获取运单信息判断是否拒收或妥投
+        BigWaybillDto waybillDto = waybillService.getWaybillState(wayBillCode);
+        if(waybillDto == null || waybillDto.getWaybillState() == null){
+            result.setData(false);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("运单接口调用返回结果为空");
+            return result;
+        }
+
+        //2.1妥投运单，不可以操作逆向换单
+        if(Constants.WAYBILL_DELIVERED_CODE.equals(waybillDto.getWaybillState().getWaybillState())){
+            result.setData(false);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("该订单已经妥投，不能触发逆向新单");
+            return result;
+        }
+        //2.2拒收运单，可以操作逆向换单
+        if(Constants.WAYBILL_REJECT_CODE.equals(waybillDto.getWaybillState().getWaybillState())){
+            result.setData(true);
+            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            result.setMessage("拒收订单，可以触发逆向新单");
+            return result;
+        }
+        //3.查询运单是否操作异常处理
+        AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(wayBillCode, siteCode);
+        //异常操作运单，可以操作逆向换单
+        if(abnormalWayBill != null && wayBillCode.equals(abnormalWayBill.getWaybillCode())){
+            result.setData(true);
+            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            result.setMessage("异常订单，可以触发逆向新单");
+        }else{
+            result.setData(false);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
+        }
+        return result;
+    }
+
 
 
 

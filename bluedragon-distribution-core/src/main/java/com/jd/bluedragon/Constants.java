@@ -362,4 +362,7 @@ public class Constants {
      * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号
      */
     public static final Integer QUEUE_NO_LEGNTH = 32;
+
+    public static final Integer WAYBILL_DELIVERED_CODE = 150;  //订单妥投状态编码
+    public static final Integer WAYBILL_REJECT_CODE = 160;  //订单拒收状态编码
 }

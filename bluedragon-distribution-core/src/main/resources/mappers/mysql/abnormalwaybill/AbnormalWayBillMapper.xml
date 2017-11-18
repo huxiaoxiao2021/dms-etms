@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao" >
+
+	<resultMap id="abnormalWayBill" type="com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill" >
+		<result column="ID" property="id" jdbcType="BIGINT"/>
+		<result column="WAYBILL_CODE" property="waybillCode" jdbcType="VARCHAR" />
+		<result column="PACKAGE_BARCODE" property="packageCode"  jdbcType="VARCHAR" />
+		<result column="CREATE_USER_CODE" property="createUserCode" jdbcType="BIGINT" />
+		<result column="CREATE_USER_ERP" property="createUserErp" jdbcType="VARCHAR"  />
+		<result column="CREATE_USER" property="createUser" jdbcType="VARCHAR"  />
+		<result column="CREATE_SITE_CODE" property="createSiteCode" jdbcType="BIGINT" />
+		<result column="CREATE_SITE_NAME" property="createSiteName" jdbcType="VARCHAR"  />
+		<result column="QC_TYPE" property="qcType"  jdbcType="INTEGER"/>
+		<result column="QC_VALUE" property="qcValue" jdbcType="VARCHAR"  />
+		<result column="QC_CODE" property="qcCode" jdbcType="INTEGER" />
+		<result column="QC_NAME" property="qcName" jdbcType="VARCHAR"  />
+		<result column="IS_SORTING_RETURN" property="isSortingReturn" jdbcType="TINYINT" />
+		<result column="OPERATE_TIME" property="operateTime" jdbcType="TIMESTAMP" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+		<result column="YN" property="yn" jdbcType="TINYINT" />
+		<result column="ts" property="ts" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		<trim prefix="" suffix="" suffixOverrides=",">
+			ID,
+			WAYBILL_CODE,
+			PACKAGE_BARCODE,
+			CREATE_USER_CODE,
+			CREATE_USER_ERP,
+			CREATE_USER,
+			CREATE_SITE_CODE,
+			CREATE_SITE_NAME,
+			QC_TYPE,
+			QC_VALUE,
+			QC_CODE,
+			QC_NAME,
+            IS_SORTING_RETURN,
+			OPERATE_TIME,
+			CREATE_TIME,
+			UPDATE_TIME,
+			YN,
+			ts,
+		</trim>
+	</sql>
+
+	<insert id="add" parameterType="abnormalWayBill" useGeneratedKeys="true" keyProperty="ID">
+		INSERT INTO abnormal_waybill(
+        <include refid="Base_Column_List"/>
+        )
+		VALUES
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			#{id,jdbcType=BIGINT},
+			#{waybillCode,jdbcType=VARCHAR},
+			#{packageCode,jdbcType=VARCHAR},
+			#{createUserCode,jdbcType=BIGINT},
+			#{createUserErp,jdbcType=VARCHAR},
+			#{createUser,jdbcType=VARCHAR},
+			#{createSiteCode,jdbcType=BIGINT},
+			#{createSiteName,jdbcType=VARCHAR},
+			#{qcType,jdbcType=INTEGER},
+			#{qcValue,jdbcType=VARCHAR},
+			#{qcCode,jdbcType=INTEGER},
+			#{qcName,jdbcType=VARCHAR},
+            #{isSortingReturn,jdbcType=TINYINT},
+			#{operateTime,jdbcType=TIMESTAMP},
+            now(),
+            now(),
+			1,
+            now(),
+		</trim>
+	</insert>
+
+    <insert id="addBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="ID">
+        INSERT INTO abnormal_waybill(
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="abnormalWayBill" index="index" separator=",">
+            (
+            #{abnormalWayBill.id,jdbcType=BIGINT},
+            #{abnormalWayBill.waybillCode,jdbcType=VARCHAR},
+            #{abnormalWayBill.packageCode,jdbcType=VARCHAR},
+            #{abnormalWayBill.createUserCode,jdbcType=BIGINT},
+            #{abnormalWayBill.createUserErp,jdbcType=VARCHAR},
+            #{abnormalWayBill.createUser,jdbcType=VARCHAR},
+            #{abnormalWayBill.createSiteCode,jdbcType=BIGINT},
+            #{abnormalWayBill.createSiteName,jdbcType=VARCHAR},
+            #{abnormalWayBill.qcType,jdbcType=INTEGER},
+            #{abnormalWayBill.qcValue,jdbcType=VARCHAR},
+            #{abnormalWayBill.qcCode,jdbcType=INTEGER},
+            #{abnormalWayBill.qcName,jdbcType=VARCHAR},
+            #{abnormalWayBill.isSortingReturn,jdbcType=TINYINT},
+            #{abnormalWayBill.operateTime,jdbcType=TIMESTAMP},
+            now(),
+            now(),
+            1,
+            now()
+            )
+        </foreach>
+    </insert>
+
+	<select id="get" resultMap="abnormalWayBill" parameterType="java.util.HashMap">
+		SELECT
+        WAYBILL_CODE,
+        CREATE_SITE_CODE
+		FROM abnormal_waybill
+		WHERE yn=1 AND create_site_code = #{siteCode, jdbcType=INTEGER}
+		AND waybill_code = #{wayBillCode, jdbcType=VARCHAR}  LIMIT 1
+	</select>
+
+</mapper>	
