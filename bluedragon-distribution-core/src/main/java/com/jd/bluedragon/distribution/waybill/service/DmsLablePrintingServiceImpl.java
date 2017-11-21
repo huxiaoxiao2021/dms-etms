@@ -6,6 +6,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+
 
 /**
  * 分拣中心包裹标签打印
@@ -91,6 +93,10 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         if(waybill.getWaybillSign().length() > 34 && waybill.getWaybillSign().charAt(34) == '1'){
             specialMark.append(SPECIAL_MARK_SENIOR);
         }
+        //b2b快运 强B  和 可B可C预分拣分到B网的订单，外单系统会在waybill_sign第36位 打标，枚举值1
+        if(specialMark.indexOf(CITY_DISTRIBUTION_CHENG) < 0 && waybill.getWaybillSign().length() > 35 && waybill.getWaybillSign().charAt(35) == '1'){
+            specialMark.append(CITY_DISTRIBUTION_CHENG);
+        }
         labelPrinting.setSpecialMark(specialMark.toString());
         // 外单多时效打标
         if(StringHelper.isNotEmpty(waybill.getWaybillSign())) {
@@ -106,6 +112,13 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
                 labelPrinting.setTimeCategory("次晨达");
         }
 
+        //b2b快运 运输产品类型打标
+        if(waybill.getWaybillSign().length() > 39){
+            String expressType = ComposeService.ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
+            labelPrinting.setjZDFlag(expressType);
+        }
+        //收件公司
+        labelPrinting.setConsigneeCompany(waybill.getReceiveCompany());
         try {
             if (request != null && request.getStartSiteType() != null && request.dmsCode != null
                     && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())

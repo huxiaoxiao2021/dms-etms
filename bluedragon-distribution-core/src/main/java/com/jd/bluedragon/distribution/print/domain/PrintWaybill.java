@@ -238,7 +238,10 @@ public class PrintWaybill extends BasePrintWaybill {
      */
     private String jZDFlag;
 
-
+    /**
+     * 寄件公司名称
+     */
+    private String senderCompany;
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;

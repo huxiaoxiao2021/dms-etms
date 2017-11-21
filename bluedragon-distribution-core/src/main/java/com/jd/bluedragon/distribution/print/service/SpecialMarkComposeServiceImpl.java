@@ -82,9 +82,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.setSpecialMark(builder.toString());
 
         //b2b快运 运输产品类型打标
-        //todo 位数待仓储确定 ！！
-        if(waybill.getWaybillSign().length() > 35){
-            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(35));
+        if(waybill.getWaybillSign().length() > 39){
+            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
             waybill.setjZDFlag(expressType);
         }
     }

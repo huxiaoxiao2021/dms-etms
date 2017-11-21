@@ -281,8 +281,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.setPackList(packageList);
             }
             //b2b快运 收件公司名称 add by jinjingcheng
-            //todo 字段外单还未确定
-            commonWaybill.setConsigneeCompany(tmsWaybill.getConsigneeCompany());
+            commonWaybill.setConsigneeCompany(tmsWaybill.getReceiveCompany());
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }

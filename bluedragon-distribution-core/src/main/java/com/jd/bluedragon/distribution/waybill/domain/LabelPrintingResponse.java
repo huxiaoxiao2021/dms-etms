@@ -90,6 +90,14 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /** 承诺信息 */
     private String promiseText;
 
+    /**
+     * 收件公司名称
+     */
+    private String consigneeCompany;
+    /**
+     * 运输产品类型
+     */
+    private String jZDFlag;
 
     public LabelPrintingResponse() {
         super();
@@ -277,8 +285,19 @@ public class LabelPrintingResponse extends BasePrintWaybill {
         this.promiseText = promiseText;
     }
 
+    public String getConsigneeCompany() {
+        return consigneeCompany;
+    }
 
+    public void setConsigneeCompany(String consigneeCompany) {
+        this.consigneeCompany = consigneeCompany;
+    }
 
+    public String getjZDFlag() {
+        return jZDFlag;
+    }
 
-
+    public void setjZDFlag(String jZDFlag) {
+        this.jZDFlag = jZDFlag;
+    }
 }

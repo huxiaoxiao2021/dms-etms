@@ -51,9 +51,9 @@ public interface ComposeService {
 
     //b2b快运 运输产品类型
     enum ExpressTypeEnum{
-        EXPRESS_PART_LOAD('1',"快运零担"),
-        WAREHOUSE_PART_LOAD('2',"仓配零担"),
-        CAR_LOAD('3',"整车");
+        EXPRESS_PART_LOAD('2',"快运零担"),
+        WAREHOUSE_PART_LOAD('3',"仓配零担"),
+        CAR_LOAD('1',"整车");
         private char code;
         private String name;
 
