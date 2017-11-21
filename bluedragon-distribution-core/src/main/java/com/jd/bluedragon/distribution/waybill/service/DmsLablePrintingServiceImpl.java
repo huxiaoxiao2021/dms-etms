@@ -119,6 +119,8 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         }
         //收件公司
         labelPrinting.setConsigneeCompany(waybill.getReceiveCompany());
+        //寄件公司
+        labelPrinting.setSenderCompany(waybill.getSenderCompany());
         try {
             if (request != null && request.getStartSiteType() != null && request.dmsCode != null
                     && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())

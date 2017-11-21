@@ -610,4 +610,12 @@ public class PrintWaybill extends BasePrintWaybill {
     public void setjZDFlag(String jZDFlag) {
         this.jZDFlag = jZDFlag;
     }
+
+    public String getSenderCompany() {
+        return senderCompany;
+    }
+
+    public void setSenderCompany(String senderCompany) {
+        this.senderCompany = senderCompany;
+    }
 }

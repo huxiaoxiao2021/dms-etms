@@ -98,6 +98,10 @@ public class LabelPrintingResponse extends BasePrintWaybill {
      * 运输产品类型
      */
     private String jZDFlag;
+    /**
+     * 寄件公司
+     * */
+    private String senderCompany;
 
     public LabelPrintingResponse() {
         super();
@@ -299,5 +303,13 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setjZDFlag(String jZDFlag) {
         this.jZDFlag = jZDFlag;
+    }
+
+    public String getSenderCompany() {
+        return senderCompany;
+    }
+
+    public void setSenderCompany(String senderCompany) {
+        this.senderCompany = senderCompany;
     }
 }
