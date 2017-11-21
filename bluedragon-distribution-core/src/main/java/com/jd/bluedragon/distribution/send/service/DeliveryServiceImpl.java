@@ -104,9 +104,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private BoxService boxService;
 
-    @Resource(name = "sortingService")
-    private SortingService  sortingService;
-
     @Autowired
     WaybillQueryApi waybillQueryApi;
 
@@ -818,12 +815,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (tSendMList != null && !tSendMList.isEmpty()) {
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
                     DeliveryResponse.MESSAGE_Delivery_IS_SEND);
-        }
-        //老发货升级需求 调用verification 的checkPackage的值由true 改成fals byjinjingcheng
-        DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(tSendM.getBoxCode(),tSendM.getReceiveSiteCode(),false);
-        if(!verificationResult.getCode()){
-            return new DeliveryResponse(DeliveryResponse.CODE_CITY_BILL_CHECK,
-                    verificationResult.getMessage());
         }
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             box = this.boxService.findBoxByCode(tSendM.getBoxCode());
@@ -2024,7 +2015,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 queryArgument.setBoxCode(boxCode);
                 queryArgument.setCreateSiteCode(box.getCreateSiteCode());
                 queryArgument.setReceiveSiteCode(box.getReceiveSiteCode());
-                List<Sorting> sortingList = sortingService.findByBoxCode(queryArgument);
+                List<Sorting> sortingList = tSortingService.findByBoxCode(queryArgument);
                 for (Sorting item : sortingList) {
                     waybillSet.add(item.getWaybillCode());
                 }
@@ -2692,7 +2683,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                         rsiteCode + "站点箱号" + DeliveryResponse.MESSAGE_Delivery_ERROR);
 
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("dealWithSendBatch处理异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR,
                     DeliveryResponse.MESSAGE_Delivery_ERROR);
