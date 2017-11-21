@@ -53,7 +53,22 @@ public interface ComposeService {
     Integer TRANS_MODE_JI = 1;
     Integer TRANS_MODE_ZHI = 2;
     
-
+    /**
+     * 字符标识
+     */
+    char CHAR_3 = '3';
+    /**
+     * 位置标识-36
+     */
+    int POSITION_36 = 36;
+    /**
+     * 位置标识-124
+     */
+    int POSITION_124 = 124;
+    /**
+     * 位置标识-146
+     */
+    int POSITION_146 = 146;
     /**
      * 合成器
      * @param waybill           运单信息

@@ -26,17 +26,28 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
 				若配送方式字段（transbill_m.require_trans_mode）为分拣集货，且订单sendpay124！=3，则标识位打城字
          */
         if(BusinessHelper.isUrban(waybill.getWaybillSign(), waybill.getSendPay())){
+        	boolean isMarked = false;
         	TransbillM transbillM = transbillMService.getByWaybillCode(waybill.getWaybillCode());
             if(transbillM != null){
             	if(TRANS_MODE_ZHI.equals(transbillM.getRequireTransMode())){
             		waybill.appendSpecialMark(CITY_DISTRIBUTION_ZHI);
+            		isMarked = true;
             	}else if(TRANS_MODE_JI.equals(transbillM.getRequireTransMode())){
-            		if(BusinessHelper.isSignChar(waybill.getSendPay(), 124, '3')){
+            		if(BusinessHelper.isSignChar(waybill.getSendPay(), POSITION_124, CHAR_3)){
                         waybill.appendSpecialMark(CITY_DISTRIBUTION_JI);
                     }else {
                         waybill.appendSpecialMark(CITY_DISTRIBUTION_CHENG);
                     }
+            		isMarked = true;
             	}
+            }
+            //判断是否完成城配打标
+            if(!isMarked){
+            	if(BusinessHelper.isSignChar(waybill.getSendPay(), POSITION_124, CHAR_3)){
+                    waybill.appendSpecialMark(CITY_DISTRIBUTION_JI);
+                }else {
+                    waybill.appendSpecialMark(CITY_DISTRIBUTION_CHENG);
+                }
             }
         }
         if(null!=targetSiteCode&&targetSiteCode>0){
