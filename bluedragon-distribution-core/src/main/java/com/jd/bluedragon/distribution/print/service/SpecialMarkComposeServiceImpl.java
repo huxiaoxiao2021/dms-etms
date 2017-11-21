@@ -18,20 +18,9 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
     private TransbillMService transbillMService;
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
-//        StringBuilder builder=new StringBuilder();
-
-        //城配--sendPay第146位为1，且124位为3追打“集”；sendPay第146位为1，且124位不为3追打“城”
-        if(BusinessHelper.isSignY(waybill.getSendPay(), 146)){
-            if(BusinessHelper.isSignChar(waybill.getSendPay(), 124, '3')){
-            	waybill.appendSpecialMark(CITY_DISTRIBUTION_JI);
-            }else {
-                waybill.appendSpecialMark(CITY_DISTRIBUTION_CHENG);
-            }
-        }
-        //
         /**
-         *中石化打标需求
-          	若订单sendpay146=1或者waybillsign36=1,则为城配订单
+         *城配/中石化打标逻辑合并
+          若订单sendpay146=1或者waybillsign36=1,则为城配订单
 				若配送方式字段（transbill_m.require_trans_mode）为仓库直发，则标识位打直字
 				若配送方式字段（transbill_m.require_trans_mode）为分拣集货，且订单sendpay124=3，则标识位打集字
 				若配送方式字段（transbill_m.require_trans_mode）为分拣集货，且订单sendpay124！=3，则标识位打城字
