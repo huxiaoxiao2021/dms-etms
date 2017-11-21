@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -39,7 +40,6 @@ public class CityDeliveryVerification implements DeliveryVerification{
     public static final int CITY_DISTRIBUTION_WAYBILL_INDEX = 145;
     public static final char CITY_DISTRIBUTION_WAYBILL_INDEX_CHAR_VALUE = '1';
     public static final String CITY_CAN_NOT_TO_NONE_SORTING_CENTER = "城配运单原包发货只能发到分拣中心";
-    public static final String NONE_SCHEDULER_BOX = "-1";
 
     @Resource(name = "baseService")
     private BaseService                     baseService;
@@ -83,7 +83,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
             if (SerialRuleUtil.isMatchBoxCode(boxCode)) {//是箱号
                 /****send_d与派车单下运单进行对比，当一致时，才能通过*/
                 String scheduleBillCode = transBillScheduleService.getKey(boxCode);
-                if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(NONE_SCHEDULER_BOX)) {//没有预分拣单号
+                if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(Constants.SCHEDULE_CODE_DEFAULT)) {//没有预分拣单号
                     return result;
                 }
                 List<String> list = transbillMService.getEffectWaybillCodesByScheduleBillCode(scheduleBillCode);

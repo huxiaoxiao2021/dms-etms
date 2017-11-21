@@ -52,7 +52,11 @@ public class DeliveryResponse extends JdResponse {
     
     public static final Integer CODE_Delivery_TRANSIT = 30006;
     public static final String MESSAGE_Delivery_TRANSIT = "箱号与目的地不一致，是否发货？";
-    
+
+    public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
+    public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "运单下包裹不齐是否强制发货？";
+    public static final String MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE = "派车单下运单不齐是否强制发货？";
+
     public DeliveryResponse() {
         super();
     }

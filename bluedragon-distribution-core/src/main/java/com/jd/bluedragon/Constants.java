@@ -362,4 +362,7 @@ public class Constants {
      * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号
      */
     public static final Integer QUEUE_NO_LEGNTH = 32;
+
+    //派车单号默认值
+    public static final String SCHEDULE_CODE_DEFAULT = "-1";  //默认的scheduleCode值
 }

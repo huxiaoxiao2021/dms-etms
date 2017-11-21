@@ -1,35 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
-import com.jd.bluedragon.common.domain.ServiceMessage;
-import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -60,33 +32,17 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -106,6 +62,20 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Service("deliveryService")
 public class DeliveryServiceImpl implements DeliveryService {
@@ -133,6 +103,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private BoxService boxService;
+
+    @Resource(name = "sortingService")
+    private SortingService  sortingService;
 
     @Autowired
     WaybillQueryApi waybillQueryApi;
@@ -219,6 +192,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     //added by hanjiaxing 2016.12.20
     @Autowired
     private GantryExceptionService gantryExceptionService;
+
+    @Autowired
+    private TransBillScheduleService transBillScheduleService;
+
+    @Resource(name = "transbillMService")
+    private TransbillMService transbillMService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -1966,18 +1945,142 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @SuppressWarnings("rawtypes")
-    public List<SendThreeDetail> checkThreePackage(List<SendM> sendMList) {
+    public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList) {
+        List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
+        //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
+        boolean isScheduleRequest = Boolean.FALSE;
+        DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
+        if(!businessType.equals(20)){    //非逆向才进行派车单运单齐全校验
+            logger.info("发货数据判断运单是否不全");
+            isScheduleRequest = checkScheduleWaybill(sendMList, scheduleWaybillResponse);    //发货请求是否包含派车单
+        }
+        //2.发货数据判断包裹是否不全
         List<SendDetail> allList = new ArrayList<SendDetail>();
         this.logger.info("发货数据判断包裹是否不全");
         getAllList(sendMList, allList);
         if (businessType.equals(20)) {
-            return reverseComputer.compute(allList);
+            tDeliveryResponse =  reverseComputer.compute(allList, false);    //逆向不处理派车单发货的情况
         } else {
-            return forwardComputer.compute(allList);
+            tDeliveryResponse =  forwardComputer.compute(allList, isScheduleRequest);
+        }
+        //返回结果处理
+        if(isScheduleRequest){
+            //派车单发货不齐不返回明细数据
+            String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? DeliveryResponse.MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE : "";
+            if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
+                msg += StringUtils.isNotBlank(msg) ? "\n" : "";
+                msg += scheduleWaybillResponse.getMessage();
+            }
+            if(StringUtils.isNotBlank(msg)){
+                return new ThreeDeliveryResponse(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE, msg, null);
+            }else{
+                return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
+            }
+        }
+        if (tDeliveryResponse != null && !tDeliveryResponse.isEmpty()) {
+            //非派车单发货返回包裹不齐明细
+            return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_THREE_SORTING,
+                    DeliveryResponse.MESSAGE_Delivery_THREE_SORTING, tDeliveryResponse);
+        } else {
+            return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
         }
     }
 
+    private boolean checkScheduleWaybill(List<SendM> sendMList, DeliveryResponse scheduleWaybillResponse){
+        scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
+        //获取派车单和箱号的对应关系
+        Map<String/*scheduleCode*/, Set<String>/*Set<boxCode>*/> scheduleCodeBoxCodeMap = getScheduleCodeWithBoxCode(sendMList);
+        boolean isScheduleRequst = scheduleCodeBoxCodeMap.size() > 0 ? Boolean.TRUE : Boolean.FALSE;
+        if(isScheduleRequst){//有派车单的箱子
+            //依次校验各个派车单下已分拣运单是否齐全
+            for (Map.Entry<String, Set<String>> entry : scheduleCodeBoxCodeMap.entrySet()) {
+                String scheduleCode = entry.getKey();
+                Set<String> boxSet = entry.getValue();
+                Set<String> waybillSet = getAllWayBillCodeByBoxs(boxSet);
+                List<String> scheduleWaybillCodelist = transbillMService.getEffectWaybillCodesByScheduleBillCode(scheduleCode);
+                if(scheduleWaybillCodelist != null && scheduleWaybillCodelist.size() != waybillSet.size()){//此派车单运单不齐
+                    scheduleWaybillResponse.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                    scheduleWaybillResponse.setMessage(DeliveryResponse.MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE);
+                    break;
+                }
+            }
+        }
+
+        return isScheduleRequst;   //返回此发货请求是否含派车单号
+    }
+
+    /**
+     * 根据属于同一派车单的箱号集合获取所有已分拣的运单号
+     * @param boxSet
+     * @return
+     */
+    private Set<String>  getAllWayBillCodeByBoxs(Set<String> boxSet){
+        Set<String> waybillSet = new HashSet<String>();
+        for (String boxCode : boxSet){
+            if(BusinessHelper.isBoxcode(boxCode)){//按箱分拣的查询已分拣运单号
+                Box box = this.boxService.findBoxByCode(boxCode);
+                Sorting queryArgument = new Sorting();
+                queryArgument.setBoxCode(boxCode);
+                queryArgument.setCreateSiteCode(box.getCreateSiteCode());
+                queryArgument.setReceiveSiteCode(box.getReceiveSiteCode());
+                List<Sorting> sortingList = sortingService.findByBoxCode(queryArgument);
+                for (Sorting item : sortingList) {
+                    waybillSet.add(item.getWaybillCode());
+                }
+            }else if (BusinessHelper.isPackageCode(boxCode)) {//原包发货的获取包裹运单号
+                waybillSet.add(BusinessHelper.getWaybillCode(boxCode));
+            }
+        }
+        return waybillSet;
+    }
+    /**
+     * 由于一个派车单可以装多个箱子，这里获取其对应关系
+     * @param sendMList
+     * @return
+     */
+    private Map<String, Set<String>> getScheduleCodeWithBoxCode(List<SendM> sendMList){
+        Map<String/*scheduleCode*/, Set<String>/*Set<boxCode>*/> scheduleCodeBoxCodeMap = new HashMap<String, Set<String>>();
+        for (SendM tSendM : sendMList) {
+            if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+                String boxCode = StringUtils.trim(tSendM.getBoxCode());
+                String scheduleCode = transBillScheduleService.getKey(boxCode);
+                if(StringUtils.isNotBlank(scheduleCode) && !Constants.SCHEDULE_CODE_DEFAULT.equals(scheduleCode)){
+                    putValueToMap(scheduleCodeBoxCodeMap, scheduleCode, boxCode);
+                }
+            }else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
+                String wayBillCode = BusinessHelper.getWaybillCode(tSendM.getBoxCode());
+                String scheduleCode = transBillScheduleService.queryScheduleCode(wayBillCode);
+                //原包发货的包裹是派车单的包裹
+                if(StringUtils.isNotBlank(scheduleCode) && !Constants.SCHEDULE_CODE_DEFAULT.equals(scheduleCode)){
+                    putValueToMap(scheduleCodeBoxCodeMap, scheduleCode, tSendM.getBoxCode());
+                }
+            }
+        }
+        return scheduleCodeBoxCodeMap;
+    }
+
+    /**
+     * Map的value为集合时的put方法
+     * @param map
+     * @param key
+     * @param aValue
+     */
+    private static void putValueToMap(Map<String, Set<String>> map, String key, String aValue){
+        if (map.containsKey(key)) {
+            map.get(key).add(aValue);
+        } else {
+            Set<String> temp = new HashSet<String>();
+            temp.add(aValue);
+            map.put(key, temp);
+        }
+    }
+
+    /**
+     * 获取所有发货明细
+     * @param sendMList
+     * @param allList
+     */
     public void getAllList(List<SendM> sendMList, List<SendDetail> allList) {
         for (SendM tSendM : sendMList) {
             SendDetail tSendDatail = new SendDetail();
@@ -2657,9 +2760,10 @@ public class DeliveryServiceImpl implements DeliveryService {
          * 计算差异结果
          *
          * @param list 发货明细列表
+         * @param isScheduleRequest 是否包含派车单
          * @return 差异明细结果列表
          */
-        List<SendThreeDetail> compute(List<SendDetail> list);
+        List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest);
     }
 
     /**
@@ -2672,14 +2776,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         private SendDatailDao sendDatailDao;
 
         @Override
-        public List<SendThreeDetail> compute(List<SendDetail> list) {
+        public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
             Collections.sort(list, new Comparator<SendDetail>() {
                 @Override
                 public int compare(SendDetail lhs, SendDetail rhs) {
                     return lhs.getPackageBarcode().compareToIgnoreCase(rhs.getPackageBarcode());
                 }
             });
-            return computeUsePackage(list);
+            return computeUsePackage(list, isScheduleRequest);
         }
 
         /**
@@ -2688,7 +2792,7 @@ public class DeliveryServiceImpl implements DeliveryService {
          * @param list
          * @return
          */
-        private final List<SendThreeDetail> computeUsePackage(List<SendDetail> list) {
+        private final List<SendThreeDetail> computeUsePackage(List<SendDetail> list, boolean isScheduleRequest) {
             String lastWaybillCode = null;
             int scanCount = 0;
             int pacageSumShoudBe = 0;
@@ -2696,6 +2800,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             ;
             List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
             for (SendDetail item : list) {//遍历该箱的所有包裹
+                //包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
+                if(isScheduleRequest && hasDiff > 0){
+                    break;
+                }
                 SendThreeDetail diff = new SendThreeDetail();
                 diff.setBoxCode(item.getBoxCode());
                 diff.setPackageBarcode(item.getPackageBarcode());
