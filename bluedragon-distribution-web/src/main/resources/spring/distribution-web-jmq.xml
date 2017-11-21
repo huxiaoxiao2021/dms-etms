@@ -133,10 +133,6 @@
     <jmq:consumer id="jmq.cancelScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
             <jmq:listener topic="tms_cancel_sendcar" listener="cancelScheduleFromTMSConsumer"/>
     </jmq:consumer>
-    <!--jmq.transbillMSyncConsumer 城配运单mq消费应用-->
-    <jmq:consumer id="jmq.transbillMSyncConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="bd_transbill_m" listener="transbillMSyncConsumer"/>
-    </jmq:consumer>
 
     <!-- = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2") -->
     <bean id="sortSchemeConsumer" class="com.jd.bluedragon.distribution.consumer.sortScheme.SortSchemeConsumer">
