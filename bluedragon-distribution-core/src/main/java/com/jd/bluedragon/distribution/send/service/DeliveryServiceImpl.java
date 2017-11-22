@@ -1960,8 +1960,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             //派车单发货不齐不返回明细数据
             String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? DeliveryResponse.MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE : "";
             if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
-                msg += StringUtils.isNotBlank(msg) ? "\n" : "";
-                msg += scheduleWaybillResponse.getMessage();
+                msg = StringUtils.isNotBlank(msg) ? "运单/" + msg : scheduleWaybillResponse.getMessage();
             }
             if(StringUtils.isNotBlank(msg)){
                 return new ThreeDeliveryResponse(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE, msg, null);
