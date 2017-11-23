@@ -46,7 +46,7 @@
 		</trim>
 	</sql>
 
-	<insert id="add" parameterType="abnormalWayBill" useGeneratedKeys="true" keyProperty="id">
+	<insert id="add" parameterType="abnormalWayBill" useGeneratedKeys="true" keyProperty="abnormalWayBill.id" keyColumn="ID">
 		INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )
@@ -73,7 +73,7 @@
 		</trim>
 	</insert>
 
-    <insert id="addBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="abnormalWayBill.id" keyColumn="ID">
         INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )
