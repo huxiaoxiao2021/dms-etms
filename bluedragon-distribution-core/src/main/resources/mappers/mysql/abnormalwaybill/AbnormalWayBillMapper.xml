@@ -25,7 +25,6 @@
 
 	<sql id="Base_Column_List">
 		<trim prefix="" suffix="" suffixOverrides=",">
-			ID,
 			WAYBILL_CODE,
 			PACKAGE_BARCODE,
 			CREATE_USER_CODE,
@@ -46,13 +45,12 @@
 		</trim>
 	</sql>
 
-	<insert id="add" parameterType="abnormalWayBill" useGeneratedKeys="true" keyProperty="abnormalWayBill.id" keyColumn="ID">
+	<insert id="add" parameterType="abnormalWayBill">
 		INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )
 		VALUES
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			#{id,jdbcType=BIGINT},
 			#{waybillCode,jdbcType=VARCHAR},
 			#{packageCode,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=BIGINT},
@@ -73,14 +71,13 @@
 		</trim>
 	</insert>
 
-    <insert id="addBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="abnormalWayBill.id" keyColumn="ID">
+    <insert id="addBatch" parameterType="java.util.List">
         INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )
         VALUES
         <foreach collection="list" item="abnormalWayBill" index="index" separator=",">
             (
-            #{abnormalWayBill.id,jdbcType=BIGINT},
             #{abnormalWayBill.waybillCode,jdbcType=VARCHAR},
             #{abnormalWayBill.packageCode,jdbcType=VARCHAR},
             #{abnormalWayBill.createUserCode,jdbcType=BIGINT},
