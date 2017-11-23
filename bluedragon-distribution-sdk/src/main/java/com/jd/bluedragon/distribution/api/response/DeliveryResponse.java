@@ -9,6 +9,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_Delivery_SEND_FAIL = 2;
     public static final Integer CODE_Delivery_SEND_CONFIRM = 4;
 
+    public static final Integer CODE_VER_CHECK_EXCEPTION = 304;
+    public static final String MESSAGE_VER_CHECK_EXCEPTION = "验证服务失败，请重试";
+
     public static final Integer CODE_Delivery_ERROR = 40001;
     public static final String MESSAGE_Delivery_ERROR = "发货处理异常";
     
