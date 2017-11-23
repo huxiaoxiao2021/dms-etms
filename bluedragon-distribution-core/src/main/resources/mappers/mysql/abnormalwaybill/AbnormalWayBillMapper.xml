@@ -25,7 +25,6 @@
 
 	<sql id="Base_Column_List">
 		<trim prefix="" suffix="" suffixOverrides=",">
-			ID,
 			WAYBILL_CODE,
 			PACKAGE_BARCODE,
 			CREATE_USER_CODE,
@@ -52,7 +51,6 @@
         )
 		VALUES
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			#{id,jdbcType=BIGINT},
 			#{waybillCode,jdbcType=VARCHAR},
 			#{packageCode,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=BIGINT},
@@ -80,7 +78,6 @@
         VALUES
         <foreach collection="list" item="abnormalWayBill" index="index" separator=",">
             (
-            #{abnormalWayBill.id,jdbcType=BIGINT},
             #{abnormalWayBill.waybillCode,jdbcType=VARCHAR},
             #{abnormalWayBill.packageCode,jdbcType=VARCHAR},
             #{abnormalWayBill.createUserCode,jdbcType=BIGINT},
