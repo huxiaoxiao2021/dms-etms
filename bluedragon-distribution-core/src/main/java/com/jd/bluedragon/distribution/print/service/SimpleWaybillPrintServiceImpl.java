@@ -280,10 +280,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 commonWaybill.setPackList(packageList);
             }
-            //收件公司名称
-            commonWaybill.setConsigneeCompany(tmsWaybill.getReceiveCompany());
-            //寄件公司名称
-            commonWaybill.setSenderCompany(tmsWaybill.getSenderCompany());
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }

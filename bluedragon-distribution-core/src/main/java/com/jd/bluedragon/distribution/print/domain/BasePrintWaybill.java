@@ -70,6 +70,19 @@ public class BasePrintWaybill implements Serializable {
     private String consignerAddress;
 
 	private String busiOrderCode;
+	/**
+	 * 收件公司名称
+	 */
+	private String consigneeCompany;
+	/**
+	 * 运输产品类型
+	 */
+	private String jZDFlag;
+
+	/**
+	 * 寄件公司名称
+	 */
+	private String senderCompany;
 
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -258,6 +271,30 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setConsignerAddress(String consignerAddress) {
 		this.consignerAddress = consignerAddress;
+	}
+
+	public String getConsigneeCompany() {
+		return consigneeCompany;
+	}
+
+	public void setConsigneeCompany(String consigneeCompany) {
+		this.consigneeCompany = consigneeCompany;
+	}
+
+	public String getjZDFlag() {
+		return jZDFlag;
+	}
+
+	public void setjZDFlag(String jZDFlag) {
+		this.jZDFlag = jZDFlag;
+	}
+
+	public String getSenderCompany() {
+		return senderCompany;
+	}
+
+	public void setSenderCompany(String senderCompany) {
+		this.senderCompany = senderCompany;
 	}
     
 }

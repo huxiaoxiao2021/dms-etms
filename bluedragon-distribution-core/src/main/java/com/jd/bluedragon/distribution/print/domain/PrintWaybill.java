@@ -229,19 +229,7 @@ public class PrintWaybill extends BasePrintWaybill {
     * 包裹列表
     */
     private List<PrintPackage> packList ;
-    /**
-     * 收件公司名称
-     */
-    private String consigneeCompany;
-    /**
-     * 运输产品类型
-     */
-    private String jZDFlag;
 
-    /**
-     * 寄件公司名称
-     */
-    private String senderCompany;
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;
@@ -595,27 +583,4 @@ public class PrintWaybill extends BasePrintWaybill {
         this.userLevel = userLevel;
     }
 
-    public String getConsigneeCompany() {
-        return consigneeCompany;
-    }
-
-    public void setConsigneeCompany(String consigneeCompany) {
-        this.consigneeCompany = consigneeCompany;
-    }
-
-    public String getjZDFlag() {
-        return jZDFlag;
-    }
-
-    public void setjZDFlag(String jZDFlag) {
-        this.jZDFlag = jZDFlag;
-    }
-
-    public String getSenderCompany() {
-        return senderCompany;
-    }
-
-    public void setSenderCompany(String senderCompany) {
-        this.senderCompany = senderCompany;
-    }
 }

@@ -69,10 +69,6 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if( builder.indexOf(SPECIAL_MARK_AIRTRANSPORT) >= 0 && builder.indexOf(ALLOW_HALF_ACCEPT) >= 0){
             builder.deleteCharAt(builder.indexOf(ALLOW_HALF_ACCEPT));
         }
-        //b2b快运 强B  和 可B可C预分拣分到B网的订单，外单系统会在waybill_sign第36位 打标，枚举值1
-        if(builder.indexOf(CITY_DISTRIBUTION_CHENG) < 0 && waybill.getWaybillSign().length() > 35 && waybill.getWaybillSign().charAt(35) == '1'){
-            builder.append(CITY_DISTRIBUTION_CHENG);
-        }
         int index=-1;
         if(((index=builder.indexOf(SPECIAL_MARK_CROWD_SOURCING))>=0)
                 &&(builder.indexOf(SPECIAL_MARK_VALUABLE)>=0))
@@ -80,11 +76,5 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             builder.deleteCharAt(index);
         }
         waybill.setSpecialMark(builder.toString());
-
-        //b2b快运 运输产品类型打标
-        if(waybill.getWaybillSign().length() > 39){
-            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
-            waybill.setjZDFlag(expressType);
-        }
     }
 }
