@@ -1938,17 +1938,17 @@ public class DeliveryServiceImpl implements DeliveryService {
     public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList){
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
+        List<SendDetail> allList = new ArrayList<SendDetail>();
+        getAllList(sendMList, allList);
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
         DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
         scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
         if(!businessType.equals(20)){    //非逆向才进行派车单运单齐全校验
             logger.info("发货数据判断运单是否不全");
-            checkScheduleWaybill(sendMList, scheduleWaybillResponse);    //发货请求是否包含派车单
+            checkScheduleWaybill(allList, scheduleWaybillResponse);    //发货请求是否包含派车单
         }
         //2.发货数据判断包裹是否不全
-        List<SendDetail> allList = new ArrayList<SendDetail>();
         this.logger.info("发货数据判断包裹是否不全");
-        getAllList(sendMList, allList);
         if (businessType.equals(20)) {
             tDeliveryResponse =  reverseComputer.compute(allList, true);    //逆向不处理派车单发货的情况
         } else {
@@ -1986,17 +1986,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    private boolean checkScheduleWaybill(List<SendM> sendMList, DeliveryResponse scheduleWaybillResponse){
+    private boolean checkScheduleWaybill(List<SendDetail> allList, DeliveryResponse scheduleWaybillResponse){
         scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
         //获取派车单和箱号的对应关系
-        Map<String/*scheduleCode*/, Set<String>/*Set<boxCode>*/> scheduleCodeBoxCodeMap = getScheduleCodeWithBoxCode(sendMList);
-        boolean isScheduleRequst = scheduleCodeBoxCodeMap.size() > 0 ? Boolean.TRUE : Boolean.FALSE;
+        Map<String/*scheduleCode*/, Set<String>/*Set<waybillCode>*/> scheduleWaybillCodeMap = getScheduleCodeWithBoxCode(allList);
+        boolean isScheduleRequst = scheduleWaybillCodeMap.size() > 0 ? Boolean.TRUE : Boolean.FALSE;
         if(isScheduleRequst){//有派车单的箱子
             //依次校验各个派车单下已分拣运单是否齐全
-            for (Map.Entry<String, Set<String>> entry : scheduleCodeBoxCodeMap.entrySet()) {
+            for (Map.Entry<String, Set<String>> entry : scheduleWaybillCodeMap.entrySet()) {
                 String scheduleCode = entry.getKey();
-                Set<String> boxSet = entry.getValue();
-                Set<String> waybillSet = getAllWayBillCodeByBoxs(boxSet);
+                Set<String> waybillSet = entry.getValue();
                 List<String> scheduleWaybillCodelist = transbillMService.getEffectWaybillCodesByScheduleBillCode(scheduleCode);
                 if(scheduleWaybillCodelist != null && scheduleWaybillCodelist.size() != waybillSet.size()){//此派车单运单不齐
                     scheduleWaybillResponse.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
@@ -2035,28 +2034,61 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
     /**
      * 由于一个派车单可以装多个箱子，这里获取其对应关系
-     * @param sendMList
+     * @param allList
      * @return
      */
-    private Map<String, Set<String>> getScheduleCodeWithBoxCode(List<SendM> sendMList){
-        Map<String/*scheduleCode*/, Set<String>/*Set<boxCode>*/> scheduleCodeBoxCodeMap = new HashMap<String, Set<String>>();
-        for (SendM tSendM : sendMList) {
-            if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-                String boxCode = StringUtils.trim(tSendM.getBoxCode());
-                String scheduleCode = transBillScheduleService.getKey(boxCode);
-                if(StringUtils.isNotBlank(scheduleCode) && !Constants.SCHEDULE_CODE_DEFAULT.equals(scheduleCode)){
-                    putValueToMap(scheduleCodeBoxCodeMap, scheduleCode, boxCode);
+    private Map<String, Set<String>> getScheduleCodeWithBoxCode(List<SendDetail> allList){
+        //其实可以不排序（生成的时候是按箱依次添加的）
+        Collections.sort(allList, new Comparator<SendDetail>() {
+            @Override
+            public int compare(SendDetail lhs, SendDetail rhs) {
+                return lhs.getBoxCode().compareToIgnoreCase(rhs.getBoxCode());
+            }
+        });
+        Map<String/*scheduleCode*/, Set<String>/*Set<waybillCode>*/> scheduleCodeWaybillCodeMap = new HashMap<String, Set<String>>();
+        String lastBoxCode = "";
+        String scheduleBCode = null;
+        for (SendDetail sendDetail : allList) {
+            if (BusinessHelper.isBoxcode(sendDetail.getBoxCode())) {
+                String boxCode = StringUtils.trim(sendDetail.getBoxCode());
+                String wayBillCode = sendDetail.getWaybillCode();
+                if(!lastBoxCode.equals(boxCode)){//下一箱
+                    lastBoxCode = boxCode;
+                    scheduleBCode = getScheduleCode(boxCode, wayBillCode);
                 }
-            }else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
-                String wayBillCode = BusinessHelper.getWaybillCode(tSendM.getBoxCode());
-                String scheduleCode = transBillScheduleService.queryScheduleCode(wayBillCode);
+                if(StringUtils.isNotBlank(scheduleBCode)){
+                    putValueToMap(scheduleCodeWaybillCodeMap, scheduleBCode, wayBillCode);
+                }
+            }else if (BusinessHelper.isPackageCode(sendDetail.getBoxCode())) {
+                String wayBillCode = BusinessHelper.getWaybillCode(sendDetail.getBoxCode());
+                String scheduleWCode = getScheduleCode(null, wayBillCode);
                 //原包发货的包裹是派车单的包裹
-                if(StringUtils.isNotBlank(scheduleCode) && !Constants.SCHEDULE_CODE_DEFAULT.equals(scheduleCode)){
-                    putValueToMap(scheduleCodeBoxCodeMap, scheduleCode, tSendM.getBoxCode());
+                if(StringUtils.isNotBlank(scheduleWCode)){
+                    putValueToMap(scheduleCodeWaybillCodeMap, scheduleWCode, wayBillCode);
                 }
             }
         }
-        return scheduleCodeBoxCodeMap;
+        return scheduleCodeWaybillCodeMap;
+    }
+
+    /**
+     * 获取派车单号
+     * @param boxCode
+     * @param wayBillCode
+     * @return
+     */
+    private String getScheduleCode(String boxCode, String wayBillCode){
+        String scheduleCode = null;
+        if(StringUtils.isNotBlank(boxCode)){    //1.缓存读
+            scheduleCode = transBillScheduleService.getKey(boxCode);
+        }
+        if((StringUtils.isBlank(scheduleCode) || Constants.SCHEDULE_CODE_DEFAULT.equals(scheduleCode)) && StringUtils.isNotBlank(wayBillCode)){
+            scheduleCode = transBillScheduleService.queryScheduleCode(wayBillCode);
+        }
+        if(StringUtils.isBlank(scheduleCode) || Constants.SCHEDULE_CODE_DEFAULT.equals(scheduleCode)){
+            scheduleCode = null;
+        }
+        return scheduleCode;
     }
 
     /**
