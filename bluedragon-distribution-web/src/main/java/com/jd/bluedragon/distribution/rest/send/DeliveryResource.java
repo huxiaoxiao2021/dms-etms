@@ -64,6 +64,8 @@ public class DeliveryResource {
     @Autowired
     private SendQueryService sendQueryService;
 
+    private static final Integer KY_DELIVERY = 1; //快运发货标识
+
     private final Log logger = LogFactory.getLog(this.getClass());
 
     /**
@@ -258,8 +260,13 @@ public class DeliveryResource {
                 return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                         JdResponse.MESSAGE_PARAM_ERROR, null);
             }
-
-            ThreeDeliveryResponse response =  deliveryService.checkThreePackage(toSendDatailList(request));
+            Integer opType = request.get(0).getOpType();
+            ThreeDeliveryResponse response = null;
+            if(KY_DELIVERY.equals(opType)){//快运发货
+                response =  deliveryService.checkThreePackageForKY(toSendDatailList(request));
+            }else{
+                response =  deliveryService.checkThreePackage(toSendDatailList(request));
+            }
             this.logger.info("结束三方发货不全验证");
             return response;
         } catch (Exception ex) {

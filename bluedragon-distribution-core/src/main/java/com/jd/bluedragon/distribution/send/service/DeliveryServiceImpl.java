@@ -1935,41 +1935,50 @@ public class DeliveryServiceImpl implements DeliveryService {
         return sendDatailDao.findOrder(sendDetail);
     }
 
-    @SuppressWarnings("rawtypes")
-    public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList) {
+    public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList){
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
-        boolean isScheduleRequest = Boolean.FALSE;
         DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
+        scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
         if(!businessType.equals(20)){    //非逆向才进行派车单运单齐全校验
             logger.info("发货数据判断运单是否不全");
-            isScheduleRequest = checkScheduleWaybill(sendMList, scheduleWaybillResponse);    //发货请求是否包含派车单
+            checkScheduleWaybill(sendMList, scheduleWaybillResponse);    //发货请求是否包含派车单
         }
         //2.发货数据判断包裹是否不全
         List<SendDetail> allList = new ArrayList<SendDetail>();
         this.logger.info("发货数据判断包裹是否不全");
         getAllList(sendMList, allList);
         if (businessType.equals(20)) {
-            tDeliveryResponse =  reverseComputer.compute(allList, false);    //逆向不处理派车单发货的情况
+            tDeliveryResponse =  reverseComputer.compute(allList, true);    //逆向不处理派车单发货的情况
         } else {
-            tDeliveryResponse =  forwardComputer.compute(allList, isScheduleRequest);
+            tDeliveryResponse =  forwardComputer.compute(allList, true);
         }
-        //返回结果处理
-        if(isScheduleRequest){
-            //派车单发货不齐不返回明细数据
-            String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? DeliveryResponse.MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE : "";
-            if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
-                msg = StringUtils.isNotBlank(msg) ? "运单/" + msg : scheduleWaybillResponse.getMessage();
-            }
-            if(StringUtils.isNotBlank(msg)){
-                return new ThreeDeliveryResponse(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE, msg, null);
-            }else{
-                return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
-            }
+        //派车单发货不齐不返回明细数据
+        String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? DeliveryResponse.MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE : "";
+        if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
+            msg = StringUtils.isNotBlank(msg) ? "运单/" + msg : scheduleWaybillResponse.getMessage();
+        }
+        if(StringUtils.isNotBlank(msg)){
+            return new ThreeDeliveryResponse(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE, msg, null);
+        }else{
+            return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList) {
+        List<SendThreeDetail> tDeliveryResponse = null;
+        Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
+        List<SendDetail> allList = new ArrayList<SendDetail>();
+        this.logger.info("发货数据判断包裹是否不全");
+        getAllList(sendMList, allList);
+        if (businessType.equals(20)) {
+            tDeliveryResponse = reverseComputer.compute(allList, false);
+        } else {
+            tDeliveryResponse = forwardComputer.compute(allList, false);
         }
         if (tDeliveryResponse != null && !tDeliveryResponse.isEmpty()) {
-            //非派车单发货返回包裹不齐明细
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_THREE_SORTING,
                     DeliveryResponse.MESSAGE_Delivery_THREE_SORTING, tDeliveryResponse);
         } else {

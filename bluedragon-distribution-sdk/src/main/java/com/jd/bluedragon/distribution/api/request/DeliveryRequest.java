@@ -20,7 +20,9 @@ public class DeliveryRequest extends JdRequest {
     
     /** 航标发货标示*/
     private Integer transporttype;
-    
+
+    /** 运输类型（默认老发货：0，快运发货：1）*/
+    private Integer opType;
     
     public Integer getTransporttype() {
 		return transporttype;
@@ -62,7 +64,15 @@ public class DeliveryRequest extends JdRequest {
 		this.turnoverBoxCode = turnoverBoxCode;
 	}
 
-	@Override
+    public Integer getOpType() {
+        return opType;
+    }
+
+    public void setOpType(Integer opType) {
+        this.opType = opType;
+    }
+
+    @Override
     public String toString() {
         return "DeliveryRequest [receiveSiteCode=" + this.receiveSiteCode + ", boxCode="
                 + this.boxCode + ", sendCode=" + this.sendCode + ", toString()=" + super.toString()

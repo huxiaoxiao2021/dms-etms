@@ -139,6 +139,9 @@ public interface DeliveryService {
 	/** 三方发货不全验证 */
 	public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList);
 
+	/** 快运发货不全验证 */
+	public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
+
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
 	
