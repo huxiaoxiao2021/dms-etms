@@ -231,4 +231,9 @@
     <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealCar}"/>
     </bean>
+
+    <!--解封车mq-->
+    <bean id="unsealCarProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.unsealCar}"/>
+    </bean>
 </beans>
