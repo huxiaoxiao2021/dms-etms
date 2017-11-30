@@ -409,10 +409,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     
     /**
      * 推送分拣机按箱自动发货任务
+     * @author lihuachang  
+     * @category 2017.11.30
      * @param domain
      * @param barCode
      */
-    private void pushAtuoSorting(SendM domain,String barCode) {
+    private void pushAtuoSorting(SendM domain,String packageCode) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
         BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
@@ -426,7 +428,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         task.setTableName(Task.getTableName(Task.TASK_TYPE_SORTING));
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(domain.getCreateSiteCode().toString());
-        task.setKeyword2(barCode);
+        task.setKeyword2(packageCode);
         task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
         taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
@@ -435,7 +437,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortDomain.setBoxCode(domain.getBoxCode());
         sortDomain.setUserCode(domain.getCreateUserCode());
         sortDomain.setUserName(domain.getCreateUser());
-        sortDomain.setPackageCode(barCode);
+        sortDomain.setPackageCode(packageCode);
         sortDomain.setSiteName(createSiteName);
         sortDomain.setIsCancel(0);
         sortDomain.setSiteCode(domain.getCreateSiteCode());
@@ -444,7 +446,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortDomain.setFeatureType(0);
         sortDomain.setUserName(domain.getCreateUser());
         sortDomain.setBusinessType(10);
-        sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
+        sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(packageCode));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
@@ -2986,7 +2988,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,String barCode) {
+    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,String packageCode) {
 
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
@@ -3002,7 +3004,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             this.sendMDao.insertSendM(domain);
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货   add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
-            	pushAtuoSorting(domain,barCode);
+            	pushAtuoSorting(domain,packageCode);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
