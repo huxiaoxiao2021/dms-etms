@@ -17,7 +17,7 @@ public interface ExpressCollectionService {
      * @param statusQueryCode 查询状态
      * @return 查询明细
      */
-    ExpressPackageDetailsResponse findExpressPackageDetails(ExpressPackageDetailsResponse expressPackageDetailsResponse, String waybillCode, String statusQueryCode);
+    ExpressPackageDetailsResponse findExpressPackageDetails(ExpressPackageDetailsResponse expressPackageDetailsResponse,Integer createSiteCode, String waybillCode, String statusQueryCode);
 
 
     /**
@@ -27,7 +27,7 @@ public interface ExpressCollectionService {
      * @param statusQueryCode 查询状态
      * @return 查询明细
      */
-    ExpressBoxDetailsResponse findExpressBoxDetails(ExpressBoxDetailsResponse expressBoxDetailsResponse, String waybillCode, String statusQueryCode);
+    ExpressBoxDetailsResponse findExpressBoxDetails(ExpressBoxDetailsResponse expressBoxDetailsResponse,Integer createSiteCode, String waybillCode, String statusQueryCode);
 
 
 }

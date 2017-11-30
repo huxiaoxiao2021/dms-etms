@@ -514,10 +514,10 @@
         LIMIT 1
     </select>
 
-    <select id="findPackageBoxCodesByWaybillCode" resultMap="BaseResultMap" parameterType="String">
+    <select id="findPackageBoxCodesByWaybillCode" resultMap="BaseResultMap" parameterType="Inspection">
 		SELECT package_barcode,box_code
 		    FROM  inspection
-		       WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		       WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR}   AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 	</select>
 
 

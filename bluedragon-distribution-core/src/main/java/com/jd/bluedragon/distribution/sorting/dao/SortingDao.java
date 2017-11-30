@@ -91,11 +91,11 @@ public class SortingDao extends BaseDao<Sorting> {
 
     /**
      * 根据运单号，查询所有包裹号
-     * @param waybillCode 运单号
+     * @param sorting 运单号
      * @return
      */
-    public List<Sorting>  findPackageCodesByWaybillCode(String waybillCode){
-        return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", waybillCode);
+    public List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting){
+        return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", sorting);
     }
     
 }

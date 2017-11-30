@@ -291,10 +291,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 
     /**
      * 根据运单号，查询所有包裹号
-     * @param waybillCode 运单号
+     * @param sendDetail 运单号
      * @return
      */
-    public List<SendDetail>  findPackageBoxCodesByWaybillCode(String waybillCode){
-        return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", waybillCode);
+    public List<SendDetail>  findPackageBoxCodesByWaybillCode( SendDetail sendDetail){
+        return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", sendDetail);
     }
 }

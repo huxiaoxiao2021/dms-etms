@@ -136,11 +136,11 @@ public class InspectionDao extends BaseDao<Inspection>{
 
 	/**
 	 * 根据运单号，查询所有包裹号
-	 * @param waybillCode 运单号
+	 * @param inspectionQuery inspectionQuery
 	 * @return
 	 */
-	public List<Inspection>  findPackageBoxCodesByWaybillCode(String waybillCode){
-		return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", waybillCode);
+	public List<Inspection>  findPackageBoxCodesByWaybillCode(Inspection inspectionQuery){
+		return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", inspectionQuery);
 
 	}
 }

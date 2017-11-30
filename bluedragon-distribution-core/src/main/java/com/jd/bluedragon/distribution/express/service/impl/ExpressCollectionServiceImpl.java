@@ -55,7 +55,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      * @return 查询明细
      */
     @Override
-    public ExpressPackageDetailsResponse findExpressPackageDetails(ExpressPackageDetailsResponse expressPackageDetailsResponse, String waybillCode, String statusQueryCode) {
+    public ExpressPackageDetailsResponse findExpressPackageDetails(ExpressPackageDetailsResponse expressPackageDetailsResponse,Integer createSiteCode, String waybillCode, String statusQueryCode) {
 
         //获取运单信息
         Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
@@ -74,7 +74,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         Map<String, List<String>> boxCodesMap = new HashMap<String, List<String>>();
         if (null != packList && packList.size() > 0) {
             //获取已扫描箱号以及包裹号
-            findScanPackagesByWaybillAndStatus(waybillCode, statusQueryCode, boxCodesMap);
+            findScanPackagesByWaybillAndStatus( createSiteCode,waybillCode, statusQueryCode, boxCodesMap);
         }
 
 
@@ -89,7 +89,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      * @return 查询明细
      */
     @Override
-    public ExpressBoxDetailsResponse findExpressBoxDetails(ExpressBoxDetailsResponse expressBoxDetailsResponse, String waybillCode, String statusQueryCode) {
+    public ExpressBoxDetailsResponse findExpressBoxDetails(ExpressBoxDetailsResponse expressBoxDetailsResponse, Integer createSiteCode ,String waybillCode, String statusQueryCode) {
         //获取运单信息
         Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
 
@@ -107,7 +107,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
 
         if (null != packList && packList.size() > 0) {
             //获取已扫描箱号以及包裹号
-            findScanPackagesByWaybillAndStatus(waybillCode, statusQueryCode, boxCodesMap);
+            findScanPackagesByWaybillAndStatus(createSiteCode,waybillCode, statusQueryCode, boxCodesMap);
         }
         return getExpressBoxDetailsResponse(expressBoxDetailsResponse, boxCodesMap);
     }
@@ -118,15 +118,15 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      * @param waybillCode     运单号
      * @param statusQueryCode 状态码
      */
-    Map<String, List<String>> findScanPackagesByWaybillAndStatus(String waybillCode, String statusQueryCode, Map<String, List<String>> boxCodesMap) {
+    Map<String, List<String>> findScanPackagesByWaybillAndStatus(Integer createSiteCode ,String waybillCode, String statusQueryCode, Map<String, List<String>> boxCodesMap) {
         String[] statusCodes = statusQueryCode.split(ExpressPackageDetailsResponse.STATUS_SPLIT_CHAR);
         for (String statusCode : statusCodes) {
             if (ExpressStatusTypeEnum.HAS_INSPECTION.getCode().equals(statusCode)) {
-                findScanPackagesByInspection(waybillCode, boxCodesMap);
+                findScanPackagesByInspection(createSiteCode,waybillCode, boxCodesMap);
             } else if (ExpressStatusTypeEnum.HAS_SORTING.getCode().equals(statusCode)) {
-                findScanPackagesBySorting(waybillCode, boxCodesMap);
+                findScanPackagesBySorting(createSiteCode,waybillCode, boxCodesMap);
             } else if (ExpressStatusTypeEnum.HAS_SEND.getCode().equals(statusCode)) {
-                findScanPackagesBySendD(waybillCode, boxCodesMap);
+                findScanPackagesBySendD(createSiteCode,waybillCode, boxCodesMap);
             }
         }
         return boxCodesMap;
@@ -138,8 +138,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      *
      * @param waybillCode 运单号
      */
-    void findScanPackagesByInspection(String waybillCode, Map<String, List<String>> boxCodesMap) {
-        List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(waybillCode);
+    void findScanPackagesByInspection(Integer createSiteCode,String waybillCode, Map<String, List<String>> boxCodesMap) {
+        Inspection inspectionQuery = new Inspection();
+        inspectionQuery.setWaybillCode(waybillCode);
+        inspectionQuery.setCreateSiteCode(createSiteCode);
+        List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(inspectionQuery);
         for (Inspection inspection : inspectionList) {
             getBoxCodesMap(boxCodesMap, inspection.getBoxCode(), inspection.getPackageBarcode());
         }
@@ -151,8 +154,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      *
      * @param waybillCode 运单号
      */
-    void findScanPackagesBySorting(String waybillCode, Map<String, List<String>> boxCodesMap) {
-        List<Sorting> sortingList = sortingDao.findPackageCodesByWaybillCode(waybillCode);
+    void findScanPackagesBySorting(Integer createSiteCode,String waybillCode, Map<String, List<String>> boxCodesMap) {
+        Sorting sortingQuery = new Sorting();
+        sortingQuery.setCreateSiteCode(createSiteCode);
+        sortingQuery.setWaybillCode(waybillCode);
+        List<Sorting> sortingList = sortingDao.findPackageCodesByWaybillCode(sortingQuery);
         for (Sorting sorting : sortingList) {
             getBoxCodesMap(boxCodesMap, sorting.getBoxCode(), sorting.getPackageCode());
         }
@@ -163,8 +169,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      *
      * @param waybillCode 运单号
      */
-    void findScanPackagesBySendD(String waybillCode, Map<String, List<String>> boxCodesMap) {
-        List<SendDetail> sendDetailList = sendDatailDao.findPackageBoxCodesByWaybillCode(waybillCode);
+    void findScanPackagesBySendD(Integer createSiteCode,String waybillCode, Map<String, List<String>> boxCodesMap) {
+        SendDetail sendDetailQuery = new SendDetail();
+        sendDetailQuery.setCreateSiteCode(createSiteCode);
+        sendDetailQuery.setWaybillCode(waybillCode);
+        List<SendDetail> sendDetailList = sendDatailDao.findPackageBoxCodesByWaybillCode(sendDetailQuery);
         for (SendDetail sendDetail : sendDetailList) {
             getBoxCodesMap(boxCodesMap, sendDetail.getBoxCode(), sendDetail.getPackageBarcode());
         }
@@ -220,7 +229,12 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         //获取已扫描包裹号
         List<String> scanPackageCodes = new ArrayList<String>();
         for (List<String> packageCodesTemp : boxCodesMap.values()) {
-            scanPackageCodes.addAll(packageCodesTemp);
+            //问题原因：数据中存在分拣和验货不放在同一个箱子中的情况，由于已经联调测试完成，暂时不考虑使用set
+            for(String packageCodeTemp:packageCodesTemp){
+                if(!scanPackageCodes.contains(packageCodeTemp)){
+                    scanPackageCodes.add(packageCodeTemp);
+                }
+            }
         }
 
         //获取未扫描包裹号

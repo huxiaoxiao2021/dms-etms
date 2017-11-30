@@ -40,8 +40,8 @@ public class ExpressCollectionResource {
      * @return 响应对象
      */
     @GET
-    @Path("/express/queryPackageDetails/{paramQueryCode}/{statusQueryCode}")
-    public ExpressPackageDetailsResponse queryPackageDetails(@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
+    @Path("/express/queryPackageDetails/{createSiteCode}/{paramQueryCode}/{statusQueryCode}")
+    public ExpressPackageDetailsResponse queryPackageDetails(@PathParam("createSiteCode") Integer createSiteCode,@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
         ExpressPackageDetailsResponse expressPackageDetailsResponse = new ExpressPackageDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
         //校验参数是否正确
@@ -57,7 +57,7 @@ public class ExpressCollectionResource {
             expressPackageDetailsResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR + "，获取运单信息失败，包裹号为：" + paramQueryCode);
             return expressPackageDetailsResponse;
         }
-        expressPackageDetailsResponse = expressCollectionService.findExpressPackageDetails(expressPackageDetailsResponse, waybillCode, statusQueryCode);
+        expressPackageDetailsResponse = expressCollectionService.findExpressPackageDetails(expressPackageDetailsResponse, createSiteCode, waybillCode, statusQueryCode);
 
         return expressPackageDetailsResponse;
     }
@@ -72,8 +72,8 @@ public class ExpressCollectionResource {
      * @return 响应对象
      */
     @GET
-    @Path("/express/queryBoxDetails/{paramQueryCode}/{statusQueryCode}")
-    public ExpressBoxDetailsResponse queryBoxDetails(@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
+    @Path("/express/queryBoxDetails/{createSiteCode}/{paramQueryCode}/{statusQueryCode}")
+    public ExpressBoxDetailsResponse queryBoxDetails(@PathParam("createSiteCode") Integer createSiteCode,@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
         ExpressBoxDetailsResponse expressBoxDetailsResponse = new ExpressBoxDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
         //校验参数是否正确
@@ -89,7 +89,7 @@ public class ExpressCollectionResource {
             expressBoxDetailsResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR + "，获取运单信息失败，包裹号为：" + paramQueryCode);
             return expressBoxDetailsResponse;
         }
-        expressBoxDetailsResponse = expressCollectionService.findExpressBoxDetails(expressBoxDetailsResponse, waybillCode, statusQueryCode);
+        expressBoxDetailsResponse = expressCollectionService.findExpressBoxDetails(expressBoxDetailsResponse,createSiteCode, waybillCode, statusQueryCode);
 
         return expressBoxDetailsResponse;
     }
