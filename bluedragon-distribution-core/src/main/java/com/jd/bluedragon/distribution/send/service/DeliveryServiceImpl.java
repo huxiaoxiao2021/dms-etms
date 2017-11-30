@@ -444,7 +444,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortDomain.setReceiveSiteName(receiveSiteName);
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
-        logger.info("一车一单插入task_sorting" + JsonHelper.toJson(task));
+        logger.info("自动分拣机按照箱号发货task_sorting" + JsonHelper.toJson(task));
     }
 
     @Override
@@ -2997,7 +2997,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             this.sendMDao.insertSendM(domain);
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货   add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
-            	pushAtuoSorting(domain,barCode);//大件写TASK_SORTING
+            	pushAtuoSorting(domain,barCode);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
