@@ -40,7 +40,7 @@ public class ExpressCollectionResource {
      * @return 响应对象
      */
     @GET
-    @Path("/express/queryPackageDetails/{createSiteCode}/{paramQueryCode}/{statusQueryCode}")
+    @Path("/express/queryPackageDetails/{paramQueryCode}/{statusQueryCode}/{createSiteCode}")
     public ExpressPackageDetailsResponse queryPackageDetails(@PathParam("createSiteCode") Integer createSiteCode,@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
         ExpressPackageDetailsResponse expressPackageDetailsResponse = new ExpressPackageDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
@@ -72,7 +72,7 @@ public class ExpressCollectionResource {
      * @return 响应对象
      */
     @GET
-    @Path("/express/queryBoxDetails/{createSiteCode}/{paramQueryCode}/{statusQueryCode}")
+    @Path("/express/queryBoxDetails/{paramQueryCode}/{statusQueryCode}/{createSiteCode}")
     public ExpressBoxDetailsResponse queryBoxDetails(@PathParam("createSiteCode") Integer createSiteCode,@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
         ExpressBoxDetailsResponse expressBoxDetailsResponse = new ExpressBoxDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
@@ -117,15 +117,11 @@ public class ExpressCollectionResource {
         }
 
         //判断状态码是否为正确的值
-        String[] statusCodes = statusQueryCode.split(ExpressPackageDetailsResponse.STATUS_SPLIT_CHAR);
-        for (String statusCode : statusCodes) {
-            if (!ExpressStatusTypeEnum.expressStatusMap.containsKey(statusCode)) {
+            if (!ExpressStatusTypeEnum.expressStatusMap.containsKey(statusQueryCode)) {
                 jdResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 jdResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR + ",请选择正确的查询状态");
                 return jdResponse;
             }
-        }
-
         return jdResponse;
     }
 

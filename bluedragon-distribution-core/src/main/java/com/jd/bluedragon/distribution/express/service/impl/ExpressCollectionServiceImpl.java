@@ -119,15 +119,19 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
      * @param statusQueryCode 状态码
      */
     Map<String, List<String>> findScanPackagesByWaybillAndStatus(Integer createSiteCode ,String waybillCode, String statusQueryCode, Map<String, List<String>> boxCodesMap) {
-        String[] statusCodes = statusQueryCode.split(ExpressPackageDetailsResponse.STATUS_SPLIT_CHAR);
-        for (String statusCode : statusCodes) {
-            if (ExpressStatusTypeEnum.HAS_INSPECTION.getCode().equals(statusCode)) {
+
+            if (ExpressStatusTypeEnum.HAS_INSPECTION.getCode().equals(statusQueryCode)) {
                 findScanPackagesByInspection(createSiteCode,waybillCode, boxCodesMap);
-            } else if (ExpressStatusTypeEnum.HAS_SORTING.getCode().equals(statusCode)) {
+            } else if (ExpressStatusTypeEnum.HAS_SORTING.getCode().equals(statusQueryCode)) {
                 findScanPackagesBySorting(createSiteCode,waybillCode, boxCodesMap);
-            } else if (ExpressStatusTypeEnum.HAS_SEND.getCode().equals(statusCode)) {
+            } else if (ExpressStatusTypeEnum.HAS_SEND.getCode().equals(statusQueryCode)) {
                 findScanPackagesBySendD(createSiteCode,waybillCode, boxCodesMap);
-            }
+            }else if(ExpressStatusTypeEnum.HAS_SEND_OR_HAS_INSPECTION.getCode().equals(statusQueryCode)){
+                //先获取分拣状态，如果没有分拣记录，则在再查询验货记录
+                findScanPackagesBySorting(createSiteCode,waybillCode, boxCodesMap);
+                if(boxCodesMap.size()==0){
+                    findScanPackagesByInspection(createSiteCode,waybillCode, boxCodesMap);
+                }
         }
         return boxCodesMap;
     }
@@ -229,12 +233,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         //获取已扫描包裹号
         List<String> scanPackageCodes = new ArrayList<String>();
         for (List<String> packageCodesTemp : boxCodesMap.values()) {
-            //问题原因：数据中存在分拣和验货不放在同一个箱子中的情况，由于已经联调测试完成，暂时不考虑使用set
-            for(String packageCodeTemp:packageCodesTemp){
-                if(!scanPackageCodes.contains(packageCodeTemp)){
-                    scanPackageCodes.add(packageCodeTemp);
-                }
-            }
+            scanPackageCodes.addAll(packageCodesTemp);
         }
 
         //获取未扫描包裹号

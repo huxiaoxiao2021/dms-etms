@@ -515,7 +515,7 @@
     </select>
 
     <select id="findPackageBoxCodesByWaybillCode" resultMap="BaseResultMap" parameterType="Inspection">
-		SELECT package_barcode,box_code
+		SELECT box_code ,package_barcode
 		    FROM  inspection
 		       WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR}   AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 	</select>

@@ -12,6 +12,7 @@ public enum ExpressStatusTypeEnum {
     //枚举值
     HAS_INSPECTION("0", "已验货"),
     HAS_SORTING("1", "已分拣"),
+    HAS_SEND_OR_HAS_INSPECTION("0,1", "已分拣已验货"),
     HAS_SEND("2", "已发货");
 
     private String code;
