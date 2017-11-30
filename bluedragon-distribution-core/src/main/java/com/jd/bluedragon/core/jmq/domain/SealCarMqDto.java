@@ -36,13 +36,27 @@ public class SealCarMqDto{
 	 */
 	private Date operTime;
 	/**
-	 * 批次号列表
+	 * 封签号列表
 	 */
 	private List<String> sealCodes;
 	/**
 	 * 批次号列表
 	 */
 	private List<String> sendCodeList;
+
+	/**
+	 * 封车编码
+	 */
+	private String sealCarCode;
+
+
+	public String getSealCarCode() {
+		return sealCarCode;
+	}
+
+	public void setSealCarCode(String sealCarCode) {
+		this.sealCarCode = sealCarCode;
+	}
 
 	/**
 	 * @return the dmsSiteId

@@ -155,11 +155,6 @@ public class PrintWaybill extends BasePrintWaybill {
     private String packagePrice;
 
     /**
-    * 包裹特殊标识
-    */
-    private String specialMark ;
-
-    /**
     * 客户姓名
     */
     private String customerName ;
@@ -453,14 +448,6 @@ public class PrintWaybill extends BasePrintWaybill {
         this.packagePrice = packagePrice;
     }
 
-    public String getSpecialMark() {
-        return specialMark;
-    }
-
-    public void setSpecialMark(String specialMark) {
-        this.specialMark = specialMark;
-    }
-
     public String getCustomerName() {
         return customerName;
     }
@@ -572,8 +559,6 @@ public class PrintWaybill extends BasePrintWaybill {
     public void setIsSelfService(Boolean isSelfService) {
         this.isSelfService = isSelfService;
     }
-
-
 
     public String getUserLevel() {
         return userLevel;

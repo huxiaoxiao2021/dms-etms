@@ -10,14 +10,17 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -36,8 +39,6 @@ public class CityDeliveryVerification implements DeliveryVerification{
     private static final Log LOG= LogFactory.getLog(CityDeliveryVerification.class);
 
     public static final Integer SITE_TYPE_FOR_SORTING_CENTER=Integer.valueOf(64);
-    public static final int CITY_DISTRIBUTION_WAYBILL_INDEX = 145;
-    public static final char CITY_DISTRIBUTION_WAYBILL_INDEX_CHAR_VALUE = '1';
     public static final String CITY_CAN_NOT_TO_NONE_SORTING_CENTER = "城配运单原包发货只能发到分拣中心";
     public static final String NONE_SCHEDULER_BOX = "-1";
 
@@ -141,9 +142,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
         try {
             Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode, true, false, false, false);
             return  waybillDto!=null
-                    &&waybillDto.getSendPay()!=null
-                    &&waybillDto.getSendPay().length()>CITY_DISTRIBUTION_WAYBILL_INDEX
-                    &&waybillDto.getSendPay().charAt(CITY_DISTRIBUTION_WAYBILL_INDEX)== CITY_DISTRIBUTION_WAYBILL_INDEX_CHAR_VALUE;
+                    &&BusinessHelper.isUrban(waybillDto.getWaybillSign(), waybillDto.getSendPay());
         }catch (Throwable throwable){
             LOG.error(throwable.getMessage(),throwable);
             return false;
