@@ -407,6 +407,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("一车一单插入task_sorting" + JsonHelper.toJson(task));
     }
     
+    /**
+     * 推送分拣机按箱自动发货任务
+     * @param domain
+     * @param barCode
+     */
     private void pushAtuoSorting(SendM domain,String barCode) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
