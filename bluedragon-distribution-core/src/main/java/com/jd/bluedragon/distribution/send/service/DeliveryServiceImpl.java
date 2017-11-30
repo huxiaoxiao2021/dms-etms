@@ -2955,6 +2955,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         try {
             //插入SEND_M
             this.sendMDao.insertSendM(domain);
+            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货   add by lhc  add by lhc 2017.11.27
+            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
+            	pushSorting(domain);//大件写TASK_SORTING
+            }
+            
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                 pushSorting(domain);//大件写TASK_SORTING
             } else {

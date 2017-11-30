@@ -76,14 +76,29 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
             }
         }
         domain.setCreateSiteCode(config.getCreateSiteCode());
-        domain.setBoxCode(uploadData.getBarCode());
+//        domain.setBoxCode(uploadData.getBarCode());
+        //区分自动分拣机还是龙门架自动发货，若有箱号存箱号按箱号自动发货   若无箱号则存包裹号按原包发货     add by lhc 2017.11.27
+        boolean isSortingSend = false;
+        if (uploadData.getSource() != null && uploadData.getSource().intValue() == 2){
+        	isSortingSend = true;
+        	String boxCode = uploadData.getBoxCode();
+            if(boxCode != null && !"".equals(boxCode)){
+            	domain.setBoxCode(boxCode);
+            }else{
+            	domain.setBoxCode(uploadData.getBarCode());
+            }
+        }else{
+        	domain.setBoxCode(uploadData.getBarCode());
+        }
+        	
+        
         domain.setCreateUser(config.getOperateUserName());
         domain.setCreateUserCode(config.getOperateUserId());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + 30000));
         domain.setOperateTime(new Date(uploadData.getScannerTime().getTime() + 30000));
-        SendResult result = deliveryService.atuoPackageSend(domain, true);
+        SendResult result = deliveryService.atuoPackageSend(domain, isSortingSend);
         return result.getKey().equals(SendResult.CODE_OK);
     }
 }
