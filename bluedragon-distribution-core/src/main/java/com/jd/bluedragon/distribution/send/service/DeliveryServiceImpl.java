@@ -2941,7 +2941,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend) {
+    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,String barCode) {
 
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
@@ -2957,6 +2957,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             this.sendMDao.insertSendM(domain);
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货   add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
+            	domain.setBoxCode(barCode);
             	pushSorting(domain);//大件写TASK_SORTING
             }
             
