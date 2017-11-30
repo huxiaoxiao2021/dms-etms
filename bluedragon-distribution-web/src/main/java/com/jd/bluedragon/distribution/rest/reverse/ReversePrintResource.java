@@ -89,7 +89,7 @@ public class ReversePrintResource {
         InvokeResult<Boolean> result;
         try{
             result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
-            if(InvokeResult.RESULT_SUCCESS_CODE == result.getCode() && result.getData()){
+            if(result.getData()){
                 result= reversePrintService.exchangeOwnWaybill(domain);
             }
         }catch (Throwable e){

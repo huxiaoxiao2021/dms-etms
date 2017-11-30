@@ -23,6 +23,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -279,47 +280,37 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @JProfiler(jKey = "DMSWEB.ReversePrintServiceImpl.checkWayBillForExchange", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode){
         InvokeResult result = new InvokeResult();
+        result.setData(true);
         //1.运单号为空
         if(StringUtils.isBlank(wayBillCode) || siteCode == null){
             result.setData(false);
-            result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("运单号或站点信息为空");
             return result;
         }
 
         //2.获取运单信息判断是否拒收或妥投
         BigWaybillDto waybillDto = waybillService.getWaybillState(wayBillCode);
-        if(waybillDto == null || waybillDto.getWaybillState() == null){
+        if(waybillDto == null){
             result.setData(false);
-            result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("运单接口调用返回结果为空");
             return result;
         }
-
+        WaybillManageDomain wdomain = waybillDto.getWaybillState();
         //2.1妥投运单，不可以操作逆向换单
-        if(Constants.WAYBILL_DELIVERED_CODE.equals(waybillDto.getWaybillState().getWaybillState())){
+        if(wdomain != null && Constants.WAYBILL_DELIVERED_CODE.equals(wdomain.getWaybillState())){
             result.setData(false);
-            result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("该订单已经妥投，不能触发逆向新单");
             return result;
         }
         //2.2拒收运单，可以操作逆向换单
-        if(Constants.WAYBILL_REJECT_CODE.equals(waybillDto.getWaybillState().getWaybillState())){
-            result.setData(true);
-            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            result.setMessage("拒收订单，可以触发逆向新单");
+        if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
             return result;
         }
         //3.查询运单是否操作异常处理
         AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(wayBillCode, siteCode);
         //异常操作运单，可以操作逆向换单
-        if(abnormalWayBill != null && wayBillCode.equals(abnormalWayBill.getWaybillCode())){
-            result.setData(true);
-            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            result.setMessage("异常订单，可以触发逆向新单");
-        }else{
+        if(abnormalWayBill == null || !wayBillCode.equals(abnormalWayBill.getWaybillCode())){
             result.setData(false);
-            result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
         }
         return result;
