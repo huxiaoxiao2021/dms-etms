@@ -126,7 +126,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
                 findScanPackagesBySorting(createSiteCode,waybillCode, boxCodesMap);
             } else if (ExpressStatusTypeEnum.HAS_SEND.getCode().equals(statusQueryCode)) {
                 findScanPackagesBySendD(createSiteCode,waybillCode, boxCodesMap);
-            }else if(ExpressStatusTypeEnum.HAS_SEND_OR_HAS_INSPECTION.getCode().equals(statusQueryCode)){
+            }else if(ExpressStatusTypeEnum.HAS_INSPECTION_OR_HAS_SORTING.getCode().equals(statusQueryCode)||ExpressStatusTypeEnum.HAS_SORTING_OR_HAS_INSPECTION.getCode().equals(statusQueryCode)){
                 //先获取分拣状态，如果没有分拣记录，则在再查询验货记录
                 findScanPackagesBySorting(createSiteCode,waybillCode, boxCodesMap);
                 if(boxCodesMap.size()==0){
