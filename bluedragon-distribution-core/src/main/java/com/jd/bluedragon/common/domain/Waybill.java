@@ -205,14 +205,6 @@ public class Waybill implements Serializable {
 	 */
 	private String importantHint;
 
-	/**
-	 * 收件公司名称
-	 */
-	private String consigneeCompany;
-	/**
-	 * 运输产品类型
-	 */
-	private String jZDFlag;
 
 	public String getWaybillCode() {
 		return this.waybillCode;
@@ -651,21 +643,6 @@ public class Waybill implements Serializable {
 		this.importantHint = importantHint;
 	}
 
-	public String getConsigneeCompany() {
-		return consigneeCompany;
-	}
-
-	public void setConsigneeCompany(String consigneeCompany) {
-		this.consigneeCompany = consigneeCompany;
-	}
-
-	public String getjZDFlag() {
-		return jZDFlag;
-	}
-
-	public void setjZDFlag(String jZDFlag) {
-		this.jZDFlag = jZDFlag;
-	}
 
 	/**
 	 * 是否出库 出库：TRUE 未出库：FALSE
