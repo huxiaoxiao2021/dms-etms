@@ -27,7 +27,6 @@ public interface LabelPrintingService {
     String SPECIAL_MARK_LOCAL_SCHEDULE = "调";
     String SPECIAL_MARK_ARAYACAK_SITE = "提";
     String SPECIAL_MARK_CROWD_SOURCING = "众";
-    String CITY_DISTRIBUTION_CHENG = "城";
 
     Integer AIR_TRANSPORT = 1;
     Integer ARAYACAK_CABINET = 1;
