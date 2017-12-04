@@ -91,6 +91,8 @@ public class ReversePrintResource {
             result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
             if(result.getData()){
                 result= reversePrintService.exchangeOwnWaybill(domain);
+            }else{
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             }
         }catch (Throwable e){
             result=new InvokeResult<Boolean>();
