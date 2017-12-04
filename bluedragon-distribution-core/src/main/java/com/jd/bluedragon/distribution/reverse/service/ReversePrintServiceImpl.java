@@ -279,6 +279,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Override
     @JProfiler(jKey = "DMSWEB.ReversePrintServiceImpl.checkWayBillForExchange", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode){
+        if(SerialRuleUtil.isMatchAllPackageNo(wayBillCode)){
+            wayBillCode = SerialRuleUtil.getWaybillCode(wayBillCode);
+        }
         InvokeResult result = new InvokeResult();
         result.setData(true);
         //1.运单号为空
