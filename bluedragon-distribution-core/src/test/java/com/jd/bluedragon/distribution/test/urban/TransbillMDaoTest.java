@@ -29,6 +29,7 @@ public class TransbillMDaoTest extends AbstractDaoIntegrationTest{
 		data.setCreateUser("22222");
 		data.setUpdateTime(new Date());
 		data.setUpdateUser("22222");
+		data.setRequireTransMode(1);
 		data.setPartitionTime(new Date());
 		data.setTsM(new Date().getTime());
 		Integer res = transbillMDao.insert(data);

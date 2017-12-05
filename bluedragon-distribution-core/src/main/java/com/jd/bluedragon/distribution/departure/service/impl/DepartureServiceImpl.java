@@ -176,10 +176,15 @@ public class DepartureServiceImpl implements DepartureService {
 			boolean pushDeparture = departure.getType() == Departure.DEPARTRUE_TYPE_ZHIXIAN
 					&& departure.getSendUserType().equals(
 							Constants.SENDUSERTYEP_CARRIER) ? true : false;
-			if(pushDeparture){
-				//三方运单,推3PL
-				this.thirdDepartureTo3PL(sendMs);
-			}		
+			/**
+			 * 与3PL王永，李文江确认过，他们的域名epartner1.etms.360buy.com已经过期，
+			 * 接口/rest/ThirdJobNoRoutEntry/insertOrderShips已经下线，
+			 * 他们不再需要该数据，所以不再写入数据
+			 */
+//			if(pushDeparture){
+//				//三方运单,推3PL
+//				this.thirdDepartureTo3PL(sendMs);
+//			}
 		}
 		result.setResult(ServiceResultEnum.SUCCESS);
 		return result;
@@ -509,18 +514,18 @@ public class DepartureServiceImpl implements DepartureService {
 			for(DealData_Departure_3PL dd3:dealDatas){
 				TaskFailQueue taskFailQueueData = new TaskFailQueue();
 				String body = JsonHelper.toJson(dd3);
-				
+
 				SendM sendM = sendMDao.selectBySendCode(dd3.getSendCode());//获得sendM
-				
+
 				taskFailQueueData.setBusiId(sendM==null?null:sendM.getSendMId());//sendM唯一id
 				taskFailQueueData.setBusiType(IFailQueueService.DEPARTURE_TYPE_3PL);//支线三方承运商发车
 				taskFailQueueData.setBody(body);
-				
+
 				//用于防重插入
 				if(taskFailQueueDao.update(TaskFailQueueDao.namespace, taskFailQueueData)==0){
 					taskFailQueueDao.add(TaskFailQueueDao.namespace, taskFailQueueData);
 				}
-	
+
 			}
 		}catch(Exception e){
 			logger.error("建立推送支线发车三方承运商发车到3PL的任务(task_failqueue)出错!", e);

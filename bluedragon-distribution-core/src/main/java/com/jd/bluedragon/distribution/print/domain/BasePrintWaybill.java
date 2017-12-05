@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.print.domain;
 
 import java.io.Serializable;
 
+import com.jd.bluedragon.utils.StringHelper;
+
 /**
  * 面单打印信息
  * @ClassName: BasePrintWaybill
@@ -70,7 +72,16 @@ public class BasePrintWaybill implements Serializable {
     private String consignerAddress;
 
 	private String busiOrderCode;
-
+    /**
+    * 包裹特殊标识
+    */
+    private String specialMark ;
+    
+    /**
+    * 包裹特殊标识-builder类型
+    */
+    private StringBuilder specialMarkBuilder = new StringBuilder();
+    
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -259,5 +270,46 @@ public class BasePrintWaybill implements Serializable {
 	public void setConsignerAddress(String consignerAddress) {
 		this.consignerAddress = consignerAddress;
 	}
-    
+
+	/**
+	 * @return the specialMark
+	 */
+	public String getSpecialMark() {
+		return specialMark;
+	}
+
+	/**
+	 * @param specialMark the specialMark to set
+	 */
+	public void setSpecialMark(String specialMark) {
+		this.specialMark = specialMark;
+		specialMarkBuilder = new StringBuilder(specialMark);
+	}
+    /**
+     * 特殊标记字段追加标记，不包含时加入标记
+     * @param markText
+     */
+    public void appendSpecialMark(String markText){
+    	//标识不为空，并且不包含此标记时加入标记
+    	if(StringHelper.isNotEmpty(markText)
+    			&& specialMarkBuilder.indexOf(markText) < 0){
+    		specialMarkBuilder.append(markText);
+    		this.specialMark = specialMarkBuilder.toString();
+    	}
+    }
+    /**
+     * 处理有冲突的标记，只保留第一个标记
+     * @param markText
+     * @param markText1
+     */
+    public void dealConflictSpecialMark(String markText,String markText1){
+    	//2个标记同时包含时删除标记markText1
+    	if(StringHelper.isNotEmpty(markText) 
+    			&& StringHelper.isNotEmpty(markText1)
+    			&& specialMarkBuilder.indexOf(markText) >= 0 
+    			&& specialMarkBuilder.indexOf(markText1) >= 0){
+    		specialMarkBuilder.deleteCharAt(specialMarkBuilder.indexOf(markText1));
+    		this.specialMark = specialMarkBuilder.toString();
+    	}
+    }
 }

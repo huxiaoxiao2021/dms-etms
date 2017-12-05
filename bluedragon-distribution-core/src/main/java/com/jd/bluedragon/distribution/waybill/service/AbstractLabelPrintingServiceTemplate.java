@@ -83,13 +83,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //现场调度标识
         if(LabelPrintingService.LOCAL_SCHEDULE.equals(request.getLocalSchedule())){
             //特殊标识 追加"调"字
-            if (!StringHelper.isEmpty(labelPrinting.getSpecialMark())) {
-                StringBuffer sb = new StringBuffer(labelPrinting.getSpecialMark());
-                sb.append(LabelPrintingService.SPECIAL_MARK_LOCAL_SCHEDULE);
-                labelPrinting.setSpecialMark(sb.toString());
-            }else{
-                labelPrinting.setSpecialMark(LabelPrintingService.SPECIAL_MARK_LOCAL_SCHEDULE);
-            }
+        	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_LOCAL_SCHEDULE);
             //反调度设置路区为0
             labelPrinting.setRoad("0");
         }
@@ -132,14 +126,13 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
                     ,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
         log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
-        StringBuilder specialMark = new StringBuilder(StringHelper.isEmpty(labelPrinting.getSpecialMark())?"":labelPrinting.getSpecialMark());
         //航空标识
         if(LabelPrintingService.AIR_TRANSPORT.equals(crossPackageTag.getIsAirTransport()) && request.isAirTransport()){
-            specialMark.append(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
+        	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
         }
         //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
         if(LabelPrintingService.ARAYACAK_CABINET.equals(crossPackageTag.getIsZiTi())){
-            specialMark.append(LabelPrintingService.SPECIAL_MARK_ARAYACAK_CABINET);
+        	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_CABINET);
             labelPrinting.setPrintAddress(crossPackageTag.getPrintAddress());
         }
 
@@ -150,7 +143,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             );
         }
 
-        labelPrinting.setSpecialMark(specialMark.toString());
         //起始分拣中心
         labelPrinting.setOriginalDmsCode(crossPackageTag.getOriginalDmsId());
         labelPrinting.setOriginalDmsName(crossPackageTag.getOriginalDmsName());

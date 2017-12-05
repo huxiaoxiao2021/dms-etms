@@ -256,8 +256,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             try {
                 response = jsfSortingResourceService.check(sortingCheck);
             } catch (Exception ex) {
-                logger.error("调用VER", ex);
-                return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, "调用分拣验证异常", 100, 0);
+                logger.error("调用总部VER验证JSF服务失败", ex);
+                return new SendResult(DeliveryResponse.CODE_VER_CHECK_EXCEPTION, DeliveryResponse.MESSAGE_VER_CHECK_EXCEPTION, 100, 0);
             }finally {
                 Profiler.registerInfoEnd(info1);
             }

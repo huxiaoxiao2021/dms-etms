@@ -365,4 +365,12 @@ public class Constants {
 
     //派车单号默认值
     public static final String SCHEDULE_CODE_DEFAULT = "-1";  //默认的scheduleCode值
+    /**
+     * 字符类型yn标识,1-是
+     */
+    public static final char FLG_CHAR_YN_Y = '1';
+    /**
+     * 字符类型yn标识-0-否
+     */
+    public static final char FLG_CHAR_YN_N = '0';
 }
