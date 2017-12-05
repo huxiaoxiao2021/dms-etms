@@ -205,6 +205,7 @@ public class Waybill implements Serializable {
 	 */
 	private String importantHint;
 
+
 	public String getWaybillCode() {
 		return this.waybillCode;
 	}
@@ -642,6 +643,7 @@ public class Waybill implements Serializable {
 		this.importantHint = importantHint;
 	}
 
+
 	/**
 	 * 是否出库 出库：TRUE 未出库：FALSE
 	 * 
@@ -739,6 +741,8 @@ public class Waybill implements Serializable {
 
 		return Boolean.FALSE;
 	}
+
+
 
 	@Override
 	public String toString() {
