@@ -25,8 +25,7 @@ public class QualityControlTask extends AbstractDBSingleScheduler {
             this.logger.info("task id is " + task.getId());
             taskResult = qualityControlService.dealQualityControlTask(task);
         } catch (Exception e) {
-            this.logger.error("task id is" + task.getId());
-            this.logger.error("处理异常质控任务发生异常，异常信息为：" + e.getMessage(), e);
+            this.logger.error("处理异常质控Redis任务发生异常，task id:" + task.getId(), e);
             return TaskResult.FAILED;
         }
         return taskResult;

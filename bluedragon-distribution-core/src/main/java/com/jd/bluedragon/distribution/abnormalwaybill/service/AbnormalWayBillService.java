@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import java.util.List;
 
 /**
+ * 异常操作服务接口
  * Created by shipeilin on 2017/11/17.
  */
 public interface AbnormalWayBillService {

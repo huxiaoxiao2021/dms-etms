@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
+ * 异常操作服务接口实现
  * Created by shipeilin on 2017/11/17.
  */
 @Service("abnormalWayBillService")
@@ -20,12 +21,21 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
     @Autowired
     AbnormalWayBillDao abnormalWayBillDao;
 
-
+    /**
+     * 根据运单号查找异常处理记录
+     * @param wayBillCode
+     * @return
+     */
     @Override
     public AbnormalWayBill getAbnormalWayBillByWayBillCode(String wayBillCode, Integer siteCode) {
         return abnormalWayBillDao.query(wayBillCode, siteCode);
     }
 
+    /**
+     * 新增运单的异常处理记录
+     * @param abnormalWayBill
+     * @return
+     */
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.insertAbnormalWayBill", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -33,6 +43,11 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
         return abnormalWayBillDao.insert(abnormalWayBill);
     }
 
+    /**
+     * 批量增加运单的异常处理记录
+     * @param wayBillList
+     * @return
+     */
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.insertBatchAbnormalWayBill", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)

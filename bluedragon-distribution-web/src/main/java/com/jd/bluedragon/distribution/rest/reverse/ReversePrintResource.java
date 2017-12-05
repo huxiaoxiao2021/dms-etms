@@ -104,7 +104,7 @@ public class ReversePrintResource {
     }
 
     /**
-     * 自营逆向换单
+     * 逆向换单限制校验
      * @param domain
      * @return
      */
