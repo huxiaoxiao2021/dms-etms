@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.kuaiyun.weight.exception;
 
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 
-public class WeighByWaybillExcpetion extends RuntimeException
+public class WeighByWaybillExcpetion extends Exception
 {
     public String exceptionMessage;
     public WeightByWaybillExceptionTypeEnum exceptionType;
@@ -14,6 +14,11 @@ public class WeighByWaybillExcpetion extends RuntimeException
         this.exceptionMessage = _exceptionMessage;
     }
 
+    public WeighByWaybillExcpetion(String exceptionMessage, WeightByWaybillExceptionTypeEnum exceptionType)
+    {
+        this.exceptionMessage = exceptionMessage;
+        this.exceptionType = exceptionType;
+    }
 
     @Override
     public String getMessage()
@@ -34,6 +39,26 @@ public class WeighByWaybillExcpetion extends RuntimeException
                 "exceptionMessage='" + exceptionMessage + '\'' +
                 ", exceptionType=" + exceptionType +
                 '}';
+    }
+
+    public WeightByWaybillExceptionTypeEnum getExceptionType()
+    {
+        return exceptionType;
+    }
+
+    public void setExceptionType(WeightByWaybillExceptionTypeEnum exceptionType)
+    {
+        this.exceptionType = exceptionType;
+    }
+
+    public String getExceptionMessage()
+    {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(String exceptionMessage)
+    {
+        this.exceptionMessage = exceptionMessage;
     }
 }
 

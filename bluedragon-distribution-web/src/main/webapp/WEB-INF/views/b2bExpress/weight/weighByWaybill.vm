@@ -5,57 +5,82 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
     <title>B2B快运称重</title>
-    <script type="text/javascript" src="/static/js/plugins/jquery.blockUI.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
-    <script type="text/javascript" src="/static/js/bootstrap/jquery.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap/bootstrap.min.js"></script>
-##    <script type="text/javascript" src="/static/js/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+
+    <link rel="stylesheet" href="/static/lib/easyui/color.css">
+    <link rel="stylesheet" href="/static/lib/easyui/icon.css">
+    <link rel="stylesheet" href="/static/lib/easyui/easyui.css">
+
+    <script type="text/javascript" src="/static/js/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="/static/lib/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/lib/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/b2bExpress/weight/weighByWaybill.js')"></script>
+
+    <style  type="text/css">
+        #waybill-weight-form-wrapper{
+            margin-top: 30px;
+            margin-left: 30px;
+        }
+
+        .waybill-weight-input-wrapper{
+            float: left;
+            margin-left: 20px;
+        }
+
+        .input-text-span{
+            /*font-size: 16px;*/
+        }
+
+        #waybill-weight-btn-wrapper{
+            float: left;
+            margin-left:30px;
+        }
+
+        #waybill-weight-success-datagrid-wrapper{
+            clear: both;
+            margin-top:100px;
+        }
+
+
+    </style>
 </head>
 <body>
-    <input type="hidden" id="contextPath" value="#springUrl('')"/>
     <div id="breadcrumb">
-        <p>
-            <a href="javascript:void(0)">分拣中心</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">龙门架配置中心</a>
-        </p>
+        <p><a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">B2B快运称重</a>&nbsp;&gt;&nbsp;<a href="#">运单称重</a></p>
     </div>
-    <h1>B2B快运称重</h1>
-    <div class="container">
-        <div class="row clearfix">
-            <div class="col-md-12 column">
-                <ul class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#">首页</a>
-                    </li>
-                    <li>
-                        <a href="#">简介</a>
-                    </li>
-                    <li class="disabled">
-                        <a href="#">信息</a>
-                    </li>
-                    <li class="dropdown pull-right">
-                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">下拉<strong class="caret"></strong></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="#">操作</a>
-                            </li>
-                            <li>
-                                <a href="#">设置栏目</a>
-                            </li>
-                            <li>
-                                <a href="#">更多设置</a>
-                            </li>
-                            <li class="divider">
-                            </li>
-                            <li>
-                                <a href="#">分割线</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+
+    <div id="waybill-weight-form-wrapper">
+        <form id="waybill-weight-form">
+            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+                <span class="input-text-span"><span style="color: red">*</span>运单号/运单下包裹号 : </span>
+                <input id="waybill-weight-code-input" type="text" value="codeStr">
             </div>
-        </div>
+            <div id="weight-input-wrapper" class="waybill-weight-input-wrapper">
+                <span class="input-text-span"><span style="color: red">*</span>总重量 : </span>
+                <input id="waybill-weight-kg-input" type="text" value="weight"></input>
+            </div>
+            <div id="cbm-input-wrapper" class="waybill-weight-input-wrapper">
+                <span class="input-text-span"><span style="color: red">*</span>总体积 : </span>
+                <input id="waybill-weight-cbm-input" type="text" value="volume"></input>
+            </div>
+            <div id="waybill-weight-btn-wrapper">
+                <a id="waybill-weight-btn" href="#">录入运单总重量体积</a>
+            </div>
+        </form>
     </div>
-##    <script src=""
+
+    <div id="waybill-weight-success-datagrid-wrapper">
+        <table id="waybill-weight-success-datagrid"></table>
+    </div>
+
+
+
+
 </body>
 </html>
