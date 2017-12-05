@@ -1935,6 +1935,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         return sendDatailDao.findOrder(sendDetail);
     }
 
+    /**
+     * 快运发货校验运单包裹不齐
+     * @param sendMList
+     * @return
+     */
     public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList){
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
@@ -1966,6 +1971,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+    /**
+     * 老发货校验服务，校验包裹不齐
+     * @param sendMList
+     * @return
+     */
     @SuppressWarnings("rawtypes")
     public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList) {
         List<SendThreeDetail> tDeliveryResponse = null;
@@ -1986,6 +1996,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+    /**
+     * 获取发货明细中派车单号与运单号的对应关系
+     * @param allList
+     * @param scheduleWaybillResponse
+     * @return
+     */
     private boolean checkScheduleWaybill(List<SendDetail> allList, DeliveryResponse scheduleWaybillResponse){
         scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
         //获取派车单和箱号的对应关系
@@ -2009,31 +2025,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 根据属于同一派车单的箱号集合获取所有已分拣的运单号
-     * @param boxSet
-     * @return
-     */
-    private Set<String>  getAllWayBillCodeByBoxs(Set<String> boxSet){
-        Set<String> waybillSet = new HashSet<String>();
-        for (String boxCode : boxSet){
-            if(BusinessHelper.isBoxcode(boxCode)){//按箱分拣的查询已分拣运单号
-                Box box = this.boxService.findBoxByCode(boxCode);
-                Sorting queryArgument = new Sorting();
-                queryArgument.setBoxCode(boxCode);
-                queryArgument.setCreateSiteCode(box.getCreateSiteCode());
-                queryArgument.setReceiveSiteCode(box.getReceiveSiteCode());
-                List<Sorting> sortingList = tSortingService.findByBoxCode(queryArgument);
-                for (Sorting item : sortingList) {
-                    waybillSet.add(item.getWaybillCode());
-                }
-            }else if (BusinessHelper.isPackageCode(boxCode)) {//原包发货的获取包裹运单号
-                waybillSet.add(BusinessHelper.getWaybillCode(boxCode));
-            }
-        }
-        return waybillSet;
-    }
-    /**
-     * 由于一个派车单可以装多个箱子，这里获取其对应关系
+     * 由于一个派车单可以装多个箱子，这里获取派车单下所有发货的运单
      * @param allList
      * @return
      */
@@ -2136,6 +2128,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
     }
+
 
     @SuppressWarnings("rawtypes")
     public List<SendThreeDetail> checkThreePackage4Cancel(List<SendM> sendMList) {
