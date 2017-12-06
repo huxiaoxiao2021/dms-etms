@@ -2006,7 +2006,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
         //获取派车单和箱号的对应关系
         Map<String/*scheduleCode*/, Set<String>/*Set<waybillCode>*/> scheduleWaybillCodeMap = getScheduleCodeWithBoxCode(allList);
-        boolean isScheduleRequst = scheduleWaybillCodeMap.size() > 0 ? Boolean.TRUE : Boolean.FALSE;
+        boolean isScheduleRequst = scheduleWaybillCodeMap.size() > 0 ;
         if(isScheduleRequst){//有派车单的箱子
             //依次校验各个派车单下已分拣运单是否齐全
             for (Map.Entry<String, Set<String>> entry : scheduleWaybillCodeMap.entrySet()) {
