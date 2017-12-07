@@ -87,15 +87,13 @@ public class WeighByWaybillController
                     {
                         vo.setOperatorSiteCode(dto.getSiteCode());
                         vo.setOperatorSiteName(dto.getSiteName());
-
                     }
                 }
-                vo.setOperateTimeMillis(System.currentTimeMillis());
             } catch (Exception e)
             {
                 logger.error("运单称重：获取操作用户Erp账号失败");
             }
-
+            
             service.insertWaybillWeightEntry(vo);
         } catch (WeighByWaybillExcpetion weighByWaybillExcpetion)
         {

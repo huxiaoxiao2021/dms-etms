@@ -77,6 +77,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         waybillWeightDTO.setWaybillCode(waybillCode);
         waybillWeightDTO.setWeight(weight);
         waybillWeightDTO.setVolume(volume);
+        waybillWeightDTO.setOperateTimeMillis(System.currentTimeMillis());
 
         /*经与运单方讨论,现阶段定为:无论是否存在运单,都将信息推送给运单,运单在后续流程补数据。
             为防止以后流程变动 将验证存在运单与不存在的对应处理方法拆开*/
