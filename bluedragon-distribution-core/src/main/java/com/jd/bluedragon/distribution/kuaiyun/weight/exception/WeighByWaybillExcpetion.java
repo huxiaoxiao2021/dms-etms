@@ -20,6 +20,13 @@ public class WeighByWaybillExcpetion extends Exception
         this.exceptionType = exceptionType;
     }
 
+    public WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum exceptionType)
+    {
+        this.exceptionMessage = exceptionMessage;
+        this.exceptionType = exceptionType;
+    }
+
+
     @Override
     public String getMessage()
     {
