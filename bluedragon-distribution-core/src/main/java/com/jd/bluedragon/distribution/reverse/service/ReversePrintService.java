@@ -26,12 +26,16 @@ public interface ReversePrintService {
 
     /**
      * 执行逆向换单
-     * @param oldWaybillCode    旧运单号
-     * @param userId            操作人ID
-     * @param userRealName      操作人真实姓名
-     * @param siteId            操作站点ID
-     * @param siteName          操作站点名称
+     * @param domain
      * @return
      */
     InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain);
+
+    /**
+     * 执行逆向换单前校验（拒收订单或异常订单才可以执行逆向换单）
+     * @param wayBillCode
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode);
 }

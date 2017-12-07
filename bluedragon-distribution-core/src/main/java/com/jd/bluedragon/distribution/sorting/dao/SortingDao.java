@@ -88,5 +88,14 @@ public class SortingDao extends BaseDao<Sorting> {
     	Object obj = this.getSqlSession().selectList(namespace + ".findByBsendCode", sorting);
     	return (obj == null) ? null : (List<Sorting>) obj;
     }
+
+    /**
+     * 根据运单号，查询所有包裹号
+     * @param sorting 运单号
+     * @return
+     */
+    public List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting){
+        return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", sorting);
+    }
     
 }

@@ -289,4 +289,12 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectOne(SendDatailDao.namespace + ".querySendDCountBySendCode", query);
     }
 
+    /**
+     * 根据运单号，查询所有包裹号
+     * @param sendDetail 运单号
+     * @return
+     */
+    public List<SendDetail>  findPackageBoxCodesByWaybillCode( SendDetail sendDetail){
+        return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", sendDetail);
+    }
 }

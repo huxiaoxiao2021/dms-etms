@@ -26,6 +26,7 @@
 		<result column="create_user" property="createUser" jdbcType="VARCHAR" />
 		<result column="update_user" property="updateUser" jdbcType="VARCHAR" />
 		<result column="partition_time" property="partitionTime" jdbcType="TIMESTAMP" />
+		<result column="require_trans_mode" property="requireTransMode" jdbcType="INTEGER" />
 		<result column="ts_m" property="tsM" jdbcType="BIGINT" />
 		<result column="yn" property="yn" jdbcType="TINYINT" />
 	</resultMap>
@@ -35,7 +36,7 @@
 		truck_spot,allocate_sequence,arrive_time,redelivery_time,redelivery_address,
 		operate_time,transbill_state,site_id,site_name,site_code,
 		generate_type,push_pre_flag,create_time,update_time,create_user,
-		update_user,partition_time,ts_m,yn
+		update_user,partition_time,ts_m,yn,require_trans_mode
 	</sql>
 
 	<insert id="insert" parameterType="TransbillM">
@@ -110,6 +111,9 @@
 				</if>
 				<if test="partitionTime != null">
 					partition_time,
+				</if>
+				<if test="requireTransMode != null">
+					require_trans_mode,
 				</if>
 				<if test="tsM != null">
 					ts_m,
@@ -191,6 +195,9 @@
 				<if test="partitionTime != null">
 					#{partitionTime},
 				</if>
+				<if test="requireTransMode != null">
+					#{requireTransMode},
+				</if>				
 				<if test="tsM != null">
 					#{tsM},
 				</if>
@@ -269,6 +276,9 @@
 				</if>
 				<if test="partitionTime != null">
 					partition_time = #{partitionTime},
+				</if>
+				<if test="requireTransMode != null">
+					require_trans_mode = #{requireTransMode},
 				</if>
 				<if test="tsM != null">
 					ts_m = #{tsM},

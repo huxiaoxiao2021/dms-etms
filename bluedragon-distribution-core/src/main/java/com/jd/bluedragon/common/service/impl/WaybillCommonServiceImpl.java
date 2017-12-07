@@ -469,6 +469,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * <p>设置寄件人、电话、手机号、地址信息(consigner、consignerTel、consignerMobile、consignerAddress)
      * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
      * <p>设置打标信息：签单返还、配送类型、运输产品(signBackText、distributTypeText、transportMode)
+     * <p>设置打标信息：运输产品类型、收件公司、寄件公司(signBackText、distributTypeText、transportMode)
      * @param target 目标对象(BasePrintWaybill类型)
      * @param waybill 原始运单对象
      */
@@ -519,6 +520,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setSignBackText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_SIGN_BACK));
         target.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE));
         target.setTransportMode(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE));
+
+        //b2b快运 运输产品类型打标
+        if(waybill.getWaybillSign().length() > 39){
+            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
+            target.setjZDFlag(expressType);
+        }
+        //收件公司名称
+        target.setConsigneeCompany(waybill.getReceiveCompany());
+        //寄件公司名称
+        target.setSenderCompany(waybill.getSenderCompany());
         return target;
     }
 }

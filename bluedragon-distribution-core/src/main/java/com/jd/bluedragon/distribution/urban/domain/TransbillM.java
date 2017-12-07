@@ -143,6 +143,10 @@ public class TransbillM implements Serializable{
 	 * 是否有效
 	 */
 	private Integer yn;
+	/**
+	 * 要求运输模式 1-分拣集货 2-仓库直发
+	 */
+	private Integer requireTransMode;
 
 	/**
 	 *
@@ -542,6 +546,14 @@ public class TransbillM implements Serializable{
 	 */
 	public Integer getYn() {
 		return this.yn;
+	}
+
+	public Integer getRequireTransMode() {
+		return requireTransMode;
+	}
+
+	public void setRequireTransMode(Integer requireTransMode) {
+		this.requireTransMode = requireTransMode;
 	}
 
 
