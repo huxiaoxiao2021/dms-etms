@@ -363,6 +363,9 @@ public class Constants {
      */
     public static final Integer QUEUE_NO_LEGNTH = 32;
 
+    //派车单号默认值
+    public static final String SCHEDULE_CODE_DEFAULT = "-1";  //默认的scheduleCode值
+
     public static final Integer WAYBILL_DELIVERED_CODE = 150;  //订单妥投状态编码
     public static final Integer WAYBILL_REJECT_CODE = 160;  //订单拒收状态编码
     /**

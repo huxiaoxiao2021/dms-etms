@@ -137,7 +137,10 @@ public interface DeliveryService {
 	public List<SendDetail> findOrder(SendDetail sendDetail);
 	
 	/** 三方发货不全验证 */
-	public List<SendThreeDetail> checkThreePackage(List<SendM> sendMList);
+	public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList);
+
+	/** 快运发货不全验证 */
+	public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
 
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
@@ -148,7 +151,7 @@ public interface DeliveryService {
 	/**
      * 回传DMC数据处理
      * 
-     * @param tSendDatail 运单号/分拣中心/目的地
+     * @param tSendMList 运单号/分拣中心/目的地
      */
 	public boolean sendMTooldtms(List<SendM> tSendMList);
 	
