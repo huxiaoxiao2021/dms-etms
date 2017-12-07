@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.impl.WeighByWaybillServiceImpl;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/b2b/express/weight")
 public class WeighByWaybillController
 {
+    private static final Log logger = LogFactory.getLog(WeighByWaybillController.class);
+
     private final Double MAX_WEIGHT = 999999.99;
     private final Double MAX_VOLUME = 999.99;
 
@@ -70,21 +74,27 @@ public class WeighByWaybillController
         /*插入记录*/
         try
         {
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (erpUser != null)
+            try
             {
-                vo.setOperatorErp(erpUser.getUserCode());
-                vo.setOperatorName(erpUser.getUserName());
-
-                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                if (dto != null)
+                ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+                if (erpUser != null)
                 {
-                    vo.setOperatorSiteCode(dto.getSiteCode());
-                    vo.setOperatorSiteName(dto.getSiteName());
+                    vo.setOperatorErp(erpUser.getUserCode());
+                    vo.setOperatorName(erpUser.getUserName());
 
+                    BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                    if (dto != null)
+                    {
+                        vo.setOperatorSiteCode(dto.getSiteCode());
+                        vo.setOperatorSiteName(dto.getSiteName());
+
+                    }
                 }
+                vo.setOperateTimeMillis(System.currentTimeMillis());
+            } catch (Exception e)
+            {
+                logger.error("运单称重：获取操作用户Erp账号失败");
             }
-            vo.setOperateTimeMillis(System.currentTimeMillis());
 
             service.insertWaybillWeightEntry(vo);
         } catch (WeighByWaybillExcpetion weighByWaybillExcpetion)
