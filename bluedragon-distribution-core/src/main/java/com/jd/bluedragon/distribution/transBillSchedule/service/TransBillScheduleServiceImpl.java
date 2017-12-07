@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transBillSchedule.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
@@ -63,7 +64,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
 
     @Override
     public String queryScheduleCode(String waybillCode) {
-        String scheduleCode = "-1";
+        String scheduleCode = Constants.SCHEDULE_CODE_DEFAULT;
         if(StringUtils.isNotBlank(waybillCode)){
             TransbillM transbillM = transbillMService.getByWaybillCode(waybillCode);
             if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
@@ -108,7 +109,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
      */
     @Override
     public void setKey(String boxCode,String waybillCode) {
-        String value = "-1";
+        String value = Constants.SCHEDULE_CODE_DEFAULT;
         TransbillM transbillM = transbillMService.getByWaybillCode(waybillCode);
         if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
             value = transbillM.getScheduleBillCode();//获取运单的派车单号
