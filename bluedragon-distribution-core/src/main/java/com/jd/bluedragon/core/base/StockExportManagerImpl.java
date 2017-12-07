@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.stock.iwms.export.StockExportService;
+import com.jd.stock.iwms.export.param.CallerParam;
 import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.result.QueryResult;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
@@ -67,23 +68,31 @@ public class StockExportManagerImpl implements StockExportManager {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.StockExportManagerImpl.getFullStockByBusiNo", false, true);
 		QueryResult<StockVO> result = null;
 		try{
-			result = stockExportService.getFullStockByBusiNo(businessNo, businessType, isQueryHis, "ql.dms");
+			
+			CallerParam callerParam = new CallerParam();
+			callerParam.setSystemName("ql.dms");
+			result = stockExportService.queryStockData(callerParam, businessNo, businessType);
+			
+			if(result==null||result.getQueryList()==null||result.getQueryList().isEmpty()){
+				this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData未获得数据,改调用queryStockHisData方法: resultMessage:"+result.getMessage());
+				result = stockExportService.queryStockHisData(callerParam, businessNo, businessType);
+			}
 			
 			if(result!=null){
 				if(!result.isResultFlag()){
-					this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常：result:"+result.getMessage());
+					this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常：result:"+result.getMessage());
 					Profiler.functionError(info);
 					result = null;
 				}else{
-					this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo成功: resultMessage:"+result.getMessage());
+					this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功: resultMessage:"+result.getMessage());
 				}
 			}else{
-				this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常: result为空!");
+				this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常: result为空!");
 				Profiler.functionError(info);
 			}
 			
 		}catch(Exception e){
-			logger.error("调用库管接口stockExportManager.getFullStockByBusiNo异常", e);
+			logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常", e);
 			Profiler.functionError(info);
 		}finally {
 			Profiler.registerInfoEnd(info);

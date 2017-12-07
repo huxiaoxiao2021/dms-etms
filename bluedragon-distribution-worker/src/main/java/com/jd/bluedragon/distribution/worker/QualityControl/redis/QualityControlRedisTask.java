@@ -23,8 +23,7 @@ public class QualityControlRedisTask extends RedisSingleScheduler {
             this.logger.info("task id is " + task.getId());
             result = TaskResult.toBoolean(qualityControlService.dealQualityControlTask(task));
         } catch (Exception e) {
-            this.logger.error("task id is" + task.getId());
-            this.logger.error("处理异常质控Redis任务发生异常，异常信息为：" + e.getMessage(), e);
+            this.logger.error("处理异常质控Redis任务发生异常，task id:" + task.getId(), e);
             return Boolean.FALSE;
         }
         return result;
