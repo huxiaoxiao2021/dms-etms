@@ -90,6 +90,15 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         if(waybill.getWaybillSign().length() > 34 && waybill.getWaybillSign().charAt(34) == '1'){
         	labelPrinting.appendSpecialMark(SPECIAL_MARK_SENIOR);
         }
+
+        //港澳售进合包,sendpay第108位为1或2或3时，且senpay第124位为4时，视为是全球售合包订单，面单上打印"合"
+        if(StringHelper.isNotEmpty(waybill.getSendPay()) && waybill.getSendPay().length() > 123 &&
+                (waybill.getSendPay().charAt(108) == '1' || waybill.getSendPay().charAt(108) == '2' || waybill.getSendPay().charAt(108) == '3') &&
+                 waybill.getSendPay().charAt(124) == '4'){
+            labelPrinting.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
+        }
+
+
         // 外单多时效打标
         if(StringHelper.isNotEmpty(waybill.getWaybillSign())) {
             if(waybill.getWaybillSign().charAt(15)=='0')

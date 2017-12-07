@@ -28,6 +28,12 @@ public interface LabelPrintingService {
     String SPECIAL_MARK_ARAYACAK_SITE = "提";
     String SPECIAL_MARK_CROWD_SOURCING = "众";
 
+    /**
+     * 全球售合包订单标识
+     * 当sendpay第108位为1或2或3且senpay第124位为4时，
+     */
+    String SPECIAL_MARK_SOLD_INTO_PACKAGE = "合";
+
     Integer AIR_TRANSPORT = 1;
     Integer ARAYACAK_CABINET = 1;
     Integer LOCAL_SCHEDULE = 1;
