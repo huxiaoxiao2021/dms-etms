@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
+import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.impl.WeighByWaybillServiceImpl;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * 运单称重
  * B2B的称重量方简化功能，支持按运单/包裹号维度录入总重量（KG）和总体积（立方米）
+ *
  * @author luyue  2017-12
  */
 @Controller
@@ -34,7 +36,8 @@ public class WeighByWaybillController
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
     @Autowired
-    WeighByWaybillServiceImpl service;
+//    WeighByWaybillServiceImpl service;
+    WeighByWaybillService service;
 
     @Autowired
     BaseMajorManager baseMajorManager;
@@ -93,7 +96,7 @@ public class WeighByWaybillController
             {
                 logger.error("运单称重：获取操作用户Erp账号失败");
             }
-            
+
             service.insertWaybillWeightEntry(vo);
         } catch (WeighByWaybillExcpetion weighByWaybillExcpetion)
         {
@@ -167,6 +170,7 @@ public class WeighByWaybillController
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
                     result.setMessage(exceptionType.exceptionMessage);
                 }
+
             }
         } finally
         {

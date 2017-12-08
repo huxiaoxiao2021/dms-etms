@@ -32,6 +32,7 @@ public enum WeightByWaybillExceptionTypeEnum
     public static final String InvalidMethodInvokeExceptionMessage = "遭遇非界面操作方式调用运单称重录入方法";
 
 
+
     public boolean shouldBeThrowToTop = false;
     public String exceptionMessage = null;
 

@@ -87,7 +87,7 @@ $(function () {
                 {
                     if(res.code == ERROR_PARAM_RESULT_CODE)
                     {
-                        $.messager.alert('单号格式有误','单号输入有误，请您检查单号！','error');
+                        $.messager.alert('单号格式有误','快运外单单号输入有误，请您检查单号！','error');
                     }else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
@@ -105,7 +105,7 @@ $(function () {
         required: true,
         missingMessage:'请您输入该运单总体重量 单位：千克',
         min:0,
-        max:WEIGHT_MAX,
+        // max:WEIGHT_MAX,
         precision:2,
         suffix:'千克'
     });
@@ -116,7 +116,7 @@ $(function () {
         required: true,
         missingMessage:'请您输入该运单总体体积 单位：立方米',
         min:0,
-        max:VOLUME_MAX,
+        // max:VOLUME_MAX,
         precision:2,
         suffix:'立方米'
 
@@ -247,7 +247,7 @@ $(function () {
                         /*单号不合法*/
                         if(res.code == ERROR_PARAM_RESULT_CODE)
                         {
-                            $.messager.alert('单号格式有误','单号输入有误，请您检查单号！','error');
+                            $.messager.alert('单号格式有误','快运外单单号输入有误，请您检查单号！','error');
                             return;
                         }
 
@@ -260,7 +260,7 @@ $(function () {
                                     involkPostSync(waybill_weight_insert_url,insertParam,function(res){
                                         if(res.code == ERROR_PARAM_RESULT_CODE)
                                         {
-                                            $.messager.alert('错误','重量或体积参数输入有误，达到最大值！','error');
+                                            $.messager.alert('错误','重量或体积参数输入有误，超过最大值！','error');
                                         }
                                         else if(res.data == false || res.data == undefined)
                                         {

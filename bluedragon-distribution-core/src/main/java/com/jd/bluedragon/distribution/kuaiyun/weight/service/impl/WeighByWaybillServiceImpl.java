@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -42,6 +43,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
     private final String CASSANDRA_SIGN = "WaybillWeight_";
+
 
     /*运单接口 用于运单校验*/
     @Autowired
@@ -117,6 +119,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion
     {
         String waybillCode = null;
+
         if (this.isValidPackageCode(codeStr))
         {
             waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(codeStr);
@@ -125,14 +128,14 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
             waybillCode = codeStr;
         } else
         {
-            logger.error("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则");
+            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则");
 
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
         }
 
         if (null == waybillCode)
         {
-            logger.error("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则");
+            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则");
 
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
         }
@@ -226,9 +229,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         try
         {
             Goddess goddess = new Goddess();
-            goddess.setKey(CASSANDRA_SIGN + dto.getWaybillCode());
+            goddess.setKey(dto.getWaybillCode());
             goddess.setBody(JsonHelper.toJson(dto));
-            goddess.setHead(String.valueOf(dto.getStatus()));
+            goddess.setHead(CASSANDRA_SIGN  +  String.valueOf(dto.getStatus()));
 
             goddessService.save(goddess);
         } catch (Exception e)
