@@ -36,7 +36,6 @@ public class WeighByWaybillController
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
     @Autowired
-//    WeighByWaybillServiceImpl service;
     WeighByWaybillService service;
 
     @Autowired

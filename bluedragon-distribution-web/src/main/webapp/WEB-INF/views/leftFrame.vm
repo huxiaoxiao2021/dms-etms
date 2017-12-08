@@ -13,7 +13,6 @@
         <!--
 	<dd><a href="#springUrl('/popReceive/goListPage')" target="mainFrame">已打印未收货处理</a></dd>
 	-->
-        <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">运单称重</a></dd>
         <dd><a href="#springUrl('/popReceiveAbnormal/goListPage')" target="mainFrame">平台差异处理</a></dd>
         <dd><a href="#springUrl('/popQueueManager/query')" target="mainFrame">平台排队号查询</a></dd>
         <dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
@@ -47,6 +46,7 @@
         <dd><a href="#springUrl('/sortingCenter/index')" target="mainFrame">分拣中心测试查询工具</a></dd>
         <dd><a href="#springUrl('/areaDestPlan/index')" target="mainFrame">龙门架发货关系维护</a></dd>
         <dd><a href="$!{mixedConfigUrl}?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
+        <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">快运运单称重</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
         <dt><a href="#" class="curr">离线管理</a></dt>

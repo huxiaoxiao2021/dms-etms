@@ -47,7 +47,7 @@
 </head>
 <body>
     <div id="breadcrumb">
-        <p><a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">B2B快运外单称重</a></p>
+        <p><a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">快运运单称重</a></p>
     </div>
     <div id="waybill-weight-form-wrapper">
         <form id="waybill-weight-form">
