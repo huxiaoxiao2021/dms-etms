@@ -193,6 +193,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="abnormalWayBillDao" class="com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <bean id="turnoverBoxDao" class="com.jd.bluedragon.distribution.receive.dao.TurnoverBoxDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>

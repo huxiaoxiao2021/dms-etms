@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.qualityControl.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.message.MessageDestinationConstant;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
@@ -59,6 +60,9 @@ public class QualityControlService {
     @Autowired
     private ReversePrintService reversePrintService;
 
+    @Autowired
+    AbnormalWayBillService abnormalWayBillService;
+
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
         List<SendDetail> sendDetails = null;
@@ -105,6 +109,7 @@ public class QualityControlService {
 
         try {
             toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
+            abnormalWayBillService.insertBatchAbnormalWayBill(convert2AbnormalWayBills(sendDetails, request));
         } catch (Exception ex) {
             logger.error("分拣中心异常节点推全程跟踪、质控发生异常。" + ex);
             return TaskResult.REPEAT;
@@ -219,6 +224,35 @@ public class QualityControlService {
                 logger.warn("质控异常生成分拣退货数据异常，原因 " + e);
             }
         }
+    }
+
+    /**
+     * 构造运单异常操作集合
+     * @param sendDetails
+     * @param request
+     * @return
+     */
+    private List<AbnormalWayBill> convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request){
+        List<AbnormalWayBill> list = new ArrayList<AbnormalWayBill>(sendDetails.size());
+        for (SendDetail sendDetail : sendDetails){
+            AbnormalWayBill abnormalWayBill = new AbnormalWayBill();
+            abnormalWayBill.setWaybillCode(sendDetail.getWaybillCode());
+            abnormalWayBill.setPackageCode(sendDetail.getPackageBarcode());
+            abnormalWayBill.setCreateUserCode(request.getUserID());
+            abnormalWayBill.setCreateUserErp(request.getUserERP());
+            abnormalWayBill.setCreateUser(request.getUserName());
+            abnormalWayBill.setCreateSiteCode(request.getDistCenterID());
+            abnormalWayBill.setCreateSiteName(request.getDistCenterName());
+            abnormalWayBill.setQcType(request.getQcType());
+            abnormalWayBill.setQcValue(request.getQcValue());
+            abnormalWayBill.setQcCode(request.getQcCode());
+            abnormalWayBill.setQcName(request.getQcName());
+            abnormalWayBill.setSortingReturn(request.getIsSortingReturn());
+            abnormalWayBill.setOperateTime(request.getOperateTime());
+
+            list.add(abnormalWayBill);
+        }
+        return list;
     }
 
 }

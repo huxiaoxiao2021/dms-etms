@@ -49,7 +49,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_NOT_EXIST_SORTINGRET = 505;
     public static final Integer CODE_REDISPATCH = 506;
     public static final Integer CODE_NOT_CONTAINER_RELATION = 20003;
-    
+    public static final Integer CODE_NOT_EXIST_WAYBILL =409;
+
+
     public static final String MESSAGE_DRIVERS_EMPTY = "获取司机信息为空";
     public static final String MESSAGE_VEHICLES_EMPTY = "获取车牌号信息为空";
     public static final String MESSAGE_SITES_EMPTY = "获取站点信息为空";
@@ -67,7 +69,7 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_NOT_3PL_SITE = "获取站点不是三方站点";
     public static final String MESSAGE_NOT_EXIST_SORTINGRET = "该订单未做分拣退货操作";
     public static final String MESSAGE_REDISPATCH = "该订单已做站点反调度再投";
-
+    public static final String MESSAGE_NOT_EXIST_WAYBILL = "运单不存在";
     public static final String SEND_SITE_NO_MATCH="发货站点与箱子目的地不一致,是否继续?";
     public static final String SEND_WAYBILL_NOT_FOUND="没有获取到该运单";
     public static final String SEND_BOX_NOT_FOUND="没有获取到该箱子";

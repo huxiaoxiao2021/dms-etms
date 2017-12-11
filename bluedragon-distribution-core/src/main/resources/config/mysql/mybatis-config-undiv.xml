@@ -51,6 +51,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.base.domain.SysConfig" alias="sysConfig"/>
 
         <typeAlias type="com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder" alias="abnormalOrder"/>
+        <typeAlias type="com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill" alias="abnormalWayBill"/>
 
         <typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopQueue" alias="popQueue"/>
         <typeAlias type="com.jd.bluedragon.distribution.popPrint.domain.PopSignin" alias="PopSignin"/>
@@ -170,6 +171,7 @@
         <mapper resource="mappers/mysql/popReceive/TaskPopRecieveCountMapper.xml"/>
 
         <mapper resource="mappers/mysql/abnormalorder/AbnormalOrderMapper.xml"/>
+        <mapper resource="mappers/mysql/abnormalwaybill/AbnormalWayBillMapper.xml"/>
 
         <mapper resource="mappers/mysql/popAbnormal/PopReceiveAbnormalMapper.xml"/>
         <mapper resource="mappers/mysql/popAbnormal/PopAbnormalDetailMapper.xml"/>

@@ -76,12 +76,24 @@ public class BasePrintWaybill implements Serializable {
     * 包裹特殊标识
     */
     private String specialMark ;
-    
+
     /**
     * 包裹特殊标识-builder类型
     */
     private StringBuilder specialMarkBuilder = new StringBuilder();
-    
+    /**
+     * 收件公司名称
+     */
+    private String consigneeCompany;
+    /**
+     * 运输产品类型
+     */
+    private String jZDFlag;
+
+    /**
+     * 寄件公司名称
+     */
+    private String senderCompany;
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -304,12 +316,37 @@ public class BasePrintWaybill implements Serializable {
      */
     public void dealConflictSpecialMark(String markText,String markText1){
     	//2个标记同时包含时删除标记markText1
-    	if(StringHelper.isNotEmpty(markText) 
+    	if(StringHelper.isNotEmpty(markText)
     			&& StringHelper.isNotEmpty(markText1)
-    			&& specialMarkBuilder.indexOf(markText) >= 0 
+    			&& specialMarkBuilder.indexOf(markText) >= 0
     			&& specialMarkBuilder.indexOf(markText1) >= 0){
     		specialMarkBuilder.deleteCharAt(specialMarkBuilder.indexOf(markText1));
     		this.specialMark = specialMarkBuilder.toString();
     	}
     }
+
+    public String getConsigneeCompany() {
+        return consigneeCompany;
+    }
+
+    public void setConsigneeCompany(String consigneeCompany) {
+        this.consigneeCompany = consigneeCompany;
+    }
+
+    public String getjZDFlag() {
+        return jZDFlag;
+    }
+
+    public void setjZDFlag(String jZDFlag) {
+        this.jZDFlag = jZDFlag;
+    }
+
+    public String getSenderCompany() {
+        return senderCompany;
+    }
+
+    public void setSenderCompany(String senderCompany) {
+        this.senderCompany = senderCompany;
+    }
+
 }

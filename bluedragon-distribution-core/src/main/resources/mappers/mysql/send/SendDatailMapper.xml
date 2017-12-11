@@ -767,4 +767,11 @@
 		</if>
 	</select>
 
+
+	<select id="findPackageBoxCodesByWaybillCode" resultMap="SendDetail" parameterType="SendDetail">
+		SELECT package_barcode ,box_code
+		FROM  send_d
+		WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR} AND create_site_code = #{createSiteCode,jdbcType=INTEGER} AND is_cancel = 0
+	</select>
+
 </mapper>
