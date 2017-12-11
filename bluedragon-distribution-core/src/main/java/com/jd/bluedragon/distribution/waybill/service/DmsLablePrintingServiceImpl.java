@@ -93,9 +93,8 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         }
 
         //港澳售进合包,sendpay第108位为1或2或3时，且senpay第124位为4时，视为是全球售合包订单，面单上打印"合"
-        if(StringHelper.isNotEmpty(waybill.getSendPay()) && waybill.getSendPay().length() > 123 &&
-                (waybill.getSendPay().charAt(107) == '1' || waybill.getSendPay().charAt(107) == '2' || waybill.getSendPay().charAt(107) == '3') &&
-                 waybill.getSendPay().charAt(123) == '4'){
+        if (StringHelper.isNotEmpty(waybill.getSendPay()) && waybill.getSendPay().length() > 123 && waybill.getSendPay().charAt(123) == '4'
+                && (waybill.getSendPay().charAt(107) == '1' || waybill.getSendPay().charAt(107) == '2' || waybill.getSendPay().charAt(107) == '3')) {
             labelPrinting.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
 
