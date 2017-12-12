@@ -32,6 +32,8 @@ public class WeighByWaybillController
     private final Double MAX_WEIGHT = 999999.99;
     private final Double MAX_VOLUME = 999.99;
 
+    /*10：表示经调取运单接口WaybillQueryApi，已查到该运单，可直接入库*/
+    /*20：表示经调取运单接口WaybillQueryApi，未查到该运单，需经处理*/
     private final Integer VALID_EXISTS_STATUS_CODE = 10;
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 

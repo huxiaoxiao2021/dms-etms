@@ -152,7 +152,6 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      */
     public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion
     {
-
         BaseEntity<Waybill> waybillBaseEntity = null;
         try
         {
