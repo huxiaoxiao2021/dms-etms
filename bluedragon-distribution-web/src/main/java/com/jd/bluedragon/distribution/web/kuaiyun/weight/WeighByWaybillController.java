@@ -83,7 +83,7 @@ public class WeighByWaybillController
                 ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
                 if (erpUser != null)
                 {
-                    vo.setOperatorErp(erpUser.getUserCode());
+                    vo.setOperatorId(erpUser.getUserId());
                     vo.setOperatorName(erpUser.getUserName());
 
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());

@@ -17,8 +17,8 @@ public class WaybillWeightDTO
     /*是否存在运单信息 10 存在 20 不存在*/
     private Integer status;
 
-    /*操作人 erp账号*/
-    private String operatorErp;
+    /*操作人 id 同基础资料id*/
+    private Integer operatorId;
 
     /*操作人姓名*/
     private String operatorName;
@@ -32,7 +32,6 @@ public class WaybillWeightDTO
     /*操作时间*/
     private long operateTimeMillis;
 
-
     @Override
     public String toString()
     {
@@ -41,7 +40,7 @@ public class WaybillWeightDTO
                 ", weight=" + weight +
                 ", volume=" + volume +
                 ", status=" + status +
-                ", operatorErp='" + operatorErp + '\'' +
+                ", operatorId=" + operatorId +
                 ", operatorName='" + operatorName + '\'' +
                 ", operatorSiteCode=" + operatorSiteCode +
                 ", operatorSiteName='" + operatorSiteName + '\'' +
@@ -89,14 +88,14 @@ public class WaybillWeightDTO
         this.status = status;
     }
 
-    public String getOperatorErp()
+    public Integer getOperatorId()
     {
-        return operatorErp;
+        return operatorId;
     }
 
-    public void setOperatorErp(String operatorErp)
+    public void setOperatorId(Integer operatorId)
     {
-        this.operatorErp = operatorErp;
+        this.operatorId = operatorId;
     }
 
     public String getOperatorName()
@@ -139,22 +138,22 @@ public class WaybillWeightDTO
         this.operateTimeMillis = operateTimeMillis;
     }
 
-    public WaybillWeightDTO()
-    {
-
-    }
-
-    public WaybillWeightDTO(String waybillCode, Double weight, Double volume, Integer status, String operatorErp, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
+    public WaybillWeightDTO(String waybillCode, Double weight, Double volume, Integer status, Integer operatorId, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
     {
 
         this.waybillCode = waybillCode;
         this.weight = weight;
         this.volume = volume;
         this.status = status;
-        this.operatorErp = operatorErp;
+        this.operatorId = operatorId;
         this.operatorName = operatorName;
         this.operatorSiteCode = operatorSiteCode;
         this.operatorSiteName = operatorSiteName;
         this.operateTimeMillis = operateTimeMillis;
+    }
+
+    public WaybillWeightDTO()
+    {
+
     }
 }

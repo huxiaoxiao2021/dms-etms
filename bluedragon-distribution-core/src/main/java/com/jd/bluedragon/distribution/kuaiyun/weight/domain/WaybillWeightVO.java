@@ -14,8 +14,8 @@ public class WaybillWeightVO
     /*是否存在运单信息 10 存在 20 不存在*/
     private Integer status;
 
-    /*操作人 erp账号*/
-    private String operatorErp;
+    /*操作人 id 同基础资料id*/
+    private Integer operatorId;
 
     /*操作人姓名*/
     private String operatorName;
@@ -29,24 +29,6 @@ public class WaybillWeightVO
     /*操作时间*/
     private long operateTimeMillis;
 
-    public WaybillWeightVO()
-    {
-    }
-
-    public WaybillWeightVO(String codeStr, Double weight, Double volume, Integer status, String operatorErp, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
-    {
-
-        this.codeStr = codeStr;
-        this.weight = weight;
-        this.volume = volume;
-        this.status = status;
-        this.operatorErp = operatorErp;
-        this.operatorName = operatorName;
-        this.operatorSiteCode = operatorSiteCode;
-        this.operatorSiteName = operatorSiteName;
-        this.operateTimeMillis = operateTimeMillis;
-    }
-
     @Override
     public String toString()
     {
@@ -55,7 +37,7 @@ public class WaybillWeightVO
                 ", weight=" + weight +
                 ", volume=" + volume +
                 ", status=" + status +
-                ", operatorErp='" + operatorErp + '\'' +
+                ", operatorId=" + operatorId +
                 ", operatorName='" + operatorName + '\'' +
                 ", operatorSiteCode=" + operatorSiteCode +
                 ", operatorSiteName='" + operatorSiteName + '\'' +
@@ -103,14 +85,14 @@ public class WaybillWeightVO
         this.status = status;
     }
 
-    public String getOperatorErp()
+    public Integer getOperatorId()
     {
-        return operatorErp;
+        return operatorId;
     }
 
-    public void setOperatorErp(String operatorErp)
+    public void setOperatorId(Integer operatorId)
     {
-        this.operatorErp = operatorErp;
+        this.operatorId = operatorId;
     }
 
     public String getOperatorName()
@@ -151,5 +133,24 @@ public class WaybillWeightVO
     public void setOperateTimeMillis(long operateTimeMillis)
     {
         this.operateTimeMillis = operateTimeMillis;
+    }
+
+    public WaybillWeightVO(String codeStr, Double weight, Double volume, Integer status, Integer operatorId, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
+    {
+
+        this.codeStr = codeStr;
+        this.weight = weight;
+        this.volume = volume;
+        this.status = status;
+        this.operatorId = operatorId;
+        this.operatorName = operatorName;
+        this.operatorSiteCode = operatorSiteCode;
+        this.operatorSiteName = operatorSiteName;
+        this.operateTimeMillis = operateTimeMillis;
+    }
+
+    public WaybillWeightVO()
+    {
+
     }
 }
