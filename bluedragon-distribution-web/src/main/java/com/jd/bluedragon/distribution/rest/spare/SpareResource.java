@@ -49,7 +49,24 @@ public class SpareResource {
         this.spareService.reprint(this.toSpare2(request));
         return this.ok();
     }
-    
+    /**
+     * 批量生成备件条码
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/spares/genCodes")
+    public SpareResponse genCodes(SpareRequest request) {
+        Assert.notNull(request, "request must not be null");
+        this.logger.info("SpareRequest's " + request);
+        Spare spare = this.toSpare(request);
+        List<Spare> availableSpares = this.spareService.print(spare);
+        
+        SpareResponse response = this.ok();
+        response.setSpareCodes(StringHelper.join(availableSpares, "getCode",
+                Constants.SEPARATOR_COMMA));
+        return response;
+    }    
     @POST
     @Path("/spares")
     public SpareResponse print(SpareRequest request) {

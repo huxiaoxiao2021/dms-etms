@@ -5,6 +5,14 @@ import com.jd.bluedragon.distribution.api.JdRequest;
 public class SpareRequest extends JdRequest {
     
     private static final long serialVersionUID = 8900218370299464985L;
+    /**
+     * 机构编号
+     */
+    private Integer orgId;
+    /**
+     * 库房编号
+     */
+    private Integer storeId;
     
     /** 备件条码类型 */
     private String type;
@@ -44,5 +52,33 @@ public class SpareRequest extends JdRequest {
         return "SpareRequest [type=" + this.type + ", spareCode=" + this.spareCode + ", quantity="
                 + this.quantity + "]";
     }
+
+	/**
+	 * @return the orgId
+	 */
+	public Integer getOrgId() {
+		return orgId;
+	}
+
+	/**
+	 * @param orgId the orgId to set
+	 */
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
+	}
+
+	/**
+	 * @return the storeId
+	 */
+	public Integer getStoreId() {
+		return storeId;
+	}
+
+	/**
+	 * @param storeId the storeId to set
+	 */
+	public void setStoreId(Integer storeId) {
+		this.storeId = storeId;
+	}
     
 }
