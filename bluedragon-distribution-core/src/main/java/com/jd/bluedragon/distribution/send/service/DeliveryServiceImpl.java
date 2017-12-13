@@ -3127,15 +3127,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
-        if (null != sendMList && sendMList.size() > 0) {
-            new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-        }
         try {
-            //插入SEND_M
-            this.sendMDao.insertSendM(domain);
-            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货   add by lhc  add by lhc 2017.11.27
+        	
+        	if (null != sendMList && sendMList.size() > 0) {
+                new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+            }else{
+            	//插入SEND_M
+                this.sendMDao.insertSendM(domain);
+            }
+            
+            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
             	pushAtuoSorting(domain,packageCode);
+            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {

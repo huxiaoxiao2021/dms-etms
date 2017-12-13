@@ -88,13 +88,12 @@ public class ReversePrintResource {
     public InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain){
         InvokeResult<Boolean> result;
         try{
-//            result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
-//            if(result.getData()){
-//                result= reversePrintService.exchangeOwnWaybill(domain);
-//            }else{
-//                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-//            }
-            result= reversePrintService.exchangeOwnWaybill(domain);
+            result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
+            if(result.getData()){
+                result= reversePrintService.exchangeOwnWaybill(domain);
+            }else{
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            }
         }catch (Throwable e){
             result=new InvokeResult<Boolean>();
             logger.error("自营逆向换单",e);
