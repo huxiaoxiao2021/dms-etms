@@ -15,7 +15,7 @@ public interface ElectronSiteService {
 	/**
 	 * 根据分拣中心ID和点单号 获取对应的电子标签区域信息
 	 * @param dmsID
-	 * @param waybillCode
+	 * @param waybillorPackCode
 	 * @return
 	 */
 	public ElectronSite getElecSiteInfo(Integer dmsID, String waybillorPackCode);

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -10,14 +11,17 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -36,10 +40,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
     private static final Log LOG= LogFactory.getLog(CityDeliveryVerification.class);
 
     public static final Integer SITE_TYPE_FOR_SORTING_CENTER=Integer.valueOf(64);
-    public static final int CITY_DISTRIBUTION_WAYBILL_INDEX = 145;
-    public static final char CITY_DISTRIBUTION_WAYBILL_INDEX_CHAR_VALUE = '1';
     public static final String CITY_CAN_NOT_TO_NONE_SORTING_CENTER = "城配运单原包发货只能发到分拣中心";
-    public static final String NONE_SCHEDULER_BOX = "-1";
 
     @Resource(name = "baseService")
     private BaseService                     baseService;
@@ -83,7 +84,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
             if (SerialRuleUtil.isMatchBoxCode(boxCode)) {//是箱号
                 /****send_d与派车单下运单进行对比，当一致时，才能通过*/
                 String scheduleBillCode = transBillScheduleService.getKey(boxCode);
-                if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(NONE_SCHEDULER_BOX)) {//没有预分拣单号
+                if (StringUtils.isBlank(scheduleBillCode) || scheduleBillCode.equals(Constants.SCHEDULE_CODE_DEFAULT)) {//没有预分拣单号
                     return result;
                 }
                 List<String> list = transbillMService.getEffectWaybillCodesByScheduleBillCode(scheduleBillCode);
@@ -141,9 +142,7 @@ public class CityDeliveryVerification implements DeliveryVerification{
         try {
             Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode, true, false, false, false);
             return  waybillDto!=null
-                    &&waybillDto.getSendPay()!=null
-                    &&waybillDto.getSendPay().length()>CITY_DISTRIBUTION_WAYBILL_INDEX
-                    &&waybillDto.getSendPay().charAt(CITY_DISTRIBUTION_WAYBILL_INDEX)== CITY_DISTRIBUTION_WAYBILL_INDEX_CHAR_VALUE;
+                    &&BusinessHelper.isUrban(waybillDto.getWaybillSign(), waybillDto.getSendPay());
         }catch (Throwable throwable){
             LOG.error(throwable.getMessage(),throwable);
             return false;

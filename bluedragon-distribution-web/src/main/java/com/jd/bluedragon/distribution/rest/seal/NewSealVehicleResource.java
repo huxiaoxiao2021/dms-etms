@@ -73,6 +73,11 @@ public class NewSealVehicleResource {
     @Autowired
     @Qualifier("sealCarProducer")
     private DefaultJMQProducer sealCarProducer;
+
+    @Autowired
+    @Qualifier("unsealCarProducer")
+    private DefaultJMQProducer unsealCarProducer;
+
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
 
     private static final int SEAL_SOURCE = 1;  //封车解封车操作源（代表我们DMS系统）
@@ -155,7 +160,7 @@ public class NewSealVehicleResource {
                             sealCarMqDto.setOperTime(sealCarDto.getSealCarTime());
                             sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
                             sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
-                            sealCarProducer.send(request.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
+                            sealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
                         }
                     }
                 }else{
@@ -274,6 +279,22 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
                     request.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
+                    //解封车成功，发送解封车mq消息dms_unseal_car
+                    if(paramList!=null){
+                        for(SealCarDto sealCarDto:paramList){
+                            SealCarMqDto sealCarMqDto = new SealCarMqDto();
+                            sealCarMqDto.setDmsSiteId(sealCarDto.getDesealSiteId());
+                            sealCarMqDto.setTransportCode(sealCarDto.getTransportCode());
+                            sealCarMqDto.setVehicleNumber(sealCarDto.getVehicleNumber());
+                            sealCarMqDto.setOperUserCode(sealCarDto.getDesealUserCode());
+                            sealCarMqDto.setOperUserName(sealCarDto.getDesealUserName());
+                            sealCarMqDto.setOperTime(sealCarDto.getDesealCarTime());
+                            sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
+                            sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
+                            sealCarMqDto.setSealCarCode(sealCarDto.getSealCarCode());
+                            unsealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
+                        }
+                    }
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
@@ -303,10 +324,10 @@ public class NewSealVehicleResource {
             dto.setRemark(request.getMessage());
             goddess.setBody(JsonHelper.toJson(dto));
             goddess.setDateTime(new Date());
-            if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
-                goddess.setKey(dto.getTransportCode());
-            }else if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
+            if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
                 goddess.setKey(dto.getSealCarCode());
+            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
+                goddess.setKey(dto.getTransportCode());
             }
             goddessService.save(goddess);
         }
@@ -424,7 +445,7 @@ public class NewSealVehicleResource {
     private List<SealCarDto> mergeBatchCode(List<SealCarDto> SealCarDtos){
         Map<String, SealCarDto> mergeMap = new HashedMap();
         for (SealCarDto dto : SealCarDtos){
-            String key = dto.getTransportCode()+dto.getSealCarTime().getTime();
+            String key = dto.getTransportCode()+dto.getSealCarTime().getTime()+dto.getSealCarCode();
             if(dto.getBatchCodes() == null){
                 dto.setBatchCodes(new ArrayList<String>());
             }

@@ -27,6 +27,12 @@ public interface ComposeService {
     String SPECIAL_MARK_CROWD_SOURCING = "众";
     String SPECIAL_MARK_VALUABLE="安";
     String SPECIAL_MARK_PUBLIC_WELFARE="益";
+
+    /**
+     * 全球售合包订单标识
+     * 当sendpay第108位为1或2或3且senpay第124位为4时，
+     */
+    String SPECIAL_MARK_SOLD_INTO_PACKAGE = "合";
     /**
      * 城市配送项目：标识
      * sendpay 第146位等于1，且sendpay第124位=3，则打印“集”;
@@ -34,6 +40,7 @@ public interface ComposeService {
      */
     String CITY_DISTRIBUTION_JI = "集";
     String CITY_DISTRIBUTION_CHENG = "城";
+    String CITY_DISTRIBUTION_ZHI = "直";
 
     /** 安利项目 waybillSign第27位为1的订单 打“半” **/
     String ALLOW_HALF_ACCEPT = "半";
@@ -48,8 +55,26 @@ public interface ComposeService {
 
     //自提点标示
     static int ARAYACAK_SIGN = 64;
-
-
+    //运输模式 1-分拣集货 2-仓库直发
+    Integer TRANS_MODE_JI = 1;
+    Integer TRANS_MODE_ZHI = 2;
+    
+    /**
+     * 字符标识
+     */
+    char CHAR_3 = '3';
+    /**
+     * 位置标识-36
+     */
+    int POSITION_36 = 36;
+    /**
+     * 位置标识-124
+     */
+    int POSITION_124 = 124;
+    /**
+     * 位置标识-146
+     */
+    int POSITION_146 = 146;
     /**
      * 合成器
      * @param waybill           运单信息

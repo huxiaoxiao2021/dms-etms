@@ -64,6 +64,8 @@ public class DeliveryResource {
     @Autowired
     private SendQueryService sendQueryService;
 
+    private static final Integer KY_DELIVERY = 1; //快运发货标识
+
     private final Log logger = LogFactory.getLog(this.getClass());
 
     /**
@@ -258,16 +260,15 @@ public class DeliveryResource {
                 return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                         JdResponse.MESSAGE_PARAM_ERROR, null);
             }
-
-            List<SendThreeDetail> tDeliveryResponse = deliveryService.checkThreePackage(toSendDatailList(request));
-            this.logger.info("结束三方发货不全验证");
-            if (tDeliveryResponse != null && !tDeliveryResponse.isEmpty()) {
-                return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_THREE_SORTING,
-                        DeliveryResponse.MESSAGE_Delivery_THREE_SORTING, tDeliveryResponse);
-            } else {
-                return new ThreeDeliveryResponse(JdResponse.CODE_OK,
-                        JdResponse.MESSAGE_OK, null);
+            Integer opType = request.get(0).getOpType();
+            ThreeDeliveryResponse response = null;
+            if(KY_DELIVERY.equals(opType)){//快运发货
+                response =  deliveryService.checkThreePackageForKY(toSendDatailList(request));
+            }else{
+                response =  deliveryService.checkThreePackage(toSendDatailList(request));
             }
+            this.logger.info("结束三方发货不全验证");
+            return response;
         } catch (Exception ex) {
             logger.error("发货不全验证", ex);
             return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
