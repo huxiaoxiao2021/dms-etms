@@ -107,6 +107,7 @@ public class WeighByWaybillController
                 result.setCode(InvokeResult.SERVER_ERROR_CODE);
                 result.setMessage(exceptionType.toString());
                 result.setData(false);
+                logger.error("运单称重：" + exceptionType.exceptionMessage);
                 throw weighByWaybillExcpetion;
             } else
             {
@@ -155,9 +156,14 @@ public class WeighByWaybillController
             WeightByWaybillExceptionTypeEnum exceptionType = weighByWaybillExcpetion.exceptionType;
             if (exceptionType.shouldBeThrowToTop)
             {
-                result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                result.setMessage(exceptionType.exceptionMessage);
-                throw weighByWaybillExcpetion;
+                if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException))
+                {
+                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                    result.setData(false);
+                    result.setMessage(exceptionType.exceptionMessage);
+                    logger.error("运单称重：" + exceptionType.exceptionMessage);
+                    throw weighByWaybillExcpetion;
+                }
             } else
             {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.UnknownCodeException))

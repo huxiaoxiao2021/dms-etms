@@ -14,6 +14,7 @@ $(function () {
     var waybill_weight_insert_url       = '/b2b/express/weight//insertWaybillWeight';
     var waybill_weight_convert_url      = '/b2b/express/weight/convertCodeToWaybillCode';
 
+    var SERVER_ERROR_CODE = 500;
     var ERROR_PARAM_RESULT_CODE = 400;
 
     var VALID_EXISTS_STATUS_CODE = 10;
@@ -80,6 +81,7 @@ $(function () {
 
             var successFunc = function(res){
                 var isExists = res.data;
+                console.log(res);
                 if(isExists)
                 {
                     $.messager.alert('运单验证结果','存在运单相关信息，可进行录入操作','info');
@@ -88,7 +90,10 @@ $(function () {
                     if(res.code == ERROR_PARAM_RESULT_CODE)
                     {
                         $.messager.alert('单号格式有误','快运外单单号输入有误，请您检查单号！','error');
-                    }else{
+                    }else if(res.code == SERVER_ERROR_CODE)
+                    {
+                        $.messager.alert('运单验证结果','运单查询服务暂不可用，请操作人员务必确认运单真实性再进行录入操作','warning');
+                    } else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
 
@@ -198,6 +203,7 @@ $(function () {
                 var param = {codeStr:codeStr};
                 /*调用验证方法验证单号是否合法、是否存在*/
                 involkPostSync(waybill_weight_validate_url,param,function (res) {
+
                     var isExists = res.data;
 
                     if(isExists)

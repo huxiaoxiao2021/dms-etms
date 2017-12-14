@@ -153,6 +153,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
     public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion
     {
         BaseEntity<Waybill> waybillBaseEntity = null;
+
         try
         {
             waybillBaseEntity = waybillQueryApi.getWaybillByWaybillCode(waybillCode);
@@ -161,7 +162,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
         }
 
-//        int resultCode = waybillBaseEntity.getResultCode();
+        int resultCode = waybillBaseEntity.getResultCode();
         Waybill waybill = waybillBaseEntity.getData();
 
         if (waybill == null)
