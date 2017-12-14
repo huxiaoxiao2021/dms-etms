@@ -1,21 +1,29 @@
 package com.jd.bluedragon.distribution.rest.spare;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.SpareRequest;
-import com.jd.bluedragon.distribution.api.response.SpareResponse;
-import com.jd.bluedragon.distribution.spare.domain.Spare;
-import com.jd.bluedragon.distribution.spare.service.SpareService;
-import com.jd.bluedragon.utils.StringHelper;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.RdWmsStoreService;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.SpareRequest;
+import com.jd.bluedragon.distribution.api.response.SpareResponse;
+import com.jd.bluedragon.distribution.spare.domain.Spare;
+import com.jd.bluedragon.distribution.spare.service.SpareService;
+import com.jd.bluedragon.utils.StringHelper;
 
 @Component
 @Path(Constants.REST_URL)
@@ -27,13 +35,14 @@ public class SpareResource {
     
     @Autowired
     private SpareService spareService;
+    @Autowired
+    private RdWmsStoreService rdWmsStoreService;
     
     @GET
     @Path("/spares/{spareCode}")
     public SpareResponse get(@PathParam("spareCode") String spareCode) {
         Assert.notNull(spareCode, "spareCode must not be null");
         this.logger.info("spare code's " + spareCode);
-        
         Spare spare = this.spareService.findBySpareCode(spareCode);
         if (spare == null) {
             return this.spareNoFound();
@@ -60,6 +69,8 @@ public class SpareResource {
         Assert.notNull(request, "request must not be null");
         this.logger.info("SpareRequest's " + request);
         Spare spare = this.toSpare(request);
+        spare.setType(rdWmsStoreService
+        		.getOrgStoreTag(request.getOrgId(), request.getStoreId()).getData());
         List<Spare> availableSpares = this.spareService.print(spare);
         
         SpareResponse response = this.ok();

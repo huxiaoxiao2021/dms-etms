@@ -52,12 +52,12 @@ public class DbsGenerateObjectId implements IGenerateObjectId {
     @Override
 	public synchronized long getObjectId(String tableName) {
 		if (!firstMap.containsKey(tableName)) {
-			firstMap.put(tableName, this.getAndSaveObjectFirstId(tableName, 1));
+			firstMap.put(tableName, objectIdService.getNextId(tableName));
 			nextIncMap.put(tableName, new AtomicInteger(0));
 		}
 		int lastId = nextIncMap.get(tableName).addAndGet(1);
 		if (lastId > maxValue) {
-			firstMap.put(tableName, this.getAndSaveObjectFirstId(tableName, 1));
+			firstMap.put(tableName, objectIdService.getNextId(tableName));
 			nextIncMap.put(tableName, new AtomicInteger(1));
 			lastId = 1;
 		}
@@ -74,44 +74,7 @@ public class DbsGenerateObjectId implements IGenerateObjectId {
 		return objectId;
 	}
 
-//	private boolean isOracleDataSource() {
-//		if (dataSource instanceof BasicDataSource) {
-//			String url = ((BasicDataSource) dataSource).getUrl();
-//			if (url.toLowerCase().indexOf("oracle") > 0) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-
 	private long getAndSaveObjectFirstId(final String tableName, final int count) {
-//		TransactionTemplate transactionTemplate = new TransactionTemplate(
-//				transactionManager);
-//		transactionTemplate
-//				.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-//		long result = transactionTemplate
-//				.execute(new TransactionCallback<Long>() {
-//					@Override
-//					public Long doInTransaction(TransactionStatus status) {
-//						String sql = "update dbs_objectid set firstId=firstId+"
-//								+ count + " where objectName=?";
-//						JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-//						int rowCount = jdbcTemplate.update(sql, tableName);
-//						if (rowCount == 0) {
-//							if (isOracleDataSource())
-//								sql = "insert into dbs_objectid(id,objectName,firstId)values(SEQ_DBS_OBJECTID.NEXTVAL,?,?)";
-//							else
-//								sql = "insert into dbs_objectid(objectName,firstId)values(?,?)";
-//							jdbcTemplate.update(sql, tableName, count);
-//							return 1L;
-//						} else {
-//							sql = "select firstId from dbs_objectid where objectName=?";
-//							return jdbcTemplate.queryForLong(sql, tableName);
-//						}
-//					}
-//
-//				});
-//		return result;
         return objectIdService.getFirstId(tableName,count);
 	}
 

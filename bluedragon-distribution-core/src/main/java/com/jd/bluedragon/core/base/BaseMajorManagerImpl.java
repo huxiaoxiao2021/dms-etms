@@ -477,7 +477,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             site.setOrgId(item.getParentId());
             site.setOrgName(item.getOrgName());
             site.setType(item.getDmsType());
-            site.setParentId(null);
+            site.setParentId(item.getParentId());
             site.setParentName(null);
             site.setSortingCenterId(null);
             site.setSortingCenterName(null);
