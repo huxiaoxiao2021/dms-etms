@@ -1023,6 +1023,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 order.setAimOrgId(baseOrgId);
                 // 逆向退备件库报文兼容性更改，唯一标识，用于备件库新老系统兼容并行
                 order.setWaybillSendCode(waybillSendCode);
+                order.setWaybillSign(waybill.getWaybillSign());//SOP逆向单据拒收外呼需求,需要传waybillsign
 
                 try {
                     order.setAimStoreId(Integer.parseInt(baseStoreId));
