@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.task.asynBuffer;
 
+import com.jd.bluedragon.common.CooUccConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -8,13 +9,14 @@ import com.jd.ql.framework.asynBuffer.producer.AbstractProducer;
 import com.jd.ql.framework.asynBuffer.producer.DynamicProducer;
 import com.jd.ql.framework.asynBuffer.producer.ProducerType;
 
+import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * dms系统的动态消息生产者扩展，支持动态配置更新。
  * @author yangwubing
- * @param <M>
+ * @param
  */
 public class DmsDynamicProducer extends DynamicProducer<Task> {
 	
@@ -28,6 +30,9 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Autowired
 	private ConfigManager configManager;
+
+	@Resource
+	private CooUccConfig cooUccConfig;
 
 	/**
 	 * 正式启用了AsynBuffer组建的任务类型列表，若不在其中的任务类型则还是采用原来的Tbschedule方式处理任务。
@@ -54,6 +59,8 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Override
 	public ProducerType getProducerType() {
+
+		String producerType1 = cooUccConfig.getAsynbuffer();
 		ProducerType producerType = ProducerType.valueOf(configManager.getProperty(PRODUCER_TYPE_KEY));
 		this.setProducerType(producerType);
 		return producerType;

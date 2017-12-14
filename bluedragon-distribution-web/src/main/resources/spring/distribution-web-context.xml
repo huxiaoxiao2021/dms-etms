@@ -21,6 +21,7 @@
     <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
     
 	<import resource="classpath:spring/distribution-core-context.xml" />
+	<import resource="classpath:spring/spring-ucc.xml"/>
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<!--<import resource="classpath:spring/distribution-web-new-authen.xml" />-->
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
