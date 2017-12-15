@@ -159,6 +159,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
             waybillBaseEntity = waybillQueryApi.getWaybillByWaybillCode(waybillCode);
         } catch (Exception e)
         {
+            logger.error(e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
         }
 
@@ -208,12 +209,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         try
         {
             weighByWaybillProducer.send(dto.getWaybillCode(), JsonHelper.toJson(dto));
-        } catch (JMQException e)
-        {
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillWeightVOConvertExcetion);
-
         } catch (Exception e)
         {
+            logger.error(e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableException);
         }
 
@@ -237,6 +235,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         } catch (Exception e)
         {
             logger.error("运单称重：cassandra操作日志记录失败");
+            logger.error(e);
         }
     }
 
