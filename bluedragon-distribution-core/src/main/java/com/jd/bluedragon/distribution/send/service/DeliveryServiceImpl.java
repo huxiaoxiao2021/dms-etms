@@ -227,6 +227,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
+        if(!checkSendM(domain)){
+            return new SendResult(2, "批次号错误：" + domain.getSendCode());
+        }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -1440,6 +1443,23 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else
             falge = true;
         return falge;
+    }
+
+    /**
+     * 校验sendm中的批次号
+     * @param sendm
+     * @return
+     */
+    private boolean checkSendM(SendM sendm) {
+        String sendCode = sendm.getSendCode();
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(createSiteCode == null){
+            return false;
+        }
+        if(createSiteCode.equals(sendm.getCreateSiteCode())){
+            return true;
+        }
+        return false;
     }
 
     /**
