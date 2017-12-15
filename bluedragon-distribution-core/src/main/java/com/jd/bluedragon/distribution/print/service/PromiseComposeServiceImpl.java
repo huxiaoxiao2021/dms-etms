@@ -43,6 +43,8 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 waybill.setTimeCategory("4日达");
             if(waybill.getWaybillSign().charAt(15)=='6')
                 waybill.setTimeCategory("");
+            if(waybill.getWaybillSign().charAt(15)=='9')
+                waybill.setTimeCategory("外单京准达");
         }
 
         try {
