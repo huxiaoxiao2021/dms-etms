@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.globaltrade.service;
 
+import com.google.common.reflect.TypeToken;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
@@ -8,6 +10,7 @@ import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao;
 import com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReportDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
+import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.domain.PreLoadBill;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -51,15 +54,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     private static final int SUCCESS = 1; // report的status,1为成功,2为失败
 
-    private static final String WAREHOUSE_ID = "globalTrade.loadBill.warehouseId"; // 仓库ID
-
-    private static final String DMS_CODE = "globalTrade.loadBill.dmsCode"; // 全球购的专用分拣中心
-
-    private static final String CTNO = "globalTrade.loadBill.ctno"; // 申报海关编码。默认：5165南沙旅检
-
-    private static final String GJNO = "globalTrade.loadBill.gjno"; // 申报国检编码。默认：000069申报地国检
-
-    private static final String TPL = "globalTrade.loadBill.tpl"; // 物流企业编码。默认：京配编号
+    private static final String LOAD_BILL_CONFIG = "globalTrade.loadBill.config";
 
     private static final String ZHUOZHI_PRELOAD_URL = PropertiesHelper.newInstance().getValue("globalTrade.preLoadBill.url"); // 卓志预装载接口
 
@@ -96,33 +91,47 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public int initialLoadBill(String sendCode, Integer userId, String userName) {
-        String dmsCode = PropertiesHelper.newInstance().getValue(DMS_CODE);
-        if (StringUtils.isBlank(dmsCode)) {
-            logger.error("LoadBillServiceImpl initialLoadBill with dmsCode is null");
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int initialLoadBill(String sendCode, Integer userId, String userCode, String userName) {
+        String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
+        if (StringUtils.isBlank(loadBillConfigStr)) {
+            logger.error("LoadBillServiceImpl initialLoadBill with loadBillConfig is null");
             return 0;
         }
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
-        params.put("dmsList", StringHelper.parseList(dmsCode, ","));
-        List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
-        if (sendDetailList == null || sendDetailList.size() < 1) {
-            logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
-            return 0;
-        }
-        List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, userId, userName);
-        for (LoadBill lb : loadBillList) {
-            // 不存在,则添加;存在,则忽略,更新会影响其他功能的更新操作
-            if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
-                loadBillDao.add(lb);
+
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+        if (dto != null) {
+            Map<Integer, LoadBillConfig> loadBillConfigMap = JsonHelper.fromJsonUseGson(loadBillConfigStr, new TypeToken<Map<Integer, LoadBillConfig>>() {
+            }.getType());
+
+            LoadBillConfig loadBillConfig = loadBillConfigMap.get(dto.getSiteCode());
+            if (loadBillConfig != null) {
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
+                params.put("dmsList", new Integer[]{dto.getSiteCode()});
+                List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
+                if (sendDetailList == null || sendDetailList.size() < 1) {
+                    logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
+                    return 0;
+                }
+                List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, loadBillConfig, userId, userName);
+                for (LoadBill lb : loadBillList) {
+                    // 不存在,则添加;存在,则忽略,更新会影响其他功能的更新操作
+                    if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
+                        loadBillDao.add(lb);
+                    }
+                }
+                return loadBillList.size();
             }
         }
-        return loadBillList.size();
+        return 0;
     }
 
-    private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, Integer userId, String userName) {
+    private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, LoadBillConfig loadBillConfig, Integer userId, String userName) {
         if (sendDetailList == null || sendDetailList.size() < 1) {
             return new ArrayList<LoadBill>();
         }
@@ -163,10 +172,14 @@ public class LoadBillServiceImpl implements LoadBillService {
             // 注入装载单其他信息
             lb.setCreateUserCode(userId);
             lb.setCreateUser(userName);
-            lb.setWarehouseId(PropertiesHelper.newInstance().getValue(WAREHOUSE_ID));
-            lb.setCtno(PropertiesHelper.newInstance().getValue(CTNO));
-            lb.setGjno(PropertiesHelper.newInstance().getValue(GJNO));
-            lb.setTpl(PropertiesHelper.newInstance().getValue(TPL));
+            // 仓库ID
+            lb.setWarehouseId(loadBillConfig.getWarehouseId());
+            // 申报海关编码
+            lb.setCtno(loadBillConfig.getCtno());
+            // 申报国检编码
+            lb.setGjno(loadBillConfig.getGjno());
+            // 物流企业编码
+            lb.setTpl(loadBillConfig.getTpl());
             loadBillList.add(lb);
         }
         return loadBillList;
@@ -219,63 +232,78 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     @JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.preLoadBill", mState = JProEnum.TP)
-    public Integer preLoadBill(List<Long> id, String trunkNo) throws Exception {
-        List<LoadBill> loadBIlls = null;
-        CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.selectLoadBill", false, true);
-        try {
-            loadBIlls = selectLoadbillById(id); //每次取#{SQL_IN_EXPRESS_LIMIT}
-        } catch (Exception ex) {
-            logger.error("获取预装载数据失败", ex);
-            Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.selectLoadBillAlarm", "selectLoadBillById出错");
-            Profiler.functionError(info);
-            throw new GlobalTradeException("获取预装载数据失败，系统异常");
-        } finally {
-            Profiler.registerInfoEnd(info);
+    public Integer preLoadBill(List<Long> id, String userCode, String trunkNo) throws Exception {
+        String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
+        if (StringUtils.isBlank(loadBillConfigStr)) {
+            logger.error("LoadBillServiceImpl preLoadBill with loadBillConfig is null");
+            return 0;
         }
 
-        if (loadBIlls.size() > GLOBAL_TRADE_PRELOAD_COUNT_LIMIT) {
-            throw new GlobalTradeException("需要装载的订单数量超过数量限制（" + GLOBAL_TRADE_PRELOAD_COUNT_LIMIT + ")");
-        }
-
-        List<Long> preLoadIds = new ArrayList<Long>();
-        for (LoadBill loadBill : loadBIlls) {
-            if (loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING
-                    && loadBill.getApprovalCode() != LoadBill.FAILED) {
-                throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
-
-            }
-            preLoadIds.add(loadBill.getId());
-        }
-
-        String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
-        PreLoadBill preLoadBill = toPreLoadBill(loadBIlls, trunkNo, preLoadBillId);
-
-        logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
-
-        ClientResponse<String> response = getResponse(preLoadBill);
-        CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.updateLoadBillStatus", false, true);
-        if (response.getStatus() == HttpStatus.SC_OK) {
-            LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(), LoadBillReportResponse.class);
-            if (SUCCESS == response1.getStatus().intValue()) {
-                logger.error("调用卓志接口预装载成功");
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+        if (dto != null) {
+            Map<Integer, LoadBillConfig> loadBillConfigMap = JsonHelper.fromJsonUseGson(loadBillConfigStr, new TypeToken<Map<Integer, LoadBillConfig>>() {
+            }.getType());
+            LoadBillConfig loadBillConfig = loadBillConfigMap.get(dto.getSiteCode());
+            if (loadBillConfig != null) {
+                List<LoadBill> loadBIlls;
+                CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.selectLoadBill", false, true);
                 try {
-                    updateLoadbillStatusById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
-
+                    loadBIlls = selectLoadbillById(id); //每次取#{SQL_IN_EXPRESS_LIMIT}
                 } catch (Exception ex) {
-                    logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
-                    throw new GlobalTradeException("预装载操作失败，系统异常");
+                    logger.error("获取预装载数据失败", ex);
+                    Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.selectLoadBillAlarm", "selectLoadBillById出错");
+                    Profiler.functionError(info);
+                    throw new GlobalTradeException("获取预装载数据失败，系统异常");
+                } finally {
+                    Profiler.registerInfoEnd(info);
                 }
-            } else {
-                logger.error("调用卓志接口预装载失败原因" + response1.getNotes());
-                throw new GlobalTradeException("调用卓志接口预装载失败" + response1.getNotes());
+
+                if (loadBIlls.size() > GLOBAL_TRADE_PRELOAD_COUNT_LIMIT) {
+                    throw new GlobalTradeException("需要装载的订单数量超过数量限制（" + GLOBAL_TRADE_PRELOAD_COUNT_LIMIT + ")");
+                }
+
+                List<Long> preLoadIds = new ArrayList<Long>();
+                for (LoadBill loadBill : loadBIlls) {
+                    if (loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING
+                            && loadBill.getApprovalCode() != LoadBill.FAILED) {
+                        throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
+
+                    }
+                    preLoadIds.add(loadBill.getId());
+                }
+
+                String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
+                PreLoadBill preLoadBill = toPreLoadBill(loadBIlls, loadBillConfig, trunkNo, preLoadBillId);
+
+                logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
+
+                ClientResponse<String> response = getResponse(preLoadBill);
+                CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.updateLoadBillStatus", false, true);
+                if (response.getStatus() == HttpStatus.SC_OK) {
+                    LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(), LoadBillReportResponse.class);
+                    if (SUCCESS == response1.getStatus().intValue()) {
+                        logger.error("调用卓志接口预装载成功");
+                        try {
+                            updateLoadbillStatusById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
+
+                        } catch (Exception ex) {
+                            logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
+                            throw new GlobalTradeException("预装载操作失败，系统异常");
+                        }
+                    } else {
+                        logger.error("调用卓志接口预装载失败原因" + response1.getNotes());
+                        throw new GlobalTradeException("调用卓志接口预装载失败" + response1.getNotes());
+                    }
+                } else {
+                    logger.error("调用卓志预装载接口失败" + response.getStatus());
+                    Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.updateLoadBillStatusAlarm", "调用卓志预装载接口出错");
+                    throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
+                }
+                Profiler.registerInfoEnd(info1);
+                return loadBIlls.size();
             }
-        } else {
-            logger.error("调用卓志预装载接口失败" + response.getStatus());
-            Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.updateLoadBillStatusAlarm", "调用卓志预装载接口出错");
-            throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
         }
-        Profiler.registerInfoEnd(info1);
-        return loadBIlls.size();
+        return 0;
     }
 
     public ClientResponse<String> getResponse(PreLoadBill preLoadBill) {
@@ -295,13 +323,13 @@ public class LoadBillServiceImpl implements LoadBillService {
         return response;
     }
 
-    public PreLoadBill toPreLoadBill(List<LoadBill> loadBills, String trunkNo, String preLoadBillId) {
+    public PreLoadBill toPreLoadBill(List<LoadBill> loadBills, LoadBillConfig loadBillConfig, String trunkNo, String preLoadBillId) {
         PreLoadBill preLoadBill = new PreLoadBill();
-        preLoadBill.setWarehouseId(PropertiesHelper.newInstance().getValue(WAREHOUSE_ID));
+        preLoadBill.setWarehouseId(loadBillConfig.getWarehouseId());
+        preLoadBill.setCtno(loadBillConfig.getCtno());
+        preLoadBill.setGjno(loadBillConfig.getGjno());
+        preLoadBill.setTpl(loadBillConfig.getTpl());
         preLoadBill.setPackgeAmount(String.valueOf(loadBills.size()));
-        preLoadBill.setCtno(PropertiesHelper.newInstance().getValue(CTNO));
-        preLoadBill.setGjno(PropertiesHelper.newInstance().getValue(GJNO));
-        preLoadBill.setTpl(PropertiesHelper.newInstance().getValue(TPL));
         preLoadBill.setTruckNo(trunkNo);
         preLoadBill.setLoadId(preLoadBillId);
         preLoadBill.setGenTime(DateHelper.formatDateTime(new Date()));
@@ -576,6 +604,5 @@ public class LoadBillServiceImpl implements LoadBillService {
         }
         return splitedLoadBillid;
     }
-
 
 }
