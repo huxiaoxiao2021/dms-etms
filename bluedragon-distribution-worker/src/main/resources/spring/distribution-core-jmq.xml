@@ -218,14 +218,5 @@
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
-
-    <!--ssssssssssssssssssssssssssssssssssss-->
-
-    <jmq:transport id="jmq.weighByWaybill.transport" channelMaxIdleTime="10000" epoll="false"
-                   app="LyMqTest"
-                   password="0A7877BF"
-                   user=""
-                   address="${jmq.BlueDragonDistribution.address}" />
-    <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3" />
-
+    
 </beans>
