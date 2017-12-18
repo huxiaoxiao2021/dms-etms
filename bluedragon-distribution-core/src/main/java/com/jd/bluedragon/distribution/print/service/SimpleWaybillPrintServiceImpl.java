@@ -184,7 +184,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
             commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
             commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
-            commonWaybill.setRoad(tmsWaybill.getRoadCode());
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
@@ -250,15 +249,31 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
+            String roadCode = "";
             if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = tmsWaybill.getImportantHint();
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
-                if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
-                    scheduleCode = transbillM.getScheduleBillCode();
+                if(transbillM != null){
+                	if(StringHelper.isNotEmpty(transbillM.getScheduleBillCode())){
+                		scheduleCode = transbillM.getScheduleBillCode();
+                	}
+                	//城配运单设置路区号-为卡位号
+                	if(StringHelper.isNotEmpty(transbillM.getTruckSpot())){
+                		roadCode = transbillM.getTruckSpot();
+                	}
                 }
                 String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
                 commonWaybill.setRemark(str + scheduleCode);
             }
+        	//路区-为空尝试从运单里获取
+        	if(StringHelper.isEmpty(roadCode)){
+        		if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
+        			roadCode = tmsWaybill.getRoadCode();
+        		}else{
+        			roadCode = "0";
+        		}
+        	}
+        	commonWaybill.setRoad(roadCode);
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);

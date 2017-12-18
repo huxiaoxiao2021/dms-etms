@@ -94,6 +94,11 @@ public class BasePrintWaybill implements Serializable {
      * 寄件公司名称
      */
     private String senderCompany;
+    /**
+    * 路区
+    */
+    private String road;
+    
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -348,5 +353,19 @@ public class BasePrintWaybill implements Serializable {
     public void setSenderCompany(String senderCompany) {
         this.senderCompany = senderCompany;
     }
+
+	/**
+	 * @return the road
+	 */
+	public String getRoad() {
+		return road;
+	}
+
+	/**
+	 * @param road the road to set
+	 */
+	public void setRoad(String road) {
+		this.road = road;
+	}
 
 }
