@@ -87,9 +87,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**货到付款 true*/
     private Boolean codType;
 
-    /** 路区信息 */
-    private String road;
-
     /** 时效类型 */
     private String timeCategory;
 
@@ -248,14 +245,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setCodType(Boolean codType) {
         this.codType = codType;
-    }
-
-    public String getRoad() {
-        return road;
-    }
-
-    public void setRoad(String road) {
-        this.road = road;
     }
 
     public String getTimeCategory() {
