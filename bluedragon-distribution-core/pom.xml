@@ -699,17 +699,14 @@
 		    <artifactId>commons-email</artifactId>
 		    <version>1.3</version>
 		</dependency>
+
+		<!-- 统一配置中心 ucc-->
 		<dependency>
 			<groupId>com.jd.coo</groupId>
-			<artifactId>ucc-common</artifactId>
-			<version>RELEASE</version>
+			<artifactId>ucc-client</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.jd.coo</groupId>
-			<artifactId>ucc-common</artifactId>
-			<version>RELEASE</version>
-		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>
