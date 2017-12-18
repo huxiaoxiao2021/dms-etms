@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rollcontainer.service.impl;
 
 
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,6 +10,10 @@ import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
 import com.jd.bluedragon.distribution.rollcontainer.service.ContainerRelationService;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("containerRelationService")
 public class ContainerRelationServiceImpl implements ContainerRelationService{
@@ -35,5 +41,34 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 	public String getBoxCodeByContainerCode(String containerCode) {
 		return kvIndexDao.queryRecentOneByKeyword(containerCode);
 	}
-	
+
+	@Override
+	public Pager<List<ContainerRelation>> getContainerRelationPager(String boxCode,
+																	  String siteCode,
+																	  Integer dmsId,
+																	  Integer sendStatus,
+																	  String startTime,
+																	  String endTime,
+																	  Integer pageNo,
+																	  Integer pageSize) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("boxCode", boxCode);
+		param.put("siteCode", siteCode);
+		param.put("dmsId", dmsId);
+		param.put("sendStatus", sendStatus);
+		param.put("startTime", startTime);
+		param.put("endTime", endTime);
+		param.put("pageNo", pageNo);
+		param.put("pageSize", pageSize);
+		List<ContainerRelation> containerRelationList = containerRelationDao.getContainerRelationByModel(param);
+		Integer count = containerRelationDao.getContainerRelationCountByModel(param);
+		Pager<List<ContainerRelation>> pager = new Pager<List<ContainerRelation>>();
+		pager.setData(containerRelationList);
+		pager.setTotalSize(count);
+		return pager;
+	}
+
+
+
+
 }

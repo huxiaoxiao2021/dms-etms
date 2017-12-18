@@ -8,6 +8,8 @@
 		<result column="box_code" property="boxCode" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" jdbcType="BIGINT" />
 		<result column="package_count" property="packageCount" jdbcType="TINYINT" />
+		<result column="dms_id" property="dmsId" jdbcType="INTEGER" />
+		<result column="send_status" property="sendStatus" jdbcType="TINYINT" />
 		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
 		<result column="create_user" property="createUser" jdbcType="VARCHAR" />
@@ -23,6 +25,8 @@
 		box_code,
 		site_code,
 		package_count,
+        dms_id,
+        send_status,
 		create_time,
 		update_time,
 		create_user,
@@ -58,6 +62,8 @@
 		box_code,
 		site_code,
 		package_count,
+        dms_id,
+        send_status,
 		create_time,
 		update_time,
 		create_user,
@@ -72,7 +78,9 @@
 		#{boxCode,jdbcType=VARCHAR}, 
 		#{siteCode,jdbcType=BIGINT}, 
 		#{packageCount,jdbcType=TINYINT}, 
-		#{createTime,jdbcType=TIMESTAMP}, 
+		#{dmsId,jdbcType=INTEGER},
+		#{sendStatus,jdbcType=TINYINT},
+		#{createTime,jdbcType=TIMESTAMP},
 		#{updateTime,jdbcType=TIMESTAMP}, 
 		#{createUser,jdbcType=VARCHAR}, 
 		#{updateUser,jdbcType=VARCHAR}, 
@@ -94,6 +102,12 @@
 			<if test="packageCount != null">
 					package_count = #{packageCount,jdbcType=TINYINT},
 	      		</if>
+            <if test="dmsId != null">
+                dms_id =  #{dmsId,jdbcType=INTEGER},
+            </if>
+            <if test="sendStatus != null">
+                send_status =  #{sendStatus,jdbcType=TINYINT},
+            </if>
 	        <if test="createTime != null">
 					create_time = #{createTime,jdbcType=TIMESTAMP},
 	      		</if>
@@ -124,5 +138,47 @@
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-
+	<sql id="selectListWhere">
+		<where>
+            is_delete = 0,
+            <if test="dmsId != null">
+                and dms_id =  #{dmsId,jdbcType=INTEGER},
+            </if>
+            <if test="sendStatus != null">
+                and send_status =  #{sendStatus,jdbcType=TINYINT},
+            </if>
+			<if test="siteCode != null">
+				and site_code = #{siteCode,jdbcType=BIGINT},
+			</if>
+			<if test="boxCode != null">
+				and box_code = #{boxCode,jdbcType=VARCHAR},
+			</if>
+			<if test="startTime != null and startTime != ''">
+				<![CDATA[
+				and create_time >= {startTime,jdbcType=VARCHAR},
+				]]>
+			</if>
+			<if test="endTime != null and endTime != ''">
+				<![CDATA[
+				and create_time <= #{endTime,jdbcType=VARCHAR},
+				]]>
+			</if>
+		</where>
+	</sql>
+	<select id="getContainerRelationByModel" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation">
+		select
+		<include refid="Base_Column_List" />
+		from container_relation
+		<include refid="selectListWhere"/>
+		order by create_time DESC
+		<if test="pageNo != null">
+			LIMIT #{pageNo, jdbcType=INTEGER} , #{pageSize, jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="getContainerRelationCountByModel" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+		select
+		count(*)
+		from container_relation
+		<include refid="selectListWhere"/>
+	</select>
 </mapper>

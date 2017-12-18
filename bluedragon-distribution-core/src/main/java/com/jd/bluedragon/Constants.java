@@ -376,4 +376,12 @@ public class Constants {
      * 字符类型yn标识-0-否
      */
     public static final char FLG_CHAR_YN_N = '0';
+    /**
+     * container_relation 发货状态 未发货
+     */
+    public static final Integer  CONTAINER_RELATION_SEND_STATUS_NO = 0;
+    /**
+     * container_relation 发货状态 已发货
+     */
+    public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
 }

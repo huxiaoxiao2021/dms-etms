@@ -28,4 +28,16 @@ public class ContainerRelationDao extends BaseDao<ContainerRelation>{
     public int updateContainerRelationByCode(ContainerRelation containerRelation){
         return this.getSqlSession().update(ContainerRelationDao.namespace + ".updateContainerRelation", containerRelation);
     }
+
+    public List<ContainerRelation> getContainerRelationByModel(Map<String, Object> param) {
+
+        return this.getSqlSession().selectList(ContainerRelationDao.namespace + ".getContainerRelationByModel",
+                param);
+    }
+
+    public Integer getContainerRelationCountByModel(Map<String, Object> param) {
+
+        return (Integer) this.getSqlSession().selectOne(ContainerRelationDao.namespace + ".getContainerRelationCountByModel",
+                param);
+    }
 }

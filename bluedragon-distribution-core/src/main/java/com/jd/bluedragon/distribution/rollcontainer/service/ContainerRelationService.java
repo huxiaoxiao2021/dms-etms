@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.rollcontainer.service;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
 import com.jd.bluedragon.distribution.rollcontainer.domain.RollContainer;
@@ -31,8 +33,27 @@ public interface ContainerRelationService {
      * @return
      */
     public String getBoxCodeByContainerCode(String containerCode);
-    
-    
-    
-    
+
+
+    /**
+     * 根据 箱号 发货状态 站点编码查询 分页ContainerRelation
+     * @param boxCode
+     * @param siteCode
+     * @param dmsId
+     * @param sendStatus
+     * @param startTime
+     * @param endTime
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    Pager<List<ContainerRelation>> getContainerRelationPager(String boxCode,
+                                                               String siteCode,
+                                                               Integer dmsId,
+                                                               Integer sendStatus,
+                                                               String startTime,
+                                                               String endTime,
+                                                               Integer pageNo,
+                                                               Integer pageSize);
+
 }

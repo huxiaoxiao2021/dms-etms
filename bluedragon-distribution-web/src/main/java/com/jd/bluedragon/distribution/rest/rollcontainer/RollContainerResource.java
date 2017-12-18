@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.rollcontainer;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import com.jd.bluedragon.Pager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -162,6 +165,7 @@ public class RollContainerResource {
             relation.setCreateTime(new Date());
             relation.setUpdateTime(new Date());
             relation.setIsDelete(0);
+            relation.setSendStatus(Constants.CONTAINER_RELATION_SEND_STATUS_NO);
             relation.setTs(new Date());
         	int count = containerRelationService.addContainerRelation(relation);
         }catch(Exception e){
@@ -221,7 +225,7 @@ public class RollContainerResource {
         }
 		try{
 			relation.setUpdateTime(new Date());
-	        relation.setIsDelete(1);//无效状态标示
+			relation.setSendStatus(Constants.CONTAINER_RELATION_SEND_STATUS_YES);
 	        relation.setTs(new Date());
 	        int count = containerRelationService.updateContainerRelationByCode(relation);
         }catch(Exception e){
@@ -232,7 +236,34 @@ public class RollContainerResource {
 		
         return response;
     }
-	
+
+	/**
+	 *
+	 * @param boxCode 箱号
+	 * @param siteCode 目的地编号
+	 * @param sendStatus		是否已发货 0未发货 1已发货
+	 * @param startTime 创建时间-起始时间
+	 * @param endTime   创建时间-终止时间
+	 * @param page    当前页码
+	 * @param pageSize  页行数
+	 * @return
+	 */
+	@POST
+	@Path("/rollContainer/getContainerRelationPager")
+    public Pager<List<ContainerRelation>> getContainerRelationPager(String boxCode, String siteCode, Integer dmsId,
+																	Integer sendStatus,
+																	String startTime, String endTime,
+																	Integer page, Integer pageSize){
+    	if(dmsId == null || dmsId == 0){
+			Pager pager = new Pager();
+			pager.setTotalSize(0);
+			pager.setData(Collections.EMPTY_LIST);
+    		return pager;
+		}
+		return containerRelationService.getContainerRelationPager( boxCode,  siteCode, dmsId, sendStatus,
+				 startTime, endTime, page, pageSize);
+	}
+
 	/**
 	 * 根据boxCode得到box信息,供周转箱(笼车)发货使用
 	 * @param request
