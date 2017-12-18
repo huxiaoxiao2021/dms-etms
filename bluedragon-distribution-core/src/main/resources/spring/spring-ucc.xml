@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd ">
+
+	<!-- ucc 配置 -->
+	<bean id="uccConfigInsPostProcessor" class="com.jd.coo.ucc.client.service.UccConfigInsPostProcessor"/>
+	
+	<bean id="uccConfigCenter" class="com.jd.coo.ucc.client.service.UccConfigCenter" lazy-init="false">
+		<constructor-arg index="0" ref="zkConfig"/>
+		<constructor-arg index="1" ref="uccConfig"/>
+	</bean>
+	<bean id="zkConfig" class="com.jd.coo.ucc.client.config.UccZkConfig">
+		<property name="server" value="${zk.server}"/>
+		<property name="sessionTimeout" value="${zk.session.timeout}"/>
+		<property name="connectionTimeout" value="${zk.connection.timeout}"/>
+		<property name="appPath" value="${app.path}"/>
+		<property name="appGroup" value="${app.group}"/>
+	</bean>
+	
+	<bean id="uccConfig" class="com.jd.coo.ucc.client.config.UccConfig">
+		<property name="propertyConfig" ref="propertyConfig"/>
+	</bean>
+	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
+		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
+		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
+	</bean>
+
+	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
+	<bean id="propertyConfig" class="com.jd.coo.ucc.client.config.UccPropertyConfig">
+		<property name="processor" ref="propertyConfigProcessor" />
+		<property name="weakList">
+			<list>
+				<value>uccPropertyConfiguration.asynbufferEnabledTaskType</value>
+				<value>uccPropertyConfiguration.cassandraGlobalSwitch</value>
+			</list>
+		</property>
+	</bean>
+</beans>
