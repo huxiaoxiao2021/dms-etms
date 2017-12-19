@@ -9,11 +9,31 @@ import java.util.List;
 
 public interface NewSealVehicleService {
 
-    public CommonDto<String> seal(List<SealCarDto> sealCars);
-    
+    public static final String MESSAGE_OFFLINE_SEAL_SUCCESS = "离线封车成功!";
+    public static final String MESSAGE_SEAL_SUCCESS = "封车成功!";
+    public static final String MESSAGE_UNSEAL_SUCCESS = "解封车成功!";
+
+    /**
+     * 封车
+     * @param sealCars
+     * @return
+     */
+    public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+
+    /**
+     * 查询待解任务
+     * @param request
+     * @param pageDto
+     * @return
+     */
     public CommonDto<PageDto<SealCarDto>> findSealInfo(SealCarDto request,PageDto<SealCarDto> pageDto);
-    
-    public CommonDto<String> unseal(List<SealCarDto> sealCars);
+
+    /**
+     * 解封车
+     * @param sealCars
+     * @return
+     */
+    public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
     /**
      *VOS查询批次号是否已被封车接口
@@ -35,5 +55,12 @@ public interface NewSealVehicleService {
      * @return
      */
     public boolean checkSendIsExist( String sendCode);
+
+    /**
+     * 离线封车
+     * @param sealCars
+     * @return
+     */
+    public CommonDto<String> offlineSeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
 }

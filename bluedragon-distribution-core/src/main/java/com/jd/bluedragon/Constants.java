@@ -1,9 +1,8 @@
 package com.jd.bluedragon;
 
+import com.jd.bluedragon.utils.LogHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
-
-import com.jd.bluedragon.utils.LogHelper;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -376,4 +375,6 @@ public class Constants {
      * 字符类型yn标识-0-否
      */
     public static final char FLG_CHAR_YN_N = '0';
+
+    public static final int SEAL_SOURCE = 1;  //封车解封车操作源（代表我们DMS系统）
 }
