@@ -41,7 +41,9 @@
 		select
 		<include refid="Base_Column_List" />
 		from container_relation
-		where container_code = #{containerCode,jdbcType=VARCHAR} and is_delete=0 order by create_time desc limit 1
+		where container_code = #{containerCode,jdbcType=VARCHAR}
+        and dms_id = #{dmsId,jdbcType=INTEGER}
+        and is_delete=0 order by create_time desc limit 1
 	</select>
 	
 	<!-- 根据条件查询列表 -->

@@ -77,7 +77,7 @@ public class RollContainerResource {
         try{
         	int count = rollContainerService.updateRollContainerByCode(request);
         	response.setContainerCode(request.getContainerCode());
-        	response.setStatus(request.getStatus());
+        	response.setSendStatus(request.getStatus());
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
@@ -89,7 +89,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 根据编号获得对应的关系,根据编号获取最近生成的关系(kvindex里获取对应关系)
-	 * @param request
+	 * @param containerCode
 	 * @return
 	 */
 	@GET
@@ -140,7 +140,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 中转箱与箱号绑定，分拣机满格时需要绑定分拣机传过来的箱号
-	 * @param request
+	 * @param relation
 	 * @return
 	 */
 	@POST
@@ -178,7 +178,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 根据编号获得对应关系container_relation
-	 * @param request
+	 * @param relationRequest
 	 * @return
 	 */
 	@POST
@@ -196,6 +196,9 @@ public class RollContainerResource {
 			if(relation != null){
 				response.setContainerCode(containerCode);
 				response.setBoxCode(relation.getBoxCode());
+				response.setSiteCode(Integer.parseInt(relation.getSiteCode()));
+				response.setDmsId(relation.getDmsId());
+				response.setSendStatus(relation.getSendStatus());
 			}else{
 				response.setCode(JdResponse.CODE_NOT_CONTAINER_RELATION);
 	        	response.setMessage("没有对应周转箱"+containerCode+"与箱号的对应关系！");
@@ -211,7 +214,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 中转箱与箱号释放绑定关系,周转箱收货时需要释放rfid与箱号的关系
-	 * @param request
+	 * @param relation
 	 * @return
 	 */
 	@POST
