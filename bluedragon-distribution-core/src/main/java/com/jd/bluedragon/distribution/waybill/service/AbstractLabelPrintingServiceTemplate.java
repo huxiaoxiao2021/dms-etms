@@ -47,6 +47,11 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    /**
+     * 收件人联系方式需要突出显示的位数
+     */
+    private static final int PHONE_HIGHLIGHT_NUMBER = 4;
     /**
      * 初始化基础资料对象
      */
@@ -262,6 +267,18 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         String contactMobilePhone = StringHelper.isEmpty(waybill.getReceiverMobile())?"":waybill.getReceiverMobile();
 
         labelPrinting.setCustomerContacts( StringHelper.isEmpty(contactTelephone)?contactMobilePhone:(contactTelephone+","+contactMobilePhone));
+
+        //分段设置收件人联系方式，手机号和座机号的后四位加大、标红显示
+        String receiverMobile = waybill.getReceiverMobile();
+        String receiverTel = waybill.getReceiverTel();
+        if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
+            labelPrinting.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+            labelPrinting.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+        }
+        if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
+            labelPrinting.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            labelPrinting.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+        }
 
         //支付方式为在线支付，金额显示在线支付；货到付款，金额显示具体金额
         labelPrinting.setPackagePrice(waybill.getCodMoney());
