@@ -211,11 +211,6 @@ public class PrintWaybill extends BasePrintWaybill {
     private String newCustomerText ;
 
     /**
-    * 路区
-    */
-    private String road;
-
-    /**
     * 服务号
     */
     private String serviceCode;
@@ -494,14 +489,6 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setNewCustomerText(String newCustomerText) {
         this.newCustomerText = newCustomerText;
-    }
-
-    public String getRoad() {
-        return road;
-    }
-
-    public void setRoad(String road) {
-        this.road = road;
     }
 
     public String getServiceCode() {

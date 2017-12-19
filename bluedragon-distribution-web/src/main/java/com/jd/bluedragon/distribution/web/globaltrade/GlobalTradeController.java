@@ -54,7 +54,7 @@ public class GlobalTradeController {
     }
 
 
-    @JProfiler(jKey = "DMSWEB.GlobalTradeController.prepareLoadBill",mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.GlobalTradeController.prepareLoadBill", mState = JProEnum.TP)
     @RequestMapping(value = "/preload", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse prepareLoadBill(HttpServletRequest request) {
@@ -74,7 +74,12 @@ public class GlobalTradeController {
             for (String id : loadBillIdStr.split(",")) {
                 loadBillId.add(Long.valueOf(id));
             }
-            effectSize = loadBillService.preLoadBill(loadBillId, carCode);
+            ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                effectSize = loadBillService.preLoadBill(loadBillId, erpUser.getUserCode(), carCode);
+            } else {
+                return new LoadBillReportResponse(5000, "预装载操作失败,获取ERP信息失败,请重新登录后重试");
+            }
         } catch (Exception ex) {
             logger.error("预装载操作失败，原因", ex);
             if (ex instanceof NumberFormatException) {
@@ -115,9 +120,9 @@ public class GlobalTradeController {
             List<LoadBill> loadBillList = new ArrayList<LoadBill>();
             for (String orderid : orderIdArray) {
                 LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
-                if(erpUser!=null){
-	                loadBill.setPackageUser(erpUser.getUserCode());
-	                loadBill.setPackageUserCode(erpUser.getUserId());
+                if (erpUser != null) {
+                    loadBill.setPackageUser(erpUser.getUserCode());
+                    loadBill.setPackageUserCode(erpUser.getUserId());
                 }
                 loadBill.setApprovalTime(new Date());
                 loadBill.setApprovalCode(LoadBill.BEGINNING);
@@ -204,18 +209,20 @@ public class GlobalTradeController {
                 cdto.setMessage("参数不能为空！");
                 return cdto;
             }
-            int initialNum = -1;
+
             ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                initialNum = loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserName());
+                int initialNum = loadBillService.initialLoadBill(request.getSendCode(), erpUser.getUserId(), erpUser.getUserCode(), erpUser.getUserName());
+                if (initialNum == 0) {
+                    cdto.setCode(CommonDto.CODE_WARN);
+                    cdto.setMessage("批次号 " + request.getSendCode() + " 的数据为空！");
+                    return cdto;
+                }
             } else {
-                initialNum = loadBillService.initialLoadBill(request.getSendCode(), null, null);
+                cdto.setCode(CommonDto.CODE_EXCEPTION);
+                cdto.setData("初始化失败,获取ERP信息失败,请重新登录后重试");
             }
-            if (initialNum == 0) {
-                cdto.setCode(CommonDto.CODE_WARN);
-                cdto.setMessage("批次号 " + request.getSendCode() + " 的数据为空！");
-                return cdto;
-            }
+
             cdto.setCode(CommonDto.CODE_NORMAL);
         } catch (Exception e) {
             logger.error("initialLoadBill-error!", e);
