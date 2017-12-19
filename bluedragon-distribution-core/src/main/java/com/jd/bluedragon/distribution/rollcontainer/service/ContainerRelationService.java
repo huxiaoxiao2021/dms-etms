@@ -23,7 +23,7 @@ public interface ContainerRelationService {
      * @param containerCode
      * @return
      */
-    public ContainerRelation getContainerRelation(String containerCode);
+    public ContainerRelation getContainerRelation(String containerCode, Integer dmsId);
     
     public int updateContainerRelationByCode(ContainerRelation containerRelation);
     

@@ -192,7 +192,7 @@ public class RollContainerResource {
         }
 		String containerCode = relationRequest.getContainerCode();
 		try{
-			ContainerRelation relation = containerRelationService.getContainerRelation(containerCode);
+			ContainerRelation relation = containerRelationService.getContainerRelation(containerCode, relationRequest.getDmsId());
 			if(relation != null){
 				response.setContainerCode(containerCode);
 				response.setBoxCode(relation.getBoxCode());

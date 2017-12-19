@@ -29,8 +29,11 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 		return containerRelationDao.addContainerRelation(containerRelation);
 	}
 	
-	public ContainerRelation getContainerRelation(String containerCode){
-		return containerRelationDao.getContainerRelation(containerCode);
+	public ContainerRelation getContainerRelation(String containerCode, Integer dmsId){
+		Map<String,Object> param = new HashMap<String, Object>(2);
+		param.put("containerCode", containerCode);
+		param.put("dmsId", dmsId);
+		return containerRelationDao.getContainerRelation(param);
 	}
 	
 	public int updateContainerRelationByCode(ContainerRelation containerRelation){

@@ -21,8 +21,8 @@ public class ContainerRelationDao extends BaseDao<ContainerRelation>{
         return this.getSqlSession().insert(ContainerRelationDao.namespace + ".insertContainerRelation", containerRelation);
     }
     
-    public ContainerRelation getContainerRelation(String containerCode){
-    	return this.getSqlSession().selectOne(ContainerRelationDao.namespace + ".getContainerRelation", containerCode);
+    public ContainerRelation getContainerRelation(Map<String, Object> param){
+    	return this.getSqlSession().selectOne(ContainerRelationDao.namespace + ".getContainerRelation", param);
     }
     
     public int updateContainerRelationByCode(ContainerRelation containerRelation){
