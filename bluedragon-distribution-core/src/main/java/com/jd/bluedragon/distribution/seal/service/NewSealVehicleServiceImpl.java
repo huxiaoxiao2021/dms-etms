@@ -216,6 +216,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 }catch (Exception e){
                     SystemLogUtil.log(sealCarDto.getTransportCode(), sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
                             sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_SEAL_MQ);
+                    logger.error("发送封车mq消息失败:" + e.getMessage());
                 }
             }
         }
@@ -244,6 +245,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 }catch (Exception e){
                     SystemLogUtil.log(sealCarDto.getTransportCode(), sealCarDto.getSealUserCode(), unsealCarProducer.getTopic(),
                             sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_UNSEAL_MQ);
+                    logger.error("发送解封车mq消息失败:" + e.getMessage());
                 }
             }
         }

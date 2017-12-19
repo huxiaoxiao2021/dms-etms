@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.offline.service.OfflineService;
 import com.jd.bluedragon.distribution.offline.service.OfflineSortingService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
@@ -83,7 +84,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
      */
     private boolean offlineSeal(String body){
         boolean result = false;
-        com.jd.bluedragon.distribution.wss.dto.SealCarDto[] sealCarDtos = com.jd.bluedragon.distribution.api.utils.JsonHelper.jsonToArray(body, com.jd.bluedragon.distribution.wss.dto.SealCarDto[].class);
+        SealCarDto[] sealCarDtos = JsonHelper.jsonToArray(body, SealCarDto[].class);
         CommonDto<String> returnCommonDto = newsealVehicleService.offlineSeal(Arrays.asList(sealCarDtos));
         if(returnCommonDto != null && Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
             result = true;
