@@ -9,7 +9,9 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
@@ -74,6 +76,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -296,6 +299,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            pushInspection(domain);//自动发货 大件先写TASK_INSPECTION   add by lhc 2017.12.20
             pushSorting(domain);//大件写TASK_SORTING
         } else {
             SendDetail tSendDatail = new SendDetail();
@@ -338,6 +342,46 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new SendResult(1, "发货成功");
     }
 
+    /**
+     * 推验货任务
+     * @param domain
+     */
+    private void pushInspection(SendM domain) {
+        BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
+        String createSiteName = null != create ? create.getSiteName() : null;
+        BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
+        String receiveSiteName = null != receive ? receive.getSiteName() : null;
+
+        InspectionRequest inspection=new InspectionRequest();
+        inspection.setUserCode(domain.getCreateUserCode());
+        inspection.setUserName(domain.getCreateUser());
+        inspection.setSiteCode(domain.getCreateSiteCode());
+        inspection.setSiteName(createSiteName);
+        inspection.setOperateTime(new Date(domain.getOperateTime().getTime()-60000));
+        inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
+
+        TaskRequest request=new TaskRequest();
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setKeyword1(String.valueOf(domain.getCreateUserCode()));
+        request.setKeyword2(domain.getBoxCode());
+        request.setType(Task.TASK_TYPE_INSPECTION);
+        request.setOperateTime(DateHelper.formatDateTime(new Date(domain.getOperateTime().getTime()-60000)));
+        request.setSiteCode(domain.getCreateSiteCode());
+        request.setSiteName(createSiteName);
+        request.setUserCode(domain.getCreateUserCode());
+        request.setUserName(domain.getCreateUser());
+        //request.setBody();
+        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                + JsonHelper.toJson(inspection)
+                + Constants.PUNCTUATION_CLOSE_BRACKET;
+        Task task=this.taskService.toTask(request, eachJson);
+
+        int result= this.taskService.add(task, true);
+        if(logger.isDebugEnabled()){
+            logger.debug("分拣机自动发货-验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task)+""));
+        }
+    }
 
     /**
      * 推分拣任务
