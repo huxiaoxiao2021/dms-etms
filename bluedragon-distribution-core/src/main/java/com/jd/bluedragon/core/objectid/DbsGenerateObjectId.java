@@ -6,18 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.sql.DataSource;
+import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.dbs.service.ObjectIdService;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Service("genObjectId")
 public class DbsGenerateObjectId implements IGenerateObjectId {
@@ -26,18 +17,6 @@ public class DbsGenerateObjectId implements IGenerateObjectId {
 	private static Map<String, Long> firstMap = Collections
 			.synchronizedMap(new HashMap<String, Long>());
 	private int maxValue = 999;
-
-//    private DataSource dataSource;
-//    private PlatformTransactionManager transactionManager;
-//
-//	public DataSource getDataSource() {
-//		return dataSource;
-//	}
-//
-//	public void setDataSource(DataSource dataSource) {
-//		this.dataSource = dataSource;
-//		transactionManager = new DataSourceTransactionManager(dataSource);
-//	}
 
     private ObjectIdService objectIdService;
 
@@ -52,12 +31,12 @@ public class DbsGenerateObjectId implements IGenerateObjectId {
     @Override
 	public synchronized long getObjectId(String tableName) {
 		if (!firstMap.containsKey(tableName)) {
-			firstMap.put(tableName, objectIdService.getNextId(tableName));
+			firstMap.put(tableName, objectIdService.getNextFirstId(tableName));
 			nextIncMap.put(tableName, new AtomicInteger(0));
 		}
 		int lastId = nextIncMap.get(tableName).addAndGet(1);
 		if (lastId > maxValue) {
-			firstMap.put(tableName, objectIdService.getNextId(tableName));
+			firstMap.put(tableName, objectIdService.getNextFirstId(tableName));
 			nextIncMap.put(tableName, new AtomicInteger(1));
 			lastId = 1;
 		}
@@ -72,52 +51,5 @@ public class DbsGenerateObjectId implements IGenerateObjectId {
 		sb.append(lastId);
 		long objectId = Long.parseLong(sb.toString());
 		return objectId;
-	}
-
-	private long getAndSaveObjectFirstId(final String tableName, final int count) {
-        return objectIdService.getFirstId(tableName,count);
-	}
-
-	public static void main(String[] args) {
-		// for (int i = 1; i < 100; i++) {
-		// new Thread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// BasicDataSource ds = new BasicDataSource();
-		// ds.setDriverClassName("com.mysql.jdbc.Driver");
-		// ds.setUrl("jdbc:mysql://localhost:3306/notdbs?characterEncoding=UTF-8");
-		// ds.setUsername("root");
-		// ds.setPassword("root");
-		// ds.setDefaultAutoCommit(false);
-		// ds.setMaxActive(1000);
-		// ds.setMaxIdle(1000);
-		// ds.setMaxWait(1800);
-		// DbsGenerateObjectId objId = new DbsGenerateObjectId();
-		// objId.setDataSource(ds);
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// System.out.println(objId.getAndSaveObjectFirstId(
-		// "test.test.test", 1));
-		// }
-		//
-		// }).start();
-		// }
 	}
 }

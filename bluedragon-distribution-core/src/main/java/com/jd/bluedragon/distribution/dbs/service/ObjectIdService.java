@@ -6,9 +6,9 @@ package com.jd.bluedragon.distribution.dbs.service;
 public interface ObjectIdService {
     public Long getFirstId(String objectName, Integer count);
     /**
-     * 根据key获取下个Id值
+     * 根据key获取下个FirstId的值
      * @param objectName
-     * @return
+     * @return ++FirstId
      */
-    public Long getNextId(String objectName);
+    public Long getNextFirstId(String objectName);
 }

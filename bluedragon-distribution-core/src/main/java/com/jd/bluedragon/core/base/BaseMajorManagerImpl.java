@@ -77,7 +77,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             return dtoStaff;
         else
             dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-
         if (dtoStaff != null)
             return dtoStaff;
         else

@@ -56,5 +56,12 @@ public class BusinessHelperTest {
 		shoudTrue = helper.isECLPCode(sourceCodeECLP);
 		assertTrue(shoudTrue);
 	}
-
+	@Test
+	public void testGetStoreId() {
+		String[] codes = {"wms-6-1","wms-61-2","wwwwms-622-3","wmsw-622-44"};
+		for(String code:codes){
+			Integer storeId = SerialRuleUtil.getStoreIdFromStoreCode(code);
+			System.err.println(code+"->"+storeId);
+		}
+	}
 }

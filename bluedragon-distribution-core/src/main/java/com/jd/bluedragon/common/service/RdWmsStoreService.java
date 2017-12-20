@@ -13,8 +13,9 @@ public interface RdWmsStoreService {
 	/**
 	 * 通过机构和库房号获取条码前缀
 	 * @param orgId
+	 * @param storeSiteId
 	 * @param storeId
 	 * @return
 	 */
-	InvokeResult<String> getOrgStoreTag(Integer orgId, Integer storeId);
+	InvokeResult<String> getOrgStoreTag(Integer orgId,Integer storeSiteId, Integer storeId);
 }

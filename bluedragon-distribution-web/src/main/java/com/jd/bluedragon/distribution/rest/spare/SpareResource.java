@@ -21,6 +21,7 @@ import com.jd.bluedragon.common.service.RdWmsStoreService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SpareRequest;
 import com.jd.bluedragon.distribution.api.response.SpareResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.utils.StringHelper;
@@ -35,8 +36,6 @@ public class SpareResource {
     
     @Autowired
     private SpareService spareService;
-    @Autowired
-    private RdWmsStoreService rdWmsStoreService;
     
     @GET
     @Path("/spares/{spareCode}")
@@ -68,14 +67,16 @@ public class SpareResource {
     public SpareResponse genCodes(SpareRequest request) {
         Assert.notNull(request, "request must not be null");
         this.logger.info("SpareRequest's " + request);
-        Spare spare = this.toSpare(request);
-        spare.setType(rdWmsStoreService
-        		.getOrgStoreTag(request.getOrgId(), request.getStoreId()).getData());
-        List<Spare> availableSpares = this.spareService.print(spare);
-        
         SpareResponse response = this.ok();
-        response.setSpareCodes(StringHelper.join(availableSpares, "getCode",
-                Constants.SEPARATOR_COMMA));
+        InvokeResult<List<Spare>> sparesResult = this.spareService.genCodes(request);
+        if(InvokeResult.RESULT_SUCCESS_CODE == sparesResult.getCode()){
+        	response.setSpareCodes(
+        			StringHelper.join(sparesResult.getData(),
+        					"getCode",Constants.SEPARATOR_COMMA));
+        }else{
+        	response.setCode(sparesResult.getCode());
+        	response.setMessage(sparesResult.getMessage());
+        }
         return response;
     }    
     @POST

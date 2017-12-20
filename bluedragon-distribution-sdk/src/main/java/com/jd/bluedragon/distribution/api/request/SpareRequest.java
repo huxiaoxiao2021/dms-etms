@@ -10,7 +10,11 @@ public class SpareRequest extends JdRequest {
      */
     private Integer orgId;
     /**
-     * 库房编号
+     * 库房站点编号
+     */
+    private Integer storeSiteId;
+    /**
+     * 库房号
      */
     private Integer storeId;
     
@@ -79,6 +83,20 @@ public class SpareRequest extends JdRequest {
 	 */
 	public void setStoreId(Integer storeId) {
 		this.storeId = storeId;
+	}
+
+	/**
+	 * @return the storeSiteId
+	 */
+	public Integer getStoreSiteId() {
+		return storeSiteId;
+	}
+
+	/**
+	 * @param storeSiteId the storeSiteId to set
+	 */
+	public void setStoreSiteId(Integer storeSiteId) {
+		this.storeSiteId = storeSiteId;
 	}
     
 }
