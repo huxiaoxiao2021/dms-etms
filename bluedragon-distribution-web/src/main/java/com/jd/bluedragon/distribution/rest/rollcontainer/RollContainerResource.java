@@ -12,6 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationPager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -253,18 +254,15 @@ public class RollContainerResource {
 	 */
 	@POST
 	@Path("/rollContainer/getContainerRelationPager")
-    public Pager<List<ContainerRelation>> getContainerRelationPager(String boxCode, String siteCode, Integer dmsId,
-																	Integer sendStatus,
-																	String startTime, String endTime,
-																	Integer page, Integer pageSize){
-    	if(dmsId == null || dmsId == 0){
-			Pager pager = new Pager();
-			pager.setTotalSize(0);
-			pager.setData(Collections.EMPTY_LIST);
-    		return pager;
+    public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationPager pager){
+    	if(pager.getDmsId() == null || pager.getDmsId() == 0){
+			Pager reponese = new Pager();
+			reponese.setTotalSize(0);
+			reponese.setData(Collections.EMPTY_LIST);
+    		return reponese;
 		}
-		return containerRelationService.getContainerRelationPager( boxCode,  siteCode, dmsId, sendStatus,
-				 startTime, endTime, page, pageSize);
+		return containerRelationService.getContainerRelationPager( pager.getBoxCode(),  pager.getSiteCode(), pager.getDmsId()
+				, pager.getSendStatus(), pager.getStartTime(), pager.getEndTime(), pager.getPage(), pager.getPageSize());
 	}
 
 	/**
