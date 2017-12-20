@@ -153,7 +153,13 @@ public class RollContainerResource {
         	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
         	return response;
         }
-        
+        List<ContainerRelation> containerRelations = containerRelationService.getContainerRelationByBoxCode(relation.getBoxCode());
+		//箱号已存在
+		if(containerRelations != null && !containerRelations.isEmpty()){
+			response.setCode(JdResponse.CODE_EXIST_BOX_CODE);
+			response.setMessage(JdResponse.MESSAGE_EXIST_BOX_CODE);
+			return response;
+		}
         try{
         	ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         	if(erpUser != null){

@@ -71,7 +71,17 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 		return pager;
 	}
 
-
+	/**
+	 * 根据箱号获取ContainerRelation
+	 * @param boxCode
+	 * @return
+	 */
+	@Override
+	public List<ContainerRelation> getContainerRelationByBoxCode(String boxCode){
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("boxCode", boxCode);
+		return containerRelationDao.getContainerRelationByModel(param);
+	}
 
 
 }

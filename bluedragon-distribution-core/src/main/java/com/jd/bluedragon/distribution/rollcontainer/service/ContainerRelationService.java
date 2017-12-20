@@ -56,4 +56,5 @@ public interface ContainerRelationService {
                                                                Integer pageNo,
                                                                Integer pageSize);
 
+    List<ContainerRelation> getContainerRelationByBoxCode(String boxCode);
 }
