@@ -376,4 +376,6 @@ public class Constants {
      * 字符类型yn标识-0-否
      */
     public static final char FLG_CHAR_YN_N = '0';
+    
+    public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
 }

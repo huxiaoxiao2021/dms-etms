@@ -84,7 +84,11 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /** 承诺信息 */
     private String promiseText;
 
-
+    /**
+    * 商家商标图像key值也就是文件名
+    */
+    private String brandImageKey ;
+    
     public LabelPrintingResponse() {
         super();
     }
@@ -255,6 +259,13 @@ public class LabelPrintingResponse extends BasePrintWaybill {
         this.promiseText = promiseText;
     }
 
+	public String getBrandImageKey() {
+		return brandImageKey;
+	}
+
+	public void setBrandImageKey(String brandImageKey) {
+		this.brandImageKey = brandImageKey;
+	}
 
 
 
