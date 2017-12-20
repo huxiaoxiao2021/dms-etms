@@ -228,12 +228,7 @@ public class PrintWaybill extends BasePrintWaybill {
     * 包裹列表
     */
     private List<PrintPackage> packList ;
-    
-    /**
-    * 商家商标图像key值也就是文件名
-    */
-    private String brandImageKey ;
-    
+
 
     public PrintWaybill(){
         this.isAir=false;
@@ -601,12 +596,4 @@ public class PrintWaybill extends BasePrintWaybill {
     public void setMobileFirst(String mobileFirst) {
         this.mobileFirst = mobileFirst;
     }
-
-	public String getBrandImageKey() {
-		return brandImageKey;
-	}
-
-	public void setBrandImageKey(String brandImageKey) {
-		this.brandImageKey = brandImageKey;
-	}
 }
