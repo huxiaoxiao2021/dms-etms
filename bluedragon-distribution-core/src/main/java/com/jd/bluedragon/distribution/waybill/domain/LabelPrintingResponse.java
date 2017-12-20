@@ -72,6 +72,15 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**客户联系方式*/
     private String customerContacts;
 
+    /**
+     * 客户联系方式 tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()
+     */
+    private String mobileFirst;
+    private String mobileLast;
+
+    private String telFirst;
+    private String telLast;
+
     /**包裹价格*/
     private String packagePrice;
 
@@ -259,6 +268,38 @@ public class LabelPrintingResponse extends BasePrintWaybill {
         this.promiseText = promiseText;
     }
 
+    public String getMobileFirst() {
+        return mobileFirst;
+    }
+
+    public void setMobileFirst(String mobileFirst) {
+        this.mobileFirst = mobileFirst;
+    }
+
+    public String getMobileLast() {
+        return mobileLast;
+    }
+
+    public void setMobileLast(String mobileLast) {
+        this.mobileLast = mobileLast;
+    }
+
+    public String getTelFirst() {
+        return telFirst;
+    }
+
+    public void setTelFirst(String telFirst) {
+        this.telFirst = telFirst;
+    }
+
+    public String getTelLast() {
+        return telLast;
+    }
+
+    public void setTelLast(String telLast) {
+        this.telLast = telLast;
+    }
+
 	public String getBrandImageKey() {
 		return brandImageKey;
 	}
@@ -266,8 +307,4 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 	public void setBrandImageKey(String brandImageKey) {
 		this.brandImageKey = brandImageKey;
 	}
-
-
-
-
 }
