@@ -151,12 +151,12 @@
 			<if test="siteCode != null">
 				and site_code = #{siteCode,jdbcType=BIGINT}
 			</if>
-			<if test="boxCode != null">
+			<if test="boxCode != null and boxCode != ''">
 				and box_code = #{boxCode,jdbcType=VARCHAR}
 			</if>
 			<if test="startTime != null and startTime != ''">
 				<![CDATA[
-				and create_time >= {startTime,jdbcType=VARCHAR}
+				and create_time >= #{startTime,jdbcType=VARCHAR}
 				]]>
 			</if>
 			<if test="endTime != null and endTime != ''">
@@ -167,7 +167,7 @@
             and is_delete = 0
 		</where>
 	</sql>
-	<select id="getContainerRelationByModel" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation">
+	<select id="getContainerRelationByModel" resultMap="BaseResultMap" parameterType="java.util.Map">
 		select
 		<include refid="Base_Column_List" />
 		from container_relation
@@ -177,7 +177,7 @@
 			LIMIT #{pageNo, jdbcType=INTEGER} , #{pageSize, jdbcType=INTEGER}
 		</if>
 	</select>
-	<select id="getContainerRelationCountByModel" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+	<select id="getContainerRelationCountByModel" resultType="java.lang.Integer" parameterType="java.util.Map">
 		select
 		count(*)
 		from container_relation

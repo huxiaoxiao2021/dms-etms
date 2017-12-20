@@ -68,6 +68,7 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 		Pager<List<ContainerRelation>> pager = new Pager<List<ContainerRelation>>();
 		pager.setData(containerRelationList);
 		pager.setTotalSize(count);
+		pager.setPageSize(pageSize);
 		return pager;
 	}
 
