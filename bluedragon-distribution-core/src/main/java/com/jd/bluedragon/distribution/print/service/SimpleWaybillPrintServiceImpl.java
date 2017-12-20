@@ -126,6 +126,11 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private static final String USER_PLUS_FLAG_A="101";
     private static final String USER_PLUS_FLAG_B="201";
 
+    /**
+     * 收件人联系方式需要突出显示的位数
+     */
+    private static final int PHONE_HIGHLIGHT_NUMBER = 4;
+
     @Override
     public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -281,6 +286,17 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
             commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
+            //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
+            String receiverMobile = tmsWaybill.getReceiverMobile();
+            String receiverTel = tmsWaybill.getReceiverTel();
+            if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+            }
+            if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            }
             if(null!=tmsWaybillManageDomain){
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);

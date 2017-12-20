@@ -164,6 +164,15 @@ public class PrintWaybill extends BasePrintWaybill {
     */
     private String customerContacts ;
 
+    /**
+     * 客户联系方式 tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()
+     */
+    private String mobileFirst;
+    private String mobileLast;
+
+    private String telFirst;
+    private String telLast;
+
     private Integer distributeType;
 
     private String sendPay;
@@ -553,5 +562,37 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setUserLevel(String userLevel) {
         this.userLevel = userLevel;
+    }
+
+    public String getTelFirst() {
+        return telFirst;
+    }
+
+    public void setTelFirst(String telFirst) {
+        this.telFirst = telFirst;
+    }
+
+    public String getTelLast() {
+        return telLast;
+    }
+
+    public void setTelLast(String telLast) {
+        this.telLast = telLast;
+    }
+
+    public String getMobileLast() {
+        return mobileLast;
+    }
+
+    public void setMobileLast(String mobileLast) {
+        this.mobileLast = mobileLast;
+    }
+
+    public String getMobileFirst() {
+        return mobileFirst;
+    }
+
+    public void setMobileFirst(String mobileFirst) {
+        this.mobileFirst = mobileFirst;
     }
 }
