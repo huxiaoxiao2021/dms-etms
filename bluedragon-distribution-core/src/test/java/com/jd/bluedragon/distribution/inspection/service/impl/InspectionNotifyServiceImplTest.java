@@ -86,12 +86,14 @@ public class InspectionNotifyServiceImplTest {//extends TestBase {
         waybills.add("VG39496137774");
         waybills.add("VF39481178251");
         waybills.add("VF39784055916");
+        waybills.add("VTF39784055916");
         waybills.add("VG39497462336");
         waybills.add("69537669621");
         waybills.add("70089544750");
         waybills.add("69933430726");
         waybills.add("70089374827");
         waybills.add("69553517491");
+        waybills.add("T69553517491");
         return waybills;
     }
     
