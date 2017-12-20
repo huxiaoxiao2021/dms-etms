@@ -16,7 +16,7 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.gantry.domain.DcsGantryDeviceConfig;
+import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
@@ -617,16 +617,16 @@ public class DeliveryResource {
     }
     
     /**
-     * dcs获取设备对应的批次号
+     * 手动获取设备对应的批次号
      *
      * @param request
      * @return
      */
     @POST
-    @Path("/delivery/dcsGetSendCode")
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.dcsGetSendCode", mState = {JProEnum.TP})
-    public ScannerFrameBatchSendResponse autoGetSendCode(DcsGantryDeviceConfig config) {
-        this.logger.info("dcs获取设备对应的批次号");
+    @Path("/delivery/handAchieveSendCode")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
+    public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
+        this.logger.info("手动获取设备对应的批次号");
         ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getAndGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
         
         if (scannerFrameBatchSend != null) {

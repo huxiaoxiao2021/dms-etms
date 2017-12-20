@@ -4,11 +4,10 @@ package com.jd.bluedragon.distribution.gantry.domain;
 import java.util.Date;
 
 /**
- * Created by yanghongqiang on 2016/3/11.
- * 龙门架编号，操作时间，返回操作类型，操作人ID、姓名、操作站点ID，名称、批次号（可选）等其它信息
- * "siteCode":2015,"siteName":"北京双树分拣中心","staffName":"杨宏强","orgId":6,"dmsCode":"010F005"
+ * Created by lihuachang on 2017/12/18.
+ *
  */
-public class DcsGantryDeviceConfig {
+public class SendGantryDeviceConfig {
 
 private Date operateTime;
 	
