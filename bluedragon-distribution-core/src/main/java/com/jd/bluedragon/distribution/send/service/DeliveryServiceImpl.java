@@ -3140,12 +3140,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
+                pushInspection(domain,packageCode);
             	pushAtuoSorting(domain,packageCode);
             	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                pushInspection(domain);//自动发货 大件先写TASK_INSPECTION   add by lhc 2017.12.20
+                pushInspection(domain,null);//自动发货 大件先写TASK_INSPECTION   add by lhc 2017.12.20
                 pushSorting(domain);//大件写TASK_SORTING
             } else {
                 SendDetail tSendDatail = new SendDetail();
@@ -3167,7 +3168,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 推验货任务
      * @param domain
      */
-    private void pushInspection(SendM domain) {
+    private void pushInspection(SendM domain,String packageCode) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
 
@@ -3178,12 +3179,20 @@ public class DeliveryServiceImpl implements DeliveryService {
         inspection.setSiteName(createSiteName);
         inspection.setOperateTime(DateHelper.formatDateTime(new Date(domain.getOperateTime().getTime()-60000)));
         inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-        inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
+        if(packageCode != null){
+            inspection.setPackageBarOrWaybillCode(packageCode);
+        }else{
+            inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
+        }
 
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(String.valueOf(domain.getCreateUserCode()));
-        request.setKeyword2(domain.getBoxCode());
+        if(packageCode != null){
+            request.setKeyword2(packageCode);
+        }else{
+            request.setKeyword2(domain.getBoxCode());
+        }
         request.setType(Task.TASK_TYPE_INSPECTION);
         request.setOperateTime(DateHelper.formatDateTime(new Date(domain.getOperateTime().getTime()-60000)));
         request.setSiteCode(domain.getCreateSiteCode());
