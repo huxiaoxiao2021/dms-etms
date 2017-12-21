@@ -43,7 +43,7 @@ public interface ContainerRelationService {
      * @param sendStatus
      * @param startTime
      * @param endTime
-     * @param pageNo
+     * @param startIndex
      * @param pageSize
      * @return
      */
@@ -53,7 +53,7 @@ public interface ContainerRelationService {
                                                                Integer sendStatus,
                                                                String startTime,
                                                                String endTime,
-                                                               Integer pageNo,
+                                                               Integer startIndex,
                                                                Integer pageSize);
 
     List<ContainerRelation> getContainerRelationByBoxCode(String boxCode);

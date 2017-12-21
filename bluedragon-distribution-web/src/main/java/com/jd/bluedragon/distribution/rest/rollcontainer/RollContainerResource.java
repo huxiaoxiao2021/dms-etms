@@ -12,22 +12,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationPager;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationCondition;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
 import com.jd.bluedragon.distribution.rollcontainer.domain.RollContainer;
 import com.jd.bluedragon.distribution.rollcontainer.service.ContainerRelationService;
 import com.jd.bluedragon.distribution.rollcontainer.service.RollContainerService;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 
@@ -260,15 +256,16 @@ public class RollContainerResource {
 	 */
 	@POST
 	@Path("/rollContainer/getContainerRelationPager")
-    public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationPager pager){
-    	if(pager.getDmsId() == null || pager.getDmsId() == 0){
+    public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition){
+    	if(condition.getDmsId() == null || condition.getDmsId() == 0){
 			Pager reponese = new Pager();
 			reponese.setTotalSize(0);
 			reponese.setData(Collections.EMPTY_LIST);
     		return reponese;
 		}
-		return containerRelationService.getContainerRelationPager( pager.getBoxCode(),  pager.getSiteCode(), pager.getDmsId()
-				, pager.getSendStatus(), pager.getStartTime(), pager.getEndTime(), pager.getPage(), pager.getPageSize());
+		Pager<List<ContainerRelation>> pager = new Pager<List<ContainerRelation>>(condition.getPage(), condition.getPageSize());
+		return containerRelationService.getContainerRelationPager( condition.getBoxCode(),  condition.getSiteCode(), condition.getDmsId()
+				, condition.getSendStatus(), condition.getStartTime(), condition.getEndTime(), pager.getStartIndex(), pager.getPageSize());
 	}
 
 	/**

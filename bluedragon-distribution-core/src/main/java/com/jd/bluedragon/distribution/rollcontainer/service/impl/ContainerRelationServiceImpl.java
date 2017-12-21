@@ -52,7 +52,7 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 																	  Integer sendStatus,
 																	  String startTime,
 																	  String endTime,
-																	  Integer pageNo,
+																	  Integer startIndex,
 																	  Integer pageSize) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("boxCode", boxCode);
@@ -61,7 +61,7 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 		param.put("sendStatus", sendStatus);
 		param.put("startTime", startTime);
 		param.put("endTime", endTime);
-		param.put("pageNo", pageNo);
+		param.put("startIndex", startIndex);
 		param.put("pageSize", pageSize);
 		List<ContainerRelation> containerRelationList = containerRelationDao.getContainerRelationByModel(param);
 		Integer count = containerRelationDao.getContainerRelationCountByModel(param);

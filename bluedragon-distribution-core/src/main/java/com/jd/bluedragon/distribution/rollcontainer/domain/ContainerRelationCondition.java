@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.rollcontainer.domain;
 /**
  * Created by jinjingcheng on 2017/12/20.
  */
-public class ContainerRelationPager extends ContainerRelation{
+public class ContainerRelationCondition extends ContainerRelation{
     private String startTime;
     private String endTime;
     private Integer page;
