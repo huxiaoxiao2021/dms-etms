@@ -19,7 +19,7 @@ public enum WeightByWaybillExceptionTypeEnum
     WaybillWeightVOConvertExcetion(true,WeightByWaybillExceptionTypeEnum.WaybillWeightVOConvertExcetionMessage),
 
     //由于网络等其他原因，MQ服务不可用，MQ发送过程出错
-    MQServiceNotAvailableException(true,WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableMessage),
+    MQServiceNotAvailableException(false,WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableMessage),
 
     //通过非界面操作方式调用运单称重录入方法
     InvalidMethodInvokeException(true,WeightByWaybillExceptionTypeEnum.InvalidMethodInvokeExceptionMessage);
@@ -28,7 +28,7 @@ public enum WeightByWaybillExceptionTypeEnum
     public static final String WaybillServiceNotAvailableExceptionMessage = "调取运单系统失败，运单查询接口不可用";
     public static final String WaybillNotFindExceptionMessage = "调取运单系统成功，但未查询到运单数据";
     public static final String WaybillWeightVOConvertExcetionMessage = "调取运单称重量方对象转换JSON失败，请检查原因";
-    public static final String MQServiceNotAvailableMessage = "运单称重信息MQ发送失败，请检查原因";
+    public static final String MQServiceNotAvailableMessage = "运单称重信息MQ发送失败，将转为task异步重试";
     public static final String InvalidMethodInvokeExceptionMessage = "遭遇非界面操作方式调用运单称重录入方法";
 
 
