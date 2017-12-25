@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -108,6 +109,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private DistributionReceiveJsfService distributionReceiveJsfService;//备件库配送入
+
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
 
     @Resource
     @Qualifier("workerProducer")
@@ -606,19 +610,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String wayBillCode = (String) entry.getKey();
 
-                ReverseSendWms send = null;//原单信息
-                ReverseSendWms sendTwaybill = null;//T单信息
-                send = tBaseService.getWaybillByOrderCode(wayBillCode);
-                sendTwaybill = tBaseService.getWaybillByOrderCode(operCodeMap.get(wayBillCode));//根据T单号获取运单信息
-                if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
+                ReverseSendWms send = makeReverseSendWmsAndInitSickFlag(wayBillCode, operCodeMap.get(wayBillCode));
+                if(send==null){
                     continue;
                 }
-                if (sendTwaybill == null ) {
-                    this.logger.info("调用运单接口获得数据为空,T运单号" + operCodeMap.get(wayBillCode));
-                    continue;
-                }
-                send.setSickWaybill(sendTwaybill.getWaybillSign().charAt(33) == '2');//waybillSign第34位为2则视为病单，true病单 ，false 非病单
+
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wayBillCode)) {
@@ -643,20 +639,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     throw new Exception("调用报损订单接口失败, 运单号为" + wayBillCode);
                 }
 
-                ReverseSendWms send = null;
-                ReverseSendWms sendTwaybill = null;
-
-                send = tBaseService.getWaybillByOrderCode(wayBillCode);
-                sendTwaybill = tBaseService.getWaybillByOrderCode(operCodeMap.get(wayBillCode));//根据T单号获取运单信息
-                if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
+                ReverseSendWms send = makeReverseSendWmsAndInitSickFlag(wayBillCode, operCodeMap.get(wayBillCode));
+                if(send==null){
                     continue;
                 }
-                if (sendTwaybill == null ) {
-                    this.logger.info("调用运单接口获得数据为空,T运单号" + operCodeMap.get(wayBillCode));
-                    continue;
-                }
-                send.setSickWaybill(sendTwaybill.getWaybillSign().charAt(33) == '2');//waybillSign第34位为2则视为病单，true病单 ，false 非病单
 
                 if (lossCount != 0) {
                     // 运单系统拿出的商品明细
@@ -707,6 +693,45 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             return false;
         }
 
+    }
+
+    /**
+     * 获取回传运单信息 并初始化病单标识
+     * @param wayBillCode 原单号
+     * @param tWayBillCode 逆向单号
+     * @return
+     */
+    public ReverseSendWms makeReverseSendWmsAndInitSickFlag(String wayBillCode,String tWayBillCode){
+
+        ReverseSendWms send = null;//原单信息
+        ReverseSendWms sendTwaybill = null;//T单信息
+        boolean isSickWaybill = false;
+        send = tBaseService.getWaybillByOrderCode(wayBillCode);
+        if (send == null) {
+            this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
+            return null;
+        }
+
+        if(tWayBillCode!=null && !wayBillCode.equals(tWayBillCode)){
+            sendTwaybill = tBaseService.getWaybillByOrderCode(tWayBillCode);//根据T单号获取运单信息 operCodeMap.get(wayBillCode)
+        }
+
+        if (sendTwaybill != null ) {
+            isSickWaybill = sendTwaybill.getWaybillSign().charAt(33) == '2';//waybillSign第34位为2则视为病单
+        }else{
+            this.logger.info("调用运单接口获得数据为空,T运单号" + tWayBillCode);
+
+            //如果未取到逆向运单信息 或  原单号和逆单号一致 则通过JSF服务返回的featureType=30判定病单标识
+            Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(wayBillCode);
+            if(featureType!=null){
+                isSickWaybill = Constants.FEATURE_TYPCANCEE_SICKL.equals(featureType);
+            }
+        }
+
+
+        send.setSickWaybill(isSickWaybill);
+
+        return send;
     }
 
     @SuppressWarnings("rawtypes")

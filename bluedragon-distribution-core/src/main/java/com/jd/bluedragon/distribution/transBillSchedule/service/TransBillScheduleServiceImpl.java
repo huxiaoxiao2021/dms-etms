@@ -7,7 +7,9 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,16 +77,16 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     }
 
     @Override
-    public String queryRoadCodeByWaybillCode(String waybillCode) {
+    public String queryTruckSpotByWaybillCode(String waybillCode) {
         String result = "";
         if(StringUtils.isNotBlank(waybillCode)){
             try{
-                Waybill waybillDto = waybillCommonService.findWaybillAndPack(waybillCode,true,false,false,false);
-                if(waybillDto != null && StringUtils.isNotBlank(waybillDto.getRoad())){
-                    result = waybillDto.getRoad();
+                TransbillM transbillM = transbillMService.getByWaybillCode(waybillCode);
+                if(transbillM != null && StringHelper.isNotEmpty(transbillM.getTruckSpot())){
+                	result = "卡位号:"+transbillM.getTruckSpot();
                 }
             }catch(Exception e){
-                this.logger.info("派车单号{" + waybillCode + "}从运单接口获取roadCode失败",e);
+                this.logger.info("运单号{" + waybillCode + "}获取roadCode失败",e);
             }
         }
         return result;

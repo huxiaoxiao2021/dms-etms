@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.operationLog.service.impl;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -12,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -26,11 +28,8 @@ public class OperationLogServiceImpl implements OperationLogService {
 	@Autowired
 	private OperationLogReadDao operationLogReadDao;
 	
-	@Autowired
-	private ConfigManager configManager;
-	
-	//cassandra开关
-	public static final String CASSANDRA_GLOBAL_ON_KEY = "cassandra.global.on";
+	@Resource
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	/**
 	 * 记录log到cassandra中
@@ -42,8 +41,7 @@ public class OperationLogServiceImpl implements OperationLogService {
 		CallerInfo info = null;
 		try {
 			info = Profiler.registerInfo("DMSWEB.OperationLogService.add", false, true);
-			String cassandraOn = configManager.getProperty(CASSANDRA_GLOBAL_ON_KEY);
-			if(cassandraOn!=null && "true".equalsIgnoreCase(cassandraOn)){
+			if(uccPropertyConfiguration.getCassandraGlobalSwitch()){
 				logCassandra.batchInsert(operationLog);
 			}
 		} catch (Throwable e) {

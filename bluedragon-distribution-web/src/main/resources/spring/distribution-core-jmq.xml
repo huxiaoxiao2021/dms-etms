@@ -236,4 +236,9 @@
     <bean id="unsealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.unsealCar}"/>
     </bean>
+
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="weighByWaybillProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsWaybillWeight}"/>
+    </bean>
 </beans>

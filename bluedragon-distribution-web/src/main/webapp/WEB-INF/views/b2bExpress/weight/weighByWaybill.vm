@@ -1,0 +1,75 @@
+## 运单称重  luyue  2017-12
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>运单称重</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+
+    <link rel="stylesheet" href="/static/lib/easyui/color.css">
+    <link rel="stylesheet" href="/static/lib/easyui/icon.css">
+    <link rel="stylesheet" href="/static/lib/easyui/easyui.css">
+
+    <script type="text/javascript" src="/static/js/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="/static/lib/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/lib/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/b2bExpress/weight/weighByWaybill.js')"></script>
+
+    <style  type="text/css">
+        #waybill-weight-form-wrapper{
+            margin-top: 30px;
+            margin-left: 30px;
+        }
+
+        .waybill-weight-input-wrapper{
+            float: left;
+            margin-left: 20px;
+        }
+
+        #waybill-weight-btn-wrapper{
+            float: left;
+            margin-left:30px;
+        }
+
+        #waybill-weight-success-datagrid-wrapper{
+            clear: both;
+            margin-top:100px;
+        }
+    </style>
+</head>
+<body>
+    <div id="breadcrumb">
+        <p><a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">快运运单称重</a></p>
+    </div>
+    <div id="waybill-weight-form-wrapper">
+        <form id="waybill-weight-form">
+            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+                <span class="input-text-span"><span style="color: red">*</span>运单号/运单下包裹号 : </span>
+                <input id="waybill-weight-code-input" type="text" value="codeStr">
+            </div>
+            <div id="weight-input-wrapper" class="waybill-weight-input-wrapper">
+                <span class="input-text-span"><span style="color: red">*</span>总重量 : </span>
+                <input id="waybill-weight-kg-input" type="text" value="weight"></input>
+            </div>
+            <div id="cbm-input-wrapper" class="waybill-weight-input-wrapper">
+                <span class="input-text-span"><span style="color: red">*</span>总体积 : </span>
+                <input id="waybill-weight-cbm-input" type="text" value="volume"></input>
+            </div>
+            <div id="waybill-weight-btn-wrapper">
+                <a id="waybill-weight-btn" href="#">录入运单总重量体积</a>
+            </div>
+        </form>
+    </div>
+    <div id="waybill-weight-success-datagrid-wrapper">
+        <table id="waybill-weight-success-datagrid"></table>
+    </div>
+</body>
+</html>

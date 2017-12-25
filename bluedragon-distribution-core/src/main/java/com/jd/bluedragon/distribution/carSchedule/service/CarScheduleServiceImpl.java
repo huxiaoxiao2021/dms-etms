@@ -188,6 +188,10 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     @Override
     public Integer isSameOrg(String vehicleNumber, Integer siteCode) {
         CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNumber,siteCode);
+        if (null == carScheduleTo ) {
+            logger.error("车辆调度查询该车辆信息失败，车牌号为:" + vehicleNumber + ",站点为：" + siteCode);
+            return null;
+        }
         Integer createSiteCode = carScheduleTo.getCreateSiteCode();
         Integer receiveSiteCode = carScheduleTo.getReceiveSiteCode();
         Integer result = null;
