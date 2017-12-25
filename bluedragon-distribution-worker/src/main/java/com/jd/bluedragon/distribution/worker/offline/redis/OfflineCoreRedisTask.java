@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
+import com.jd.fastjson.JSONArray;
 import com.jd.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -20,7 +21,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class OfflineCoreRedisTask extends RedisSingleScheduler {
 
@@ -77,8 +80,7 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 	 */
 	private boolean offlineSeal(String body){
 		boolean result = false;
-		SealCarDto[] sealCarDtos = JsonHelper.jsonToArray(body, SealCarDto[].class);
-		CommonDto<String> returnCommonDto = newsealVehicleService.offlineSeal(Arrays.asList(sealCarDtos));
+		CommonDto<String> returnCommonDto = newsealVehicleService.offlineSeal(convertSearCar(body));
 		if(returnCommonDto != null && Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
 			result = true;
 		}
@@ -192,5 +194,30 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 
 		return offlineLog;
 	}
+	/**
+	 * 适配离线封车JSON数据
+	 * @param body
+	 * @return
+	 */
+	private List<SealCarDto> convertSearCar(String body){
+		JSONArray temp = JSONObject.parseArray(body);
+		List<SealCarDto> sealCarDtos = new ArrayList<SealCarDto>(temp.size());
+		for (int i = 0; i < temp.size(); i++) {
+			JSONObject obj = temp.getJSONObject(i);
+			SealCarDto scDto = new SealCarDto();
+			scDto.setBatchCodes(Arrays.asList(obj.getString("batchCode").split(Constants.SEPARATOR_COMMA)));
+			scDto.setSealCarTime(obj.getString("operateTime"));
+			scDto.setSealCodes(Arrays.asList(obj.getString("shieldsCarCode").split(Constants.SEPARATOR_COMMA)));
+			scDto.setSealSiteId(obj.getInteger("receiveSiteCode"));
+			scDto.setSealSiteName(obj.getString("siteName"));
+			scDto.setSealUserCode(obj.getInteger("userCode").toString());
+			scDto.setSealUserName(obj.getString("userName"));
+			scDto.setSource(Constants.SEAL_SOURCE);
+			scDto.setTransportCode(obj.getString("sealBoxCode"));
+			scDto.setVehicleNumber(obj.getString("carCode"));
+			sealCarDtos.add(scDto);
+		}
 
+		return sealCarDtos;
+	}
 }
