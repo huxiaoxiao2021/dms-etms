@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.bluedragon.distribution.task.dao.TaskDao;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -58,6 +60,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
     @Qualifier("weighByWaybillProducer")
     private DefaultJMQProducer weighByWaybillProducer;
 
+    @Autowired
+    private TaskDao dao;
 
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
@@ -182,8 +186,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      */
     public void validWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion
     {
-        this.sendMessageToMq(dto);
         this.logToOperationlogCassandra(dto);
+        this.sendMessageToMq(dto);
     }
 
     /**
@@ -194,8 +198,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      */
     public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion
     {
-        this.sendMessageToMq(dto);
         this.logToOperationlogCassandra(dto);
+        this.sendMessageToMq(dto);
     }
 
     /**
@@ -212,6 +216,19 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         } catch (Exception e)
         {
             logger.error(e);
+
+            /*如mq服务不可用，将转为message_task进行消息发送重试*/
+            Task task = new Task();
+            task.setBoxCode(dto.getWaybillCode());
+            task.setCreateSiteCode(null);
+            task.setKeyword1("dms_waybill_weight");
+            task.setKeyword2(null);
+            task.setTableName("task_message");
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setBody(JsonHelper.toJson(dto));
+            task.setType(8000);
+
+            dao.add(TaskDao.namespace,task);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableException);
         }
 
@@ -234,8 +251,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
             goddessService.save(goddess);
         } catch (Exception e)
         {
-            logger.error("运单称重：cassandra操作日志记录失败");
-            logger.error(e);
+            logger.error("运单称重：cassandra操作日志记录失败：" + e);
         }
     }
 
