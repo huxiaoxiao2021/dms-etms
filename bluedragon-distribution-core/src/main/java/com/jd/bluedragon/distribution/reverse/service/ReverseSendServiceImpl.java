@@ -707,19 +707,21 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         ReverseSendWms sendTwaybill = null;//T单信息
         boolean isSickWaybill = false;
         send = tBaseService.getWaybillByOrderCode(wayBillCode);
-        if(wayBillCode!=null && tWayBillCode!=null && !wayBillCode.equals(tWayBillCode)){
-            sendTwaybill = tBaseService.getWaybillByOrderCode(tWayBillCode);//根据T单号获取运单信息 operCodeMap.get(wayBillCode)
-        }
         if (send == null) {
             this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
             return null;
         }
+
+        if(tWayBillCode!=null && !wayBillCode.equals(tWayBillCode)){
+            sendTwaybill = tBaseService.getWaybillByOrderCode(tWayBillCode);//根据T单号获取运单信息 operCodeMap.get(wayBillCode)
+        }
+
         if (sendTwaybill != null ) {
             isSickWaybill = sendTwaybill.getWaybillSign().charAt(33) == '2';//waybillSign第34位为2则视为病单
         }else{
             this.logger.info("调用运单接口获得数据为空,T运单号" + tWayBillCode);
 
-            //如果未取到逆向运单信息 或  原单号和逆单号一致 则通过发货取消表的featureType判定病单标识
+            //如果未取到逆向运单信息 或  原单号和逆单号一致 则通过JSF服务返回的featureType=30判定病单标识
             Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(wayBillCode);
             if(featureType!=null){
                 isSickWaybill = Constants.FEATURE_TYPCANCEE_SICKL.equals(featureType);
