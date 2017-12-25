@@ -94,6 +94,17 @@ public class BasePrintWaybill implements Serializable {
      * 寄件公司名称
      */
     private String senderCompany;
+    /**
+    * 路区
+    */
+    private String road;
+    
+    
+    /**
+    * 商家商标图像key值也就是文件名
+    */
+    private String brandImageKey ;
+    
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -349,4 +360,26 @@ public class BasePrintWaybill implements Serializable {
         this.senderCompany = senderCompany;
     }
 
+	/**
+	 * @return the road
+	 */
+	public String getRoad() {
+		return road;
+	}
+
+	/**
+	 * @param road the road to set
+	 */
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+
+	public String getBrandImageKey() {
+		return brandImageKey;
+	}
+
+	public void setBrandImageKey(String brandImageKey) {
+		this.brandImageKey = brandImageKey;
+	}
 }

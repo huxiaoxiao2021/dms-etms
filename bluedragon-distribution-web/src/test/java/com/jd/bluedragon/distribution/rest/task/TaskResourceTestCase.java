@@ -19,10 +19,10 @@ import java.util.Date;
 import java.util.Random;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/distribution-core-context.xml" })
+@ContextConfiguration(locations = { "classpath:spring/distribution-web-context.xml" })
 public class TaskResourceTestCase {
 
-	String urlRoot = "http://localhost:8888/services";
+	String urlRoot = "http://localhost:8088/services";
 
 	@Autowired
 	private TaskService taskService;

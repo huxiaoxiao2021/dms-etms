@@ -45,7 +45,7 @@ public class TransBillScheduleResource {
                 response.setWaybillCode(request.getWaybillCode());
                 response.setScheduleCode(transBillScheduleService.queryScheduleCode(request.getWaybillCode()));
                 response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
-                response.setRoadCode(transBillScheduleService.queryRoadCodeByWaybillCode(request.getWaybillCode()));
+                response.setRoadCode(transBillScheduleService.queryTruckSpotByWaybillCode(request.getWaybillCode()));
             }catch(Exception e){
                 this.logger.error("派车单信息校验失败" + request.toString());
             }

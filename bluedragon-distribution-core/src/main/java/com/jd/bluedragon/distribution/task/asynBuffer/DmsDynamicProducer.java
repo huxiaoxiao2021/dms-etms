@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.task.asynBuffer;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -8,6 +9,7 @@ import com.jd.ql.framework.asynBuffer.producer.AbstractProducer;
 import com.jd.ql.framework.asynBuffer.producer.DynamicProducer;
 import com.jd.ql.framework.asynBuffer.producer.ProducerType;
 
+import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,18 +24,19 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	public static final String PRODUCER_TYPE_KEY_TEST = "asynBuffer.dynamicProducer.producerType.test";
 
-	public static final String ENBALED_TASK_TYPE_KEY = "asynBuffer.enabled.task.type";
-
 	public static final String NOT_ENBALED_KEY_WORD1 = "asynBuffer.notenabled.task.keyword1";
 
 	@Autowired
 	private ConfigManager configManager;
 
+	@Resource
+	private UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 正式启用了AsynBuffer组建的任务类型列表，若不在其中的任务类型则还是采用原来的Tbschedule方式处理任务。
 	 */
 	public String getEnabledTypes() {
-		return configManager.getProperty(ENBALED_TASK_TYPE_KEY);
+		return uccPropertyConfiguration.getAsynbufferEnabledTaskType();
 	}
 
 
