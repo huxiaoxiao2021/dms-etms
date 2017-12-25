@@ -79,6 +79,8 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         //初始化运单数据
         LabelPrintingResponse labelPrinting = initWaybillInfo(request);
+        
+        labelPrinting.setBrandImageKey(request.getBrandImageKey());
 
         //运单没有数据，不用打印包裹标签
         if(labelPrinting==null){

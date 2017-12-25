@@ -357,6 +357,8 @@ public class Constants {
      * waybill_cancel 表 featureType ：30-病单，31-取消病单，32- 非病单
      */
     public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单
+    public static final Integer FEATURE_TYPCANCEE_SICKL = 30; // 病单
+
     /**
      * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号
      */
@@ -377,4 +379,15 @@ public class Constants {
     public static final char FLG_CHAR_YN_N = '0';
 
     public static final int SEAL_SOURCE = 1;  //封车解封车操作源（代表我们DMS系统）
+    /**
+     * container_relation 发货状态 未发货
+     */
+    public static final Integer  CONTAINER_RELATION_SEND_STATUS_NO = 0;
+    /**
+     * container_relation 发货状态 已发货
+     */
+    public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
+
+
+    public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
 }

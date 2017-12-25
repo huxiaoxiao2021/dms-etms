@@ -58,7 +58,11 @@ public class LabelPrintingRequest   {
     /** 标签类型 0：有纸化，1：无纸化 */
     public Integer labelType;
 
-
+    /**
+    * 商家商标图像key值也就是文件名
+    */
+    private String brandImageKey ;
+    
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -186,6 +190,15 @@ public class LabelPrintingRequest   {
     public void setLabelType(Integer labelType) {
         this.labelType = labelType;
     }
+
+
+	public String getBrandImageKey() {
+		return brandImageKey;
+	}
+
+	public void setBrandImageKey(String brandImageKey) {
+		this.brandImageKey = brandImageKey;
+	}
 
     @Override
     public String toString() {

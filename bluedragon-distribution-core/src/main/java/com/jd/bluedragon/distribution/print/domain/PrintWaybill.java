@@ -229,6 +229,7 @@ public class PrintWaybill extends BasePrintWaybill {
     */
     private List<PrintPackage> packList ;
 
+
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;

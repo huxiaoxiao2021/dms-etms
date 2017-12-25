@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/sortingCenterQueryTool/jquery.niceForm.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/popUp/popUp.css')">
     <script type="application/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
@@ -19,6 +20,8 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.niceForm.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/popUp/popUp.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/sortingCenterQueryTool/sortingCenterQuery.js')"></script>
 
     <style type="text/css">
@@ -106,9 +109,23 @@
                     </table>
                 </div>
 			</div>
-
 		</div>
 	</div>
+
+    <div class="popup_block" id="detailPopUp">
+        <div class="opening">
+            <div class="tbl-list">
+                <div class="tbl-bg">
+                    <table id="detailPopUpTable" cellpadding="0" cellspacing="0" style="" class="tb-x1">
+
+                    </table>
+                </div>
+            </div>
+            <div id="pager" class="tbl-n">
+
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
