@@ -135,7 +135,7 @@ $(function () {
             {field:'weight',title:'总重量/千克',width:200},
             {field:'volume',title:'总体积/立方米',width:200},
             {field:'statusText',title:'录入方式',width:200},
-            {field:'memo',title:'备注说明',width:300}
+            {field:'memo',title:'备注说明',width:500}
         ]]
     });
 
@@ -216,6 +216,7 @@ $(function () {
                         insertParam.status = VALID_EXISTS_STATUS_CODE;
 
                         involkPostSync(waybill_weight_insert_url,insertParam,function(res){
+                            console.log(res);
                             if(res.code == ERROR_PARAM_RESULT_CODE)
                             {
                                 $.messager.alert('错误','重量或体积参数输入有误，达到最大值！','error');
@@ -225,7 +226,24 @@ $(function () {
                                 /*录入失败*/
                                 $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
                                 $('#waybill-weight-btn').linkbutton('enable');
-                            }else
+                            } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
+                            {
+                                /*MQ服务不可用时，转为task重试*/
+                                $.messager.alert('运单录入结果','进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入','info');
+
+                                insertParam.statusText = '离线录入';
+                                insertParam.memo = '进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入';
+                                involkPostSync(waybill_weight_convert_url,param,function(res){
+                                    insertParam.waybillCode = res.data;
+                                });
+
+                                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+
+                                $('#waybill-weight-btn').linkbutton('enable');
+
+                                /*为方便输入 清空输入内容*/
+                                clearInputContentsFunc();
+                            } else
                             {
                                 /*录入成功*/
                                 insertParam.statusText = '在线录入';
@@ -272,6 +290,23 @@ $(function () {
                                         {
                                             /*录入失败*/
                                             $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
+                                        } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
+                                        {
+                                            /*MQ服务不可用时，转为task重试*/
+                                            $.messager.alert('运单录入结果','进行称重量方信息录入不存在运单信息，且消息发送失败，已转为离线录入','info');
+
+                                            insertParam.statusText = '离线录入';
+                                            insertParam.memo = '进行称重量方信息录入不存在运单信息，且消息发送失败，已转为离线录入';
+                                            involkPostSync(waybill_weight_convert_url,param,function(res){
+                                                insertParam.waybillCode = res.data;
+                                            });
+
+                                            $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+
+                                            $('#waybill-weight-btn').linkbutton('enable');
+
+                                            /*为方便输入 清空输入内容*/
+                                            clearInputContentsFunc();
                                         }
                                         else
                                         {
