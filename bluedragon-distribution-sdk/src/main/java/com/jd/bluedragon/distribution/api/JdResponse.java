@@ -50,6 +50,7 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_REDISPATCH = 506;
     public static final Integer CODE_NOT_CONTAINER_RELATION = 20003;
     public static final Integer CODE_NOT_EXIST_WAYBILL =409;
+    public static final Integer CODE_EXIST_BOX_CODE =600;
 
 
     public static final String MESSAGE_DRIVERS_EMPTY = "获取司机信息为空";
@@ -73,7 +74,8 @@ public class JdResponse extends JdObject {
     public static final String SEND_SITE_NO_MATCH="发货站点与箱子目的地不一致,是否继续?";
     public static final String SEND_WAYBILL_NOT_FOUND="没有获取到该运单";
     public static final String SEND_BOX_NOT_FOUND="没有获取到该箱子";
-    
+    public static final String MESSAGE_EXIST_BOX_CODE="箱号已存在";
+
     /** 请求服务URL */
     private String request;
     

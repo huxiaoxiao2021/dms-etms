@@ -21,11 +21,23 @@ public class ContainerRelationDao extends BaseDao<ContainerRelation>{
         return this.getSqlSession().insert(ContainerRelationDao.namespace + ".insertContainerRelation", containerRelation);
     }
     
-    public ContainerRelation getContainerRelation(String containerCode){
-    	return this.getSqlSession().selectOne(ContainerRelationDao.namespace + ".getContainerRelation", containerCode);
+    public ContainerRelation getContainerRelation(Map<String, Object> param){
+    	return this.getSqlSession().selectOne(ContainerRelationDao.namespace + ".getContainerRelation", param);
     }
     
     public int updateContainerRelationByCode(ContainerRelation containerRelation){
         return this.getSqlSession().update(ContainerRelationDao.namespace + ".updateContainerRelation", containerRelation);
+    }
+
+    public List<ContainerRelation> getContainerRelationByModel(Map<String, Object> param) {
+
+        return this.getSqlSession().selectList(ContainerRelationDao.namespace + ".getContainerRelationByModel",
+                param);
+    }
+
+    public Integer getContainerRelationCountByModel(Map<String, Object> param) {
+
+        return (Integer) this.getSqlSession().selectOne(ContainerRelationDao.namespace + ".getContainerRelationCountByModel",
+                param);
     }
 }
