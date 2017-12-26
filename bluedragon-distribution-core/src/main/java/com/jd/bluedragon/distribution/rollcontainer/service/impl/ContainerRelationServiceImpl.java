@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.rollcontainer.service.impl;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationCondition;
+import com.jd.bluedragon.utils.ObjectMapHelper;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,30 +49,31 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 	}
 
 	@Override
-	public Pager<List<ContainerRelation>> getContainerRelationPager(String boxCode,
-																	  String siteCode,
-																	  Integer dmsId,
-																	  Integer sendStatus,
-																	  String startTime,
-																	  String endTime,
-																	  Integer startIndex,
-																	  Integer pageSize) {
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("boxCode", boxCode);
-		param.put("siteCode", siteCode);
-		param.put("dmsId", dmsId);
-		param.put("sendStatus", sendStatus);
-		param.put("startTime", startTime);
-		param.put("endTime", endTime);
-		param.put("startIndex", startIndex);
-		param.put("pageSize", pageSize);
+	public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition,
+																	Pager<List<ContainerRelation>> pager) {
+		Map<String, Object> param = convertContainerRelationCondition2Map(condition, pager);
 		List<ContainerRelation> containerRelationList = containerRelationDao.getContainerRelationByModel(param);
 		Integer count = containerRelationDao.getContainerRelationCountByModel(param);
-		Pager<List<ContainerRelation>> pager = new Pager<List<ContainerRelation>>();
 		pager.setData(containerRelationList);
 		pager.setTotalSize(count);
-		pager.setPageSize(pageSize);
 		return pager;
+	}
+
+	@Override
+	public List<ContainerRelation> getContainerRelationByModel(ContainerRelationCondition condition){
+		Map<String, Object> param = convertContainerRelationCondition2Map(condition, null);
+		List<ContainerRelation> containerRelationList = containerRelationDao.getContainerRelationByModel(param);
+		return containerRelationList;
+	}
+	private Map<String, Object> convertContainerRelationCondition2Map(ContainerRelationCondition condition,
+																	  Pager<List<ContainerRelation>> pager){
+
+		Map<String, Object> param = ObjectMapHelper.makeObject2Map(condition);
+		if(pager != null){
+			param.put("startIndex", pager.getStartIndex());
+			param.put("pageSize", pager.getPageSize());
+		}
+		return param;
 	}
 
 	/**
