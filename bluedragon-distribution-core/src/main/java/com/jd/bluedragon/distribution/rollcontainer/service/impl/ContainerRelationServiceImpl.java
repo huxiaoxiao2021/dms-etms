@@ -68,7 +68,7 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 	private Map<String, Object> convertContainerRelationCondition2Map(ContainerRelationCondition condition,
 																	  Pager<List<ContainerRelation>> pager){
 
-		Map<String, Object> param = ObjectMapHelper.makeObject2Map(condition);
+		Map<String, Object> param = ObjectMapHelper.convertObject2Map(condition);
 		if(pager != null){
 			param.put("startIndex", pager.getStartIndex());
 			param.put("pageSize", pager.getPageSize());
