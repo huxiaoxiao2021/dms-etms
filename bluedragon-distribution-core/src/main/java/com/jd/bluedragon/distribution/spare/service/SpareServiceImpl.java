@@ -116,15 +116,16 @@ public class SpareServiceImpl implements SpareService {
         //获取备件库条码前缀
         InvokeResult<String> storeTag = rdWmsStoreService
         		.getOrgStoreTag(spareReq.getOrgId(),spareReq.getStoreSiteId(), spareReq.getStoreId());
-        
-        if(InvokeResult.RESULT_SUCCESS_CODE == storeTag.getCode()){
+        //获取备件库条码前缀失败或返回为空,使用默认条码前缀
+        if(InvokeResult.RESULT_SUCCESS_CODE == storeTag.getCode()
+        		&& StringHelper.isNotEmpty(storeTag.getData())){
         	spare.setType(storeTag.getData());
-            List<Spare> spareCodes = this.batchAdd(spare);
-            rest.setData(spareCodes);
         }else{
-        	logger.warn(storeTag.getMessage());
-            rest.customMessage(InvokeResult.RESULT_NULL_CODE,storeTag.getMessage());
+        	spare.setType(Constants.SPARE_CODE_PREFIX_DEFAULT);
+        	logger.warn("备件库条码前缀获取为空，设置默认值为‘null’"+storeTag.getMessage());
         }
+        List<Spare> spareCodes = this.batchAdd(spare);
+        rest.setData(spareCodes);
         return rest;
 	}
 }

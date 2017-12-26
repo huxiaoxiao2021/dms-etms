@@ -64,4 +64,15 @@ public class BusinessHelperTest {
 			System.err.println(code+"->"+storeId);
 		}
 	}
+	@Test
+	public void testIsReverseSpareCode() {
+		String[] codes = {"un1234567890123456","null1234567890123456",
+				"zA1234567890123456","Az1234567890123456",
+				"1234567890123456","A11234567890123456",
+				"null2017122600001004","^#2017122600001004"};
+		for(String code:codes){
+			boolean storeId = BusinessHelper.isReverseSpareCode(code);
+			System.err.println(code+"->"+storeId);
+		}
+	}
 }

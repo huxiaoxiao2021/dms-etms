@@ -376,4 +376,8 @@ public class Constants {
      * 字符类型yn标识-0-否
      */
     public static final char FLG_CHAR_YN_N = '0';
+    /**
+     * 备件库条码前缀默认值-"null"
+     */
+    public static final String SPARE_CODE_PREFIX_DEFAULT="null";
 }

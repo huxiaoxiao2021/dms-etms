@@ -243,7 +243,7 @@
                   protocol="jsf" alias="${unpack.jsf.alias}" serialization="hessian" timeout="10000" retries="3">
     </jsf:consumer>
     <!-- 备件库扩展接口  -->
-	<jsf:consumer id="rdWmsStoreExtendService" interface=" com.jd.rd.wms.jsf.bin.service.RdWmsStoreExtendService" 
+	<jsf:consumer id="rdWmsStoreExtendService" interface="com.jd.rd.wms.jsf.bin.service.RdWmsStoreExtendService" 
 		protocol="jsf" alias="${jsf.rdWmsStoreExtendService.alias}" timeout="5000" retries="3">
 	</jsf:consumer>
 </beans>
