@@ -1,0 +1,4 @@
+## 图表公共引用
+
+<script src="/static/imports/echarts/v3.8/echarts.min.js"></script>
+<script src="/static/imports/echarts/v3.8/theme/macarons.js"></script>

@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.transport.dao.ArExcpRegisterDao">
+
+	<resultMap id="ArExcpRegister" type="com.jd.bluedragon.distribution.transport.domain.ArExcpRegister" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="excp_time" property="excpTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="excp_node" property="excpNode" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="transport_type" property="transportType" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="order_code" property="orderCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="transport_name" property="transportName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_order" property="siteOrder" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_city_name" property="startCityName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_city_id" property="startCityId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="end_city_name" property="endCityName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="end_city_id" property="endCityId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="plan_start_time" property="planStartTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="plan_end_time" property="planEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="excp_type" property="excpType" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="excp_type_name" property="excpTypeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="excp_reason" property="excpReason" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="excp_reason_name" property="excpReasonName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="excp_result" property="excpResult" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="excp_result_name" property="excpResultName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="excp_city" property="excpCity" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="excp_city_id" property="excpCityId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="excp_num" property="excpNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="excp_package_num" property="excpPackageNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="operator_erp" property="operatorErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,excp_time,excp_node,transport_type,order_code,transport_name,
+		site_order,start_city_name,start_city_id,end_city_name,end_city_id,
+		plan_start_time,plan_end_time,excp_type,excp_type_name,excp_reason,
+		excp_reason_name,excp_result,excp_result_name,excp_city,excp_city_id,
+		excp_num,excp_package_num,operator_erp,remark,create_user,
+		update_user,create_time,update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArExcpRegister">
+		insert into ar_excp_register
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="excpTime != null">
+					excp_time,
+				</if>
+				<if test="excpNode != null">
+					excp_node,
+				</if>
+				<if test="transportType != null">
+					transport_type,
+				</if>
+				<if test="orderCode != null">
+					order_code,
+				</if>
+				<if test="transportName != null">
+					transport_name,
+				</if>
+				<if test="siteOrder != null">
+					site_order,
+				</if>
+				<if test="startCityName != null">
+					start_city_name,
+				</if>
+				<if test="startCityId != null">
+					start_city_id,
+				</if>
+				<if test="endCityName != null">
+					end_city_name,
+				</if>
+				<if test="endCityId != null">
+					end_city_id,
+				</if>
+				<if test="planStartTime != null">
+					plan_start_time,
+				</if>
+				<if test="planEndTime != null">
+					plan_end_time,
+				</if>
+				<if test="excpType != null">
+					excp_type,
+				</if>
+				<if test="excpTypeName != null">
+					excp_type_name,
+				</if>
+				<if test="excpReason != null">
+					excp_reason,
+				</if>
+				<if test="excpReasonName != null">
+					excp_reason_name,
+				</if>
+				<if test="excpResult != null">
+					excp_result,
+				</if>
+				<if test="excpResultName != null">
+					excp_result_name,
+				</if>
+				<if test="excpCity != null">
+					excp_city,
+				</if>
+				<if test="excpCityId != null">
+					excp_city_id,
+				</if>
+				<if test="excpNum != null">
+					excp_num,
+				</if>
+				<if test="excpPackageNum != null">
+					excp_package_num,
+				</if>
+				<if test="operatorErp != null">
+					operator_erp,
+				</if>
+				<if test="remark != null">
+					remark,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="updateUser != null">
+					update_user,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="excpTime != null">
+					#{excpTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="excpNode != null">
+					#{excpNode,jdbcType=SMALLINT},
+				</if>
+				<if test="transportType != null">
+					#{transportType,jdbcType=SMALLINT},
+				</if>
+				<if test="orderCode != null">
+					#{orderCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transportName != null">
+					#{transportName,jdbcType=VARCHAR},
+				</if>
+				<if test="siteOrder != null">
+					#{siteOrder,jdbcType=VARCHAR},
+				</if>
+				<if test="startCityName != null">
+					#{startCityName,jdbcType=VARCHAR},
+				</if>
+				<if test="startCityId != null">
+					#{startCityId,jdbcType=INTEGER},
+				</if>
+				<if test="endCityName != null">
+					#{endCityName,jdbcType=VARCHAR},
+				</if>
+				<if test="endCityId != null">
+					#{endCityId,jdbcType=INTEGER},
+				</if>
+				<if test="planStartTime != null">
+					#{planStartTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="planEndTime != null">
+					#{planEndTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="excpType != null">
+					#{excpType,jdbcType=SMALLINT},
+				</if>
+				<if test="excpTypeName != null">
+					#{excpTypeName,jdbcType=VARCHAR},
+				</if>
+				<if test="excpReason != null">
+					#{excpReason,jdbcType=SMALLINT},
+				</if>
+				<if test="excpReasonName != null">
+					#{excpReasonName,jdbcType=VARCHAR},
+				</if>
+				<if test="excpResult != null">
+					#{excpResult,jdbcType=SMALLINT},
+				</if>
+				<if test="excpResultName != null">
+					#{excpResultName,jdbcType=VARCHAR},
+				</if>
+				<if test="excpCity != null">
+					#{excpCity,jdbcType=VARCHAR},
+				</if>
+				<if test="excpCityId != null">
+					#{excpCityId,jdbcType=INTEGER},
+				</if>
+				<if test="excpNum != null">
+					#{excpNum,jdbcType=INTEGER},
+				</if>
+				<if test="excpPackageNum != null">
+					#{excpPackageNum,jdbcType=INTEGER},
+				</if>
+				<if test="operatorErp != null">
+					#{operatorErp,jdbcType=VARCHAR},
+				</if>
+				<if test="remark != null">
+					#{remark,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into ar_excp_register
+			(
+				excp_time,excp_node,transport_type,order_code,
+				transport_name,site_order,start_city_name,start_city_id,end_city_name,
+				end_city_id,plan_start_time,plan_end_time,excp_type,excp_type_name,
+				excp_reason,excp_reason_name,excp_result,excp_result_name,excp_city,
+				excp_city_id,excp_num,excp_package_num,operator_erp,remark,
+				create_user,update_user,create_time,update_time,is_delete,
+				ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.excpTime,jdbcType=TIMESTAMP},
+					#{item.excpNode,jdbcType=SMALLINT},
+					#{item.transportType,jdbcType=SMALLINT},
+					#{item.orderCode,jdbcType=VARCHAR},
+					#{item.transportName,jdbcType=VARCHAR},
+					#{item.siteOrder,jdbcType=VARCHAR},
+					#{item.startCityName,jdbcType=VARCHAR},
+					#{item.startCityId,jdbcType=INTEGER},
+					#{item.endCityName,jdbcType=VARCHAR},
+					#{item.endCityId,jdbcType=INTEGER},
+					#{item.planStartTime,jdbcType=TIMESTAMP},
+					#{item.planEndTime,jdbcType=TIMESTAMP},
+					#{item.excpType,jdbcType=SMALLINT},
+					#{item.excpTypeName,jdbcType=VARCHAR},
+					#{item.excpReason,jdbcType=SMALLINT},
+					#{item.excpReasonName,jdbcType=VARCHAR},
+					#{item.excpResult,jdbcType=SMALLINT},
+					#{item.excpResultName,jdbcType=VARCHAR},
+					#{item.excpCity,jdbcType=VARCHAR},
+					#{item.excpCityId,jdbcType=INTEGER},
+					#{item.excpNum,jdbcType=INTEGER},
+					#{item.excpPackageNum,jdbcType=INTEGER},
+					#{item.operatorErp,jdbcType=VARCHAR},
+					#{item.remark,jdbcType=VARCHAR},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.updateUser,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArExcpRegister">
+		update ar_excp_register
+			<set>
+				<if test="excpTime != null">
+					excp_time = #{excpTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="excpNode != null">
+					excp_node = #{excpNode,jdbcType=SMALLINT},
+				</if>
+				<if test="transportType != null">
+					transport_type = #{transportType,jdbcType=SMALLINT},
+				</if>
+				<if test="orderCode != null">
+					order_code = #{orderCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transportName != null">
+					transport_name = #{transportName,jdbcType=VARCHAR},
+				</if>
+				<if test="siteOrder != null">
+					site_order = #{siteOrder,jdbcType=VARCHAR},
+				</if>
+				<if test="startCityName != null">
+					start_city_name = #{startCityName,jdbcType=VARCHAR},
+				</if>
+				<if test="startCityId != null">
+					start_city_id = #{startCityId,jdbcType=INTEGER},
+				</if>
+				<if test="endCityName != null">
+					end_city_name = #{endCityName,jdbcType=VARCHAR},
+				</if>
+				<if test="endCityId != null">
+					end_city_id = #{endCityId,jdbcType=INTEGER},
+				</if>
+				<if test="planStartTime != null">
+					plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="planEndTime != null">
+					plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="excpType != null">
+					excp_type = #{excpType,jdbcType=SMALLINT},
+				</if>
+				<if test="excpTypeName != null">
+					excp_type_name = #{excpTypeName,jdbcType=VARCHAR},
+				</if>
+				<if test="excpReason != null">
+					excp_reason = #{excpReason,jdbcType=SMALLINT},
+				</if>
+				<if test="excpReasonName != null">
+					excp_reason_name = #{excpReasonName,jdbcType=VARCHAR},
+				</if>
+				<if test="excpResult != null">
+					excp_result = #{excpResult,jdbcType=SMALLINT},
+				</if>
+				<if test="excpResultName != null">
+					excp_result_name = #{excpResultName,jdbcType=VARCHAR},
+				</if>
+				<if test="excpCity != null">
+					excp_city = #{excpCity,jdbcType=VARCHAR},
+				</if>
+				<if test="excpCityId != null">
+					excp_city_id = #{excpCityId,jdbcType=INTEGER},
+				</if>
+				<if test="excpNum != null">
+					excp_num = #{excpNum,jdbcType=INTEGER},
+				</if>
+				<if test="excpPackageNum != null">
+					excp_package_num = #{excpPackageNum,jdbcType=INTEGER},
+				</if>
+				<if test="operatorErp != null">
+					operator_erp = #{operatorErp,jdbcType=VARCHAR},
+				</if>
+				<if test="remark != null">
+					remark = #{remark,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update ar_excp_register
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update ar_excp_register
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="ArExcpRegister">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_excp_register 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArExcpRegister" resultMap="ArExcpRegister">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_excp_register 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  ar_excp_register 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ArExcpRegister">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_excp_register 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
