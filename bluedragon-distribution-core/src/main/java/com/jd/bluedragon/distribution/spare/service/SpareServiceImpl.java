@@ -77,7 +77,7 @@ public class SpareServiceImpl implements SpareService {
 	private String generateKey(Spare spare) {
 		return spare.getType() + SpareServiceImpl.separator + spare.getType()
 				+ SpareServiceImpl.separator
-				;
+				+ DateHelper.formatDate(new Date(), Constants.DATE_FORMAT1);
 	}
 	
 	public Spare findBySpareCode(String code) {
