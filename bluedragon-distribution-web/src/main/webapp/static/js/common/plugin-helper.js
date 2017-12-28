@@ -236,6 +236,18 @@ jQuery.extend({
         /*获取某一时间n天前或n天后时间date对象*/
         addDays:function(date,days){
             return window.date.addDays(date, days);
+        },
+        /*时间戳转字符串 格式:YYYY-MM-DD HH:mm:ss*/
+        formateDateTimeOfTs:function(date){
+            return window.date.format(new Date(date),'YYYY-MM-DD HH:mm:ss');
+        },
+        /*时间戳转字符串 格式:YYYY-MM-DD*/
+        formateDateOfTs:function(date){
+            return window.date.format(new Date(date),'YYYY-MM-DD');
+        },
+        /*时间戳转字符串 格式:HH:mm:ss*/
+        formateTimeOfTs:function(date){
+            return window.date.format(new Date(date),'HH:mm:ss');
         }
 
     },
