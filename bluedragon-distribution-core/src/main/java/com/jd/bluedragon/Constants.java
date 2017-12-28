@@ -390,4 +390,8 @@ public class Constants {
 
 
     public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
+    /**
+     * 备件库条码前缀默认值-"null"
+     */
+    public static final String SPARE_CODE_PREFIX_DEFAULT="null";
 }

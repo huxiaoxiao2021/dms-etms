@@ -22,6 +22,10 @@ public class InvokeResult<T> implements Serializable {
     public static final String SERVER_ERROR_MESSAGE="服务器执行异常";
 
     public static final int RESULT_PARAMETER_ERROR_CODE=400;
+    /**
+     * 第三方接口异常
+     */
+    public static final int RESULT_THIRD_ERROR_CODE=401;
     public static final String PARAM_ERROR = "参数错误";
 
     public static final int RESULT_MULTI_ERROR=600;

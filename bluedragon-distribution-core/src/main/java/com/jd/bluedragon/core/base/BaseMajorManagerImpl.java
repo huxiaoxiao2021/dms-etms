@@ -77,7 +77,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             return dtoStaff;
         else
             dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-
         if (dtoStaff != null)
             return dtoStaff;
         else
@@ -477,7 +476,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             site.setOrgId(item.getParentId());
             site.setOrgName(item.getOrgName());
             site.setType(item.getDmsType());
-            site.setParentId(null);
+            site.setParentId(item.getParentId());
             site.setParentName(null);
             site.setSortingCenterId(null);
             site.setSortingCenterName(null);

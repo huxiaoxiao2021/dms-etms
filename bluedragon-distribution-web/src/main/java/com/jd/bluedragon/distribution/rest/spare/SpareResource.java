@@ -1,21 +1,30 @@
 package com.jd.bluedragon.distribution.rest.spare;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.SpareRequest;
-import com.jd.bluedragon.distribution.api.response.SpareResponse;
-import com.jd.bluedragon.distribution.spare.domain.Spare;
-import com.jd.bluedragon.distribution.spare.service.SpareService;
-import com.jd.bluedragon.utils.StringHelper;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.RdWmsStoreService;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.SpareRequest;
+import com.jd.bluedragon.distribution.api.response.SpareResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.spare.domain.Spare;
+import com.jd.bluedragon.distribution.spare.service.SpareService;
+import com.jd.bluedragon.utils.StringHelper;
 
 @Component
 @Path(Constants.REST_URL)
@@ -33,7 +42,6 @@ public class SpareResource {
     public SpareResponse get(@PathParam("spareCode") String spareCode) {
         Assert.notNull(spareCode, "spareCode must not be null");
         this.logger.info("spare code's " + spareCode);
-        
         Spare spare = this.spareService.findBySpareCode(spareCode);
         if (spare == null) {
             return this.spareNoFound();
@@ -49,7 +57,28 @@ public class SpareResource {
         this.spareService.reprint(this.toSpare2(request));
         return this.ok();
     }
-    
+    /**
+     * 批量生成备件条码
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/spares/genCodes")
+    public SpareResponse genCodes(SpareRequest request) {
+        Assert.notNull(request, "request must not be null");
+        this.logger.info("SpareRequest's " + request);
+        SpareResponse response = this.ok();
+        InvokeResult<List<Spare>> sparesResult = this.spareService.genCodes(request);
+        if(InvokeResult.RESULT_SUCCESS_CODE == sparesResult.getCode()){
+        	response.setSpareCodes(
+        			StringHelper.join(sparesResult.getData(),
+        					"getCode",Constants.SEPARATOR_COMMA));
+        }else{
+        	response.setCode(sparesResult.getCode());
+        	response.setMessage(sparesResult.getMessage());
+        }
+        return response;
+    }    
     @POST
     @Path("/spares")
     public SpareResponse print(SpareRequest request) {

@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.spare.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.RdWmsStoreService;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
+import com.jd.bluedragon.distribution.api.request.SpareRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spare.dao.SpareDao;
 import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,8 @@ public class SpareServiceImpl implements SpareService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	private static final String separator = "$";
+    @Autowired
+    private RdWmsStoreService rdWmsStoreService;
 	@Autowired
 	private SpareDao spareDao;
 	
@@ -71,7 +77,7 @@ public class SpareServiceImpl implements SpareService {
 	private String generateKey(Spare spare) {
 		return spare.getType() + SpareServiceImpl.separator + spare.getType()
 				+ SpareServiceImpl.separator
-				+ DateHelper.formatDate(new Date(), Constants.DATE_FORMAT1);
+				;
 	}
 	
 	public Spare findBySpareCode(String code) {
@@ -91,5 +97,35 @@ public class SpareServiceImpl implements SpareService {
 		Assert.notNull(spare.getCode(), "spare code must not be null");
 		spare.setStatus(Spare.STATUS_USED);
 		return this.update(spare);
+	}
+    /**
+     * 批量生成备件条码
+     * @param spareReq
+     * @return
+     */
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public InvokeResult<List<Spare>> genCodes(SpareRequest spareReq) {
+		InvokeResult<List<Spare>> rest = new InvokeResult<List<Spare>>();
+        Spare spare = new Spare();
+        spare.setQuantity(spareReq.getQuantity());
+        spare.setCreateUser(spareReq.getUserName());
+        spare.setCreateUserCode(spareReq.getUserCode());
+        spare.setTimes(Spare.DEFAULT_TIMES);
+        spare.setStatus(Spare.STATUS_DEFAULT);
+        //获取备件库条码前缀
+        InvokeResult<String> storeTag = rdWmsStoreService
+        		.getOrgStoreTag(spareReq.getOrgId(),spareReq.getStoreSiteId(), spareReq.getStoreId());
+        //获取备件库条码前缀失败或返回为空,使用默认条码前缀
+        if(InvokeResult.RESULT_SUCCESS_CODE == storeTag.getCode()
+        		&& StringHelper.isNotEmpty(storeTag.getData())){
+        	spare.setType(storeTag.getData());
+        }else{
+        	spare.setType(Constants.SPARE_CODE_PREFIX_DEFAULT);
+        	logger.warn("备件库条码前缀获取为空，设置默认值为‘null’"+storeTag.getMessage());
+        }
+        List<Spare> spareCodes = this.batchAdd(spare);
+        rest.setData(spareCodes);
+        return rest;
 	}
 }
