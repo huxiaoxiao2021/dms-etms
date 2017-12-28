@@ -88,7 +88,7 @@ public class BaseDao<E extends Entity> implements Dao<E>{
 
 	@Override
 	public PagerResult<E> queryByPagerCondition(PagerCondition pagerCondition) {
-		return (PagerResult<E>)this.queryByPagerCondition("queryByPagerCondition", pagerCondition);
+		return this.queryByPagerCondition("queryByPagerCondition", pagerCondition);
 	}
 	/**
 	 * 指定查询sql的id，分页查询数据
@@ -96,7 +96,7 @@ public class BaseDao<E extends Entity> implements Dao<E>{
 	 * @param pagerCondition
 	 * @return
 	 */
-	protected <C,R> PagerResult<R> queryByPagerCondition(String statementName,PagerCondition pagerCondition) {
+	protected <R> PagerResult<R> queryByPagerCondition(String statementName,PagerCondition pagerCondition) {
 		PagerResult<R> pagerResult = new PagerResult<R>();
 		int total =(Integer)this.sqlSession.selectOne(getNameSpace()+".pageNum_"+statementName, pagerCondition);
 		if(total>0){
