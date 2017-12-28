@@ -22,17 +22,7 @@ public class JosReadServiceImpl implements JosReadService {
 
     @Override
     public WhemsWaybillResponse getWhemsWaybill(List<String> request) {
-        this.logger.error("武汉邮政接口被调用，运单号"+ request.toArray());
-////        String realIP = servletRequest.getHeader("X-Forwarded-For");
-//        String emsIp = PropertiesHelper.newInstance().getValue("EMSIP");
-//        if (realIP != null && !realIP.contains(emsIp)) {
-//            return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
-//                    "非法IP调用");
-//        }
-//        if (request == null || request.isEmpty() || request.size() > 50) {
-//            return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
-//                    JdResponse.MESSAGE_PARAM_ERROR);
-//        }
+        this.logger.error("武汉邮政接口调用运单数据，运单号请求列表："+ request.toString());
         return reverseDelivery.getWhemsWaybill(request);
     }
 }

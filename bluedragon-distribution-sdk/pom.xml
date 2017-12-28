@@ -37,12 +37,6 @@
 		    <version>14.0.1</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd.lsb</groupId>
-			<artifactId>lsb-pt</artifactId>
- 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		
 <!-- 		<dependency>
 	        <groupId>org.codehaus.jackson</groupId>
 	        <artifactId>jackson-core-asl</artifactId>
