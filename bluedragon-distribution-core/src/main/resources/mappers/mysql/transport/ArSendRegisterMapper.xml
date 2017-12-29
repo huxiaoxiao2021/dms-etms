@@ -457,4 +457,15 @@
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+	<select id = "queryStartCityInfo" resultMap = "ArSendRegister">
+        SELECT start_city_id, start_city_name
+        FROM ar_send_register
+        GROUP  BY  start_city_id
+	</select>
+
+	<select id = "queryEndCityInfo" resultMap = "ArSendRegister">
+		SELECT end_city_id, end_city_name
+        FROM ar_send_register
+        GROUP  BY  end_city_id
+	</select>
 </mapper>

@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.transport.dao;
 
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
+import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+
+import java.util.List;
 
 /**
  *
@@ -12,6 +15,15 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  *
  */
 public interface ArSendRegisterDao extends Dao<ArSendRegister> {
+    /**
+     * 从发货登记表中获取所有的已经登记的始发城市的信息
+     * @return
+     */
+    List<ArSendRegister> queryStartCityInfo();
 
-
+    /**
+     * 从发货登记表中获取所有的已经登记的目的城市的信息
+     * @return
+     */
+    List<ArSendRegister> queryEndCityInfo();
 }
