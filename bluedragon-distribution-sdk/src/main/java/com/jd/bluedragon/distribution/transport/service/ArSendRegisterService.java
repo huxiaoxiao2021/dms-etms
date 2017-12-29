@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.service;
 
+import com.jd.bluedragon.distribution.transport.domain.ArFlightInfo;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.api.Service;
@@ -33,4 +34,13 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
      * @return
      */
     public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister);
+
+    /**
+     * 根据航空单号获取航班信息
+     *
+     * @param orderCode
+     * @return
+     */
+    ArFlightInfo getFlightInfoByOrderCode(String orderCode);
+
 }
