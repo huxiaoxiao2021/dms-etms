@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: ArSendRegisterDaoImpl
@@ -16,6 +18,18 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
  */
 @Repository("arSendRegisterDao")
 public class ArSendRegisterDaoImpl extends BaseDao<ArSendRegister> implements ArSendRegisterDao {
+    @Override
+    public List<ArSendRegister> queryStartCityInfo(){
+        return sqlSession.selectList(this.nameSpace+".queryStartCityInfo");
+    }
 
+    @Override
+    public List<ArSendRegister> queryEndCityInfo(){
+        return sqlSession.selectList(this.nameSpace+".queryEndCityInfo");
+    }
 
+    @Override
+    public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister){
+        return sqlSession.selectList(this.nameSpace+".queryWaitReceive");
+    }
 }
