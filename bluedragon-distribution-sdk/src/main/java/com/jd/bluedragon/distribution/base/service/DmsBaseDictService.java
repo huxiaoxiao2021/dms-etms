@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.Service;
+
+import java.util.List;
 
 /**
  *
@@ -13,5 +16,18 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface DmsBaseDictService extends Service<DmsBaseDict> {
 
+    /**
+     * 根据parentId和typeGroup查找分拣基础数据
+     * @param parentId
+     * @param typeGroup
+     * @return
+     */
+    public List<DmsBaseDict> queryByParentIdAndTypeGroup(Integer parentId, Integer typeGroup);
 
+    /**
+     * 根据查询条件获取数据字典数据
+     * @param pagerCondition
+     * @return
+     */
+    public List<DmsBaseDict> queryByCondition(PagerCondition pagerCondition);
 }

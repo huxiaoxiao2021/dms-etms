@@ -21,13 +21,34 @@
 		type_group,create_time,update_time,is_delete,ts
 	</sql>
 
+	<sql id="where_condition">
+		<where>
+                is_delete = 0
+			<if test="id != null">
+				AND id = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="typeName != null">
+				AND type_name = #{typeName,jdbcType=VARCHAR}
+			</if>
+			<if test="typeCode != null">
+				AND type_code = #{typeCode,jdbcType=INTEGER}
+			</if>
+			<if test="parentId != null">
+				AND parent_id = #{parentId,jdbcType=INTEGER}
+			</if>
+			<if test="nodeLevel != null">
+				AND node_level = #{nodeLevel,jdbcType=INTEGER}
+			</if>
+			<if test="typeGroup != null">
+				AND type_group = #{typeGroup,jdbcType=INTEGER}
+			</if>
+		</where>
+	</sql>
+
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.base.domain.DmsBaseDict">
 		insert into dms_base_dict
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
 				<if test="typeName != null">
 					type_name,
 				</if>
@@ -46,26 +67,14 @@
 				<if test="typeGroup != null">
 					type_group,
 				</if>
-				<if test="createTime != null">
 					create_time,
-				</if>
-				<if test="updateTime != null">
 					update_time,
-				</if>
-				<if test="isDelete != null">
-					is_delete,
-				</if>
-				<if test="ts != null">
-					ts
-				</if>
+					is_delete
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
 				<if test="typeName != null">
 					#{typeName,jdbcType=VARCHAR},
 				</if>
@@ -84,18 +93,9 @@
 				<if test="typeGroup != null">
 					#{typeGroup,jdbcType=INTEGER},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+                    NOW(),
+                    NOW(),
+                    0
 			</trim>
 			)
 	</insert>
@@ -104,8 +104,7 @@
 		insert into dms_base_dict
 			(
 				type_name,type_code,memo,parent_id,
-				node_level,type_group,create_time,update_time,is_delete,
-				ts
+				node_level,type_group,create_time,update_time,is_delete
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -116,10 +115,9 @@
 					#{item.parentId,jdbcType=INTEGER},
 					#{item.nodeLevel,jdbcType=INTEGER},
 					#{item.typeGroup,jdbcType=INTEGER},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+                    NOW(),
+                    NOW(),
+                    0
 				)
 			</foreach>
 	</insert>
@@ -145,17 +143,9 @@
 				<if test="typeGroup != null">
 					type_group = #{typeGroup,jdbcType=INTEGER},
 				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
+					update_time = NOW(),
 				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
+					is_delete = #{isDelete,jdbcType=TINYINT}
 				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
@@ -194,18 +184,12 @@
 		limit 1
 	</select>
 
-	<sql id="Base_Condition_Sql" >
-			and is_delete=0 
-		
-	</sql>
-
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
 		  dms_base_dict 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+        <include refid="where_condition"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsBaseDict">
@@ -213,9 +197,16 @@
 		 <include refid="Base_Column_List"/>
 		from 
 		  dms_base_dict 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+        <include refid="where_condition"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsBaseDict">
+		select
+		 <include refid="Base_Column_List"/>
+		from
+		  dms_base_dict
+        <include refid="where_condition"/>
 	</select>
 
 </mapper>

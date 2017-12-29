@@ -15,6 +15,9 @@ public class DmsBaseDictCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
 
+	/** 主键 */
+	private Integer id;
+
 	 /** 分类名称 */
 	private String typeName;
 
@@ -32,6 +35,14 @@ public class DmsBaseDictCondition extends BasePagerCondition {
 
 	 /** 类型分类 */
 	private Integer typeGroup;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	/**
 	 * The set method for typeName.
