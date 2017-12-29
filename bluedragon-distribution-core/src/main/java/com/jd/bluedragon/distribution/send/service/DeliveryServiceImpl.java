@@ -3140,14 +3140,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
-                logger.info("按箱自动发货");
                 pushInspection(domain,packageCode);
             	pushAtuoSorting(domain,packageCode);
             	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                logger.info("按原包自动发货");
                 pushInspection(domain,null);//自动发货 大件先写TASK_INSPECTION   add by lhc 2017.12.20
                 pushSorting(domain);//大件写TASK_SORTING
             } else {
@@ -3171,7 +3169,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      */
     private void pushInspection(SendM domain,String packageCode) {
-        logger.info("自动发货增加验货节点");
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
 
