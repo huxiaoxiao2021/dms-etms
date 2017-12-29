@@ -425,10 +425,10 @@
 	</select>
 
 	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister" resultMap="ArSendRegister">
-		select 
+		select
 		 <include refid="Base_Column_List"/>
-		from 
-		  ar_send_register 
+		from
+		  ar_send_register
 		where id = #{id,jdbcType=BIGINT}
 		  order by ts desc
 		limit 1
@@ -467,5 +467,33 @@
 		SELECT end_city_id, end_city_name
         FROM ar_send_register
         GROUP  BY  end_city_id
+	</select>
+
+	<select id = "queryWaitReceive" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister" resultMap="ArSendRegister">
+		select order_code,transport_name,
+		       start_city_id,start_city_name,
+		       start_station_id,start_station_name,
+		       end_city_id,end_city_name,
+		       end_station_id,end_station_name,
+		       plan_start_time,plan_end_time
+		from ar_send_register
+		where 1=1
+		<if test="startCityId!=0 and startCityId != -1">
+			and start_city_id = #{startCityId,jdbcType = INTEGER}
+		</if>
+
+		<if test="endCityId!=null and endCityId != 0">
+		    and end_city_id = #{endCityId, jdbcType = INTEGER}
+		</if>
+
+		<if test="orderCode != null">
+			and order_code = #{orderCode,jdbcType=VARCHAR}
+		</if>
+
+		<if test="transportName != null">
+			and transport_name = #{transportName,jdbcType=VARCHAR}
+		</if>
+		and plan_end_time >= NOW()-INTERVAL 1 DAY
+		order by plan_end_time desc
 	</select>
 </mapper>

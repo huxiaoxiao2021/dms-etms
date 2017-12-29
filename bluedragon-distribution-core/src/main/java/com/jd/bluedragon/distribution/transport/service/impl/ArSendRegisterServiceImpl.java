@@ -87,4 +87,12 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 		return cities;
 	}
 
+	/**
+	 * 从发货登记表中获取24小时内到达所选城市的航班/铁路信息
+	 * @param arSendRegister
+	 * @return
+	 */
+	public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister){
+		return arSendRegisterDao.queryWaitReceive(arSendRegister);
+	}
 }

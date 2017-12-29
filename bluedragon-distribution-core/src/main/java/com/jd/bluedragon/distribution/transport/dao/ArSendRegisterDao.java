@@ -26,4 +26,11 @@ public interface ArSendRegisterDao extends Dao<ArSendRegister> {
      * @return
      */
     List<ArSendRegister> queryEndCityInfo();
+
+    /**
+     * 从发货登记表中获取24小时内到达所选城市的航班/铁路信息
+     * @param arSendRegister
+     * @return
+     */
+    List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister);
 }

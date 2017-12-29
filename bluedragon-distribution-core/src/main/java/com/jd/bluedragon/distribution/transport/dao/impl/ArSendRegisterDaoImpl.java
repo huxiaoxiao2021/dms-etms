@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.transport.dao.impl;
 
-import com.jd.ql.dms.common.domain.City;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
@@ -19,11 +18,18 @@ import java.util.List;
  */
 @Repository("arSendRegisterDao")
 public class ArSendRegisterDaoImpl extends BaseDao<ArSendRegister> implements ArSendRegisterDao {
+    @Override
     public List<ArSendRegister> queryStartCityInfo(){
         return sqlSession.selectList(this.nameSpace+".queryStartCityInfo");
     }
+
+    @Override
     public List<ArSendRegister> queryEndCityInfo(){
         return sqlSession.selectList(this.nameSpace+".queryEndCityInfo");
     }
 
+    @Override
+    public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister){
+        return sqlSession.selectList(this.nameSpace+".queryWaitReceive");
+    }
 }
