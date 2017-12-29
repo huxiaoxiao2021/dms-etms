@@ -137,6 +137,12 @@ $(function () {
         return oTableInit;
     };
 
+    var clearFlightInfo = function () {
+        $("#airlineCompany").text('');
+        $("#takeOffInfo").text('');
+        $("#landingInfo").text('');
+    }
+
     var pageInit = function () {
         var oInit = new Object();
         oInit.init = function () {
@@ -279,16 +285,18 @@ $(function () {
             });
 
             $("#orderCode").blur(function(){
-                alert("调用接口加载航班信息");
-
+                alert("调用接口加载航班信息~");
+                clearFlightInfo();
                 var orderCode = $(this).val();
                 if (orderCode != null && orderCode != undefined && orderCode != '') {
-                    $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(orderCode), function (res) {
-                        if (res && res.succeed) {
-                            alert('操作成功');
-                            tableInit().refresh();
+                    $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(orderCode), function (response) {
+                        if (response != null && response.code == 200) {
+                            var data = response.data;
+                            $("#airlineCompany").text(data.airlineCompany);
+                            $("#takeOffInfo").text(data.startCityName + ' ' + jQuery.dateHelper.formateDateTimeOfTs(data.planStartTime));
+                            $("#landingInfo").text(data.endCityName + ' ' + jQuery.dateHelper.formateDateTimeOfTs(data.planEndTime));
                         } else {
-                            alert('操作异常');
+                            alert('加载航班信息异常');
                         }
                     });
                 }
