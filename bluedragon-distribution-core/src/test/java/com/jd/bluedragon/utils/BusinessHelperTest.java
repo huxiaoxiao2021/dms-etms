@@ -56,5 +56,23 @@ public class BusinessHelperTest {
 		shoudTrue = helper.isECLPCode(sourceCodeECLP);
 		assertTrue(shoudTrue);
 	}
-
+	@Test
+	public void testGetStoreId() {
+		String[] codes = {"wms-6-1","wms-61-2","wwwwms-622-3","wmsw-622-44"};
+		for(String code:codes){
+			Integer storeId = SerialRuleUtil.getStoreIdFromStoreCode(code);
+			System.err.println(code+"->"+storeId);
+		}
+	}
+	@Test
+	public void testIsReverseSpareCode() {
+		String[] codes = {"un1234567890123456","null1234567890123456",
+				"zA1234567890123456","Az1234567890123456",
+				"1234567890123456","A11234567890123456",
+				"null2017122600001004","^#2017122600001004"};
+		for(String code:codes){
+			boolean storeId = BusinessHelper.isReverseSpareCode(code);
+			System.err.println(code+"->"+storeId);
+		}
+	}
 }

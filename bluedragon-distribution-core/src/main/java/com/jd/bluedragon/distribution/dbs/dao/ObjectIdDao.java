@@ -17,7 +17,7 @@ public class ObjectIdDao extends BaseDao<ObjectId>{
         return this.getSqlSession().update(getSqlId("updateFirstIdByName"),param);
     }
 
-    public Integer insertObjectId(String objectName, Integer firstId) {
+    public int insertObjectId(String objectName, Integer firstId) {
         Map<String,Object> param = new HashMap<String, Object>();
         param.put("objectName",objectName);
         param.put("firstId",firstId);
@@ -30,7 +30,20 @@ public class ObjectIdDao extends BaseDao<ObjectId>{
         param.put("objectName",objectName);
         return this.getSqlSession().selectOne(getSqlId("selectFirstIdByName"),param);
     }
-
+    /**
+     * 根据序列号的key值和当前Id值，更新数据
+     * @param objectName 序号Key值
+     * @param currId 当前Id
+     * @param count 增加的个数
+     * @return
+     */
+    public int updateFirstIdByNameAndCurrId(String objectName, Integer currId,Integer count) {
+        Map<String,Object> param = new HashMap<String, Object>();
+        param.put("objectName",objectName);
+        param.put("currId",currId);
+        param.put("count",count);
+        return this.getSqlSession().update(getSqlId("updateFirstIdByNameAndCurrId"),param);
+    }
     private String getSqlId(String sqlId) {
         return this.getClass().getName() + "." + sqlId;
     }

@@ -11,6 +11,12 @@
                    user="${jmq.BlueDragonDistribution.user}"
                    address="${jmq.BlueDragonDistribution.address}" />
     <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3" />
+    <!--dmsweb生产者配置-->
+    <jmq:producer id="dmsWebProducer" transport="jmq.dmsWeb.transport" retryTimes="3" />
+    <bean id="dmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="dmsWebProducer"/>
+    </bean>
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
     <bean id="bdMonitorMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -224,5 +230,13 @@
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
-    
+    <!--封车mq-->
+    <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sealCar}"/>
+    </bean>
+
+    <!--解封车mq-->
+    <bean id="unsealCarProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.unsealCar}"/>
+    </bean>
 </beans>

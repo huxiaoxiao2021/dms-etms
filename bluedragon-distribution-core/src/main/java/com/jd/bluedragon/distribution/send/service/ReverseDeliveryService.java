@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
+import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+
+import java.util.List;
 
 public interface ReverseDeliveryService {
 
