@@ -8,10 +8,6 @@
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
     <script src="/static/js/transport/arSendRegister.js"></script>
-##    <script>
-##        var random = Math.random();
-##        $('body').append("<script src='/static/js/transport/arSendRegister.js?noCache=" + random + "' type=text/javascript>");
-##    </script>
 
 </head>
 <body>
@@ -26,28 +22,28 @@
             <fieldset>
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="box-code-input">航空单号 ：</label>
-                    <input type="text" id="sendCode" class="form-control search-param" name="orderCode"
+                    <input type="text" id="orderCode" class="form-control search-param" name="orderCode"
                            style="width: 190px;">
                 </div>
 
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="box-code-input">运力名称：</label>
-                    <input type="text" id="sendCode" class="form-control search-param" name="transportName"
+                    <input type="text" id="transportName" class="form-control search-param" name="transportName"
                            style="width: 190px;">
                 </div>
 
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="box-code-input">操作部门 ：</label>
-                    <input type="text" id="sendCode" class="form-control search-param" name="operationDept"
+                    <input type="text" id="operationDept" class="form-control search-param" name="operationDept"
                            style="width: 190px;">
                 </div>
 
                 <div class="form-group" style="margin-left: 20px;">
-                    <label class="control-label" for="startDate"><span style="color: red;">*</span>操作时间 ：</label>
-                    <input type="text" id="startOperDate" name="startOperDate" class="form-control search-param"
+                    <label class="control-label" for="startOperTime"><span style="color: red;">*</span>操作时间 ：</label>
+                    <input type="text" id="startOperTime" name="startOperTime" class="form-control search-param"
                            style="width: 190px;">
                     <span>-</span>
-                    <input type="text" id="endOperDate" name="endOperDate" class="form-control search-param"
+                    <input type="text" id="endOperTime" name="endOperTime" class="form-control search-param"
                            style="width: 190px;">
                 </div>
             </fieldset>
@@ -57,7 +53,7 @@
 
     <div id="toolbar" class="btn-group">
         <button id="btn_query" type="button" class="btn btn-default">
-            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
         </button>
         <button id="btn_add" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
@@ -174,22 +170,22 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">航空公司：</label>
                         <div class="col-lg-9">
-                            <span id="airlineCompany"
+                            <span id="airlineCompany" class="form-control edit-param"
                                   style="font-size: 20px;text-align: left;display:block;"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">起飞：</label>
                         <div class="col-lg-9">
-                            <span id="takeOffInfo"
-                                  style="font-size: 20px;text-align: left;display:block;"></span>
+                            <input type="hidden" class="form-control edit-param" id="startCityId" name="startCityId"/>
+                            <span id="takeOffInfo" style="font-size: 20px;text-align: left;display:block;"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">落地：</label>
                         <div class="col-lg-9">
-                            <span id="landingInfo"
-                                  style="font-size: 20px;text-align: left;display:block;"></span>
+                            <input type="hidden" class="form-control edit-param" id="endCityId" name="endCityId"/>
+                            <span id="landingInfo" style="font-size: 20px;text-align: left;display:block;"></span>
                         </div>
                     </div>
                 </div>

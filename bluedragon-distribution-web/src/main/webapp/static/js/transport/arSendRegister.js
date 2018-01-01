@@ -87,7 +87,10 @@ $(function () {
             title: '铁路站序'
         }, {
             field: 'sendDate',
-            title: '发货日期'
+            title: '发货日期',
+            formatter: function (value, row, index) {
+                return jQuery.dateHelper.formateDateTimeOfTs(value);
+            }
         }, {
             field: 'siteOrder',
             title: '发货批次'
@@ -102,10 +105,16 @@ $(function () {
             title: '落地城市'
         }, {
             field: 'planStartTime',
-            title: '预计起飞时间'
+            title: '预计起飞时间',
+            formatter: function (value, row, index) {
+                return jQuery.dateHelper.formateDateTimeOfTs(value);
+            }
         }, {
             field: 'planEndTime',
-            title: '预计落地时间'
+            title: '预计落地时间',
+            formatter: function (value, row, index) {
+                return jQuery.dateHelper.formateDateTimeOfTs(value);
+            }
         }, {
             field: 'sendNum',
             title: '发货件数'
@@ -129,7 +138,10 @@ $(function () {
             title: '操作部门'
         }, {
             field: 'operationTime',
-            title: '操作时间'
+            title: '操作时间',
+            formatter: function (value, row, index) {
+                return jQuery.dateHelper.formateDateTimeOfTs(value);
+            }
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refresh');
@@ -138,6 +150,8 @@ $(function () {
     };
 
     var clearFlightInfo = function () {
+        $("#startCityId").val('');
+        $("#endCityId").val('');
         $("#airlineCompany").text('');
         $("#takeOffInfo").text('');
         $("#landingInfo").text('');
@@ -149,7 +163,7 @@ $(function () {
             $('#dataEditDiv').hide();
             /*起始时间*/
             $.datePicker.createNew({
-                elem: '#startOperDate',
+                elem: '#startOperTime',
                 type: 'datetime',
                 theme: '#3f92ea',
                 btns: ['now', 'confirm'],
@@ -161,11 +175,11 @@ $(function () {
 
             /*截止时间*/
             $.datePicker.createNew({
-                elem: '#endOperDate',
+                elem: '#endOperTime',
                 type: 'datetime',
                 theme: '#3f92ea',
                 done: function (value, date, endDate) {
-                    $('#startOperDate').val(value);
+                    $('#startOperTime').val(value);
                     console.log(value); //得到日期生成的值，如：2017-08-18
                     console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
                     console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
@@ -292,6 +306,8 @@ $(function () {
                     $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(orderCode), function (response) {
                         if (response != null && response.code == 200) {
                             var data = response.data;
+                            $("#startCityId").val(data.startCityId);
+                            $("#endCityId").val(data.endCityId);
                             $("#airlineCompany").text(data.airlineCompany);
                             $("#takeOffInfo").text(data.startCityName + ' ' + jQuery.dateHelper.formateDateTimeOfTs(data.planStartTime));
                             $("#landingInfo").text(data.endCityName + ' ' + jQuery.dateHelper.formateDateTimeOfTs(data.planEndTime));
