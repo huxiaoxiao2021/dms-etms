@@ -55,7 +55,7 @@ public class BaseResource {
 
 	@Autowired
 	private BaseSetConfig baseSetConfig;
-	
+
 	@Autowired
 	private VtsBaseSetConfig vtsbaseSetConfig;
 
@@ -76,7 +76,7 @@ public class BaseResource {
 
 	@Autowired
 	private SysConfigService sysConfigService;
-	
+
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
 
@@ -1044,7 +1044,7 @@ public class BaseResource {
 			return "Error";
 		}
 	}
-	
+
 	@GET
 	@Path("/bases/capacityTypelist")
 	public List<BaseResponse> getCapacityTypelist() {
@@ -1096,7 +1096,7 @@ public class BaseResource {
 
 		return responseList;
 	}
-	
+
 	/**
 	 * 通过VTS已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
 	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
@@ -1154,7 +1154,7 @@ public class BaseResource {
 
 		return responseList;
 	}
-	
+
 	/**
 	 * 获取所有的承运商
 	 * add by lhc
@@ -1167,9 +1167,9 @@ public class BaseResource {
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
 		CarrierParamDto carrierParamDto = new CarrierParamDto();
 		carrierParamDto.setOwner("1");
-		
+
 		List<CarrierInfo> carrierInfoList = baseService.getCarrierInfoList(carrierParamDto);
-		
+
 		if (carrierInfoList != null && carrierInfoList.size() > 0) {
 			for (CarrierInfo carrierInfo : carrierInfoList) {
 				BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -1181,7 +1181,7 @@ public class BaseResource {
 				responseList.add(response);
 			}
 		}
-		
+
 		return responseList;
 	}
 
@@ -1311,7 +1311,7 @@ public class BaseResource {
 		response.setMessage(JdResponse.MESSAGE_OK);
 		return response;
 	}
-	
+
 	@GET
 	@GZIP
 	@Path("/bases/dms/{orgId}")
@@ -1343,7 +1343,7 @@ public class BaseResource {
 		}
 		return ll;
 	}
-	
+
 	@GET
 	@GZIP
 	@Path("/bases/dms")
