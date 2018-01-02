@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.transport.domain;
 
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+//import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -17,6 +18,12 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 
 	 /** 预计起飞时间（根据运力类型描述可代表不同含义） */
 	private Date planStartDate;
+	/** 预计起飞时间 截止*/
+	//@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date planStartDateLE;
+	/** 预计起飞时间 开始*/
+	//@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date planStartDateGE;
 
 	 /** 分拣中心编号 */
 	private Long createSiteCode;
@@ -471,5 +478,25 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 		return this.updateUser;
 	}
 
+	public Date getPlanStartDateLE() {
+		return planStartDateLE;
+	}
 
+	public void setPlanStartDateLE(Date planStartDateLE) {
+		planStartDateLE.setHours(0);
+		planStartDateLE.setMinutes(0);
+		planStartDateLE.setSeconds(0);
+		this.planStartDateLE = planStartDateLE;
+	}
+
+	public Date getPlanStartDateGE() {
+		return planStartDateGE;
+	}
+
+	public void setPlanStartDateGE(Date planStartDateGE) {
+		planStartDateGE.setHours(0);
+		planStartDateGE.setMinutes(0);
+		planStartDateGE.setSeconds(0);
+		this.planStartDateGE = planStartDateGE;
+	}
 }

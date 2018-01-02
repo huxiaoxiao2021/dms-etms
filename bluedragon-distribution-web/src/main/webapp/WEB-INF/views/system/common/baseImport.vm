@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-validator/bootstrapValidator.min.css">
 
 <script src="/static/imports/plugin/npmutil/date-and-time.min.js"></script>
-
+<script src="/static/imports/plugin/jqueryForm/jquery.form.min.js"></script>
 ####################
 ## 组件api封装
 ####################

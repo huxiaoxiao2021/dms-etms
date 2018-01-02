@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.transport.domain;
 
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+
 
 /**
  *
@@ -16,7 +18,8 @@ public class ArBookingSpace extends DbEntity {
 	private static final long serialVersionUID = 1L;
 
 	 /** 预计起飞时间（根据运力类型描述可代表不同含义） */
-	private Date planStartDate;
+	 @DateTimeFormat(pattern = "yyyy-MM-dd")
+	 private Date planStartDate;
 
 	 /** 分拣中心编号 */
 	private Long createSiteCode;
@@ -29,7 +32,8 @@ public class ArBookingSpace extends DbEntity {
 
 	 /** 运力类型(1-散航，2-全货机，3-铁路) */
 	private Integer transportType;
-
+	/** Excel 传入的是汉字，暂时存在该字段中 用的时候转换一下*/
+	private String transportTypeForExcel;
 	 /** 起飞城市编号 */
 	private Integer startCityId;
 
@@ -43,10 +47,12 @@ public class ArBookingSpace extends DbEntity {
 	private String endCityName;
 
 	 /** 预计起飞时间（根据不同的运力类型可有不同含义） */
+	 @DateTimeFormat(pattern = "HH:mm:ss")
 	private Date planStartTime;
 
 	 /** 预计落地时间（根据不同的运力类型可有不同含义） */
-	private Date planEndTime;
+	 @DateTimeFormat(pattern = "HH:mm:ss")
+	 private Date planEndTime;
 
 	 /** 优先级 */
 	private String priority;
@@ -61,7 +67,8 @@ public class ArBookingSpace extends DbEntity {
 	private Integer realSpace;
 
 	 /** 订舱日期 */
-	private Date bookingSpaceTime;
+	 @DateTimeFormat(pattern = "yyyy-MM-dd")
+	 private Date bookingSpaceTime;
 
 	 /** 供应商名称 */
 	private String supplierName;
@@ -471,5 +478,11 @@ public class ArBookingSpace extends DbEntity {
 		return this.updateUser;
 	}
 
+	public String getTransportTypeForExcel() {
+		return transportTypeForExcel;
+	}
 
+	public void setTransportTypeForExcel(String transportTypeForExcel) {
+		this.transportTypeForExcel = transportTypeForExcel;
+	}
 }
