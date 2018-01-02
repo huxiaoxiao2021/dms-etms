@@ -217,7 +217,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
             scDto.setBatchCodes(Arrays.asList(obj.getString("batchCode").split(Constants.SEPARATOR_COMMA)));
             scDto.setSealCarTime(obj.getString("operateTime"));
             scDto.setSealCodes(Arrays.asList(obj.getString("shieldsCarCode").split(Constants.SEPARATOR_COMMA)));
-            scDto.setSealSiteId(obj.getInteger("siteCode"));
+            scDto.setSealSiteId(obj.getInteger("receiveSiteCode"));
             scDto.setSealSiteName(obj.getString("siteName"));
             scDto.setSealUserCode(obj.getInteger("userCode").toString());
             scDto.setSealUserName(obj.getString("userName"));
