@@ -11,7 +11,7 @@ public class ArWaitReceiveRequest extends JdRequest {
     public Integer startCityId;
 
     /** 目的城市id **/
-    public Integer endCityid;
+    public Integer endCityId;
 
     /** 航空/铁路单号 **/
     public String orderNo ;
@@ -21,11 +21,11 @@ public class ArWaitReceiveRequest extends JdRequest {
 
 
     public Integer getEndCityid() {
-        return endCityid;
+        return endCityId;
     }
 
     public void setEndCityid(Integer endCityid) {
-        this.endCityid = endCityid;
+        this.endCityId = endCityid;
     }
 
     public String getOrderNo() {

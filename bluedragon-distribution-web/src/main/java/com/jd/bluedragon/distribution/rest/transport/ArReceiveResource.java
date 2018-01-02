@@ -94,8 +94,6 @@ public class ArReceiveResource {
             }
         }
         return result;
-
-
     }
 
     /**
