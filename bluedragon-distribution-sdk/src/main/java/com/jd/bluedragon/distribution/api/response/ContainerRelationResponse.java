@@ -30,7 +30,7 @@ public class ContainerRelationResponse extends JdResponse {
 	 * 储位对应的站点
 	 */
 	private Integer siteCode;
-	
+
 	/**
 	 * 箱号对应的目的站点
 	 */
@@ -44,8 +44,10 @@ public class ContainerRelationResponse extends JdResponse {
 	/**
 	 * 状态
 	 */
-	private Integer status;
-	
+	private Integer sendStatus;
+
+	private Integer dmsId;
+
 	public String getId() {
 		return id;
 	}
@@ -131,19 +133,20 @@ public class ContainerRelationResponse extends JdResponse {
 	public void setPackageCount(String packageCount) {
 		this.packageCount = packageCount;
 	}
-	
-	/**
-	 * @return the status
-	 */
-	public Integer getStatus() {
-		return status;
+
+	public Integer getSendStatus() {
+		return sendStatus;
 	}
-	
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(Integer status) {
-		this.status = status;
+
+	public void setSendStatus(Integer sendStatus) {
+		this.sendStatus = sendStatus;
 	}
-	
+
+	public Integer getDmsId() {
+		return dmsId;
+	}
+
+	public void setDmsId(Integer dmsId) {
+		this.dmsId = dmsId;
+	}
 }

@@ -37,7 +37,15 @@ public class ContainerRelation implements Serializable{
 	 * 包裹个数
 	 */
 	private String packageCount;
- 	
+	/**
+	 * 分拣中心编码
+	 */
+	private Integer dmsId;
+	/**
+	 * 发货状态
+	 */
+	private Integer sendStatus;
+
 	/**
 	 * 创建时间
 	 */
@@ -148,9 +156,23 @@ public class ContainerRelation implements Serializable{
 	public void setPackageCount(String packageCount) {
 		this.packageCount = packageCount;
 	}
-	
-	
-	
+
+
+	public Integer getDmsId() {
+		return dmsId;
+	}
+
+	public void setDmsId(Integer dmsId) {
+		this.dmsId = dmsId;
+	}
+
+	public Integer getSendStatus() {
+		return sendStatus;
+	}
+
+	public void setSendStatus(Integer sendStatus) {
+		this.sendStatus = sendStatus;
+	}
 	
 	/**
 	 * @return the createTime
@@ -192,9 +214,12 @@ public class ContainerRelation implements Serializable{
 	public String getCreateUser() {
 		return createUser;
 	}
-	
+
+
+
 	/**
 	 * @param createUser the createUser to set
+
 	 */
 	public void setCreateUser(String createUser) {
 		this.createUser = createUser;

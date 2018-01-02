@@ -227,6 +227,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
+        if(!checkSendM(domain)){
+            return new SendResult(2, "批次号错误：" + domain.getSendCode());
+        }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -1443,6 +1446,23 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 校验sendm中的批次号
+     * @param sendm
+     * @return
+     */
+    private boolean checkSendM(SendM sendm) {
+        String sendCode = sendm.getSendCode();
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(createSiteCode == null){
+            return false;
+        }
+        if(createSiteCode.equals(sendm.getCreateSiteCode())){
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 如果没有正逆向验货记录补发验货回传
      */
     private void sendInspection(SendDetail tSendDatail, Map<String, Integer> sendDatailMap) {
@@ -2597,12 +2617,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer bCreateSiteCode = task.getCreateSiteCode();
         Integer bReceiveSiteCode = task.getReceiveSiteCode();
         String boxCode = task.getBoxCode();
+        Integer type = Integer.valueOf(task.getKeyword2());//业务的正逆向
         List<SendDetail> list = getSendByBox(boxCode);
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
                 tsendDatail.setCreateSiteCode(bCreateSiteCode);
                 tsendDatail.setReceiveSiteCode(bReceiveSiteCode);
+                tsendDatail.setSendType(type);
                 if ((!tsendDatail.getBoxCode().equals(task.getBody()))
                         && (!StringHelper.isEmpty(task.getBody()))
                         && task.getBody().contains("-")) {
@@ -3127,15 +3149,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
-        if (null != sendMList && sendMList.size() > 0) {
-            new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-        }
         try {
-            //插入SEND_M
-            this.sendMDao.insertSendM(domain);
-            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货   add by lhc  add by lhc 2017.11.27
+        	
+        	if (null != sendMList && sendMList.size() > 0) {
+                new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+            }else{
+            	//插入SEND_M
+                this.sendMDao.insertSendM(domain);
+            }
+            
+            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
             	pushAtuoSorting(domain,packageCode);
+            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {

@@ -27,7 +27,8 @@ public class InspectionNotifyServiceImpl implements InspectionNotifyService {
 
     @Override
     public void send(InspectionMQBody body){
-        if(!SerialRuleUtil.isMatchReceiveWaybillNo(body.getWaybillCode())){
+        //判断过滤条件的修改 by wzx 2017年12月14日10:24:07  原来调用的方法是isMatchReceiveWaybillNo 判断是否是外单单号，现在改为自营外单都通过
+        if(!SerialRuleUtil.isMatchAllWaybillCode(body.getWaybillCode())){
             if(logger.isInfoEnabled()){
                 logger.info(MessageFormat.format("推送验货MQ至本地分拣机，运单{0}被过滤",body.getWaybillCode()));
             }
