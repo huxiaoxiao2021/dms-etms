@@ -247,7 +247,8 @@ public class BusinessHelper {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
 		}
-		return s.matches("^[P]{1}(\\p{Lu}){1}\\d{16}$");
+		//正则改为2个字符|null+16位数字（8位日期+8位序列）
+		return s.matches("^([A-Za-z]{2}|null)\\d{16}$");
 	}
 
 	/**

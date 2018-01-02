@@ -123,6 +123,10 @@ public class SerialRuleUtil {
     private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
 
     private static final SimpleCache<Pattern> patternCache = new SimpleCache<Pattern>(); //25分钟有效期
+    /**
+     * 库房号正则
+     */
+    private static final Pattern RULE_STORE_CODE_REGEX = Pattern.compile("^([A-z]{1,})-(\\d+)-(\\d+)$");
 
     /**
      *对龙门架扫描到的运单号进行简单的正则过滤。
@@ -549,7 +553,19 @@ public class SerialRuleUtil {
         return sendCode.toString();
     }
 
-/*  public static void main(String[] args) {
-        System.out.println(generateSendCode(74123, 1087, new Date()));
-    }*/
+    /**
+     * 根据库房编码获取库房号
+     * @param storeCode wms-6-1
+     * @return
+     */
+    public static final Integer getStoreIdFromStoreCode(String storeCode) {
+    	if(storeCode==null){
+    		return null;
+    	}
+        Matcher matcher = RULE_STORE_CODE_REGEX.matcher(storeCode.trim());
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(3));
+        }
+        return null;
+    }
 }

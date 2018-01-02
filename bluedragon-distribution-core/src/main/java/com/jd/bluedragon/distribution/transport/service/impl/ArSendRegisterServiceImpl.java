@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.distribution.transport.domain.ArFlightInfo;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -95,4 +96,19 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 	public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister){
 		return arSendRegisterDao.queryWaitReceive(arSendRegister);
 	}
+
+	@Override
+	public ArFlightInfo getFlightInfoByOrderCode(String orderCode) {
+		// 调用TMS接口，根据航空单号获取航班信息
+		ArFlightInfo arFlightInfo = new ArFlightInfo();
+		arFlightInfo.setAirlineCompany("四川航空");
+		arFlightInfo.setStartCityId(1);
+		arFlightInfo.setStartCityName("北京");
+		arFlightInfo.setEndCityId(2);
+		arFlightInfo.setEndCityName("上海");
+		arFlightInfo.setPlanStartTime(new Date());
+		arFlightInfo.setPlanEndTime(new Date());
+		return arFlightInfo;
+	}
+
 }

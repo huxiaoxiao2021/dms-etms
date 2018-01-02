@@ -36,7 +36,6 @@ public class DmsBaseDictController {
 	
     /**
      * 根据id获取实体基本信息
-     * @param id
      * @return
      */
     @RequestMapping(value = "/toIndex")
@@ -58,7 +57,7 @@ public class DmsBaseDictController {
     }
     /**
      * 保存数据
-     * @param DmsBaseDict
+     * @param dmsBaseDict
      * @return
      */
     @RequestMapping(value = "/save")
@@ -74,7 +73,7 @@ public class DmsBaseDictController {
     }
     /**
      * 根据id删除一条数据
-     * @param id
+     * @param ids
      * @return
      */
     @RequestMapping(value = "/deleteByIds")
@@ -90,7 +89,7 @@ public class DmsBaseDictController {
     }
     /**
      * 根据条件分页查询数据信息
-     * @param pagerCondition
+     * @param dmsBaseDictCondition
      * @return
      */
     @RequestMapping(value = "/listData")
@@ -98,5 +97,36 @@ public class DmsBaseDictController {
     	JdResponse<PagerResult<DmsBaseDict>> rest = new JdResponse<PagerResult<DmsBaseDict>>();
     	rest.setData(dmsBaseDictService.queryByPagerCondition(dmsBaseDictCondition));
     	return rest.getData();
+    }
+    /**
+     * 根据条件分页查询数据信息
+     * @return
+     */
+    @RequestMapping(value = "/airRailwayExceptionType")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionType() {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(1, null));
+        return rest;
+    }
+    /**
+     * 根据条件分页查询数据信息
+     * @return
+     */
+    @RequestMapping(value = "/airRailwayExceptionReason/{typeGroup}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionReason(@PathVariable("typeGroup") Integer typeGroup) {
+    	JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+    	rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(2, typeGroup));
+    	return rest;
+    }
+
+    /**
+     * 根据条件分页查询数据信息
+     * @return
+     */
+    @RequestMapping(value = "/airRailwayExceptionResult/{typeGroup}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionResult(@PathVariable("typeGroup") Integer typeGroup) {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(3, typeGroup));
+        return rest;
     }
 }

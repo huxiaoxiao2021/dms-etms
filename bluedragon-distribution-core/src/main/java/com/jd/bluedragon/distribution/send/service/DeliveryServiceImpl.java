@@ -2617,12 +2617,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer bCreateSiteCode = task.getCreateSiteCode();
         Integer bReceiveSiteCode = task.getReceiveSiteCode();
         String boxCode = task.getBoxCode();
+        Integer type = Integer.valueOf(task.getKeyword2());//业务的正逆向
         List<SendDetail> list = getSendByBox(boxCode);
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
                 tsendDatail.setCreateSiteCode(bCreateSiteCode);
                 tsendDatail.setReceiveSiteCode(bReceiveSiteCode);
+                tsendDatail.setSendType(type);
                 if ((!tsendDatail.getBoxCode().equals(task.getBody()))
                         && (!StringHelper.isEmpty(task.getBody()))
                         && task.getBody().contains("-")) {
