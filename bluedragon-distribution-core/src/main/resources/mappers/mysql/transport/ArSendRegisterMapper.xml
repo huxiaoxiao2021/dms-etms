@@ -478,11 +478,11 @@
 		       plan_start_time,plan_end_time
 		from ar_send_register
 		where 1=1
-		<if test="startCityId!=0 and startCityId != -1">
+		<if test="startCityId != null and startCityId != 0">
 			and start_city_id = #{startCityId,jdbcType = INTEGER}
 		</if>
 
-		<if test="endCityId!=null and endCityId != 0">
+		<if test="endCityId != null and endCityId != 0">
 		    and end_city_id = #{endCityId, jdbcType = INTEGER}
 		</if>
 
@@ -493,7 +493,7 @@
 		<if test="transportName != null">
 			and transport_name = #{transportName,jdbcType=VARCHAR}
 		</if>
-		and plan_end_time >= NOW()-INTERVAL 1 DAY
+		and plan_end_time >= now() and plan_end_time <![CDATA[ <= ]]> NOW()+INTERVAL 1 DAY
 		order by plan_end_time desc
 	</select>
 </mapper>

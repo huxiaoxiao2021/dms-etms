@@ -30,6 +30,6 @@ public class ArSendRegisterDaoImpl extends BaseDao<ArSendRegister> implements Ar
 
     @Override
     public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister){
-        return sqlSession.selectList(this.nameSpace+".queryWaitReceive");
+        return sqlSession.selectList(this.nameSpace+".queryWaitReceive",arSendRegister);
     }
 }

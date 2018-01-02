@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.rest.transport;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
+import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.StringHelper;
@@ -10,14 +12,23 @@ import com.jd.ql.dms.common.domain.ListResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
  * Created by xumei3 on 2017/12/29.
  */
+@Controller
+@Path(Constants.REST_URL)
+@Consumes({ MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_JSON })
 public class ArReceiveResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -33,11 +44,11 @@ public class ArReceiveResource {
      * @return
      */
     @POST
-    @Path("/receive/getARWaitReceive")
-    public ListResponse<ArSendRegister> getARWaitReceive(ArWaitReceiveRequest request) {
+    @Path("/arreceive/getARWaitReceive")
+    public ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request) {
         //参数校验：始发城市id、操作人所属站点id必须
         //航空单号、运力名称非必须
-        ListResponse<ArSendRegister> result = new ListResponse<ArSendRegister>();
+        ListResponse<ArWaitReceive> result = new ListResponse<ArWaitReceive>();
         if(request == null){
             result.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_ERROR);
             result.setMessage(com.jd.ql.dms.common.domain.JdResponse.MESSAGE_ERROR+":参数为空！");
@@ -68,16 +79,23 @@ public class ArReceiveResource {
             if (StringHelper.isNotEmpty(request.getTransportName())) {
                 arSendRegister.setTransportName(request.getTransportName());
             }
-            logger.info("空铁项目待提货查询参数,操作人id：" + request.getUserCode() + ",操作人姓名:" + request.getUserName() +
-                    "站点id:" + request.getSiteCode() + ",站点名称:" + request.getSiteName() +
-                    ",始发城市id:" + request.getStartCityId() + ",航空单号:" + request.getOrderNo() +
-                    ",运力名称:" + request.getTransportName());
+            logger.info("空铁项目待提货查询参数,"+ "始发城市id:" + request.getStartCityId() +",目的城市id:" + endCityId+
+                    ",航空单号:" + request.getOrderNo() + ",运力名称:" + request.getTransportName());
 
             //从发货登记表中查找待提货信息
             List<ArSendRegister> arSendRegisters = arSendRegisterService.queryWaitReceive(arSendRegister);
-            result.add(arSendRegisters);
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for(ArSendRegister arSendRegister1 : arSendRegisters){
+                result.add(new ArWaitReceive(arSendRegister.getOrderCode(),arSendRegister1.getTransportName(),
+                        arSendRegister1.getStartStationName(),arSendRegister1.getEndStationName(),
+                        formatter.format(arSendRegister1.getPlanStartTime()).toString(),
+                        formatter.format(arSendRegister1.getPlanEndTime()).toString()));
+            }
         }
         return result;
+
+
     }
 
     /**

@@ -41,7 +41,7 @@ public class ArBaseResource {
      * @return
      */
     @GET
-    @Path("/bases/getARCommonDictionaryInfo/")
+    @Path("/arbase/getARCommonDictionaryInfo/")
     public List<DictionaryInfoModel>  getARCommonDictionaryInfo() {
         this.logger.info("获取空铁项目城市信息和摆渡车信息列表");
 
