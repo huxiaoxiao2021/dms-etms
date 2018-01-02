@@ -87,7 +87,7 @@ public class ArReceiveResource {
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for(ArSendRegister arSendRegister1 : arSendRegisters){
-                result.add(new ArWaitReceive(arSendRegister.getOrderCode(),arSendRegister1.getTransportName(),
+                result.add(new ArWaitReceive(arSendRegister1.getOrderCode(),arSendRegister1.getTransportName(),
                         arSendRegister1.getStartStationName(),arSendRegister1.getEndStationName(),
                         formatter.format(arSendRegister1.getPlanStartTime()).toString(),
                         formatter.format(arSendRegister1.getPlanEndTime()).toString()));
