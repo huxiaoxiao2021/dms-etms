@@ -31,4 +31,19 @@ public class ArExcpRegisterServiceImpl extends BaseService<ArExcpRegister> imple
 		return this.arExcpRegisterDao;
 	}
 
+	@Override
+	public boolean saveOrUpdate(ArExcpRegister arExcpRegister, String userCode, String userName) {
+		ArExcpRegister oldData = this.find(arExcpRegister);
+
+		arExcpRegister.setUpdateUser(userCode);
+
+		if(oldData != null){
+			arExcpRegister.setId(oldData.getId());
+			return this.getDao().update(arExcpRegister);
+		}else{
+
+			arExcpRegister.setCreateUser(userCode);
+			return this.getDao().insert(arExcpRegister);
+		}
+	}
 }

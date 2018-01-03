@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.transport.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,9 @@ public class ArExcpRegisterController {
 	
 	@Autowired
 	ArExcpRegisterService arExcpRegisterService;
-	
+
+	@Autowired
+	BaseMajorManager baseMajorManager;
     /**
      * 根据id获取实体基本信息
      * @param id
@@ -60,10 +65,20 @@ public class ArExcpRegisterController {
      * @return
      */
     @RequestMapping(value = "/save")
-    public @ResponseBody JdResponse<Boolean> save(@RequestBody ArExcpRegister arExcpRegister) {
+    public @ResponseBody JdResponse<Boolean> save(ArExcpRegister arExcpRegister) {
     	JdResponse<Boolean> rest = new JdResponse<Boolean>();
+
+		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+		String userCode = "";
+		String userName = "";
+
+		if(erpUser!=null){
+			userCode = erpUser.getUserCode();
+			userName = erpUser.getUserName();
+		}
+
     	try {
-			rest.setData(arExcpRegisterService.saveOrUpdate(arExcpRegister));
+			rest.setData(arExcpRegisterService.saveOrUpdate(arExcpRegister,userCode,userName));
 		} catch (Exception e) {
 			logger.error("fail to save！"+e.getMessage(),e);
 			rest.toError("保存失败，服务异常！");

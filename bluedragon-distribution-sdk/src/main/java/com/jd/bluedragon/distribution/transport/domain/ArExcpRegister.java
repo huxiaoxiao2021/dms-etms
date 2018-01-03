@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.transport.domain;
 
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -16,6 +17,7 @@ public class ArExcpRegister extends DbEntity {
 	private static final long serialVersionUID = 1L;
 
 	 /** 异常日期 */
+	 @DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date excpTime;
 
 	 /** 异常节点 */
@@ -46,10 +48,12 @@ public class ArExcpRegister extends DbEntity {
 	private Integer endCityId;
 
 	 /** 起飞时间 */
-	private Date planStartTime;
+	 @DateTimeFormat(pattern = "HH:mm:ss")
+	 private Date planStartTime;
 
 	 /** 落地时间 */
-	private Date planEndTime;
+	 @DateTimeFormat(pattern = "HH:mm:ss")
+	 private Date planEndTime;
 
 	 /** 异常类型 */
 	private Integer excpType;
@@ -92,6 +96,8 @@ public class ArExcpRegister extends DbEntity {
 
 	 /** 修改用户 */
 	private String updateUser;
+	/**发货批次号*/
+	private String sendCode;
 
 	/**
 	 * The set method for excpTime.
@@ -510,4 +516,11 @@ public class ArExcpRegister extends DbEntity {
 	}
 
 
+	public String getSendCode() {
+		return sendCode;
+	}
+
+	public void setSendCode(String sendCode) {
+		this.sendCode = sendCode;
+	}
 }

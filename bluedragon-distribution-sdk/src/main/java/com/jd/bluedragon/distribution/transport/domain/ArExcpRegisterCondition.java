@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.transport.domain;
 
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -17,6 +18,12 @@ public class ArExcpRegisterCondition extends BasePagerCondition {
 
 	 /** 异常日期 */
 	private Date excpTime;
+	/** 异常日期  起始*/
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date excpTimeGE;
+	/** 异常日期  截止*/
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date excpTimeLE;
 
 	 /** 异常节点 */
 	private Integer excpNode;
@@ -509,5 +516,25 @@ public class ArExcpRegisterCondition extends BasePagerCondition {
 		return this.updateUser;
 	}
 
+	public Date getExcpTimeGE() {
+		return excpTimeGE;
+	}
 
+	public void setExcpTimeGE(Date excpTimeGE) {
+		excpTimeGE.setHours(0);
+		excpTimeGE.setMinutes(0);
+		excpTimeGE.setSeconds(0);
+		this.excpTimeGE = excpTimeGE;
+	}
+
+	public Date getExcpTimeLE() {
+		return excpTimeLE;
+	}
+
+	public void setExcpTimeLE(Date excpTimeLE) {
+		excpTimeLE.setHours(0);
+		excpTimeLE.setMinutes(0);
+		excpTimeLE.setSeconds(0);
+		this.excpTimeLE = excpTimeLE;
+	}
 }
