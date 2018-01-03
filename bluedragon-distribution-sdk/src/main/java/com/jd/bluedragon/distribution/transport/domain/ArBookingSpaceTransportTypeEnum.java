@@ -13,9 +13,9 @@ import java.util.Set;
  */
 public enum ArBookingSpaceTransportTypeEnum {
 
-    散航("1","散航"),
-    全货机("2","全货机"),
-    铁路("3","铁路");
+    BULK_AIRCRAFT_1("1","散航"),
+    ALL_CARGO_AIRCRAFT_2("2","全货机"),
+    RAILWAY_3("3","铁路");
 
     private String code;
     private String name;
