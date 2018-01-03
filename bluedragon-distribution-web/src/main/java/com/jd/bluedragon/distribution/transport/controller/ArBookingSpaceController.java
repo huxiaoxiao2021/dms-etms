@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.basic.DataResolver;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,7 +53,9 @@ public class ArBookingSpaceController {
 	
 	@Autowired
 	ArBookingSpaceService arBookingSpaceService;
-	
+
+	@Autowired
+	BaseMajorManager baseMajorManager;
     /**
      * 根据id获取实体基本信息
      * @ id
@@ -88,6 +92,12 @@ public class ArBookingSpaceController {
 		if(erpUser!=null){
 			 userCode = erpUser.getUserCode();
 			 userName = erpUser.getUserName();
+		}
+
+		BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+		if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+			createSiteCode = new Long(bssod.getSiteCode());
+			createSiteName = bssod.getSiteName();
 		}
 
     	try {
@@ -161,6 +171,11 @@ public class ArBookingSpaceController {
 			if(erpUser!=null){
 				userCode = erpUser.getUserCode();
 				userName = erpUser.getUserName();
+			}
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+				createSiteCode = new Long(bssod.getSiteCode());
+				createSiteName = bssod.getSiteName();
 			}
 
 			String fileName = file.getOriginalFilename();

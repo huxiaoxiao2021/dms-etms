@@ -170,6 +170,7 @@ $(function() {
                 });
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
+                $("#edit-form").data("bootstrapValidator").resetForm();
             });
             // 初始化页面上面的按钮事件
             // 改
@@ -232,9 +233,10 @@ $(function() {
                 $('#improt_modal').modal('show');
             });
             $('#btn_submit').click(function() {
-                debugger;
+                $('#btn_submit').attr("disabled",true);
                 //先去校验
                 if(!editValidator()){
+                    $('#btn_submit').attr("disabled",false);
                     return;
                 }
 
@@ -253,10 +255,14 @@ $(function() {
                         }else{
                             alert('操作异常');
                         }
+
+                        $('#btn_submit').attr("disabled",false);
+                        $('#dataEditDiv').hide();
+                        $('#dataTableDiv').show();
+
                     },'json');
 
-                $('#dataEditDiv').hide();
-                $('#dataTableDiv').show();
+
             });
             $('#btn_return').click(function() {
                 $('#dataEditDiv').hide();
@@ -434,6 +440,7 @@ function initOrg() {
             data:result
         });
 
+        $('#site-group-select').val(null).trigger('change');
 
         $("#site-group-select")
             .on("change", function(e) {

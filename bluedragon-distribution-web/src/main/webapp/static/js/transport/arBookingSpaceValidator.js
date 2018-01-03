@@ -230,6 +230,28 @@ function editFormValidator(){
                         message: '名字只能数字和下划线组成'
                     }
                 }
+            },
+            startCityName:{
+                message: '起飞城市不能为空',
+                validators: {
+                    notEmpty: {
+                    },
+                    stringLength: {
+                        max: 20,
+                        message: '不得超过20位'
+                    }
+                }
+            },
+            endCityName:{
+                message: '落地城市不能为空',
+                validators: {
+                    notEmpty: {
+                    },
+                    stringLength: {
+                        max: 20,
+                        message: '不得超过20位'
+                    }
+                }
             }
         }
     });
