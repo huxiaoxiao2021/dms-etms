@@ -102,13 +102,13 @@ $(function() {
             field : 'planStartTime',
             title : '预计起飞时间',
             formatter : function(value,row,index){
-                return $.dateHelper.formateTimeOfTs(value);
+                return $.dateHelper.formateTimeNossOfTs(value);
             }
         } , {
             field : 'planEndTime',
             title : '预计落地时间',
             formatter : function(value,row,index){
-                return $.dateHelper.formateTimeOfTs(value);
+                return $.dateHelper.formateTimeNossOfTs(value);
             }
         } , {
             field : 'priority',
@@ -128,6 +128,24 @@ $(function() {
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateOfTs(value);
             }
+        } , {
+            field : 'supplierName',
+            title : '供应商名称'
+        } , {
+            field : 'phone',
+            title : '联系电话'
+        } , {
+            field : 'remark',
+            title : '备注'
+        } , {
+            field : 'operateTime',
+            title : '操作时间',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            }
+        } , {
+            field : 'operatorErp',
+            title : '操作人'
         } ];
         oTableInit.refresh = function() {
             $('#dataTable').bootstrapTable('refresh');

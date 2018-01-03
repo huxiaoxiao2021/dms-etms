@@ -248,6 +248,10 @@ jQuery.extend({
         /*时间戳转字符串 格式:HH:mm:ss*/
         formateTimeOfTs:function(date){
             return window.date.format(new Date(date),'HH:mm:ss');
+        },
+        /*时间戳转字符串 格式:HH:mm*/
+        formateTimeNossOfTs:function(date){
+            return window.date.format(new Date(date),'HH:mm');
         }
 
     },

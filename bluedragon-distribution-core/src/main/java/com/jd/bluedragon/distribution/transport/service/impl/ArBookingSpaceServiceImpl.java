@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.transport.domain.ArBookingSpaceCondition;
 import com.jd.bluedragon.distribution.transport.domain.ArBookingSpaceTransportTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
@@ -51,21 +52,24 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 
 		List<Object> heads = new ArrayList<Object>();
 
+		heads.add("预计起飞日期");
 		heads.add("分拣名称");
 		heads.add("运力名称");
 		heads.add("运力类型");
 		heads.add("起飞城市");
 		heads.add("落地城市");
+		heads.add("预计起飞日期");
+		heads.add("预计落地日期");
 		heads.add("航班优先级");
 		heads.add("可获取舱位kg");
 		heads.add("计划订舱位kg");
 		heads.add("实际订舱位kg");
-		heads.add("预计起飞日期");
-		heads.add("预计落地日期");
 		heads.add("订舱日期");
 		heads.add("供应商名称");
 		heads.add("联系电话");
 		heads.add("备注");
+		heads.add("操作时间");
+		heads.add("操作人");
 
 		resList.add(heads);
 
@@ -77,6 +81,8 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 
 		for(ArBookingSpace arbs : rows){
 			List<Object> body = new ArrayList<Object>();
+			//预计起飞日期
+			body.add(DateHelper.formatDate(arbs.getPlanStartDate(),Constants.DATE_FORMAT));
 			//分拣名称
 			body.add(arbs.getCreateSiteName());
 			//运力名称
@@ -87,6 +93,10 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 			body.add(arbs.getStartCityName());
 			//落地城市
 			body.add(arbs.getEndCityName());
+			//预计起飞日期
+			body.add(DateHelper.formatDate(arbs.getPlanStartTime(),"HH:mm"));
+			//预计落地日期
+			body.add(DateHelper.formatDate(arbs.getPlanEndTime(),"HH:mm"));
 			//航班优先级
 			body.add(arbs.getPriority());
 			//可获取舱位kg
@@ -95,10 +105,7 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 			body.add(arbs.getPlanSpace());
 			//实际订舱位kg
 			body.add(arbs.getRealSpace());
-			//预计起飞日期
-			body.add(DateHelper.formatDate(arbs.getPlanStartTime(),"HH:mm:ss"));
-			//预计落地日期
-			body.add(DateHelper.formatDate(arbs.getPlanEndTime(),"HH:mm:ss"));
+
 			//订舱日期
 			body.add(DateHelper.formatDate(arbs.getBookingSpaceTime()));
 			//供应商名称
@@ -106,6 +113,10 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 			//联系电话
 			body.add(arbs.getPhone());
 			//备注
+			body.add(arbs.getRemark());
+			//操作时间
+			body.add(DateHelper.formatDate(arbs.getOperateTime(), Constants.DATE_TIME_FORMAT));
+			//操作人
 			body.add(arbs.getRemark());
 
 			resList.add(body);

@@ -11,8 +11,8 @@
     <script src="/static/js/transport/arBookingSpaceValidator.js"></script>
 
 </head>
-<body>
-<div id="dataTableDiv" class="container-fluid" >
+<body class="container-fluid">
+<div id="dataTableDiv"  >
     <ol class="breadcrumb">
         <li><a href="#">空铁系统</a></li>
         <li class="active">订舱登记</li>
@@ -117,7 +117,7 @@
     </div>
     <table id="dataTable"></table>
 </div>
-<div id="dataEditDiv" class="main" style="margin-left: 40px; display: true">
+<div id="dataEditDiv" class="main" style="display: true">
     <ol class="breadcrumb">
         <li><a href="#">订舱操作</a></li>
         <li class="active">编辑</li>
