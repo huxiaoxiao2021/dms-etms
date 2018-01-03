@@ -126,7 +126,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 第三方发货数据推送财务
      */
     public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
-    
+
+    /**
+     * 空铁项目 - 发货登记任务
+     */
+    public static final Integer TASK_TYPE_AR_SEND_REGISTER = 1809;
     
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";

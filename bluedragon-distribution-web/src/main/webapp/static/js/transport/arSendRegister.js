@@ -1,9 +1,28 @@
 $(function () {
-    var saveUrl = '/transport/arSendRegister/save';
+    var insertUrl = '/transport/arSendRegister/insert';
+    var updateUrl = '/transport/arSendRegister/update';
     var deleteUrl = '/transport/arSendRegister/deleteByIds';
     var detailUrl = '/transport/arSendRegister/detail/';
     var queryUrl = '/transport/arSendRegister/listData';
-    var getFlightInfoUrl = '/transport/arSendRegister/getFlightInfo';
+    var getFlightInfoUrl = '/transport/arSendRegister/getTransportInfo';
+    var getAllBusTypeUrl = '/transport/arSendRegister/getAllBusType';
+
+    /**
+     * 获取所有车辆类型信息
+     */
+    var getAllBusType = function () {
+        var allBusType = null;
+        $.ajaxHelper.doPostSync(getAllBusTypeUrl, null, function (result) {
+            if (result.code == 200) {
+                allBusType = result.data;
+            } else {
+                alert(result.message);
+            }
+        });
+        return allBusType;
+    }
+
+    var allBusType = getAllBusType();
 
     var tableInit = function () {
         var oTableInit = new Object();
@@ -32,14 +51,6 @@ $(function () {
                 showToggle: true, // 是否显示详细视图和列表视图的切换按钮
 //				showPaginationSwitch : true, // 是否显示分页关闭按钮
                 strictSearch: true,
-                // icons: {refresh: "glyphicon-repeat", toggle:
-                // "glyphicon-list-alt", columns: "glyphicon-list"},
-                // search:false,
-                // cardView: true, //是否显示详细视图
-                // detailView: true, //是否显示父子表
-                // showFooter:true,
-                // paginationVAlign:'center',
-                // singleSelect:true,
                 columns: oTableInit.tableColums
             });
         };
@@ -53,6 +64,7 @@ $(function () {
             // 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
             return temp;
         };
+
         /**
          * 获取查询参数
          * @param _selector 选择器（默认为'.search-param'）
@@ -63,7 +75,7 @@ $(function () {
                 _selector = ".search-param";
             }
             $(_selector).each(function () {
-                var _k = this.id;
+                var _k = this.name;
                 var _v = $(this).val();
                 if (_k && _v) {
                     params[_k] = _v;
@@ -75,7 +87,16 @@ $(function () {
             checkbox: true
         }, {
             field: 'status',
-            title: '状态'
+            title: '状态',
+            formatter: function (value, row, index) {
+                if (value == 1) {
+                    return "已发货";
+                } else if (value == 2) {
+                    return "已提货";
+                } else {
+                    return "-";
+                }
+            }
         }, {
             field: 'orderCode',
             title: '航空单号'
@@ -89,10 +110,14 @@ $(function () {
             field: 'sendDate',
             title: '发货日期',
             formatter: function (value, row, index) {
-                return jQuery.dateHelper.formateDateTimeOfTs(value);
+                if (value != null && value != '') {
+                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                } else {
+                    return "-";
+                }
             }
         }, {
-            field: 'siteOrder',
+            field: 'sendCode',
             title: '发货批次'
         }, {
             field: 'airlineCompany',
@@ -107,13 +132,21 @@ $(function () {
             field: 'planStartTime',
             title: '预计起飞时间',
             formatter: function (value, row, index) {
-                return jQuery.dateHelper.formateDateTimeOfTs(value);
+                if (value != null && value != '') {
+                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                } else {
+                    return "-";
+                }
             }
         }, {
             field: 'planEndTime',
             title: '预计落地时间',
             formatter: function (value, row, index) {
-                return jQuery.dateHelper.formateDateTimeOfTs(value);
+                if (value != null && value != '') {
+                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                } else {
+                    return "-";
+                }
             }
         }, {
             field: 'sendNum',
@@ -126,7 +159,17 @@ $(function () {
             title: '发货备注'
         }, {
             field: 'shuttleBusType',
-            title: '摆渡车型'
+            title: '摆渡车型',
+            formatter: function (value, row, index) {
+                if (allBusType != null && allBusType.length > 0) {
+                    for (var i = 0, len = allBusType.length; i < len; i++) {
+                        if (allBusType[i].busTypeId == value) {
+                            return allBusType[i].busTypeName;
+                        }
+                    }
+                }
+                return "-";
+            }
         }, {
             field: 'shuttleBusNum',
             title: '摆渡车牌号'
@@ -140,7 +183,11 @@ $(function () {
             field: 'operationTime',
             title: '操作时间',
             formatter: function (value, row, index) {
-                return jQuery.dateHelper.formateDateTimeOfTs(value);
+                if (value != null && value != '') {
+                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                } else {
+                    return "-";
+                }
             }
         }];
         oTableInit.refresh = function () {
@@ -149,12 +196,43 @@ $(function () {
         return oTableInit;
     };
 
-    var clearFlightInfo = function () {
+    var clearAllInfo = function () {
+        $('.edit-param').each(function () {
+            $(this).val('');
+        });
+        clearTransportInfo();
+    }
+
+    var clearTransportInfo = function () {
         $("#startCityId").val('');
         $("#endCityId").val('');
         $("#airlineCompany").text('');
-        $("#takeOffInfo").text('');
-        $("#landingInfo").text('');
+        $("#startCityName").text('');
+        $("#endCityName").text('');
+        $("#planStartTime").text('');
+        $("#planEndTime").text('');
+        $("#shuttleBusType").val(0).trigger("change");
+    }
+
+    var setTransportInfo = function (data) {
+        $("#startCityId").val(data.startCityId);
+        $("#endCityId").val(data.endCityId);
+        $("#airlineCompany").text(data.airlineCompany);
+        $("#startCityName").text(data.startCityName);
+        $("#endCityName").text(data.endCityName);
+        $("#planStartTime").text(jQuery.dateHelper.formateDateTimeOfTs(data.planStartTime));
+        $("#planEndTime").text(jQuery.dateHelper.formateDateTimeOfTs(data.planEndTime));
+    }
+
+    var getFlightInfo = function (params) {
+        params["airlineCompany"] = $("#airlineCompany").text();
+        params["startCityId"] = $("#startCityId").val();
+        params["startCityName"] = $("#startCityName").text();
+        params["endCityId"] = $("#endCityId").val();
+        params["endCityName"] = $("#endCityName").text();
+        params["planStartTime"] = $("#planStartTime").text();
+        params["planEndTime"] = $("#planEndTime").text();
+        return params;
     }
 
     var pageInit = function () {
@@ -188,7 +266,7 @@ $(function () {
 
             /*截止时间*/
             $.datePicker.createNew({
-                elem: '#sendDate',
+                elem: '#sendDateEdit',
                 type: 'datetime',
                 theme: '#3f92ea',
                 done: function (value, date, endDate) {
@@ -203,7 +281,7 @@ $(function () {
 
             $('#btn_add').click(function () {
                 $('.edit-param').each(function () {
-                    var _k = this.id;
+                    var _k = this.name;
                     if (_k) {
                         $(this).val('');
                     }
@@ -226,14 +304,19 @@ $(function () {
                     return;
                 }
                 $.ajaxHelper.doPostSync(detailUrl + rows[0].id, null, function (res) {
-                    if (res && res.succeed && res.data) {
-                        $('.edit-param').each(function () {
-                            var _k = this.id;
-                            var _v = res.data[_k];
-                            if (_k && _v) {
-                                $(this).val(_v);
-                            }
-                        });
+                    if (res && res.data) {
+                        $('#id').val(res.data.id);
+                        $('#orderCodeEdit').val(res.data.orderCode);
+                        $('#transportNameEdit').val(res.data.transportName);
+                        $('#siteOrderEdit').val(res.data.siteOrder);
+                        $('#sendNumEdit').val(res.data.sendNum);
+                        $('#chargedWeightEdit').val(res.data.chargedWeight);
+                        $('#remarkEdit').val(res.data.remark);
+                        $('#sendCode').val(res.data.sendCode);
+                        $('#shuttleBusType').val(Number(res.data.shuttleBusType)).trigger("change");
+                        $('#shuttleBusNumEdit').val(res.data.shuttleBusNum);
+                        $('#sendDateEdit').val(jQuery.dateHelper.formateDateTimeOfTs(res.data.sendDate));
+                        setTransportInfo(res.data);
                     }
                 });
                 $("#sendCodeNum").text(0);
@@ -254,9 +337,8 @@ $(function () {
                     for (var i in rows) {
                         params.push(rows[i].id);
                     }
-                    ;
                     $.ajaxHelper.doPostSync(deleteUrl, JSON.stringify(params), function (res) {
-                        if (res && res.succeed && res.data) {
+                        if (res && res.code == 200 && res.data) {
                             alert('操作成功,删除' + res.data + '条。');
                             tableInit().refresh();
                         } else {
@@ -267,16 +349,25 @@ $(function () {
             });
 
             $('#btn_submit').click(function () {
+                var url;
+                var id = $('#id').val();
+                if (id != null && id != '') {
+                    url = updateUrl;
+                } else {
+                    url = insertUrl;
+                }
                 var params = {};
                 $('.edit-param').each(function () {
-                    var _k = this.id;
+                    var _k = this.name;
                     var _v = $(this).val();
                     if (_k && _v) {
                         params[_k] = _v;
                     }
                 });
-                $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
-                    if (res && res.succeed) {
+                params["shuttleBusType"] = $('#shuttleBusType').val();
+                params = getFlightInfo(params);
+                $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
+                    if (res && res.data) {
                         alert('操作成功');
                         tableInit().refresh();
                     } else {
@@ -288,53 +379,80 @@ $(function () {
             });
 
             $('#btn_return').click(function () {
+                clearAllInfo();
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
             });
 
-            $("#sendCodeStr").keydown(function (event) {
+            $("#sendCode").keydown(function (event) {
+                // 如果是回车
                 if (event.keyCode == 13) {
                     $("#sendCodeNum").text(Number($("#sendCodeNum").text()) + 1);
                 }
             });
 
-            $("#orderCode").blur(function(){
-                alert("调用接口加载航班信息~");
-                clearFlightInfo();
-                var orderCode = $(this).val();
-                if (orderCode != null && orderCode != undefined && orderCode != '') {
-                    $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(orderCode), function (response) {
-                        if (response != null && response.code == 200) {
-                            var data = response.data;
-                            $("#startCityId").val(data.startCityId);
-                            $("#endCityId").val(data.endCityId);
-                            $("#airlineCompany").text(data.airlineCompany);
-                            $("#takeOffInfo").text(data.startCityName + ' ' + jQuery.dateHelper.formateDateTimeOfTs(data.planStartTime));
-                            $("#landingInfo").text(data.endCityName + ' ' + jQuery.dateHelper.formateDateTimeOfTs(data.planEndTime));
-                        } else {
-                            alert('加载航班信息异常');
-                        }
-                    });
+            $("#orderCodeEdit").blur(function () {
+                var transportName = $("#transportNameEdit").val();
+                if (transportName != null && transportName != ''){
+                    var orderCode = $(this).val();
+                    if (orderCode != null && orderCode != ''){
+                        var param = {};
+                        param["transportName"] = transportName;
+                        param["orderCode"] = orderCode;
+                        $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(param), function (response) {
+                            if (response != null && response.code == 200) {
+                                $("#siteOrderEdit").val("");
+                                clearTransportInfo();
+                                setTransportInfo(response.data);
+                            } else {
+                                alert('加载航班信息异常');
+                            }
+                        });
+                    }
                 }
-            })
+            });
+
+            $("#siteOrderEdit").blur(function () {
+                var transportName = $("#transportNameEdit").val();
+                if (transportName != null && transportName != ''){
+                    var siteOrder = $(this).val();
+                    if (siteOrder != null && siteOrder != ''){
+                        var param = {};
+                        param["transportName"] = transportName;
+                        param["siteOrder"] = siteOrder;
+                        $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(param), function (response) {
+                            if (response != null && response.code == 200) {
+                                $("#orderCodeEdit").val("");
+                                clearTransportInfo();
+                                setTransportInfo(response.data);
+                            } else {
+                                alert('加载铁路信息异常');
+                            }
+                        });
+                    }
+                }
+            });
         };
         return oInit;
     };
 
+    var data = new Array();
+    if (allBusType != null && allBusType.length > 0) {
+        for (var i = 0, len = allBusType.length; i < len; i++) {
+            var option = {};
+            option["id"] = allBusType[i].busTypeId;
+            option["text"] = allBusType[i].busTypeName;
+            data.push(option);
+        }
+    }
+
     /*下拉框*/
-    $('#shuttleBus').select2({
+    $('#shuttleBusType').select2({
         width: '300',
         placeholder: '车型',
         allowClear: true,
-        data: [
-            {id: 1, text: '选择项11111'},
-            {id: 2, text: '选择项2'},
-            {id: 3, text: '选择项3'},
-            {id: 4, text: '选择项4'}
-        ]
-    });
-
-    $("#shuttleBus").select2('val', 0);
+        data: data
+    }).val(0).trigger("change");
 
     tableInit().init();
     pageInit().init();

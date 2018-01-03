@@ -43,11 +43,10 @@
         end_city_id,start_station_name,start_station_id,end_station_name,end_station_id,
         plan_start_time,plan_end_time,send_num,charged_weight,remark,
         shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept,operation_time,
-        create_user,update_user,create_time,update_time,is_delete,
-        ts
+        create_user,update_user,create_time,update_time
     </sql>
 
-    <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister">
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister" useGeneratedKeys="true" keyProperty="id">
         insert into ar_send_register
         (
         <trim suffixOverrides=",">
@@ -374,6 +373,27 @@
         </foreach>
     </update>
 
+    <update id="deleteByIdsUser" parameterType="java.util.Map">
+        update ar_send_register
+        set is_delete = 1,
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        update_time = NOW()
+        where id in
+        <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <select id="getList" parameterType="List" resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from ar_send_register
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
     <select id="findById" parameterType="Long" resultMap="ArSendRegister">
         select
         <include refid="Base_Column_List"/>
@@ -394,7 +414,7 @@
     </select>
 
     <sql id="Base_Condition_Sql">
-        and is_delete = 0
+        is_delete = 0
         <if test="orderCode != null">
             and order_code = #{orderCode,jdbcType=VARCHAR}
         </if>
@@ -418,10 +438,20 @@
         count(1) as num
         from
         ar_send_register
-        where 1 = 1
+        where
         <include refid="Base_Condition_Sql"/>
     </select>
 
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_register
+        where
+        <include refid="Base_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
 
     <select id="queryStartCityInfo" resultMap="ArSendRegister">
         SELECT start_city_id, start_city_name

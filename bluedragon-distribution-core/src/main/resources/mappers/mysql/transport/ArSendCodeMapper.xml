@@ -2,196 +2,154 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.transport.dao.ArSendCodeDao">
 
-	<resultMap id="ArSendCode" type="com.jd.bluedragon.distribution.transport.domain.ArSendCode" >
-		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="order_code" property="orderCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-	</resultMap>
+    <resultMap id="ArSendCode" type="com.jd.bluedragon.distribution.transport.domain.ArSendCode">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="send_register_id" property="sendRegisterId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
 
-	<sql id="Base_Column_List" >
-		id,order_code,send_code,create_user,update_user,create_time,
-		update_time,is_delete,ts
+    <sql id="Base_Column_List">
+		id,send_register_id,send_code,create_user,update_user,create_time,
+		update_time
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode">
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode">
 		insert into ar_send_code
 			(
-			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
-				<if test="orderCode != null">
-					order_code,
-				</if>
-				<if test="sendCode != null">
-					send_code,
-				</if>
-				<if test="createUser != null">
-					create_user,
-				</if>
-				<if test="updateUser != null">
-					update_user,
-				</if>
-				<if test="createTime != null">
-					create_time,
-				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
-					is_delete,
-				</if>
-				<if test="ts != null">
-					ts
-				</if>
-			</trim>
+                send_register_id,
+                send_code,
+                create_user,
+                create_time,
+                update_time
 			)
 			values
 			(
-			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
-				<if test="orderCode != null">
-					#{orderCode,jdbcType=VARCHAR},
-				</if>
-				<if test="sendCode != null">
-					#{sendCode,jdbcType=VARCHAR},
-				</if>
-				<if test="createUser != null">
-					#{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUser != null">
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
-			</trim>
+				#{sendRegisterId,jdbcType=BIGINT},
+				#{sendCode,jdbcType=VARCHAR},
+                #{createUser,jdbcType=VARCHAR},
+				NOW(),
+				NOW()
 			)
 	</insert>
 
-	<insert id="batchInsert" parameterType="List">
-		insert into ar_send_code
-			(
-				order_code,send_code,create_user,update_user,
-				create_time,update_time,is_delete,ts
-			)
-			values
-			<foreach collection="list" item="item" index="index" separator=",">
-				(
-					#{item.orderCode,jdbcType=VARCHAR},
-					#{item.sendCode,jdbcType=VARCHAR},
-					#{item.createUser,jdbcType=VARCHAR},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
-				)
-			</foreach>
-	</insert>
+    <insert id="batchInsert" parameterType="List">
+        insert into ar_send_code
+        (
+        send_register_id,
+        send_code,
+        create_user,
+        create_time,
+        update_time
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.sendRegisterId,jdbcType=BIGINT},
+            #{item.sendCode,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            NOW(),
+            NOW()
+            )
+        </foreach>
+    </insert>
 
-	<update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode">
-		update ar_send_code
-			<set>
-				<if test="orderCode != null">
-					order_code = #{orderCode,jdbcType=VARCHAR},
-				</if>
-				<if test="sendCode != null">
-					send_code = #{sendCode,jdbcType=VARCHAR},
-				</if>
-				<if test="createUser != null">
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUser != null">
-					update_user = #{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
-			</set>
-		where id = #{id,jdbcType=BIGINT}
-	</update>
+    <update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode">
+        update ar_send_code
+        <set>
+            <if test="sendRegisterId != null">
+                send_register_id = #{sendRegisterId,jdbcType=BIGINT},
+            </if>
+            <if test="sendCode != null">
+                send_code = #{sendCode,jdbcType=VARCHAR},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=TINYINT},
+            </if>
+            update_user = #{updateUser,jdbcType=VARCHAR},
+            update_time = NOW()
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 
-	<update id="deleteById" parameterType="Long">
+    <update id="deleteById" parameterType="Long">
 		update ar_send_code
 			set is_delete = 1
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
-	<update id="deleteByIds" parameterType="List">
-		update ar_send_code
-			set is_delete = 1
-		where id in
-		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
-			#{item,jdbcType=BIGINT}
-		</foreach>
-	</update>
+    <update id="deleteByIds" parameterType="List">
+        update ar_send_code
+        set is_delete = 1
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
 
-	<select id="findById" parameterType="Long" resultMap="ArSendCode">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  ar_send_code 
-		where id = #{id,jdbcType=BIGINT}
-	</select>
+    <select id="findById" parameterType="Long" resultMap="ArSendCode">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_code
+        where id = #{id,jdbcType=BIGINT}
+    </select>
 
-	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode" resultMap="ArSendCode">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  ar_send_code 
-		where id = #{id,jdbcType=BIGINT}
-		  order by ts desc
-		limit 1
-	</select>
+    <select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode"
+            resultMap="ArSendCode">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_code
+        where id = #{id,jdbcType=BIGINT}
+        order by ts desc
+        limit 1
+    </select>
 
-	<sql id="Base_Condition_Sql" >
-			and is_delete=0 
+    <sql id="Base_Condition_Sql">
+			and is_delete = 0
 	</sql>
 
-	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
-		select 
-		 count(1) as num
-		from 
-		  ar_send_code 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
-	</select>
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultType="Integer">
+        select
+        count(1) as num
+        from
+        ar_send_code
+        where 1 = 1
+        <include refid="Base_Condition_Sql"/>
+    </select>
 
-	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ArSendCode">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  ar_send_code 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
-		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
-	</select>
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultMap="ArSendCode">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_code
+        where 1 = 1
+        <include refid="Base_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="getBySendRegisterId" parameterType="Long" resultMap="ArSendCode">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_code
+        where send_register_id = #{_sendRegisterId,jdbcType=BIGINT} and is_delete = 0
+    </select>
+
+    <update id="deleteBySendRegisterId" parameterType="java.util.Map">
+        update ar_send_code
+        set is_delete = 1,
+        <if test="updateUser != null">
+            update_user = #{updateUser,jdbcType=VARCHAR},
+        </if>
+        update_time = NOW()
+        where send_register_id = #{sendRegisterId,jdbcType=BIGINT} and is_delete = 0
+    </update>
 
 </mapper>

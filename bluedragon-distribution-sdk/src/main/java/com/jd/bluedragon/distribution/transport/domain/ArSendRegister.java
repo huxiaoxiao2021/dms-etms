@@ -152,6 +152,11 @@ public class ArSendRegister extends DbEntity {
     private String updateUser;
 
     /**
+     * 批次号，对应数据库无映射关系
+     */
+    private String sendCode;
+
+    /**
      * The set method for status.
      *
      * @param status
@@ -635,6 +640,14 @@ public class ArSendRegister extends DbEntity {
      */
     public String getUpdateUser() {
         return this.updateUser;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 
 }

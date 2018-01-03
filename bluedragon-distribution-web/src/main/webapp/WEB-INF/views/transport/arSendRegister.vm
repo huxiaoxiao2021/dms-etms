@@ -21,14 +21,14 @@
         <form id="query-form" class="form-inline">
             <fieldset>
                 <div class="form-group" style="margin-left: 20px;">
-                    <label class="control-label" for="box-code-input">航空单号 ：</label>
-                    <input type="text" id="orderCode" class="form-control search-param" name="orderCode"
+                    <label class="control-label" for="box-code-input">运力名称：</label>
+                    <input type="text" id="transportName" class="form-control search-param" name="transportName"
                            style="width: 190px;">
                 </div>
 
                 <div class="form-group" style="margin-left: 20px;">
-                    <label class="control-label" for="box-code-input">运力名称：</label>
-                    <input type="text" id="transportName" class="form-control search-param" name="transportName"
+                    <label class="control-label" for="box-code-input">航空单号 ：</label>
+                    <input type="text" id="orderCode" class="form-control search-param" name="orderCode"
                            style="width: 190px;">
                 </div>
 
@@ -79,26 +79,26 @@
             <fieldset>
                 <div style="float:left;width: 50%;">
                     <div class="form-group">
-                        <label class="col-lg-3 control-label">航空单号：</label>
-                        <div class="col-lg-5">
-                            <input type="hidden" class="form-control edit-param" id="id" name="id"/>
-                            <input type="text" class="form-control edit-param" id="orderCode" name="orderCode"
-                                   style="width: 300px;" placeholder="航空必填"/>
+                        <label class="col-lg-3 control-label"><span style="color: red;">*</span>运力名称：</label>
+                        <div class="col-lg-9">
+                            <input type="text" class="form-control edit-param" id="transportNameEdit" name="transportName"
+                                   style="width: 300px;" placeholder="航班号/车次号"/>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-lg-3 control-label"><span style="color: red;">*</span>运力名称：</label>
-                        <div class="col-lg-9">
-                            <input type="text" class="form-control edit-param" id="transportName" name="transportName"
-                                   style="width: 300px;" placeholder="航班号/车次号"/>
+                        <label class="col-lg-3 control-label">航空单号：</label>
+                        <div class="col-lg-5">
+                            <input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                            <input type="text" class="form-control edit-param" id="orderCodeEdit" name="orderCode"
+                                   style="width: 300px;" placeholder="航空必填"/>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-lg-3 control-label">铁路站序：</label>
                         <div class="col-lg-9">
-                            <input type="text" class="form-control edit-param" id="siteOrder" name="siteOrder"
+                            <input type="text" class="form-control edit-param" id="siteOrderEdit" name="siteOrder"
                                    style="width: 300px;" placeholder="铁路必填"/>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label"><span style="color: red;">*</span>发货批次号：</label>
                         <div class="col-lg-9">
-                            <textarea type="text" class="form-control edit-param" id="sendCodeStr" name="sendCodeStr"
+                            <textarea type="text" class="form-control edit-param" id="sendCode" name="sendCode"
                                       style="width:300px;" placeholder="支持多选/扫描"></textarea>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label"><span style="color: red;">*</span>发货件数：</label>
                         <div class="col-lg-9">
-                            <input type="text" class="form-control edit-param" id="sendNum" name="sendNum"
+                            <input type="text" class="form-control edit-param" id="sendNumEdit" name="sendNum"
                                    style="width: 300px;" placeholder="输入"/>
                         </div>
                     </div>
@@ -122,7 +122,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label"><span style="color: red;">*</span>计费重量kg：</label>
                         <div class="col-lg-9">
-                            <input type="text" class="form-control edit-param" id="chargedWeight" name="chargedWeight"
+                            <input type="text" class="form-control edit-param" id="chargedWeightEdit" name="chargedWeight"
                                    style="width: 300px;" placeholder="输入"/>
                         </div>
                     </div>
@@ -130,7 +130,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">发货备注：</label>
                         <div class="col-lg-9">
-                            <input type="text" class="form-control edit-param" id="remark" name="remark"
+                            <input type="text" class="form-control edit-param" id="remarkEdit" name="remark"
                                    style="width: 300px;"/>
                         </div>
                     </div>
@@ -138,13 +138,13 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">摆渡车：</label>
                         <div class="col-lg-9">
-                            <select id="shuttleBus" name="shuttleBus"></select>
+                            <select id="shuttleBusType" name="shuttleBusType" class="form-control edit-param"></select>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="col-lg-offset-3 col-lg-9">
-                            <input type="text" class="form-control edit-param" id="shuttleBusNum" name="shuttleBusNum"
+                            <input type="text" class="form-control edit-param" id="shuttleBusNumEdit" name="shuttleBusNum"
                                    style="width: 300px;" placeholder="车牌号"/>
                         </div>
                     </div>
@@ -152,7 +152,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">发货日期：</label>
                         <div class="col-lg-9">
-                            <input type="text" id="sendDate" name="sendDate" class="form-control edit-param"
+                            <input type="text" id="sendDateEdit" name="sendDate" class="form-control edit-param"
                                    style="width: 300px;">
                         </div>
                     </div>
@@ -160,8 +160,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">已扫批次数：</label>
                         <div class="col-lg-9">
-                            <span id="sendCodeNum"
-                                  style="font-size: 30px;color: red;text-align: left;display:block;">0</span>
+                            <span id="sendCodeNum" style="font-size: 30px;color: red;text-align: left;display:block;">0</span>
                         </div>
                     </div>
                 </div>
@@ -170,22 +169,23 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">航空公司：</label>
                         <div class="col-lg-9">
-                            <span id="airlineCompany" class="form-control edit-param"
-                                  style="font-size: 20px;text-align: left;display:block;"></span>
+                            <span id="airlineCompany" style="font-size: 20px;text-align: left;display:block;"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">起飞：</label>
                         <div class="col-lg-9">
                             <input type="hidden" class="form-control edit-param" id="startCityId" name="startCityId"/>
-                            <span id="takeOffInfo" style="font-size: 20px;text-align: left;display:block;"></span>
+                            <span id="startCityName" style="font-size: 20px;text-align: left;float:left;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="planStartTime" style="font-size: 20px;text-align: left;float:center;"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">落地：</label>
                         <div class="col-lg-9">
                             <input type="hidden" class="form-control edit-param" id="endCityId" name="endCityId"/>
-                            <span id="landingInfo" style="font-size: 20px;text-align: left;display:block;"></span>
+                            <span id="endCityName" style="font-size: 20px;text-align: left;float:left;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="planEndTime" style="font-size: 20px;text-align: left;float:center;"></span>
                         </div>
                     </div>
                 </div>

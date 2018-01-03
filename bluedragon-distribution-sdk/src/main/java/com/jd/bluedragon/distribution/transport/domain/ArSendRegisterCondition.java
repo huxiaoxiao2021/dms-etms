@@ -15,6 +15,8 @@ public class ArSendRegisterCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
 
+    private Long id;
+
     /**
      * 航空单号/铁路单号
      */
@@ -118,7 +120,7 @@ public class ArSendRegisterCondition extends BasePagerCondition {
     /**
      * 批次号字符串
      */
-    private String sendCodeStr;
+    private String sendCode;
 
     /**
      * 操作部门
@@ -134,6 +136,14 @@ public class ArSendRegisterCondition extends BasePagerCondition {
      * 操作结束时间
      */
     private String endOperTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getOrderCode() {
         return orderCode;
@@ -295,12 +305,12 @@ public class ArSendRegisterCondition extends BasePagerCondition {
         this.shuttleBusNum = shuttleBusNum;
     }
 
-    public String getSendCodeStr() {
-        return sendCodeStr;
+    public String getSendCode() {
+        return sendCode;
     }
 
-    public void setSendCodeStr(String sendCodeStr) {
-        this.sendCodeStr = sendCodeStr;
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 
     public String getOperationDept() {

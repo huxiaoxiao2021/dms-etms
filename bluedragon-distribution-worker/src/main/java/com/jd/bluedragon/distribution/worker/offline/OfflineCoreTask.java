@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.offline.service.OfflineService;
 import com.jd.bluedragon.distribution.offline.service.OfflineSortingService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -60,6 +61,9 @@ public class OfflineCoreTask extends DBSingleScheduler {
     @Autowired
     private NewSealVehicleService newsealVehicleService;
 
+    @Autowired
+    private ArSendRegisterService arSendRegisterService;
+
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         boolean result = false;
@@ -71,6 +75,8 @@ public class OfflineCoreTask extends DBSingleScheduler {
             Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
+            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
+                result = arSendRegisterService.executeOfflineTask(body);
             }else{
                 result = offlineCore(body);
             }
