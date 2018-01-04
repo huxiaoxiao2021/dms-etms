@@ -496,6 +496,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		return new BigInteger(1, md.digest()).toString(16);
 	}
 
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.send.service.ReverseDeliveryServiceImpl.getWhemsWaybill",mState = JProEnum.TP)
 	public WhemsWaybillResponse getWhemsWaybill(List<String> wlist) {
 
 		WhemsWaybillResponse response = new WhemsWaybillResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);

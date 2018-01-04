@@ -23,6 +23,10 @@ public class JosReadServiceImpl implements JosReadService {
     @Override
     public WhemsWaybillResponse getWhemsWaybill(List<String> request) {
         this.logger.error("武汉邮政接口调用运单数据，运单号请求列表："+ request.toString());
+        if (null == request || request.size() > 100){
+            this.logger.error("武汉邮政接口调用运单数据，请求运单数量大于100条");
+            return new WhemsWaybillResponse(400,"超出一百条限制");
+        }
         return reverseDelivery.getWhemsWaybill(request);
     }
 }
