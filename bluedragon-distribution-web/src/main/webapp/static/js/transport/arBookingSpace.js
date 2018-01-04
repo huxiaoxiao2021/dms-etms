@@ -247,7 +247,7 @@ $(function() {
             });
             //导入
             $('#btn_improt').click(function(){
-
+                $('#importExcelFile').val(null);
                 $('#improt_modal').modal('show');
             });
             $('#btn_submit').click(function() {
@@ -501,6 +501,8 @@ function initImportExcel(){
                 }else{
                     alert(data.message);
                 }
+
+                $('#importExcelFile').val(null);
                 $('#btn_upload').attr("disabled",false);
             },
             error:function(XmlHttpRequest,textStatus,errorThrown){
@@ -515,13 +517,7 @@ function initImportExcel(){
 
     });
 
-    //模板下载按钮
-    $('#btn_download').on('click',function(e){
 
-        alert("下载");
-
-
-    });
 
 
 }
