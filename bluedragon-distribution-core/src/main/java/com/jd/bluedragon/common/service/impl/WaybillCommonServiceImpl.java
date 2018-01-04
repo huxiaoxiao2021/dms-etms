@@ -530,6 +530,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setConsigneeCompany(waybill.getReceiveCompany());
         //寄件公司名称
         target.setSenderCompany(waybill.getSenderCompany());
+        //根据waybillSign第一位判断是否SOP或纯外单（标识为非1）
+        target.setSopOrExternalFlg(BusinessHelper.isSopOrExternal(waybill.getWaybillSign()));
         return target;
     }
 }
