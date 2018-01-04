@@ -117,7 +117,7 @@ function editFormValidator(){
                     stringLength: {
                         max: 50,
                         message: '不得超过50'
-                    },
+                    }/*,
                     callback: {
                         message: '请填写铁路站序和航空单号中的一个字段',
                         callback:function(value, validator,$field){
@@ -128,7 +128,7 @@ function editFormValidator(){
                             }
                             return true;
                         }
-                    }
+                    }*/
                 }
             },
             orderCode:{
@@ -137,7 +137,7 @@ function editFormValidator(){
                     stringLength: {
                         max: 50,
                         message: '不得超过50'
-                    },
+                    }/*,
                     callback: {
                         message: '请填写铁路站序和航空单号中的一个字段',
                         callback:function(value, validator,$field){
@@ -148,7 +148,7 @@ function editFormValidator(){
                             }
                             return true;
                         }
-                    }
+                    }*/
                 }
             },
             excpTypeEdit:{
