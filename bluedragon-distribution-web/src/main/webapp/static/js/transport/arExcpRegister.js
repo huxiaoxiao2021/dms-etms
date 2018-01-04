@@ -209,6 +209,25 @@ $(function() {
                                 $(this).val(_v);
                             }
                         });
+                        //保证数据赋值后 按照 异常类型 原因 结果 先后顺序执行 防止触发错乱
+                        //并且需要等待对应下拉框的change事件执行完毕后才触发
+                        var v1 = $('#edit-form #excpType').val();
+
+                        if(v1){
+                            $('#excpTypeEdit').val(v1).trigger('change');
+
+                        }
+                        var v2= $('#edit-form #excpReason').val();
+
+
+                        var v3 = $('#edit-form #excpResult').val();
+
+                        if(v2 && v3){
+                            changeExcpTypeEdit(v2,v3);
+                        }
+
+
+
                     }
                 });
                 $('#dataTableDiv').hide();
@@ -238,11 +257,7 @@ $(function() {
                     });
                 }
             });
-            //导入
-            $('#btn_improt').click(function(){
 
-                $('#improt_modal').modal('show');
-            });
             $('#btn_submit').click(function() {
                 $('#btn_submit').attr("disabled",true);
                 //先去校验
@@ -268,6 +283,10 @@ $(function() {
                         }
 
                         $('#btn_submit').attr("disabled",false);
+                        //还原异常信息下拉框
+                        $('#excpTypeEdit').val(null).trigger('change');
+                        $("#excpReasonEdit").html("");
+                        $("#excpResultEdit").html("");
                         $('#dataEditDiv').hide();
                         $('#dataTableDiv').show();
 
@@ -276,6 +295,11 @@ $(function() {
 
             });
             $('#btn_return').click(function() {
+                //还原异常信息下拉框
+                $('#excpTypeEdit').val(null).trigger('change');
+                $("#excpReasonEdit").html("");
+                $("#excpResultEdit").html("");
+
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
             });
@@ -429,90 +453,14 @@ function initEditSelect(){
     //监听异常类型发生变化
     $("#excpTypeEdit").on('change',function(e){
 
-        debugger;
-        var p = $("#excpTypeEdit").val();
-        if(!p){
-            return false;
-        }
-        var k = excpTypeData[p]['typeGroup'];
-        var v = excpTypeData[p]['typeName'];
-        if(k){
-            $("#edit-form #excpType").val(p);
-            $("#edit-form #excpTypeName").val(v);
-            var url = "/base/dmsBaseDict/airRailwayExceptionReason/"+k
-
-
-            $.get(url, {}, function (myData) {
-                $("#excpReasonEdit").html("");
-                $("#excpResultEdit").html("");
-                var data = myData.data;
-                debugger;
-                var result = [];
-                for(var i in data){
-                    if(data[i].id && data[i].typeName){
-                        result.push({id:data[i].id,text:data[i].typeName});
-                        excpReasonData[data[i].id] = data[i]; //缓存一份
-                    }
-                }
-
-                $("#excpReasonEdit").select2({
-                    width: '100%',
-                    placeholder:'请选择',
-                    allowClear:true,
-                    data:result
-                });
-
-                $("#excpReasonEdit").val(null).trigger('change');
-
-                $("#excpResultEdit").val(null).trigger('change');
-
-
-            }, "json");
-
-        }
+        changeExcpTypeEdit();
 
     });
+
     //监听异常原因发生变化
     $("#excpReasonEdit").on('change',function(e){
+        changeExcpReasonEdit();
 
-        debugger;
-        var p = $("#excpReasonEdit").val();
-        if(!p){
-            return false;
-        }
-        var k = excpReasonData[p]['typeGroup'];
-        var v = excpReasonData[p]['typeName'];
-        if(k){
-            $("#edit-form #excpReason").val(p);
-            $("#edit-form #excpReasonName").val(v);
-            var url = "/base/dmsBaseDict/airRailwayExceptionResult/"+k
-
-            $.get(url, {}, function (myData) {
-
-                $("#excpResultEdit").html("");
-
-                var data = myData.data;
-                debugger;
-                var result = [];
-                for(var i in data){
-                    if(data[i].id && data[i].typeName){
-                        result.push({id:data[i].id,text:data[i].typeName});
-                        excpResultData[data[i].id] = data[i]; //缓存一份
-                    }
-                }
-
-                $("#excpResultEdit").select2({
-                    width: '100%',
-                    placeholder:'请选择',
-                    allowClear:true,
-                    data:result
-                });
-
-                $("#excpResultEdit").val(null).trigger('change');
-
-
-            }, "json");
-        }
     });
     $("#excpResultEdit").on('change',function(e){
         var p = $("#excpResultEdit").val();
@@ -529,8 +477,112 @@ function initEditSelect(){
     });
 }
 
+/**
+ * 异常类型 发生变化 处理逻辑
+ * 如果传入参数 ，则改变异常原因的值  为了修改反向勾选用
+ * @param selectVal
+ * @returns {boolean}
+ */
+function changeExcpTypeEdit(selectVal1,selectVal2){
+    debugger;
+    var p = $("#excpTypeEdit").val();
+    var _p = $("#edit-form #excpType").val();
+    if((!p || p ==_p) && !selectVal1){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
+        return false;
+    }
+    var k = excpTypeData[p]['typeGroup'];
+    var v = excpTypeData[p]['typeName'];
+    if(k){
+        $("#edit-form #excpType").val(p);
+        $("#edit-form #excpTypeName").val(v);
+        var url = "/base/dmsBaseDict/airRailwayExceptionReason/"+k
 
 
+        $.get(url, {}, function (myData) {
+            $("#excpReasonEdit").html("");
+            $("#excpResultEdit").html("");
+            var data = myData.data;
+            debugger;
+            var result = [];
+            for(var i in data){
+                if(data[i].id && data[i].typeName){
+                    result.push({id:data[i].id,text:data[i].typeName});
+                    excpReasonData[data[i].id] = data[i]; //缓存一份
+                }
+            }
+
+            $("#excpReasonEdit").select2({
+                width: '100%',
+                placeholder:'请先选择异常类型',
+                allowClear:true,
+                data:result
+            });
+            if(selectVal1 && selectVal2){
+
+                $("#excpReasonEdit").val(selectVal1).trigger('change');
+                changeExcpReasonEdit(selectVal2);
+
+            }else{
+                $("#excpReasonEdit").val(null).trigger('change');
+                $("#excpResultEdit").val(null).trigger('change');
+            }
+
+
+
+        }, "json");
+
+    }
+}
+/**
+ * 异常原因 发生变化 处理逻辑
+ * 如果传入参数 ，则改变异常结果的值  为了修改反向勾选用
+ * @param selectVal
+ * @returns {boolean}
+ */
+function changeExcpReasonEdit(selectVal){
+    debugger;
+    var p = $("#excpReasonEdit").val();
+    var _p = $("#edit-form #excpReason").val();
+    if((!p || p ==_p) && !selectVal){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
+        return false;
+    }
+    var k = excpReasonData[p]['typeGroup'];
+    var v = excpReasonData[p]['typeName'];
+    if(k){
+        $("#edit-form #excpReason").val(p);
+        $("#edit-form #excpReasonName").val(v);
+        var url = "/base/dmsBaseDict/airRailwayExceptionResult/"+k
+
+        $.get(url, {}, function (myData) {
+
+            $("#excpResultEdit").html("");
+
+            var data = myData.data;
+            debugger;
+            var result = [];
+            for(var i in data){
+                if(data[i].id && data[i].typeName){
+                    result.push({id:data[i].id,text:data[i].typeName});
+                    excpResultData[data[i].id] = data[i]; //缓存一份
+                }
+            }
+
+            $("#excpResultEdit").select2({
+                width: '100%',
+                placeholder:'请先选择异常原因',
+                allowClear:true,
+                data:result
+            });
+            if(selectVal){
+                $("#excpResultEdit").val(selectVal).trigger('change');
+
+            }else {
+                $("#excpResultEdit").val(null).trigger('change');
+            }
+
+        }, "json");
+    }
+}
 
 
 
