@@ -231,5 +231,6 @@
         <mapper resource="mappers/mysql/transport/ArExcpRegisterMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArSendCodeMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArSendRegisterMapper.xml"/>
+        <mapper resource="mappers/mysql/receive/ArReceiveMapper.xml"/>
     </mappers>
 </configuration>

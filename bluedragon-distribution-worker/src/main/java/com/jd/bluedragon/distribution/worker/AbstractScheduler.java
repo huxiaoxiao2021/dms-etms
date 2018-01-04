@@ -21,14 +21,21 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
     
     @Autowired
     private TBScheduleManagerFactory managerFactory;
-    
+    /**
+     * 任务开关，默认开启
+     */
+    protected boolean open = false;
     protected DataSource dataSource;
     protected String taskType;
     protected String ownSign;
     protected Integer type;
     
     public void init() throws Exception {
-        this.managerFactory.createTBScheduleManager(this.taskType, this.ownSign);
+    	if(open){
+    		this.managerFactory.createTBScheduleManager(this.taskType, this.ownSign);
+    	}else{
+    		logger.warn("task["+ownSign+"-"+taskType+"] is not open!");
+    	}
     }
     
     public List<Task> asList(Object[] taskArray) {
@@ -142,5 +149,12 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
     public void setManagerFactory(TBScheduleManagerFactory managerFactory) {
         this.managerFactory = managerFactory;
     }
+
+	/**
+	 * @param open the open to set
+	 */
+	public void setOpen(boolean open) {
+		this.open = open;
+	}
     
 }

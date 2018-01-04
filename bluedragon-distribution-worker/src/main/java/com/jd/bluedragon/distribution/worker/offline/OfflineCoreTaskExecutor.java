@@ -12,17 +12,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
-import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.distribution.offline.service.OfflineService;
 import com.jd.bluedragon.distribution.offline.service.OfflineSortingService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
+import com.jd.bluedragon.distribution.task.domain.TaskContext;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -31,13 +32,15 @@ import com.jd.fastjson.JSONArray;
 import com.jd.fastjson.JSONObject;
 
 /**
- * @author zhaohc
- * @E-mail zhaohengchong@360buy.com
- * @createTime 2012-11-28 上午10:28:50
  * 
- *             离线
+ * @ClassName: OfflineCoreTaskExecutor
+ * @Description: 离线worker处理器
+ * @author: wuyoude
+ * @date: 2018年1月11日 下午11:26:46
+ *
  */
-public class OfflineCoreTask extends DBSingleScheduler {
+@Service("offlineCoreTaskExecutor")
+public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -67,14 +70,14 @@ public class OfflineCoreTask extends DBSingleScheduler {
     
 	@Resource(name = "offlineArReceiveService")
 	private OfflineService offlineArReceiveService;
-
-    @Autowired
-    private ArSendRegisterService arSendRegisterService;
-
 	@Override
-	protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
+	public Task parse(Task task, String ownSign) {
+		return task;
+	}
+	@Override
+	public boolean execute(TaskContext<Task> taskContext, String ownSign){
         boolean result = false;
-		String body = task.getBody();
+		String body = taskContext.getTask().getBody();
 		if (StringUtils.isBlank(body)) {
 			return result;
 		}
@@ -82,8 +85,6 @@ public class OfflineCoreTask extends DBSingleScheduler {
             Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
-            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
-                result = arSendRegisterService.executeOfflineTask(body);
             }else{
                 result = offlineCore(body);
             }
@@ -253,5 +254,4 @@ public class OfflineCoreTask extends DBSingleScheduler {
 
         return sealCarDtos;
     }
-
 }

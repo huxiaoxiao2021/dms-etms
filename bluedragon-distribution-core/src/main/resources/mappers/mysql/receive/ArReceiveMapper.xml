@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.receive.dao.ArReceiveDao">
+
+	<resultMap id="ArReceive" type="com.jd.bluedragon.distribution.receive.domain.ArReceive" >
+		<id column="receive_id" property="receiveId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="send_register_id" property="sendRegisterId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_barcode" property="packageBarcode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="box_code" property="boxCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="shuttle_bus_type" property="shuttleBusType" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="shuttle_bus_num" property="shuttleBusNum" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_type" property="receiveType" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="boxing_type" property="boxingType" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="receive_status" property="receiveStatus" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="task_exe_count" property="taskExeCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_code" property="createUserCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="turnoverbox_code" property="turnoverBoxCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="queueno" property="queueNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="departure_car_id" property="departureCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="shields_car_time" property="shieldsCarTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		receive_id,send_register_id,waybill_code,package_barcode,box_code,send_code,
+		shuttle_bus_type,shuttle_bus_num,receive_type,boxing_type,receive_status,
+		task_exe_count,create_user,create_user_code,create_time,operate_time,
+		create_site_code,update_time,yn,turnoverbox_code,queueno,
+		departure_car_id,shields_car_time,ts,remark
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.ArReceive">
+		insert into ar_receive
+			(
+			<trim suffixOverrides=",">
+				<if test="receiveId != null">
+					receive_id,
+				</if>
+				<if test="sendRegisterId != null">
+					send_register_id,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="packageBarcode != null">
+					package_barcode,
+				</if>
+				<if test="boxCode != null">
+					box_code,
+				</if>
+				<if test="sendCode != null">
+					send_code,
+				</if>
+				<if test="shuttleBusType != null">
+					shuttle_bus_type,
+				</if>
+				<if test="shuttleBusNum != null">
+					shuttle_bus_num,
+				</if>
+				<if test="receiveType != null">
+					receive_type,
+				</if>
+				<if test="boxingType != null">
+					boxing_type,
+				</if>
+				<if test="receiveStatus != null">
+					receive_status,
+				</if>
+				<if test="taskExeCount != null">
+					task_exe_count,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="createUserCode != null">
+					create_user_code,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="operateTime != null">
+					operate_time,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="yn != null">
+					yn,
+				</if>
+				<if test="turnoverBoxCode != null">
+					turnoverbox_code,
+				</if>
+				<if test="queueNo != null">
+					queueno,
+				</if>
+				<if test="departureCarId != null">
+					departure_car_id,
+				</if>
+				<if test="shieldsCarTime != null">
+					shields_car_time,
+				</if>
+				<if test="ts != null">
+					ts,
+				</if>
+				<if test="remark != null">
+					remark
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="receiveId != null">
+					#{receiveId,jdbcType=BIGINT},
+				</if>
+				<if test="sendRegisterId != null">
+					#{sendRegisterId,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageBarcode != null">
+					#{packageBarcode,jdbcType=VARCHAR},
+				</if>
+				<if test="boxCode != null">
+					#{boxCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCode != null">
+					#{sendCode,jdbcType=VARCHAR},
+				</if>
+				<if test="shuttleBusType != null">
+					#{shuttleBusType,jdbcType=SMALLINT},
+				</if>
+				<if test="shuttleBusNum != null">
+					#{shuttleBusNum,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveType != null">
+					#{receiveType,jdbcType=BIGINT},
+				</if>
+				<if test="boxingType != null">
+					#{boxingType,jdbcType=BIGINT},
+				</if>
+				<if test="receiveStatus != null">
+					#{receiveStatus,jdbcType=BIGINT},
+				</if>
+				<if test="taskExeCount != null">
+					#{taskExeCount,jdbcType=BIGINT},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserCode != null">
+					#{createUserCode,jdbcType=BIGINT},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null">
+					#{yn,jdbcType=BIGINT},
+				</if>
+				<if test="turnoverBoxCode != null">
+					#{turnoverBoxCode,jdbcType=VARCHAR},
+				</if>
+				<if test="queueNo != null">
+					#{queueNo,jdbcType=VARCHAR},
+				</if>
+				<if test="departureCarId != null">
+					#{departureCarId,jdbcType=BIGINT},
+				</if>
+				<if test="shieldsCarTime != null">
+					#{shieldsCarTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+				<if test="remark != null">
+					#{remark,jdbcType=VARCHAR}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into ar_receive
+			(
+				send_register_id,waybill_code,package_barcode,box_code,
+				send_code,shuttle_bus_type,shuttle_bus_num,receive_type,boxing_type,
+				receive_status,task_exe_count,create_user,create_user_code,create_time,
+				operate_time,create_site_code,update_time,yn,turnoverbox_code,
+				queueno,departure_car_id,shields_car_time,ts,remark
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.sendRegisterId,jdbcType=BIGINT},
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.packageBarcode,jdbcType=VARCHAR},
+					#{item.boxCode,jdbcType=VARCHAR},
+					#{item.sendCode,jdbcType=VARCHAR},
+					#{item.shuttleBusType,jdbcType=SMALLINT},
+					#{item.shuttleBusNum,jdbcType=VARCHAR},
+					#{item.receiveType,jdbcType=BIGINT},
+					#{item.boxingType,jdbcType=BIGINT},
+					#{item.receiveStatus,jdbcType=BIGINT},
+					#{item.taskExeCount,jdbcType=BIGINT},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.createUserCode,jdbcType=BIGINT},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.operateTime,jdbcType=TIMESTAMP},
+					#{item.createSiteCode,jdbcType=BIGINT},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.yn,jdbcType=BIGINT},
+					#{item.turnoverBoxCode,jdbcType=VARCHAR},
+					#{item.queueNo,jdbcType=VARCHAR},
+					#{item.departureCarId,jdbcType=BIGINT},
+					#{item.shieldsCarTime,jdbcType=TIMESTAMP},
+					#{item.ts,jdbcType=TIMESTAMP},
+					#{item.remark,jdbcType=VARCHAR}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.receive.domain.ArReceive">
+		update ar_receive
+			<set>
+				<if test="sendRegisterId != null">
+					send_register_id = #{sendRegisterId,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageBarcode != null">
+					package_barcode = #{packageBarcode,jdbcType=VARCHAR},
+				</if>
+				<if test="boxCode != null">
+					box_code = #{boxCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCode != null">
+					send_code = #{sendCode,jdbcType=VARCHAR},
+				</if>
+				<if test="shuttleBusType != null">
+					shuttle_bus_type = #{shuttleBusType,jdbcType=SMALLINT},
+				</if>
+				<if test="shuttleBusNum != null">
+					shuttle_bus_num = #{shuttleBusNum,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveType != null">
+					receive_type = #{receiveType,jdbcType=BIGINT},
+				</if>
+				<if test="boxingType != null">
+					boxing_type = #{boxingType,jdbcType=BIGINT},
+				</if>
+				<if test="receiveStatus != null">
+					receive_status = #{receiveStatus,jdbcType=BIGINT},
+				</if>
+				<if test="taskExeCount != null">
+					task_exe_count = #{taskExeCount,jdbcType=BIGINT},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserCode != null">
+					create_user_code = #{createUserCode,jdbcType=BIGINT},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="operateTime != null">
+					operate_time = #{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null">
+					yn = #{yn,jdbcType=BIGINT},
+				</if>
+				<if test="turnoverBoxCode != null">
+					turnoverbox_code = #{turnoverBoxCode,jdbcType=VARCHAR},
+				</if>
+				<if test="queueNo != null">
+					queueno = #{queueNo,jdbcType=VARCHAR},
+				</if>
+				<if test="departureCarId != null">
+					departure_car_id = #{departureCarId,jdbcType=BIGINT},
+				</if>
+				<if test="shieldsCarTime != null">
+					shields_car_time = #{shieldsCarTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+				<if test="remark != null">
+					remark = #{remark,jdbcType=VARCHAR}
+				</if>
+			</set>
+		where receive_id = #{receiveId,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update ar_receive
+			set yn = 0
+		where receive_id = #{receiveId,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update ar_receive
+			set yn = 0
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="ArReceive">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_receive 
+		where receive_id = #{receiveId,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.receive.domain.ArReceive" resultMap="ArReceive">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_receive 
+		where send_register_id = #{sendRegisterId,jdbcType=BIGINT}
+		  and box_code = #{boxCode,jdbcType=VARCHAR}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and yn=1 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  ar_receive 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ArReceive">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_receive 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>

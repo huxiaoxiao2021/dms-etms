@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -36,6 +37,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_MESSAGE=8000;//消息队列
     /** 收货相关　 */
     public static final Integer TASK_TYPE_RECEIVE = 1110; // 分拣中心收货
+    /** 收货-空铁提货　 */
+    public static final Integer TASK_TYPE_AR_RECEIVE = 1810;
+    /** 收货-空铁提货并发货　 */
+    public static final Integer TASK_TYPE_AR_RECEIVE_AND_SEND = 1811;
     public static final Integer TASK_TYPE_SHIELDS_CAR_ERROR = 1120; // 分拣中心收货封车号封签异常
     public static final Integer TASK_TYPE_PUSH_MQ = 1150;    // 分拣中心收货发干线信息到计费系统
 
@@ -158,7 +163,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE_BATCH = "task_delivery_to_finance_batch";
 
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE = "task_delivery_to_finance";
-
+    
+    public static final String TABLE_NAME_AR_RECEIVE = "task_ar_receive";
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -500,6 +506,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_DELIVERY_TO_FINANCE;
         }else if(Task.TASK_TYPE_DELIVERY_TO_FINANCE_BATCH.equals(type)){
             return Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH;
+        }else if(Task.TASK_TYPE_AR_RECEIVE.equals(type)){
+            return Task.TABLE_NAME_AR_RECEIVE;
         }
         
         return Task.TABLE_NAME_SORTING;
