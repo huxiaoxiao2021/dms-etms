@@ -308,7 +308,7 @@ $(function() {
     };
 
 
-
+    initDateQuery();
     tableInit().init();
     pageInit().init();
     initSelect();
@@ -584,7 +584,12 @@ function changeExcpReasonEdit(selectVal){
     }
 }
 
+function initDateQuery(){
+    var v = $.dateHelper.formatDate(new Date());
 
+    $("#excpTimeGE").val(v);
+    $("#excpTimeLE").val(v);
+}
 
 
 

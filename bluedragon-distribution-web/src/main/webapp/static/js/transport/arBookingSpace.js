@@ -291,7 +291,7 @@ $(function() {
     };
 
 
-
+    initDateQuery();
     tableInit().init();
     pageInit().init();
     initOrg();
@@ -527,6 +527,12 @@ function initImportExcel(){
 }
 
 
+function initDateQuery(){
+    var v = $.dateHelper.formatDate(new Date());
+
+    $("#planStartDateGE").val(v);
+    $("#planStartDateLE").val(v);
+}
 
 
 

@@ -5,6 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,16 @@ public class ArExcpRegisterController {
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<ArExcpRegister> listData(@RequestBody ArExcpRegisterCondition arExcpRegisterCondition) {
     	JdResponse<PagerResult<ArExcpRegister>> rest = new JdResponse<PagerResult<ArExcpRegister>>();
+
+		//模糊字段 运力名称
+		if(StringUtils.isNotBlank(arExcpRegisterCondition.getTransportName())){
+			arExcpRegisterCondition.setTransportName("%"+arExcpRegisterCondition.getTransportName()+"%");
+		}
+		//模糊字段 航空单号
+		if(StringUtils.isNotBlank(arExcpRegisterCondition.getOrderCode())){
+			arExcpRegisterCondition.setOrderCode("%"+arExcpRegisterCondition.getOrderCode()+"%");
+		}
+
     	rest.setData(arExcpRegisterService.queryByPagerCondition(arExcpRegisterCondition));
     	return rest.getData();
     }
