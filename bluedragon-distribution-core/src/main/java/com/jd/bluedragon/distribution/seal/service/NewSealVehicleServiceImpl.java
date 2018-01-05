@@ -317,6 +317,25 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
         sealCarDto.setDesealCodes(sourceSealDto.getDesealCodes());
         sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
+        sealCarDto.setCarrierCode(sourceSealDto.getCarrierCode());
+        sealCarDto.setCarrierName(sourceSealDto.getCarrierName());
+        sealCarDto.setCarrierType(sourceSealDto.getCarrierType());
+        sealCarDto.setTransType(sourceSealDto.getTransType());
+        sealCarDto.setTransTypeName(sourceSealDto.getTransTypeName());
+        sealCarDto.setTransWay(sourceSealDto.getTransWay());
+        sealCarDto.setTransWayName(sourceSealDto.getTransWayName());
+//        sealCarDto.setSealCarTimeBegin();
+//        sealCarDto.setSealCarTimeEnd();
+        sealCarDto.setStartSiteType(sourceSealDto.getStartSiteType());
+        sealCarDto.setStartSiteTypeName(sourceSealDto.getStartSiteTypeName());
+        sealCarDto.setEndSiteType(sourceSealDto.getEndSiteType());
+        sealCarDto.setEndSiteTypeName(sourceSealDto.getEndSiteTypeName());
+        sealCarDto.setSealCarType(sourceSealDto.getSealCarType());
+        sealCarDto.setTransWorkItemCode(sourceSealDto.getTransWorkItemCode());
+        sealCarDto.setItemSimpleCode(sourceSealDto.getItemSimpleCode());
+        sealCarDto.setWeight(sourceSealDto.getWeight());
+        sealCarDto.setVolume(sourceSealDto.getVolume());
+        sealCarDto.setTransBookCode(sourceSealDto.getTransBookCode());
         //设置时间
         if(nowTime == null){//离线数据
             if(StringUtils.isNotBlank(sourceSealDto.getSealCarTime())){
