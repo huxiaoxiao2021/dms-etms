@@ -297,4 +297,12 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public List<SendDetail>  findPackageBoxCodesByWaybillCode( SendDetail sendDetail){
         return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", sendDetail);
     }
+    /**
+     * 查询SendD列表数据
+     * @param sendDetail
+     * @return
+     */
+    public List<SendDetail>  queryListByCondition(SendDetail sendDetail){
+        return this.getSqlSession().selectList(namespace + ".queryListByCondition", sendDetail);
+    }
 }

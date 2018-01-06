@@ -43,6 +43,7 @@ import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendDifference;
@@ -92,6 +93,9 @@ public class DeliveryResource {
     
     @Autowired
     private SendMDao sendMDao;
+    
+    @Autowired
+    private SendDatailDao sendDatailDao;
     
 
     /**
@@ -690,6 +694,13 @@ public class DeliveryResource {
     public InvokeResult<List<SendM>> querySendMListByCondition(SendM condition) {
     	InvokeResult<List<SendM>> res = new InvokeResult<List<SendM>>();
     	res.setData(sendMDao.queryListByCondition(condition));
+    	return res;
+    }
+    @POST
+    @Path("/delivery/querySendDListByCondition")
+    public InvokeResult<List<SendDetail>> querySendDListByCondition(SendDetail condition) {
+    	InvokeResult<List<SendDetail>> res = new InvokeResult<List<SendDetail>>();
+    	res.setData(sendDatailDao.queryListByCondition(condition));
     	return res;
     }
 }
