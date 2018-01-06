@@ -215,4 +215,11 @@ public class SendMDaoTest extends AbstractDaoIntegrationTest{
         parameter.setBoxCode("Jim");
         sendMDao.cancelSendM(parameter);
     }
+	@Test
+    public void testQueryListByCondition() {
+        SendM parameter = new SendM();
+        parameter.setBoxCode("www");
+        List<SendM> list = sendMDao.queryListByCondition(parameter);
+        System.err.println(list);
+    }	
 }
