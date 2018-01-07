@@ -212,7 +212,9 @@ public class BoxServiceImpl implements BoxService {
 		}
 
 		Box box = this.boxDao.findBoxByCode(code);
-		this.logger.info("通过数据库获取箱号信息成功(userMysqlQueryBox),箱号信息为："+JsonHelper.toJson(box));
+		if(box != null){
+			this.logger.info("通过数据库获取箱号信息成功(userMysqlQueryBox),箱号信息为："+JsonHelper.toJson(box));
+		}
 
 		return box;
 	}
