@@ -263,27 +263,69 @@
     <update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister">
         update ar_send_register
         <set>
+            <if test="status != null">
                 status = #{status,jdbcType=SMALLINT},
+            </if>
+            <if test="transportType != null">
                 transport_type = #{transportType,jdbcType=SMALLINT},
+            </if>
+            <if test="orderCode != null">
                 order_code = #{orderCode,jdbcType=VARCHAR},
+            </if>
+            <if test="transportName != null">
                 transport_name = #{transportName,jdbcType=VARCHAR},
+            </if>
+            <if test="siteOrder != null">
                 site_order = #{siteOrder,jdbcType=VARCHAR},
+            </if>
+            <if test="sendDate != null">
                 send_date = #{sendDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="transCompanyCode != null">
                 trans_company_code = #{transCompanyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="transCompany != null">
                 trans_company = #{transCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="startCityName != null">
                 start_city_name = #{startCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="startCityId != null">
                 start_city_id = #{startCityId,jdbcType=INTEGER},
+            </if>
+            <if test="endCityName != null">
                 end_city_name = #{endCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="endCityId != null">
                 end_city_id = #{endCityId,jdbcType=INTEGER},
+            </if>
+            <if test="startStationName != null">
                 start_station_name = #{startStationName,jdbcType=VARCHAR},
+            </if>
+            <if test="startStationId != null">
                 start_station_id = #{startStationId,jdbcType=VARCHAR},
+            </if>
+            <if test="endStationName != null">
                 end_station_name = #{endStationName,jdbcType=VARCHAR},
+            </if>
+            <if test="endStationId != null">
                 end_station_id = #{endStationId,jdbcType=VARCHAR},
+            </if>
+            <if test="planStartTime != null">
                 plan_start_time = #{planStartTime,jdbcType=VARCHAR},
+            </if>
+            <if test="planEndTime != null">
                 plan_end_time = #{planEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="sendNum != null">
                 send_num = #{sendNum,jdbcType=INTEGER},
+            </if>
+            <if test="chargedWeight != null">
                 charged_weight = #{chargedWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
                 remark = #{remark,jdbcType=VARCHAR},
+            </if>
             <if test="shuttleBusType != null">
                 shuttle_bus_type = #{shuttleBusType,jdbcType=SMALLINT},
             </if>

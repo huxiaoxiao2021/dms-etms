@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.common.util.StringUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -245,50 +246,49 @@ public class ArSendRegisterController {
         // 默认已发货
         arSendRegister.setStatus(ArSendStatusEnum.ALREADY_SEND.getType());
 
-        arSendRegister.setTransportName(ArSendRegisterCondition.getTransportName());
-        if (StringUtils.isNotEmpty(ArSendRegisterCondition.getSiteOrder())) {
+        arSendRegister.setTransportName(ArSendRegisterCondition.getTransportName() == null ? "" : ArSendRegisterCondition.getTransportName());
+        if (StringUtils.isNotEmpty(ArSendRegisterCondition.getSiteOrder()) && StringUtils.isEmpty(ArSendRegisterCondition.getOrderCode())) {
             // 铁路
             arSendRegister.setTransportType(ArTransportTypeEnum.RAILWAY.getCode());
             arSendRegister.setSiteOrder(ArSendRegisterCondition.getSiteOrder());
+            arSendRegister.setOrderCode("");
         } else {
             // 航空
             arSendRegister.setTransportType(ArTransportTypeEnum.AIR_TRANSPORT.getCode());
             arSendRegister.setOrderCode(ArSendRegisterCondition.getOrderCode());
+            arSendRegister.setSiteOrder("");
         }
         if (StringUtils.isNotEmpty(ArSendRegisterCondition.getSendDate())) {
             arSendRegister.setSendDate(sdf.parse(ArSendRegisterCondition.getSendDate()));
         }
-        arSendRegister.setTransCompany(ArSendRegisterCondition.getTransCompany());
-        arSendRegister.setTransCompanyCode(ArSendRegisterCondition.getTransCompanyCode());
-        arSendRegister.setStartCityName(ArSendRegisterCondition.getStartCityName());
-        arSendRegister.setStartCityId(ArSendRegisterCondition.getStartCityId());
-        arSendRegister.setEndCityName(ArSendRegisterCondition.getEndCityName());
-        arSendRegister.setEndCityId(ArSendRegisterCondition.getEndCityId());
-        arSendRegister.setStartStationName(ArSendRegisterCondition.getStartStationName());
-        arSendRegister.setStartStationId(ArSendRegisterCondition.getStartStationId());
-        arSendRegister.setEndStationName(ArSendRegisterCondition.getEndStationName());
-        arSendRegister.setEndStationId(ArSendRegisterCondition.getEndStationId());
+        arSendRegister.setTransCompany(ArSendRegisterCondition.getTransCompany() == null ? "" : ArSendRegisterCondition.getTransCompany());
+        arSendRegister.setTransCompanyCode(ArSendRegisterCondition.getTransCompanyCode() == null ? "" : ArSendRegisterCondition.getTransCompanyCode());
+        arSendRegister.setStartCityName(ArSendRegisterCondition.getStartCityName() == null ? "" : ArSendRegisterCondition.getStartCityName());
+        arSendRegister.setStartCityId(ArSendRegisterCondition.getStartCityId() == null ? 0 : ArSendRegisterCondition.getStartCityId());
+        arSendRegister.setEndCityName(ArSendRegisterCondition.getEndCityName() == null ? "" : ArSendRegisterCondition.getEndCityName());
+        arSendRegister.setEndCityId(ArSendRegisterCondition.getEndCityId() == null ? 0 : ArSendRegisterCondition.getEndCityId());
+        arSendRegister.setStartStationName(ArSendRegisterCondition.getStartStationName() == null ? "" : ArSendRegisterCondition.getStartStationName());
+        arSendRegister.setStartStationId(ArSendRegisterCondition.getStartStationId() == null ? "" : ArSendRegisterCondition.getStartStationId());
+        arSendRegister.setEndStationName(ArSendRegisterCondition.getEndStationName() == null ? "" : ArSendRegisterCondition.getEndStationName());
+        arSendRegister.setEndStationId(ArSendRegisterCondition.getEndStationId() == null ? "" : ArSendRegisterCondition.getEndStationId());
         arSendRegister.setPlanStartTime(ArSendRegisterCondition.getPlanStartTime() == null ? "" : ArSendRegisterCondition.getPlanStartTime());
         arSendRegister.setPlanEndTime(ArSendRegisterCondition.getPlanEndTime() == null ? "" : ArSendRegisterCondition.getPlanEndTime());
 
         arSendRegister.setSendNum(ArSendRegisterCondition.getSendNum());
         arSendRegister.setChargedWeight(ArSendRegisterCondition.getChargedWeight());
-        arSendRegister.setRemark(ArSendRegisterCondition.getRemark());
-        arSendRegister.setShuttleBusNum(ArSendRegisterCondition.getShuttleBusNum());
-        arSendRegister.setShuttleBusType(ArSendRegisterCondition.getShuttleBusType());
+        arSendRegister.setRemark(ArSendRegisterCondition.getRemark() == null ? "" : ArSendRegisterCondition.getRemark());
+        arSendRegister.setShuttleBusNum(ArSendRegisterCondition.getShuttleBusNum() == null ? "" : ArSendRegisterCondition.getShuttleBusNum());
+        arSendRegister.setShuttleBusType(ArSendRegisterCondition.getShuttleBusType() == null ? 0 : ArSendRegisterCondition.getShuttleBusType());
 
         arSendRegister.setOperationTime(new Date());
-        arSendRegister.setOperatorErp("lixin456");
-        arSendRegister.setCreateUser("lixin456");
-        arSendRegister.setUpdateUser("lixin456");
-//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        arSendRegister.setOperatorErp(erpUser.getUserCode());
-//        // 操作时间
-//        arSendRegister.setCreateUser(erpUser.getUserCode());
-//        arSendRegister.setUpdateUser(erpUser.getUserCode());
-//        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-//        arSendRegister.setOperationDept(dto.getSiteName());
-//        arSendRegister.setOperationDeptCode(dto.getSiteCode());
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        arSendRegister.setOperatorErp(erpUser.getUserCode());
+
+        arSendRegister.setCreateUser(erpUser.getUserCode());
+        arSendRegister.setUpdateUser(erpUser.getUserCode());
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+        arSendRegister.setOperationDept(dto.getSiteName());
+        arSendRegister.setOperationDeptCode(dto.getSiteCode());
         return arSendRegister;
     }
 
