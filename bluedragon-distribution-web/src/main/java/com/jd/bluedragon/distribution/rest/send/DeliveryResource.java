@@ -1,5 +1,31 @@
 package com.jd.bluedragon.distribution.rest.send;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -20,7 +46,15 @@ import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
-import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendDifference;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
@@ -30,17 +64,6 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -74,6 +97,13 @@ public class DeliveryResource {
     private static final Integer KY_DELIVERY = 1; //快运发货标识
 
     private final Log logger = LogFactory.getLog(this.getClass());
+    
+    @Autowired
+    private SendMDao sendMDao;
+    
+    @Autowired
+    private SendDatailDao sendDatailDao;
+    
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -667,5 +697,40 @@ public class DeliveryResource {
             return true;
         }
         return false;
+    }
+    @POST
+    @Path("/delivery/reSendBySendM")
+    public InvokeResult<Map<String,Object>> reSendBySendM(SendM condition) {
+    	InvokeResult<Map<String,Object>> res = new InvokeResult<Map<String,Object>>();
+    	Map<String,Object> restData = new HashMap<String,Object>();
+    	List<SendM> sendMList = sendMDao.queryListByCondition(condition);
+    	if(sendMList!=null){
+    		for(SendM sendM:sendMList){
+    			deliveryService.pushStatusTask(sendM);
+    		}
+    	}
+    	res.setData(restData);
+    	return res;
+    }
+    @POST
+    @Path("/delivery/pushStatusTask")
+    public InvokeResult<Boolean> pushStatusTask(SendM sendM) {
+    	InvokeResult<Boolean> res = new InvokeResult<Boolean>();
+    	deliveryService.pushStatusTask(sendM);
+    	return res;
+    }
+    @POST
+    @Path("/delivery/querySendMListByCondition")
+    public InvokeResult<List<SendM>> querySendMListByCondition(SendM condition) {
+    	InvokeResult<List<SendM>> res = new InvokeResult<List<SendM>>();
+    	res.setData(sendMDao.queryListByCondition(condition));
+    	return res;
+    }
+    @POST
+    @Path("/delivery/querySendDListByCondition")
+    public InvokeResult<List<SendDetail>> querySendDListByCondition(SendDetail condition) {
+    	InvokeResult<List<SendDetail>> res = new InvokeResult<List<SendDetail>>();
+    	res.setData(sendDatailDao.queryListByCondition(condition));
+    	return res;
     }
 }

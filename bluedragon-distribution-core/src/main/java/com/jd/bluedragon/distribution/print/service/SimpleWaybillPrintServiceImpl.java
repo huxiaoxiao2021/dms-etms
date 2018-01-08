@@ -126,6 +126,11 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private static final String USER_PLUS_FLAG_A="101";
     private static final String USER_PLUS_FLAG_B="201";
 
+    /**
+     * 收件人联系方式需要突出显示的位数
+     */
+    private static final int PHONE_HIGHLIGHT_NUMBER = 4;
+
     @Override
     public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -184,7 +189,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
             commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
             commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
-            commonWaybill.setRoad(tmsWaybill.getRoadCode());
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
@@ -250,15 +254,31 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
+            String roadCode = "";
             if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = tmsWaybill.getImportantHint();
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
-                if(transbillM != null && StringUtils.isNotBlank(transbillM.getScheduleBillCode())){
-                    scheduleCode = transbillM.getScheduleBillCode();
+                if(transbillM != null){
+                	if(StringHelper.isNotEmpty(transbillM.getScheduleBillCode())){
+                		scheduleCode = transbillM.getScheduleBillCode();
+                	}
+                	//城配运单设置路区号-为卡位号
+                	if(StringHelper.isNotEmpty(transbillM.getTruckSpot())){
+                		roadCode = transbillM.getTruckSpot();
+                	}
                 }
                 String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
                 commonWaybill.setRemark(str + scheduleCode);
             }
+        	//路区-为空尝试从运单里获取
+        	if(StringHelper.isEmpty(roadCode)){
+        		if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
+        			roadCode = tmsWaybill.getRoadCode();
+        		}else{
+        			roadCode = "0";
+        		}
+        	}
+        	commonWaybill.setRoad(roadCode);
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
@@ -266,6 +286,17 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
             commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
+            //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
+            String receiverMobile = tmsWaybill.getReceiverMobile();
+            String receiverTel = tmsWaybill.getReceiverTel();
+            if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+            }
+            if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            }
             if(null!=tmsWaybillManageDomain){
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
@@ -280,6 +311,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                     }
                 }
                 commonWaybill.setPackList(packageList);
+            }
+            //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
+            if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
+            	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
             }
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }

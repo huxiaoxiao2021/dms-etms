@@ -25,7 +25,7 @@ public interface TransBillScheduleService {
      * @param waybillCode
      * @return
      */
-    public String queryRoadCodeByWaybillCode(String waybillCode);
+    public String queryTruckSpotByWaybillCode(String waybillCode);
 
     /**
      * 获取箱号对应的派车单号

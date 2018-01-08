@@ -247,7 +247,8 @@ public class BusinessHelper {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
 		}
-		return s.matches("^[P]{1}(\\p{Lu}){1}\\d{16}$");
+		//正则改为2个字符|null+16位数字（8位日期+8位序列）
+		return s.matches("^([A-Za-z]{2}|null)\\d{16}$");
 	}
 
 	/**
@@ -480,5 +481,33 @@ public class BusinessHelper {
 	 */
 	public static boolean isUrban(String waybillSign,String sendPay){
 		return isSignY(sendPay,146) || isSignY(waybillSign,36);
+	}
+	
+	/**
+	 * 1号店订单判断逻辑：sendpay  60-62位 ，034、035、036、037、038、039为一号店订单
+	 * @param sendPay 60=0 61=3 62=4 5 6 7 8 9
+	 * @return
+	 */
+	public static boolean isYHD(String sendPay){
+//		sendPay = "00000000100000000000000002001000030000100000000000000000000036000000000000000000000000000000000000000000003400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+		if(isSignChar(sendPay, 60, '0') && isSignChar(sendPay, 61, '3')){
+			if(isSignChar(sendPay, 62, '4')||isSignChar(sendPay, 62, '5')||isSignChar(sendPay, 62, '6')||
+					isSignChar(sendPay, 62, '7')||isSignChar(sendPay, 62, '8')||isSignChar(sendPay, 62, '9')){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	/**
+	 * 根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSopOrExternal(String waybillSign){
+		return (isSignChar(waybillSign, 1, '2')
+				||isSignChar(waybillSign, 1, '3')
+				||isSignChar(waybillSign, 1, '6')
+				||isSignChar(waybillSign, 1, 'K'));
 	}
 }

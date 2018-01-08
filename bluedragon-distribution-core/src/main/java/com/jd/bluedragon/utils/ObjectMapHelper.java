@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,7 +26,7 @@ public class ObjectMapHelper {
 	
 	/**
 	 * 将对象转换为Map
-	 * 
+	 *  没有考虑对象的父类
 	 * @param obj
 	 * @return
 	 */
@@ -54,6 +55,54 @@ public class ObjectMapHelper {
 							//if ("".equals(targetValueObj.toString())) {
 								logger.info("方法名：" + methodName + " 的值为空");
 								continue;
+							//}
+						}
+						paramMap.put(methodName.substring(3, 4).toLowerCase()
+								+ methodName.substring(4), targetValueObj);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("将对象转换为Map异常：", e);
+		}
+		return paramMap;
+	}
+	/**
+	 * 将对象转换为Map
+	 * @param obj
+	 * @return
+	 */
+	public static Map<String, Object> convertObject2Map(Object obj) {
+		Map<String, Object> paramMap = new HashMap<String, Object>();
+		if (obj == null) {
+			logger.info("转换对象为空");
+			return paramMap;
+		}
+		try {
+			Class objClass = obj.getClass();
+			Method[] methods = objClass.getDeclaredMethods();
+			//只考虑直接父级 而且直接父级不是Object
+			if(objClass.getSuperclass() != null && !"java.lang.Object".equals(objClass.getSuperclass().getName())){
+				Method[] superMethodes = objClass.getSuperclass().getDeclaredMethods();
+				if(superMethodes != null && superMethodes.length > 0){
+					methods = (Method[]) ArrayUtils.addAll(methods, superMethodes);
+				}
+			}
+			for (Method method : methods) {
+				String methodName = method.getName();
+				if (methodName.startsWith("get")) {
+					Object targetValueObj = method.invoke(obj);
+					if (targetValueObj != null) {
+						if (targetValueObj instanceof Integer) {
+							if ((Integer) targetValueObj < 0) {
+								logger.info("方法名：" + methodName + " 的值小于0");
+								continue;
+							}
+						} else if (targetValueObj instanceof String
+								&& "".equals(targetValueObj.toString())) {
+							//if ("".equals(targetValueObj.toString())) {
+							logger.info("方法名：" + methodName + " 的值为空");
+							continue;
 							//}
 						}
 						paramMap.put(methodName.substring(3, 4).toLowerCase()
