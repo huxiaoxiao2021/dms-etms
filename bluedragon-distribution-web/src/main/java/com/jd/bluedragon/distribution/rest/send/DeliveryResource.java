@@ -34,15 +34,11 @@ import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
-import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
@@ -91,9 +87,6 @@ public class DeliveryResource {
     @Autowired
     private SendQueryService sendQueryService;
     
-    @Autowired
-    private ScannerFrameBatchSendService scannerFrameBatchSendService;
-
     private static final Integer KY_DELIVERY = 1; //快运发货标识
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -646,29 +639,6 @@ public class DeliveryResource {
 
     }
     
-    /**
-     * 手动获取设备对应的批次号
-     *
-     * @param request
-     * @return
-     */
-    @POST
-    @Path("/delivery/handAchieveSendCode")
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
-    public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
-        this.logger.info("手动获取设备对应的批次号");
-        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getAndGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
-        
-        if (scannerFrameBatchSend != null) {
-        	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
-        	response.setSendCode(scannerFrameBatchSend.getSendCode());
-            return response;
-        } else {
-            return new ScannerFrameBatchSendResponse(JdResponse.CODE_NOT_FOUND,
-                    "未查询到对应的批次号sendCode，请确认！");
-        }
-    }
-
     private SendM toSendDatail(DeliveryRequest deliveryRequest) {
         SendM sendM = new SendM();
         if (deliveryRequest != null) {
