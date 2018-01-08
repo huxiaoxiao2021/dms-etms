@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.transport.service;
 
-import com.jd.bluedragon.distribution.transport.domain.ArFlightInfo;
+import com.jd.bluedragon.distribution.transport.domain.ArTransportInfo;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegisterCondition;
-import com.jd.bluedragon.distribution.transport.domain.TransportTypeEnum;
+import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
@@ -91,7 +91,7 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
      * @param transportType
      * @return
      */
-    ArFlightInfo getTransportInfo(String code, TransportTypeEnum transportType);
+    ArTransportInfo getTransportInfo(String code, ArTransportTypeEnum transportType);
 
     /**
      * 处理pda上传任务

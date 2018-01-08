@@ -47,9 +47,14 @@ public class ArSendRegister extends DbEntity {
     private Date sendDate;
 
     /**
-     * 航空公司
+     * 航空公司编号/铁路担当局编号
      */
-    private String airlineCompany;
+    private String transCompanyCode;
+
+    /**
+     * 航空公司/铁路担当局名称
+     */
+    private String transCompany;
 
     /**
      * 起飞城市
@@ -79,7 +84,7 @@ public class ArSendRegister extends DbEntity {
     /**
      * 起飞机场编号
      */
-    private Integer startStationId;
+    private String startStationId;
 
     /**
      * 落地机场
@@ -89,17 +94,17 @@ public class ArSendRegister extends DbEntity {
     /**
      * 落地机场编号
      */
-    private Integer endStationId;
+    private String endStationId;
 
     /**
      * 预计起飞时间
      */
-    private Date planStartTime;
+    private String planStartTime;
 
     /**
      * 预计落地时间
      */
-    private Date planEndTime;
+    private String planEndTime;
 
     /**
      * 发货件数
@@ -137,6 +142,11 @@ public class ArSendRegister extends DbEntity {
     private String operationDept;
 
     /**
+     * 操作部门编号
+     */
+    private Integer operationDeptCode;
+
+    /**
      * 操作时间
      */
     private Date operationTime;
@@ -156,490 +166,236 @@ public class ArSendRegister extends DbEntity {
      */
     private String sendCode;
 
-    /**
-     * The set method for status.
-     *
-     * @param status
-     */
+    public Integer getStatus() {
+        return status;
+    }
+
     public void setStatus(Integer status) {
         this.status = status;
     }
 
-    /**
-     * The get method for status.
-     *
-     * @return this.status
-     */
-    public Integer getStatus() {
-        return this.status;
+    public Integer getTransportType() {
+        return transportType;
     }
 
-    /**
-     * The set method for transportType.
-     *
-     * @param transportType
-     */
     public void setTransportType(Integer transportType) {
         this.transportType = transportType;
     }
 
-    /**
-     * The get method for transportType.
-     *
-     * @return this.transportType
-     */
-    public Integer getTransportType() {
-        return this.transportType;
+    public String getOrderCode() {
+        return orderCode;
     }
 
-    /**
-     * The set method for orderCode.
-     *
-     * @param orderCode
-     */
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
     }
 
-    /**
-     * The get method for orderCode.
-     *
-     * @return this.orderCode
-     */
-    public String getOrderCode() {
-        return this.orderCode;
+    public String getTransportName() {
+        return transportName;
     }
 
-    /**
-     * The set method for transportName.
-     *
-     * @param transportName
-     */
     public void setTransportName(String transportName) {
         this.transportName = transportName;
     }
 
-    /**
-     * The get method for transportName.
-     *
-     * @return this.transportName
-     */
-    public String getTransportName() {
-        return this.transportName;
+    public String getSiteOrder() {
+        return siteOrder;
     }
 
-    /**
-     * The set method for siteOrder.
-     *
-     * @param siteOrder
-     */
     public void setSiteOrder(String siteOrder) {
         this.siteOrder = siteOrder;
     }
 
-    /**
-     * The get method for siteOrder.
-     *
-     * @return this.siteOrder
-     */
-    public String getSiteOrder() {
-        return this.siteOrder;
+    public Date getSendDate() {
+        return sendDate;
     }
 
-    /**
-     * The set method for sendDate.
-     *
-     * @param sendDate
-     */
     public void setSendDate(Date sendDate) {
         this.sendDate = sendDate;
     }
 
-    /**
-     * The get method for sendDate.
-     *
-     * @return this.sendDate
-     */
-    public Date getSendDate() {
-        return this.sendDate;
+    public String getTransCompanyCode() {
+        return transCompanyCode;
     }
 
-    /**
-     * The set method for airlineCompany.
-     *
-     * @param airlineCompany
-     */
-    public void setAirlineCompany(String airlineCompany) {
-        this.airlineCompany = airlineCompany;
+    public void setTransCompanyCode(String transCompanyCode) {
+        this.transCompanyCode = transCompanyCode;
     }
 
-    /**
-     * The get method for airlineCompany.
-     *
-     * @return this.airlineCompany
-     */
-    public String getAirlineCompany() {
-        return this.airlineCompany;
+    public String getTransCompany() {
+        return transCompany;
     }
 
-    /**
-     * The set method for startCityName.
-     *
-     * @param startCityName
-     */
+    public void setTransCompany(String transCompany) {
+        this.transCompany = transCompany;
+    }
+
+    public String getStartCityName() {
+        return startCityName;
+    }
+
     public void setStartCityName(String startCityName) {
         this.startCityName = startCityName;
     }
 
-    /**
-     * The get method for startCityName.
-     *
-     * @return this.startCityName
-     */
-    public String getStartCityName() {
-        return this.startCityName;
+    public Integer getStartCityId() {
+        return startCityId;
     }
 
-    /**
-     * The set method for startCityId.
-     *
-     * @param startCityId
-     */
     public void setStartCityId(Integer startCityId) {
         this.startCityId = startCityId;
     }
 
-    /**
-     * The get method for startCityId.
-     *
-     * @return this.startCityId
-     */
-    public Integer getStartCityId() {
-        return this.startCityId;
+    public String getEndCityName() {
+        return endCityName;
     }
 
-    /**
-     * The set method for endCityName.
-     *
-     * @param endCityName
-     */
     public void setEndCityName(String endCityName) {
         this.endCityName = endCityName;
     }
 
-    /**
-     * The get method for endCityName.
-     *
-     * @return this.endCityName
-     */
-    public String getEndCityName() {
-        return this.endCityName;
+    public Integer getEndCityId() {
+        return endCityId;
     }
 
-    /**
-     * The set method for endCityId.
-     *
-     * @param endCityId
-     */
     public void setEndCityId(Integer endCityId) {
         this.endCityId = endCityId;
     }
 
-    /**
-     * The get method for endCityId.
-     *
-     * @return this.endCityId
-     */
-    public Integer getEndCityId() {
-        return this.endCityId;
+    public String getStartStationName() {
+        return startStationName;
     }
 
-    /**
-     * The set method for startStationName.
-     *
-     * @param startStationName
-     */
     public void setStartStationName(String startStationName) {
         this.startStationName = startStationName;
     }
 
-    /**
-     * The get method for startStationName.
-     *
-     * @return this.startStationName
-     */
-    public String getStartStationName() {
-        return this.startStationName;
+    public String getStartStationId() {
+        return startStationId;
     }
 
-    /**
-     * The set method for startStationId.
-     *
-     * @param startStationId
-     */
-    public void setStartStationId(Integer startStationId) {
+    public void setStartStationId(String startStationId) {
         this.startStationId = startStationId;
     }
 
-    /**
-     * The get method for startStationId.
-     *
-     * @return this.startStationId
-     */
-    public Integer getStartStationId() {
-        return this.startStationId;
+    public String getEndStationName() {
+        return endStationName;
     }
 
-    /**
-     * The set method for endStationName.
-     *
-     * @param endStationName
-     */
     public void setEndStationName(String endStationName) {
         this.endStationName = endStationName;
     }
 
-    /**
-     * The get method for endStationName.
-     *
-     * @return this.endStationName
-     */
-    public String getEndStationName() {
-        return this.endStationName;
+    public String getEndStationId() {
+        return endStationId;
     }
 
-    /**
-     * The set method for endStationId.
-     *
-     * @param endStationId
-     */
-    public void setEndStationId(Integer endStationId) {
+    public void setEndStationId(String endStationId) {
         this.endStationId = endStationId;
     }
 
-    /**
-     * The get method for endStationId.
-     *
-     * @return this.endStationId
-     */
-    public Integer getEndStationId() {
-        return this.endStationId;
+    public String getPlanStartTime() {
+        return planStartTime;
     }
 
-    /**
-     * The set method for planStartTime.
-     *
-     * @param planStartTime
-     */
-    public void setPlanStartTime(Date planStartTime) {
+    public void setPlanStartTime(String planStartTime) {
         this.planStartTime = planStartTime;
     }
 
-    /**
-     * The get method for planStartTime.
-     *
-     * @return this.planStartTime
-     */
-    public Date getPlanStartTime() {
-        return this.planStartTime;
+    public String getPlanEndTime() {
+        return planEndTime;
     }
 
-    /**
-     * The set method for planEndTime.
-     *
-     * @param planEndTime
-     */
-    public void setPlanEndTime(Date planEndTime) {
+    public void setPlanEndTime(String planEndTime) {
         this.planEndTime = planEndTime;
     }
 
-    /**
-     * The get method for planEndTime.
-     *
-     * @return this.planEndTime
-     */
-    public Date getPlanEndTime() {
-        return this.planEndTime;
+    public Integer getSendNum() {
+        return sendNum;
     }
 
-    /**
-     * The set method for sendNum.
-     *
-     * @param sendNum
-     */
     public void setSendNum(Integer sendNum) {
         this.sendNum = sendNum;
     }
 
-    /**
-     * The get method for sendNum.
-     *
-     * @return this.sendNum
-     */
-    public Integer getSendNum() {
-        return this.sendNum;
+    public BigDecimal getChargedWeight() {
+        return chargedWeight;
     }
 
-    /**
-     * The set method for chargedWeight.
-     *
-     * @param chargedWeight
-     */
     public void setChargedWeight(BigDecimal chargedWeight) {
         this.chargedWeight = chargedWeight;
     }
 
-    /**
-     * The get method for chargedWeight.
-     *
-     * @return this.chargedWeight
-     */
-    public BigDecimal getChargedWeight() {
-        return this.chargedWeight;
+    public String getRemark() {
+        return remark;
     }
 
-    /**
-     * The set method for remark.
-     *
-     * @param remark
-     */
     public void setRemark(String remark) {
         this.remark = remark;
     }
 
-    /**
-     * The get method for remark.
-     *
-     * @return this.remark
-     */
-    public String getRemark() {
-        return this.remark;
+    public Integer getShuttleBusType() {
+        return shuttleBusType;
     }
 
-    /**
-     * The set method for shuttleBusType.
-     *
-     * @param shuttleBusType
-     */
     public void setShuttleBusType(Integer shuttleBusType) {
         this.shuttleBusType = shuttleBusType;
     }
 
-    /**
-     * The get method for shuttleBusType.
-     *
-     * @return this.shuttleBusType
-     */
-    public Integer getShuttleBusType() {
-        return this.shuttleBusType;
+    public String getShuttleBusNum() {
+        return shuttleBusNum;
     }
 
-    /**
-     * The set method for shuttleBusNum.
-     *
-     * @param shuttleBusNum
-     */
     public void setShuttleBusNum(String shuttleBusNum) {
         this.shuttleBusNum = shuttleBusNum;
     }
 
-    /**
-     * The get method for shuttleBusNum.
-     *
-     * @return this.shuttleBusNum
-     */
-    public String getShuttleBusNum() {
-        return this.shuttleBusNum;
+    public String getOperatorErp() {
+        return operatorErp;
     }
 
-    /**
-     * The set method for operatorErp.
-     *
-     * @param operatorErp
-     */
     public void setOperatorErp(String operatorErp) {
         this.operatorErp = operatorErp;
     }
 
-    /**
-     * The get method for operatorErp.
-     *
-     * @return this.operatorErp
-     */
-    public String getOperatorErp() {
-        return this.operatorErp;
+    public String getOperationDept() {
+        return operationDept;
     }
 
-    /**
-     * The set method for operationDept.
-     *
-     * @param operationDept
-     */
     public void setOperationDept(String operationDept) {
         this.operationDept = operationDept;
     }
 
-    /**
-     * The get method for operationDept.
-     *
-     * @return this.operationDept
-     */
-    public String getOperationDept() {
-        return this.operationDept;
+    public Integer getOperationDeptCode() {
+        return operationDeptCode;
     }
 
-    /**
-     * The set method for operationTime.
-     *
-     * @param operationTime
-     */
+    public void setOperationDeptCode(Integer operationDeptCode) {
+        this.operationDeptCode = operationDeptCode;
+    }
+
+    public Date getOperationTime() {
+        return operationTime;
+    }
+
     public void setOperationTime(Date operationTime) {
         this.operationTime = operationTime;
     }
 
-    /**
-     * The get method for operationTime.
-     *
-     * @return this.operationTime
-     */
-    public Date getOperationTime() {
-        return this.operationTime;
+    public String getCreateUser() {
+        return createUser;
     }
 
-    /**
-     * The set method for createUser.
-     *
-     * @param createUser
-     */
     public void setCreateUser(String createUser) {
         this.createUser = createUser;
     }
 
-    /**
-     * The get method for createUser.
-     *
-     * @return this.createUser
-     */
-    public String getCreateUser() {
-        return this.createUser;
+    public String getUpdateUser() {
+        return updateUser;
     }
 
-    /**
-     * The set method for updateUser.
-     *
-     * @param updateUser
-     */
     public void setUpdateUser(String updateUser) {
         this.updateUser = updateUser;
-    }
-
-    /**
-     * The get method for updateUser.
-     *
-     * @return this.updateUser
-     */
-    public String getUpdateUser() {
-        return this.updateUser;
     }
 
     public String getSendCode() {

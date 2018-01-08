@@ -4,7 +4,7 @@ package com.jd.bluedragon.distribution.transport.domain;
  * <p>
  * Created by lixin39 on 2018/1/3.
  */
-public enum TransportTypeEnum {
+public enum ArTransportTypeEnum {
     /**
      * 空运
      */
@@ -18,7 +18,7 @@ public enum TransportTypeEnum {
 
     private String name;
 
-    TransportTypeEnum(int code, String name) {
+    ArTransportTypeEnum(int code, String name) {
         this.code = code;
         this.name = name;
     }
@@ -32,8 +32,8 @@ public enum TransportTypeEnum {
         return name;
     }
 
-    public static TransportTypeEnum getEnum(int code) {
-        for (TransportTypeEnum type : TransportTypeEnum.values()) {
+    public static ArTransportTypeEnum getEnum(int code) {
+        for (ArTransportTypeEnum type : ArTransportTypeEnum.values()) {
             if (type.getCode() == code) {
                 return type;
             }

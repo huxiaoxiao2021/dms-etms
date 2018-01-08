@@ -169,23 +169,28 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">航空公司：</label>
                         <div class="col-lg-9">
-                            <span id="airlineCompany" style="font-size: 20px;text-align: left;display:block;"></span>
+                            <input type="hidden" class="form-control edit-param" id="transCompanyCode" name="transCompanyCode"/>
+                            <span id="transCompany" style="font-size: 20px;text-align: left;display:block;"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">起飞：</label>
                         <div class="col-lg-9">
                             <input type="hidden" class="form-control edit-param" id="startCityId" name="startCityId"/>
-                            <span id="startCityName" style="font-size: 20px;text-align: left;float:left;"></span>&nbsp;&nbsp;&nbsp;
-                            <span id="planStartTime" style="font-size: 20px;text-align: left;float:center;"></span>
+                            <input type="hidden" class="form-control edit-param" id="startStationId" name="startStationId"/>
+                            <span id="startCityName" style="font-size: 20px;float:left;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="startStationName" style="font-size: 20px;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="planStartTime" style="font-size: 20px;"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">落地：</label>
                         <div class="col-lg-9">
                             <input type="hidden" class="form-control edit-param" id="endCityId" name="endCityId"/>
+                            <input type="hidden" class="form-control edit-param" id="endStationId" name="endStationId"/>
                             <span id="endCityName" style="font-size: 20px;text-align: left;float:left;"></span>&nbsp;&nbsp;&nbsp;
-                            <span id="planEndTime" style="font-size: 20px;text-align: left;float:center;"></span>
+                            <span id="endStationName" style="font-size: 20px;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="planEndTime" style="font-size: 20px;"></span>
                         </div>
                     </div>
                 </div>

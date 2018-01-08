@@ -38,9 +38,14 @@ public class ArSendRegisterCondition extends BasePagerCondition {
     private String sendDate;
 
     /**
-     * 航空公司
+     * 航空公司编号/铁路担当局编号
      */
-    private String airlineCompany;
+    private String transCompanyCode;
+
+    /**
+     * 航空公司/铁路担当局名称
+     */
+    private String transCompany;
 
     /**
      * 起飞城市
@@ -70,7 +75,7 @@ public class ArSendRegisterCondition extends BasePagerCondition {
     /**
      * 起飞机场编号
      */
-    private Integer startStationId;
+    private String startStationId;
 
     /**
      * 落地机场
@@ -80,7 +85,7 @@ public class ArSendRegisterCondition extends BasePagerCondition {
     /**
      * 落地机场编号
      */
-    private Integer endStationId;
+    private String endStationId;
 
     /**
      * 预计起飞时间
@@ -177,12 +182,20 @@ public class ArSendRegisterCondition extends BasePagerCondition {
         this.sendDate = sendDate;
     }
 
-    public String getAirlineCompany() {
-        return airlineCompany;
+    public String getTransCompanyCode() {
+        return transCompanyCode;
     }
 
-    public void setAirlineCompany(String airlineCompany) {
-        this.airlineCompany = airlineCompany;
+    public void setTransCompanyCode(String transCompanyCode) {
+        this.transCompanyCode = transCompanyCode;
+    }
+
+    public String getTransCompany() {
+        return transCompany;
+    }
+
+    public void setTransCompany(String transCompany) {
+        this.transCompany = transCompany;
     }
 
     public String getStartCityName() {
@@ -225,11 +238,11 @@ public class ArSendRegisterCondition extends BasePagerCondition {
         this.startStationName = startStationName;
     }
 
-    public Integer getStartStationId() {
+    public String getStartStationId() {
         return startStationId;
     }
 
-    public void setStartStationId(Integer startStationId) {
+    public void setStartStationId(String startStationId) {
         this.startStationId = startStationId;
     }
 
@@ -241,11 +254,11 @@ public class ArSendRegisterCondition extends BasePagerCondition {
         this.endStationName = endStationName;
     }
 
-    public Integer getEndStationId() {
+    public String getEndStationId() {
         return endStationId;
     }
 
-    public void setEndStationId(Integer endStationId) {
+    public void setEndStationId(String endStationId) {
         this.endStationId = endStationId;
     }
 
@@ -336,4 +349,5 @@ public class ArSendRegisterCondition extends BasePagerCondition {
     public void setEndOperTime(String endOperTime) {
         this.endOperTime = endOperTime;
     }
+
 }

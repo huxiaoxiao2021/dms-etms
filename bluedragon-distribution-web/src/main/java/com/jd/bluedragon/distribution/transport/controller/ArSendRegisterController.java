@@ -1,20 +1,17 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
+import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.common.util.StringUtils;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.BusType;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,11 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-
 import javax.ws.rs.POST;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName: ArSendRegisterController
@@ -183,7 +181,7 @@ public class ArSendRegisterController {
              * 类型转换 默认接受为Integer 需要转换成Long
              */
             List<Long> idsLong = new ArrayList<Long>();
-            for (Integer id : ids){
+            for (Integer id : ids) {
                 idsLong.add(Long.valueOf(id));
             }
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -217,19 +215,19 @@ public class ArSendRegisterController {
     @RequestMapping(value = "/getTransportInfo")
     public
     @ResponseBody
-    JdResponse<ArFlightInfo> getTransportInfo(@RequestBody ArSendRegisterCondition condition) {
-        JdResponse<ArFlightInfo> response = null;
+    JdResponse<ArTransportInfo> getTransportInfo(@RequestBody ArSendRegisterCondition condition) {
+        JdResponse<ArTransportInfo> response = null;
         try {
             String transportName = condition.getTransportName();
             if (StringUtils.isNotEmpty(transportName)) {
-                response = new JdResponse<ArFlightInfo>();
+                response = new JdResponse<ArTransportInfo>();
                 String orderCode = condition.getOrderCode();
-                if (StringUtils.isNotEmpty(orderCode)){
-                    response.setData(arSendRegisterService.getTransportInfo(orderCode, TransportTypeEnum.AIR_TRANSPORT));
+                if (StringUtils.isNotEmpty(orderCode)) {
+                    response.setData(arSendRegisterService.getTransportInfo(orderCode, ArTransportTypeEnum.AIR_TRANSPORT));
                 } else {
                     String siteOrder = condition.getSiteOrder();
-                    if (StringUtils.isNotEmpty(siteOrder)){
-                        response.setData(arSendRegisterService.getTransportInfo(siteOrder, TransportTypeEnum.RAILWAY));
+                    if (StringUtils.isNotEmpty(siteOrder)) {
+                        response.setData(arSendRegisterService.getTransportInfo(siteOrder, ArTransportTypeEnum.RAILWAY));
                     }
                 }
                 return response;
@@ -245,22 +243,23 @@ public class ArSendRegisterController {
         ArSendRegister arSendRegister = new ArSendRegister();
         arSendRegister.setId(ArSendRegisterCondition.getId());
         // 默认已发货
-        arSendRegister.setStatus(1);
+        arSendRegister.setStatus(ArSendStatusEnum.ALREADY_SEND.getType());
 
         arSendRegister.setTransportName(ArSendRegisterCondition.getTransportName());
         if (StringUtils.isNotEmpty(ArSendRegisterCondition.getSiteOrder())) {
             // 铁路
-            arSendRegister.setTransportType(TransportTypeEnum.RAILWAY.getCode());
+            arSendRegister.setTransportType(ArTransportTypeEnum.RAILWAY.getCode());
             arSendRegister.setSiteOrder(ArSendRegisterCondition.getSiteOrder());
         } else {
             // 航空
-            arSendRegister.setTransportType(TransportTypeEnum.AIR_TRANSPORT.getCode());
+            arSendRegister.setTransportType(ArTransportTypeEnum.AIR_TRANSPORT.getCode());
             arSendRegister.setOrderCode(ArSendRegisterCondition.getOrderCode());
         }
         if (StringUtils.isNotEmpty(ArSendRegisterCondition.getSendDate())) {
             arSendRegister.setSendDate(sdf.parse(ArSendRegisterCondition.getSendDate()));
         }
-        arSendRegister.setAirlineCompany(ArSendRegisterCondition.getAirlineCompany());
+        arSendRegister.setTransCompany(ArSendRegisterCondition.getTransCompany());
+        arSendRegister.setTransCompanyCode(ArSendRegisterCondition.getTransCompanyCode());
         arSendRegister.setStartCityName(ArSendRegisterCondition.getStartCityName());
         arSendRegister.setStartCityId(ArSendRegisterCondition.getStartCityId());
         arSendRegister.setEndCityName(ArSendRegisterCondition.getEndCityName());
@@ -269,23 +268,27 @@ public class ArSendRegisterController {
         arSendRegister.setStartStationId(ArSendRegisterCondition.getStartStationId());
         arSendRegister.setEndStationName(ArSendRegisterCondition.getEndStationName());
         arSendRegister.setEndStationId(ArSendRegisterCondition.getEndStationId());
-        if (StringUtils.isNotEmpty(ArSendRegisterCondition.getPlanStartTime())) {
-            arSendRegister.setPlanStartTime(sdf.parse(ArSendRegisterCondition.getPlanStartTime()));
-        }
-        if (StringUtils.isNotEmpty(ArSendRegisterCondition.getPlanEndTime())) {
-            arSendRegister.setPlanEndTime(sdf.parse(ArSendRegisterCondition.getPlanEndTime()));
-        }
+        arSendRegister.setPlanStartTime(ArSendRegisterCondition.getPlanStartTime());
+        arSendRegister.setPlanEndTime(ArSendRegisterCondition.getPlanEndTime());
+
         arSendRegister.setSendNum(ArSendRegisterCondition.getSendNum());
         arSendRegister.setChargedWeight(ArSendRegisterCondition.getChargedWeight());
         arSendRegister.setRemark(ArSendRegisterCondition.getRemark());
         arSendRegister.setShuttleBusNum(ArSendRegisterCondition.getShuttleBusNum());
         arSendRegister.setShuttleBusType(ArSendRegisterCondition.getShuttleBusType());
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        arSendRegister.setOperatorErp(erpUser.getUserCode());
-        arSendRegister.setCreateUser(erpUser.getUserCode());
-        arSendRegister.setUpdateUser(erpUser.getUserCode());
-        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-        arSendRegister.setOperationDept(dto.getSiteName());
+
+        arSendRegister.setOperationTime(new Date());
+        arSendRegister.setOperatorErp("lixin456");
+        arSendRegister.setCreateUser("lixin456");
+        arSendRegister.setUpdateUser("lixin456");
+//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//        arSendRegister.setOperatorErp(erpUser.getUserCode());
+//        // 操作时间
+//        arSendRegister.setCreateUser(erpUser.getUserCode());
+//        arSendRegister.setUpdateUser(erpUser.getUserCode());
+//        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+//        arSendRegister.setOperationDept(dto.getSiteName());
+//        arSendRegister.setOperationDeptCode(dto.getSiteCode());
         return arSendRegister;
     }
 

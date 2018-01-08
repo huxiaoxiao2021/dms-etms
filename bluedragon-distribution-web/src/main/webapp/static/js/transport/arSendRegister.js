@@ -4,7 +4,7 @@ $(function () {
     var deleteUrl = '/transport/arSendRegister/deleteByIds';
     var detailUrl = '/transport/arSendRegister/detail/';
     var queryUrl = '/transport/arSendRegister/listData';
-    var getFlightInfoUrl = '/transport/arSendRegister/getTransportInfo';
+    var getTransportInfoUrl = '/transport/arSendRegister/getTransportInfo';
     var getAllBusTypeUrl = '/transport/arSendRegister/getAllBusType';
 
     /**
@@ -120,7 +120,7 @@ $(function () {
             field: 'sendCode',
             title: '发货批次'
         }, {
-            field: 'airlineCompany',
+            field: 'transCompany',
             title: '航空公司'
         }, {
             field: 'startCityName',
@@ -130,24 +130,10 @@ $(function () {
             title: '落地城市'
         }, {
             field: 'planStartTime',
-            title: '预计起飞时间',
-            formatter: function (value, row, index) {
-                if (value != null && value != '') {
-                    return jQuery.dateHelper.formateDateTimeOfTs(value);
-                } else {
-                    return "-";
-                }
-            }
+            title: '预计起飞时间'
         }, {
             field: 'planEndTime',
-            title: '预计落地时间',
-            formatter: function (value, row, index) {
-                if (value != null && value != '') {
-                    return jQuery.dateHelper.formateDateTimeOfTs(value);
-                } else {
-                    return "-";
-                }
-            }
+            title: '预计落地时间'
         }, {
             field: 'sendNum',
             title: '发货件数'
@@ -200,36 +186,52 @@ $(function () {
         $('.edit-param').each(function () {
             $(this).val('');
         });
+        $("#sendCodeNum").text(0);
+        $("#shuttleBusType").val(0).trigger("change");
         clearTransportInfo();
     }
 
     var clearTransportInfo = function () {
+        $("#transCompany").text('');
+        $("#transCompanyCode").text('');
         $("#startCityId").val('');
         $("#endCityId").val('');
-        $("#airlineCompany").text('');
         $("#startCityName").text('');
         $("#endCityName").text('');
+        $("#startStationId").val('');
+        $("#endStationId").val('');
+        $("#startStationName").text('');
+        $("#endStationName").text('');
         $("#planStartTime").text('');
         $("#planEndTime").text('');
-        $("#shuttleBusType").val(0).trigger("change");
     }
 
     var setTransportInfo = function (data) {
+        $("#transCompany").text(data.transCompany);
+        $("#transCompanyCode").text(data.transCompanyCode);
         $("#startCityId").val(data.startCityId);
         $("#endCityId").val(data.endCityId);
-        $("#airlineCompany").text(data.airlineCompany);
         $("#startCityName").text(data.startCityName);
         $("#endCityName").text(data.endCityName);
-        $("#planStartTime").text(jQuery.dateHelper.formateDateTimeOfTs(data.planStartTime));
-        $("#planEndTime").text(jQuery.dateHelper.formateDateTimeOfTs(data.planEndTime));
+        $("#startStationId").val(data.startStationId);
+        $("#endStationId").val(data.endStationId);
+        $("#startStationName").text(data.startStationName);
+        $("#endStationName").text(data.endStationName);
+        $("#planStartTime").text(data.planStartTime);
+        $("#planEndTime").text(data.planEndTime);
     }
 
-    var getFlightInfo = function (params) {
-        params["airlineCompany"] = $("#airlineCompany").text();
+    var getTransportInfo = function (params) {
+        params["transCompany"] = $("#transCompany").text();
+        params["transCompanyCode"] = $("#transCompanyCode").val();
         params["startCityId"] = $("#startCityId").val();
         params["startCityName"] = $("#startCityName").text();
         params["endCityId"] = $("#endCityId").val();
         params["endCityName"] = $("#endCityName").text();
+        params["startStationId"] = $("#startStationId").val();
+        params["startStationName"] = $("#startStationName").text();
+        params["endStationId"] = $("#endStationId").val();
+        params["endStationName"] = $("#endStationName").text();
         params["planStartTime"] = $("#planStartTime").text();
         params["planEndTime"] = $("#planEndTime").text();
         return params;
@@ -319,7 +321,6 @@ $(function () {
                         setTransportInfo(res.data);
                     }
                 });
-                $("#sendCodeNum").text(0);
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
             });
@@ -365,7 +366,7 @@ $(function () {
                     }
                 });
                 params["shuttleBusType"] = $('#shuttleBusType').val();
-                params = getFlightInfo(params);
+                params = getTransportInfo(params);
                 $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
                     if (res && res.data) {
                         alert('操作成功');
@@ -374,6 +375,7 @@ $(function () {
                         alert('操作异常');
                     }
                 });
+                clearAllInfo();
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
             });
@@ -393,13 +395,13 @@ $(function () {
 
             $("#orderCodeEdit").blur(function () {
                 var transportName = $("#transportNameEdit").val();
-                if (transportName != null && transportName != ''){
+                if (transportName != null && transportName != '') {
                     var orderCode = $(this).val();
-                    if (orderCode != null && orderCode != ''){
+                    if (orderCode != null && orderCode != '') {
                         var param = {};
                         param["transportName"] = transportName;
                         param["orderCode"] = orderCode;
-                        $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(param), function (response) {
+                        $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
                             if (response != null && response.code == 200) {
                                 $("#siteOrderEdit").val("");
                                 clearTransportInfo();
@@ -414,13 +416,13 @@ $(function () {
 
             $("#siteOrderEdit").blur(function () {
                 var transportName = $("#transportNameEdit").val();
-                if (transportName != null && transportName != ''){
+                if (transportName != null && transportName != '') {
                     var siteOrder = $(this).val();
-                    if (siteOrder != null && siteOrder != ''){
+                    if (siteOrder != null && siteOrder != '') {
                         var param = {};
                         param["transportName"] = transportName;
                         param["siteOrder"] = siteOrder;
-                        $.ajaxHelper.doPostSync(getFlightInfoUrl, JSON.stringify(param), function (response) {
+                        $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
                             if (response != null && response.code == 200) {
                                 $("#orderCodeEdit").val("");
                                 clearTransportInfo();
