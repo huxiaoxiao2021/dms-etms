@@ -182,7 +182,57 @@ $(function () {
         return oTableInit;
     };
 
+
+    $('#edit-form').bootstrapValidator({
+        live: 'disabled',
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            transportName: {
+                validators: {
+                    notEmpty: {
+                        message: '必填项，请输入运力名称'
+                    }
+                }
+            },
+            sendCode: {
+                validators: {
+                    notEmpty: {
+                        message: '必填项，请输入发货批次号'
+                    }
+                }
+            },
+            sendNum: {
+                validators: {
+                    notEmpty: {
+                        message: '必填项，请输入发货件数'
+                    }
+                }
+            },
+            chargedWeight: {
+                validators: {
+                    notEmpty: {
+                        message: '必填项，请输入计费重量'
+                    }
+                }
+            },
+            sendDate: {
+                validators: {
+                    date: {
+                        format: 'YYYY-MM-DD HH:mm:ss',
+                        message: '请输入正确的日期格式'
+                    }
+                }
+            }
+        }
+    });
+
     var clearAllInfo = function () {
+        $('#edit-form').bootstrapValidator('resetForm', true);
         $('.edit-param').each(function () {
             $(this).val('');
         });
@@ -350,34 +400,38 @@ $(function () {
             });
 
             $('#btn_submit').click(function () {
-                var url;
-                var id = $('#id').val();
-                if (id != null && id != '') {
-                    url = updateUrl;
-                } else {
-                    url = insertUrl;
-                }
-                var params = {};
-                $('.edit-param').each(function () {
-                    var _k = this.name;
-                    var _v = $(this).val();
-                    if (_k && _v) {
-                        params[_k] = _v;
-                    }
-                });
-                params["shuttleBusType"] = $('#shuttleBusType').val();
-                params = getTransportInfo(params);
-                $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
-                    if (res && res.data) {
-                        alert('操作成功');
-                        tableInit().refresh();
+                $('#edit-form').bootstrapValidator('validate');
+                var isValid = $("#edit-form").data("bootstrapValidator").isValid();
+                if (isValid) {
+                    var url;
+                    var id = $('#id').val();
+                    if (id != null && id != '') {
+                        url = updateUrl;
                     } else {
-                        alert('操作异常');
+                        url = insertUrl;
                     }
-                });
-                clearAllInfo();
-                $('#dataEditDiv').hide();
-                $('#dataTableDiv').show();
+                    var params = {};
+                    $('.edit-param').each(function () {
+                        var _k = this.name;
+                        var _v = $(this).val();
+                        if (_k && _v) {
+                            params[_k] = _v;
+                        }
+                    });
+                    params["shuttleBusType"] = $('#shuttleBusType').val();
+                    params = getTransportInfo(params);
+                    $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
+                        if (res && res.data) {
+                            alert('操作成功');
+                            tableInit().refresh();
+                        } else {
+                            alert('操作异常');
+                        }
+                    });
+                    clearAllInfo();
+                    $('#dataEditDiv').hide();
+                    $('#dataTableDiv').show();
+                }
             });
 
             $('#btn_return').click(function () {
@@ -450,7 +504,6 @@ $(function () {
 
     /*下拉框*/
     $('#shuttleBusType').select2({
-        width: '300',
         placeholder: '车型',
         allowClear: true,
         data: data

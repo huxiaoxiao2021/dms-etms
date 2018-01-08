@@ -223,11 +223,11 @@ public class ArSendRegisterController {
                 response = new JdResponse<ArTransportInfo>();
                 String orderCode = condition.getOrderCode();
                 if (StringUtils.isNotEmpty(orderCode)) {
-                    response.setData(arSendRegisterService.getTransportInfo(orderCode, ArTransportTypeEnum.AIR_TRANSPORT));
+                    response.setData(arSendRegisterService.getTransportInfo(orderCode, null, ArTransportTypeEnum.AIR_TRANSPORT));
                 } else {
                     String siteOrder = condition.getSiteOrder();
                     if (StringUtils.isNotEmpty(siteOrder)) {
-                        response.setData(arSendRegisterService.getTransportInfo(siteOrder, ArTransportTypeEnum.RAILWAY));
+                        response.setData(arSendRegisterService.getTransportInfo(transportName, siteOrder, ArTransportTypeEnum.RAILWAY));
                     }
                 }
                 return response;
@@ -268,8 +268,8 @@ public class ArSendRegisterController {
         arSendRegister.setStartStationId(ArSendRegisterCondition.getStartStationId());
         arSendRegister.setEndStationName(ArSendRegisterCondition.getEndStationName());
         arSendRegister.setEndStationId(ArSendRegisterCondition.getEndStationId());
-        arSendRegister.setPlanStartTime(ArSendRegisterCondition.getPlanStartTime());
-        arSendRegister.setPlanEndTime(ArSendRegisterCondition.getPlanEndTime());
+        arSendRegister.setPlanStartTime(ArSendRegisterCondition.getPlanStartTime() == null ? "" : ArSendRegisterCondition.getPlanStartTime());
+        arSendRegister.setPlanEndTime(ArSendRegisterCondition.getPlanEndTime() == null ? "" : ArSendRegisterCondition.getPlanEndTime());
 
         arSendRegister.setSendNum(ArSendRegisterCondition.getSendNum());
         arSendRegister.setChargedWeight(ArSendRegisterCondition.getChargedWeight());

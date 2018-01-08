@@ -85,13 +85,14 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
     List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister);
 
     /**
-     * 根据航空单号获取运输信息
+     * 根据单号获取运输信息
      *
      * @param code
+     * @param siteOrder
      * @param transportType
      * @return
      */
-    ArTransportInfo getTransportInfo(String code, ArTransportTypeEnum transportType);
+    ArTransportInfo getTransportInfo(String code, String siteOrder, ArTransportTypeEnum transportType);
 
     /**
      * 处理pda上传任务

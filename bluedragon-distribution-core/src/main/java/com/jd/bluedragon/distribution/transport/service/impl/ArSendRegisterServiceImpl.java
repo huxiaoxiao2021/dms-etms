@@ -25,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum.AIR_TRANSPORT;
+import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum.RAILWAY;
+
 /**
  * @author lixin39
  * @ClassName: ArSendRegisterServiceImpl
@@ -200,27 +203,43 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     @Override
-    public ArTransportInfo getTransportInfo(String code, ArTransportTypeEnum transportType) {
+    public ArTransportInfo getTransportInfo(String code, String siteOrder, ArTransportTypeEnum transportType) {
         ArTransportInfo arTransportInfo = new ArTransportInfo();
         try {
-            if (transportType == ArTransportTypeEnum.AIR_TRANSPORT) {
-//                CommonDto<BasicAirFlightDto> airFlightDto = basicQueryWS.getAirFlightByFlightNumber(code);
+            if (transportType == AIR_TRANSPORT) {
+                CommonDto<BasicAirFlightDto> airFlightDto = basicQueryWS.getAirFlightByFlightNumber(code);
+                if (airFlightDto != null && airFlightDto.getCode() == CommonDto.CODE_SUCCESS && airFlightDto.getData() != null) {
+                    BasicAirFlightDto basicAirFlightDto = airFlightDto.getData();
+                    // 调用TMS接口，根据航空单号获取航班信息
+                    arTransportInfo.setTransCompany(basicAirFlightDto.getAirCompanyName());
+                    arTransportInfo.setTransCompanyCode(basicAirFlightDto.getAirCompanyCode());
+                    arTransportInfo.setStartCityId(basicAirFlightDto.getBeginCityId());
+                    arTransportInfo.setStartCityName(basicAirFlightDto.getBeginCityName());
+                    arTransportInfo.setEndCityId(basicAirFlightDto.getEndCityId());
+                    arTransportInfo.setEndCityName(basicAirFlightDto.getEndCityName());
+                    arTransportInfo.setStartStationId(basicAirFlightDto.getBeginNodeCode());
+                    arTransportInfo.setStartStationName(basicAirFlightDto.getBeginNodeName());
+                    arTransportInfo.setEndStationId(basicAirFlightDto.getEndNodeCode());
+                    arTransportInfo.setEndStationName(basicAirFlightDto.getEndNodeName());
+                    arTransportInfo.setPlanStartTime(basicAirFlightDto.getTakeOffTime());
+                    arTransportInfo.setPlanEndTime(basicAirFlightDto.getTouchDownTime());
+                }
+            } else if (transportType == RAILWAY) {
+                arTransportInfo.setTransCompany("高速动车组列车");
+                arTransportInfo.setTransCompanyCode("G-");
+                arTransportInfo.setStartCityId(1);
+                arTransportInfo.setStartCityName("北京");
+                arTransportInfo.setEndCityId(2);
+                arTransportInfo.setEndCityName("上海");
+                arTransportInfo.setStartStationId("10001");
+                arTransportInfo.setStartStationName("北京南站");
+                arTransportInfo.setEndStationId("20001");
+                arTransportInfo.setEndStationName("上海浦东机场");
+                arTransportInfo.setPlanStartTime("10:30");
+                arTransportInfo.setPlanEndTime("12:30");
             }
-            // 调用TMS接口，根据航空单号获取航班信息
-            arTransportInfo.setTransCompany("四川航空");
-            arTransportInfo.setTransCompanyCode("SCHK");
-            arTransportInfo.setStartCityId(1);
-            arTransportInfo.setStartCityName("北京");
-            arTransportInfo.setEndCityId(2);
-            arTransportInfo.setEndCityName("上海");
-            arTransportInfo.setStartStationId("10001");
-            arTransportInfo.setStartStationName("北京首都国际机场");
-            arTransportInfo.setEndStationId("20001");
-            arTransportInfo.setEndStationName("上海浦东机场");
-            arTransportInfo.setPlanStartTime("10:30");
-            arTransportInfo.setPlanEndTime("12:30");
         } catch (Exception e) {
-
+            logger.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
         }
         return arTransportInfo;
     }
@@ -243,12 +262,12 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         ArTransportInfo arTransportInfo;
         if (org.apache.commons.lang.StringUtils.isNotBlank(pdaSendRegister.getAirNo())) {
             sendRegister.setOrderCode(pdaSendRegister.getAirNo());
-            sendRegister.setTransportType(ArTransportTypeEnum.AIR_TRANSPORT.getCode());
-            arTransportInfo = this.getTransportInfo(pdaSendRegister.getAirNo(), ArTransportTypeEnum.AIR_TRANSPORT);
+            sendRegister.setTransportType(AIR_TRANSPORT.getCode());
+            arTransportInfo = this.getTransportInfo(pdaSendRegister.getAirNo(), null, AIR_TRANSPORT);
         } else {
             sendRegister.setSiteOrder(pdaSendRegister.getRailwayNo());
-            sendRegister.setTransportType(ArTransportTypeEnum.RAILWAY.getCode());
-            arTransportInfo = this.getTransportInfo(pdaSendRegister.getRailwayNo(), ArTransportTypeEnum.RAILWAY);
+            sendRegister.setTransportType(RAILWAY.getCode());
+            arTransportInfo = this.getTransportInfo(pdaSendRegister.getTransName(), pdaSendRegister.getRailwayNo(), RAILWAY);
         }
         if (arTransportInfo != null) {
             BeanUtils.copyProperties(arTransportInfo, sendRegister);
