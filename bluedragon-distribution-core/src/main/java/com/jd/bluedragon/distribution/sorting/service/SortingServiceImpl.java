@@ -768,8 +768,12 @@ public class SortingServiceImpl implements SortingService {
             sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
 			this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
 			sendDetail.setYn(1);
-            /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-			sendDetail.setOperateTime(sendM.getOperateTime());
+			/*取SENDM创建人，作为全程跟踪发货人，以及操作时间  sendm发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14*/
+			if(sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()){
+				sendDetail.setOperateTime(sendDetail.getOperateTime());
+			}else{
+				sendDetail.setOperateTime(sendM.getOperateTime());
+			}
 			sendDetail.setCreateUser(sendM.getCreateUser());
 			sendDetail.setCreateUserCode(sendM.getCreateUserCode());
 			List<SendDetail> sendDetails = new ArrayList<SendDetail>();

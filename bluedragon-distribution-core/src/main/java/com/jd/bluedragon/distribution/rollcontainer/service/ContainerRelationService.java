@@ -7,6 +7,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationCondition;
 import com.jd.bluedragon.distribution.rollcontainer.domain.RollContainer;
 
 public interface ContainerRelationService {
@@ -35,26 +36,20 @@ public interface ContainerRelationService {
     public String getBoxCodeByContainerCode(String containerCode);
 
 
-    /**
-     * 根据 箱号 发货状态 站点编码查询 分页ContainerRelation
-     * @param boxCode
-     * @param siteCode
-     * @param dmsId
-     * @param sendStatus
-     * @param startTime
-     * @param endTime
-     * @param startIndex
-     * @param pageSize
+    /***
+     * 根据 ContainerRelationCondition查询 分页ContainerRelation
+     * @param condition
+     * @param pager
      * @return
      */
-    Pager<List<ContainerRelation>> getContainerRelationPager(String boxCode,
-                                                               String siteCode,
-                                                               Integer dmsId,
-                                                               Integer sendStatus,
-                                                               String startTime,
-                                                               String endTime,
-                                                               Integer startIndex,
-                                                               Integer pageSize);
+    Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition,
+                                                             Pager<List<ContainerRelation>> pager);
+    /***
+     * 根据 ContainerRelationCondition查询ContainerRelation list
+     * @param condition
+     * @return
+     */
+    List<ContainerRelation> getContainerRelationByModel(ContainerRelationCondition condition);
 
     List<ContainerRelation> getContainerRelationByBoxCode(String boxCode);
 }

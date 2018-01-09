@@ -154,6 +154,9 @@
 			<if test="boxCode != null and boxCode != ''">
 				and box_code = #{boxCode,jdbcType=VARCHAR}
 			</if>
+			<if test="containerCode != null and containerCode != ''">
+				AND container_code = #{containerCode,jdbcType=VARCHAR}
+			</if>
 			<if test="startTime != null and startTime != ''">
 				<![CDATA[
 				and create_time >= #{startTime,jdbcType=VARCHAR}

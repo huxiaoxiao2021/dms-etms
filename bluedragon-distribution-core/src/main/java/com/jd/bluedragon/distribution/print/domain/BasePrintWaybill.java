@@ -104,6 +104,10 @@ public class BasePrintWaybill implements Serializable {
     * 商家商标图像key值也就是文件名
     */
     private String brandImageKey ;
+    /**
+     * 标识是否SOP商家和纯外单
+     */
+    private boolean sopOrExternalFlg;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -382,4 +386,19 @@ public class BasePrintWaybill implements Serializable {
 	public void setBrandImageKey(String brandImageKey) {
 		this.brandImageKey = brandImageKey;
 	}
+
+	/**
+	 * @return the sopOrExternalFlg
+	 */
+	public boolean isSopOrExternalFlg() {
+		return sopOrExternalFlg;
+	}
+
+	/**
+	 * @param sopOrExternalFlg the sopOrExternalFlg to set
+	 */
+	public void setSopOrExternalFlg(boolean sopOrExternalFlg) {
+		this.sopOrExternalFlg = sopOrExternalFlg;
+	}
+
 }

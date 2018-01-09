@@ -244,14 +244,8 @@ public class RollContainerResource {
     }
 
 	/**
-	 *
-	 * @param boxCode 箱号
-	 * @param siteCode 目的地编号
-	 * @param sendStatus		是否已发货 0未发货 1已发货
-	 * @param startTime 创建时间-起始时间
-	 * @param endTime   创建时间-终止时间
-	 * @param page    当前页码
-	 * @param pageSize  页行数
+	 * 根据 ContainerRelationCondition查询 分页ContainerRelation
+	 * @param condition
 	 * @return
 	 */
 	@POST
@@ -264,8 +258,15 @@ public class RollContainerResource {
     		return reponese;
 		}
 		Pager<List<ContainerRelation>> pager = new Pager<List<ContainerRelation>>(condition.getPage(), condition.getPageSize());
-		return containerRelationService.getContainerRelationPager( condition.getBoxCode(),  condition.getSiteCode(), condition.getDmsId()
-				, condition.getSendStatus(), condition.getStartTime(), condition.getEndTime(), pager.getStartIndex(), pager.getPageSize());
+		return containerRelationService.getContainerRelationPager(condition, pager);
+	}
+	/**
+	 * 根据 ContainerRelationCondition查询 ContainerRelation 列表
+	 */
+	@POST
+	@Path("/rollContainer/getContainerRelationByModel")
+	public List<ContainerRelation> getContainerRelationByModel(ContainerRelationCondition condition){
+		return containerRelationService.getContainerRelationByModel(condition);
 	}
 
 	/**
