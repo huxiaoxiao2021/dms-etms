@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +79,8 @@ public class InspectionController {
 		}
 		return paramMap;
 	}
-	
+
+	@Authorization(Constants.DMS_WEB_SORTING_PARTNERINSPECTION_R)
 	@RequestMapping(value = "/goPartnerDifferentList", method = RequestMethod.GET)
 	public String goPartnerDifferentList(Model model){
 		initBaseData(model);
@@ -92,11 +95,12 @@ public class InspectionController {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			sortingCenters = baseService.getSiteInfoByBaseStaffId(erpUser.getUserId());
 		} catch (Exception e) {
-			e.printStackTrace();
+            logger.error("根据用户获取分拣中心异常：", e);
 		}
 		model.addAttribute("sortingCenters", sortingCenters);
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_PARTNERINSPECTION_R)
 	@RequestMapping(value = "/partnerDifferentList", method = RequestMethod.GET)
 	public String partnerDifferentList(InspectionEC inspectionEC, Pager pager, Model model){
 		logger.debug("按条件查询规则页面");
@@ -129,7 +133,8 @@ public class InspectionController {
 
 		return "inspection/partnerDispose";
 	}
-	
+
+    @Authorization(Constants.DMS_WEB_SORTING_PARTNERINSPECTION_R)
 	@RequestMapping(value="/disposeDifferent",method=RequestMethod.POST)
 	@ResponseBody
 	public JsonResult disposeDifferent(Long checkId){

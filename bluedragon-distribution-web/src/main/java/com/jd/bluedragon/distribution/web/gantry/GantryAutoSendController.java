@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.gantry;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
@@ -27,6 +28,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.UsingState;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +84,7 @@ public class GantryAutoSendController {
     @Autowired
     private AreaDestPlanDetailService areaDestPlanDetailService;
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         this.logger.debug("龙门架自动发货 --> index");
@@ -112,6 +114,7 @@ public class GantryAutoSendController {
         return "gantry/gantryAutoSendIndex";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/updateOrInsertGantryDeviceStatus", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<GantryDeviceConfig> UpsertGantryDeviceBusinessOrStatus(GantryDeviceConfigRequest request) {
@@ -244,6 +247,7 @@ public class GantryAutoSendController {
 
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/pageList", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<List<ScannerFrameBatchSend>>> currentSplitPageList(GantryDeviceConfigRequest request, Pager<GantryDeviceConfigRequest> pager) {
@@ -277,6 +281,7 @@ public class GantryAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/summaryBySendCode", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<GantryBatchSendResult> summaryBySendCode(String sendCode) {
@@ -325,6 +330,7 @@ public class GantryAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/generateSendCode", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> generateSendCode(@RequestBody ScannerFrameBatchSend[] lists) {
@@ -369,6 +375,7 @@ public class GantryAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
@@ -396,6 +403,7 @@ public class GantryAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/sendEndAndPrint", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<BatchSendPrintImageResponse>> sendEndAndPrint(@RequestBody ScannerFrameBatchSendPrint[] requests) {
@@ -563,6 +571,7 @@ public class GantryAutoSendController {
      * @param userErp 为all时更新所有
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/updateUserCodeToStaffNo/{userErp}", method = RequestMethod.GET)
     @ResponseBody
     public InvokeResult updateUserCodeToStaffNo(@PathVariable String userErp) {

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillServi
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.impl.WeighByWaybillServiceImpl;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class WeighByWaybillController
     @Autowired
     BaseMajorManager baseMajorManager;
 
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/index")
     public String getIndexPage()
     {
@@ -55,6 +58,7 @@ public class WeighByWaybillController
      * @param vo WaybillWeightVO
      * @return InvokeResult<Boolean> 插入结果
      */
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/insertWaybillWeight")
     @ResponseBody
     public InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo) throws WeighByWaybillExcpetion
@@ -135,6 +139,7 @@ public class WeighByWaybillController
      * @return 能否从运单系统查到对应运单
      * @throws WeighByWaybillExcpetion
      */
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/verifyWaybillReality")
     @ResponseBody
     public InvokeResult<Boolean> verifyWaybillReality(@RequestParam(value = "codeStr") String codeStr) throws WeighByWaybillExcpetion
@@ -198,6 +203,7 @@ public class WeighByWaybillController
      * @param codeStr 包裹号或/运单号
      * @return InvokeResult<String> 运单号
      */
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/convertCodeToWaybillCode")
     @ResponseBody
     public InvokeResult<String> convertCodeToWaybillCode(@RequestParam(value = "codeStr") String codeStr)
