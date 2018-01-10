@@ -634,7 +634,7 @@ public class DeliveryResource {
         	response.setSendCode(scannerFrameBatchSend.getSendCode());
             return response;
         } else {
-            return new ScannerFrameBatchSendResponse(JdResponse.CODE_NOT_FOUND,
+            return new ScannerFrameBatchSendResponse(JdResponse.CODE_INTERNAL_ERROR,
                     "未查询到对应的批次号sendCode，请确认！");
         }
     }
