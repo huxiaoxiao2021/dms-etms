@@ -1,5 +1,31 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -8,10 +34,21 @@ import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
+import com.jd.bluedragon.distribution.api.request.SpareRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.product.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMCS;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -20,7 +57,13 @@ import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -35,24 +78,6 @@ import com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfSe
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -108,6 +133,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private DistributionReceiveJsfService distributionReceiveJsfService;//备件库配送入
+
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
 
     @Resource
     @Qualifier("workerProducer")
@@ -606,19 +634,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String wayBillCode = (String) entry.getKey();
 
-                ReverseSendWms send = null;//原单信息
-                ReverseSendWms sendTwaybill = null;//T单信息
-                send = tBaseService.getWaybillByOrderCode(wayBillCode);
-                sendTwaybill = tBaseService.getWaybillByOrderCode(operCodeMap.get(wayBillCode));//根据T单号获取运单信息
-                if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
+                ReverseSendWms send = makeReverseSendWmsAndInitSickFlag(wayBillCode, operCodeMap.get(wayBillCode));
+                if(send==null){
                     continue;
                 }
-                if (sendTwaybill == null ) {
-                    this.logger.info("调用运单接口获得数据为空,T运单号" + operCodeMap.get(wayBillCode));
-                    continue;
-                }
-                send.setSickWaybill(sendTwaybill.getWaybillSign().charAt(33) == '2');//waybillSign第34位为2则视为病单，true病单 ，false 非病单
+
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wayBillCode)) {
@@ -643,20 +663,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     throw new Exception("调用报损订单接口失败, 运单号为" + wayBillCode);
                 }
 
-                ReverseSendWms send = null;
-                ReverseSendWms sendTwaybill = null;
-
-                send = tBaseService.getWaybillByOrderCode(wayBillCode);
-                sendTwaybill = tBaseService.getWaybillByOrderCode(operCodeMap.get(wayBillCode));//根据T单号获取运单信息
-                if (send == null) {
-                    this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
+                ReverseSendWms send = makeReverseSendWmsAndInitSickFlag(wayBillCode, operCodeMap.get(wayBillCode));
+                if(send==null){
                     continue;
                 }
-                if (sendTwaybill == null ) {
-                    this.logger.info("调用运单接口获得数据为空,T运单号" + operCodeMap.get(wayBillCode));
-                    continue;
-                }
-                send.setSickWaybill(sendTwaybill.getWaybillSign().charAt(33) == '2');//waybillSign第34位为2则视为病单，true病单 ，false 非病单
 
                 if (lossCount != 0) {
                     // 运单系统拿出的商品明细
@@ -707,6 +717,45 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             return false;
         }
 
+    }
+
+    /**
+     * 获取回传运单信息 并初始化病单标识
+     * @param wayBillCode 原单号
+     * @param tWayBillCode 逆向单号
+     * @return
+     */
+    public ReverseSendWms makeReverseSendWmsAndInitSickFlag(String wayBillCode,String tWayBillCode){
+
+        ReverseSendWms send = null;//原单信息
+        ReverseSendWms sendTwaybill = null;//T单信息
+        boolean isSickWaybill = false;
+        send = tBaseService.getWaybillByOrderCode(wayBillCode);
+        if (send == null) {
+            this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
+            return null;
+        }
+
+        if(tWayBillCode!=null && !wayBillCode.equals(tWayBillCode)){
+            sendTwaybill = tBaseService.getWaybillByOrderCode(tWayBillCode);//根据T单号获取运单信息 operCodeMap.get(wayBillCode)
+        }
+
+        if (sendTwaybill != null ) {
+            isSickWaybill = sendTwaybill.getWaybillSign().charAt(33) == '2';//waybillSign第34位为2则视为病单
+        }else{
+            this.logger.info("调用运单接口获得数据为空,T运单号" + tWayBillCode);
+
+            //如果未取到逆向运单信息 或  原单号和逆单号一致 则通过JSF服务返回的featureType=30判定病单标识
+            Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(wayBillCode);
+            if(featureType!=null){
+                isSickWaybill = Constants.FEATURE_TYPCANCEE_SICKL.equals(featureType);
+            }
+        }
+
+
+        send.setSickWaybill(isSickWaybill);
+
+        return send;
     }
 
     @SuppressWarnings("rawtypes")
@@ -960,8 +1009,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     if (products == null || products.size() == 0) {
                         this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
                     }
-                    List<Spare> spares = this.getSpare(baseOrgId, sendDetail, products);
-
+                    List<Spare> spares = this.getSpare(baseOrgId,Integer.parseInt(baseStoreId), sendDetail, products);
+                    if(spares==null || spares.isEmpty()){
+                    	this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms,获取备件条码为空");
+                    	continue;
+                    }
                     int spare_num = 0;
 
                     List<ReverseSendSpwmsOrder> spwmsOrders = new ArrayList<ReverseSendSpwmsOrder>();
@@ -1205,19 +1257,30 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
         return waybill;
     }
-
-    private List<Spare> getSpare(Integer baseOrgId, SendDetail tSendDetail, List<Product> products) {
-        Spare spare = new Spare();
-        spare.setType(this.getOrgType(baseOrgId));
-        spare.setCreateUserCode(tSendDetail.getCreateUserCode());
-        spare.setCreateUser(tSendDetail.getCreateUser());
-        spare.setQuantity(this.getProductQuantity(products));
-        spare.setStatus(0);
-        spare.setTimes(0);
+    /**
+     * 为每个商品生成备件条码
+     * @param baseOrgId
+     * @param baseStoreId
+     * @param tSendDetail
+     * @param products
+     * @return
+     */
+    private List<Spare> getSpare(Integer baseOrgId,Integer baseStoreId, SendDetail tSendDetail, List<Product> products) {
+    	SpareRequest spareRequest = new SpareRequest();
+    	spareRequest.setOrgId(baseOrgId);
+    	spareRequest.setStoreId(baseStoreId);
+        spareRequest.setUserCode(tSendDetail.getCreateUserCode());
+        spareRequest.setUserName(tSendDetail.getCreateUser());
+        spareRequest.setQuantity(this.getProductQuantity(products));
 
         // 获取备件库条码信息
-        List<Spare> spares = this.spareService.print(spare);
-        return spares;
+        InvokeResult<List<Spare>> sparesResult = this.spareService.genCodes(spareRequest);
+        if(InvokeResult.RESULT_SUCCESS_CODE == sparesResult.getCode()){
+        	return sparesResult.getData();
+        }else{
+        	logger.warn("生成备件库条码失败，msg:"+sparesResult.getMessage());
+        }
+        return null;
     }
 
     private int getProductQuantity(List<Product> products) {
@@ -1226,46 +1289,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             num = num + product.getQuantity();
         }
         return num;
-    }
-
-    private String getOrgType(Integer baseOrgId) {
-        String orgType = null;
-
-        switch (baseOrgId) {
-            case 6:
-                orgType = "PB";
-                break;
-            case 3:
-                orgType = "PS";
-                break;
-            case 10:
-                orgType = "PG";
-                break;
-            case 4:
-                orgType = "PC";
-                break;
-            case 600:
-                orgType = "PW";
-                break;
-            case 709:
-                orgType = "PW";
-                break;
-            case 611:
-                orgType = "PY";
-                break;
-            case 645:
-                orgType = "PX";
-                break;
-            case 661:
-                orgType = "PI";
-                break;
-            case 740://南京拍拍公司
-                orgType = "PN";
-                break;
-            default:
-                this.logger.error("获取机构id失败");
-        }
-        return orgType;
     }
 
     private Boolean isLuxury(String sendPay) {

@@ -108,7 +108,7 @@ function popUpPage(id, width, height) {
         "left" : "-8px",
         "top" : "8px"
     });
-    close.append("<img src='pic/close_pop.png' class='btn_close' />"); // 关闭图片加入到关闭按按钮图层
+    close.append("<img src='../static/images/close_pop.png' class='btn_close' />"); // 关闭图片加入到关闭按按钮图层
     close.find(".btn_close").css({
         "border" : "none"
     });

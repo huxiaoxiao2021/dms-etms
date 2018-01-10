@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.sortingCenterQueryTool;
 
+import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingCenterQueryRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wuzuxiang on 2016/10/14.
@@ -73,4 +75,36 @@ public class SortingCenterQueryController {
         return result;
     }
 
+    @RequestMapping(value = "/queryDetail" ,method = RequestMethod.POST)
+    @ResponseBody
+    public Pager<Object[]> queryDetailFromThreeTables(@RequestBody Map<String ,Object> request){
+        Pager<Object[]> result = new Pager<Object[]>();
+        result.init();
+        try{
+            if(null == request || StringUtils.isBlank((String)request.get("siteNo")) ){
+                return result;
+            }
+
+            String url = PropertiesHelper.newInstance().getValue(prefixKey + request.get("siteNo"));
+            if(StringUtils.isBlank(url)){
+                return result;
+            }
+
+            if (null != request.get("pageNo")){
+                result.setPageNo((Integer) request.get("pageNo"));
+            }
+            if (null != request.get("pageSize")){
+                result.setPageSize((Integer) request.get("pageSize"));
+            }
+
+            List<Object> objects = sortingCenterQueryService.queryDetailsFromThreeTables(request,HTTP + url + "/sortingCenter/queryDetail");
+            if (null != objects && objects.size() > 0){
+                result.setData(objects.toArray());
+            }
+        }catch(Exception e){
+            logger.error("SortingCenterQueryTool--controller 查询区域分拣中心数据失败：",e);
+        }
+
+        return result;
+    }
 }

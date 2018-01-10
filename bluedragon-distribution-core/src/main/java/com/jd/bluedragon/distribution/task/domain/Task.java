@@ -1,16 +1,15 @@
 package com.jd.bluedragon.distribution.task.domain;
 
-import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+import java.util.Date;
 
 public class Task implements java.io.Serializable, TaskModeAware{
 
@@ -96,6 +95,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 离线任务类型
      */
     public static final Integer TASK_TYPE_OFFLINE = 1800;
+    public static final Integer TASK_TYPE_SEAL_OFFLINE = 1880;
     public static final Integer CANCEL_SORTING = 1201;
     public static final Integer CANCEL_THIRD_INSPECTION = 1131;
     

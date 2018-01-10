@@ -1,41 +1,12 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
-import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -43,6 +14,16 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 /**
  * create by zhanglei 2017-05-10
@@ -68,19 +49,7 @@ public class NewSealVehicleResource {
     @Autowired
     private CarLicenseChangeUtil carLicenseChangeUtil;
 
-    @Autowired
-    private GoddessService goddessService;
-    @Autowired
-    @Qualifier("sealCarProducer")
-    private DefaultJMQProducer sealCarProducer;
-
-    @Autowired
-    @Qualifier("unsealCarProducer")
-    private DefaultJMQProducer unsealCarProducer;
-
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
-
-    private static final int SEAL_SOURCE = 1;  //封车解封车操作源（代表我们DMS系统）
 
     /**
      * 检查运力编码和批次号目的地是否一致
@@ -137,40 +106,19 @@ public class NewSealVehicleResource {
             if (request == null) {
                 this.logger.error("NewSealVehicleResource seal --> 传入参数非法");
             }
-            List<SealCarDto> paramList = convertList(request.getData());
 
-            logger.info("封车参数："+JsonHelper.toJson(paramList));
-
-            CommonDto<String> returnCommonDto = newsealVehicleService.seal(paramList);
+            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData());
             if(returnCommonDto != null){
                 if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
-                    request.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
-                    //封车成功，发送封车mq消息
-                    if(paramList!=null){
-                    	for(SealCarDto sealCarDto:paramList){
-                            SealCarMqDto sealCarMqDto = new SealCarMqDto();
-                            sealCarMqDto.setDmsSiteId(sealCarDto.getSealSiteId());
-                            sealCarMqDto.setTransportCode(sealCarDto.getTransportCode());
-                            sealCarMqDto.setVehicleNumber(sealCarDto.getVehicleNumber());
-                            sealCarMqDto.setOperUserCode(sealCarDto.getSealUserCode());
-                            sealCarMqDto.setOperUserName(sealCarDto.getSealUserName());
-                            sealCarMqDto.setOperTime(sealCarDto.getSealCarTime());
-                            sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
-                            sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
-                            sealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
-                        }
-                    }
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(returnCommonDto.getData());
-                    request.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                 }
             }
-            addSystemLog(request);
         } catch (Exception e) {
             this.logger.error("NewSealVehicleResource.seal-error", e);
         }
@@ -268,124 +216,23 @@ public class NewSealVehicleResource {
             if (request == null) {
                 this.logger.error("NewSealVehicleResource unseal --> 传入参数非法");
             }
-            List<SealCarDto> paramList = convertList(request.getData());
 
-            logger.info("解封车参数："+JsonHelper.toJson(paramList));
-
-            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(paramList);
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
             if(returnCommonDto != null){
                 if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
-                    request.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
-                    //解封车成功，发送解封车mq消息dms_unseal_car
-                    if(paramList!=null){
-                        for(SealCarDto sealCarDto:paramList){
-                            SealCarMqDto sealCarMqDto = new SealCarMqDto();
-                            sealCarMqDto.setDmsSiteId(sealCarDto.getDesealSiteId());
-                            sealCarMqDto.setTransportCode(sealCarDto.getTransportCode());
-                            sealCarMqDto.setVehicleNumber(sealCarDto.getVehicleNumber());
-                            sealCarMqDto.setOperUserCode(sealCarDto.getDesealUserCode());
-                            sealCarMqDto.setOperUserName(sealCarDto.getDesealUserName());
-                            sealCarMqDto.setOperTime(sealCarDto.getDesealCarTime());
-                            sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
-                            sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
-                            sealCarMqDto.setSealCarCode(sealCarDto.getSealCarCode());
-                            unsealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
-                        }
-                    }
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                     sealVehicleResponse.setData(returnCommonDto.getData());
-                    request.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
                 }
             }
-            addSystemLog(request);
         } catch (Exception e) {
             this.logger.error("NewSealVehicleResource.unseal-error", e);
         }
         return sealVehicleResponse;
-    }
-
-    /**
-     * 增加封车解封车系统日志
-     * @param request
-     */
-    private void addSystemLog(NewSealVehicleRequest request){
-        if (request.getData() == null && request.getData().size() == 0){
-            return;
-        }
-        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> list = request.getData();
-        for(com.jd.bluedragon.distribution.wss.dto.SealCarDto dto : list){
-            Goddess goddess = new Goddess();
-            goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
-            dto.setRemark(request.getMessage());
-            goddess.setBody(JsonHelper.toJson(dto));
-            goddess.setDateTime(new Date());
-            if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
-                goddess.setKey(dto.getSealCarCode());
-            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
-                goddess.setKey(dto.getTransportCode());
-            }
-            goddessService.save(goddess);
-        }
-    }
-
-    private List<SealCarDto> convertList(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
-        List<SealCarDto> sealCarDtos = new ArrayList<SealCarDto>();
-        Date nowTime = new Date();//封车取当前服务器当前时间
-        for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
-            sealCarDtos.add(convert(sourceSealDto, nowTime));
-        }
-        return sealCarDtos;
-    }
-
-    private SealCarDto convert(com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto, Date nowTime) {
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
-        SealCarDto sealCarDto = new SealCarDto();
-        sealCarDto.setId(sourceSealDto.getId());
-        sealCarDto.setSealCarCode(sourceSealDto.getSealCarCode());
-        sealCarDto.setStatus(sourceSealDto.getStatus());
-        sealCarDto.setSource(SEAL_SOURCE);
-        sealCarDto.setVehicleNumber(sourceSealDto.getVehicleNumber());//车牌号
-        sealCarDto.setTransportCode(sourceSealDto.getTransportCode());
-        sealCarDto.setStartOrgCode(sourceSealDto.getStartOrgCode());
-        sealCarDto.setStartOrgName(sourceSealDto.getStartOrgName());
-        sealCarDto.setStartSiteId(sourceSealDto.getStartSiteId());
-        sealCarDto.setStartSiteCode(sourceSealDto.getStartSiteCode());
-        sealCarDto.setStartSiteName(sourceSealDto.getStartSiteName());
-        sealCarDto.setEndOrgCode(sourceSealDto.getEndOrgCode());
-        sealCarDto.setEndOrgName(sourceSealDto.getEndOrgName());
-        sealCarDto.setEndSiteId(sourceSealDto.getEndSiteId());
-        sealCarDto.setEndSiteCode(sourceSealDto.getEndSiteCode());
-        sealCarDto.setEndSiteName(sourceSealDto.getEndSiteName());
-        sealCarDto.setSealSiteId(sourceSealDto.getSealSiteId());
-        sealCarDto.setSealSiteCode(sourceSealDto.getSealSiteCode());
-        sealCarDto.setSealSiteName(sourceSealDto.getSealSiteName());
-        sealCarDto.setSealUserCode(sourceSealDto.getSealUserCode());
-        sealCarDto.setSealUserName(sourceSealDto.getSealUserName());
-        sealCarDto.setDesealSiteId(sourceSealDto.getDesealSiteId());
-        sealCarDto.setDesealSiteCode(sourceSealDto.getDesealSiteCode());
-        sealCarDto.setDesealSiteName(sourceSealDto.getDesealSiteName());
-        sealCarDto.setDesealUserCode(sourceSealDto.getDesealUserCode());
-        sealCarDto.setDesealUserName(sourceSealDto.getDesealUserName());
-        sealCarDto.setRemark(sourceSealDto.getRemark());
-        sealCarDto.setYn(sourceSealDto.getYn());
-        sealCarDto.setSealCode(sourceSealDto.getSealCode());//封车号
-        sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
-        sealCarDto.setDesealCodes(sourceSealDto.getDesealCodes());
-        sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
-        if(sourceSealDto.getDesealCarTime() != null && sourceSealDto.getDesealCarTime().length() > 0) {    //解封车
-            sealCarDto.setDesealCarTime(nowTime);  //解封车时间取服务器当前时间
-        }else{//封车
-            sealCarDto.setSealCarTime(nowTime);    //封车时间取服务器当前时间
-        }
-
-        return sealCarDto;
     }
 
     /**

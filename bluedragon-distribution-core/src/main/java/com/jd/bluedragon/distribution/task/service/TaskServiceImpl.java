@@ -539,7 +539,12 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception{
 		add(toSortingTask(packageDtos));
-		add(toInspectionTask(packageDtos));
+
+		//modified by zhanglei 20171127  这里做一下处理，如果是智配中心上传的数据，不再添加验货任务
+		BaseStaffSiteOrgDto distribution = baseService.queryDmsBaseSiteByCode(String.valueOf(packageDtos.getDistributeID()));
+		if(distribution != null && distribution.getSiteType().intValue() != 4){
+			add(toInspectionTask(packageDtos));
+		}
 //        if (add(toInspectionTask(packageDtos)) <= 0 || add(toSortingTask(packageDtos)) <= 0) {
 //            throw new Exception("智能分拣线生成交接、分拣任务出错，两个之中有一个可能失败");
 //        }

@@ -247,7 +247,8 @@ public class BusinessHelper {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
 		}
-		return s.matches("^[P]{1}(\\p{Lu}){1}\\d{16}$");
+		//正则改为2个字符|null+16位数字（8位日期+8位序列）
+		return s.matches("^([A-Za-z]{2}|null)\\d{16}$");
 	}
 
 	/**
@@ -497,5 +498,16 @@ public class BusinessHelper {
 		}
 		
 		return false;
+	}
+	/**
+	 * 根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSopOrExternal(String waybillSign){
+		return (isSignChar(waybillSign, 1, '2')
+				||isSignChar(waybillSign, 1, '3')
+				||isSignChar(waybillSign, 1, '6')
+				||isSignChar(waybillSign, 1, 'K'));
 	}
 }
