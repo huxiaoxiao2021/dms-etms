@@ -199,8 +199,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             goddess.setDateTime(new Date());
             if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
                 goddess.setKey(dto.getSealCarCode());
-            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
+            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//按运力编码封车日志
                 goddess.setKey(dto.getTransportCode());
+            }else if(StringUtils.isNotBlank(dto.getItemSimpleCode())){//按任务封车日志（key为任务简码）
+                goddess.setKey(dto.getItemSimpleCode());
             }
             goddessService.save(goddess);
         }
