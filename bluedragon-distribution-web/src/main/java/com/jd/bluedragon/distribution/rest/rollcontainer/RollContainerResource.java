@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.rollcontainer;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,21 +11,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationCondition;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
 import com.jd.bluedragon.distribution.rollcontainer.domain.RollContainer;
 import com.jd.bluedragon.distribution.rollcontainer.service.ContainerRelationService;
 import com.jd.bluedragon.distribution.rollcontainer.service.RollContainerService;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 
@@ -74,7 +74,7 @@ public class RollContainerResource {
         try{
         	int count = rollContainerService.updateRollContainerByCode(request);
         	response.setContainerCode(request.getContainerCode());
-        	response.setStatus(request.getStatus());
+        	response.setSendStatus(request.getStatus());
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
@@ -86,7 +86,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 根据编号获得对应的关系,根据编号获取最近生成的关系(kvindex里获取对应关系)
-	 * @param request
+	 * @param containerCode
 	 * @return
 	 */
 	@GET
@@ -137,7 +137,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 中转箱与箱号绑定，分拣机满格时需要绑定分拣机传过来的箱号
-	 * @param request
+	 * @param relation
 	 * @return
 	 */
 	@POST
@@ -149,7 +149,13 @@ public class RollContainerResource {
         	response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
         	return response;
         }
-        
+        List<ContainerRelation> containerRelations = containerRelationService.getContainerRelationByBoxCode(relation.getBoxCode());
+		//箱号已存在
+		if(containerRelations != null && !containerRelations.isEmpty()){
+			response.setCode(JdResponse.CODE_EXIST_BOX_CODE);
+			response.setMessage(JdResponse.MESSAGE_EXIST_BOX_CODE);
+			return response;
+		}
         try{
         	ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         	if(erpUser != null){
@@ -162,6 +168,7 @@ public class RollContainerResource {
             relation.setCreateTime(new Date());
             relation.setUpdateTime(new Date());
             relation.setIsDelete(0);
+            relation.setSendStatus(Constants.CONTAINER_RELATION_SEND_STATUS_NO);
             relation.setTs(new Date());
         	int count = containerRelationService.addContainerRelation(relation);
         }catch(Exception e){
@@ -174,7 +181,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 根据编号获得对应关系container_relation
-	 * @param request
+	 * @param relationRequest
 	 * @return
 	 */
 	@POST
@@ -188,10 +195,13 @@ public class RollContainerResource {
         }
 		String containerCode = relationRequest.getContainerCode();
 		try{
-			ContainerRelation relation = containerRelationService.getContainerRelation(containerCode);
+			ContainerRelation relation = containerRelationService.getContainerRelation(containerCode, relationRequest.getDmsId());
 			if(relation != null){
 				response.setContainerCode(containerCode);
 				response.setBoxCode(relation.getBoxCode());
+				response.setSiteCode(Integer.parseInt(relation.getSiteCode()));
+				response.setDmsId(relation.getDmsId());
+				response.setSendStatus(relation.getSendStatus());
 			}else{
 				response.setCode(JdResponse.CODE_NOT_CONTAINER_RELATION);
 	        	response.setMessage("没有对应周转箱"+containerCode+"与箱号的对应关系！");
@@ -207,7 +217,7 @@ public class RollContainerResource {
 	
 	/**
 	 * 中转箱与箱号释放绑定关系,周转箱收货时需要释放rfid与箱号的关系
-	 * @param request
+	 * @param relation
 	 * @return
 	 */
 	@POST
@@ -221,7 +231,7 @@ public class RollContainerResource {
         }
 		try{
 			relation.setUpdateTime(new Date());
-	        relation.setIsDelete(1);//无效状态标示
+			relation.setSendStatus(Constants.CONTAINER_RELATION_SEND_STATUS_YES);
 	        relation.setTs(new Date());
 	        int count = containerRelationService.updateContainerRelationByCode(relation);
         }catch(Exception e){
@@ -232,7 +242,33 @@ public class RollContainerResource {
 		
         return response;
     }
-	
+
+	/**
+	 * 根据 ContainerRelationCondition查询 分页ContainerRelation
+	 * @param condition
+	 * @return
+	 */
+	@POST
+	@Path("/rollContainer/getContainerRelationPager")
+    public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition){
+    	if(condition.getDmsId() == null || condition.getDmsId() == 0){
+			Pager reponese = new Pager();
+			reponese.setTotalSize(0);
+			reponese.setData(Collections.EMPTY_LIST);
+    		return reponese;
+		}
+		Pager<List<ContainerRelation>> pager = new Pager<List<ContainerRelation>>(condition.getPage(), condition.getPageSize());
+		return containerRelationService.getContainerRelationPager(condition, pager);
+	}
+	/**
+	 * 根据 ContainerRelationCondition查询 ContainerRelation 列表
+	 */
+	@POST
+	@Path("/rollContainer/getContainerRelationByModel")
+	public List<ContainerRelation> getContainerRelationByModel(ContainerRelationCondition condition){
+		return containerRelationService.getContainerRelationByModel(condition);
+	}
+
 	/**
 	 * 根据boxCode得到box信息,供周转箱(笼车)发货使用
 	 * @param request

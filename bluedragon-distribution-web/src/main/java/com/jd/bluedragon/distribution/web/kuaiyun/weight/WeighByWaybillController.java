@@ -107,13 +107,19 @@ public class WeighByWaybillController
                 result.setCode(InvokeResult.SERVER_ERROR_CODE);
                 result.setMessage(exceptionType.toString());
                 result.setData(false);
-                logger.error("运单称重：" + exceptionType.exceptionMessage);
                 throw weighByWaybillExcpetion;
             } else
             {
-                result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                result.setMessage(exceptionType.toString());
-                result.setData(false);
+                if (weighByWaybillExcpetion.exceptionType.equals(WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableException))
+                {
+                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                    result.setMessage("toTask");
+                }else
+                {
+                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                    result.setMessage(exceptionType.toString());
+                    result.setData(false);
+                }
             }
         } finally
         {

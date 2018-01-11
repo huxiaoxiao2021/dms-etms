@@ -16,4 +16,11 @@
     <select id="selectFirstIdByName" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT firstId FROM dbs_objectid WHERE objectName=#{objectName,jdbcType=VARCHAR}
     </select>
+    <update id="updateFirstIdByNameAndCurrId" parameterType="java.util.Map">
+        UPDATE
+        	dbs_objectid
+       	SET firstId = firstId + #{count, jdbcType=INTEGER}
+        	WHERE objectName = #{objectName,jdbcType=VARCHAR}
+        	AND firstId = #{currId, jdbcType=INTEGER}
+    </update>
 </mapper>

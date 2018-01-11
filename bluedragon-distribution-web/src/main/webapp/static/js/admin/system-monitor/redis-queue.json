@@ -22,6 +22,10 @@
 {"qName":"ReverseSendRedisTask","qSign":"DMS","qSize":8},
 {"qName":"PartnerWaybillSynchroRedisTask","qSign":"DMS","qSize":8},
 {"qName":"WaybillTrackRedisTask","qSign":"DMS","qSize":8},
+{"qName":"PushMQ2ArteryBillingSysRedisTask","qSign":"DMS","qSize":8},
+{"qName":"sortingPrepareRedisTask","qSign":"DMS","qSize":8},
+{"qName":"InspectionPrepareRedisTask","qSign":"DMS","qSize":8},
+
 
 {"qName":"SealBoxRedisTask","qSign":"PRE","qSize":8},
 {"qName":"SortingReturnRedisTask","qSign":"PRE","qSize":8},
@@ -45,5 +49,8 @@
 {"qName":"WaybillStatusRedisTask","qSign":"PRE","qSize":8},
 {"qName":"ReverseSendRedisTask","qSign":"PRE","qSize":8},
 {"qName":"PartnerWaybillSynchroRedisTask","qSign":"PRE","qSize":8},
-{"qName":"WaybillTrackRedisTask","qSign":"PRE","qSize":8}
+{"qName":"WaybillTrackRedisTask","qSign":"PRE","qSize":8},
+{"qName":"PushMQ2ArteryBillingSysRedisTask","qSign":"PRE","qSize":8},
+{"qName":"sortingPrepareRedisTask","qSign":"PRE","qSize":8},
+{"qName":"InspectionPrepareRedisTask","qSign":"PRE","qSize":8}
 ]

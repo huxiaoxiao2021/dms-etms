@@ -91,7 +91,7 @@ public class RollContainerController {
 //        System.out.println(count);
         
         String containerCode = "234";
-        ContainerRelation relationTemp = containerRelationService.getContainerRelation(containerCode);
+        ContainerRelation relationTemp = containerRelationService.getContainerRelation(containerCode, 604804);
         
         return "";
     }
