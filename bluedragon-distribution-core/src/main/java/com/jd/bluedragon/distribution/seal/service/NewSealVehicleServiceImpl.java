@@ -18,6 +18,8 @@ import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.tms.tfc.dto.TransWorkItemDto;
+import com.jd.tms.tfc.ws.TfcQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +43,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
+
+	@Autowired
+	private TfcQueryWS tfcQueryWS;
 
 	@Autowired
 	private SendMDao sendMDao;
@@ -166,7 +171,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		return dto;
 	}
 
-	public boolean checkSendIsExist( String sendCode) {
+    @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.queryTransWorkItemBySimpleCode", mState = {JProEnum.TP})
+    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception {
+        return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
+    }
+
+    public boolean checkSendIsExist(String sendCode) {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
 		return sendM != null;
 	}

@@ -513,7 +513,11 @@
 			<artifactId>etms-vos-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.tms.tfc</groupId>
+			<artifactId>tms-tfc-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>

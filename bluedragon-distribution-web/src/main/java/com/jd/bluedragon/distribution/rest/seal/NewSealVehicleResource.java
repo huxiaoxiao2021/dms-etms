@@ -14,6 +14,7 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.tms.tfc.dto.TransWorkItemDto;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,6 +52,33 @@ public class NewSealVehicleResource {
 
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
 
+    /**
+     * 根据任务简码获取任务信息
+     */
+    @GET
+    @Path("/new/vehicle/seal/{simpleCode}")
+    public NewSealVehicleResponse getVehicleNumBySimpleCode(@PathParam("simpleCode")String simpleCode) {
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try{
+            com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> returnCommonDto = newsealVehicleService.queryTransWorkItemBySimpleCode(simpleCode);
+            if(returnCommonDto != null){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage("根据任务简码获取任务信息!");
+                    sealVehicleResponse.setData(returnCommonDto.getData());
+                }else{
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
+                }
+            }
+        }catch (Exception e){
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.logger.error("根据任务简码获取任务信息：任务简码->" + simpleCode, e);
+        }
+
+        return sealVehicleResponse;
+    }
     /**
      * 检查运力编码和批次号目的地是否一致
      */
