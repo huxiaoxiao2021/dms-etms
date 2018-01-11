@@ -3168,7 +3168,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                pushInspection(domain,null);//自动发货 大件先写TASK_INSPECTION   add by lhc 2017.12.20
+                if(isForceSend){
+                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
+                }
                 pushSorting(domain);//大件写TASK_SORTING
             } else {
                 SendDetail tSendDatail = new SendDetail();

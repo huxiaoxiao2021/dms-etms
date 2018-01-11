@@ -76,11 +76,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jd.ump</groupId>
-            <artifactId>profiler</artifactId>
-            <version>3.2.0</version> <!-- 必须3.2.0及以上！！！ -->
-        </dependency>
-        <dependency>
 			<groupId>org.apache.santuario</groupId>
 			<artifactId>xmlsec</artifactId>
 			<version>1.4.3</version>
@@ -406,13 +401,13 @@
 		<dependency>
             <groupId>com.jd.ump</groupId>
             <artifactId>profiler</artifactId>
-            <version>3.2.0</version>
+            <version>4.1.0</version>
         </dependency>
         
 		<dependency>
                <groupId>com.jd.ump</groupId>
                <artifactId>jannotation</artifactId>
-               <version>2.0.0</version>
+               <version>4.1.0</version>
     	</dependency>
 
         <dependency>
