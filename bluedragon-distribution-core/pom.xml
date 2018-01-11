@@ -76,11 +76,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jd.ump</groupId>
-            <artifactId>profiler</artifactId>
-            <version>3.2.0</version> <!-- 必须3.2.0及以上！！！ -->
-        </dependency>
-        <dependency>
 			<groupId>org.apache.santuario</groupId>
 			<artifactId>xmlsec</artifactId>
 			<version>1.4.3</version>
