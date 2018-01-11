@@ -111,7 +111,7 @@ $(function () {
             title: '发货日期',
             formatter: function (value, row, index) {
                 if (value != null && value != '') {
-                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                    return jQuery.dateHelper.formateDateOfTs(value);
                 } else {
                     return "-";
                 }
@@ -184,7 +184,7 @@ $(function () {
 
 
     $('#edit-form').bootstrapValidator({
-        live: 'disabled',
+        live: 'enabled',
         message: 'This value is not valid',
         feedbackIcons: {
             valid: 'glyphicon glyphicon-ok',
@@ -210,6 +210,14 @@ $(function () {
                 validators: {
                     notEmpty: {
                         message: '必填项，请输入发货件数'
+                    },
+                    integer: {
+                        message: '发货件数只能输入整数'
+                    },
+                    between: {
+                        min: 1,
+                        max: 9999,
+                        message: '发货数量必须在1到9999之间'
                     }
                 }
             },
@@ -217,14 +225,40 @@ $(function () {
                 validators: {
                     notEmpty: {
                         message: '必填项，请输入计费重量'
+                    },
+                    numeric: {
+                        message: '计费重量只能输入数字'
+                    },
+                    between: {
+                        min: 0.01,
+                        max: 999999.99,
+                        message: '计费重量必须在0.01到999999.99之间'
+                    },
+                    regexp: {
+                        regexp: /^\d+(\.\d{2})?$/,
+                        message: '小数点后仅可保留两位小数'
                     }
                 }
             },
             sendDate: {
                 validators: {
+                    notEmpty: {
+                        message: '必填项，请输入发货日期'
+                    },
                     date: {
-                        format: 'YYYY-MM-DD HH:mm:ss',
+                        format: 'YYYY-MM-DD',
                         message: '请输入正确的日期格式'
+                    },
+                    callback: {
+                        message: '发货日期必须在3日内',
+                        callback: function (value, validator, $field) {
+                            var currentDate = new Date();
+                            var inputDate = new Date(value.replace(/-/,"/"));
+                            if (inputDate > currentDate){
+                                return false;
+                            }
+                            return Math.abs(currentDate - inputDate) < 4*24*3600*1000;
+                        }
                     }
                 }
             }
@@ -287,6 +321,20 @@ $(function () {
         return params;
     }
 
+    var getCurrentDate = function () {
+        var date = new Date();
+        var separator = "-";
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+            month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        return date.getFullYear() + separator + month + separator + strDate;
+    }
+
     var pageInit = function () {
         var oInit = new Object();
         oInit.init = function () {
@@ -296,12 +344,8 @@ $(function () {
                 elem: '#startOperTime',
                 type: 'datetime',
                 theme: '#3f92ea',
-                btns: ['now', 'confirm'],
-                done: function (value, date, endDate) {
-                    /*重置表单验证状态*/
-                    $('#query-form').bootstrapValidator('resetForm', true);
-                }
             });
+            $.datePicker.setValue("startOperTime", getCurrentDate() + " 00:00:00");
 
             /*截止时间*/
             $.datePicker.createNew({
@@ -315,15 +359,15 @@ $(function () {
                     console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
                 }
             });
+            $.datePicker.setValue("endOperTime", getCurrentDate() + " 23:59:59");
 
-            /*截止时间*/
+            /*发货时间*/
             $.datePicker.createNew({
                 elem: '#sendDateEdit',
-                type: 'datetime',
+                type: 'date',
                 theme: '#3f92ea',
                 done: function (value, date, endDate) {
-                    /*重置表单验证状态*/
-                    $('#edit-form').bootstrapValidator('resetForm', true);
+                    $('#edit-form').bootstrapValidator('updateStatus', 'sendDate', 'NOT_VALIDATED').bootstrapValidator('validateField', 'sendDate');
                 }
             });
 
@@ -338,6 +382,7 @@ $(function () {
                         $(this).val('');
                     }
                 });
+                $.datePicker.setValue("sendDateEdit", getCurrentDate());
                 $("#sendCodeNum").text(0);
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
@@ -367,7 +412,7 @@ $(function () {
                         $('#sendCode').val(res.data.sendCode);
                         $('#shuttleBusType').val(Number(res.data.shuttleBusType)).trigger("change");
                         $('#shuttleBusNumEdit').val(res.data.shuttleBusNum);
-                        $('#sendDateEdit').val(jQuery.dateHelper.formateDateTimeOfTs(res.data.sendDate));
+                        $('#sendDateEdit').val(jQuery.dateHelper.formateDateOfTs(res.data.sendDate));
                         setTransportInfo(res.data);
                     }
                 });

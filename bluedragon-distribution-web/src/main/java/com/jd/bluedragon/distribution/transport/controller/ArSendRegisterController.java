@@ -60,7 +60,7 @@ public class ArSendRegisterController {
     /**
      * 时间格式化
      */
-    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * 根据id获取实体基本信息
