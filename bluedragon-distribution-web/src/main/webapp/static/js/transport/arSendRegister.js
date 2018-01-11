@@ -199,6 +199,38 @@ $(function () {
                     }
                 }
             },
+            orderCode: {
+                validators: {
+                    callback: {
+                        message: '铁路站序和航空单号不允许同时为空',
+                        callback: function (value, validator, $field) {
+                            if (value == null || value == '') {
+                                var siteOrder = $('#siteOrderEdit').val();
+                                if (siteOrder == null || siteOrder == '') {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                }
+            },
+            siteOrder: {
+                validators: {
+                    callback: {
+                        message: '铁路站序和航空单号不允许同时为空',
+                        callback: function (value, validator, $field) {
+                            if (value == null || value == '') {
+                                var orderCode = $('#orderCodeEdit').val();
+                                if (orderCode == null || orderCode == '') {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                }
+            },
             sendCode: {
                 validators: {
                     notEmpty: {
@@ -253,11 +285,11 @@ $(function () {
                         message: '发货日期必须在3日内',
                         callback: function (value, validator, $field) {
                             var currentDate = new Date();
-                            var inputDate = new Date(value.replace(/-/,"/"));
-                            if (inputDate > currentDate){
+                            var inputDate = new Date(value.replace(/-/, "/"));
+                            if (inputDate > currentDate) {
                                 return false;
                             }
-                            return Math.abs(currentDate - inputDate) < 4*24*3600*1000;
+                            return Math.abs(currentDate - inputDate) < 4 * 24 * 3600 * 1000;
                         }
                     }
                 }
@@ -291,18 +323,18 @@ $(function () {
     }
 
     var setTransportInfo = function (data) {
-        $("#transCompany").text(data.transCompany);
-        $("#transCompanyCode").text(data.transCompanyCode);
+        $("#transCompany").text(data.transCompany == null ? "" : data.transCompany);
+        $("#transCompanyCode").text(data.transCompanyCode == null ? "" : data.transCompanyCode);
         $("#startCityId").val(data.startCityId);
         $("#endCityId").val(data.endCityId);
-        $("#startCityName").text(data.startCityName);
-        $("#endCityName").text(data.endCityName);
-        $("#startStationId").val(data.startStationId);
+        $("#startCityName").text(data.startCityName == null ? "" : data.startCityName);
+        $("#endCityName").text(data.endCityName == null ? "" : data.endCityName);
+        $("#startStationId").val(data.startStationId );
         $("#endStationId").val(data.endStationId);
-        $("#startStationName").text(data.startStationName);
-        $("#endStationName").text(data.endStationName);
-        $("#planStartTime").text(data.planStartTime);
-        $("#planEndTime").text(data.planEndTime);
+        $("#startStationName").text(data.startStationName == null ? "" : data.startStationName);
+        $("#endStationName").text(data.endStationName == null ? "" : data.endStationName);
+        $("#planStartTime").text(data.planStartTime == null ? "" : data.planStartTime);
+        $("#planEndTime").text(data.planEndTime == null ? "" : data.planEndTime);
     }
 
     var getTransportInfo = function (params) {
@@ -493,6 +525,7 @@ $(function () {
             });
 
             $("#orderCodeEdit").blur(function () {
+                $('#edit-form').bootstrapValidator('updateStatus', 'siteOrder', 'NOT_VALIDATED').bootstrapValidator('validateField', 'siteOrder');
                 var transportName = $("#transportNameEdit").val();
                 if (transportName != null && transportName != '') {
                     var orderCode = $(this).val();
@@ -514,6 +547,7 @@ $(function () {
             });
 
             $("#siteOrderEdit").blur(function () {
+                $('#edit-form').bootstrapValidator('updateStatus', 'orderCode', 'NOT_VALIDATED').bootstrapValidator('validateField', 'orderCode');
                 var transportName = $("#transportNameEdit").val();
                 if (transportName != null && transportName != '') {
                     var siteOrder = $(this).val();
