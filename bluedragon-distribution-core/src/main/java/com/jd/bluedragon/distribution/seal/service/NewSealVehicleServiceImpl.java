@@ -224,10 +224,18 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sealCarMqDto.setOperTime(sealCarDto.getSealCarTime());
                 sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
                 sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
+                sealCarMqDto.setItemSimpleCode(sealCarDto.getItemSimpleCode());
+                sealCarMqDto.setSealCarType(sealCarDto.getSealCarType());
+                sealCarMqDto.setWeight(sealCarDto.getWeight());
+                sealCarMqDto.setVolume(sealCarDto.getVolume());
+                String key = sealCarDto.getTransportCode();
+                if(StringUtils.isEmpty(key)){//运力编码为空时，取任务简码
+                    key = sealCarDto.getItemSimpleCode();
+                }
                 try {
-                    sealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
+                    sealCarProducer.send(key, JsonHelper.toJsonUseGson(sealCarMqDto));
                 }catch (Exception e){
-                    SystemLogUtil.log(sealCarDto.getTransportCode(), sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
+                    SystemLogUtil.log(key, sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
                             sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_SEAL_MQ);
                     logger.error("发送封车mq消息失败:" + e.getMessage());
                 }
@@ -344,6 +352,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         sealCarDto.setEndSiteType(sourceSealDto.getEndSiteType());
         sealCarDto.setEndSiteTypeName(sourceSealDto.getEndSiteTypeName());
         sealCarDto.setSealCarType(sourceSealDto.getSealCarType());
+        if(sealCarDto.getSealCarType() == null && StringUtils.isNotEmpty(sealCarDto.getTransportCode())
+                && StringUtils.isEmpty(sourceSealDto.getItemSimpleCode())){
+            sealCarDto.setSealCarType(Constants.SEAL_TYPE_TRANSPORT);  //此时默认是按运力封车
+        }
         sealCarDto.setTransWorkItemCode(sourceSealDto.getTransWorkItemCode());
         sealCarDto.setItemSimpleCode(sourceSealDto.getItemSimpleCode());
         sealCarDto.setWeight(sourceSealDto.getWeight());

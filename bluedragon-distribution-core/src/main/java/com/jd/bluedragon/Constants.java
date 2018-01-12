@@ -394,4 +394,11 @@ public class Constants {
      * 备件库条码前缀默认值-"null"
      */
     public static final String SPARE_CODE_PREFIX_DEFAULT="null";
+
+    /******************************************** 封车类型相关start *****************************************/
+
+    public static final Integer SEAL_TYPE_TRANSPORT = 10;    //按运力封车
+
+    public static final Integer SEAL_TYPE_TASK = 20;   //按任务封车
+    /******************************************** 封车类型相关end *****************************************/
 }
