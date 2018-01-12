@@ -463,5 +463,31 @@
         where send_code= #{sendCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
-    
+	<select id="queryListByCondition" parameterType="SendM"
+		resultMap="SendM">
+		SELECT *
+			FROM send_m
+		WHERE 1=1 
+		<if test="sendMId != null">
+			and send_m_id = #{sendMId}
+		</if>
+		<if test="sendCode != null">
+			and send_code = #{sendCode}
+		</if>
+		<if test="boxCode != null">
+			and box_code = #{boxCode}
+		</if>
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode}
+		</if>	
+		<if test="receiveSiteCode != null">
+			and receive_site_code = #{receiveSiteCode}
+		</if>
+		<if test="sendType != null">
+			and send_type = #{sendType}
+		</if>		
+		<if test="yn != null">
+			and yn = #{yn}
+		</if>		
+	</select>    
 </mapper>

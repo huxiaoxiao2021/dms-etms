@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.rollcontainer.service;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelation;
+import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationCondition;
 import com.jd.bluedragon.distribution.rollcontainer.domain.RollContainer;
 
 public interface ContainerRelationService {
@@ -21,7 +24,7 @@ public interface ContainerRelationService {
      * @param containerCode
      * @return
      */
-    public ContainerRelation getContainerRelation(String containerCode);
+    public ContainerRelation getContainerRelation(String containerCode, Integer dmsId);
     
     public int updateContainerRelationByCode(ContainerRelation containerRelation);
     
@@ -31,8 +34,22 @@ public interface ContainerRelationService {
      * @return
      */
     public String getBoxCodeByContainerCode(String containerCode);
-    
-    
-    
-    
+
+
+    /***
+     * 根据 ContainerRelationCondition查询 分页ContainerRelation
+     * @param condition
+     * @param pager
+     * @return
+     */
+    Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition,
+                                                             Pager<List<ContainerRelation>> pager);
+    /***
+     * 根据 ContainerRelationCondition查询ContainerRelation list
+     * @param condition
+     * @return
+     */
+    List<ContainerRelation> getContainerRelationByModel(ContainerRelationCondition condition);
+
+    List<ContainerRelation> getContainerRelationByBoxCode(String boxCode);
 }

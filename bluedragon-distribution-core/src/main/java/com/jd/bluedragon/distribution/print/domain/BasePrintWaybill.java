@@ -94,6 +94,21 @@ public class BasePrintWaybill implements Serializable {
      * 寄件公司名称
      */
     private String senderCompany;
+    /**
+    * 路区
+    */
+    private String road;
+    
+    
+    /**
+    * 商家商标图像key值也就是文件名
+    */
+    private String brandImageKey ;
+    /**
+     * 标识是否SOP商家和纯外单
+     */
+    private boolean sopOrExternalFlg;
+    
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -348,5 +363,42 @@ public class BasePrintWaybill implements Serializable {
     public void setSenderCompany(String senderCompany) {
         this.senderCompany = senderCompany;
     }
+
+	/**
+	 * @return the road
+	 */
+	public String getRoad() {
+		return road;
+	}
+
+	/**
+	 * @param road the road to set
+	 */
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+
+	public String getBrandImageKey() {
+		return brandImageKey;
+	}
+
+	public void setBrandImageKey(String brandImageKey) {
+		this.brandImageKey = brandImageKey;
+	}
+
+	/**
+	 * @return the sopOrExternalFlg
+	 */
+	public boolean isSopOrExternalFlg() {
+		return sopOrExternalFlg;
+	}
+
+	/**
+	 * @param sopOrExternalFlg the sopOrExternalFlg to set
+	 */
+	public void setSopOrExternalFlg(boolean sopOrExternalFlg) {
+		this.sopOrExternalFlg = sopOrExternalFlg;
+	}
 
 }

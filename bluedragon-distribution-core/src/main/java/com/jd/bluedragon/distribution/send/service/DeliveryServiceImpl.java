@@ -9,7 +9,9 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
@@ -74,6 +76,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -227,6 +230,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
+        if(!checkSendM(domain)){
+            return new SendResult(2, "批次号错误：" + domain.getSendCode());
+        }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -337,7 +343,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.pushStatusTask(domain);
         return new SendResult(1, "发货成功");
     }
-
 
     /**
      * 推分拣任务
@@ -1440,6 +1445,23 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else
             falge = true;
         return falge;
+    }
+
+    /**
+     * 校验sendm中的批次号
+     * @param sendm
+     * @return
+     */
+    private boolean checkSendM(SendM sendm) {
+        String sendCode = sendm.getSendCode();
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(createSiteCode == null){
+            return false;
+        }
+        if(createSiteCode.equals(sendm.getCreateSiteCode())){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -2597,12 +2619,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer bCreateSiteCode = task.getCreateSiteCode();
         Integer bReceiveSiteCode = task.getReceiveSiteCode();
         String boxCode = task.getBoxCode();
+        Integer type = Integer.valueOf(task.getKeyword2());//业务的正逆向
         List<SendDetail> list = getSendByBox(boxCode);
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
                 tsendDatail.setCreateSiteCode(bCreateSiteCode);
                 tsendDatail.setReceiveSiteCode(bReceiveSiteCode);
+                tsendDatail.setSendType(type);
                 if ((!tsendDatail.getBoxCode().equals(task.getBody()))
                         && (!StringHelper.isEmpty(task.getBody()))
                         && task.getBody().contains("-")) {
@@ -3138,11 +3162,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
             if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
+                pushInspection(domain,packageCode);
             	pushAtuoSorting(domain,packageCode);
             	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
             }
             
             if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                if(isForceSend){
+                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
+                }
                 pushSorting(domain);//大件写TASK_SORTING
             } else {
                 SendDetail tSendDatail = new SendDetail();
@@ -3158,5 +3186,52 @@ public class DeliveryServiceImpl implements DeliveryService {
             new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 推验货任务
+     * @param domain
+     */
+    private void pushInspection(SendM domain,String packageCode) {
+        BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
+        String createSiteName = null != create ? create.getSiteName() : null;
+
+        InspectionRequest inspection=new InspectionRequest();
+        inspection.setUserCode(domain.getCreateUserCode());
+        inspection.setUserName(domain.getCreateUser());
+        inspection.setSiteCode(domain.getCreateSiteCode());
+        inspection.setSiteName(createSiteName);
+        inspection.setOperateTime(DateHelper.formatDateTime(new Date(domain.getOperateTime().getTime()-60000)));
+        inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        if(packageCode != null){
+            inspection.setPackageBarOrWaybillCode(packageCode);
+        }else{
+            inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
+        }
+
+        TaskRequest request=new TaskRequest();
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setKeyword1(String.valueOf(domain.getCreateUserCode()));
+        if(packageCode != null){
+            request.setKeyword2(packageCode);
+        }else{
+            request.setKeyword2(domain.getBoxCode());
+        }
+        request.setType(Task.TASK_TYPE_INSPECTION);
+        request.setOperateTime(DateHelper.formatDateTime(new Date(domain.getOperateTime().getTime()-60000)));
+        request.setSiteCode(domain.getCreateSiteCode());
+        request.setSiteName(createSiteName);
+        request.setUserCode(domain.getCreateUserCode());
+        request.setUserName(domain.getCreateUser());
+        //request.setBody();
+        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                + JsonHelper.toJson(inspection)
+                + Constants.PUNCTUATION_CLOSE_BRACKET;
+        Task task=this.taskService.toTask(request, eachJson);
+
+        int result= this.taskService.add(task, true);
+        if(logger.isDebugEnabled()){
+            logger.debug("分拣机自动发货-验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
+        }
     }
 }
