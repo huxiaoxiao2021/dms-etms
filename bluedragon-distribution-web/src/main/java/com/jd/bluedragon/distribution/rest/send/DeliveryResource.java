@@ -20,6 +20,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,6 +90,9 @@ public class DeliveryResource {
 
     @Autowired
     private SendQueryService sendQueryService;
+
+    @Autowired
+    private ScannerFrameBatchSendService scannerFrameBatchSendService;
     
     private static final Integer KY_DELIVERY = 1; //快运发货标识
 
