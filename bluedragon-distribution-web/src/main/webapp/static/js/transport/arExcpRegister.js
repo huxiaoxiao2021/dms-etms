@@ -154,7 +154,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#excpTimeGE',
                 theme: '#3f92ea',
-                btns: ['now', 'confirm'],
+               // btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -162,7 +162,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#excpTimeLE',
                 theme: '#3f92ea',
-                btns: ['now', 'confirm'],
+               // btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
