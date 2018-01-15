@@ -36,3 +36,15 @@
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
+
+####################
+## 基础样式
+####################
+<style type="text/css">
+    .min_120{
+        min-width: 120px;
+    }
+    .min_180{
+        min-width: 180px;
+    }
+</style>

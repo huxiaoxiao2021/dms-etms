@@ -79,7 +79,9 @@ $(function() {
             title : '异常日期',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateOfTs(value);
-            }
+            },
+            width:120,
+            class:'min_120'
         }, {
             field : 'excpNode',
             title : '异常节点',

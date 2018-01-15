@@ -595,7 +595,7 @@
             <if test="updateUser != null">
                 update_user = #{updateUser,jdbcType=VARCHAR},
             </if>
-
+            operate_time = now(),
             update_time = now(),
             ts = now()
 

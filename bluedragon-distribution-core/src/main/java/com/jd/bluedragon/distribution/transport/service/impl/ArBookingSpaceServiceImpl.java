@@ -126,7 +126,7 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 	}
 
 
-
+	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean saveOrUpdate(ArBookingSpace arBookingSpace,String userCode,String userName,Long createSiteCode,String createSiteName) {
 
 

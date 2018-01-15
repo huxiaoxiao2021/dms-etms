@@ -9,7 +9,6 @@
     #parse("system/common/baseImport.vm")
     <script src="/static/js/transport/arBookingSpace.js"></script>
     <script src="/static/js/transport/arBookingSpaceValidator.js"></script>
-
 </head>
 <body class="container-fluid">
 <div id="dataTableDiv"  >

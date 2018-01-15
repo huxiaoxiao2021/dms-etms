@@ -79,7 +79,9 @@ $(function() {
             title : '预计起飞日期',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateOfTs(value);
-            }
+            },
+            width:120,
+            class:'min_120'
         }, {
             field : 'createSiteName',
             title : '分拣中心名称'
@@ -127,7 +129,9 @@ $(function() {
             title : '订舱日期',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateOfTs(value);
-            }
+            },
+            width:120,
+            class:'min_120'
         } , {
             field : 'supplierName',
             title : '供应商名称'
@@ -142,7 +146,9 @@ $(function() {
             title : '操作时间',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);
-            }
+            },
+            width:180,
+            class:'min_180'
         } , {
             field : 'operatorErp',
             title : '操作人'
