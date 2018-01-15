@@ -42,7 +42,7 @@ $(function() {
             });
         };
         oTableInit.getSearchParams = function(params) {
-            debugger;
+
             var temp = oTableInit.getSearchCondition();
             if(!temp){
                 temp={};
@@ -395,12 +395,11 @@ var excpResultData={};
 function initExcpType() {
 
 
-    debugger;
     var url = "/base/dmsBaseDict/airRailwayExceptionType";
     var param = {};
     $.get(url, param, function (myData) {
         var data = myData.data;
-        debugger;
+
         var result = [];
         for(var i in data){
             if(data[i].id && data[i].typeName){
@@ -486,7 +485,7 @@ function initEditSelect(){
  * @returns {boolean}
  */
 function changeExcpTypeEdit(selectVal1,selectVal2){
-    debugger;
+
     var p = $("#excpTypeEdit").val();
     var _p = $("#edit-form #excpType").val();
     if((!p || p ==_p) && !selectVal1){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
@@ -504,7 +503,7 @@ function changeExcpTypeEdit(selectVal1,selectVal2){
             $("#excpReasonEdit").html("");
             $("#excpResultEdit").html("");
             var data = myData.data;
-            debugger;
+
             var result = [];
             for(var i in data){
                 if(data[i].id && data[i].typeName){
@@ -542,7 +541,7 @@ function changeExcpTypeEdit(selectVal1,selectVal2){
  * @returns {boolean}
  */
 function changeExcpReasonEdit(selectVal){
-    debugger;
+
     var p = $("#excpReasonEdit").val();
     var _p = $("#edit-form #excpReason").val();
     if((!p || p ==_p) && !selectVal){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
@@ -560,7 +559,7 @@ function changeExcpReasonEdit(selectVal){
             $("#excpResultEdit").html("");
 
             var data = myData.data;
-            debugger;
+
             var result = [];
             for(var i in data){
                 if(data[i].id && data[i].typeName){

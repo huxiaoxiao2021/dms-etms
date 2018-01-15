@@ -62,9 +62,28 @@ public class ArBookingSpaceController {
      * @return
      */
     @RequestMapping(value = "/toIndex")
-    public String toIndex() {
+    public String toIndex(Model model) {
+		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+		String userCode = "";
+		Long createSiteCode = new Long(-1);
+		Integer orgId = new Integer(-1);
+
+		if(erpUser!=null){
+			userCode = erpUser.getUserCode();
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+				createSiteCode = new Long(bssod.getSiteCode());
+				orgId = bssod.getOrgId();
+			}
+		}
+
+
+    	model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
+
     	return "/transport/arBookingSpace";
     }
+
+
     /**
      * 根据id获取实体基本信息
      * @param id

@@ -42,7 +42,6 @@ $(function() {
             });
         };
         oTableInit.getSearchParams = function(params) {
-            debugger;
             var temp = oTableInit.getSearchCondition();
             if(!temp){
                 temp={};
@@ -296,11 +295,12 @@ $(function() {
         return oInit;
     };
 
+    initOrg();
 
     initDateQuery();
     tableInit().init();
     pageInit().init();
-    initOrg();
+
     initSiteSelect();
     initEditPage();
     editFormValidator();
@@ -311,10 +311,11 @@ $(function() {
 
 });
 
+
 //初始化导出按钮
 function initExport(tableInit){
     $("#btn_export").on("click",function(e){
-        debugger;
+
         var url = "/transport/arBookingSpace/toExport";
         var params = tableInit.getSearchCondition();
 
@@ -323,7 +324,7 @@ function initExport(tableInit){
         form.attr({"action":url});
 
         $.each(params,function(key,value){
-            debugger;
+
             input = $("<input type='hidden' class='search-param'>");
             input.attr({"name":key});
             input.val(value);
@@ -348,7 +349,7 @@ function initExport(tableInit){
     });
 }
 
-
+var initLogin = true;
 
 function initSiteSelect(){
     $("#site-select").select2({
@@ -405,37 +406,50 @@ function initEditPage(){
 
 function findSite(selectId,siteListUrl,initIdSelectId){
    $(selectId).html("");
+    $.ajax({
+        type : "get",
+        url : siteListUrl,
+        data : {},
+        async : false,
+        success : function (data) {
 
-    $.get(siteListUrl, {}, function (data) {
+
+            var result = [];
+            if(data.length==1 && data[0].code!="200"){
 
 
-        var result = [];
-        if(data.length==1 && data[0].code!="200"){
+                result.push({id:"-999",text:data[0].message});
 
-
-            result.push({id:"-999",text:data[0].message});
-
-        }else{
-            for(var i in data){
-                if(data[i].siteCode && data[i].siteCode != ""){
-                    result.push({id:data[i].siteCode,text:data[i].siteName});
+            }else{
+                for(var i in data){
+                    if(data[i].siteCode && data[i].siteCode != ""){
+                        result.push({id:data[i].siteCode,text:data[i].siteName});
+                    }
                 }
+
+            }
+            if(initIdSelectId && result[0].id!="-999"){
+                $(initIdSelectId).val(result[0].id);
             }
 
+            $(selectId).select2({
+                width: '100%',
+                placeholder:'请选择分拣中心',
+                allowClear:true,
+                data:result
+            });
+
+            if(initLogin){
+                //第一次登录 初始化登录人分拣中心
+                if($("#loginUserCreateSiteCode").val() != -1){
+                    //登录人大区
+                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
+                }
+            }
+            initLogin = false;
+
         }
-        if(initIdSelectId && result[0].id!="-999"){
-            $(initIdSelectId).val(result[0].id);
-        }
-
-        $(selectId).select2({
-            width: '100%',
-            placeholder:'请选择分拣中心',
-            allowClear:true,
-            data:result
-        });
-
-
-    }, "json");
+    });
 }
 
 
@@ -446,45 +460,65 @@ function initOrg() {
 
     var url = "/services/bases/allorgs";
     var param = {};
-    $.get(url, param, function (data) {
+    $.ajax({
+                type : "get",
+                url : url,
+                data : param,
+                async : false,
+                success : function (data) {
 
-        var result = [];
-        for(var i in data){
-            if(data[i].orgId && data[i].orgId != ""){
-                result.push({id:data[i].orgId,text:data[i].orgName});
+                    var result = [];
+                    for(var i in data){
+                        if(data[i].orgId && data[i].orgId != ""){
+                            result.push({id:data[i].orgId,text:data[i].orgName});
 
-            }
+                        }
 
-        }
+                    }
 
-        $('#site-group-select').select2({
-            width: '100%',
-            placeholder:'请选择机构',
-            allowClear:true,
-            data:result
-        });
+                    $('#site-group-select').select2({
+                        width: '100%',
+                        placeholder:'请选择机构',
+                        allowClear:true,
+                        data:result
+                    });
 
-        $('#site-group-select').val(null).trigger('change');
+                    $("#site-group-select")
+                        .on("change", function(e) {
+                            $("#query-form #createSiteCode").val("");
+                            var orgId = $("#site-group-select").val();
+                            if(orgId){
+                                var siteListUrl = '/services/bases/dms/'+orgId;
+                                findSite("#site-select",siteListUrl,"#query-form #createSiteCode");
+                            }
 
-        $("#site-group-select")
-            .on("change", function(e) {
-                $("#query-form #createSiteCode").val("");
-                var orgId = $("#site-group-select").val();
-                if(orgId){
-                    var siteListUrl = '/services/bases/dms/'+orgId;
-                    findSite("#site-select",siteListUrl,"#query-form #createSiteCode");
+                        });
+
+                    $("#site-select").on("change",function(e){
+                        var _s = $("#site-select").val();
+                        $("#query-form #createSiteCode").val(_s);
+                    });
+
+
+                    if($("#loginUserOrgId").val() != -1){
+                        //登录人大区
+                        $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
+                    }else{
+                        $('#site-group-select').val(null).trigger('change');
+                    }
+
+
+
+
+
+
+
+
                 }
-
-            });
-
+      });
 
 
-        $("#site-select").on("change",function(e){
-            var _s = $("#site-select").val();
-            $("#query-form #createSiteCode").val(_s);
-        });
 
-    }, "json");
 
 
 
