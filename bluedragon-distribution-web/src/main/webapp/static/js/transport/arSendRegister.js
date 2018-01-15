@@ -182,7 +182,6 @@ $(function () {
         return oTableInit;
     };
 
-
     $('#edit-form').bootstrapValidator({
         live: 'enabled',
         message: 'This value is not valid',
@@ -195,12 +194,20 @@ $(function () {
             transportName: {
                 validators: {
                     notEmpty: {
-                        message: '必填项，请输入运力名称'
+                        message: '必填项，请输入航班号/车次号'
+                    },
+                    stringLength: {
+                        max: 16,
+                        message: '航班号/车次号长度不能超过16个字符'
                     }
                 }
             },
             orderCode: {
                 validators: {
+                    stringLength: {
+                        max: 30,
+                        message: '航空单号长度不能超过30个字符'
+                    },
                     callback: {
                         message: '铁路站序和航空单号不允许同时为空',
                         callback: function (value, validator, $field) {
@@ -217,6 +224,10 @@ $(function () {
             },
             siteOrder: {
                 validators: {
+                    stringLength: {
+                        max: 16,
+                        message: '铁路站序长度不能超过16个字符'
+                    },
                     callback: {
                         message: '铁路站序和航空单号不允许同时为空',
                         callback: function (value, validator, $field) {
@@ -291,6 +302,14 @@ $(function () {
                             }
                             return Math.abs(currentDate - inputDate) < 4 * 24 * 3600 * 1000;
                         }
+                    }
+                }
+            },
+            remark: {
+                validators: {
+                    stringLength: {
+                        max: 500,
+                        message: '备注信息长度不能超过500个字符'
                     }
                 }
             }

@@ -224,7 +224,7 @@ public class ArSendRegisterController {
                 response = new JdResponse<ArTransportInfo>();
                 String orderCode = condition.getOrderCode();
                 if (StringUtils.isNotEmpty(orderCode)) {
-                    response.setData(arSendRegisterService.getTransportInfo(orderCode, null, ArTransportTypeEnum.AIR_TRANSPORT));
+                    response.setData(arSendRegisterService.getTransportInfo(transportName, null, ArTransportTypeEnum.AIR_TRANSPORT));
                 } else {
                     String siteOrder = condition.getSiteOrder();
                     if (StringUtils.isNotEmpty(siteOrder)) {
@@ -234,8 +234,8 @@ public class ArSendRegisterController {
                 return response;
             }
         } catch (Exception e) {
-            logger.error("根据单号获取信息异常", e);
-            response.toError("根据单号获取信息异常");
+            logger.error("根据航班号/车次号获取运输信息异常", e);
+            response.toError("根据航班号/车次号获取运输信息异常");
         }
         return response;
     }
