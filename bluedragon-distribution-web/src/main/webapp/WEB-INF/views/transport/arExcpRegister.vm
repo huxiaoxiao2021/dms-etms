@@ -99,6 +99,9 @@
     <hr/>
 
     <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
         <button id="btn_add" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
         </button>
@@ -109,9 +112,7 @@
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
         </button>
 
-        <button id="btn_query" type="button" class="btn btn-default">
-            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
-        </button>
+
     </div>
     <table id="dataTable"></table>
 </div>

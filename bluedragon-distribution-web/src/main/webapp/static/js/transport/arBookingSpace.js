@@ -112,16 +112,16 @@ $(function() {
             }
         } , {
             field : 'priority',
-            title : '优先级'
+            title : '航班优先级'
         } , {
             field : 'gainSpace',
-            title : '可获取舱位（单位：kg）'
+            title : '可获取舱位kg'
         } , {
             field : 'planSpace',
-            title : '计划订舱位（单位：kg）'
+            title : '计划订舱位kg'
         } , {
             field : 'realSpace',
-            title : '实际订舱位（单位：kg）'
+            title : '实际订舱位kg'
         } , {
             field : 'bookingSpaceTime',
             title : '订舱日期',
@@ -161,7 +161,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#planStartDateLE',
                 theme: '#3f92ea',
-                btns: ['now', 'confirm'],
+                //btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -169,7 +169,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#planStartDateGE',
                 theme: '#3f92ea',
-                btns: ['now', 'confirm'],
+                //btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
