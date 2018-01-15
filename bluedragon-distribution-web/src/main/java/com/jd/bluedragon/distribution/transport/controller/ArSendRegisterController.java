@@ -221,17 +221,23 @@ public class ArSendRegisterController {
         try {
             String transportName = condition.getTransportName();
             if (StringUtils.isNotEmpty(transportName)) {
+                ArTransportInfo arTransportInfo = null;
                 response = new JdResponse<ArTransportInfo>();
                 String orderCode = condition.getOrderCode();
                 if (StringUtils.isNotEmpty(orderCode)) {
-                    response.setData(arSendRegisterService.getTransportInfo(transportName, null, ArTransportTypeEnum.AIR_TRANSPORT));
+                    arTransportInfo = arSendRegisterService.getTransportInfo(transportName, null, ArTransportTypeEnum.AIR_TRANSPORT);
                 } else {
                     String siteOrder = condition.getSiteOrder();
                     if (StringUtils.isNotEmpty(siteOrder)) {
-                        response.setData(arSendRegisterService.getTransportInfo(transportName, siteOrder, ArTransportTypeEnum.RAILWAY));
+                        arTransportInfo = arSendRegisterService.getTransportInfo(transportName, siteOrder, ArTransportTypeEnum.RAILWAY);
                     }
                 }
-                return response;
+                if (arTransportInfo != null){
+                    response.setData(arTransportInfo);
+                    return response;
+                } else {
+                    response.toFail("根据航班号/车次号获取运输信息为空！");
+                }
             }
         } catch (Exception e) {
             logger.error("根据航班号/车次号获取运输信息异常", e);

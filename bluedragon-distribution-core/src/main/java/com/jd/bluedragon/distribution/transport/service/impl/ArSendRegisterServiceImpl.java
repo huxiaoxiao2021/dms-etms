@@ -12,6 +12,7 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.tms.basic.dto.BasicAirFlightDto;
+import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import org.springframework.beans.BeanUtils;
@@ -207,9 +208,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         ArTransportInfo arTransportInfo = new ArTransportInfo();
         try {
             if (transportType == AIR_TRANSPORT) {
-                CommonDto<BasicAirFlightDto> airFlightDto = basicQueryWS.getAirFlightByFlightNumber(code);
-                if (airFlightDto != null && airFlightDto.getCode() == CommonDto.CODE_SUCCESS && airFlightDto.getData() != null) {
-                    BasicAirFlightDto basicAirFlightDto = airFlightDto.getData();
+                CommonDto<BasicAirFlightDto> commonDto = basicQueryWS.getAirFlightByFlightNumber(code);
+                if (commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS && commonDto.getData() != null) {
+                    BasicAirFlightDto basicAirFlightDto = commonDto.getData();
                     // 调用TMS接口，根据航空单号获取航班信息
                     arTransportInfo.setTransCompany(basicAirFlightDto.getAirCompanyName());
                     arTransportInfo.setTransCompanyCode(basicAirFlightDto.getAirCompanyCode());
@@ -225,18 +226,27 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setPlanEndTime(basicAirFlightDto.getTouchDownTime());
                 }
             } else if (transportType == RAILWAY) {
-                arTransportInfo.setTransCompany("高速动车组列车");
-                arTransportInfo.setTransCompanyCode("G-");
-                arTransportInfo.setStartCityId(1);
-                arTransportInfo.setStartCityName("北京");
-                arTransportInfo.setEndCityId(2);
-                arTransportInfo.setEndCityName("上海");
-                arTransportInfo.setStartStationId("10001");
-                arTransportInfo.setStartStationName("北京南站");
-                arTransportInfo.setEndStationId("20001");
-                arTransportInfo.setEndStationName("上海浦东机场");
-                arTransportInfo.setPlanStartTime("10:30");
-                arTransportInfo.setPlanEndTime("12:30");
+                BasicRailwayTrainDto param = new BasicRailwayTrainDto();
+                param.setTrainNumber(code);
+                param.setTrainSiteOrder(siteOrder);
+                CommonDto<BasicRailwayTrainDto> commonDto = basicQueryWS.getRailwayTrainByCondition(param);
+                if (commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS && commonDto.getData() != null) {
+                    BasicRailwayTrainDto railwayTrainDto = commonDto.getData();
+                    arTransportInfo.setTransCompany(railwayTrainDto.getRailwayActName());
+                    arTransportInfo.setTransCompanyCode(railwayTrainDto.getRailwayActCode());
+                    arTransportInfo.setStartCityId(railwayTrainDto.getBeginCityId());
+                    arTransportInfo.setStartCityName(railwayTrainDto.getEndCityName());
+                    arTransportInfo.setEndCityId(railwayTrainDto.getEndCityId());
+                    arTransportInfo.setEndCityName(railwayTrainDto.getEndCityName());
+                    arTransportInfo.setStartStationId(railwayTrainDto.getBeginNodeCode());
+                    arTransportInfo.setStartStationName(railwayTrainDto.getBeginNodeName());
+                    arTransportInfo.setEndStationId(railwayTrainDto.getEndNodeCode());
+                    arTransportInfo.setEndStationName(railwayTrainDto.getEndNodeName());
+                    arTransportInfo.setPlanStartTime(railwayTrainDto.getPlanDepartTime());
+                    arTransportInfo.setPlanEndTime(railwayTrainDto.getPlanArriveTime());
+                } else {
+                    return null;
+                }
             }
         } catch (Exception e) {
             logger.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
