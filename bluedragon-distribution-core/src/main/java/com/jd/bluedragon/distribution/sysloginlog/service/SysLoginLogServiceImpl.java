@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -57,7 +58,11 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
         sysLoginLog.setProgramType(clientInfo.getProgramType());
         sysLoginLog.setVersionCode(clientInfo.getVersionCode());
         sysLoginLog.setVersionName(clientInfo.getVersionName());
-        sysLoginLog.setFileVersions(clientInfo.getFiles().toString());
+        String fileVersions = "";
+        if(clientInfo.getFiles() != null && clientInfo.getFiles().size() > 0){
+            fileVersions = clientInfo.getFiles().toString();
+        }
+        sysLoginLog.setFileVersions(fileVersions);
         sysLoginLog.setMachineName(clientInfo.getMachineName());
         sysLoginLog.setMatchFlag(getMatchFlag(clientInfo.getVersionCode(), clientInfo));
         sysLoginLog.setIpv4(clientInfo.getIpv4());
@@ -69,6 +74,9 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
 
     private Integer getMatchFlag(String versionCode,ClientInfo clientInfo){
         List<ClientInfo.FileVersion> files = clientInfo.getFiles();
+        if(StringUtils.isBlank(versionCode) || files == null || files.size() == 0){
+            return ERROR_MATCHFLAG;
+        }
         Integer matchFlag = DEFAULT_MATCHFLAG;
         String fileVersionCode = null;
         for (ClientInfo.FileVersion fileVersion:files){

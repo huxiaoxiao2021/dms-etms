@@ -370,11 +370,15 @@ public class BaseResource {
 			// 验证完成，返回相关信息
 			this.logger.info("erpAccount is " + erpAccount + " 验证成功");
             try{
+                ClientInfo info = null;
                 if(StringUtils.isNotBlank(request.getClientInfo())){
-                    ClientInfo info = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+                    info = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
                     info.setLoginUserErp(erpAccount);
-                    sysLoginLogService.insert(result, info);
+                }else{
+                    info = new  ClientInfo();
+                    info.setLoginUserErp(erpAccount);
                 }
+                sysLoginLogService.insert(result, info);
             }catch (Exception e){
                 this.logger.error("用户登录保存日志失败：" + erpAccount, e);
             }
