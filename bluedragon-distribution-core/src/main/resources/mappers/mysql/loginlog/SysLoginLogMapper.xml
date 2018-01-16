@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.base.dao.SysLoginLogDao">
+
+	<resultMap id="SysLoginLog" type="com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="login_user_code" property="loginUserCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="login_user_erp" property="loginUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="login_user_name" property="loginUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="dms_site_code" property="dmsSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="dms_site_type" property="dmsSiteType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_site_subtype" property="dmsSiteSubtype" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="program_type" property="programType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="version_code" property="versionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="version_name" property="versionName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="file_versions" property="fileVersions" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="match_flag" property="matchFlag" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ipv4" property="ipv4" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="ipv6" property="ipv6" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="machine_name" property="machineName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="mac_adress" property="macAdress" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="login_time" property="loginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,login_user_code,login_user_erp,login_user_name,dms_site_code,dms_site_name,
+		dms_site_type,dms_site_subtype,site_code,site_name,program_type,
+		version_code,version_name,file_versions,match_flag,ipv4,
+		ipv6,machine_name,mac_adress,login_time,create_time,
+		update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog">
+		insert into sys_login_log
+			(
+			<trim suffixOverrides=",">
+				<if test="loginUserCode != null">
+					login_user_code,
+				</if>
+				<if test="loginUserErp != null">
+					login_user_erp,
+				</if>
+				<if test="loginUserName != null">
+					login_user_name,
+				</if>
+				<if test="dmsSiteCode != null">
+					dms_site_code,
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name,
+				</if>
+				<if test="dmsSiteType != null">
+					dms_site_type,
+				</if>
+				<if test="dmsSiteSubtype != null">
+					dms_site_subtype,
+				</if>
+				<if test="siteCode != null">
+					site_code,
+				</if>
+				<if test="siteName != null">
+					site_name,
+				</if>
+				<if test="programType != null">
+					program_type,
+				</if>
+				<if test="versionCode != null">
+					version_code,
+				</if>
+				<if test="versionName != null">
+					version_name,
+				</if>
+				<if test="fileVersions != null">
+					file_versions,
+				</if>
+				<if test="matchFlag != null">
+					match_flag,
+				</if>
+				<if test="ipv4 != null">
+					ipv4,
+				</if>
+				<if test="ipv6 != null">
+					ipv6,
+				</if>
+				<if test="machineName != null">
+					machine_name,
+				</if>
+				<if test="macAdress != null">
+					mac_adress,
+				</if>
+				<if test="loginTime != null">
+					login_time,
+				</if>
+					create_time,
+					update_time,
+					is_delete,
+					ts
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="loginUserCode != null">
+					#{loginUserCode,jdbcType=BIGINT},
+				</if>
+				<if test="loginUserErp != null">
+					#{loginUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="loginUserName != null">
+					#{loginUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="dmsSiteCode != null">
+					#{dmsSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="dmsSiteName != null">
+					#{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="dmsSiteType != null">
+					#{dmsSiteType,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteSubtype != null">
+					#{dmsSiteSubtype,jdbcType=INTEGER},
+				</if>
+				<if test="siteCode != null">
+					#{siteCode,jdbcType=BIGINT},
+				</if>
+				<if test="siteName != null">
+					#{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="programType != null">
+					#{programType,jdbcType=INTEGER},
+				</if>
+				<if test="versionCode != null">
+					#{versionCode,jdbcType=VARCHAR},
+				</if>
+				<if test="versionName != null">
+					#{versionName,jdbcType=VARCHAR},
+				</if>
+				<if test="fileVersions != null">
+					#{fileVersions,jdbcType=VARCHAR},
+				</if>
+				<if test="matchFlag != null">
+					#{matchFlag,jdbcType=TINYINT},
+				</if>
+				<if test="ipv4 != null">
+					#{ipv4,jdbcType=VARCHAR},
+				</if>
+				<if test="ipv6 != null">
+					#{ipv6,jdbcType=VARCHAR},
+				</if>
+				<if test="machineName != null">
+					#{machineName,jdbcType=VARCHAR},
+				</if>
+				<if test="macAdress != null">
+					#{macAdress,jdbcType=VARCHAR},
+				</if>
+				<if test="loginTime != null">
+					#{loginTime,jdbcType=TIMESTAMP},
+				</if>
+				now(),
+				now(),
+				0,
+				now(),
+			</trim>
+			)
+	</insert>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+</mapper>
