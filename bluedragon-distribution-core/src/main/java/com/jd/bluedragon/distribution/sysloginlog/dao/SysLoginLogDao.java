@@ -20,7 +20,7 @@ public class SysLoginLogDao extends BaseDao<SysLoginLog> {
      * @return
      */
     public int insert(SysLoginLog sysLoginLog){
-        return super.getSqlSession().insert(namespace + ".add" , sysLoginLog);
+        return super.getSqlSession().insert(namespace + ".insert" , sysLoginLog);
     }
 
 }
