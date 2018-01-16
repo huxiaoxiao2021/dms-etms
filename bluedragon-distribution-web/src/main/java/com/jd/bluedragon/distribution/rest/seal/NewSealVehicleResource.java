@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -56,16 +57,17 @@ public class NewSealVehicleResource {
      * 根据任务简码获取任务信息
      */
     @GET
-    @Path("/new/vehicle/seal/{simpleCode}")
-    public NewSealVehicleResponse getVehicleNumBySimpleCode(@PathParam("simpleCode")String simpleCode) {
-        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+    @Path("/new/vehicle/seal/workitem/{simpleCode}")
+    public TransWorkItemResponse getVehicleNumBySimpleCode(@PathParam("simpleCode")String simpleCode) {
+        TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try{
             com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> returnCommonDto = newsealVehicleService.queryTransWorkItemBySimpleCode(simpleCode);
             if(returnCommonDto != null){
                 if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage("根据任务简码获取任务信息!");
-                    sealVehicleResponse.setData(returnCommonDto.getData());
+                    sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
+                    sealVehicleResponse.setTransType(returnCommonDto.getData().getTransType());
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
@@ -76,7 +78,6 @@ public class NewSealVehicleResource {
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             this.logger.error("根据任务简码获取任务信息：任务简码->" + simpleCode, e);
         }
-
         return sealVehicleResponse;
     }
     /**
