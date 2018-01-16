@@ -57,7 +57,7 @@
                     <div class="col-lg-9 col-lg-offset-1">
                         <div class="col-lg-8">
                             <div class="form-group">
-                                <label class="control-label col-lg-3 " for="startDate">预计起飞时间 ：</label>
+                                <label class="control-label col-lg-3 " for="startDate">预计起飞日期 ：</label>
                                 <div class=" col-lg-4">
                                     <input type="text" id="planStartDateGE" name="planStartDateGE" class="form-control search-param ">
 

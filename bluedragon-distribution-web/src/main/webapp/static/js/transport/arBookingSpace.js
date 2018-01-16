@@ -538,6 +538,8 @@ function initImportExcel(){
                 var code = data.code;
                 if(code == '200'){
                     alert("导入成功！");
+                    $('#improt_modal').modal('hide');
+                    $('#dataTable').bootstrapTable('refresh');
                 }else{
                     alert(data.message);
                 }

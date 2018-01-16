@@ -146,13 +146,12 @@ function editFormValidator(){
 
             },
             priority:{
-                message: '优先级不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                   /* notEmpty: {
+                    },*/
                     stringLength: {
                         max: 20,
-                        message: '20'
+                        message: '优先级长度不能超过20'
                     }
                 }
             },
@@ -206,10 +205,10 @@ function editFormValidator(){
                 }
             },
             supplierName:{
-                message: '供应商名称不能为空',
+                //message: '供应商名称不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                    /*notEmpty: {
+                    },*/
                     stringLength: {
                         max: 50,
                         message: '不得超过50位'
@@ -217,10 +216,10 @@ function editFormValidator(){
                 }
             },
             phone:{
-                message: '联系电话不能为空',
+                //message: '联系电话不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                    /*notEmpty: {
+                    },*/
                     stringLength: {
                         max: 20,
                         message: '不得超过20位'

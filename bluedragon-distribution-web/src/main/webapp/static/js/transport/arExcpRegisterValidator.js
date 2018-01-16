@@ -105,9 +105,10 @@ function editFormValidator(){
                 }
             },
             transportName:{
-                message: '运力名称不能为空',
                 validators: {
-                    notEmpty: {
+                    stringLength: {
+                        max: 50,
+                        message: '不得超过50'
                     }
                 }
             },
@@ -196,10 +197,9 @@ function editFormValidator(){
                 }
             },
             startCityName:{
-                message: '起飞城市不能为空',
+                //message: '起飞城市不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+
                     stringLength: {
                         max: 20,
                         message: '不得超过20位'
@@ -207,10 +207,10 @@ function editFormValidator(){
                 }
             },
             endCityName:{
-                message: '落地城市不能为空',
+                //message: '落地城市不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                    /*notEmpty: {
+                    },*/
                     stringLength: {
                         max: 20,
                         message: '不得超过20位'
@@ -218,24 +218,24 @@ function editFormValidator(){
                 }
             },
             planStartTime:{
-                message: '起飞时间不能为空',
+                //message: '起飞时间不能为空',
                 validators: {
-                    notEmpty: {
-                    }
+                    /*notEmpty: {
+                    }*/
                 }
             },
             planEndTime:{
-                message: '落地时间不能为空',
+                //message: '落地时间不能为空',
                 validators: {
-                    notEmpty: {
-                    }
+                    /*notEmpty: {
+                    }*/
                 }
             },
             sendCode:{
-                message: '发货批次号不能为空',
+                //message: '发货批次号不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                    /*notEmpty: {
+                    },*/
                     stringLength: {
                         max: 50,
                         message: '不得超过50位'
@@ -243,10 +243,10 @@ function editFormValidator(){
                 }
             },
             excpNum:{
-                message: '异常件数不能为空',
+                //message: '异常件数不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                    /*notEmpty: {
+                    },*/
                     digits: {
                         message: '该值只能包含数字'
                     },
@@ -257,10 +257,10 @@ function editFormValidator(){
                 }
             },
             excpPackageNum:{
-                message: '异常包裹数不能为空',
+                //message: '异常包裹数不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                    /*notEmpty: {
+                    },*/
                     digits: {
                         message: '该值只能包含数字'
                     },
@@ -271,10 +271,10 @@ function editFormValidator(){
                 }
             },
             operatorErp:{
-                message: '现场操作人不能为空',
+                //message: '现场操作人不能为空',
                 validators: {
-                    notEmpty: {
-                    },
+                   /* notEmpty: {
+                    },*/
                     stringLength: {
                         max: 50,
                         message: '不得超过50位'
