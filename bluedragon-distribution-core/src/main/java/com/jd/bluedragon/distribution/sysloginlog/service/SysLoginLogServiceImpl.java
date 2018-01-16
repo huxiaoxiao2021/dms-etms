@@ -72,6 +72,12 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
         return sysLoginLog;
     }
 
+    /**
+     * 判断是否匹配
+     * @param versionCode
+     * @param clientInfo
+     * @return
+     */
     private Integer getMatchFlag(String versionCode,ClientInfo clientInfo){
         List<ClientInfo.FileVersion> files = clientInfo.getFiles();
         if(StringUtils.isBlank(versionCode) || files == null || files.size() == 0){
@@ -87,14 +93,23 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
                 break;
             }
         }
-
+        if(fileVersionCode != null){
+            String fileVersion = "";
+            String[] fields = fileVersionCode.split("\\.");
+            for(String temp : fields){
+                if(temp.length() == 1){
+                    temp = "0"+temp;
+                }
+                fileVersion = fileVersion + temp;
+            }
+            fileVersionCode = fileVersion;
+        }
         if(fileVersionCode == null){
             matchFlag = ERROR_MATCHFLAG;
-        }else if(matchFlag.equals(DEFAULT_MATCHFLAG) && !fileVersionCode.equals(versionCode)){
+        }else if(matchFlag.equals(DEFAULT_MATCHFLAG) && !versionCode.contains(fileVersionCode)){
             matchFlag = ERROR_MATCHFLAG;
         }
 
         return matchFlag;
     }
-
 }
