@@ -109,6 +109,8 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			if(arSendRegister != null){
 				arReceive.setSendRegisterId(arSendRegister.getId());
 				taskContext.setData(KEY_DATA_AR_SEND_REGISTER, arSendRegister);
+				arSendRegister.setStatus(2);
+				arSendRegisterService.saveOrUpdate(arSendRegister);
 			}
 		}
 		super.saveReceive(taskContext);
