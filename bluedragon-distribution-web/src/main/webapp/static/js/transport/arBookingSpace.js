@@ -83,7 +83,9 @@ $(function() {
             class:'min_120'
         }, {
             field : 'createSiteName',
-            title : '分拣中心名称'
+            title : '分拣中心名称',
+            width:180,
+            class:'min_180'
         }, {
             field : 'transportName',
             title : '运力名称'
@@ -139,7 +141,9 @@ $(function() {
             title : '联系电话'
         } , {
             field : 'remark',
-            title : '备注'
+            title : '备注',
+            width:180,
+            class:'min_180'
         } , {
             field : 'operateTime',
             title : '操作时间',
@@ -207,6 +211,13 @@ $(function() {
                     alert("请选择一条数据");
                     return;
                 }
+                $('.edit-param').each(function () {
+                    var _k = this.id;
+                    if(_k){
+                        $(this).val('');
+                    }
+                });
+                $("#edit-form").data("bootstrapValidator").resetForm();
                 $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
                     if(res&&res.succeed&&res.data){
                         $('.edit-param').each(function () {

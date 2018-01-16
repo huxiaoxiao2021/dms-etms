@@ -129,6 +129,9 @@ $(function() {
         } , {
             field : 'excpCity',
             title : '发现异常城市'
+        }  , {
+            field : 'sendCode',
+            title : '发货批次号'
         } , {
             field : 'excpNum',
             title : '异常件数'
@@ -140,7 +143,9 @@ $(function() {
             title : '现场操作人'
         } , {
             field : 'remark',
-            title : '备注'
+            title : '备注',
+            width:180,
+            class:'min_180'
         } ];
         oTableInit.refresh = function() {
             $('#dataTable').bootstrapTable('refresh');
@@ -197,6 +202,13 @@ $(function() {
                     alert("请选择一条数据");
                     return;
                 }
+                $('.edit-param').each(function () {
+                    var _k = this.id;
+                    if(_k){
+                        $(this).val('');
+                    }
+                });
+                $("#edit-form").data("bootstrapValidator").resetForm();
                 $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
                     if(res&&res.succeed&&res.data){
                         $('.edit-param').each(function () {

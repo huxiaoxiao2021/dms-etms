@@ -149,7 +149,7 @@
                         <div class="form-group">
                             <label class="col-lg-3 control-label">运力名称 ：</label>
                             <div class="col-lg-9">
-                                <input type="text" class="form-control edit-param" id="transportName" name="transportName"/>
+                                <input type="text" class="form-control edit-param" id="transportName" name="transportName" placeholder="航班号/车次号"/>
 
                             </div>
                         </div>

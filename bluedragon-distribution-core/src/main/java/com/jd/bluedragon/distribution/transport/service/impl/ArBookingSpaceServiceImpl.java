@@ -118,7 +118,7 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 			//操作时间
 			body.add(DateHelper.formatDate(arbs.getOperateTime(), Constants.DATE_TIME_FORMAT));
 			//操作人
-			body.add(arbs.getRemark());
+			body.add(arbs.getOperatorErp());
 			//分拣名称
 			body.add(arbs.getCreateSiteName());
 
@@ -174,7 +174,7 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 
 			bufferList.add(arBookingSpace);
 
-			if(bufferList.size()==100){
+			if(bufferList.size()==10){
 				if(this.getDao().batchInsert(bufferList)){
 					bufferList.clear();
 				}else{

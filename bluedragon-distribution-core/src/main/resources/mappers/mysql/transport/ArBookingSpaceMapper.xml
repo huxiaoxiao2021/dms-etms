@@ -591,10 +591,17 @@
             <if test="remark != null">
                 remark = #{remark,jdbcType=VARCHAR},
             </if>
+            <if test="operatorErp != null">
+                operator_erp = #{operatorErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorName != null">
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
 
             <if test="updateUser != null">
                 update_user = #{updateUser,jdbcType=VARCHAR},
             </if>
+
             operate_time = now(),
             update_time = now(),
             ts = now()
