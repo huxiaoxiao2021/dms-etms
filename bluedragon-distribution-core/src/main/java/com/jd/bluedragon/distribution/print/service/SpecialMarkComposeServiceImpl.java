@@ -96,7 +96,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_SITE);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
-        
+
+        //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
+        if(waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
+            waybill.setTransportMode("");
+        }
+
         //“半”与“航”互斥，且“航”字为大
         waybill.dealConflictSpecialMark(SPECIAL_MARK_AIRTRANSPORT, ALLOW_HALF_ACCEPT);
         //处理标记冲突，安和众
