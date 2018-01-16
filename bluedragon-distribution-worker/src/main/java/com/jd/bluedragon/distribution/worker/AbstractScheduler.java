@@ -24,7 +24,7 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
     /**
      * 任务开关，默认开启
      */
-    protected boolean open = false;
+    protected boolean open = true;
     protected DataSource dataSource;
     protected String taskType;
     protected String ownSign;
