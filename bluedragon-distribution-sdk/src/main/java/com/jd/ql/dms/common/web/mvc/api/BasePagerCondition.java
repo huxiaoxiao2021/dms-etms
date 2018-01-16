@@ -1,6 +1,5 @@
 package com.jd.ql.dms.common.web.mvc.api;
 
-import java.io.Serializable;
 
 /**
  * 

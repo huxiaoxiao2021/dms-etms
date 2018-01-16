@@ -111,6 +111,9 @@
 
     <sql id="Base_Condition_Sql">
 			and is_delete = 0
+		<if test="sendCode != null">
+			and send_code = #{sendCode,jdbcType=VARCHAR}
+		</if>
 	</sql>
 
     <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
