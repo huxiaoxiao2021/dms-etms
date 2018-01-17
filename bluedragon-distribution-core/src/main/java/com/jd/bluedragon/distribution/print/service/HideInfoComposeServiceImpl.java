@@ -18,8 +18,6 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
     private static final String  SMILE = "^_^";           //微笑符号
     private static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
-    private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
-
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode){
         String waybillSign  = waybill.getWaybillSign();
@@ -37,6 +35,8 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         char consignerInfoHideType = waybillSign.charAt(46);
         consignerInfoHide(consignerInfoHideType,waybill);
     }
+
+    private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
 
     /**
@@ -138,7 +138,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
      */
     private void hideConsignerName(PrintWaybill waybill){
         String consignerName = waybill.getConsigner();
-        if(StringUtils.isNotBlank(consignerName)&& consignerName.length()>1){
+        if(StringUtils.isNotBlank(consignerName)){
             waybill.setConsigner(consignerName.substring(0,1) + SMILE);
         }
     }
@@ -152,12 +152,12 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
     private void hideConsignerTel(PrintWaybill waybill){
         String consignerTel = waybill.getConsignerTel();
         String consignerMobile = waybill.getConsignerMobile();
-        //进行隐藏要求tel/mobile至少有7位，<=7位则不隐藏
+        //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
         int phoneLeastLength = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;
         if(StringUtils.isNotBlank(consignerTel)){
             consignerTel = consignerTel.replaceAll("\\s*", "");
         }
-        if(consignerTel.length() > phoneLeastLength ){
+        if(consignerTel.length() >= phoneLeastLength ){
             waybill.setConsignerTel(consignerTel.substring(0,PHONE_FIRST_NUMBER) + SMILE +
                     consignerTel.substring(consignerTel.length() - PHONE_HIGHLIGHT_NUMBER));
         }else{
@@ -167,7 +167,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         if(StringUtils.isNotBlank(consignerMobile)){
             consignerMobile = consignerMobile.replaceAll("\\s*", "");
         }
-        if(consignerMobile.length() > phoneLeastLength ){
+        if(consignerMobile.length() >= phoneLeastLength ){
             waybill.setConsignerMobile(consignerMobile.substring(0,PHONE_FIRST_NUMBER) + SMILE +
                     consignerMobile.substring(consignerMobile.length() - PHONE_HIGHLIGHT_NUMBER));
         }else{
@@ -184,7 +184,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
      */
     private void hideConsignerAddress(PrintWaybill waybill){
         String consignerAddress = waybill.getConsignerAddress();
-        if(StringUtils.isNotBlank(consignerAddress) && consignerAddress.length() > ADDRESS_SHOW_LENGTH){
+        if(StringUtils.isNotBlank(consignerAddress) && consignerAddress.length() >= ADDRESS_SHOW_LENGTH){
             waybill.setConsignerAddress(consignerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
         }
     }
@@ -195,9 +195,11 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
      */
     private void hideCustomerName(PrintWaybill waybill){
         String customerName = waybill.getCustomerName();
-        if(StringUtils.isNotBlank(customerName) && customerName.length()>1){
+        if(StringUtils.isNotBlank(customerName)){
             customerName = customerName.trim().substring(0, 1) + SMILE;
             waybill.setCustomerName(customerName);
+        }else{
+            waybill.setCustomerName(SMILE);
         }
     }
     /**
@@ -225,24 +227,26 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         //国内：普通城市座机、4位数区号+7位数座机电话号码=11位
         //国内：一线城市座机：3位数区号+8位数座机电话号码=11位
         //国内：手机 11位
-        //电话大于7位，则显示为：前3位+^_^+后4位。
+        //电话大于等于7位，则显示为：前3位+^_^+后4位。
         if(StringUtils.isNotBlank(firstMobile)){
-            if(firstMobile.length() > PHONE_FIRST_NUMBER){
+            if(firstMobile.length() >= PHONE_FIRST_NUMBER){
                 customerContacts.append(firstMobile.substring(0, PHONE_FIRST_NUMBER) + SMILE + lastMobile);
                 waybill.setMobileFirst(firstMobile.substring(0, PHONE_FIRST_NUMBER) + SMILE );
             }else{
-                customerContacts.append(firstMobile + lastMobile);
+                customerContacts.append(firstMobile + SMILE + lastMobile);
+                waybill.setMobileFirst(firstMobile + SMILE);
             }
         }
         if(StringUtils.isNotBlank(firstTel)){
             if(customerContacts.length() > 0){
                 customerContacts.append(",");
             }
-            if(firstTel.length() > PHONE_FIRST_NUMBER){
+            if(firstTel.length() >= PHONE_FIRST_NUMBER){
                 customerContacts.append(firstTel.substring(0, PHONE_FIRST_NUMBER) + SMILE + lastTel);
                 waybill.setTelFirst(firstTel.substring(0, PHONE_FIRST_NUMBER) + SMILE);
             }else{
-                customerContacts.append(firstTel + lastTel);
+                customerContacts.append(firstTel + SMILE + lastTel);
+                waybill.setTelFirst(firstTel + SMILE);
             }
         }
         if(customerContacts.length() > 0){
@@ -258,7 +262,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
      */
     private void hideCustomerAddress(PrintWaybill waybill){
         String cusomerAddress = waybill.getPrintAddress();
-        if(StringUtils.isNotBlank(cusomerAddress) && cusomerAddress.length() > ADDRESS_SHOW_LENGTH){
+        if(StringUtils.isNotBlank(cusomerAddress) && cusomerAddress.length() >= ADDRESS_SHOW_LENGTH){
             waybill.setPrintAddress(cusomerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
         }
     }
