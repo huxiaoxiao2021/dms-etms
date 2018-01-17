@@ -488,7 +488,15 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
-
+            /**
+             * 全程跟踪-空铁提货
+             */
+            if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_RECEIVE))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
