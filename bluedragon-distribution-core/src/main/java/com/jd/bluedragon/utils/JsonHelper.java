@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.type.JavaType;
@@ -91,6 +92,8 @@ public class JsonHelper {
     
     public static <T> T jsonToArray(String json, Class<T> responseType) {
         try {
+            //设置Jackson反序列化未知字段忽略 不报错
+            mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
             JsonHelper.logger.error("Jackson反序列化JSON发生异常，将使用GSON重试");
