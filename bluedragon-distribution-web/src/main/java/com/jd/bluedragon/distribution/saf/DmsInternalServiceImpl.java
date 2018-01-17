@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -248,7 +249,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             logger.info("login param " + userName);
         }
         try{
-            BaseRequest request = new BaseRequest();
+            LoginRequest request = new LoginRequest();
             request.setErpAccount(userName);
             request.setPassword(passwd);
             return baseResource.login(request);

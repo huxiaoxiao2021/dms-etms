@@ -20,6 +20,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,6 +90,9 @@ public class DeliveryResource {
 
     @Autowired
     private SendQueryService sendQueryService;
+
+    @Autowired
+    private ScannerFrameBatchSendService scannerFrameBatchSendService;
     
     private static final Integer KY_DELIVERY = 1; //快运发货标识
 
@@ -639,6 +646,29 @@ public class DeliveryResource {
 
     }
     
+    /**
+     * 手动获取设备对应的批次号
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/delivery/handAchieveSendCode")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
+    public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
+        this.logger.info("手动获取设备对应的批次号");
+        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getAndGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
+        
+        if (scannerFrameBatchSend != null) {
+        	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        	response.setSendCode(scannerFrameBatchSend.getSendCode());
+            return response;
+        } else {
+            return new ScannerFrameBatchSendResponse(JdResponse.CODE_INTERNAL_ERROR,
+                    "未查询到对应的批次号sendCode，请确认！");
+        }
+    }
+
     private SendM toSendDatail(DeliveryRequest deliveryRequest) {
         SendM sendM = new SendM();
         if (deliveryRequest != null) {

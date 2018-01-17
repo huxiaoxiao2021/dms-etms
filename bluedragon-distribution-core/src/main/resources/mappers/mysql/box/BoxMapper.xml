@@ -104,6 +104,17 @@
         width = #{width,jdbcType=NUMERIC},
         height = #{height,jdbcType=NUMERIC},
         update_time = NOW()
-        WHERE box_code = #{code}
+        WHERE box_code = #{code,jdbcType=VARCHAR}
     </update>
+
+	<!--根据boxCode 更新create_site_name，receive_site_name 用于还原因jproxy故障造成的箱号站点乱码 add by luyue-->
+	<update id="updateMessySiteNameByBoxCode"  parameterType="box" >
+		UPDATE Box
+		SET
+			create_site_name = #{createSiteName,jdbcType=VARCHAR},
+			receive_site_name = #{receiveSiteName,jdbcType=VARCHAR}
+		WHERE
+			box_code = #{code,jdbcType=VARCHAR}
+	</update>
+
 </mapper>
