@@ -18,6 +18,8 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
     private static final String  SMILE = "^_^";           //微笑符号
     private static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
+    private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
+
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode){
         String waybillSign  = waybill.getWaybillSign();
@@ -36,7 +38,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         consignerInfoHide(consignerInfoHideType,waybill);
     }
 
-    private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
+
 
 
     /**
@@ -198,8 +200,6 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         if(StringUtils.isNotBlank(customerName)){
             customerName = customerName.trim().substring(0, 1) + SMILE;
             waybill.setCustomerName(customerName);
-        }else{
-            waybill.setCustomerName(SMILE);
         }
     }
     /**
@@ -261,9 +261,9 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
      * @param waybill
      */
     private void hideCustomerAddress(PrintWaybill waybill){
-        String cusomerAddress = waybill.getPrintAddress();
-        if(StringUtils.isNotBlank(cusomerAddress) && cusomerAddress.length() >= ADDRESS_SHOW_LENGTH){
-            waybill.setPrintAddress(cusomerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
+        String customerAddress = waybill.getPrintAddress();
+        if(StringUtils.isNotBlank(customerAddress) && customerAddress.length() >= ADDRESS_SHOW_LENGTH){
+            waybill.setPrintAddress(customerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
         }
     }
 
