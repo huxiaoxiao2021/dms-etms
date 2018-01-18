@@ -84,9 +84,9 @@ public class NewSealVehicleResource {
      * 检查运力编码和批次号目的地是否一致
      */
     @GET
-    @Path("/new/vehicle/seal/check/{sealCarType}/{transportCode}/{batchCode}")
+    @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
     public NewSealVehicleResponse checkTranCodeAndBatchCode(
-            @PathParam("sealCarType")String sealCarType,@PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode) {
+            @PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode,@PathParam("sealCarType")String sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             //1.检查批次号
