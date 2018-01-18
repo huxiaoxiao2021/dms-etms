@@ -11,8 +11,10 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,7 +30,6 @@ import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -137,4 +138,55 @@ public class SiteResource {
     }
 
 
+
+	@GET
+	@GZIP
+	@Path("/site/getSitesBySendCode/{sendCode}")
+	public InvokeResult<CreateAndReceiveSiteInfo> getsitesInfoBySendCode(@PathParam("sendCode") String sendCode){
+		InvokeResult<CreateAndReceiveSiteInfo> result = new InvokeResult<CreateAndReceiveSiteInfo>();
+
+		//验证sendCode
+		if(StringHelper.isEmpty(sendCode)){
+			logger.error("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
+			result.error("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
+			return result;
+		}
+		try{
+			//解析批次号，获取始发分拣中心id和目的分拣中心id，0是始发，1是目的
+			Integer[] siteCodes = this.siteService.getSiteCodeBySendCode(sendCode);
+			if (siteCodes[0] == -1 || siteCodes[1] == -1) {
+				logger.error("根据批次号获取始发和目的分拣信息失败，批次号:" + sendCode + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
+				result.error("根据批次号获取始发和目的分拣信息失败，批次号：" + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
+				return result;
+			}
+
+			//根据站点id获取站点信息，并将始发站点信息和目的站点信息映射到CreateAndReceiveSiteInfo对象中
+			CreateAndReceiveSiteInfo createAndReceiveSite = new CreateAndReceiveSiteInfo();
+			BaseStaffSiteOrgDto createSite = siteService.getSite(siteCodes[0]);
+			BaseStaffSiteOrgDto receiveSite = siteService.getSite(siteCodes[1]);
+
+			//始发站点信息的映射
+			if(createSite != null){
+				createAndReceiveSite.setCreateSiteCode(createSite.getSiteCode());
+				createAndReceiveSite.setCreateSiteName(createSite.getSiteName());
+				createAndReceiveSite.setCreateSiteType(createSite.getSiteType());
+				createAndReceiveSite.setCreateSiteSubType(createSite.getSubType());
+			}
+
+			//目的站点信息的映射
+			if(receiveSite != null){
+				createAndReceiveSite.setReceiveSiteCode(receiveSite.getSiteCode());
+				createAndReceiveSite.setReceiveSiteName(receiveSite.getSiteName());
+				createAndReceiveSite.setReceiveSiteType(receiveSite.getSiteType());
+				createAndReceiveSite.setReceiveSiteSubType(receiveSite.getSubType());
+			}
+
+			result.setData(createAndReceiveSite);
+		}catch (Exception e){
+			logger.error("根据批次号获取始发和目的分拣信息失败，批次号：" + sendCode);
+			result.error("根据批次号获取始发和目的分拣信息出现异常，请联系孔春飞");
+		}
+
+		return result;
+	}
 }
