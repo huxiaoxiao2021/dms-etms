@@ -80,19 +80,29 @@ public class NewSealVehicleResource {
         }
         return sealVehicleResponse;
     }
+
+    /**
+     * 检查运力编码和批次号目的地是否一致
+     */
+    @GET
+    @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}")
+    public NewSealVehicleResponse checkTranCodeAndBatchCode(
+            @PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode) {
+        return newCheckTranCodeAndBatchCode(transportCode, batchCode, Constants.SEAL_TYPE_TRANSPORT);
+    }
     /**
      * 检查运力编码和批次号目的地是否一致
      */
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
-    public NewSealVehicleResponse checkTranCodeAndBatchCode(
-            @PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode,@PathParam("sealCarType")String sealCarType) {
+    public NewSealVehicleResponse newCheckTranCodeAndBatchCode(
+            @PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode,@PathParam("sealCarType")Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             //1.检查批次号
             checkBatchCode(sealVehicleResponse, batchCode);
             //批次号校验通过,且是按运力编码封车，需要校验目的地是否一致
-            if(Constants.SEAL_TYPE_TRANSPORT.equals(Integer.valueOf(sealCarType))  && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())){
+            if(Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType)  && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())){
                 //2.获取运力信息并检查目的站点
                 com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto  = newsealVehicleService.getTransportResourceByTransCode(transportCode);
                 if(vtsDto == null){    //JSF接口返回空
