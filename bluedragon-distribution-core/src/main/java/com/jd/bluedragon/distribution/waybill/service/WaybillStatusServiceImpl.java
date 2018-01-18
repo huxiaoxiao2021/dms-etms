@@ -489,6 +489,17 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				task.setYn(0);
 			}
 
+			/**
+			 * 提交POP打印数据 回传全程跟踪
+			 */
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_POP_PRINT))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+
+				task.setYn(0); //设置他的原因是 不去调用 waybillSyncApi.batchUpdateStateByCode 这个方法
+			}
+
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this

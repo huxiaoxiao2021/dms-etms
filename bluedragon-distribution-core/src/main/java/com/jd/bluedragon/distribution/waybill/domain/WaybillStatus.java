@@ -94,6 +94,11 @@ public class WaybillStatus {
 	public static final Integer WAYBILL_TRACK_CANCLE_LOADBILL = 2222;
 	public static final String WAYBILL_TRACK_CANCLE_LOADBILLMSG = "取消预装载全程跟踪";
 
+    /**
+     * POP打印
+     */
+    public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
+
     private Long id;
 
     private String sendCode;
