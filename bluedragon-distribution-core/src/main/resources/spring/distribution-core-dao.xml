@@ -256,6 +256,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="sysLoginLogDao" class="com.jd.bluedragon.distribution.sysloginlog.dao.SysLoginLogDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <bean id="crossSortingDao" class="com.jd.bluedragon.distribution.cross.dao.CrossSortingDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>

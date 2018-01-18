@@ -42,4 +42,9 @@ public class BoxDao extends BaseDao<Box> {
         return super.getSqlSession().update(BoxDao.namespace + ".batchUpdateStatus", box);
     }
 
+    /*根据boxCode 更新create_site_name，receive_site_name 用于还原因jproxy故障造成的箱号站点乱码 add by luyue*/
+    public int updateMessySiteNameByBoxCode(Box box){
+        return super.getSqlSession().update(BoxDao.namespace + ".updateMessySiteNameByBoxCode", box);
+    }
+
 }
