@@ -1,26 +1,32 @@
 package com.jd.bluedragon.distribution.rest.transport;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
+import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  * Created by xumei3 on 2017/12/29.
@@ -37,6 +43,10 @@ public class ArReceiveResource {
 
     @Autowired
     private BaseService baseService;
+    
+    @Autowired
+    private ArReceiveService arReceiveService;
+    
 
     /**
      * 空铁项目查找24小时内的待提货信息
@@ -119,5 +129,24 @@ public class ArReceiveResource {
             logger.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteCode=" + siteCode, e);
         }
         return cityId;
+    }
+    /**
+     * 空铁提货-根据扫描包裹号/箱号获取空铁登记信息
+     * @param barcode
+     * @return
+     */
+    @POST
+    @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
+    public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
+    	JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
+    	if(StringHelper.isEmpty(barcode)){
+    		rest.toFail("包裹号或箱号不能为空！");
+    		return rest;
+    	}
+    	ArSendCode arSendCode = arReceiveService.getLastArSendCodeByBarcode(barcode);
+    	if(arSendCode!=null){
+    		rest.setData(arSendRegisterService.findById(arSendCode.getSendRegisterId()));
+    	}
+    	return rest;
     }
 }

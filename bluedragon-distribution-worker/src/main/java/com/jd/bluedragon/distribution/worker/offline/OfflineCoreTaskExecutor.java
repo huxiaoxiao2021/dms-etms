@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskContext;
+import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -70,6 +71,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     
 	@Resource(name = "offlineArReceiveService")
 	private OfflineService offlineArReceiveService;
+    @Autowired
+    private ArSendRegisterService arSendRegisterService;
 	@Override
 	public Task parse(Task task, String ownSign) {
 		return task;
@@ -85,6 +88,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
+            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
+                result = arSendRegisterService.executeOfflineTask(body);
             }else{
                 result = offlineCore(body);
             }

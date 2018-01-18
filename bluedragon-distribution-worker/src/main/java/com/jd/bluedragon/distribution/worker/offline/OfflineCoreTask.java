@@ -37,6 +37,7 @@ import com.jd.fastjson.JSONObject;
  * 
  *             离线
  */
+@Deprecated
 public class OfflineCoreTask extends DBSingleScheduler {
 
 	private final Log logger = LogFactory.getLog(this.getClass());

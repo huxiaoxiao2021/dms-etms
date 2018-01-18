@@ -15,16 +15,18 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.fastjson.JSONArray;
 import com.jd.fastjson.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+@Deprecated
 public class OfflineCoreRedisTask extends RedisSingleScheduler {
 
     private final Log logger = LogFactory.getLog(this.getClass());
