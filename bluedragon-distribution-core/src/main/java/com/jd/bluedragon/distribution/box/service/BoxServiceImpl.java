@@ -196,6 +196,7 @@ public class BoxServiceImpl implements BoxService {
 					//如果箱号 目的地 始发地不为空的时候
 					if (box.getCode() != null && box.getCreateSiteCode() != null
 							&& box.getReceiveSiteCode() != null) {
+						this.logger.info("通过redis缓存获取箱号信息成功(userRedisQueryBox),箱号信息为："+JsonHelper.toJson(box));
 						return box;
 					}
 				} else {
@@ -210,7 +211,12 @@ public class BoxServiceImpl implements BoxService {
 			this.logger.error("findBoxByCode获取缓存箱号失败，箱号为" + code, e);
 		}
 
-		return this.boxDao.findBoxByCode(code);
+		Box box = this.boxDao.findBoxByCode(code);
+		if(box != null){
+			this.logger.info("通过数据库获取箱号信息成功(userMysqlQueryBox),箱号信息为："+JsonHelper.toJson(box));
+		}
+
+		return box;
 	}
 
     public Box findBoxByBoxCode(Box box) {

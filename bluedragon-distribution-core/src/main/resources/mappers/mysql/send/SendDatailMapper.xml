@@ -773,5 +773,37 @@
 		FROM  send_d
 		WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR} AND create_site_code = #{createSiteCode,jdbcType=INTEGER} AND is_cancel = 0
 	</select>
-
+	<select id="queryListByCondition" parameterType="SendDetail"
+		resultMap="SendDetail">
+		SELECT *
+			FROM send_d
+		WHERE 1=1 
+		<if test="sendDId != null">
+			and send_d_id = #{sendDId}
+		</if>
+		<if test="sendCode != null">
+			and send_code = #{sendCode}
+		</if>
+		<if test="boxCode != null">
+			and box_code = #{boxCode}
+		</if>
+		<if test="packageBarcode != null">
+			and package_barcode = #{packageBarcode}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode}
+		</if>				
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode}
+		</if>	
+		<if test="receiveSiteCode != null">
+			and receive_site_code = #{receiveSiteCode}
+		</if>
+		<if test="sendType != null">
+			and send_type = #{sendType}
+		</if>		
+		<if test="yn != null">
+			and yn = #{yn}
+		</if>		
+	</select>
 </mapper>

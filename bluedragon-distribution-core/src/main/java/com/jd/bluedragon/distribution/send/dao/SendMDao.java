@@ -174,5 +174,12 @@ public  class SendMDao extends BaseDao<SendM>  {
         return	this.getSqlSession().selectList(
                 SendMDao.namespace + ".selectBoxCodeBySendCodeAndCreateSiteCode", sendM);
     }
-    
+    /**
+     * 按条件查询sendM明细数据
+     * @param sendM
+     * @return
+     */
+	public List<SendM> queryListByCondition(SendM sendM) {
+		return getSqlSession().selectList(SendMDao.namespace + ".queryListByCondition", sendM);
+	}    
 }

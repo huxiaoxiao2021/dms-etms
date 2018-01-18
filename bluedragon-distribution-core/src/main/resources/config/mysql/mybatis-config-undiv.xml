@@ -186,6 +186,7 @@
         <mapper resource="mappers/mysql/send/SendQueryMapper.xml"/>
 
         <mapper resource="mappers/mysql/systemLog/SystemLogMapper.xml"/>
+        <mapper resource="mappers/mysql/loginlog/SysLoginLogMapper.xml"/>
 
         <mapper resource="mappers/mysql/crossSorting/CrossSortingMapper.xml"/>
         <mapper resource="mappers/mysql/globaltrade/LoadBillMapper.xml"/>
