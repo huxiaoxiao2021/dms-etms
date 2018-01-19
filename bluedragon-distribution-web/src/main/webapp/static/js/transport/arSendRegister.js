@@ -426,6 +426,7 @@ $(function () {
             });
 
             $('#btn_query').click(function () {
+                $("#dataTable").bootstrapTable('destroy');
                 tableInit().refresh();
             });
 

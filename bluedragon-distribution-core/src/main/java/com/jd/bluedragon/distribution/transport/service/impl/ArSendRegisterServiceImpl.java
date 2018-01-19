@@ -25,6 +25,7 @@ import com.jd.tms.basic.dto.BasicAirFlightDto;
 import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
+import com.jd.tms.basic.ws.BasicSyncWS;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,6 +60,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     private BasicQueryWS basicQueryWS;
 
     @Autowired
+    private BasicSyncWS basicSyncWS;
+
+    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -82,9 +86,21 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Override
     public boolean insert(ArSendRegister arSendRegister, String[] sendCodes) {
         if (this.getDao().insert(arSendRegister)) {
-            this.sendTrack(arSendRegister, sendCodes);
             if (sendCodes != null && sendCodes.length > 0) {
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
+                    // 推送全程跟踪
+                    this.sendTrack(arSendRegister, sendCodes);
+                    // 调用TMS BASIC订阅实时航班JSF接口
+                    try {
+                        CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
+                        if (commonDto != null) {
+                            if (commonDto.getCode() != 1) {
+                                logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：" + commonDto.getCode() + "][消息：" + commonDto.getMessage() + "]！");
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口异常！", e);
+                    }
                     return true;
                 }
             } else {
@@ -314,7 +330,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setOperationDept(pdaSendRegister.getSiteName());
         sendRegister.setOperationDeptCode(pdaSendRegister.getSiteCode());
         sendRegister.setSendDate(pdaSendRegister.getOperateTime());
-        sendRegister.setOperationTime(new Date());
+
+        sendRegister.setOperationTime(pdaSendRegister.getOperateTime());
         sendRegister.setCreateUser(pdaSendRegister.getSendUserCode());
         return sendRegister;
     }
