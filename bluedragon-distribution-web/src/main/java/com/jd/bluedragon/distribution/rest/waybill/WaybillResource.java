@@ -879,7 +879,7 @@ public class WaybillResource {
 		 失败{"code":401,"message":"*****"}
 	 */
 	@GET
-	@Path("/bmerchant/queryPackcode/{waybillCode}")
+	@Path("/waybill/queryPackcode/{waybillCode}")
 	public Map<String,Object> queryPackcode(@PathParam("waybillCode") String waybillCode){
 
 		Map<String,Object> resp = new HashMap<String, Object>();
@@ -889,7 +889,7 @@ public class WaybillResource {
 
 		}catch (Exception e){
 
-			logger.error("/bmerchant/queryPackcode  waybillCode="+waybillCode+" | "+e.getMessage());
+			logger.error("/waybill/queryPackcode  waybillCode="+waybillCode+" | "+e.getMessage());
 
 			resp.put("code",400);
 			resp.put("message","ERROR");
@@ -910,7 +910,7 @@ public class WaybillResource {
 	 * @return
 	 */
 	@POST
-	@Path("/package/addPackState")
+	@Path("/waybill/addPackState")
 	public Map<String,Object> addPackState(PopAddPackStateRequest req){
 
 		Map<String,Object> resp = new HashMap<String, Object>();
@@ -951,7 +951,7 @@ public class WaybillResource {
 
 		}catch (Exception e){
 
-			logger.error("/package/addPackState  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
+			logger.error("/waybill/addPackState  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
 
 			resp.put("code",400);
 			resp.put("message","ERROR");
@@ -979,52 +979,62 @@ public class WaybillResource {
 		失败{"code":401,"message":"ERROR","data":false}或{"code":400,"message":"ERROR","data":false}
 	 */
 	@POST
-	@Path("/bmerchant/editWeight")
+	@Path("/waybill/editWeight")
 	public Map<String,Object> editWeight(List<EditWeightRequest> req){
 		Map<String,Object> resp = new HashMap<String, Object>();
 		//模拟离线称重 TASK
-		if(req!=null && req.size()>0){
-			for(EditWeightRequest editWeightRequest : req){
+		try{
 
-				TaskRequest taskRequest = new TaskRequest();
-				taskRequest.setType(Task.TASK_TYPE_WEIGHT);
-				taskRequest.setKeyword1(editWeightRequest.getWaybillCode());
-				taskRequest.setKeyword2("批量称重操作");
-				taskRequest.setSiteCode(editWeightRequest.getOperatorSiteId());
+			if(req!=null && req.size()>0){
+				for(EditWeightRequest editWeightRequest : req){
 
-				List<PackOpeDto> packOpeDtoList = new ArrayList<PackOpeDto>();
-				PackOpeDto packOpeDto = new PackOpeDto();
-				packOpeDtoList.add(packOpeDto);
-				packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
-				packOpeDto.setOpeType(1);
-				List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
-				PackOpeDetail packOpeDetail = new PackOpeDetail();
-				packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
-				packOpeDetail.setpWeight(editWeightRequest.getAgainWeight());
-				packOpeDetail.setOpeUserId(editWeightRequest.getOperatorUserId());
-				packOpeDetail.setOpeUserName(editWeightRequest.getOperatorUser());
-				packOpeDetail.setOpeSiteId(editWeightRequest.getOperatorSiteId());
-				packOpeDetail.setOpeSiteName(editWeightRequest.getOperatorSite());
-				packOpeDetail.setOpeTime(DateHelper.formatDateTime(new Date()));
-				packOpeDetailList.add(packOpeDetail);
-				packOpeDto.setOpeDetails(packOpeDetailList);
+					TaskRequest taskRequest = new TaskRequest();
+					taskRequest.setType(Task.TASK_TYPE_WEIGHT);
+					taskRequest.setKeyword1(editWeightRequest.getWaybillCode());
+					taskRequest.setKeyword2("批量称重操作");
+					taskRequest.setSiteCode(editWeightRequest.getOperatorSiteId());
 
-				//转换JSON 存入body
-				String body = JsonHelper.toJson(packOpeDtoList);
-				taskRequest.setBody(body);
+					List<PackOpeDto> packOpeDtoList = new ArrayList<PackOpeDto>();
+					PackOpeDto packOpeDto = new PackOpeDto();
+					packOpeDtoList.add(packOpeDto);
+					packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
+					packOpeDto.setOpeType(1);
+					List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
+					PackOpeDetail packOpeDetail = new PackOpeDetail();
+					packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
+					packOpeDetail.setpWeight(editWeightRequest.getAgainWeight());
+					packOpeDetail.setOpeUserId(editWeightRequest.getOperatorUserId());
+					packOpeDetail.setOpeUserName(editWeightRequest.getOperatorUser());
+					packOpeDetail.setOpeSiteId(editWeightRequest.getOperatorSiteId());
+					packOpeDetail.setOpeSiteName(editWeightRequest.getOperatorSite());
+					packOpeDetail.setOpeTime(DateHelper.formatDateTime(new Date()));
+					packOpeDetailList.add(packOpeDetail);
+					packOpeDto.setOpeDetails(packOpeDetailList);
 
-				taskService.add(this.taskService.toTask(taskRequest, body),true);
+					//转换JSON 存入body
+					String body = JsonHelper.toJson(packOpeDtoList);
+					taskRequest.setBody(body);
 
+					taskService.add(this.taskService.toTask(taskRequest, body),true);
+
+				}
+				resp.put("code",200);
+				resp.put("message","OK");
+				resp.put("data",true);
+			}else{
+				resp.put("code",400);
+				resp.put("message","参数异常");
+				resp.put("data",false);
 			}
-			resp.put("code",200);
-			resp.put("message","OK");
-			resp.put("data",true);
-		}else{
+
+		}catch (Exception e){
+
+			logger.error("/waybill/editWeight  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
+
 			resp.put("code",400);
-			resp.put("message","参数异常");
+			resp.put("message","ERROR");
 			resp.put("data",false);
 		}
-
 
 		return resp;
 	}
