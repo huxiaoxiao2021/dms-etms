@@ -98,6 +98,11 @@ public class WaybillStatus {
      */
 	public static final Integer WAYBILL_TRACK_AR_RECEIVE = 4900;
 
+    /**
+     * 全程跟踪-空铁发货登记
+     */
+    public static final Integer WAYBILL_TRACK_AR_SEND_REGISTER = 4800;
+
     private Long id;
 
     private String sendCode;

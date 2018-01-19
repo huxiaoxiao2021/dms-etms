@@ -148,7 +148,8 @@ $(function() {
             class:'min_180'
         } ];
         oTableInit.refresh = function() {
-            $('#dataTable').bootstrapTable('refresh');
+            $('#dataTable').bootstrapTable('refreshOptions',{pageNumber:1});
+            //$('#dataTable').bootstrapTable('refresh');
         };
         return oTableInit;
     };
@@ -284,8 +285,18 @@ $(function() {
                 $('.edit-param').each(function () {
                     var _k = this.id;
                     var _v = $(this).val();
-                    if(_k && _v){
-                        params[_k]=_v;
+                    if(_k){
+                        //数字类型 如果是空 给0
+                        if(_k == 'excpNum' || _k =='excpPackageNum'){
+                            if(_v){
+                                params[_k]= _v;
+                            }else{
+                                params[_k]= 0;
+                            }
+                        }else{
+                            params[_k]=_v;
+                        }
+
                     }
                 });
                 $.post(saveUrl,params,function(res){
@@ -364,23 +375,16 @@ function initEditPage(){
         elem: '#excpTime',
         theme: '#3f92ea',
         done: function(value, date, endDate){
-            resetFieldValidator("excpTime");
+            resetFieldValidator(value,"excpTime");
         }
     });
-    $.datePicker.createNew({
-        elem: '#bookingSpaceTime',
-        theme: '#3f92ea',
-        done: function(value, date, endDate){
-            resetFieldValidator("bookingSpaceTime");
 
-        }
-    });
     $.datePicker.createNew({
         elem: '#planStartTime',
         theme: '#3f92ea',
         type: 'time',
         done: function(value, date, endDate){
-            resetFieldValidator("planStartTime");
+            resetFieldValidator(value,"planStartTime");
 
         }
     });
@@ -389,7 +393,7 @@ function initEditPage(){
         theme: '#3f92ea',
         type: 'time',
         done: function(value, date, endDate){
-            resetFieldValidator("planEndTime");
+            resetFieldValidator(value,"planEndTime");
 
         }
     });
@@ -538,6 +542,7 @@ function changeExcpTypeEdit(selectVal1,selectVal2){
             }else{
                 $("#excpReasonEdit").val(null).trigger('change');
                 $("#excpResultEdit").val(null).trigger('change');
+                $("#edit-form #excpReason").val("");
             }
 
 

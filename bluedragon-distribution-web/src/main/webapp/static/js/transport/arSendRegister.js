@@ -88,6 +88,7 @@ $(function () {
         }, {
             field: 'status',
             title: '状态',
+            width: 70,
             formatter: function (value, row, index) {
                 if (value == 1) {
                     return "已发货";
@@ -109,6 +110,7 @@ $(function () {
         }, {
             field: 'sendDate',
             title: '发货日期',
+            width: 120,
             formatter: function (value, row, index) {
                 if (value != null && value != '') {
                     return jQuery.dateHelper.formateDateOfTs(value);
@@ -168,6 +170,7 @@ $(function () {
         }, {
             field: 'operationTime',
             title: '操作时间',
+            width: 200,
             formatter: function (value, row, index) {
                 if (value != null && value != '') {
                     return jQuery.dateHelper.formateDateTimeOfTs(value);

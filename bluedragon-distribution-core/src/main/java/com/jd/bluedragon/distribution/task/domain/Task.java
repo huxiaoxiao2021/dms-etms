@@ -41,6 +41,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_AR_RECEIVE = 1810;
     /** 收货-空铁提货并发货　 */
     public static final Integer TASK_TYPE_AR_RECEIVE_AND_SEND = 1811;
+    /**
+     * 空铁项目 - 发货登记任务
+     */
+    public static final Integer TASK_TYPE_AR_SEND_REGISTER = 1809;
+
     public static final Integer TASK_TYPE_SHIELDS_CAR_ERROR = 1120; // 分拣中心收货封车号封签异常
     public static final Integer TASK_TYPE_PUSH_MQ = 1150;    // 分拣中心收货发干线信息到计费系统
 
@@ -132,11 +137,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
 
-    /**
-     * 空铁项目 - 发货登记任务
-     */
-    public static final Integer TASK_TYPE_AR_SEND_REGISTER = 1809;
-    
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
     public static final String TABLE_NAME_REVERSE = "task_reverse";

@@ -6,9 +6,9 @@ package com.jd.bluedragon.distribution.transport.domain;
  */
 public enum ArTransportTypeEnum {
     /**
-     * 空运
+     * 航空
      */
-    AIR_TRANSPORT(1, "空运"),
+    AIR_TRANSPORT(1, "航空"),
     /**
      * 铁路
      */

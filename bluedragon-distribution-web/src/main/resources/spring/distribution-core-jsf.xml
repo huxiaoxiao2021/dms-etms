@@ -87,7 +87,7 @@
     </bean>
 
     <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
-                  alias="${vst.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
+                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="10000" retries="0">
     </jsf:consumer>
 
     <!-- 车辆管理系统 VMS 系统 李胜涛  -->

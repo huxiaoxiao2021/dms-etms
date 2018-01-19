@@ -223,7 +223,7 @@
 	<bean id="offlineCoreRedisTask"
 		class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
 		parent="baseRedisTask">
-		<property name="dmsTaskExecutor" ref="offlineCoreRedisTaskExecutor"/>
+		<property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
 		<property name="taskType" value="OfflineCoreRedisTask" />
 		<property name="desc" value="离线Redis任务" />
 	</bean>

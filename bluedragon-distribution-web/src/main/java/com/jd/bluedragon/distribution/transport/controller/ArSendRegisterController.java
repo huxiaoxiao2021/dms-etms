@@ -289,6 +289,7 @@ public class ArSendRegisterController {
         arSendRegister.setOperationTime(new Date());
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         arSendRegister.setOperatorErp(erpUser.getUserCode());
+        arSendRegister.setOperatorId(erpUser.getUserId());
 
         arSendRegister.setCreateUser(erpUser.getUserCode());
         arSendRegister.setUpdateUser(erpUser.getUserCode());
