@@ -239,19 +239,36 @@ jQuery.extend({
         },
         /*时间戳转字符串 格式:YYYY-MM-DD HH:mm:ss*/
         formateDateTimeOfTs:function(date){
-            return window.date.format(new Date(date),'YYYY-MM-DD HH:mm:ss');
+            if(date){
+                return window.date.format(new Date(date),'YYYY-MM-DD HH:mm:ss');
+            }else{
+                return "";
+            }
         },
         /*时间戳转字符串 格式:YYYY-MM-DD*/
         formateDateOfTs:function(date){
-            return window.date.format(new Date(date),'YYYY-MM-DD');
+            if(date){
+                return window.date.format(new Date(date),'YYYY-MM-DD');
+            }else{
+                return "";
+            }
         },
         /*时间戳转字符串 格式:HH:mm:ss*/
         formateTimeOfTs:function(date){
-            return window.date.format(new Date(date),'HH:mm:ss');
+            if(date){
+                return window.date.format(new Date(date),'HH:mm:ss');
+            }else{
+                return "";
+            }
         },
         /*时间戳转字符串 格式:HH:mm*/
         formateTimeNossOfTs:function(date){
-            return window.date.format(new Date(date),'HH:mm');
+            if(date){
+                return window.date.format(new Date(date),'HH:mm');
+            }else{
+                return "";
+            }
+
         }
 
     },
