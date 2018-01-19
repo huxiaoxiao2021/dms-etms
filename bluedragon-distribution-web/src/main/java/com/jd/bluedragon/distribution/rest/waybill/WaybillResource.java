@@ -991,7 +991,7 @@ public class WaybillResource {
 					TaskRequest taskRequest = new TaskRequest();
 					taskRequest.setType(Task.TASK_TYPE_WEIGHT);
 					taskRequest.setKeyword1(editWeightRequest.getWaybillCode());
-					taskRequest.setKeyword2("批量称重操作");
+					taskRequest.setKeyword2("批量分拣称重操作");
 					taskRequest.setSiteCode(editWeightRequest.getOperatorSiteId());
 
 					List<PackOpeDto> packOpeDtoList = new ArrayList<PackOpeDto>();
