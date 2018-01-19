@@ -262,8 +262,14 @@ function editValidator(){
     return $("#edit-form").data("bootstrapValidator").isValid();
 }
 
-function resetFieldValidator(fieldName){
-    debugger;
+function resetFieldValidator(value,fieldName){
+
     //$("#edit-form").data("bootstrapValidator").validateField(fieldName);
-    $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'VALID');
+    if(value){
+        $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'VALID');
+    }else{
+        $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'NOT_VALIDATED','notEmpty');
+        $("#edit-form").data("bootstrapValidator").validateField(fieldName);
+    }
+
 }

@@ -279,7 +279,7 @@ $(function() {
                 $('.edit-param').each(function () {
                     var _k = this.id;
                     var _v = $(this).val();
-                    if(_k && _v){
+                    if(_k ){
                         params[_k]=_v;
                     }
                 });
@@ -383,15 +383,15 @@ function initEditPage(){
         elem: '#planStartDate',
         theme: '#3f92ea',
         done: function(value, date, endDate){
-            resetFieldValidator("planStartDate");
+
+            resetFieldValidator(value,"planStartDate");
         }
     });
     $.datePicker.createNew({
         elem: '#bookingSpaceTime',
         theme: '#3f92ea',
         done: function(value, date, endDate){
-            resetFieldValidator("bookingSpaceTime");
-
+            resetFieldValidator(value,"bookingSpaceTime");
         }
     });
     $.datePicker.createNew({
@@ -399,8 +399,7 @@ function initEditPage(){
         theme: '#3f92ea',
         type: 'time',
         done: function(value, date, endDate){
-            resetFieldValidator("planStartTime");
-
+            resetFieldValidator(value,"planStartTime");
         }
     });
     $.datePicker.createNew({
@@ -408,8 +407,7 @@ function initEditPage(){
         theme: '#3f92ea',
         type: 'time',
         done: function(value, date, endDate){
-            resetFieldValidator("planEndTime");
-
+            resetFieldValidator(value,"planEndTime");
         }
     });
 

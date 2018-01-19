@@ -318,12 +318,11 @@
 				<if test="endCityId != null">
 					end_city_id = #{endCityId,jdbcType=INTEGER},
 				</if>
-				<if test="planStartTime != null">
+
 					plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="planEndTime != null">
+
 					plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
-				</if>
+
 				<if test="excpType != null">
 					excp_type = #{excpType,jdbcType=SMALLINT},
 				</if>
