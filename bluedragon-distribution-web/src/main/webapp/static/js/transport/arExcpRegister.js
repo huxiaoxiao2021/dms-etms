@@ -148,7 +148,8 @@ $(function() {
             class:'min_180'
         } ];
         oTableInit.refresh = function() {
-            $('#dataTable').bootstrapTable('refresh');
+            $('#dataTable').bootstrapTable('refreshOptions',{pageNumber:1});
+            //$('#dataTable').bootstrapTable('refresh');
         };
         return oTableInit;
     };

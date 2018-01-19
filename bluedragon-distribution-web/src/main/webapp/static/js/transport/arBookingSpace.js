@@ -157,7 +157,8 @@ $(function() {
             title : '操作人'
         } ];
         oTableInit.refresh = function() {
-            $('#dataTable').bootstrapTable('refresh');
+            $('#dataTable').bootstrapTable('refreshOptions',{pageNumber:1}); //更改刷新时回到第一页
+            //$('#dataTable').bootstrapTable('refresh');
         };
         return oTableInit;
     };
