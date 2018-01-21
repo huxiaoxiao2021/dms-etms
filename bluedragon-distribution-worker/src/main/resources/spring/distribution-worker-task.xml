@@ -337,7 +337,6 @@
         <property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
         <property name="type" value="1800"/>
         <property name="desc" value="离线任务"/>
-        <property name="open" value="true"/>
     </bean>
 
     <!-- 干线发车 -->
