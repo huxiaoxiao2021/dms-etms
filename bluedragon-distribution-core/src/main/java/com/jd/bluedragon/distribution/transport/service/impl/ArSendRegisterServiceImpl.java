@@ -17,6 +17,7 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -32,10 +33,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum.AIR_TRANSPORT;
 import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum.RAILWAY;
@@ -81,6 +81,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * 分隔符 逗号
      */
     private final static String COMMA = ",";
+
+    /**
+     * 分隔符 冒号
+     */
+    private final static String COLON = ":";
 
     @Transactional
     @Override
@@ -329,11 +334,44 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setOperatorErp(pdaSendRegister.getSendUserCode());
         sendRegister.setOperationDept(pdaSendRegister.getSiteName());
         sendRegister.setOperationDeptCode(pdaSendRegister.getSiteCode());
-        sendRegister.setSendDate(pdaSendRegister.getOperateTime());
-
+        sendRegister.setSendDate(getPDASendDate(sendRegister.getPlanStartTime(), pdaSendRegister.getOperateTime()));
         sendRegister.setOperationTime(pdaSendRegister.getOperateTime());
         sendRegister.setCreateUser(pdaSendRegister.getSendUserCode());
         return sendRegister;
+    }
+
+    /**
+     * 根据发车时间获取pda的发货时间，比较从TMS获取的航班/铁路发车时间和操作时间，若发车时间大于操作时间，取当日发车时间，否则取第二天发车时间
+     *
+     * @return
+     */
+    private Date getPDASendDate(String time, Date operateTime) {
+        if (StringUtils.isNotEmpty(time)) {
+            if (time.indexOf(COLON) > 0) {
+                String[] timeArray = time.split(COLON);
+                if (timeArray.length > 1) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(new Date());
+                    calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArray[0]));
+                    calendar.set(Calendar.MINUTE, Integer.parseInt(timeArray[1]));
+                    if (timeArray.length == 3) {
+                        //时间格式 时:分:秒
+                        calendar.set(Calendar.SECOND, Integer.parseInt(timeArray[2]));
+                    } else {
+                        // 时间格式 时:分 设置秒为0
+                        calendar.set(Calendar.SECOND, 0);
+                    }
+                    if (operateTime.after(calendar.getTime())) {
+                        calendar.add(Calendar.DAY_OF_MONTH, 1);
+                        return calendar.getTime();
+                    } else {
+                        return calendar.getTime();
+                    }
+                }
+            }
+            logger.error("[空铁发货登记]离线worker获取PDA发货时间，发车时间格式错误");
+        }
+        return null;
     }
 
     /**

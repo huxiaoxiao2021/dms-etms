@@ -128,13 +128,18 @@ public class ArSendRegisterController {
     JdResponse<Boolean> insert(@RequestBody ArSendRegisterCondition condition) {
         JdResponse<Boolean> response = new JdResponse<Boolean>();
         try {
-            ArSendRegister arSendRegister = this.getBean(condition);
-            String sendCodeStr = condition.getSendCode();
-            String[] sendCodeArray = null;
-            if (StringUtils.isNotEmpty(sendCodeStr)) {
-                sendCodeArray = sendCodeStr.split(SEPARATOR);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                ArSendRegister arSendRegister = this.getBean(condition, erpUser);
+                String sendCodeStr = condition.getSendCode();
+                String[] sendCodeArray = null;
+                if (StringUtils.isNotEmpty(sendCodeStr)) {
+                    sendCodeArray = sendCodeStr.split(SEPARATOR);
+                }
+                response.setData(arSendRegisterService.insert(arSendRegister, sendCodeArray));
+            } else {
+                response.toFail("新增失败，获取ERP信息失败，请重新登录后再操作！");
             }
-            response.setData(arSendRegisterService.insert(arSendRegister, sendCodeArray));
         } catch (Exception e) {
             logger.error("fail to insert！" + e.getMessage(), e);
             response.toError("新增失败，服务异常！");
@@ -153,13 +158,18 @@ public class ArSendRegisterController {
     JdResponse<Boolean> update(@RequestBody ArSendRegisterCondition condition) {
         JdResponse<Boolean> response = new JdResponse<Boolean>();
         try {
-            ArSendRegister arSendRegister = this.getBean(condition);
-            String sendCodeStr = condition.getSendCode();
-            String[] sendCodeArray = null;
-            if (StringUtils.isNotEmpty(sendCodeStr)) {
-                sendCodeArray = sendCodeStr.split(SEPARATOR);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                ArSendRegister arSendRegister = this.getBean(condition, erpUser);
+                String sendCodeStr = condition.getSendCode();
+                String[] sendCodeArray = null;
+                if (StringUtils.isNotEmpty(sendCodeStr)) {
+                    sendCodeArray = sendCodeStr.split(SEPARATOR);
+                }
+                response.setData(arSendRegisterService.update(arSendRegister, sendCodeArray));
+            } else {
+                response.toFail("更新失败，获取ERP信息失败，请重新登录后再操作！");
             }
-            response.setData(arSendRegisterService.update(arSendRegister, sendCodeArray));
         } catch (Exception e) {
             logger.error("fail to update！" + e.getMessage(), e);
             response.toError("更新失败，服务异常！");
@@ -186,7 +196,11 @@ public class ArSendRegisterController {
                 idsLong.add(Long.valueOf(id));
             }
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            response.setData(arSendRegisterService.deleteByIds(idsLong, erpUser.getUserCode()));
+            if (erpUser != null) {
+                response.setData(arSendRegisterService.deleteByIds(idsLong, erpUser.getUserCode()));
+            } else {
+                response.toFail("删除失败，获取ERP信息失败，请重新登录后再操作！");
+            }
         } catch (Exception e) {
             logger.error("fail to delete！" + e.getMessage(), e);
             response.toError("删除失败，服务异常！");
@@ -232,7 +246,7 @@ public class ArSendRegisterController {
                         arTransportInfo = arSendRegisterService.getTransportInfo(transportName, siteOrder, ArTransportTypeEnum.RAILWAY);
                     }
                 }
-                if (arTransportInfo != null){
+                if (arTransportInfo != null) {
                     response.setData(arTransportInfo);
                     return response;
                 } else {
@@ -246,7 +260,7 @@ public class ArSendRegisterController {
         return response;
     }
 
-    private ArSendRegister getBean(ArSendRegisterCondition ArSendRegisterCondition) throws ParseException {
+    private ArSendRegister getBean(ArSendRegisterCondition ArSendRegisterCondition, ErpUserClient.ErpUser erpUser) throws ParseException {
         ArSendRegister arSendRegister = new ArSendRegister();
         arSendRegister.setId(ArSendRegisterCondition.getId());
         // 默认已发货
@@ -287,7 +301,6 @@ public class ArSendRegisterController {
         arSendRegister.setShuttleBusType(ArSendRegisterCondition.getShuttleBusType() == null ? 0 : ArSendRegisterCondition.getShuttleBusType());
 
         arSendRegister.setOperationTime(new Date());
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         arSendRegister.setOperatorErp(erpUser.getUserCode());
         arSendRegister.setOperatorId(erpUser.getUserId());
 
