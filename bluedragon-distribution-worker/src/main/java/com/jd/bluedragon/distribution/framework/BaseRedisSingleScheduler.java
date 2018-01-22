@@ -8,11 +8,27 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 
 public class BaseRedisSingleScheduler extends RedisSingleScheduler {
 	private Logger logger = Logger.getLogger(BaseRedisSingleScheduler.class);
+    /**
+     * 任务开关，默认开启
+     */
+    protected boolean open = true;
 	/**
 	 * 任务执行器-负责任务执行操作
 	 */
 	DmsTaskExecutor<T> dmsTaskExecutor;
-
+	
+	/**
+	 * redis 任务初始化执行逻辑
+	 */
+	@Override
+	public void init() throws Exception {
+		//开关开启时才执行操作
+    	if(open){
+    		super.init();
+    	}else{
+    		logger.warn("task["+ownSign+"-"+taskType+"] is not open!");
+    	}
+	}
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign)
 			throws Exception {
@@ -37,5 +53,19 @@ public class BaseRedisSingleScheduler extends RedisSingleScheduler {
 	 */
 	public void setDmsTaskExecutor(DmsTaskExecutor<T> dmsTaskExecutor) {
 		this.dmsTaskExecutor = dmsTaskExecutor;
+	}
+
+	/**
+	 * @return the open
+	 */
+	public boolean isOpen() {
+		return open;
+	}
+
+	/**
+	 * @param open the open to set
+	 */
+	public void setOpen(boolean open) {
+		this.open = open;
 	}
 }

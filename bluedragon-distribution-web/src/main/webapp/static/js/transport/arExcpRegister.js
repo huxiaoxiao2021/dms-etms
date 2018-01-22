@@ -162,7 +162,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#excpTimeGE',
                 theme: '#3f92ea',
-               // btns: ['now', 'confirm'],
+                btns: ['clear','now'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -170,7 +170,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#excpTimeLE',
                 theme: '#3f92ea',
-               // btns: ['now', 'confirm'],
+                btns: ['clear','now'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -374,6 +374,7 @@ function initEditPage(){
     $.datePicker.createNew({
         elem: '#excpTime',
         theme: '#3f92ea',
+        btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"excpTime");
         }
@@ -383,6 +384,7 @@ function initEditPage(){
         elem: '#planStartTime',
         theme: '#3f92ea',
         type: 'time',
+        btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"planStartTime");
 
@@ -392,6 +394,7 @@ function initEditPage(){
         elem: '#planEndTime',
         theme: '#3f92ea',
         type: 'time',
+        btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"planEndTime");
 
