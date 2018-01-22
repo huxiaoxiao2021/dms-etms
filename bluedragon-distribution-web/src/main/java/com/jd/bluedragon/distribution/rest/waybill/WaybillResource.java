@@ -20,7 +20,8 @@ import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.dto.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,9 +55,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
@@ -885,7 +883,28 @@ public class WaybillResource {
 		Map<String,Object> resp = new HashMap<String, Object>();
 		try{
 
-			resp = waybillPackageApi.getPackWeighListBycode(waybillCode);
+			BaseEntity<List<PackageWeigh>> packListByCode = waybillPackageApi.getPackListByCode(waybillCode);
+			int code = packListByCode.getResultCode();
+			String message =  packListByCode.getMessage();
+
+			/*		1,"接口调用成功"
+					-1,"接口调用失败"
+					-2,"参数非法"
+					-3,"不存在的数据"	*/
+
+			if(code == 1){
+				//成功
+				code = 200;
+				message = "OK";
+				resp.put("data",packListByCode.getData());
+			}else{
+				//失败
+				code = 401;
+			}
+
+			resp.put("code",code);
+			resp.put("message",message);
+
 
 		}catch (Exception e){
 
