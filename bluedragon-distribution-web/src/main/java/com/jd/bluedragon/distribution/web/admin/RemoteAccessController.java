@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.admin;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.admin.service.RemoteAccessService;
 import com.jd.bluedragon.distribution.api.domain.YtWaybillSync;
 import com.jd.bluedragon.distribution.api.request.RemoteAccessRequest;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ public class RemoteAccessController {
     @Autowired
     private RemoteAccessService remoteAccessService;
 
+    @Authorization(Constants.DMS_WEB_SORTING_ADDRESSCHANGE_R)
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {
         try {
@@ -47,6 +50,7 @@ public class RemoteAccessController {
         return "admin/remote-access/remote-access-index";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_ADDRESSCHANGE_R)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public RemoteAccessResponse<List<YtWaybillSync>> doQueryWaybill(RemoteAccessRequest request) {

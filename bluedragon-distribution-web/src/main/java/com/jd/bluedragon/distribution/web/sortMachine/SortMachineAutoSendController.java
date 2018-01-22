@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.sortMachine;
 
 import IceInternal.Ex;
 import com.alibaba.fastjson.TypeReference;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -33,6 +34,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +86,7 @@ public class SortMachineAutoSendController {
     @Autowired
     WaybillService waybillService;
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         this.logger.debug("分拣机自动发货 --> index");
@@ -111,6 +114,7 @@ public class SortMachineAutoSendController {
      * 根据用户erp加载该用户所在分拣中心的分拣机
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/findSortMachineByErp", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<String>> findSortMachineByErp(){
@@ -167,6 +171,7 @@ public class SortMachineAutoSendController {
      * @param machineCode
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/findSendGroupByMachineCode", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<SortMachineSendGroup>> findSendGroupByMachineCode(String machineCode){
@@ -188,6 +193,7 @@ public class SortMachineAutoSendController {
      * @param groupId
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/findSendGroupConfigByGroupId", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<SortMachineGroupConfig>> findSendGroupConfigByGroupId(Integer groupId){
@@ -208,6 +214,7 @@ public class SortMachineAutoSendController {
      * @param machineCode
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/queryChuteBySortMachineCode", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<SortMachineBatchSendResult>> queryChuteBySortMachineCode(String machineCode){
@@ -307,6 +314,7 @@ public class SortMachineAutoSendController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/addSendGroup", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult addSendGroup(@RequestBody SortMachineGroupRequest request){
@@ -331,6 +339,7 @@ public class SortMachineAutoSendController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/updateSendGroup", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult updateSendGroup(@RequestBody SortMachineGroupRequest request){
@@ -353,6 +362,7 @@ public class SortMachineAutoSendController {
      * @param groupId 发货组ID
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/deleteSendGroup", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult deleteSendGroup(Long groupId){
@@ -372,6 +382,7 @@ public class SortMachineAutoSendController {
      * @param requests
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/sendEndAndPrint", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> sendEndAndPrint(
@@ -502,6 +513,7 @@ public class SortMachineAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(@RequestBody SendExceptionRequest request) {
@@ -518,6 +530,7 @@ public class SortMachineAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/generateSendCode", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> generateSendCode(@RequestBody ScannerFrameBatchSend[] lists) {
@@ -561,7 +574,7 @@ public class SortMachineAutoSendController {
         return result;
     }
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/replenishPrintIndex", method = RequestMethod.GET)
     public String index(Model model, String machineId,
                         Integer createSiteCode,
@@ -589,6 +602,7 @@ public class SortMachineAutoSendController {
         return "/sortMachine/replenishPrint";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/summaryBySendCode", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<GantryBatchSendResult> summaryBySendCode(String sendCode) {
@@ -645,6 +659,7 @@ public class SortMachineAutoSendController {
     /**
      * 补打印
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/sendCodePrint", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests) {
@@ -750,6 +765,7 @@ public class SortMachineAutoSendController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/querySubSiteNo", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<ScannerFrameBatchSend>> querySubSiteNo(ScannerFrameBatchSendSearchArgument request) {
@@ -772,6 +788,7 @@ public class SortMachineAutoSendController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager) {

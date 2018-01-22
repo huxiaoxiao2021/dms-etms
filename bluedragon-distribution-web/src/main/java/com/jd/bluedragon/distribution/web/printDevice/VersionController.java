@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.printDevice;
 
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.alpha.domain.Version;
 import com.jd.bluedragon.alpha.service.PrintDeviceService;
 import com.jd.bluedragon.alpha.service.VersionInfoInJssService;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.alpha.VersionIdListRequest;
 import com.jd.bluedragon.distribution.alpha.VersionRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ public class VersionController {
     @Autowired
     PrintDeviceService printDeviceService;
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String versionInfo(Model model){
         List<Version> versionList = versionInfoInUccService.versionList();
@@ -49,6 +52,7 @@ public class VersionController {
         return "printDevice/versionIndex";
     }
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/query",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<Version>> versionQuery(@RequestBody VersionRequest request){
@@ -67,12 +71,14 @@ public class VersionController {
 
     }
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/toAddPager",method = RequestMethod.GET)
     public String versionAddPager(Model model){
 
         return "printDevice/versionAdd";
     }
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult versionAdd(@RequestParam("uploadFile") MultipartFile file,
@@ -110,6 +116,7 @@ public class VersionController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/toModifyPager",method = RequestMethod.GET)
     public ModelAndView toModifyPager(String versionId){
 
@@ -134,6 +141,7 @@ public class VersionController {
         return mav;
     }
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult versionModify(@RequestBody Version request) {
@@ -160,6 +168,7 @@ public class VersionController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult versionDelete(@RequestBody VersionIdListRequest<List<String>> versionIdList){
@@ -187,6 +196,7 @@ public class VersionController {
      * @param request versionId state（原来的）
      * @return
      */
+    @Authorization(Constants.DMS_WEB_ISV_MANAGE_R)
     @RequestMapping(value = "/stateChange",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult versionStateChange(@RequestBody VersionRequest request){

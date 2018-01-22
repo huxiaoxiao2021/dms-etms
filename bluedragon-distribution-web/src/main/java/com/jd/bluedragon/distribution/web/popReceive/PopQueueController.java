@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +37,7 @@ public class PopQueueController {
 	private BaseMajorManager baseMajorManager;
 	
 	@SuppressWarnings("rawtypes")
+	@Authorization(Constants.DMS_WEB_PTORDER_QUEUE_R)
 	@RequestMapping(value = "/query")
 	public String query(Model model, PopQueueQuery popQueueQuery, Pager pager) {
 		select(model, popQueueQuery);
