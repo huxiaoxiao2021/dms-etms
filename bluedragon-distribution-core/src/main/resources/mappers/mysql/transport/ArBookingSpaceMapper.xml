@@ -16,9 +16,9 @@
         <result column="plan_start_time" property="planStartTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="plan_end_time" property="planEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="priority" property="priority" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="gain_space" property="gainSpace" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-        <result column="plan_space" property="planSpace" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-        <result column="real_space" property="realSpace" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="gain_space" property="gainSpace" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result column="plan_space" property="planSpace" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result column="real_space" property="realSpace" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
         <result column="booking_space_time" property="bookingSpaceTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="supplier_name" property="supplierName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="phone" property="phone" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -359,13 +359,13 @@
                 #{priority,jdbcType=VARCHAR},
             </if>
             <if test="gainSpace != null">
-                #{gainSpace,jdbcType=INTEGER},
+                #{gainSpace,jdbcType=DECIMAL},
             </if>
             <if test="planSpace != null">
-                #{planSpace,jdbcType=INTEGER},
+                #{planSpace,jdbcType=DECIMAL},
             </if>
             <if test="realSpace != null">
-                #{realSpace,jdbcType=INTEGER},
+                #{realSpace,jdbcType=DECIMAL},
             </if>
             <if test="bookingSpaceTime != null">
                 #{bookingSpaceTime,jdbcType=TIMESTAMP},
@@ -501,11 +501,11 @@
 
             #{item.priority,jdbcType=VARCHAR},
 
-            #{item.gainSpace,jdbcType=INTEGER},
+            #{item.gainSpace,jdbcType=DECIMAL},
 
-            #{item.planSpace,jdbcType=INTEGER},
+            #{item.planSpace,jdbcType=DECIMAL},
 
-            #{item.realSpace,jdbcType=INTEGER},
+            #{item.realSpace,jdbcType=DECIMAL},
 
             #{item.bookingSpaceTime,jdbcType=TIMESTAMP},
             #{item.supplierName,jdbcType=VARCHAR},
@@ -571,13 +571,13 @@
                 priority = #{priority,jdbcType=VARCHAR},
             </if>
             <if test="gainSpace != null">
-                gain_space = #{gainSpace,jdbcType=INTEGER},
+                gain_space = #{gainSpace,jdbcType=DECIMAL},
             </if>
             <if test="planSpace != null">
-                plan_space = #{planSpace,jdbcType=INTEGER},
+                plan_space = #{planSpace,jdbcType=DECIMAL},
             </if>
             <if test="realSpace != null">
-                real_space = #{realSpace,jdbcType=INTEGER},
+                real_space = #{realSpace,jdbcType=DECIMAL},
             </if>
             <if test="bookingSpaceTime != null">
                 booking_space_time = #{bookingSpaceTime,jdbcType=TIMESTAMP},
