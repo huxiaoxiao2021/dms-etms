@@ -181,6 +181,7 @@ public class SiteResource {
 				createAndReceiveSite.setReceiveSiteSubType(receiveSite.getSubType());
 			}
 
+			result.setMessage("success");
 			result.setData(createAndReceiveSite);
 		}catch (Exception e){
 			logger.error("根据批次号获取始发和目的分拣信息失败，批次号：" + sendCode);
