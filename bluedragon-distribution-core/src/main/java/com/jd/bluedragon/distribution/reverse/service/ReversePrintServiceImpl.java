@@ -54,6 +54,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     private static final Integer EXCHANGE_OWN_WAYBILL_OP_TYPE=Integer.valueOf(4200);
 
+    private static final Integer PICKUP_FINISHED_STATUS=Integer.valueOf(20); //取件单完成态
+
     @Autowired
     private TaskService taskService;
 
@@ -200,8 +202,12 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
             BaseEntity<PickupTask> result= waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
             if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
-                targetResult.setData(result.getData().getSurfaceCode());
-                targetResult.setMessage(result.getData().getServiceCode());
+                if(PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
+                    targetResult.setData(result.getData().getSurfaceCode());
+                    targetResult.setMessage(result.getData().getServiceCode());
+                }else{
+                    targetResult.customMessage(-1,"未操作取件完成无法打印面单");
+                }
             }else{
                 targetResult.customMessage(-1,"没有获取到新的取件单");
             }
