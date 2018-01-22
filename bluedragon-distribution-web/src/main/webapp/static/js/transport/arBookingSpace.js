@@ -171,7 +171,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#planStartDateLE',
                 theme: '#3f92ea',
-                //btns: ['now', 'confirm'],
+               btns: ['clear','now'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -179,7 +179,7 @@ $(function() {
             $.datePicker.createNew({
                 elem: '#planStartDateGE',
                 theme: '#3f92ea',
-                //btns: ['now', 'confirm'],
+               btns: ['clear','now'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -382,6 +382,7 @@ function initEditPage(){
     $.datePicker.createNew({
         elem: '#planStartDate',
         theme: '#3f92ea',
+        btns: ['clear','now'],
         done: function(value, date, endDate){
 
             resetFieldValidator(value,"planStartDate");
@@ -390,6 +391,7 @@ function initEditPage(){
     $.datePicker.createNew({
         elem: '#bookingSpaceTime',
         theme: '#3f92ea',
+        btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"bookingSpaceTime");
         }
@@ -398,6 +400,7 @@ function initEditPage(){
         elem: '#planStartTime',
         theme: '#3f92ea',
         type: 'time',
+         btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"planStartTime");
         }
@@ -406,6 +409,7 @@ function initEditPage(){
         elem: '#planEndTime',
         theme: '#3f92ea',
         type: 'time',
+        btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"planEndTime");
         }
