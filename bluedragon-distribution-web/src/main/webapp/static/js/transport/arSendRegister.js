@@ -351,7 +351,7 @@ $(function () {
         $("#endCityId").val(data.endCityId);
         $("#startCityName").text(data.startCityName == null ? "" : data.startCityName);
         $("#endCityName").text(data.endCityName == null ? "" : data.endCityName);
-        $("#startStationId").val(data.startStationId );
+        $("#startStationId").val(data.startStationId);
         $("#endStationId").val(data.endStationId);
         $("#startStationName").text(data.startStationName == null ? "" : data.startStationName);
         $("#endStationName").text(data.endStationName == null ? "" : data.endStationName);
@@ -426,8 +426,9 @@ $(function () {
             });
 
             $('#btn_query').click(function () {
-                $("#dataTable").bootstrapTable('destroy');
-                tableInit().refresh();
+                //$("#dataTable").bootstrapTable('destroy');
+                //tableInit().init();
+                $('#tableName').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
 
             $('#btn_add').click(function () {
@@ -493,7 +494,11 @@ $(function () {
                             alert('操作成功,删除' + res.data + '条。');
                             tableInit().refresh();
                         } else {
-                            alert('操作异常！');
+                            if (res) {
+                                alert(res.message);
+                            } else {
+                                alert('操作异常！');
+                            }
                         }
                     });
                 }
@@ -525,7 +530,7 @@ $(function () {
                             alert('操作成功');
                             tableInit().refresh();
                         } else {
-                            alert('操作异常');
+                            alert(res.message);
                         }
                     });
                     clearAllInfo();
@@ -557,12 +562,12 @@ $(function () {
                         param["transportName"] = transportName;
                         param["orderCode"] = orderCode;
                         $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
-                            if (response != null && response.code == 200) {
+                            if (response.code == 200) {
                                 $("#siteOrderEdit").val("");
                                 clearTransportInfo();
                                 setTransportInfo(response.data);
                             } else {
-                                alert('加载航班信息异常');
+                                alert(response.message);
                             }
                         });
                     }
@@ -579,12 +584,12 @@ $(function () {
                         param["transportName"] = transportName;
                         param["siteOrder"] = siteOrder;
                         $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
-                            if (response != null && response.code == 200) {
+                            if (response.code == 200) {
                                 $("#orderCodeEdit").val("");
                                 clearTransportInfo();
                                 setTransportInfo(response.data);
                             } else {
-                                alert('加载铁路信息异常');
+                                alert(response.message);
                             }
                         });
                     }
