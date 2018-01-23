@@ -98,7 +98,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
 
         //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
-        if(waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
+        if(StringHelper.isNotEmpty(waybill.getSpecialMark()) && waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
             waybill.setTransportMode("");
         }
 
