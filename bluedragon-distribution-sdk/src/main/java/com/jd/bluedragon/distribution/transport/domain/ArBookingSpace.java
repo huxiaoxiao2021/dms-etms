@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -58,13 +59,13 @@ public class ArBookingSpace extends DbEntity {
 	private String priority;
 
 	 /** 可获取舱位（单位：kg） */
-	private Integer gainSpace;
+	private BigDecimal gainSpace;
 
 	 /** 计划订舱位（单位：kg） */
-	private Integer planSpace;
+	private BigDecimal planSpace;
 
 	 /** 实际订舱位（单位：kg） */
-	private Integer realSpace;
+	private BigDecimal realSpace;
 
 	 /** 订舱日期 */
 	 @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -290,7 +291,7 @@ public class ArBookingSpace extends DbEntity {
 	 * The set method for gainSpace.
 	 * @param gainSpace
 	 */
-	public void setGainSpace(Integer gainSpace) {
+	public void setGainSpace(BigDecimal gainSpace) {
 		this.gainSpace = gainSpace;
 	}
 
@@ -298,7 +299,7 @@ public class ArBookingSpace extends DbEntity {
 	 * The get method for gainSpace.
 	 * @return this.gainSpace
 	 */
-	public Integer getGainSpace() {
+	public BigDecimal getGainSpace() {
 		return this.gainSpace;
 	}
 
@@ -306,7 +307,7 @@ public class ArBookingSpace extends DbEntity {
 	 * The set method for planSpace.
 	 * @param planSpace
 	 */
-	public void setPlanSpace(Integer planSpace) {
+	public void setPlanSpace(BigDecimal planSpace) {
 		this.planSpace = planSpace;
 	}
 
@@ -314,7 +315,7 @@ public class ArBookingSpace extends DbEntity {
 	 * The get method for planSpace.
 	 * @return this.planSpace
 	 */
-	public Integer getPlanSpace() {
+	public BigDecimal getPlanSpace() {
 		return this.planSpace;
 	}
 
@@ -322,7 +323,7 @@ public class ArBookingSpace extends DbEntity {
 	 * The set method for realSpace.
 	 * @param realSpace
 	 */
-	public void setRealSpace(Integer realSpace) {
+	public void setRealSpace(BigDecimal realSpace) {
 		this.realSpace = realSpace;
 	}
 
@@ -330,7 +331,7 @@ public class ArBookingSpace extends DbEntity {
 	 * The get method for realSpace.
 	 * @return this.realSpace
 	 */
-	public Integer getRealSpace() {
+	public BigDecimal getRealSpace() {
 		return this.realSpace;
 	}
 
