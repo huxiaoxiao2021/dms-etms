@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.web.admin;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,7 @@ public class GoddessController {
     @Resource(name = "goddessService")
     private GoddessService goddessService;
 
+    @Authorization(Constants.DMS_WEB_SORTING_GODDESS_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Pager<String> pager, Model model) {
         pager.init();

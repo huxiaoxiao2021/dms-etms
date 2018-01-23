@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.sortscheme;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -87,6 +89,7 @@ public class SortSchemeController {
     private CacheCleanService cacheCleanService;
 
     // 页面跳转控制 增加参数跳转
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Integer siteCode, String siteName, Model model) {
 
@@ -119,6 +122,7 @@ public class SortSchemeController {
         return "sortscheme/sort-scheme-index";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/cacheClean-index", method = RequestMethod.GET)
     public String cacheCleanindex(Integer siteCode,String siteName,Model model) {
 
@@ -153,7 +157,7 @@ public class SortSchemeController {
 
 
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/goDetail", method = RequestMethod.GET)
     public String goDetail(SortSchemeRequest request, Model model) {
         try {
@@ -174,6 +178,7 @@ public class SortSchemeController {
         return "sortscheme/sort-scheme-detail-index";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/goAdd", method = RequestMethod.GET)
     public String goAdd(Integer siteCode, String siteName, Model model) {
 
@@ -193,6 +198,7 @@ public class SortSchemeController {
      * @param file
      * @param response
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     public void doImportExcel(@RequestParam("importExcelFile") MultipartFile file, //
                               @RequestParam("id") Long id, //
@@ -256,6 +262,7 @@ public class SortSchemeController {
         pw.close();
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ResponseBody
     public void doExportExcel(@RequestParam("id") Long id, @RequestParam("siteNo") String siteNo, HttpServletRequest request, HttpServletResponse response) {
@@ -293,6 +300,7 @@ public class SortSchemeController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<Pager<List<SortScheme>>> pageQuerySortScheme(@RequestBody SortSchemeRequest request) {
@@ -338,6 +346,7 @@ public class SortSchemeController {
      * 查询已删缓存
      *author zhoutao on 2017/6/19
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/cacheClean", method = RequestMethod.POST)
     @ResponseBody
     public  CacheCleanResponse<Pager<List<CacheClean>>> cacheClean(@RequestBody CacheCleanRequest cacheCleanRequest) {
@@ -383,7 +392,7 @@ public class SortSchemeController {
      * 删除缓存
      *author zhoutao on 2017/6/19
      */
-
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/excuteCacheClean", method = RequestMethod.POST)
     @ResponseBody
     public  CacheCleanResponse<Integer> excuteCacheClean(@RequestBody CacheCleanRequest cacheCleanRequest) {
@@ -425,7 +434,7 @@ public class SortSchemeController {
         return response;
     }
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> addSortScheme(@RequestBody SortSchemeRequest request) {
@@ -467,6 +476,7 @@ public class SortSchemeController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/delete/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> deleteSortSchemeById(@RequestBody SortSchemeRequest request) {
@@ -497,6 +507,7 @@ public class SortSchemeController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/update/disable/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> disableSortSchemeById(@RequestBody SortSchemeRequest request) {
@@ -527,6 +538,7 @@ public class SortSchemeController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/update/able/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> ableSortSchemeById(@RequestBody SortSchemeRequest request) {
@@ -585,6 +597,7 @@ public class SortSchemeController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/update/open/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> ableAutoSendById(@RequestBody SortSchemeRequest request) {
@@ -621,6 +634,7 @@ public class SortSchemeController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/update/close/id", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeResponse<String> disableAutoSendById(@RequestBody SortSchemeRequest request) {
@@ -657,6 +671,7 @@ public class SortSchemeController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "cleanBoxCache", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse cleanBoxCache(@RequestBody CleanBoxCacheRequest request) {

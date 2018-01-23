@@ -156,24 +156,28 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         String consignerMobile = waybill.getConsignerMobile();
         //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
         int phoneLeastLength = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;
+
         if(StringUtils.isNotBlank(consignerTel)){
+            //去除号码中间的空白字符
             consignerTel = consignerTel.replaceAll("\\s*", "");
-        }
-        if(consignerTel.length() >= phoneLeastLength ){
-            waybill.setConsignerTel(consignerTel.substring(0,PHONE_FIRST_NUMBER) + SMILE +
-                    consignerTel.substring(consignerTel.length() - PHONE_HIGHLIGHT_NUMBER));
-        }else{
-            waybill.setConsignerTel(consignerTel);
+
+            if(consignerTel.length() >= phoneLeastLength ){
+                waybill.setConsignerTel(consignerTel.substring(0,PHONE_FIRST_NUMBER) + SMILE +
+                        consignerTel.substring(consignerTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            }else{
+                waybill.setConsignerTel(consignerTel);
+            }
         }
 
         if(StringUtils.isNotBlank(consignerMobile)){
             consignerMobile = consignerMobile.replaceAll("\\s*", "");
-        }
-        if(consignerMobile.length() >= phoneLeastLength ){
-            waybill.setConsignerMobile(consignerMobile.substring(0,PHONE_FIRST_NUMBER) + SMILE +
-                    consignerMobile.substring(consignerMobile.length() - PHONE_HIGHLIGHT_NUMBER));
-        }else{
-            waybill.setConsignerMobile(consignerMobile);
+
+            if(consignerMobile.length() >= phoneLeastLength ){
+                waybill.setConsignerMobile(consignerMobile.substring(0,PHONE_FIRST_NUMBER) + SMILE +
+                        consignerMobile.substring(consignerMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+            }else{
+                waybill.setConsignerMobile(consignerMobile);
+            }
         }
 
     }

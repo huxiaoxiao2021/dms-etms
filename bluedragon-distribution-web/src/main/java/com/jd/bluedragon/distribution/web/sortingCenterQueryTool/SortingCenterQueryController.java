@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.sortingCenterQueryTool;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingCenterQueryRequest;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sortingCenterQueryTool.service.SortingCenterQueryService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,13 @@ public class SortingCenterQueryController {
     @Autowired
     SortingCenterQueryService sortingCenterQueryService;
 
+    @Authorization(Constants.DMS_WEB_TOOL_SORTINGCENTER_R)
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String SortingCenterQueryIndex(){
         return "tools/sortingCenterTestTool/sortingCenterQuery";
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_SORTINGCENTER_R)
     @RequestMapping(value = "/query" ,method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Long> queryDataFromThreeTables(@RequestBody SortingCenterQueryRequest<List<String>> request){
@@ -75,6 +79,7 @@ public class SortingCenterQueryController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_SORTINGCENTER_R)
     @RequestMapping(value = "/queryDetail" ,method = RequestMethod.POST)
     @ResponseBody
     public Pager<Object[]> queryDetailFromThreeTables(@RequestBody Map<String ,Object> request){

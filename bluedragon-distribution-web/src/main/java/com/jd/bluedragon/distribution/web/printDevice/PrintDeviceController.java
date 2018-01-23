@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.printDevice;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.alpha.domain.PrintDevice;
 import com.jd.bluedragon.alpha.domain.Version;
 import com.jd.bluedragon.alpha.service.PrintDeviceService;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.alpha.service.VersionInfoInUccService;
 import com.jd.bluedragon.distribution.alpha.PrintDeviceIdListRequest;
 import com.jd.bluedragon.distribution.alpha.PrintDeviceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ public class PrintDeviceController {
      * @param model
      * @return
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String printDeviceBaseInfo(Model model){
         List<PrintDevice> printDeviceList = printDeviceService.allPrintDeviceInfo();
@@ -53,6 +56,7 @@ public class PrintDeviceController {
      * 根据信息查询ISV信息，对于结果不进行分页
      * @return
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/query",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<PrintDevice>> printDeviceQuery(@RequestBody PrintDeviceRequest request){
@@ -73,6 +77,7 @@ public class PrintDeviceController {
     /**
      * 跳转增加页面
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/toAddPager",method = RequestMethod.GET)
     public String printDeviceAddPager(Model model){
         List<Version> versionList = versionInfoInUccService.versionList();
@@ -90,6 +95,7 @@ public class PrintDeviceController {
      * 增加ISV信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult printDeviceAdd(@RequestBody PrintDevice printDevice){
@@ -114,6 +120,7 @@ public class PrintDeviceController {
     /**
      * 跳转修改ISV信息页面
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/toModifyPager",method = RequestMethod.GET)
     public ModelAndView toModifyPager(PrintDeviceRequest request){
         List<PrintDevice> list = new ArrayList<PrintDevice>();
@@ -143,6 +150,7 @@ public class PrintDeviceController {
     /**
      * 执行修改操作
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/modify",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult doModify(@RequestBody PrintDevice printDevice){
@@ -162,6 +170,7 @@ public class PrintDeviceController {
     /**
      * 删除ISV的相关信息
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult doDelete(@RequestBody PrintDeviceIdListRequest<List<String>> request){
@@ -189,6 +198,7 @@ public class PrintDeviceController {
      * @param request printDeviceId state（原来的）
      * @return
      */
+    @Authorization(Constants.DMS_WEB_ISV_CONTROL_R)
     @RequestMapping(value = "/stateChange",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult versionStateChange(@RequestBody PrintDevice request){

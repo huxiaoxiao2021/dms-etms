@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.web.queryTool;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.response.QueryBaseResponse;
 import com.jd.bluedragon.distribution.queryTool.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.queryTool.domain.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.queryTool.service.ReverseReceiveService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +32,13 @@ public class ReverseReceiveController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
+    @Authorization(Constants.DMS_WEB_TOOL_REVERSERECEIVE_R)
     @RequestMapping("/index")
     public String index(Model model) {
         return "queryTool/reversereceive";
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_REVERSERECEIVE_R)
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public QueryBaseResponse<Pager<List<ReverseReceive>>> query(ReverseReceiveRequest request, Pager<List<ReverseReceive>> pager) {
