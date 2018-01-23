@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,6 +64,7 @@ public class PopReceiveController {
 	 * POP实收列表
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PTORDER_RECEIVE_R)
 	@RequestMapping("/getPopRecieveList")
 	public String getPopRecieveList(PopReceiveDto popReceiveDTO,Model model,Pager pager){
 		select(model,popReceiveDTO);

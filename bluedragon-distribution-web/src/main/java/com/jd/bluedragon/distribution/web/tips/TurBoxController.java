@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,7 +34,8 @@ public class TurBoxController {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
+	@Authorization(Constants.DMS_WEB_TOOL_TURBOX_R)
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/query")
 	public String query(Model model, TurnoverBox turnoverBox, Pager pager) {

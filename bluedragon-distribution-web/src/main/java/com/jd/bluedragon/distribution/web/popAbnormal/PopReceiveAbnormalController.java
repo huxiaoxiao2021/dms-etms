@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +90,7 @@ public class PopReceiveAbnormalController {
 	 * 
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage(Model model) {
 		this.logger
@@ -105,6 +107,7 @@ public class PopReceiveAbnormalController {
 	 * @param model
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(PopAbnormalQuery popAbnormalQuery, Model model) {
 		this.logger
@@ -194,6 +197,7 @@ public class PopReceiveAbnormalController {
 	 * 
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/addOrDetail", method = RequestMethod.GET)
 	public String addOrDetail(Model model, Long abnormalId) {
 		this.logger
@@ -374,6 +378,7 @@ public class PopReceiveAbnormalController {
 	 * @param popReceiveAbnormal
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/savePopAbnormal", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult savePopReceiveAbnormal(
@@ -514,6 +519,7 @@ public class PopReceiveAbnormalController {
 	 * @param paramMap
 	 * @return
      */
+    @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/cancelPopReceiveAbnormal", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult cancelPopReceiveAbnormal(@RequestBody Map<String, String> paramMap) {
@@ -566,6 +572,7 @@ public class PopReceiveAbnormalController {
 	 * @param response
      * @return
      */
+    @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
 	public String exportPopReceiveAbnormal(PopAbnormalQuery popAbnormalQuery,
 			HttpServletResponse response) {

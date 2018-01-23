@@ -6,7 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 处理部分单子的客户信息打印隐藏
+ * 根据标识隐藏寄件信息、收件信息
+ * 收件信息判断waybill_sign第37位
+ * 寄件信息判断waybill_sign第47位
  * Created by shipeilin on 2017/9/21.
  */
 public class HideInfoComposeServiceImpl implements  ComposeService {
@@ -14,20 +16,38 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
     private static final Log log = LogFactory.getLog(HideInfoComposeServiceImpl.class);
 
     private static final String  SMILE = "^_^";           //微笑符号
-    private static final String  PRINTADDRESS = "******";//客户地址全隐藏，以6个*字符替代
     private static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
+    private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
     @Override
-    public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
+    public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode){
         String waybillSign  = waybill.getWaybillSign();
-        //完美项目取件逆向隐藏面单服务：waybillSign第37位为0，不隐藏
+        //收件人信息隐藏，根据waybill_sign第37位判断
         if(StringUtils.isBlank(waybillSign) || waybillSign.length() < 37 || '0' == waybillSign.charAt(36)){
             return;
         }
+        char customerInfoHideType = waybillSign.charAt(36);
+        customerInfoHide(customerInfoHideType, waybill);
 
-        char flag = waybillSign.charAt(36);
-        switch(flag) {
+        //寄件人信息隐藏，根据waybill_sign第47位判断
+        if(StringUtils.isBlank(waybillSign) || waybillSign.length() < 47 || '0' == waybillSign.charAt(46)){
+            return;
+        }
+        char consignerInfoHideType = waybillSign.charAt(46);
+        consignerInfoHide(consignerInfoHideType,waybill);
+    }
+
+
+
+
+    /**
+     * 收件人信息隐藏设置
+     * @param hideType
+     * @param waybill
+     */
+    private void customerInfoHide(char hideType, PrintWaybill waybill){
+        switch(hideType) {
             case '1':
                 //1、隐藏姓名
                 hideCustomerName(waybill);
@@ -43,26 +63,135 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
                 break;
             case '4':
                 //4、隐藏地址
-                waybill.setPrintAddress(PRINTADDRESS);
+                hideCustomerAddress(waybill);
                 break;
             case '5':
                 //5、隐藏姓名 + 隐藏地址
                 hideCustomerName(waybill);
-                waybill.setPrintAddress(PRINTADDRESS);
+                hideCustomerAddress(waybill);
                 break;
             case '6':
                 //6、隐藏电话 + 隐藏地址
                 hideCustomerContacts(waybill);
-                waybill.setPrintAddress(PRINTADDRESS);
+                hideCustomerAddress(waybill);
                 break;
             case '7':
                 //7、隐藏全部
                 hideCustomerName(waybill);
                 hideCustomerContacts(waybill);
-                waybill.setPrintAddress(PRINTADDRESS);
+                hideCustomerAddress(waybill);
                 break;
             default:
                 log.info("运单的waybillSign第37位标识非法：" + waybill.getWaybillCode());
+        }
+    }
+
+
+    /**
+     * 寄件人信息隐藏设置
+     * @param hideType
+     * @param waybill
+     */
+    private void consignerInfoHide(char hideType, PrintWaybill waybill){
+        switch(hideType) {
+            case '1':
+                //1、隐藏姓名
+                hideConsignerName(waybill);
+                break;
+            case '2':
+                //2、隐藏电话
+                hideConsignerTel(waybill);
+                break;
+            case '3':
+                //3、隐藏姓名 + 隐藏电话
+                hideConsignerName(waybill);
+                hideConsignerTel(waybill);
+                break;
+            case '4':
+                //4、隐藏地址
+                hideConsignerAddress(waybill);
+                break;
+            case '5':
+                //5、隐藏姓名 + 隐藏地址
+                hideConsignerName(waybill);
+                hideConsignerAddress(waybill);
+                break;
+            case '6':
+                //6、隐藏电话 + 隐藏地址
+                hideConsignerTel(waybill);
+                hideConsignerAddress(waybill);
+                break;
+            case '7':
+                //7、隐藏全部（姓名、地址、电话）
+                hideConsignerName(waybill);
+                hideConsignerTel(waybill);
+                hideConsignerAddress(waybill);
+                break;
+            default:
+                log.info("运单的waybillSign第37位标识非法：" + waybill.getWaybillCode());
+        }
+    }
+
+
+    /**
+     * 隐藏寄件人的姓名
+     * 第一个字+^_^
+     * @param waybill
+     */
+    private void hideConsignerName(PrintWaybill waybill){
+        String consignerName = waybill.getConsigner();
+        if(StringUtils.isNotBlank(consignerName)){
+            waybill.setConsigner(consignerName.substring(0,1) + SMILE);
+        }
+    }
+
+    /**
+     * 隐藏寄件人的电话
+     * 少于7位不隐藏
+     * 前三位+^_^+后四位
+     * @param waybill
+     */
+    private void hideConsignerTel(PrintWaybill waybill){
+        String consignerTel = waybill.getConsignerTel();
+        String consignerMobile = waybill.getConsignerMobile();
+        //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
+        int phoneLeastLength = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;
+
+        if(StringUtils.isNotBlank(consignerTel)){
+            //去除号码中间的空白字符
+            consignerTel = consignerTel.replaceAll("\\s*", "");
+
+            if(consignerTel.length() >= phoneLeastLength ){
+                waybill.setConsignerTel(consignerTel.substring(0,PHONE_FIRST_NUMBER) + SMILE +
+                        consignerTel.substring(consignerTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            }else{
+                waybill.setConsignerTel(consignerTel);
+            }
+        }
+
+        if(StringUtils.isNotBlank(consignerMobile)){
+            consignerMobile = consignerMobile.replaceAll("\\s*", "");
+
+            if(consignerMobile.length() >= phoneLeastLength ){
+                waybill.setConsignerMobile(consignerMobile.substring(0,PHONE_FIRST_NUMBER) + SMILE +
+                        consignerMobile.substring(consignerMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+            }else{
+                waybill.setConsignerMobile(consignerMobile);
+            }
+        }
+
+    }
+
+    /**
+     * 隐藏寄件人的地址
+     * 少于9个字则不隐藏
+     * 否则，前9个字+^_^
+     * @param waybill
+     */
+    private void hideConsignerAddress(PrintWaybill waybill){
+        String consignerAddress = waybill.getConsignerAddress();
+        if(StringUtils.isNotBlank(consignerAddress) && consignerAddress.length() >= ADDRESS_SHOW_LENGTH){
+            waybill.setConsignerAddress(consignerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
         }
     }
 
@@ -75,8 +204,6 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         if(StringUtils.isNotBlank(customerName)){
             customerName = customerName.trim().substring(0, 1) + SMILE;
             waybill.setCustomerName(customerName);
-        }else{
-            waybill.setCustomerName(SMILE);
         }
     }
     /**
@@ -128,6 +255,19 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
         }
         if(customerContacts.length() > 0){
             waybill.setCustomerContacts(customerContacts.toString());
+        }
+    }
+
+    /**
+     * 隐藏收件人的地址
+     * 少于9个字则不隐藏
+     * 否则，前9个字+^_^
+     * @param waybill
+     */
+    private void hideCustomerAddress(PrintWaybill waybill){
+        String customerAddress = waybill.getPrintAddress();
+        if(StringUtils.isNotBlank(customerAddress) && customerAddress.length() >= ADDRESS_SHOW_LENGTH){
+            waybill.setPrintAddress(customerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
         }
     }
 
