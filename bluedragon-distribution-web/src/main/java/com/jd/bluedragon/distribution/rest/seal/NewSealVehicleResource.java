@@ -67,7 +67,7 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage("根据任务简码获取任务信息!");
                     sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
-                    sealVehicleResponse.setTransType(returnCommonDto.getData().getTransType());
+                    sealVehicleResponse.setTransType(returnCommonDto.getData().getTransWay());
                 }else{
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");

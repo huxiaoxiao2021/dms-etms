@@ -11,7 +11,7 @@ public class TransWorkItemResponse extends NewSealVehicleResponse{
     /** 车牌号 */
     private String vehicleNumber;
 
-    /** 运输类型 */
+    /** 运输方式 */
     private Integer transType;
 
     public TransWorkItemResponse(){
