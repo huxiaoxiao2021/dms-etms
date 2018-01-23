@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.UsingState;
@@ -345,16 +347,35 @@ public class GantryAutoSendController {
             userCode = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
             userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
         }
+        if (null == lists || lists.length == 0){
+            result.setCode(10000);
+            result.setMessage("参数为空");
+            return result;
+        }
         try {
+            Map<String ,Object> param = new HashMap<String, Object>();
+            param.put("machineId",lists[0].getMachineId());
+            param.put("version",1);//版本号1表示的是自动发货的新版本，可以去掉这个限制，加上是防止龙门架注册的时候，两个版本用了同一个machineId
+            List<GantryDevice> gantrys = gantryDeviceService.getGantry(param);
+            if (null == gantrys || gantrys.size() == 0){
+                result.setCode(400);
+                result.setMessage("龙门架的配置信息为空");
+                return result;
+            }
             for (ScannerFrameBatchSend item : lists) {
-                // // FIXME: 2016/12/21  是否可以不读库，读库为了保险
-                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
+                ScannerFrameBatchSend scannerFrameBatchSend = new ScannerFrameBatchSend();
+                scannerFrameBatchSend.setMachineId(item.getMachineId());
+                scannerFrameBatchSend.setCreateSiteCode(gantrys.get(0).getSiteCode());
+                scannerFrameBatchSend.setCreateSiteName(gantrys.get(0).getSiteName());
+                scannerFrameBatchSend.setReceiveSiteCode(item.getReceiveSiteCode());
+                BaseStaffSiteOrgDto site =  siteService.getSite((int) item.getReceiveSiteCode());//理论上会存在溢出的风险，但是实际站点没有那么大的，故可以忽略
+                scannerFrameBatchSend.setReceiveSiteName(site.getSiteName());//通过基础资料获取站点名称
                 scannerFrameBatchSend.setPrintTimes((byte) 0);
-                scannerFrameBatchSend.setLastPrintTime(null);
                 scannerFrameBatchSend.setCreateUserCode(userCode);
                 scannerFrameBatchSend.setCreateUserName(userName);
                 scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
                 scannerFrameBatchSend.setUpdateUserName(userName);
+                scannerFrameBatchSend.setLastPrintTime(null);
                 scannerFrameBatchSend.setCreateTime(new Date());
                 scannerFrameBatchSend.setUpdateTime(new Date());
                 scannerFrameBatchSend.setYn((byte) 1);
@@ -473,6 +494,18 @@ public class GantryAutoSendController {
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/print";
             String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/summaryPrint";
+
+            Map<String ,Object> param = new HashMap<String, Object>();
+            param.put("machineId",machineId);
+            param.put("version",1);//版本号1表示的是自动发货的新版本，可以去掉这个限制，加上是防止龙门架注册的时候，两个版本用了同一个machineId
+            List<GantryDevice> gantrys = gantryDeviceService.getGantry(param);
+            logger.info("龙门架的配置gantry_device_info :" + JsonHelper.toJson(gantrys));
+            if (null == gantrys || gantrys.size() == 0){
+                result.setCode(400);
+                result.setMessage("龙门架的配置信息为空");
+                return result;
+            }
+
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
@@ -483,8 +516,8 @@ public class GantryAutoSendController {
                 ScannerFrameBatchSend itemtoEndSend = new ScannerFrameBatchSend();
                 logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
                 itemtoEndSend.setMachineId(item.getMachineId());
-                itemtoEndSend.setCreateSiteCode(item.getCreateSiteCode());
-                itemtoEndSend.setCreateSiteName(item.getCreateSiteName());
+                itemtoEndSend.setCreateSiteCode(gantrys.get(0).getSiteCode());
+                itemtoEndSend.setCreateSiteName(gantrys.get(0).getSiteName());
                 itemtoEndSend.setReceiveSiteCode(item.getReceiveSiteCode());
                 itemtoEndSend.setReceiveSiteName(item.getReceiveSiteName());
                 itemtoEndSend.setPrintTimes((byte) 0);
