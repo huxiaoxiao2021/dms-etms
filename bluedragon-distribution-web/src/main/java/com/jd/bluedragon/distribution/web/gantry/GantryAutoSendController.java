@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.UsingState;
@@ -485,6 +486,18 @@ public class GantryAutoSendController {
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/print";
             String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/summaryPrint";
+
+            Map<String ,Object> param = new HashMap<String, Object>();
+            param.put("machineId",machineId);
+            param.put("version",1);//版本号1表示的是自动发货的新版本，可以去掉这个限制，加上是防止龙门架注册的时候，两个版本用了同一个machineId
+            List<GantryDevice> gantrys = gantryDeviceService.getGantry(param);
+            logger.info("龙门架的配置gantry_device_info :" + JsonHelper.toJson(gantrys));
+            if (null == gantrys || gantrys.size() == 0){
+                result.setCode(400);
+                result.setMessage("龙门架的配置信息为空");
+                return result;
+            }
+
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
@@ -495,8 +508,8 @@ public class GantryAutoSendController {
                 ScannerFrameBatchSend itemtoEndSend = new ScannerFrameBatchSend();
                 logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
                 itemtoEndSend.setMachineId(item.getMachineId());
-                itemtoEndSend.setCreateSiteCode(item.getCreateSiteCode());
-                itemtoEndSend.setCreateSiteName(item.getCreateSiteName());
+                itemtoEndSend.setCreateSiteCode(gantrys.get(0).getSiteCode());
+                itemtoEndSend.setCreateSiteName(gantrys.get(0).getSiteName());
                 itemtoEndSend.setReceiveSiteCode(item.getReceiveSiteCode());
                 itemtoEndSend.setReceiveSiteName(item.getReceiveSiteName());
                 itemtoEndSend.setPrintTimes((byte) 0);
