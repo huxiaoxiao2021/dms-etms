@@ -92,16 +92,23 @@ public class ArReceiveResource {
             logger.info("空铁项目待提货查询参数,"+ "始发城市id:" + request.getStartCityId() +",目的城市id:" + endCityId+
                     ",航空单号:" + request.getOrderNo() + ",运力名称:" + request.getTransportName());
 
-            //从发货登记表中查找待提货信息
-            List<ArSendRegister> arSendRegisters = arSendRegisterService.queryWaitReceive(arSendRegister);
+            try{
+                //从发货登记表中查找待提货信息
+                List<ArSendRegister> arSendRegisters = arSendRegisterService.queryWaitReceive(arSendRegister);
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            for(ArSendRegister arSendRegister1 : arSendRegisters){
-                result.add(new ArWaitReceive(arSendRegister1.getOrderCode(),arSendRegister1.getTransportName(),
-                        arSendRegister1.getStartStationName(),arSendRegister1.getEndStationName(),
-                        formatter.format(arSendRegister1.getPlanStartTime()).toString(),
-                        formatter.format(arSendRegister1.getPlanEndTime()).toString()));
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                for(ArSendRegister arSendRegister1 : arSendRegisters){
+                    result.add(new ArWaitReceive(arSendRegister1.getOrderCode(),arSendRegister1.getTransportName(),
+                            arSendRegister1.getStartStationName(),arSendRegister1.getEndStationName(),
+                            formatter.format(arSendRegister1.getPlanStartTime()).toString(),
+                            formatter.format(arSendRegister1.getPlanEndTime()).toString()));
+                }
+            }catch(Exception e){
+                logger.error("空铁项目待提货查询失败，原因："+e.getMessage());
+                result.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_ERROR);
+                result.setMessage(com.jd.ql.dms.common.domain.JdResponse.MESSAGE_ERROR+":请联系研发人员");
             }
+
         }
         return result;
     }
