@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
-import java.util.Date;
-
 /**
  * <p>
  * Created by lixin39 on 2017/12/29.
@@ -67,6 +65,11 @@ public class ArTransportInfo {
      * 预计落地时间
      */
     private String planEndTime;
+
+    /**
+     * 时效（跨越天数）
+     */
+    private Integer aging;
 
     public String getTransCompanyCode() {
         return transCompanyCode;
@@ -162,6 +165,14 @@ public class ArTransportInfo {
 
     public void setPlanEndTime(String planEndTime) {
         this.planEndTime = planEndTime;
+    }
+
+    public Integer getAging() {
+        return aging;
+    }
+
+    public void setAging(Integer aging) {
+        this.aging = aging;
     }
 
 }

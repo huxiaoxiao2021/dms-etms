@@ -167,6 +167,7 @@
                         <label class="col-lg-3 control-label">航空公司：</label>
                         <div class="col-lg-5">
                             <input type="hidden" class="form-control edit-param" id="transCompanyCode" name="transCompanyCode"/>
+                            <input type="hidden" class="form-control edit-param" id="aging" name="aging"/>
                             <span id="transCompany" style="font-size: 20px;text-align: left;display:block;"></span>
                         </div>
                     </div>

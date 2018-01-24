@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.transport.domain;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * @author lixin39
@@ -96,6 +95,11 @@ public class ArSendRegisterCondition extends BasePagerCondition {
      * 预计落地时间
      */
     private String planEndTime;
+
+    /**
+     * 时效（跨越天数）
+     */
+    private Integer aging;
 
     /**
      * 发货件数
@@ -228,6 +232,14 @@ public class ArSendRegisterCondition extends BasePagerCondition {
 
     public void setEndCityId(Integer endCityId) {
         this.endCityId = endCityId;
+    }
+
+    public Integer getAging() {
+        return aging;
+    }
+
+    public void setAging(Integer aging) {
+        this.aging = aging;
     }
 
     public String getStartStationName() {

@@ -20,8 +20,9 @@
         <result column="start_station_id" property="startStationId" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="end_station_name" property="endStationName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="end_station_id" property="endStationId" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="plan_start_time" property="planStartTime" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="plan_end_time" property="planEndTime" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="plan_start_time" property="planStartTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="plan_end_time" property="planEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="aging" property="aging" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="send_num" property="sendNum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="charged_weight" property="chargedWeight" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
         <result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -43,7 +44,7 @@
         id,status,transport_type,order_code,transport_name,site_order,
         send_date,trans_company_code,trans_company,start_city_name,start_city_id,end_city_name,
         end_city_id,start_station_name,start_station_id,end_station_name,end_station_id,
-        plan_start_time,plan_end_time,send_num,charged_weight,remark,
+        plan_start_time,plan_end_time,aging,send_num,charged_weight,remark,
         shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept,operation_time,
         create_user,update_user,create_time,update_time
     </sql>
@@ -97,6 +98,9 @@
         </if>
         <if test="planEndTime != null">
             plan_end_time,
+        </if>
+        <if test="aging != null">
+            aging,
         </if>
         send_num,
         charged_weight,
@@ -173,10 +177,13 @@
             #{endStationId,jdbcType=VARCHAR},
         </if>
         <if test="planStartTime != null">
-            #{planStartTime,jdbcType=VARCHAR},
+            #{planStartTime,jdbcType=TIMESTAMP},
         </if>
         <if test="planEndTime != null">
-            #{planEndTime,jdbcType=VARCHAR},
+            #{planEndTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="aging != null">
+            #{aging,jdbcType=INTEGER},
         </if>
             #{sendNum,jdbcType=INTEGER},
             #{chargedWeight,jdbcType=DECIMAL},
@@ -218,7 +225,7 @@
         status,transport_type,order_code,transport_name,
         site_order,send_date,trans_company_code,trans_company,start_city_name,start_city_id,
         end_city_name,end_city_id,start_station_name,start_station_id,end_station_name,
-        end_station_id,plan_start_time,plan_end_time,send_num,charged_weight,
+        end_station_id,plan_start_time,plan_end_time,aging,send_num,charged_weight,
         remark,shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept_code,operation_dept,
         operation_time,create_user,update_user,create_time,update_time
         )
@@ -241,8 +248,9 @@
             #{item.startStationId,jdbcType=VARCHAR},
             #{item.endStationName,jdbcType=VARCHAR},
             #{item.endStationId,jdbcType=VARCHAR},
-            #{item.planStartTime,jdbcType=VARCHAR},
-            #{item.planEndTime,jdbcType=VARCHAR},
+            #{item.planStartTime,jdbcType=TIMESTAMP},
+            #{item.planEndTime,jdbcType=TIMESTAMP},
+            #{item.aging,jdbcType=INTEGER},
             #{item.sendNum,jdbcType=INTEGER},
             #{item.chargedWeight,jdbcType=DECIMAL},
             #{item.remark,jdbcType=VARCHAR},
@@ -312,10 +320,13 @@
                 end_station_id = #{endStationId,jdbcType=VARCHAR},
             </if>
             <if test="planStartTime != null">
-                plan_start_time = #{planStartTime,jdbcType=VARCHAR},
+                plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
             </if>
             <if test="planEndTime != null">
-                plan_end_time = #{planEndTime,jdbcType=VARCHAR},
+                plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="aging != null">
+                aging = #{aging,jdbcType=INTEGER},
             </if>
             <if test="sendNum != null">
                 send_num = #{sendNum,jdbcType=INTEGER},

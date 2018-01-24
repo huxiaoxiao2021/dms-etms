@@ -132,10 +132,26 @@ $(function () {
             title: '落地城市'
         }, {
             field: 'planStartTime',
-            title: '预计起飞时间'
+            title: '预计起飞时间',
+            width: 150,
+            formatter: function (value, row, index) {
+                if (value != null && value != '') {
+                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                } else {
+                    return "-";
+                }
+            }
         }, {
             field: 'planEndTime',
-            title: '预计落地时间'
+            title: '预计落地时间',
+            width: 150,
+            formatter: function (value, row, index) {
+                if (value != null && value != '') {
+                    return jQuery.dateHelper.formateDateTimeOfTs(value);
+                } else {
+                    return "-";
+                }
+            }
         }, {
             field: 'sendNum',
             title: '发货件数'
@@ -170,7 +186,7 @@ $(function () {
         }, {
             field: 'operationTime',
             title: '操作时间',
-            width: 200,
+            width: 150,
             formatter: function (value, row, index) {
                 if (value != null && value != '') {
                     return jQuery.dateHelper.formateDateTimeOfTs(value);
@@ -342,9 +358,10 @@ $(function () {
         $("#endStationName").text('');
         $("#planStartTime").text('');
         $("#planEndTime").text('');
+        $("#aging").val('');
     }
 
-    var setTransportInfo = function (data) {
+    var setTransportInfo = function (data, type) {
         $("#transCompany").text(data.transCompany == null ? "" : data.transCompany);
         $("#transCompanyCode").text(data.transCompanyCode == null ? "" : data.transCompanyCode);
         $("#startCityId").val(data.startCityId);
@@ -355,8 +372,14 @@ $(function () {
         $("#endStationId").val(data.endStationId);
         $("#startStationName").text(data.startStationName == null ? "" : data.startStationName);
         $("#endStationName").text(data.endStationName == null ? "" : data.endStationName);
-        $("#planStartTime").text(data.planStartTime == null ? "" : data.planStartTime);
-        $("#planEndTime").text(data.planEndTime == null ? "" : data.planEndTime);
+        if (type == 1) {
+            $("#planStartTime").text(data.planStartTime == null ? "" : jQuery.dateHelper.formateTimeNossOfTs(data.planStartTime));
+            $("#planEndTime").text(data.planEndTime == null ? "" : jQuery.dateHelper.formateTimeNossOfTs(data.planEndTime));
+        } else {
+            $("#planStartTime").text(data.planStartTime == null ? "" : data.planStartTime);
+            $("#planEndTime").text(data.planEndTime == null ? "" : data.planEndTime);
+        }
+        $("#aging").val(data.aging);
     }
 
     var getTransportInfo = function (params) {
@@ -429,6 +452,7 @@ $(function () {
                 //$("#dataTable").bootstrapTable('destroy');
                 //tableInit().init();
                 $('#tableName').bootstrapTable('refreshOptions', {pageNumber: 1});
+                tableInit().refresh();
             });
 
             $('#btn_add').click(function () {
@@ -469,7 +493,7 @@ $(function () {
                         $('#shuttleBusType').val(Number(res.data.shuttleBusType)).trigger("change");
                         $('#shuttleBusNumEdit').val(res.data.shuttleBusNum);
                         $('#sendDateEdit').val(jQuery.dateHelper.formateDateOfTs(res.data.sendDate));
-                        setTransportInfo(res.data);
+                        setTransportInfo(res.data, 1);
                     }
                 });
                 $('#dataTableDiv').hide();
@@ -565,7 +589,7 @@ $(function () {
                             if (response.code == 200) {
                                 $("#siteOrderEdit").val("");
                                 clearTransportInfo();
-                                setTransportInfo(response.data);
+                                setTransportInfo(response.data, 2);
                             } else {
                                 alert(response.message);
                             }
@@ -587,7 +611,7 @@ $(function () {
                             if (response.code == 200) {
                                 $("#orderCodeEdit").val("");
                                 clearTransportInfo();
-                                setTransportInfo(response.data);
+                                setTransportInfo(response.data, 2);
                             } else {
                                 alert(response.message);
                             }
