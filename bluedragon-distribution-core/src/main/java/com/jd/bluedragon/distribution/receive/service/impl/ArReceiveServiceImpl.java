@@ -75,27 +75,29 @@ public class ArReceiveServiceImpl extends BaseService<ArReceive> implements ArRe
 		if(StringHelper.isEmpty(barcode)){
 			return null;
 		}
-		List<Integer> siteCodes = kvIndexService.queryCreateSiteCodesByKey(barcode);
+		//根据箱号查询最近操作的站点
+		List<Integer> siteCodes = kvIndexService.queryRecentSiteCodesByKey(barcode);
 		if(siteCodes!=null && !siteCodes.isEmpty()){
 			for(Integer siteCode:siteCodes){
 				SendM sendMParam = new SendM();
 				sendMParam.setBoxCode(barcode);
 				sendMParam.setCreateSiteCode(siteCode);
 				List<SendM> sendMs = sendMDao.findSendMByBoxCode(sendMParam);
-				/**
-				 * 按操作时间降序排序
-				 */
-				Collections.sort(sendMs, new Comparator<SendM>(){
-					@Override
-					public int compare(SendM o1, SendM o2) {
-						if(o1 != null && o2 != null){
-							return ObjectHelper.compare(o1.getOperateTime(), o2.getOperateTime());
-						}else{
-							return ObjectHelper.compare(o1, o2);
-						}
-					}
-				});
 				if(sendMs!=null && !sendMs.isEmpty()){
+					/**
+					 * 按操作时间降序排序
+					 */
+					Collections.sort(sendMs, new Comparator<SendM>(){
+						@Override
+						public int compare(SendM o1, SendM o2) {
+							if(o1 != null && o2 != null){
+								return ObjectHelper.compare(o1.getOperateTime(), o2.getOperateTime());
+							}else{
+								return ObjectHelper.compare(o1, o2);
+							}
+						}
+					});
+					//循环sendM的数据，根据批次号查询对应的发货登记信息
 					for(SendM sendM: sendMs){
 						if(StringHelper.isNotEmpty(sendM.getSendCode())){
 							ArSendCodeCondition pagerCondition = new ArSendCodeCondition();
