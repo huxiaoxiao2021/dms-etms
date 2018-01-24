@@ -73,6 +73,11 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 	private OfflineService offlineArReceiveService;
     @Autowired
     private ArSendRegisterService arSendRegisterService;
+    /**
+     * 复合任务多个任务同时插入时，延迟的秒数，默认5s
+     */
+    private int delaySeconds = 5;
+    
 	@Override
 	public Task parse(Task task, String ownSign) {
 		return task;
@@ -163,9 +168,9 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 } else if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(offlineLogRequest.getTaskType())) {
                 	//空铁提货并发货
                 	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
-                	//先加入一个提货worker，操作时间延后30s然后加入一个一车一单发货任务
-                	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime());
-                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, 30));
+                	//先加入一个提货worker，操作时间延后5s然后加入一个一车一单发货任务
+                	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(),Constants.DATE_TIME_MS_FORMAT);
+                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds),Constants.DATE_TIME_MS_FORMAT);
                 	offlineLogRequest.setOperateTime(operateTimeStr);
                 	resultCode = offlineDeliveryService.parseToTask(offlineLogRequest);
                 }
@@ -259,4 +264,16 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 
         return sealCarDtos;
     }
+	/**
+	 * @return the delaySeconds
+	 */
+	public int getDelaySeconds() {
+		return delaySeconds;
+	}
+	/**
+	 * @param delaySeconds the delaySeconds to set
+	 */
+	public void setDelaySeconds(int delaySeconds) {
+		this.delaySeconds = delaySeconds;
+	}
 }
