@@ -50,16 +50,10 @@ public class ArBaseResource {
         //1-查询发货登记表获取始发城市id和始发城市名称
         List<City> startCities = arSendRegisterService.queryStartCityInfo();
         for (City city : startCities) {
-            result.add(new DictionaryInfoModel(city.getCityId(), city.getCityName(), ARCommonDictionaryType.START_CITY.getType()));
+            result.add(new DictionaryInfoModel(city.getCityId(), city.getCityName(), ARCommonDictionaryType.CITY.getType()));
         }
 
-        //2-查询发货登记表获取目的城市id和目的城市名称
-        List<City> endCities = arSendRegisterService.queryEndCityInfo();
-        for (City city : endCities) {
-            result.add(new DictionaryInfoModel(city.getCityId(), city.getCityName(), ARCommonDictionaryType.END_CITY.getType()));
-        }
-
-        //3-获取摆渡车型信息
+        //2-获取摆渡车型信息
         List<BusType> busTypes = busTypeService.getAllBusType();
         for (BusType busType : busTypes) {
             result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.BUS_TYPE.getType()));

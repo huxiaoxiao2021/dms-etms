@@ -31,8 +31,20 @@
 <link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-validator/bootstrapValidator.min.css">
 
 <script src="/static/imports/plugin/npmutil/date-and-time.min.js"></script>
-
+<script src="/static/imports/plugin/jqueryForm/jquery.form.min.js"></script>
 ####################
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
+
+####################
+## 基础样式
+####################
+<style type="text/css">
+    .min_120{
+        min-width: 120px;
+    }
+    .min_180{
+        min-width: 180px;
+    }
+</style>

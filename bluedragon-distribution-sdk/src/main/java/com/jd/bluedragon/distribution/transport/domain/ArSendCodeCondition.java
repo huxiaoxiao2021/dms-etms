@@ -7,7 +7,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
  * @ClassName: ArSendCodeCondition
  * @Description: 发货批次表-查询条件
  * @author wuyoude
- * @date 2017年12月28日 09:46:12
+ * @date 2018年01月15日 23:23:19
  *
  */
 public class ArSendCodeCondition extends BasePagerCondition {

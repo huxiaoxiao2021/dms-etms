@@ -15,6 +15,23 @@ import java.util.List;
  *
  */
 public interface ArSendRegisterDao extends Dao<ArSendRegister> {
+
+    /**
+     * 根据ids批量获取
+     * @param ids
+     * @return
+     */
+    List<ArSendRegister> getList(List<Long> ids);
+
+    /**
+     * 根据IDS删除
+     *
+     * @param ids
+     * @param userCode
+     * @return
+     */
+    int deleteByIds(List<Long> ids, String userCode);
+
     /**
      * 从发货登记表中获取所有的已经登记的始发城市的信息
      * @return
@@ -33,4 +50,5 @@ public interface ArSendRegisterDao extends Dao<ArSendRegister> {
      * @return
      */
     List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister);
+
 }

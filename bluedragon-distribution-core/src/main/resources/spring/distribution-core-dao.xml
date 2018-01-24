@@ -390,5 +390,7 @@
     <bean id="arSendCodeDao" parent="unDivBaseDao" 
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendCodeDaoImpl"/>
     <bean id="arSendRegisterDao" parent="unDivBaseDao" 
-    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>    	    	
+    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
+    <bean id="arReceiveDao" parent="unDivBaseDao" 
+    	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>    	   	
 </beans>

@@ -5,13 +5,10 @@ package com.jd.bluedragon.distribution.transport.domain;
  */
 public enum ARCommonDictionaryType {
     //始发城市
-    START_CITY(10),
-
-    //目的城市
-    END_CITY(20),
+    CITY(10),
 
     //车型
-    BUS_TYPE(30);
+    BUS_TYPE(20);
 
 
     // 枚举对象的type,表示通用字典中属性的类型

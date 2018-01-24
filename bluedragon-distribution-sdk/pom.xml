@@ -14,7 +14,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+		<org.springframework.version>3.1.4.RELEASE</org.springframework.version>
 		<jackson.version>1.9.2</jackson.version>
 		<resteasy.version>2.2.3.GA</resteasy.version>
 	</properties>
@@ -36,24 +36,33 @@
 		    <artifactId>guava</artifactId>
 		    <version>14.0.1</version>
 		</dependency>
-
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
 <!-- 		<dependency>
 	        <groupId>org.codehaus.jackson</groupId>
 	        <artifactId>jackson-core-asl</artifactId>
 	        <version>${jackson.version}</version>
 	    </dependency>
-	    
+
 		<dependency>
 		    <groupId>org.codehaus.jackson</groupId>
 		    <artifactId>jackson-jaxrs</artifactId>
 		    <version>${jackson.version}</version>
-		</dependency>  
-		
+		</dependency>
+
 		<dependency>
 	        <groupId>org.codehaus.jackson</groupId>
 	        <artifactId>jackson-mapper-asl</artifactId>
 	        <version>${jackson.version}</version>
-	    </dependency> 
+	    </dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>

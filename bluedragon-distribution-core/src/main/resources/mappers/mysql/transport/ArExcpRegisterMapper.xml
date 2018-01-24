@@ -24,6 +24,7 @@
 		<result column="excp_result_name" property="excpResultName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="excp_city" property="excpCity" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="excp_city_id" property="excpCityId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="excp_num" property="excpNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="excp_package_num" property="excpPackageNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="operator_erp" property="operatorErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -41,7 +42,7 @@
 		site_order,start_city_name,start_city_id,end_city_name,end_city_id,
 		plan_start_time,plan_end_time,excp_type,excp_type_name,excp_reason,
 		excp_reason_name,excp_result,excp_result_name,excp_city,excp_city_id,
-		excp_num,excp_package_num,operator_erp,remark,create_user,
+		send_code,excp_num,excp_package_num,operator_erp,remark,create_user,
 		update_user,create_time,update_time,is_delete,ts
 	</sql>
 
@@ -49,9 +50,7 @@
 		insert into ar_excp_register
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
+
 				<if test="excpTime != null">
 					excp_time,
 				</if>
@@ -112,6 +111,9 @@
 				<if test="excpCityId != null">
 					excp_city_id,
 				</if>
+				<if test="sendCode != null">
+					send_code,
+				</if>
 				<if test="excpNum != null">
 					excp_num,
 				</if>
@@ -130,26 +132,21 @@
 				<if test="updateUser != null">
 					update_user,
 				</if>
-				<if test="createTime != null">
+
 					create_time,
-				</if>
-				<if test="updateTime != null">
+
 					update_time,
-				</if>
-				<if test="isDelete != null">
+
 					is_delete,
-				</if>
-				<if test="ts != null">
+
 					ts
-				</if>
+
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
+
 				<if test="excpTime != null">
 					#{excpTime,jdbcType=TIMESTAMP},
 				</if>
@@ -210,6 +207,9 @@
 				<if test="excpCityId != null">
 					#{excpCityId,jdbcType=INTEGER},
 				</if>
+				<if test="sendCode != null">
+					#{sendCode,jdbcType=VARCHAR},
+				</if>
 				<if test="excpNum != null">
 					#{excpNum,jdbcType=INTEGER},
 				</if>
@@ -228,18 +228,11 @@
 				<if test="updateUser != null">
 					#{updateUser,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+				now(),
+				now(),
+				0,
+				now()
+
 			</trim>
 			)
 	</insert>
@@ -325,12 +318,11 @@
 				<if test="endCityId != null">
 					end_city_id = #{endCityId,jdbcType=INTEGER},
 				</if>
-				<if test="planStartTime != null">
+
 					plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="planEndTime != null">
+
 					plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
-				</if>
+
 				<if test="excpType != null">
 					excp_type = #{excpType,jdbcType=SMALLINT},
 				</if>
@@ -355,6 +347,9 @@
 				<if test="excpCityId != null">
 					excp_city_id = #{excpCityId,jdbcType=INTEGER},
 				</if>
+				<if test="sendCode != null">
+					send_code = #{sendCode,jdbcType=VARCHAR},
+				</if>
 				<if test="excpNum != null">
 					excp_num = #{excpNum,jdbcType=INTEGER},
 				</if>
@@ -367,24 +362,15 @@
 				<if test="remark != null">
 					remark = #{remark,jdbcType=VARCHAR},
 				</if>
-				<if test="createUser != null">
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
+
 				<if test="updateUser != null">
 					update_user = #{updateUser,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
+
+					update_time = now(),
+
+					ts = now()
+
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -426,13 +412,42 @@
 			and is_delete=0 
 	</sql>
 
+	<sql id="Query_Params_Condition_Sql">
+		<if test="excpNode != null">
+			and excp_node = #{excpNode,jdbcType=SMALLINT}
+		</if>
+		<if test="excpType != null">
+			and excp_type = #{excpType,jdbcType=SMALLINT}
+		</if>
+
+		<if test="excpTimeGE != null and excpTimeLE !=null">
+			and excp_time BETWEEN #{excpTimeGE} and #{excpTimeLE}
+		</if>
+		<if test="excpTimeGE != null and excpTimeLE ==null">
+			and  <![CDATA[   excp_time >= #{excpTimeGE}  ]]>
+		</if>
+		<if test="excpTimeGE == null and excpTimeLE !=null">
+			and  <![CDATA[   excp_time <= #{excpTimeLE}  ]]>
+		</if>
+
+		<if test="transportName != null">
+			and transport_name LIKE #{transportName,jdbcType=VARCHAR}
+		</if>
+		<if test="orderCode != null">
+			and order_code LIKE #{orderCode,jdbcType=VARCHAR}
+		</if>
+	</sql>
+
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
 		  ar_excp_register 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		where 1=1
+
+		<include refid="Query_Params_Condition_Sql"/>
+
+		<include refid="Base_Condition_Sql"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ArExcpRegister">
@@ -440,8 +455,11 @@
 		 <include refid="Base_Column_List"/>
 		from 
 		  ar_excp_register 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		where 1=1
+
+		<include refid="Query_Params_Condition_Sql"/>
+
+		<include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.transport.domain.ArExcpRegister;
 import com.jd.bluedragon.distribution.transport.dao.ArExcpRegisterDao;
 import com.jd.bluedragon.distribution.transport.service.ArExcpRegisterService;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -31,4 +33,20 @@ public class ArExcpRegisterServiceImpl extends BaseService<ArExcpRegister> imple
 		return this.arExcpRegisterDao;
 	}
 
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public boolean saveOrUpdate(ArExcpRegister arExcpRegister, String userCode, String userName) {
+		ArExcpRegister oldData = this.find(arExcpRegister);
+
+		arExcpRegister.setUpdateUser(userCode);
+
+		if(oldData != null){
+			arExcpRegister.setId(oldData.getId());
+			return this.getDao().update(arExcpRegister);
+		}else{
+
+			arExcpRegister.setCreateUser(userCode);
+			return this.getDao().insert(arExcpRegister);
+		}
+	}
 }

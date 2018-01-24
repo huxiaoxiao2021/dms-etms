@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+import org.springframework.format.annotation.DateTimeFormat;
+//import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -17,6 +20,12 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 
 	 /** 预计起飞时间（根据运力类型描述可代表不同含义） */
 	private Date planStartDate;
+	/** 预计起飞时间 截止*/
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date planStartDateLE;
+	/** 预计起飞时间 开始*/
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date planStartDateGE;
 
 	 /** 分拣中心编号 */
 	private Long createSiteCode;
@@ -52,13 +61,13 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	private String priority;
 
 	 /** 可获取舱位（单位：kg） */
-	private Integer gainSpace;
+	private BigDecimal gainSpace;
 
 	 /** 计划订舱位（单位：kg） */
-	private Integer planSpace;
+	private BigDecimal planSpace;
 
 	 /** 实际订舱位（单位：kg） */
-	private Integer realSpace;
+	private BigDecimal realSpace;
 
 	 /** 订舱日期 */
 	private Date bookingSpaceTime;
@@ -283,7 +292,7 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	 * The set method for gainSpace.
 	 * @param gainSpace
 	 */
-	public void setGainSpace(Integer gainSpace) {
+	public void setGainSpace(BigDecimal gainSpace) {
 		this.gainSpace = gainSpace;
 	}
 
@@ -291,7 +300,7 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	 * The get method for gainSpace.
 	 * @return this.gainSpace
 	 */
-	public Integer getGainSpace() {
+	public BigDecimal getGainSpace() {
 		return this.gainSpace;
 	}
 
@@ -299,7 +308,7 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	 * The set method for planSpace.
 	 * @param planSpace
 	 */
-	public void setPlanSpace(Integer planSpace) {
+	public void setPlanSpace(BigDecimal planSpace) {
 		this.planSpace = planSpace;
 	}
 
@@ -307,7 +316,7 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	 * The get method for planSpace.
 	 * @return this.planSpace
 	 */
-	public Integer getPlanSpace() {
+	public BigDecimal getPlanSpace() {
 		return this.planSpace;
 	}
 
@@ -315,7 +324,7 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	 * The set method for realSpace.
 	 * @param realSpace
 	 */
-	public void setRealSpace(Integer realSpace) {
+	public void setRealSpace(BigDecimal realSpace) {
 		this.realSpace = realSpace;
 	}
 
@@ -323,7 +332,7 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 	 * The get method for realSpace.
 	 * @return this.realSpace
 	 */
-	public Integer getRealSpace() {
+	public BigDecimal getRealSpace() {
 		return this.realSpace;
 	}
 
@@ -471,5 +480,25 @@ public class ArBookingSpaceCondition extends BasePagerCondition {
 		return this.updateUser;
 	}
 
+	public Date getPlanStartDateLE() {
+		return planStartDateLE;
+	}
 
+	public void setPlanStartDateLE(Date planStartDateLE) {
+		planStartDateLE.setHours(0);
+		planStartDateLE.setMinutes(0);
+		planStartDateLE.setSeconds(0);
+		this.planStartDateLE = planStartDateLE;
+	}
+
+	public Date getPlanStartDateGE() {
+		return planStartDateGE;
+	}
+
+	public void setPlanStartDateGE(Date planStartDateGE) {
+		planStartDateGE.setHours(0);
+		planStartDateGE.setMinutes(0);
+		planStartDateGE.setSeconds(0);
+		this.planStartDateGE = planStartDateGE;
+	}
 }

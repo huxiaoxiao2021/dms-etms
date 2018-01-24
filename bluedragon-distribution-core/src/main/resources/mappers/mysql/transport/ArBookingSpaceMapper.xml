@@ -2,39 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.transport.dao.ArBookingSpaceDao">
 
-	<resultMap id="ArBookingSpace" type="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace" >
-		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="plan_start_date" property="planStartDate" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="transport_name" property="transportName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="transport_type" property="transportType" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="start_city_id" property="startCityId" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="start_city_name" property="startCityName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="end_city_id" property="endCityId" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="end_city_name" property="endCityName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="plan_start_time" property="planStartTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="plan_end_time" property="planEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="priority" property="priority" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="gain_space" property="gainSpace" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="plan_space" property="planSpace" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="real_space" property="realSpace" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="booking_space_time" property="bookingSpaceTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="supplier_name" property="supplierName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="phone" property="phone" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="operator_erp" property="operatorErp" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="operator_name" property="operatorName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-	</resultMap>
+    <resultMap id="ArBookingSpace" type="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="plan_start_date" property="planStartDate" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="transport_name" property="transportName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="transport_type" property="transportType" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="start_city_id" property="startCityId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="start_city_name" property="startCityName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="end_city_id" property="endCityId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="end_city_name" property="endCityName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="plan_start_time" property="planStartTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="plan_end_time" property="planEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="priority" property="priority" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="gain_space" property="gainSpace" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result column="plan_space" property="planSpace" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result column="real_space" property="realSpace" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result column="booking_space_time" property="bookingSpaceTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="supplier_name" property="supplierName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operator_erp" property="operatorErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operator_name" property="operatorName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
 
-	<sql id="Base_Column_List" >
+    <sql id="Base_Column_List">
 		id,plan_start_date,create_site_code,create_site_name,transport_name,transport_type,
 		start_city_id,start_city_name,end_city_id,end_city_name,plan_start_time,
 		plan_end_time,priority,gain_space,plan_space,real_space,
@@ -43,383 +43,658 @@
 		update_time,is_delete,ts
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace">
-		insert into ar_booking_space
-			(
-			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
-				<if test="planStartDate != null">
-					plan_start_date,
-				</if>
-				<if test="createSiteCode != null">
-					create_site_code,
-				</if>
-				<if test="createSiteName != null">
-					create_site_name,
-				</if>
-				<if test="transportName != null">
-					transport_name,
-				</if>
-				<if test="transportType != null">
-					transport_type,
-				</if>
-				<if test="startCityId != null">
-					start_city_id,
-				</if>
-				<if test="startCityName != null">
-					start_city_name,
-				</if>
-				<if test="endCityId != null">
-					end_city_id,
-				</if>
-				<if test="endCityName != null">
-					end_city_name,
-				</if>
-				<if test="planStartTime != null">
-					plan_start_time,
-				</if>
-				<if test="planEndTime != null">
-					plan_end_time,
-				</if>
-				<if test="priority != null">
-					priority,
-				</if>
-				<if test="gainSpace != null">
-					gain_space,
-				</if>
-				<if test="planSpace != null">
-					plan_space,
-				</if>
-				<if test="realSpace != null">
-					real_space,
-				</if>
-				<if test="bookingSpaceTime != null">
-					booking_space_time,
-				</if>
-				<if test="supplierName != null">
-					supplier_name,
-				</if>
-				<if test="phone != null">
-					phone,
-				</if>
-				<if test="remark != null">
-					remark,
-				</if>
-				<if test="operatorErp != null">
-					operator_erp,
-				</if>
-				<if test="operatorName != null">
-					operator_name,
-				</if>
-				<if test="operateTime != null">
-					operate_time,
-				</if>
-				<if test="createUser != null">
-					create_user,
-				</if>
-				<if test="createTime != null">
-					create_time,
-				</if>
-				<if test="updateUser != null">
-					update_user,
-				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
-					is_delete,
-				</if>
-				<if test="ts != null">
-					ts
-				</if>
-			</trim>
-			)
-			values
-			(
-			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
-				<if test="planStartDate != null">
-					#{planStartDate,jdbcType=TIMESTAMP},
-				</if>
-				<if test="createSiteCode != null">
-					#{createSiteCode,jdbcType=BIGINT},
-				</if>
-				<if test="createSiteName != null">
-					#{createSiteName,jdbcType=VARCHAR},
-				</if>
-				<if test="transportName != null">
-					#{transportName,jdbcType=VARCHAR},
-				</if>
-				<if test="transportType != null">
-					#{transportType,jdbcType=TINYINT},
-				</if>
-				<if test="startCityId != null">
-					#{startCityId,jdbcType=INTEGER},
-				</if>
-				<if test="startCityName != null">
-					#{startCityName,jdbcType=VARCHAR},
-				</if>
-				<if test="endCityId != null">
-					#{endCityId,jdbcType=INTEGER},
-				</if>
-				<if test="endCityName != null">
-					#{endCityName,jdbcType=VARCHAR},
-				</if>
-				<if test="planStartTime != null">
-					#{planStartTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="planEndTime != null">
-					#{planEndTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="priority != null">
-					#{priority,jdbcType=VARCHAR},
-				</if>
-				<if test="gainSpace != null">
-					#{gainSpace,jdbcType=INTEGER},
-				</if>
-				<if test="planSpace != null">
-					#{planSpace,jdbcType=INTEGER},
-				</if>
-				<if test="realSpace != null">
-					#{realSpace,jdbcType=INTEGER},
-				</if>
-				<if test="bookingSpaceTime != null">
-					#{bookingSpaceTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="supplierName != null">
-					#{supplierName,jdbcType=VARCHAR},
-				</if>
-				<if test="phone != null">
-					#{phone,jdbcType=VARCHAR},
-				</if>
-				<if test="remark != null">
-					#{remark,jdbcType=VARCHAR},
-				</if>
-				<if test="operatorErp != null">
-					#{operatorErp,jdbcType=VARCHAR},
-				</if>
-				<if test="operatorName != null">
-					#{operatorName,jdbcType=VARCHAR},
-				</if>
-				<if test="operateTime != null">
-					#{operateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="createUser != null">
-					#{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateUser != null">
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
-			</trim>
-			)
-	</insert>
+    <insert id="insert_gen" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace">
+        insert into ar_booking_space
+        (
+        <trim suffixOverrides=",">
 
-	<insert id="batchInsert" parameterType="List">
-		insert into ar_booking_space
-			(
-				plan_start_date,create_site_code,create_site_name,transport_name,
-				transport_type,start_city_id,start_city_name,end_city_id,end_city_name,
-				plan_start_time,plan_end_time,priority,gain_space,plan_space,
-				real_space,booking_space_time,supplier_name,phone,remark,
-				operator_erp,operator_name,operate_time,create_user,create_time,
-				update_user,update_time,is_delete,ts
-			)
-			values
-			<foreach collection="list" item="item" index="index" separator=",">
-				(
-					#{item.planStartDate,jdbcType=TIMESTAMP},
-					#{item.createSiteCode,jdbcType=BIGINT},
-					#{item.createSiteName,jdbcType=VARCHAR},
-					#{item.transportName,jdbcType=VARCHAR},
-					#{item.transportType,jdbcType=TINYINT},
-					#{item.startCityId,jdbcType=INTEGER},
-					#{item.startCityName,jdbcType=VARCHAR},
-					#{item.endCityId,jdbcType=INTEGER},
-					#{item.endCityName,jdbcType=VARCHAR},
-					#{item.planStartTime,jdbcType=TIMESTAMP},
-					#{item.planEndTime,jdbcType=TIMESTAMP},
-					#{item.priority,jdbcType=VARCHAR},
-					#{item.gainSpace,jdbcType=INTEGER},
-					#{item.planSpace,jdbcType=INTEGER},
-					#{item.realSpace,jdbcType=INTEGER},
-					#{item.bookingSpaceTime,jdbcType=TIMESTAMP},
-					#{item.supplierName,jdbcType=VARCHAR},
-					#{item.phone,jdbcType=VARCHAR},
-					#{item.remark,jdbcType=VARCHAR},
-					#{item.operatorErp,jdbcType=VARCHAR},
-					#{item.operatorName,jdbcType=VARCHAR},
-					#{item.operateTime,jdbcType=TIMESTAMP},
-					#{item.createUser,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
-				)
-			</foreach>
-	</insert>
+            <if test="planStartDate != null">
+                plan_start_date,
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code,
+            </if>
+            <if test="createSiteName != null">
+                create_site_name,
+            </if>
+            <if test="transportName != null">
+                transport_name,
+            </if>
+            <if test="transportType != null">
+                transport_type,
+            </if>
+            <if test="startCityId != null">
+                start_city_id,
+            </if>
+            <if test="startCityName != null">
+                start_city_name,
+            </if>
+            <if test="endCityId != null">
+                end_city_id,
+            </if>
+            <if test="endCityName != null">
+                end_city_name,
+            </if>
+            <if test="planStartTime != null">
+                plan_start_time,
+            </if>
+            <if test="planEndTime != null">
+                plan_end_time,
+            </if>
+            <if test="priority != null">
+                priority,
+            </if>
+            <if test="gainSpace != null">
+                gain_space,
+            </if>
+            <if test="planSpace != null">
+                plan_space,
+            </if>
+            <if test="realSpace != null">
+                real_space,
+            </if>
+            <if test="bookingSpaceTime != null">
+                booking_space_time,
+            </if>
+            <if test="supplierName != null">
+                supplier_name,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="operatorErp != null">
+                operator_erp,
+            </if>
+            <if test="operatorName != null">
+                operator_name,
+            </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
+            <if test="createUser != null">
+                create_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateUser != null">
+                update_user,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="isDelete != null">
+                is_delete,
+            </if>
+            <if test="ts != null">
+                ts
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
 
-	<update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace">
-		update ar_booking_space
-			<set>
-				<if test="planStartDate != null">
-					plan_start_date = #{planStartDate,jdbcType=TIMESTAMP},
-				</if>
-				<if test="createSiteCode != null">
-					create_site_code = #{createSiteCode,jdbcType=BIGINT},
-				</if>
-				<if test="createSiteName != null">
-					create_site_name = #{createSiteName,jdbcType=VARCHAR},
-				</if>
-				<if test="transportName != null">
-					transport_name = #{transportName,jdbcType=VARCHAR},
-				</if>
-				<if test="transportType != null">
-					transport_type = #{transportType,jdbcType=TINYINT},
-				</if>
-				<if test="startCityId != null">
-					start_city_id = #{startCityId,jdbcType=INTEGER},
-				</if>
-				<if test="startCityName != null">
-					start_city_name = #{startCityName,jdbcType=VARCHAR},
-				</if>
-				<if test="endCityId != null">
-					end_city_id = #{endCityId,jdbcType=INTEGER},
-				</if>
-				<if test="endCityName != null">
-					end_city_name = #{endCityName,jdbcType=VARCHAR},
-				</if>
-				<if test="planStartTime != null">
-					plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="planEndTime != null">
-					plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="priority != null">
-					priority = #{priority,jdbcType=VARCHAR},
-				</if>
-				<if test="gainSpace != null">
-					gain_space = #{gainSpace,jdbcType=INTEGER},
-				</if>
-				<if test="planSpace != null">
-					plan_space = #{planSpace,jdbcType=INTEGER},
-				</if>
-				<if test="realSpace != null">
-					real_space = #{realSpace,jdbcType=INTEGER},
-				</if>
-				<if test="bookingSpaceTime != null">
-					booking_space_time = #{bookingSpaceTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="supplierName != null">
-					supplier_name = #{supplierName,jdbcType=VARCHAR},
-				</if>
-				<if test="phone != null">
-					phone = #{phone,jdbcType=VARCHAR},
-				</if>
-				<if test="remark != null">
-					remark = #{remark,jdbcType=VARCHAR},
-				</if>
-				<if test="operatorErp != null">
-					operator_erp = #{operatorErp,jdbcType=VARCHAR},
-				</if>
-				<if test="operatorName != null">
-					operator_name = #{operatorName,jdbcType=VARCHAR},
-				</if>
-				<if test="operateTime != null">
-					operate_time = #{operateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="createUser != null">
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateUser != null">
-					update_user = #{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
-			</set>
-		where id = #{id,jdbcType=BIGINT}
-	</update>
+            <if test="planStartDate != null">
+                #{planStartDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createSiteCode != null">
+                #{createSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="createSiteName != null">
+                #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="transportName != null">
+                #{transportName,jdbcType=VARCHAR},
+            </if>
+            <if test="transportType != null">
+                #{transportType,jdbcType=TINYINT},
+            </if>
+            <if test="startCityId != null">
+                #{startCityId,jdbcType=INTEGER},
+            </if>
+            <if test="startCityName != null">
+                #{startCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="endCityId != null">
+                #{endCityId,jdbcType=INTEGER},
+            </if>
+            <if test="endCityName != null">
+                #{endCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="planStartTime != null">
+                #{planStartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="planEndTime != null">
+                #{planEndTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="priority != null">
+                #{priority,jdbcType=VARCHAR},
+            </if>
+            <if test="gainSpace != null">
+                #{gainSpace,jdbcType=INTEGER},
+            </if>
+            <if test="planSpace != null">
+                #{planSpace,jdbcType=INTEGER},
+            </if>
+            <if test="realSpace != null">
+                #{realSpace,jdbcType=INTEGER},
+            </if>
+            <if test="bookingSpaceTime != null">
+                #{bookingSpaceTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="supplierName != null">
+                #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorErp != null">
+                #{operatorErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorName != null">
+                #{operatorName,jdbcType=VARCHAR},
+            </if>
+            <if test="operateTime != null">
+                #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUser != null">
+                #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null">
+                #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                #{isDelete,jdbcType=TINYINT},
+            </if>
+            <if test="ts != null">
+                #{ts,jdbcType=TIMESTAMP}
+            </if>
+        </trim>
+        )
+    </insert>
 
-	<update id="deleteById" parameterType="Long">
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace">
+        insert into ar_booking_space
+        (
+        <trim suffixOverrides=",">
+
+            <if test="planStartDate != null">
+                plan_start_date,
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code,
+            </if>
+            <if test="createSiteName != null">
+                create_site_name,
+            </if>
+            <if test="transportName != null">
+                transport_name,
+            </if>
+            <if test="transportType != null">
+                transport_type,
+            </if>
+            <if test="startCityId != null">
+                start_city_id,
+            </if>
+            <if test="startCityName != null">
+                start_city_name,
+            </if>
+            <if test="endCityId != null">
+                end_city_id,
+            </if>
+            <if test="endCityName != null">
+                end_city_name,
+            </if>
+            <if test="planStartTime != null">
+                plan_start_time,
+            </if>
+            <if test="planEndTime != null">
+                plan_end_time,
+            </if>
+            <if test="priority != null">
+                priority,
+            </if>
+            <if test="gainSpace != null">
+                gain_space,
+            </if>
+            <if test="planSpace != null">
+                plan_space,
+            </if>
+            <if test="realSpace != null">
+                real_space,
+            </if>
+            <if test="bookingSpaceTime != null">
+                booking_space_time,
+            </if>
+            <if test="supplierName != null">
+                supplier_name,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="operatorErp != null">
+                operator_erp,
+            </if>
+            <if test="operatorName != null">
+                operator_name,
+            </if>
+
+            operate_time,
+
+
+            create_user,
+
+
+            create_time,
+
+
+            update_user,
+
+
+            update_time,
+
+
+            is_delete,
+
+
+            ts
+
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+
+            <if test="planStartDate != null">
+                #{planStartDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createSiteCode != null">
+                #{createSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="createSiteName != null">
+                #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="transportName != null">
+                #{transportName,jdbcType=VARCHAR},
+            </if>
+            <if test="transportType != null">
+                #{transportType,jdbcType=TINYINT},
+            </if>
+            <if test="startCityId != null">
+                #{startCityId,jdbcType=INTEGER},
+            </if>
+            <if test="startCityName != null">
+                #{startCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="endCityId != null">
+                #{endCityId,jdbcType=INTEGER},
+            </if>
+            <if test="endCityName != null">
+                #{endCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="planStartTime != null">
+                #{planStartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="planEndTime != null">
+                #{planEndTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="priority != null">
+                #{priority,jdbcType=VARCHAR},
+            </if>
+            <if test="gainSpace != null">
+                #{gainSpace,jdbcType=DECIMAL},
+            </if>
+            <if test="planSpace != null">
+                #{planSpace,jdbcType=DECIMAL},
+            </if>
+            <if test="realSpace != null">
+                #{realSpace,jdbcType=DECIMAL},
+            </if>
+            <if test="bookingSpaceTime != null">
+                #{bookingSpaceTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="supplierName != null">
+                #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorErp != null">
+                #{operatorErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorName != null">
+                #{operatorName,jdbcType=VARCHAR},
+            </if>
+
+            now(),
+
+
+            #{createUser,jdbcType=VARCHAR},
+
+
+            now(),
+
+
+            #{updateUser,jdbcType=VARCHAR},
+
+
+            now(),
+
+
+            0,
+
+
+            now()
+
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into ar_booking_space
+        (
+
+        plan_start_date,
+
+        create_site_code,
+
+        create_site_name,
+
+        transport_name,
+
+        transport_type,
+
+        start_city_id,
+
+        start_city_name,
+
+        end_city_id,
+
+        end_city_name,
+
+        plan_start_time,
+
+        plan_end_time,
+
+        priority,
+
+        gain_space,
+
+        plan_space,
+
+        real_space,
+
+        booking_space_time,
+
+        supplier_name,
+
+        phone,
+
+        remark,
+
+        operator_erp,
+
+        operator_name,
+
+        operate_time,
+
+        create_user,
+
+        create_time,
+
+        update_user,
+
+        update_time,
+
+        is_delete,
+
+        ts
+
+
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+
+
+            #{item.planStartDate,jdbcType=TIMESTAMP},
+
+            #{item.createSiteCode,jdbcType=BIGINT},
+
+            #{item.createSiteName,jdbcType=VARCHAR},
+
+            #{item.transportName,jdbcType=VARCHAR},
+
+            #{item.transportType,jdbcType=TINYINT},
+
+            #{item.startCityId,jdbcType=INTEGER},
+
+            #{item.startCityName,jdbcType=VARCHAR},
+
+            #{item.endCityId,jdbcType=INTEGER},
+
+            #{item.endCityName,jdbcType=VARCHAR},
+
+            #{item.planStartTime,jdbcType=TIMESTAMP},
+
+            #{item.planEndTime,jdbcType=TIMESTAMP},
+
+            #{item.priority,jdbcType=VARCHAR},
+
+            #{item.gainSpace,jdbcType=DECIMAL},
+
+            #{item.planSpace,jdbcType=DECIMAL},
+
+            #{item.realSpace,jdbcType=DECIMAL},
+
+            #{item.bookingSpaceTime,jdbcType=TIMESTAMP},
+            #{item.supplierName,jdbcType=VARCHAR},
+            #{item.phone,jdbcType=VARCHAR},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.operatorErp,jdbcType=VARCHAR},
+            #{item.operatorName,jdbcType=VARCHAR},
+            now(),
+
+            #{item.createUser,jdbcType=VARCHAR},
+
+            now(),
+
+            #{item.updateUser,jdbcType=VARCHAR},
+
+            now(),
+
+            0,
+
+            now()
+
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace">
+        update ar_booking_space
+        <set>
+            <if test="planStartDate != null">
+                plan_start_date = #{planStartDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="createSiteName != null">
+                create_site_name = #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="transportName != null">
+                transport_name = #{transportName,jdbcType=VARCHAR},
+            </if>
+            <if test="transportType != null">
+                transport_type = #{transportType,jdbcType=TINYINT},
+            </if>
+            <if test="startCityId != null">
+                start_city_id = #{startCityId,jdbcType=INTEGER},
+            </if>
+            <if test="startCityName != null">
+                start_city_name = #{startCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="endCityId != null">
+                end_city_id = #{endCityId,jdbcType=INTEGER},
+            </if>
+            <if test="endCityName != null">
+                end_city_name = #{endCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="planStartTime != null">
+                plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="planEndTime != null">
+                plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="priority != null">
+                priority = #{priority,jdbcType=VARCHAR},
+            </if>
+            <if test="gainSpace != null">
+                gain_space = #{gainSpace,jdbcType=DECIMAL},
+            </if>
+            <if test="planSpace != null">
+                plan_space = #{planSpace,jdbcType=DECIMAL},
+            </if>
+            <if test="realSpace != null">
+                real_space = #{realSpace,jdbcType=DECIMAL},
+            </if>
+            <if test="bookingSpaceTime != null">
+                booking_space_time = #{bookingSpaceTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="supplierName != null">
+                supplier_name = #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorErp != null">
+                operator_erp = #{operatorErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorName != null">
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
+
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+
+            operate_time = now(),
+            update_time = now(),
+            ts = now()
+
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="deleteById" parameterType="Long">
 		update ar_booking_space
 			set is_delete = 1
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
-	<update id="deleteByIds" parameterType="List">
-		update ar_booking_space
-			set is_delete = 1
-		where id in
-		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
-			#{item,jdbcType=BIGINT}
-		</foreach>
-	</update>
+    <update id="deleteByIds" parameterType="List">
+        update ar_booking_space
+        set is_delete = 1
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
 
-	<select id="findById" parameterType="Long" resultMap="ArBookingSpace">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  ar_booking_space 
-		where id = #{id,jdbcType=BIGINT}
-	</select>
+    <select id="findById" parameterType="Long" resultMap="ArBookingSpace">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_booking_space
+        where id = #{id,jdbcType=BIGINT}
+    </select>
 
-	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace" resultMap="ArBookingSpace">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  ar_booking_space 
-		where id = #{id,jdbcType=BIGINT}
-		  order by ts desc
-		limit 1
-	</select>
+    <select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArBookingSpace"
+            resultMap="ArBookingSpace">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_booking_space
+        where id = #{id,jdbcType=BIGINT}
+        order by ts desc
+        limit 1
+    </select>
 
-	<sql id="Base_Condition_Sql" >
+    <sql id="Base_Condition_Sql">
 			and is_delete=0 
 	</sql>
 
-	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
-		select 
-		 count(1) as num
-		from 
-		  ar_booking_space 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
-	</select>
+    <sql id="Query_Params_Condition_Sql">
+        <if test="createSiteCode != null">
+            and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        </if>
+        <if test="planStartDateGE != null and planStartDateLE !=null">
+            and plan_start_date BETWEEN #{planStartDateGE} and #{planStartDateLE}
+        </if>
+        <if test="planStartDateGE != null and planStartDateLE ==null">
+            and  <![CDATA[   plan_start_date >= #{planStartDateGE}  ]]>
+        </if>
+        <if test="planStartDateGE == null and planStartDateLE !=null">
+            and  <![CDATA[   plan_start_date <= #{planStartDateLE}  ]]>
+        </if>
+        <if test="transportType != null">
+            and transport_type = #{transportType,jdbcType=TINYINT}
+        </if>
+        <if test="transportName != null">
+            and transport_name LIKE #{transportName,jdbcType=VARCHAR}
+        </if>
+    </sql>
 
-	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ArBookingSpace">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  ar_booking_space 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
-		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
-	</select>
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultType="Integer">
+        select
+        count(1) as num
+        from
+        ar_booking_space
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultMap="ArBookingSpace">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_booking_space
+        where 1=1
+
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+
+        <if test="limit != -1">
+            limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+        </if>
+
+    </select>
 
 </mapper>

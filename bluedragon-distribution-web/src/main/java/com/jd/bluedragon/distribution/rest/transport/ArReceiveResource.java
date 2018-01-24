@@ -1,26 +1,33 @@
 package com.jd.bluedragon.distribution.rest.transport;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
+import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  * Created by xumei3 on 2017/12/29.
@@ -37,6 +44,10 @@ public class ArReceiveResource {
 
     @Autowired
     private BaseService baseService;
+    
+    @Autowired
+    private ArReceiveService arReceiveService;
+    
 
     /**
      * 空铁项目查找24小时内的待提货信息
@@ -82,16 +93,23 @@ public class ArReceiveResource {
             logger.info("空铁项目待提货查询参数,"+ "始发城市id:" + request.getStartCityId() +",目的城市id:" + endCityId+
                     ",航空单号:" + request.getOrderNo() + ",运力名称:" + request.getTransportName());
 
-            //从发货登记表中查找待提货信息
-            List<ArSendRegister> arSendRegisters = arSendRegisterService.queryWaitReceive(arSendRegister);
+            try{
+                //从发货登记表中查找待提货信息
+                List<ArSendRegister> arSendRegisters = arSendRegisterService.queryWaitReceive(arSendRegister);
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            for(ArSendRegister arSendRegister1 : arSendRegisters){
-                result.add(new ArWaitReceive(arSendRegister.getOrderCode(),arSendRegister1.getTransportName(),
-                        arSendRegister1.getStartStationName(),arSendRegister1.getEndStationName(),
-                        formatter.format(arSendRegister1.getPlanStartTime()).toString(),
-                        formatter.format(arSendRegister1.getPlanEndTime()).toString()));
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                for(ArSendRegister arSendRegister1 : arSendRegisters){
+                    result.add(new ArWaitReceive(arSendRegister1.getOrderCode(),arSendRegister1.getTransportName(),
+                            arSendRegister1.getStartStationName(),arSendRegister1.getEndStationName(),
+                            formatter.format(arSendRegister1.getPlanStartTime()).toString(),
+                            formatter.format(arSendRegister1.getPlanEndTime()).toString()));
+                }
+            }catch(Exception e){
+                logger.error("空铁项目待提货查询失败，原因："+e.getMessage());
+                result.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_ERROR);
+                result.setMessage(com.jd.ql.dms.common.domain.JdResponse.MESSAGE_ERROR+":请联系研发人员");
             }
+
         }
         return result;
     }
@@ -119,5 +137,25 @@ public class ArReceiveResource {
             logger.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteCode=" + siteCode, e);
         }
         return cityId;
+    }
+    /**
+     * 空铁提货-根据扫描包裹号/箱号获取空铁登记信息
+     * @param barcode
+     * @return
+     */
+    @POST
+    @GET
+    @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
+    public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
+    	JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
+    	if(StringHelper.isEmpty(barcode)){
+    		rest.toFail("包裹号或箱号不能为空！");
+    		return rest;
+    	}
+    	ArSendCode arSendCode = arReceiveService.getLastArSendCodeByBarcode(barcode);
+    	if(arSendCode!=null){
+    		rest.setData(arSendRegisterService.findById(arSendCode.getSendRegisterId()));
+    	}
+    	return rest;
     }
 }
