@@ -387,21 +387,16 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         + "]获取基础资料站点信息[getBaseSiteBySiteId]返回null,[空铁发货登记]不能回传全程跟踪");
             } else {
                 for (String sendCode : sendCodes) {
-                    List<SendDetail> sendDetailList = sendDetailDao.queryWaybillsBySendCode(sendCode);
-                    if (null != sendDetailList && sendDetailList.size() > 0) {
-                        for (SendDetail sendDetail : sendDetailList) {
-                            try {
-                                WaybillStatus waybillStatus = this.getWaybillStatus(arSendRegister, siteDto, sendDetail);
-                                waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER);
-                                waybillStatus.setRemark(this.getTrackRemark(arSendRegister));
-                                // 添加到task表
-                                taskService.add(toTask(waybillStatus));
-                            } catch (Exception e) {
-                                logger.error("[SendCode=" + sendCode + "][PackageCode=" + sendDetail.getPackageBarcode()
-                                        + "][boxCode=" + sendDetail.getBoxCode()
-                                        + "][],[空铁发货登记]回传全程跟踪出现异常");
-                            }
-                        }
+                    try {
+                        WaybillStatus waybillStatus = this.getWaybillStatus(arSendRegister, siteDto);
+                        waybillStatus.setSendCode(sendCode);
+                        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER);
+                        waybillStatus.setRemark(this.getTrackRemark(arSendRegister));
+                        // 添加到task表
+                        taskService.add(toTask(waybillStatus));
+                    } catch (Exception e) {
+                        logger.error("[SendCode=" + sendCode + "][TransportName=" + arSendRegister.getTransportName()
+                                + "][空铁发货登记]回传全程跟踪出现异常");
                     }
                 }
             }
@@ -413,35 +408,26 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         }
     }
 
-    private WaybillStatus getWaybillStatus(ArSendRegister arSendRegister, BaseStaffSiteOrgDto siteDto, SendDetail sendDetail) {
+    private WaybillStatus getWaybillStatus(ArSendRegister arSendRegister, BaseStaffSiteOrgDto siteDto) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
-        tWaybillStatus.setPackageCode(sendDetail.getPackageBarcode());
         //设置站点相关属性
         tWaybillStatus.setCreateSiteCode(siteDto.getSiteCode());
         tWaybillStatus.setCreateSiteName(siteDto.getSiteName());
         tWaybillStatus.setCreateSiteType(siteDto.getSiteType());
-        BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
-        if (receiveSiteDto != null) {
-            tWaybillStatus.setReceiveSiteCode(receiveSiteDto.getSiteCode());
-            tWaybillStatus.setReceiveSiteName(receiveSiteDto.getSiteName());
-            tWaybillStatus.setReceiveSiteType(receiveSiteDto.getSiteType());
-        }
         tWaybillStatus.setOperatorId(arSendRegister.getOperatorId());
         tWaybillStatus.setOperateTime(arSendRegister.getOperationTime());
         tWaybillStatus.setOperator(arSendRegister.getOperatorErp());
         tWaybillStatus.setOrgId(siteDto.getOrgId());
         tWaybillStatus.setOrgName(siteDto.getOrgName());
-        tWaybillStatus.setWaybillCode(sendDetail.getWaybillCode());
-        tWaybillStatus.setBoxCode(sendDetail.getBoxCode());
         return tWaybillStatus;
     }
 
     public Task toTask(WaybillStatus tWaybillStatus) {
         Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_WAYBILL);
+        task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(tWaybillStatus.getWaybillCode());
-        task.setKeyword2(tWaybillStatus.getPackageCode());
+        task.setKeyword1(tWaybillStatus.getSendCode());
+        task.setKeyword2(String.valueOf(Task.TASK_TYPE_AR_SEND_REGISTER));
         task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
         task.setBody(JsonHelper.toJson(tWaybillStatus));
         task.setType(Task.TASK_TYPE_AR_SEND_REGISTER);

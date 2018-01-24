@@ -497,6 +497,29 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				task.setYn(0);
 			}
+
+            /**
+             * 全程跟踪:回传 空铁发货登记全程跟踪
+             */
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER).equals(task.getKeyword2())) {
+                toWaybillStatus2(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                this.logger.info("向运单系统回传全程跟踪，空铁发货登记");
+                String sendCode = tWaybillStatus.getSendCode();
+                if (sendCode != null) {
+                    List<SendDetail> sendDetailList = sendDatailDao.queryWaybillsBySendCode(sendCode);
+                    if (null != sendDetailList && sendDetailList.size() > 0) {
+                        for (SendDetail sendDetail : sendDetailList) {
+                            bdTraceDto.setWaybillCode(sendDetail.getWaybillCode());
+                            bdTraceDto.setPackageBarCode(sendDetail.getPackageBarcode());
+                            waybillQueryManager.sendBdTrace(bdTraceDto);
+                        }
+                    }
+                } else {
+                    this.logger.error("向运单系统回传全程跟踪，空铁发货登记：批次号为空");
+                }
+                task.setYn(0);
+            }
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
