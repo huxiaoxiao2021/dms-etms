@@ -14,7 +14,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>3.1.4.RELEASE</org.springframework.version>
+		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<jackson.version>1.9.2</jackson.version>
 		<resteasy.version>2.2.3.GA</resteasy.version>
 	</properties>
