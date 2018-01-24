@@ -312,7 +312,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         if (org.apache.commons.lang.StringUtils.isNotBlank(pdaSendRegister.getAirNo())) {
             sendRegister.setOrderCode(pdaSendRegister.getAirNo());
             sendRegister.setTransportType(AIR_TRANSPORT.getCode());
-            arTransportInfo = this.getTransportInfo(pdaSendRegister.getAirNo(), null, AIR_TRANSPORT);
+            arTransportInfo = this.getTransportInfo(pdaSendRegister.getTransName(), null, AIR_TRANSPORT);
         } else {
             sendRegister.setSiteOrder(pdaSendRegister.getRailwayNo());
             sendRegister.setTransportType(RAILWAY.getCode());
