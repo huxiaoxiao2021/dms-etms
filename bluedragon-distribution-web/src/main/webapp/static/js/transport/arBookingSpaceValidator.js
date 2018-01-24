@@ -160,12 +160,17 @@ function editFormValidator(){
                 validators: {
                     notEmpty: {
                     },
-                    digits: {
-                        message: '该值只能包含数字'
+                    numeric: {
+                        message: '只能输入数字'
                     },
-                    stringLength: {
-                        max: 10,
-                        message: '不得超过10位'
+                    between: {
+                        min: 0.01,
+                        max: 9999999999.99,
+                        message: '必须在0.01到9999999999.99之间'
+                    },
+                    regexp: {
+                        regexp: /^\d+(\.\d{2})?$/,
+                        message: '小数点后仅可保留两位小数'
                     }
                 }
             },
@@ -174,12 +179,17 @@ function editFormValidator(){
                 validators: {
                     notEmpty: {
                     },
-                    digits: {
-                        message: '该值只能包含数字'
+                    numeric: {
+                        message: '只能输入数字'
                     },
-                    stringLength: {
-                        max: 10,
-                        message: '不得超过10位'
+                    between: {
+                        min: 0.01,
+                        max: 9999999999.99,
+                        message: '必须在0.01到9999999999.99之间'
+                    },
+                    regexp: {
+                        regexp: /^\d+(\.\d{2})?$/,
+                        message: '小数点后仅可保留两位小数'
                     }
                 }
             },
@@ -188,12 +198,17 @@ function editFormValidator(){
                 validators: {
                     notEmpty: {
                     },
-                    digits: {
-                        message: '该值只能包含数字'
+                    numeric: {
+                        message: '只能输入数字'
                     },
-                    stringLength: {
-                        max: 10,
-                        message: '不得超过10位'
+                    between: {
+                        min: 0.01,
+                        max: 9999999999.99,
+                        message: '必须在0.01到9999999999.99之间'
+                    },
+                    regexp: {
+                        regexp: /^\d+(\.\d{2})?$/,
+                        message: '小数点后仅可保留两位小数'
                     }
                 }
             },
@@ -263,14 +278,14 @@ function editValidator(){
 }
 
 function resetFieldValidator(value,fieldName){
-    $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'NOT_VALIDATED').validateField(fieldName);
+   // $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'NOT_VALIDATED').validateField(fieldName);
 
-  /*  //$("#edit-form").data("bootstrapValidator").validateField(fieldName);
+    //$("#edit-form").data("bootstrapValidator").validateField(fieldName);
     if(value){
         $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'VALID');
     }else{
         $("#edit-form").data("bootstrapValidator").updateStatus(fieldName, 'NOT_VALIDATED','notEmpty');
         $("#edit-form").data("bootstrapValidator").validateField(fieldName);
-    }*/
+    }
 
 }

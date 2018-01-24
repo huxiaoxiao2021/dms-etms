@@ -400,7 +400,7 @@ function initEditPage(){
         elem: '#planStartTime',
         theme: '#3f92ea',
         type: 'time',
-         btns: ['clear','now'],
+         //btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"planStartTime");
         }
@@ -409,7 +409,7 @@ function initEditPage(){
         elem: '#planEndTime',
         theme: '#3f92ea',
         type: 'time',
-        btns: ['clear','now'],
+        //btns: ['clear','now'],
         done: function(value, date, endDate){
             resetFieldValidator(value,"planEndTime");
         }

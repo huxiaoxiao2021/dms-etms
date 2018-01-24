@@ -178,7 +178,7 @@ public class ArBookingSpaceController {
 	@RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
 	public @ResponseBody JdResponse uploadExcel( @RequestParam("importExcelFile") MultipartFile file) {
 		logger.debug("uploadExcelFile begin...");
-
+		String errorString = "";
 		try {
 
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -199,44 +199,41 @@ public class ArBookingSpaceController {
 
 			String fileName = file.getOriginalFilename();
 
-			String errorString = null;
+
 			int type = 0;
 			if (fileName.endsWith("xls") || fileName.endsWith("XLS")) {
 				type = 1;
-			} else {
+			} else if(fileName.endsWith("xlsx") || fileName.endsWith("XLSX")){
 				type = 2;
 			}
 			DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(type);
 			List<ArBookingSpace> dataList = null;
-			try {
-				dataList = dataResolver.resolver(file.getInputStream(), ArBookingSpace.class, new PropertiesMetaDataFactory("/excel/arBookingSpace.properties"));
-				if (dataList != null && dataList.size() > 0) {
-					if (dataList.size() > 1000) {
-						errorString = "导入数据超出1000条";
-						return new JdResponse(JdResponse.CODE_FAIL,errorString);
-					}
 
-					//批量插入数据
-					arBookingSpaceService.importExcel(dataList,userCode,userName,createSiteCode,createSiteName);
-
-				} else {
-					errorString = "导入数据过多或者异常，请检查excel数据";
+			dataList = dataResolver.resolver(file.getInputStream(), ArBookingSpace.class, new PropertiesMetaDataFactory("/excel/arBookingSpace.properties"));
+			if (dataList != null && dataList.size() > 0) {
+				if (dataList.size() > 1000) {
+					errorString = "导入数据超出1000条";
 					return new JdResponse(JdResponse.CODE_FAIL,errorString);
 				}
 
-			} catch (Exception e) {
-				if (e instanceof IllegalArgumentException) {
-					errorString = e.getMessage();
-				} else {
-					logger.error("导入异常信息：", e);
-					errorString = "导入出现异常";
-				}
+				//批量插入数据
+				arBookingSpaceService.importExcel(dataList,userCode,userName,createSiteCode,createSiteName);
+
+			} else {
+				errorString = "导入数据表格为空，请检查excel数据";
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
+
 		} catch (Exception e) {
-			logger.error("执行uploadExcelFile异常" + e.getMessage(), e);
-			throw new RuntimeException(e.getMessage());
+			if (e instanceof IllegalArgumentException) {
+				errorString = e.getMessage();
+			} else {
+				logger.error("导入异常信息：", e);
+				errorString = "导入出现异常";
+			}
+			return new JdResponse(JdResponse.CODE_FAIL,errorString);
 		}
+
 		return new JdResponse();
 	}
 

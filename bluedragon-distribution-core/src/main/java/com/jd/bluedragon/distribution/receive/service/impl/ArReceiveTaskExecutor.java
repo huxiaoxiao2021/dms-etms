@@ -105,7 +105,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		ArSendCode arSendCode = arReceiveService.getLastArSendCodeByBarcode(arReceive.getBoxCode());
 		if(arSendCode != null){
 			arReceive.setSendCode(arSendCode.getSendCode());
-			ArSendRegister arSendRegister = arSendRegisterService.findById(arSendCode.getId());
+			ArSendRegister arSendRegister = arSendRegisterService.findById(arSendCode.getSendRegisterId());
 			if(arSendRegister != null){
 				arReceive.setSendRegisterId(arSendRegister.getId());
 				taskContext.setData(KEY_DATA_AR_SEND_REGISTER, arSendRegister);

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -143,6 +144,7 @@ public class ArReceiveResource {
      * @return
      */
     @POST
+    @GET
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
     	JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
