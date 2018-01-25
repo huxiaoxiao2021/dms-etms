@@ -42,7 +42,7 @@
 	   <mvc:interceptor>
             <mvc:mapping path="/**"/>
 		    <!-- Spring mvc 权限拦截器bean -->
-		    <bean id="springAuthorizationInterceptor" class="com.jd.common.authorization.UimAuthorizationInterceptor">
+		    <bean id="springAuthorizationInterceptor" class="com.jd.common.authorization.DmsUimAuthorizationInterceptor">
 		        <property name="hrmPrivilegeHelper" ref="hrmPrivilegeHelper"/>
                 <property name="excludePath" value="${uim.exclude.code}"/>
 		    </bean>

@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * Created by shipeilin on 2018/1/25.
  */
-public class UimAuthorizationInterceptor extends SpringAuthorizationInterceptor {
-    private static final Log LOG = LogFactory.getLog(UimAuthorizationInterceptor.class);
+public class DmsUimAuthorizationInterceptor extends SpringAuthorizationInterceptor {
+    private static final Log LOG = LogFactory.getLog(DmsUimAuthorizationInterceptor.class);
     private String excludePath;
     private List<String> excludePathCache;
 
