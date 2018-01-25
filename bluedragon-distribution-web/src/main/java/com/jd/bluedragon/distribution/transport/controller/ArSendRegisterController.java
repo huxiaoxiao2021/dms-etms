@@ -133,10 +133,7 @@ public class ArSendRegisterController {
     JdResponse<Boolean> insert(@RequestBody ArSendRegisterCondition condition) {
         JdResponse<Boolean> response = new JdResponse<Boolean>();
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("bjxings");
-            erpUser.setUserId(10010);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 ArSendRegister arSendRegister = this.getBean(condition, erpUser);
                 String sendCodeStr = condition.getSendCode();
@@ -166,10 +163,7 @@ public class ArSendRegisterController {
     JdResponse<Boolean> update(@RequestBody ArSendRegisterCondition condition) {
         JdResponse<Boolean> response = new JdResponse<Boolean>();
         try {
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("bjxings");
-            erpUser.setUserId(10010);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 ArSendRegister arSendRegister = this.getBean(condition, erpUser);
                 String sendCodeStr = condition.getSendCode();

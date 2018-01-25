@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
@@ -80,6 +81,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * 分隔符 冒号
      */
     private final static String COLON = ":";
+
+    /**
+     * 时间分隔符
+     */
+    private final static String DATE_SEPARATOR = "-";
 
     @Transactional
     @Override
@@ -272,7 +278,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setTransCompany(railwayTrainDto.getRailwayActName());
                     arTransportInfo.setTransCompanyCode(railwayTrainDto.getRailwayActCode());
                     arTransportInfo.setStartCityId(railwayTrainDto.getBeginCityId());
-                    arTransportInfo.setStartCityName(railwayTrainDto.getEndCityName());
+                    arTransportInfo.setStartCityName(railwayTrainDto.getBeginCityName());
                     arTransportInfo.setEndCityId(railwayTrainDto.getEndCityId());
                     arTransportInfo.setEndCityName(railwayTrainDto.getEndCityName());
                     arTransportInfo.setStartStationId(railwayTrainDto.getBeginNodeCode());
@@ -327,7 +333,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setOperationDeptCode(pdaSendRegister.getSiteCode());
         sendRegister.setOperationTime(pdaSendRegister.getOperateTime());
         sendRegister.setCreateUser(pdaSendRegister.getSendUserCode());
-        ArTransportInfo arTransportInfo = null;
+        sendRegister.setSendDate(getPDASendDate(pdaSendRegister.getBoxCode()));
+        ArTransportInfo arTransportInfo;
         try {
             if (StringUtils.isNotBlank(pdaSendRegister.getAirNo())) {
                 sendRegister.setOrderCode(pdaSendRegister.getAirNo());
@@ -354,7 +361,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             sendRegister.setEndStationId(arTransportInfo.getEndStationId());
             sendRegister.setEndCityName(arTransportInfo.getEndCityName());
             sendRegister.setAging(arTransportInfo.getAging());
-            sendRegister.setSendDate(getPDASendDate(arTransportInfo.getPlanStartTime(), pdaSendRegister.getOperateTime()));
             sendRegister.setPlanStartTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanStartTime(), arTransportInfo.getAging()));
             sendRegister.setPlanEndTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanEndTime(), arTransportInfo.getAging()));
         }
@@ -389,37 +395,17 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         return null;
     }
 
-
     /**
      * 根据发车时间获取pda的发货时间，比较从TMS获取的航班/铁路发车时间和操作时间，若发车时间大于操作时间，取当日发车时间，否则取第二天发车时间
      *
      * @return
      */
-    private Date getPDASendDate(String time, Date operateTime) {
-        if (StringUtils.isNotEmpty(time)) {
-            if (time.indexOf(COLON) > 0) {
-                String[] timeArray = time.split(COLON);
-                if (timeArray.length > 1) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(new Date());
-                    calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArray[0]));
-                    calendar.set(Calendar.MINUTE, Integer.parseInt(timeArray[1]));
-                    if (timeArray.length == 3) {
-                        //时间格式 时:分:秒
-                        calendar.set(Calendar.SECOND, Integer.parseInt(timeArray[2]));
-                    } else {
-                        // 时间格式 时:分 设置秒为0
-                        calendar.set(Calendar.SECOND, 0);
-                    }
-                    if (operateTime.after(calendar.getTime())) {
-                        calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        return calendar.getTime();
-                    } else {
-                        return calendar.getTime();
-                    }
-                }
+    private Date getPDASendDate(String dateStr) {
+        if (StringUtils.isNotEmpty(dateStr)) {
+            if (dateStr.indexOf(DATE_SEPARATOR) > 0) {
+                return DateHelper.parseDate(dateStr, "yyyy-MM-dd");
             }
-            logger.error("[空铁发货登记]离线worker获取PDA发货时间，发车时间格式错误");
+            logger.error("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
         }
         return null;
     }

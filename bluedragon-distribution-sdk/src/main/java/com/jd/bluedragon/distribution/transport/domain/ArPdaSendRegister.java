@@ -15,6 +15,9 @@ public class ArPdaSendRegister {
 
     private String waybillCode;
 
+    /**
+     * 目前用于存储预计起飞/发车日期
+     */
     private String boxCode;
 
     private Integer receiveSiteCode;

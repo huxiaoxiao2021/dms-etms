@@ -305,21 +305,21 @@ $(function () {
             sendDate: {
                 validators: {
                     notEmpty: {
-                        message: '必填项，请输入发货日期'
+                        message: '必填项，请输入预计起飞/发车日期'
                     },
                     date: {
                         format: 'YYYY-MM-DD',
                         message: '请输入正确的日期格式'
                     },
                     callback: {
-                        message: '发货日期必须在3日内',
+                        message: '必须在3日内',
                         callback: function (value, validator, $field) {
                             var currentDate = new Date();
                             var inputDate = new Date(value.replace(/-/, "/"));
                             if (inputDate > currentDate) {
                                 return false;
                             }
-                            return Math.abs(currentDate - inputDate) < 4 * 24 * 3600 * 1000;
+                            return Math.abs(inputDate - currentDate) < 4 * 24 * 3600 * 1000;
                         }
                     }
                 }
@@ -449,8 +449,6 @@ $(function () {
             });
 
             $('#btn_query').click(function () {
-                //$("#dataTable").bootstrapTable('destroy');
-                //tableInit().init();
                 $('#tableName').bootstrapTable('refreshOptions', {pageNumber: 1});
                 tableInit().refresh();
             });
@@ -485,6 +483,7 @@ $(function () {
                         $('#id').val(res.data.id);
                         $('#orderCodeEdit').val(res.data.orderCode);
                         $('#transportNameEdit').val(res.data.transportName);
+                        $("#transportNameEdit").attr("disabled",true);
                         $('#siteOrderEdit').val(res.data.siteOrder);
                         $('#sendNumEdit').val(res.data.sendNum);
                         $('#chargedWeightEdit').val(res.data.chargedWeight);
@@ -552,14 +551,15 @@ $(function () {
                     $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
                         if (res && res.data) {
                             alert('操作成功');
+                            clearAllInfo();
                             tableInit().refresh();
+                            $("#transportNameEdit").attr("disabled",false);
+                            $('#dataEditDiv').hide();
+                            $('#dataTableDiv').show();
                         } else {
                             alert(res.message);
                         }
                     });
-                    clearAllInfo();
-                    $('#dataEditDiv').hide();
-                    $('#dataTableDiv').show();
                 }
             });
 
