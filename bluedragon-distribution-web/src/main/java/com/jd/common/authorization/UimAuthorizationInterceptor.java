@@ -81,7 +81,7 @@ public class UimAuthorizationInterceptor extends SpringAuthorizationInterceptor 
      * @return
      */
     private boolean isExclude(String code){
-        if(this.excludePathCache.contains(code)){
+        if(this.excludePathCache != null && this.excludePathCache.contains(code)){
             return true;
         }
         return false;
