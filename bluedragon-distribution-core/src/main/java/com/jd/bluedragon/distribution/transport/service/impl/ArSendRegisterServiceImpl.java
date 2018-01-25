@@ -12,7 +12,6 @@ import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -484,23 +483,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         task.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER));
         task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
         task.setBody(JsonHelper.toJson(tWaybillStatus));
-        task.setType(Task.TASK_TYPE_AR_SEND_REGISTER);
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         task.setOwnSign(BusinessHelper.getOwnSign());
-        StringBuffer fingerprint = new StringBuffer();
-        fingerprint
-                .append(tWaybillStatus.getCreateSiteCode())
-                .append("_")
-                .append((tWaybillStatus.getReceiveSiteCode() == null ? "-1"
-                        : tWaybillStatus.getReceiveSiteCode())).append("_")
-                .append(tWaybillStatus.getOperateType()).append("_")
-                .append(tWaybillStatus.getWaybillCode()).append("_")
-                .append(tWaybillStatus.getOperateTime()).append("_")
-                .append(Task.TASK_TYPE_AR_SEND_REGISTER);
-        if (tWaybillStatus.getPackageCode() != null
-                && !"".equals(tWaybillStatus.getPackageCode())) {
-            fingerprint.append("_").append(tWaybillStatus.getPackageCode());
-        }
-        task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
         return task;
     }
 
