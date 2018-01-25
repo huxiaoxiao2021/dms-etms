@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
@@ -420,5 +421,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
     }
+
+	@Override
+	public WaybillPrintResponse getPrintInfo(String jsonReqest) {
+		return null;
+	}
     
 }

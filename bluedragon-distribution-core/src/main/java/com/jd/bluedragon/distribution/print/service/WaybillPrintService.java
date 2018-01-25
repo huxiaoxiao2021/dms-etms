@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 
@@ -15,4 +16,10 @@ public interface WaybillPrintService {
      * @return
      */
     InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode,String waybillCode,Integer targetSiteCode);
+    /**
+     * 获取包裹标签打印信息
+     * @param jsonReqest 请求参数-json字符串
+     * @return
+     */
+	WaybillPrintResponse getPrintInfo(String jsonReqest);
 }
