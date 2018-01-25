@@ -151,7 +151,7 @@ public class ReceiveServiceImpl implements ReceiveService {
                  }
             }
 		}else{
-			List<SendDetail> sendDetails=deliveryService.getSendByBox(receive.getBoxCode());
+			List<SendDetail> sendDetails=deliveryService.getCancelSendByBox(receive.getBoxCode());
 			if (sendDetails == null || sendDetails.isEmpty()){
 				log.error("根据[boxCode=" + receive.getBoxCode()
 						+ "]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪");
