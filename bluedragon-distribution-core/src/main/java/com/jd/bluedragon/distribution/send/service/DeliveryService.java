@@ -239,11 +239,17 @@ public interface DeliveryService {
     public boolean findTransitSend(Task task) throws Exception;
     
     /**
-     * 查找需要回传预分配数据
+     * 查找需要回传预分配数据（isCancel=1状态的数据）
      * 
      * @param
      */
-    public List<SendDetail> getSendByBox(String boxCode);
+    public List<SendDetail> getCancelSendByBox(String boxCode);
+    /**
+     * 根据箱号查询sendD的数据（isCancel=0状态的数据）
+     * 
+     * @param
+     */
+    public List<SendDetail> getSendDetailsByBoxCode(String boxCode);
     
     /**
 	 * 包裹信息

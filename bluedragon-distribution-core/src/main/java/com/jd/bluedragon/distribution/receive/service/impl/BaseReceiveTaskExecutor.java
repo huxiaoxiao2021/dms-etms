@@ -112,7 +112,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		// 插收货确认表并发送全程跟踪
 		if (isBoxingType) {
 			// 大件商品-单条处理
-			saveCenConfirmAndSendTrack(taskContext);
+			saveCenConfirmAndSendTrack(taskContext,true);
 		} else {
 			// 非大件商品-批量处理
 			batchSaveCenConfirmAndSendTrack(taskContext);
@@ -305,12 +305,14 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * 
 	 * @param receive
 	 */
-	public void saveCenConfirmAndSendTrack(TaskContext<T> taskContext) {
+	public void saveCenConfirmAndSendTrack(TaskContext<T> taskContext,boolean saveOrUpdateCenConfirmFlg) {
 		T receive = taskContext.getBody();
 		addOperationLog(receive);// 记录日志
 		CenConfirm cenConfirm = cenConfirmService
 				.createCenConfirmByReceive(receive);
-		cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
+		if(saveOrUpdateCenConfirmFlg){
+			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
+		}
 		sendTrack(taskContext,cenConfirm);
 
 		// 取件单推送mq
@@ -338,7 +340,11 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 */
 	public void batchSaveCenConfirmAndSendTrack(TaskContext<T> taskContext) {
 		T receive = taskContext.getBody();
-		List<SendDetail> sendDetails = deliveryService.getSendByBox(receive
+		//非箱号按包裹号处理单条
+		if(!BusinessHelper.isBoxcode(receive.getBoxCode())){
+			saveCenConfirmAndSendTrack(taskContext, false);
+		}
+		List<SendDetail> sendDetails = deliveryService.getSendDetailsByBoxCode(receive
 				.getBoxCode());
 		if (sendDetails == null || sendDetails.isEmpty()) {
 			log.error("根据[boxCode="

@@ -62,6 +62,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,6 +74,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
@@ -2618,7 +2620,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer bReceiveSiteCode = task.getReceiveSiteCode();
         String boxCode = task.getBoxCode();
         Integer type = Integer.valueOf(task.getKeyword2());//业务的正逆向
-        List<SendDetail> list = getSendByBox(boxCode);
+        List<SendDetail> list = getCancelSendByBox(boxCode);
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
@@ -2674,7 +2676,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 //		}
     }
 
-    public List<SendDetail> getSendByBox(String boxCode) {
+    public List<SendDetail> getCancelSendByBox(String boxCode) {
         Box box = null;
         box = this.boxService.findBoxByCode(boxCode);
         if (box == null) {
@@ -3181,4 +3183,22 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
+	@Override
+	public List<SendDetail> getSendDetailsByBoxCode(String boxCode) {
+        Box box = null;
+        box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            return null;
+        }
+        Integer yCreateSiteCode = box.getCreateSiteCode();
+        Integer yReceiveSiteCode = box.getReceiveSiteCode();
+        SendDetail tsendDatail = new SendDetail();
+        tsendDatail.setBoxCode(boxCode);
+        tsendDatail.setCreateSiteCode(yCreateSiteCode);
+        tsendDatail.setReceiveSiteCode(yReceiveSiteCode);
+        tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+        List<SendDetail> sendDatailist = this.sendDatailDao
+                .querySendDatailsBySelective(tsendDatail);
+        return sendDatailist;
+	}
 }
