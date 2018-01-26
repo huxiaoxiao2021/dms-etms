@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * 根据标识隐藏寄件信息、收件信息
@@ -11,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
  * 寄件信息判断waybill_sign第47位
  * Created by shipeilin on 2017/9/21.
  */
+@Service("hideInfoComposeService")
 public class HideInfoComposeServiceImpl implements  ComposeService {
 
     private static final Log log = LogFactory.getLog(HideInfoComposeServiceImpl.class);

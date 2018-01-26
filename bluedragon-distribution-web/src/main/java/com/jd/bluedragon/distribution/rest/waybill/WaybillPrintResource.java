@@ -53,7 +53,7 @@ public class WaybillPrintResource {
     @GET
     @GZIP
     @Path("/waybill/getPrintWaybill/{dmsCode}/{waybillCode}/{targetSiteCode}")
-    public InvokeResult<PrintWaybill> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
+    public InvokeResult<WaybillPrintResponse> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
                                                       @PathParam("waybillCode")String waybillCode,
                                                       @PathParam("targetSiteCode")Integer targetSiteCode){
         //return printService.
@@ -71,16 +71,5 @@ public class WaybillPrintResource {
     public InvokeResult<String> generateInvoice(InvoiceParameters parameters){
         return invoicePrintService.generateInvoice(parameters);
 
-    }
-    /**
-     * 
-     * @param jsonReqest
-     * @return
-     */
-    @GET
-    @GZIP
-    @Path("/waybillPrint/getPrintInfo")
-    public WaybillPrintResponse getPrintInfo(String jsonReqest){
-       return waybillPrintService.getPrintInfo(jsonReqest);
     }
 }

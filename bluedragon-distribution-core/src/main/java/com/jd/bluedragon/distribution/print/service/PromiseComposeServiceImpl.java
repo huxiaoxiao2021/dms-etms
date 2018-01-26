@@ -1,5 +1,12 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
@@ -9,15 +16,11 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
 
 /**
  * Created by wangtingwei on 2016/1/25.
  */
+@Service("promiseComposeService")
 public class PromiseComposeServiceImpl implements  ComposeService {
 
     private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);

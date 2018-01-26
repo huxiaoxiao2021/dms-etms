@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    
+	<bean id="handlerMappingFactory" class="com.jd.bluedragon.distribution.command.JdCommandHandlerMappingFactory">
+		<property name="handlerMappings">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.HandlerMapping">
+				<entry key="1000" value-ref="waybillPrintHandlerMapping"/>
+			</map>
+		</property>
+	</bean>
+	<bean id="waybillPrintHandlerMapping" class ="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintHandlerMapping">
+		<property name="handlerMap">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+				<entry key="100001"  value-ref="plateSitePrint"/>
+			</map>
+		</property>
+	</bean>
+	<bean id="plateSitePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintComposeHandler">
+		<property name="preHandlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+			</list>
+		</property>
+		<property name="handlers">
+			<list>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+			</list>
+		</property>
+		<property name="afterHandlers">
+			<list>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>
+</beans>
