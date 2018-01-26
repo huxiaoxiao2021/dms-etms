@@ -23,6 +23,7 @@
 		<property name="maxActive" value="${db.backup.maxActive}"/>
 		<property name="maxWait" value="${db.backup.maxWait}"/>
         <property name= "testWhileIdle" value="${db.backup.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${db.backup.testOnBorrow}" />
 		<property name= "validationQuery" value="${db.backup.validationQuery}" />
 		<property name="minEvictableIdleTimeMillis" value="${db.backup.minEvictableIdleTimeMillis}"/>
 		<property name="timeBetweenEvictionRunsMillis" value="${db.backup.timeBetweenEvictionRunsMillis}"/>
