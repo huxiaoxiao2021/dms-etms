@@ -359,9 +359,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             sendRegister.setStartStationId(arTransportInfo.getStartStationId());
             sendRegister.setStartStationName(arTransportInfo.getStartStationName());
             sendRegister.setEndStationId(arTransportInfo.getEndStationId());
-            sendRegister.setEndCityName(arTransportInfo.getEndCityName());
+            sendRegister.setEndStationName(arTransportInfo.getEndStationName());
             sendRegister.setAging(arTransportInfo.getAging());
-            sendRegister.setPlanStartTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanStartTime(), arTransportInfo.getAging()));
+            sendRegister.setPlanStartTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanStartTime(), 0));
             sendRegister.setPlanEndTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanEndTime(), arTransportInfo.getAging()));
         }
         return sendRegister;
