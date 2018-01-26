@@ -267,6 +267,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setPlanStartTime(basicAirFlightDto.getTakeOffTime());
                     arTransportInfo.setPlanEndTime(basicAirFlightDto.getTouchDownTime());
                     arTransportInfo.setAging(basicAirFlightDto.getAging());
+                    return arTransportInfo;
                 }
             } else if (transportType == RAILWAY) {
                 BasicRailwayTrainDto param = new BasicRailwayTrainDto();
@@ -288,12 +289,13 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setPlanStartTime(railwayTrainDto.getPlanDepartTime());
                     arTransportInfo.setPlanEndTime(railwayTrainDto.getPlanArriveTime());
                     arTransportInfo.setAging(railwayTrainDto.getAging());
+                    return arTransportInfo;
                 }
             }
         } catch (Exception e) {
             logger.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
         }
-        return arTransportInfo;
+        return null;
     }
 
     @Override

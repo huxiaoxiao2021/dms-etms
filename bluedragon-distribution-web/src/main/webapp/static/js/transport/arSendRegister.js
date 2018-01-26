@@ -481,10 +481,16 @@ $(function () {
                 $.ajaxHelper.doPostSync(detailUrl + rows[0].id, null, function (res) {
                     if (res && res.data) {
                         $('#id').val(res.data.id);
-                        $('#orderCodeEdit').val(res.data.orderCode);
                         $('#transportNameEdit').val(res.data.transportName);
-                        $("#transportNameEdit").attr("disabled",true);
-                        $('#siteOrderEdit').val(res.data.siteOrder);
+                        $("#transportNameEdit").attr("disabled", true);
+                        if (res.data.orderCode != null && res.data.orderCode != '') {
+                            $('#orderCodeEdit').val(res.data.orderCode);
+                            $("#siteOrderEdit").attr("disabled", true);
+                        }
+                        if (res.data.siteOrder != null && res.data.siteOrder != '') {
+                            $('#siteOrderEdit').val(res.data.siteOrder);
+                            $("#orderCodeEdit").attr("disabled", true);
+                        }
                         $('#sendNumEdit').val(res.data.sendNum);
                         $('#chargedWeightEdit').val(res.data.chargedWeight);
                         $('#remarkEdit').val(res.data.remark);
@@ -553,7 +559,9 @@ $(function () {
                             alert('操作成功');
                             clearAllInfo();
                             tableInit().refresh();
-                            $("#transportNameEdit").attr("disabled",false);
+                            $("#transportNameEdit").attr("disabled", false);
+                            $("#orderCodeEdit").attr("disabled", false);
+                            $("#siteOrderEdit").attr("disabled", false);
                             $('#dataEditDiv').hide();
                             $('#dataTableDiv').show();
                         } else {
@@ -565,6 +573,9 @@ $(function () {
 
             $('#btn_return').click(function () {
                 clearAllInfo();
+                $("#transportNameEdit").attr("disabled", false);
+                $("#orderCodeEdit").attr("disabled", false);
+                $("#siteOrderEdit").attr("disabled", false);
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
             });
@@ -577,11 +588,13 @@ $(function () {
             });
 
             $("#orderCodeEdit").blur(function () {
-                $('#edit-form').bootstrapValidator('updateStatus', 'siteOrder', 'NOT_VALIDATED').bootstrapValidator('validateField', 'siteOrder');
-                var transportName = $("#transportNameEdit").val();
-                if (transportName != null && transportName != '') {
-                    var orderCode = $(this).val();
-                    if (orderCode != null && orderCode != '') {
+                $('#edit-form').bootstrapValidator('updateStatus', 'siteOrder', 'NOT_VALIDATED');
+                var orderCode = $(this).val();
+                if (orderCode != null && orderCode != '') {
+                    $("#siteOrderEdit").val("");
+                    $("#siteOrderEdit").attr("disabled", true);
+                    var transportName = $("#transportNameEdit").val();
+                    if (transportName != null && transportName != '') {
                         var param = {};
                         param["transportName"] = transportName;
                         param["orderCode"] = orderCode;
@@ -595,15 +608,19 @@ $(function () {
                             }
                         });
                     }
+                } else {
+                    $("#siteOrderEdit").attr("disabled", false);
                 }
             });
 
             $("#siteOrderEdit").blur(function () {
-                $('#edit-form').bootstrapValidator('updateStatus', 'orderCode', 'NOT_VALIDATED').bootstrapValidator('validateField', 'orderCode');
-                var transportName = $("#transportNameEdit").val();
-                if (transportName != null && transportName != '') {
-                    var siteOrder = $(this).val();
-                    if (siteOrder != null && siteOrder != '') {
+                $('#edit-form').bootstrapValidator('updateStatus', 'orderCode', 'NOT_VALIDATED');
+                var siteOrder = $(this).val();
+                if (siteOrder != null && siteOrder != '') {
+                    $("#orderCodeEdit").val("");
+                    $("#orderCodeEdit").attr("disabled", true);
+                    var transportName = $("#transportNameEdit").val();
+                    if (transportName != null && transportName != '') {
                         var param = {};
                         param["transportName"] = transportName;
                         param["siteOrder"] = siteOrder;
@@ -617,6 +634,8 @@ $(function () {
                             }
                         });
                     }
+                } else {
+                    $("#orderCodeEdit").attr("disabled", false);
                 }
             });
         };
