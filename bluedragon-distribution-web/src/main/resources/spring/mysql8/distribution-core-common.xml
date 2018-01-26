@@ -30,6 +30,7 @@
         <property name="maxActive" value="${db.maxActive}"/>
         <property name="maxWait" value="${db.maxWait}"/>
         <property name= "testWhileIdle" value="${db.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${db.testOnBorrow}" />
 		<property name= "validationQuery" value="${db.validationQuery}" />  
         <property name="minEvictableIdleTimeMillis" value="${db.minEvictableIdleTimeMillis}"/>
         <property name="timeBetweenEvictionRunsMillis" value="${db.timeBetweenEvictionRunsMillis}"/>
@@ -56,6 +57,7 @@
         <property name="initialSize" value="${dms.read.db.initialSize}" />
         <property name="minIdle" value="${dms.read.db.minIdle}" />
         <property name= "testWhileIdle" value="${dms.read.db.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.read.db.testOnBorrow}" />
 		<property name= "validationQuery" value="${dms.read.db.validationQuery}" />  
         <property name="minEvictableIdleTimeMillis" value="${dms.read.db.minEvictableIdleTimeMillis}" />
         <property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
