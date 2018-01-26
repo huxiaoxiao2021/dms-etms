@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.ArReceiveRequest;
 import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -145,8 +144,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			if (cenConfirmService.checkFormat(waybillStatus,
 					cenConfirm.getType())) {
 				// 添加到task表
-				taskService.add(cenConfirmService.toTask(waybillStatus,
-						Constants.OPERATE_TYPE_AR_RECEIVE));
+				taskService.add(toTask(waybillStatus));
 			} else {
 				log.error("[PackageCode=" + waybillStatus.getPackageCode()
 						+ "][boxCode=" + waybillStatus.getBoxCode()
@@ -155,4 +153,16 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 
 		}
 	}
+    private Task toTask(WaybillStatus tWaybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(tWaybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_RECEIVE));
+        task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
+        task.setBody(JsonHelper.toJson(tWaybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
+    }
 }

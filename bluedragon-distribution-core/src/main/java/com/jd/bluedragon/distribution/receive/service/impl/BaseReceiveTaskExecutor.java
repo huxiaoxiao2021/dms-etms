@@ -356,6 +356,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				receive.setPackageBarcode(sendDetail.getPackageBarcode());
 				addOperationLog(receive);// 记录日志
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
+				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
 				sendTrack(taskContext,cenConfirm);
 
 				// 取件单推送mq

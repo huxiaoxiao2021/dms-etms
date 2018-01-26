@@ -491,7 +491,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
             /**
              * 全程跟踪-空铁提货
              */
-            if (WaybillStatus.WAYBILL_TRACK_AR_RECEIVE.equals(task.getType())) {
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_RECEIVE).equals(task.getKeyword2())) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 				waybillQueryManager.sendBdTrace(bdTraceDto);
