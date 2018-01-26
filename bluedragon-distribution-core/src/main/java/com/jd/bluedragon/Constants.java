@@ -424,6 +424,8 @@ public class Constants {
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
     /********************************************* UIM权限资源码相关end ***********************************************/
 
-
-
+    /******************************************** 封车类型相关start *****************************************/
+    public static final Integer SEAL_TYPE_TRANSPORT = 10;    //按运力封车
+    public static final Integer SEAL_TYPE_TASK = 20;   //按任务封车
+    /******************************************** 封车类型相关end *****************************************/
 }
