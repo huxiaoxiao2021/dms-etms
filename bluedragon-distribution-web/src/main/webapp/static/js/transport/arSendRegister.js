@@ -316,10 +316,7 @@ $(function () {
                         callback: function (value, validator, $field) {
                             var currentDate = new Date();
                             var inputDate = new Date(value.replace(/-/, "/"));
-                            if (inputDate > currentDate) {
-                                return false;
-                            }
-                            return Math.abs(inputDate - currentDate) < 4 * 24 * 3600 * 1000;
+                            return (inputDate - currentDate) < 3 * 24 * 3600 * 1000;
                         }
                     }
                 }
