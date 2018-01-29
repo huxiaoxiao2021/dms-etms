@@ -54,6 +54,7 @@ $(function () {
                 columns: oTableInit.tableColums
             });
         };
+
         oTableInit.getSearchParams = function (params) {
             var temp = oTableInit.getSearchCondition();
             if (!temp) {
@@ -656,6 +657,7 @@ $(function () {
         data: data
     }).val(0).trigger("change");
 
-    tableInit().init();
     pageInit().init();
+    tableInit().init();
+
 });
