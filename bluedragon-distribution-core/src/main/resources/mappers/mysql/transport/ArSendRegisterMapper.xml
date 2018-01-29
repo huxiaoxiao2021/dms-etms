@@ -486,7 +486,7 @@
         <if test="transportName != null">
             and transport_name = #{transportName,jdbcType=VARCHAR}
         </if>
-        and plan_end_time >= now() and plan_end_time <![CDATA[ <= ]]> NOW()+INTERVAL 1 DAY
+        and plan_end_time <![CDATA[ >= ]]> now()-INTERVAL 12 HOUR and plan_end_time <![CDATA[ <= ]]> NOW()+INTERVAL 1 DAY
         order by plan_end_time desc
     </select>
 
