@@ -87,6 +87,35 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      */
     private final static String DATE_SEPARATOR = "-";
 
+    /**
+     * 分隔符 回车
+     */
+    private final static String ENTER = "\n";
+
+    @Override
+    public ArSendRegister getById(Long id) {
+        if (id != null) {
+            ArSendRegister sendRegister = this.getDao().findById(id);
+            sendRegister.setSendCode(this.getSendCodes(id, ENTER));
+            return sendRegister;
+        }
+        return null;
+    }
+
+    private String getSendCodes(Long arSendRegisterId, String separator) {
+        List<ArSendCode> list = arSendCodeService.getBySendRegisterId(arSendRegisterId);
+        if (list != null && list.size() > 0) {
+            StringBuffer sb = new StringBuffer();
+            for (ArSendCode arSendCode : list) {
+                sb.append(arSendCode.getSendCode());
+                sb.append(separator);
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            return sb.toString();
+        }
+        return null;
+    }
+
     @Transactional
     @Override
     public boolean insert(ArSendRegister arSendRegister, String[] sendCodes) {
@@ -166,16 +195,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             Iterator<ArSendRegister> iterable = data.iterator();
             while (iterable.hasNext()) {
                 ArSendRegister arSendRegister = iterable.next();
-                List<ArSendCode> list = arSendCodeService.getBySendRegisterId(arSendRegister.getId());
-                if (list != null && list.size() > 0) {
-                    StringBuffer sb = new StringBuffer();
-                    for (ArSendCode arSendCode : list) {
-                        sb.append(arSendCode.getSendCode());
-                        sb.append(COMMA);
-                    }
-                    sb.deleteCharAt(sb.length() - 1);
-                    arSendRegister.setSendCode(sb.toString());
-                }
+                arSendRegister.setSendCode(this.getSendCodes(arSendRegister.getId(), COMMA));
             }
         }
         return pagerResult;

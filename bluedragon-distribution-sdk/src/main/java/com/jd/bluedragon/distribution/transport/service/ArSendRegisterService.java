@@ -20,6 +20,14 @@ import java.util.List;
 public interface ArSendRegisterService extends Service<ArSendRegister> {
 
     /**
+     * 根据id获取发货登记信息
+     *
+     * @param id
+     * @return
+     */
+    ArSendRegister getById(Long id);
+
+    /**
      * 新增
      *
      * @param arSendRegister

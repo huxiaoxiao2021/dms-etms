@@ -105,20 +105,7 @@ public class ArSendRegisterController {
     public @ResponseBody
     JdResponse<ArSendRegister> detail(@PathVariable("id") Long id) {
         JdResponse<ArSendRegister> response = new JdResponse<ArSendRegister>();
-        ArSendRegister arSendRegister = arSendRegisterService.findById(id);
-        if (arSendRegister != null) {
-            List<ArSendCode> list = arSendCodeService.getBySendRegisterId(id);
-            if (list != null && list.size() > 0) {
-                StringBuffer sb = new StringBuffer();
-                for (ArSendCode arSendCode : list) {
-                    sb.append(arSendCode.getSendCode());
-                    sb.append(SEPARATOR);
-                }
-                sb.deleteCharAt(sb.length() - 2);
-                arSendRegister.setSendCode(sb.toString());
-            }
-        }
-        response.setData(arSendRegister);
+        response.setData(arSendRegisterService.getById(id));
         return response;
     }
 
