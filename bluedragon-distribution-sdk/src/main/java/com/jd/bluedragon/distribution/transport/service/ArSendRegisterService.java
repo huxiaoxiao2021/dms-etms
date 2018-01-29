@@ -8,6 +8,7 @@ import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,6 +18,14 @@ import java.util.List;
  * @date 2017年12月28日 09:46:12
  */
 public interface ArSendRegisterService extends Service<ArSendRegister> {
+
+    /**
+     * 根据id获取发货登记信息
+     *
+     * @param id
+     * @return
+     */
+    ArSendRegister getById(Long id);
 
     /**
      * 新增
@@ -100,5 +109,15 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
      * @return
      */
     boolean executeOfflineTask(String body);
+
+    /**
+     * 根据发货日期、时间、时效（跨天）获取计划日期
+     *
+     * @param sendDate
+     * @param time
+     * @param aging
+     * @return
+     */
+   Date getPlanDate(Date sendDate, String time, Integer aging);
 
 }

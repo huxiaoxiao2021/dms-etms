@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.transport.service.impl;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
@@ -12,8 +11,8 @@ import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -26,7 +25,6 @@ import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -83,6 +81,40 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * 分隔符 冒号
      */
     private final static String COLON = ":";
+
+    /**
+     * 时间分隔符
+     */
+    private final static String DATE_SEPARATOR = "-";
+
+    /**
+     * 分隔符 回车
+     */
+    private final static String ENTER = "\n";
+
+    @Override
+    public ArSendRegister getById(Long id) {
+        if (id != null) {
+            ArSendRegister sendRegister = this.getDao().findById(id);
+            sendRegister.setSendCode(this.getSendCodes(id, ENTER));
+            return sendRegister;
+        }
+        return null;
+    }
+
+    private String getSendCodes(Long arSendRegisterId, String separator) {
+        List<ArSendCode> list = arSendCodeService.getBySendRegisterId(arSendRegisterId);
+        if (list != null && list.size() > 0) {
+            StringBuffer sb = new StringBuffer();
+            for (ArSendCode arSendCode : list) {
+                sb.append(arSendCode.getSendCode());
+                sb.append(separator);
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            return sb.toString();
+        }
+        return null;
+    }
 
     @Transactional
     @Override
@@ -163,16 +195,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             Iterator<ArSendRegister> iterable = data.iterator();
             while (iterable.hasNext()) {
                 ArSendRegister arSendRegister = iterable.next();
-                List<ArSendCode> list = arSendCodeService.getBySendRegisterId(arSendRegister.getId());
-                if (list != null && list.size() > 0) {
-                    StringBuffer sb = new StringBuffer();
-                    for (ArSendCode arSendCode : list) {
-                        sb.append(arSendCode.getSendCode());
-                        sb.append(COMMA);
-                    }
-                    sb.deleteCharAt(sb.length() - 1);
-                    arSendRegister.setSendCode(sb.toString());
-                }
+                arSendRegister.setSendCode(this.getSendCodes(arSendRegister.getId(), COMMA));
             }
         }
         return pagerResult;
@@ -263,6 +286,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setEndStationName(basicAirFlightDto.getEndNodeName());
                     arTransportInfo.setPlanStartTime(basicAirFlightDto.getTakeOffTime());
                     arTransportInfo.setPlanEndTime(basicAirFlightDto.getTouchDownTime());
+                    arTransportInfo.setAging(basicAirFlightDto.getAging());
+                    return arTransportInfo;
                 }
             } else if (transportType == RAILWAY) {
                 BasicRailwayTrainDto param = new BasicRailwayTrainDto();
@@ -274,7 +299,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setTransCompany(railwayTrainDto.getRailwayActName());
                     arTransportInfo.setTransCompanyCode(railwayTrainDto.getRailwayActCode());
                     arTransportInfo.setStartCityId(railwayTrainDto.getBeginCityId());
-                    arTransportInfo.setStartCityName(railwayTrainDto.getEndCityName());
+                    arTransportInfo.setStartCityName(railwayTrainDto.getBeginCityName());
                     arTransportInfo.setEndCityId(railwayTrainDto.getEndCityId());
                     arTransportInfo.setEndCityName(railwayTrainDto.getEndCityName());
                     arTransportInfo.setStartStationId(railwayTrainDto.getBeginNodeCode());
@@ -283,14 +308,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setEndStationName(railwayTrainDto.getEndNodeName());
                     arTransportInfo.setPlanStartTime(railwayTrainDto.getPlanDepartTime());
                     arTransportInfo.setPlanEndTime(railwayTrainDto.getPlanArriveTime());
-                } else {
-                    return null;
+                    arTransportInfo.setAging(railwayTrainDto.getAging());
+                    return arTransportInfo;
                 }
             }
         } catch (Exception e) {
             logger.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
         }
-        return arTransportInfo;
+        return null;
     }
 
     @Override
@@ -299,7 +324,17 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         }.getType());
         if (registerList != null && registerList.size() > 0) {
             for (ArPdaSendRegister pdaSendRegister : registerList) {
-                this.insert(this.toDBDomain(pdaSendRegister), COMMA);
+                try {
+                    ArSendRegister register = this.toDBDomain(pdaSendRegister);
+                    if (register != null) {
+                        this.insert(register, COMMA);
+                    } else {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常", e);
+                    return false;
+                }
             }
         }
         return true;
@@ -308,19 +343,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     private ArSendRegister toDBDomain(ArPdaSendRegister pdaSendRegister) {
         ArSendRegister sendRegister = new ArSendRegister();
         sendRegister.setTransportName(pdaSendRegister.getTransName());
-        ArTransportInfo arTransportInfo;
-        if (org.apache.commons.lang.StringUtils.isNotBlank(pdaSendRegister.getAirNo())) {
-            sendRegister.setOrderCode(pdaSendRegister.getAirNo());
-            sendRegister.setTransportType(AIR_TRANSPORT.getCode());
-            arTransportInfo = this.getTransportInfo(pdaSendRegister.getTransName(), null, AIR_TRANSPORT);
-        } else {
-            sendRegister.setSiteOrder(pdaSendRegister.getRailwayNo());
-            sendRegister.setTransportType(RAILWAY.getCode());
-            arTransportInfo = this.getTransportInfo(pdaSendRegister.getTransName(), pdaSendRegister.getRailwayNo(), RAILWAY);
-        }
-        if (arTransportInfo != null) {
-            BeanUtils.copyProperties(arTransportInfo, sendRegister);
-        }
         sendRegister.setStatus(ArSendStatusEnum.ALREADY_SEND.getType());
         sendRegister.setSendCode(pdaSendRegister.getBatchCode());
         sendRegister.setSendNum(pdaSendRegister.getNum());
@@ -331,24 +353,50 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setOperatorErp(pdaSendRegister.getSendUserCode());
         sendRegister.setOperationDept(pdaSendRegister.getSiteName());
         sendRegister.setOperationDeptCode(pdaSendRegister.getSiteCode());
-        sendRegister.setSendDate(getPDASendDate(sendRegister.getPlanStartTime(), pdaSendRegister.getOperateTime()));
         sendRegister.setOperationTime(pdaSendRegister.getOperateTime());
         sendRegister.setCreateUser(pdaSendRegister.getSendUserCode());
+        sendRegister.setSendDate(getPDASendDate(pdaSendRegister.getBoxCode()));
+        ArTransportInfo arTransportInfo;
+        try {
+            if (StringUtils.isNotBlank(pdaSendRegister.getAirNo())) {
+                sendRegister.setOrderCode(pdaSendRegister.getAirNo());
+                sendRegister.setTransportType(AIR_TRANSPORT.getCode());
+                arTransportInfo = this.getTransportInfo(pdaSendRegister.getTransName(), null, AIR_TRANSPORT);
+            } else {
+                sendRegister.setSiteOrder(pdaSendRegister.getRailwayNo());
+                sendRegister.setTransportType(RAILWAY.getCode());
+                arTransportInfo = this.getTransportInfo(pdaSendRegister.getTransName(), pdaSendRegister.getRailwayNo(), RAILWAY);
+            }
+        } catch (Exception e) {
+            logger.error("[空铁发货登记]调用TMS运输接口获取运输信息时发生异常", e);
+            return null;
+        }
+        if (arTransportInfo != null) {
+            sendRegister.setTransCompanyCode(arTransportInfo.getTransCompanyCode());
+            sendRegister.setTransCompany(arTransportInfo.getTransCompany());
+            sendRegister.setStartCityId(arTransportInfo.getStartCityId());
+            sendRegister.setStartCityName(arTransportInfo.getStartCityName());
+            sendRegister.setEndCityId(arTransportInfo.getEndCityId());
+            sendRegister.setEndCityName(arTransportInfo.getEndCityName());
+            sendRegister.setStartStationId(arTransportInfo.getStartStationId());
+            sendRegister.setStartStationName(arTransportInfo.getStartStationName());
+            sendRegister.setEndStationId(arTransportInfo.getEndStationId());
+            sendRegister.setEndStationName(arTransportInfo.getEndStationName());
+            sendRegister.setAging(arTransportInfo.getAging());
+            sendRegister.setPlanStartTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanStartTime(), 0));
+            sendRegister.setPlanEndTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanEndTime(), arTransportInfo.getAging()));
+        }
         return sendRegister;
     }
 
-    /**
-     * 根据发车时间获取pda的发货时间，比较从TMS获取的航班/铁路发车时间和操作时间，若发车时间大于操作时间，取当日发车时间，否则取第二天发车时间
-     *
-     * @return
-     */
-    private Date getPDASendDate(String time, Date operateTime) {
-        if (StringUtils.isNotEmpty(time)) {
+    @Override
+    public Date getPlanDate(Date sendDate, String time, Integer aging) {
+        if (sendDate != null && StringUtils.isNotEmpty(time)) {
             if (time.indexOf(COLON) > 0) {
                 String[] timeArray = time.split(COLON);
                 if (timeArray.length > 1) {
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(new Date());
+                    calendar.setTime(sendDate);
                     calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArray[0]));
                     calendar.set(Calendar.MINUTE, Integer.parseInt(timeArray[1]));
                     if (timeArray.length == 3) {
@@ -358,15 +406,28 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         // 时间格式 时:分 设置秒为0
                         calendar.set(Calendar.SECOND, 0);
                     }
-                    if (operateTime.after(calendar.getTime())) {
-                        calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        return calendar.getTime();
-                    } else {
-                        return calendar.getTime();
+                    if (aging != null && aging > 0) {
+                        calendar.add(Calendar.DATE, aging);
                     }
+                    return calendar.getTime();
                 }
             }
-            logger.error("[空铁发货登记]离线worker获取PDA发货时间，发车时间格式错误");
+            logger.error("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
+        }
+        return null;
+    }
+
+    /**
+     * 根据发车时间获取pda的发货时间，比较从TMS获取的航班/铁路发车时间和操作时间，若发车时间大于操作时间，取当日发车时间，否则取第二天发车时间
+     *
+     * @return
+     */
+    private Date getPDASendDate(String dateStr) {
+        if (StringUtils.isNotEmpty(dateStr)) {
+            if (dateStr.indexOf(DATE_SEPARATOR) > 0) {
+                return DateHelper.parseDate(dateStr, "yyyy-MM-dd");
+            }
+            logger.error("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
         }
         return null;
     }
@@ -427,26 +488,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(tWaybillStatus.getSendCode());
-        task.setKeyword2(String.valueOf(Task.TASK_TYPE_AR_SEND_REGISTER));
+        task.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER));
         task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
         task.setBody(JsonHelper.toJson(tWaybillStatus));
-        task.setType(Task.TASK_TYPE_AR_SEND_REGISTER);
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         task.setOwnSign(BusinessHelper.getOwnSign());
-        StringBuffer fingerprint = new StringBuffer();
-        fingerprint
-                .append(tWaybillStatus.getCreateSiteCode())
-                .append("_")
-                .append((tWaybillStatus.getReceiveSiteCode() == null ? "-1"
-                        : tWaybillStatus.getReceiveSiteCode())).append("_")
-                .append(tWaybillStatus.getOperateType()).append("_")
-                .append(tWaybillStatus.getWaybillCode()).append("_")
-                .append(tWaybillStatus.getOperateTime()).append("_")
-                .append(Task.TASK_TYPE_AR_SEND_REGISTER);
-        if (tWaybillStatus.getPackageCode() != null
-                && !"".equals(tWaybillStatus.getPackageCode())) {
-            fingerprint.append("_").append(tWaybillStatus.getPackageCode());
-        }
-        task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
         return task;
     }
 

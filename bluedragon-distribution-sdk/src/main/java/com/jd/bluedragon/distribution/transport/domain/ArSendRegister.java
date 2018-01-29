@@ -99,12 +99,17 @@ public class ArSendRegister extends DbEntity {
     /**
      * 预计起飞时间
      */
-    private String planStartTime;
+    private Date planStartTime;
 
     /**
      * 预计落地时间
      */
-    private String planEndTime;
+    private Date planEndTime;
+
+    /**
+     * 时效（跨越天数）
+     */
+    private Integer aging;
 
     /**
      * 发货件数
@@ -299,20 +304,28 @@ public class ArSendRegister extends DbEntity {
         this.endStationId = endStationId;
     }
 
-    public String getPlanStartTime() {
+    public Date getPlanStartTime() {
         return planStartTime;
     }
 
-    public void setPlanStartTime(String planStartTime) {
+    public void setPlanStartTime(Date planStartTime) {
         this.planStartTime = planStartTime;
     }
 
-    public String getPlanEndTime() {
+    public Date getPlanEndTime() {
         return planEndTime;
     }
 
-    public void setPlanEndTime(String planEndTime) {
+    public void setPlanEndTime(Date planEndTime) {
         this.planEndTime = planEndTime;
+    }
+
+    public Integer getAging() {
+        return aging;
+    }
+
+    public void setAging(Integer aging) {
+        this.aging = aging;
     }
 
     public Integer getSendNum() {

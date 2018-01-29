@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+//离线-处理逻辑统一移到OfflineCoreTaskExecutor处理
 @Deprecated
 public class OfflineCoreRedisTask extends RedisSingleScheduler {
 

@@ -35,7 +35,7 @@ import com.jd.fastjson.JSONObject;
  * @E-mail zhaohengchong@360buy.com
  * @createTime 2012-11-28 上午10:28:50
  * 
- *             离线
+ * 离线-处理逻辑统一移到OfflineCoreTaskExecutor处理
  */
 @Deprecated
 public class OfflineCoreTask extends DBSingleScheduler {

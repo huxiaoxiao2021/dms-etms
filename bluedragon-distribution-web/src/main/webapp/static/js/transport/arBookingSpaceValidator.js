@@ -241,7 +241,7 @@ function editFormValidator(){
                     },
                     regexp: {
                         regexp: /^[\d-]*$/,
-                        message: '名字只能数字和下划线组成'
+                        message: '只能数字和-组成'
                     }
                 }
             },
