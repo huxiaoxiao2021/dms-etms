@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
@@ -132,9 +133,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
     @Override
-    public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
+    public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
-        InvokeResult<PrintWaybill> result=new InvokeResult<PrintWaybill>();
+        InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
         try {
             loadWaybillInfo(result, dmsCode, waybillCode, targetSiteCode);
             if (null != result.getData()) {
@@ -158,7 +159,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * @param waybillCode
      * @param targetSiteCode
      */
-    private final void loadWaybillInfo(final InvokeResult<PrintWaybill> result,Integer dmsCode,String waybillCode,Integer targetSiteCode){
+    private final void loadWaybillInfo(final InvokeResult<WaybillPrintResponse> result,Integer dmsCode,String waybillCode,Integer targetSiteCode){
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillE(true);
@@ -172,7 +173,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 && baseEntity.getData() != null
                 &&null!=baseEntity.getData().getWaybill()) {
             if(null==result.getData()){
-                result.setData(new PrintWaybill());
+                result.setData(new WaybillPrintResponse());
             }
             PrintWaybill commonWaybill=result.getData();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=baseEntity.getData().getWaybill();
@@ -420,5 +421,23 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
     }
+
+	@Override
+	public WaybillPrintResponse loadBasicWaybillInfo(
+			Integer dmsCode, String waybillCode, Integer targetSiteCode) {
+		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
+        try {
+            loadWaybillInfo(result, dmsCode, waybillCode, targetSiteCode);
+            if (null != result.getData()) {
+                loadPrintedData(result.getData());
+                loadBasicData(result.getData());
+                return result.getData();
+            }
+        }catch (Exception ex){
+            logger.error("标签打印接口异常",ex);
+            result.error(ex);
+        }
+        return null;
+	}
     
 }
