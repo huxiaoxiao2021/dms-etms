@@ -50,6 +50,25 @@ public class SealCarDto implements Serializable {
     private List<String> batchCodes;
     private List<String> sealCodes;
     private List<String> desealCodes;
+    private String carrierCode;
+    private String carrierName;
+    private Integer carrierType;
+    private Integer transType;
+    private String transTypeName;
+    private Integer transWay;
+    private String transWayName;
+    private String sealCarTimeBegin;
+    private String sealCarTimeEnd;
+    private Integer startSiteType;
+    private String startSiteTypeName;
+    private Integer endSiteType;
+    private String endSiteTypeName;
+    private Integer sealCarType;
+    private String transWorkItemCode;
+    private String itemSimpleCode;
+    private Double weight;
+    private Double volume;
+    private String transBookCode;
 
     public SealCarDto() {
     }
@@ -343,5 +362,157 @@ public class SealCarDto implements Serializable {
 
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getCarrierCode() {
+        return carrierCode;
+    }
+
+    public void setCarrierCode(String carrierCode) {
+        this.carrierCode = carrierCode;
+    }
+
+    public String getCarrierName() {
+        return carrierName;
+    }
+
+    public void setCarrierName(String carrierName) {
+        this.carrierName = carrierName;
+    }
+
+    public Integer getCarrierType() {
+        return carrierType;
+    }
+
+    public void setCarrierType(Integer carrierType) {
+        this.carrierType = carrierType;
+    }
+
+    public Integer getEndSiteType() {
+        return endSiteType;
+    }
+
+    public void setEndSiteType(Integer endSiteType) {
+        this.endSiteType = endSiteType;
+    }
+
+    public String getEndSiteTypeName() {
+        return endSiteTypeName;
+    }
+
+    public void setEndSiteTypeName(String endSiteTypeName) {
+        this.endSiteTypeName = endSiteTypeName;
+    }
+
+    public String getItemSimpleCode() {
+        return itemSimpleCode;
+    }
+
+    public void setItemSimpleCode(String itemSimpleCode) {
+        this.itemSimpleCode = itemSimpleCode;
+    }
+
+    public String getSealCarTimeBegin() {
+        return sealCarTimeBegin;
+    }
+
+    public void setSealCarTimeBegin(String sealCarTimeBegin) {
+        this.sealCarTimeBegin = sealCarTimeBegin;
+    }
+
+    public String getSealCarTimeEnd() {
+        return sealCarTimeEnd;
+    }
+
+    public void setSealCarTimeEnd(String sealCarTimeEnd) {
+        this.sealCarTimeEnd = sealCarTimeEnd;
+    }
+
+    public Integer getSealCarType() {
+        return sealCarType;
+    }
+
+    public void setSealCarType(Integer sealCarType) {
+        this.sealCarType = sealCarType;
+    }
+
+    public Integer getStartSiteType() {
+        return startSiteType;
+    }
+
+    public void setStartSiteType(Integer startSiteType) {
+        this.startSiteType = startSiteType;
+    }
+
+    public String getStartSiteTypeName() {
+        return startSiteTypeName;
+    }
+
+    public void setStartSiteTypeName(String startSiteTypeName) {
+        this.startSiteTypeName = startSiteTypeName;
+    }
+
+    public String getTransBookCode() {
+        return transBookCode;
+    }
+
+    public void setTransBookCode(String transBookCode) {
+        this.transBookCode = transBookCode;
+    }
+
+    public Integer getTransType() {
+        return transType;
+    }
+
+    public void setTransType(Integer transType) {
+        this.transType = transType;
+    }
+
+    public String getTransTypeName() {
+        return transTypeName;
+    }
+
+    public void setTransTypeName(String transTypeName) {
+        this.transTypeName = transTypeName;
+    }
+
+    public Integer getTransWay() {
+        return transWay;
+    }
+
+    public void setTransWay(Integer transWay) {
+        this.transWay = transWay;
+    }
+
+    public String getTransWayName() {
+        return transWayName;
+    }
+
+    public void setTransWayName(String transWayName) {
+        this.transWayName = transWayName;
+    }
+
+    public String getTransWorkItemCode() {
+        return transWorkItemCode;
+    }
+
+    public void setTransWorkItemCode(String transWorkItemCode) {
+        this.transWorkItemCode = transWorkItemCode;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 }

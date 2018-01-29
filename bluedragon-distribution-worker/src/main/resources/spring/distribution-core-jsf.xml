@@ -232,7 +232,10 @@
                   protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
 
     </jsf:consumer>
-
+    <!-- 任务封车简码查询 jsf接口 郝雄山-->
+    <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
+    </jsf:consumer>
     <!-- 车辆电子围栏 VOS系统 隋红华 王显群 李胜涛  -->
     <jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
                   protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
