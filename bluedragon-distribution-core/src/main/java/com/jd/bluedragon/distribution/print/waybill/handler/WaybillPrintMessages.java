@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.command.JdMessage;
  *
  */
 public class WaybillPrintMessages{
-	public static final JdMessage FAIL_MESSAGE_WAYBILL_NULL = new JdMessage(400001,"运单/包裹信息为空，请联系IT人员处理！");
+	public static final JdMessage FAIL_MESSAGE_WAYBILL_NULL = new JdMessage(41000001,"运单/包裹信息为空，请联系IT人员处理！");
 	public static final JdMessage FAIL_MESSAGE_GET_NEW_WAYBILL_NULL = new JdMessage(400002,"此单无换单操作！");
 	public static final JdMessage FAIL_MESSAGE_WEIGHT = new JdMessage(400003,"包裹%s超限！");
 	public static final JdMessage WARN_MESSAGE = new JdMessage(200001,"预分拣站点变更，务必重新打印包裹！");

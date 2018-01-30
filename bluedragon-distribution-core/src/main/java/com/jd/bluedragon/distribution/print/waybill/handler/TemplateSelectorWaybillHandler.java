@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 @Service
-public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(TemplateSelectorWaybillHandler.class);
 
 	@Override

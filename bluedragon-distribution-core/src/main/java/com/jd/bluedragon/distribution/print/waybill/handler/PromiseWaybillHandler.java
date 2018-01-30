@@ -18,7 +18,7 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
  *
  */
 @Service
-public class PromiseWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(PromiseWaybillHandler.class);
 	@Autowired
 	@Qualifier("promiseComposeService")

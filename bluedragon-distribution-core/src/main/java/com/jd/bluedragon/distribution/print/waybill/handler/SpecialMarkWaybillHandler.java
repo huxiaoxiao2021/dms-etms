@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 @Service
-public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(SpecialMarkWaybillHandler.class);
 	@Autowired
 	@Qualifier("specialMarkComposeService")

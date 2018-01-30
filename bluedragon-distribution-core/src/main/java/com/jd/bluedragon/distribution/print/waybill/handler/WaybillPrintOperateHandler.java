@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.JsonHelper;
 
-public class WaybillPrintComposeHandler extends InterceptHandler<WaybillPrintContext,String>{
-	private List<Handler<WaybillPrintContext,String>> preHandlers;
+public class WaybillPrintOperateHandler extends InterceptHandler<WaybillPrintContext,String>{
+	private List<Handler<WaybillPrintContext,InterceptResult<String>>> preHandlers;
 	private List<Handler<WaybillPrintContext,String>> handlers;
 	private List<Handler<WaybillPrintContext,String>> afterHandlers;
 	
@@ -16,9 +16,9 @@ public class WaybillPrintComposeHandler extends InterceptHandler<WaybillPrintCon
 	public InterceptResult<String> preHandle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = new InterceptResult<String>();
 		if(preHandlers != null && !preHandlers.isEmpty()){
-			for(Handler<WaybillPrintContext,String> handler:preHandlers){
+			for(Handler<WaybillPrintContext,InterceptResult<String>> handler:preHandlers){
 				if(handler instanceof InterceptHandler){
-					InterceptResult InterceptResult = (InterceptResult)handler.handle(context);
+					InterceptResult<String> InterceptResult = handler.handle(context);
 					if(InterceptResult != null && InterceptResult.isPassed()){
 						if(InterceptResult.isWeakPassed()){
 							context.appendMessage(InterceptResult.getMessage());
@@ -39,7 +39,7 @@ public class WaybillPrintComposeHandler extends InterceptHandler<WaybillPrintCon
 		if(handlers != null && !handlers.isEmpty()){
 			for(Handler<WaybillPrintContext,String> handler:handlers){
 				if(handler instanceof InterceptHandler){
-					InterceptResult InterceptResult = (InterceptResult)handler.handle(context);
+					InterceptResult<String> InterceptResult = ((InterceptHandler)handler).handle(context);
 					if(InterceptResult != null && InterceptResult.isPassed()){
 						if(InterceptResult.isWeakPassed()){
 							context.appendMessage(InterceptResult.getMessage());
@@ -67,14 +67,14 @@ public class WaybillPrintComposeHandler extends InterceptHandler<WaybillPrintCon
 	/**
 	 * @return the preHandlers
 	 */
-	public List<Handler<WaybillPrintContext, String>> getPreHandlers() {
+	public List<Handler<WaybillPrintContext,InterceptResult<String>>> getPreHandlers() {
 		return preHandlers;
 	}
 	/**
 	 * @param preHandlers the preHandlers to set
 	 */
 	public void setPreHandlers(
-			List<Handler<WaybillPrintContext, String>> preHandlers) {
+			List<Handler<WaybillPrintContext,InterceptResult<String>>> preHandlers) {
 		this.preHandlers = preHandlers;
 	}
 	/**

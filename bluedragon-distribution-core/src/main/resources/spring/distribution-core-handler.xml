@@ -6,22 +6,33 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd
 	    http://www.springframework.org/schema/util
 	    http://www.springframework.org/schema/util/spring-util.xsd">
-	    
-	<bean id="handlerMappingFactory" class="com.jd.bluedragon.distribution.command.JdCommandHandlerMappingFactory">
-		<property name="handlerMappings">
-			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.HandlerMapping">
-				<entry key="1000" value-ref="waybillPrintHandlerMapping"/>
+	<!-- 业务指令集配置 -->
+	<bean id="jsonCommandHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping">
+		<property name="handlerMap">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+				<entry key="1000"  value-ref="waybillPrintCommandHandler"/>
 			</map>
 		</property>
 	</bean>
-	<bean id="waybillPrintHandlerMapping" class ="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintHandlerMapping">
+	<!-- 包裹标签打印-指令处理配置 -->
+	<bean id="waybillPrintCommandHandler" class ="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintCommandHandler">
+		<property name="jsonOperateHandlerMapping" ref="waybillPrintOperateHandlerMapping"/>
+	</bean>
+	<!-- 包裹标签打印-打印逻辑映射关系配置 -->
+	<bean id="waybillPrintOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100001"  value-ref="plateSitePrint"/>
+				<entry key="100002"  value-ref="plateSitePrint"/>
+				<entry key="100003"  value-ref="plateSitePrint"/>
+				<entry key="100004"  value-ref="plateSitePrint"/>
+				<entry key="100005"  value-ref="plateSitePrint"/>
+				<entry key="100006"  value-ref="plateSitePrint"/>
+				<entry key="100007"  value-ref="plateSitePrint"/>
 			</map>
 		</property>
 	</bean>
-	<bean id="plateSitePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintComposeHandler">
+	<bean id="plateSitePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintOperateHandler">
 		<property name="preHandlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>

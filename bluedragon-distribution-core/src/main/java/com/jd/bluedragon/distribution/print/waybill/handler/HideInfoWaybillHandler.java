@@ -9,8 +9,15 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
+/**
+ * 
+ * @ClassName: HideInfoWaybillHandler
+ * @Description: 微笑面单处理逻辑
+ * @author: wuyoude
+ * @date: 2018年1月30日 上午9:18:31
+ */
 @Service
-public class HideInfoWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class HideInfoWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(HideInfoWaybillHandler.class);
 	@Autowired
 	@Qualifier("hideInfoComposeService")
