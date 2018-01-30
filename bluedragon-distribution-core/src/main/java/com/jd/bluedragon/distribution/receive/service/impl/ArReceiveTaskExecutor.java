@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskContext;
 import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
+import com.jd.bluedragon.distribution.transport.domain.ArSendStatusEnum;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -108,11 +109,11 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			if(arSendRegister != null){
 				arReceive.setSendRegisterId(arSendRegister.getId());
 				taskContext.setData(KEY_DATA_AR_SEND_REGISTER, arSendRegister);
-				arSendRegister.setStatus(2);
+				arSendRegister.setStatus(ArSendStatusEnum.ALREADY_DELIVERED.getType());
 				arSendRegisterService.saveOrUpdate(arSendRegister);
 			}
 		}
-		super.saveReceive(taskContext);
+//		super.saveReceive(taskContext);
 		arReceiveService.saveOrUpdate(arReceive);
 	}
 	/**

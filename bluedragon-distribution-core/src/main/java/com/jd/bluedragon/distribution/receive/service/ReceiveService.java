@@ -14,7 +14,7 @@ public interface ReceiveService {
 	 * @param receive
 	 * @return
 	 */
-	public boolean add(Receive receive);
+	public boolean addReceive(Receive receive);
 	/**
 	 * 收货
 	 * */

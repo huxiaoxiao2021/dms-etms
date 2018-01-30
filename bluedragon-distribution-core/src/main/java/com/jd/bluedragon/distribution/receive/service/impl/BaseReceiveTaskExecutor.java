@@ -128,7 +128,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * @param receive
 	 */
 	protected void saveReceive(TaskContext<T> taskContext) {
-		receiveService.add(taskContext.getBody());
+		receiveService.addReceive(taskContext.getBody());
 	}
 
 	protected CenConfirm paseCenConfirm(TaskContext<T> taskContext) {

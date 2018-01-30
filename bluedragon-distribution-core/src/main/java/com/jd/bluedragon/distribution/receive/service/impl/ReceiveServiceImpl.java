@@ -111,7 +111,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Deprecated
 	public void doReceiveing(Receive receive) {
-		this.add(receive);
+		this.addReceive(receive);
 		// 必须有封车号，才更新封车表
 		String code = receive.getShieldsCarCode();
 		if (code != null && !code.equals("")) {
@@ -564,7 +564,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 	}
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
-	public boolean add(Receive receive) {
+	public boolean addReceive(Receive receive) {
 		return receiveDao.add(ReceiveDao.namespace, receive)==1;
 	}
 
