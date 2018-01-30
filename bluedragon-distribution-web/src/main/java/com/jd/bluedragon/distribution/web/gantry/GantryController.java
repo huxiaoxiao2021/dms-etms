@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.gantry;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceRequest;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.authorization.RestAuthorization;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,7 @@ public class GantryController {
     @Autowired
     private RestAuthorization restAuthorization;
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String gantryPageList(Model model) {
         try {
@@ -59,6 +62,7 @@ public class GantryController {
         return "gantry/gantryList";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/dmsList", method = RequestMethod.GET)
     @ResponseBody
     public List<SimpleBaseSite> queryDmsListByOrg(Integer orgId){
@@ -70,6 +74,7 @@ public class GantryController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/addShow", method = RequestMethod.GET)
     public String addGantryDevice(Model model){
         try {
@@ -81,6 +86,7 @@ public class GantryController {
         return "/gantry/gantryAdd";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/modifyShow", method = RequestMethod.GET)
     public String modifyGantryDevice(Model model, Integer id){
         try {
@@ -97,6 +103,7 @@ public class GantryController {
         return "/gantry/gantryModify";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/doAdd", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult doAddGantry(GantryDeviceRequest request){
@@ -123,6 +130,7 @@ public class GantryController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/doDel", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult doDelGantry(Integer id){
@@ -140,7 +148,7 @@ public class GantryController {
         return result;
     }
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/doModify", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult doModifyGantry(GantryDeviceRequest request) {
@@ -182,7 +190,7 @@ public class GantryController {
         }
     }
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRY_R)
     @RequestMapping(value = "/doQuery", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<List<GantryDevice>>> queryGantryByParam(GantryDeviceRequest request

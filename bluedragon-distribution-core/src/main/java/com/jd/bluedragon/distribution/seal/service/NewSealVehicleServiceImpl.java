@@ -18,6 +18,8 @@ import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.tms.tfc.dto.TransWorkItemDto;
+import com.jd.tms.tfc.ws.TfcQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +43,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
+
+	@Autowired
+	private TfcQueryWS tfcQueryWS;
 
 	@Autowired
 	private SendMDao sendMDao;
@@ -166,7 +171,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		return dto;
 	}
 
-	public boolean checkSendIsExist( String sendCode) {
+    @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.queryTransWorkItemBySimpleCode", mState = {JProEnum.TP})
+    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception {
+        return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
+    }
+
+    public boolean checkSendIsExist(String sendCode) {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
 		return sendM != null;
 	}
@@ -188,8 +199,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             goddess.setDateTime(new Date());
             if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
                 goddess.setKey(dto.getSealCarCode());
-            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//封车日志
+            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//按运力编码封车日志
                 goddess.setKey(dto.getTransportCode());
+            }else if(StringUtils.isNotBlank(dto.getItemSimpleCode())){//按任务封车日志（key为任务简码）
+                goddess.setKey(dto.getItemSimpleCode());
             }
             goddessService.save(goddess);
         }
@@ -211,10 +224,18 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sealCarMqDto.setOperTime(sealCarDto.getSealCarTime());
                 sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
                 sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
+                sealCarMqDto.setItemSimpleCode(sealCarDto.getItemSimpleCode());
+                sealCarMqDto.setSealCarType(sealCarDto.getSealCarType());
+                sealCarMqDto.setWeight(sealCarDto.getWeight());
+                sealCarMqDto.setVolume(sealCarDto.getVolume());
+                String key = sealCarDto.getTransportCode();
+                if(StringUtils.isEmpty(key)){//运力编码为空时，取任务简码
+                    key = sealCarDto.getItemSimpleCode();
+                }
                 try {
-                    sealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
+                    sealCarProducer.send(key, JsonHelper.toJsonUseGson(sealCarMqDto));
                 }catch (Exception e){
-                    SystemLogUtil.log(sealCarDto.getTransportCode(), sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
+                    SystemLogUtil.log(key, sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
                             sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_SEAL_MQ);
                     logger.error("发送封车mq消息失败:" + e.getMessage());
                 }
@@ -317,6 +338,29 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         sealCarDto.setBatchCodes(sourceSealDto.getBatchCodes());
         sealCarDto.setDesealCodes(sourceSealDto.getDesealCodes());
         sealCarDto.setSealCodes(sourceSealDto.getSealCodes());
+        sealCarDto.setCarrierCode(sourceSealDto.getCarrierCode());
+        sealCarDto.setCarrierName(sourceSealDto.getCarrierName());
+        sealCarDto.setCarrierType(sourceSealDto.getCarrierType());
+        sealCarDto.setTransType(sourceSealDto.getTransType());
+        sealCarDto.setTransTypeName(sourceSealDto.getTransTypeName());
+        sealCarDto.setTransWay(sourceSealDto.getTransWay());
+        sealCarDto.setTransWayName(sourceSealDto.getTransWayName());
+//        sealCarDto.setSealCarTimeBegin();
+//        sealCarDto.setSealCarTimeEnd();
+        sealCarDto.setStartSiteType(sourceSealDto.getStartSiteType());
+        sealCarDto.setStartSiteTypeName(sourceSealDto.getStartSiteTypeName());
+        sealCarDto.setEndSiteType(sourceSealDto.getEndSiteType());
+        sealCarDto.setEndSiteTypeName(sourceSealDto.getEndSiteTypeName());
+        sealCarDto.setSealCarType(sourceSealDto.getSealCarType());
+        if(sealCarDto.getSealCarType() == null && StringUtils.isNotEmpty(sealCarDto.getTransportCode())
+                && StringUtils.isEmpty(sourceSealDto.getItemSimpleCode())){
+            sealCarDto.setSealCarType(Constants.SEAL_TYPE_TRANSPORT);  //此时默认是按运力封车
+        }
+        sealCarDto.setTransWorkItemCode(sourceSealDto.getTransWorkItemCode());
+        sealCarDto.setItemSimpleCode(sourceSealDto.getItemSimpleCode());
+        sealCarDto.setWeight(sourceSealDto.getWeight());
+        sealCarDto.setVolume(sourceSealDto.getVolume());
+        sealCarDto.setTransBookCode(sourceSealDto.getTransBookCode());
         //设置时间
         if(nowTime == null){//离线数据
             if(StringUtils.isNotBlank(sourceSealDto.getSealCarTime())){

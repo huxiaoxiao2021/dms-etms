@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.crossbox;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,7 @@ public class CrossBoxController {
 	@Autowired
 	private BaseMajorManager baseSiteManager;
 
+	@Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/index")
 	public String index(CrossBoxRequest crossBoxRequest, Model model) {
 			if(!ObjectMapHelper.makeObject2Map(crossBoxRequest).isEmpty()){
@@ -78,6 +81,7 @@ public class CrossBoxController {
 		return "crossbox/list";
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/query")
 	@ResponseBody
 	public CrossBoxResponse<Pager<List<CrossBox>>> query(CrossBoxRequest crossBoxRequest, Pager<List<CrossBox>> pager) {
@@ -113,11 +117,13 @@ public class CrossBoxController {
 		return crossBoxResponse;
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/toAdd")
 	public String toAdd(Model model) {
 		return "crossbox/add";
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/toEdit")
 	public String toEdit(Integer id, CrossBoxRequest crossBoxRequest, Model model) {
 		HashMap queryInfo = new HashMap();/** 组装查询条件 **/
@@ -311,6 +317,7 @@ public class CrossBoxController {
 		}
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@ResponseBody
 	@RequestMapping("/doAdd")
 	public CrossBoxResponse<String> doAdd(CrossBox crossBox, Model model) {
@@ -343,6 +350,7 @@ public class CrossBoxController {
 		return crossBoxResponse;
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@ResponseBody
 	@RequestMapping("/doUpdate")
 	public CrossBoxResponse<String> doUpdate(CrossBox crossDmsBox, Model model) {
@@ -372,6 +380,7 @@ public class CrossBoxController {
 		return crossBoxResponse;
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/delete")
 	public String delete(Integer id) {
 		try {
@@ -397,11 +406,13 @@ public class CrossBoxController {
 		return "redirect:index";
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/toImport")
 	public String toImport(Model model) {
 		return "crossbox/import_data";
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
 	public String uploadExcel(Model model, MultipartHttpServletRequest request) {
 		logger.debug("uploadExcelFile begin...");
@@ -563,6 +574,7 @@ public class CrossBoxController {
 		return resData;
 	}
 
+    @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping(value = "/toExport")
 	public ModelAndView toExport(CrossBoxRequest crossBoxRequest, Model model) {
 		try {

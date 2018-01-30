@@ -18,7 +18,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.1</jmq.version>
@@ -92,7 +92,6 @@
 		    <artifactId>guava</artifactId>
 		    <version>14.0.1</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>asm</groupId>
 			<artifactId>asm</artifactId>
@@ -102,7 +101,7 @@
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>2.2.2</version>
-        </dependency>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -470,7 +469,11 @@
                     <artifactId>mybatis</artifactId>
                     <groupId>org.mybatis</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>spring-asm</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -508,7 +511,11 @@
 			<artifactId>etms-vos-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.tms.tfc</groupId>
+			<artifactId>tms-tfc-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>
@@ -555,7 +562,13 @@
 	      	<groupId>com.jd.ql.framework.migration</groupId>
 	      	<artifactId>migration</artifactId>
 	      	<version>1.0-SNAPSHOT</version>
-	    </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-asm</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	    
 	    <!-- global id generator service lib. -->
 	  	<dependency>
@@ -568,7 +581,13 @@
 	    	<groupId>com.jd.ql.framework.idgenerator</groupId>
 	    	<artifactId>idgenerator</artifactId>
 	    	<version>1.0-SNAPSHOT</version>
-	    </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-asm</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
         
         <!-- dian zi zheng shu  -->
         <dependency>

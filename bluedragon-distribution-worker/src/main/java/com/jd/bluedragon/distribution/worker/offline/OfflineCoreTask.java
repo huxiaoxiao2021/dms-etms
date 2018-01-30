@@ -224,6 +224,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
             scDto.setSource(Constants.SEAL_SOURCE);
             scDto.setTransportCode(obj.getString("sealBoxCode"));
             scDto.setVehicleNumber(obj.getString("carCode"));
+            scDto.setSealCarType(Constants.SEAL_TYPE_TRANSPORT);//离线封车设置封车方式为按运力封车
             sealCarDtos.add(scDto);
         }
 

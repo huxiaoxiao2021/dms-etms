@@ -7,6 +7,9 @@ import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
@@ -128,6 +131,7 @@ public class CrossSortingImpl implements CrossSortingService {
      */
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Deprecated
 	public void importCrossSortingRules(Sheet sheet0,String userName, String userCode) throws Exception{
 		logger.info("start import crossing sorting rule file...");
 		logger.info("total " + sheet0.getLastRowNum() + " row rules");
@@ -271,7 +275,9 @@ public class CrossSortingImpl implements CrossSortingService {
      * 获取所有的分拣中心
      * @return
      */
+	@Deprecated
 	private List<BaseStaffSiteOrgDto> getAllDistributionCenter(){
+		CallerInfo info = Profiler.registerInfo("DMS.CrossSortingImpl.getAllDistributionCenter", false, true);
 		List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = baseMajorManager.getDmsSiteAll();
 		List<BaseStaffSiteOrgDto> dtos = new ArrayList<BaseStaffSiteOrgDto>();
 		for (BaseStaffSiteOrgDto dto : baseStaffSiteOrgDtos) {
@@ -279,6 +285,7 @@ public class CrossSortingImpl implements CrossSortingService {
 				dtos.add(dto);
 			}
 		}
+		Profiler.registerInfoEnd(info);
 		return dtos;
 	}
 

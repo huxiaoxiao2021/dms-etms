@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,12 +67,14 @@ public class OfflineController {
 	@Resource(name = "offlinePopPickupService")
 	private OfflineService offlinePopPickupService;
 
+	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
 		initSelectObject(null, model);
 		return "offline/offline";
 	}
 
+	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String queryOperateLog(OfflineLog offlineLog,
 			Pager<OperationLog> pager, Model model) {
@@ -100,6 +103,7 @@ public class OfflineController {
 		return "offline/offline";
 	}
 
+	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String addOrDetail(Model model, Long offlineLogId) {
 		OfflineLog offlineLog = new OfflineLog();
@@ -109,6 +113,7 @@ public class OfflineController {
 		return "offline/offlineDetail";
 	}
 
+	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult save(OfflineLog offlineLog) {
