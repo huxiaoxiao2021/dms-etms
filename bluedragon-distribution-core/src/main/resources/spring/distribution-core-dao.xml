@@ -256,6 +256,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="sysLoginLogDao" class="com.jd.bluedragon.distribution.sysloginlog.dao.SysLoginLogDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <bean id="crossSortingDao" class="com.jd.bluedragon.distribution.cross.dao.CrossSortingDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
@@ -383,14 +387,14 @@
     <bean id="dmsBaseDictDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.base.dao.impl.DmsBaseDictDaoImpl"/>
     <!-- 空铁业务表Dao配置 -->
-    <bean id="arBookingSpaceDao" parent="unDivBaseDao" 
+    <bean id="arBookingSpaceDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArBookingSpaceDaoImpl"/>
-    <bean id="arExcpRegisterDao" parent="unDivBaseDao" 
+    <bean id="arExcpRegisterDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArExcpRegisterDaoImpl"/>
-    <bean id="arSendCodeDao" parent="unDivBaseDao" 
+    <bean id="arSendCodeDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendCodeDaoImpl"/>
-    <bean id="arSendRegisterDao" parent="unDivBaseDao" 
+    <bean id="arSendRegisterDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
-    <bean id="arReceiveDao" parent="unDivBaseDao" 
-    	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>    	   	
+    <bean id="arReceiveDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
 </beans>

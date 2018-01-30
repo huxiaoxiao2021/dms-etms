@@ -295,6 +295,31 @@ public class BoxResource {
         return response;
     }
 
+
+    /**
+     * 向box表中写入数据
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/addBox")
+    public BoxResponse addBox(BoxRequest request) {
+        Box box = new Box();
+        box.setCode(request.getBoxCode());
+        box.setType(request.getType());
+        box.setCreateSiteCode(request.getCreateSiteCode());
+        box.setCreateSiteName(request.getCreateSiteName());
+        box.setReceiveSiteName(request.getReceiveSiteName());
+        box.setReceiveSiteCode(request.getReceiveSiteCode());
+        box.setMixBoxType(request.getMixBoxType());
+
+        Integer result = this.boxService.add(box);
+        BoxResponse response = this.ok();
+        response.setBoxCodes(request.getBoxCode());
+        response.setMessage("result:"+result);
+        return response;
+    }
+
     private BoxResponse toBoxResponse(Box box) {
         BoxResponse response = this.ok();
         response.setSiteType(box.getSiteType());

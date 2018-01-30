@@ -398,4 +398,38 @@ public class Constants {
      * 空铁提货操作
      */
     public static final int OPERATE_TYPE_AR_RECEIVE = 1810;
+
+    /********************************************* UIM权限资源码相关start *********************************************/
+    public static final String DMS_WEB_PTORDER_DIFF_R="DMS-WEB-PTORDER-DIFF-R"; //平台差异处理
+    public static final String DMS_WEB_PTORDER_QUEUE_R="DMS-WEB-PTORDER-QUEUE-R"; //平台排队号查询
+    public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
+    public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
+    public static final String DMS_WEB_SORTING_GLOBALTRADE_R ="DMS-WEB-SORTING-GLOBALTRADE-R"; //全球购
+    public static final String DMS_WEB_SORTING_GANTRY_R ="DMS-WEB-SORTING-GANTRY-R"; //龙门架注册
+    public static final String DMS_WEB_SORTING_SORTSCHEME_R ="DMS-WEB-SORTING-SORTSCHEME-R"; //分拣计划配置
+    public static final String DMS_WEB_SORTING_ADDRESSCHANGE_R ="DMS-WEB-SORTING-ADDRESSCHANGE-R"; //客户改址查询
+    public static final String DMS_WEB_SORTING_PARTNERINSPECTION_R ="DMS-WEB-SORTING-PARTNERINSPECTION-R"; //第三方差异处理
+    public static final String DMS_WEB_SORTING_GODDESS_R ="DMS-WEB-SORTING-GODDESS-R"; //分拣运行时全程跟踪
+    public static final String DMS_WEB_SORTING_OFFLINELOG_R ="DMS-WEB-SORTING-OFFLINELOG-R"; //分拣中心离线操作日志
+    public static final String DMS_WEB_SORTING_FRESH_R ="DMS-WEB-SORTING-FRESH-R"; //生鲜温度录入
+    public static final String DMS_WEB_SORTING_GANTRYAUTOSEND_R ="DMS-WEB-SORTING-GANTRYAUTOSEND-R"; //龙门架自动发货
+    public static final String DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R ="DMS-WEB-SORTING-SORTMACHINEAUTOSEND-R"; //分拣机自动发货
+    public static final String DMS_WEB_TOOL_REPAILSTOCK_R ="DMS-WEB-TOOL-REPAILSTOCK-R"; //逆向物流重新推送库管
+    public static final String DMS_WEB_TOOL_REPAILREVERSE_R ="DMS-WEB-TOOL-REPAILREVERSE-R"; //逆向物流重新推送数据
+    public static final String DMS_WEB_TOOL_WAYBILLCHECK_R ="DMS-WEB-TOOL-WAYBILLCHECK-R"; //运单判断
+    public static final String DMS_WEB_TOOL_TURBOX_R ="DMS-WEB-TOOL-TURBOX-R"; //收发空箱查询
+    public static final String DMS_WEB_TOOL_WAYBILLSEND_R ="DMS-WEB-TOOL-WAYBILLSEND-R"; //全国邮政数据重新下发
+    public static final String DMS_WEB_TOOL_DAFU_R ="DMS-WEB-TOOL-DAFU-R"; //大福线白名单管理
+    public static final String DMS_WEB_TOOL_REVERSERECEIVE_R ="DMS-WEB-TOOL-REVERSERECEIVE-R"; //逆向收货查询
+    public static final String DMS_WEB_TOOL_SORTINGCENTER_R ="DMS-WEB-TOOL-SORTINGCENTER-R"; //分拣中心测试查询工具
+    public static final String DMS_WEB_TOOL_AREADESTPLAN_R ="DMS-WEB-TOOL-AREADESTPLAN-R"; //龙门架发货关系维护
+    public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
+    public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
+    public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
+    /********************************************* UIM权限资源码相关end ***********************************************/
+
+    /******************************************** 封车类型相关start *****************************************/
+    public static final Integer SEAL_TYPE_TRANSPORT = 10;    //按运力封车
+    public static final Integer SEAL_TYPE_TASK = 20;   //按任务封车
+    /******************************************** 封车类型相关end *****************************************/
 }

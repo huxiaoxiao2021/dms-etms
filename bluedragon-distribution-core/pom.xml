@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -82,12 +82,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jd.ump</groupId>
-            <artifactId>profiler</artifactId>
-            <version>3.2.0</version> <!-- 必须3.2.0及以上！！！ -->
-        </dependency>
-
-        <dependency>
 			<groupId>org.apache.santuario</groupId>
 			<artifactId>xmlsec</artifactId>
 			<version>1.4.3</version>
@@ -103,7 +97,6 @@
 		    <artifactId>guava</artifactId>
 		    <version>14.0.1</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>asm</groupId>
 			<artifactId>asm</artifactId>
@@ -113,7 +106,7 @@
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>2.2.2</version>
-        </dependency>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -412,13 +405,13 @@
 		<dependency>
             <groupId>com.jd.ump</groupId>
             <artifactId>profiler</artifactId>
-            <version>3.2.0</version>
+            <version>4.1.0</version>
         </dependency>
         
 		<dependency>
                <groupId>com.jd.ump</groupId>
                <artifactId>jannotation</artifactId>
-               <version>2.0.0</version>
+               <version>4.1.0</version>
     	</dependency>
 
         <dependency>
@@ -523,7 +516,11 @@
 			<artifactId>etms-vos-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.tms.tfc</groupId>
+			<artifactId>tms-tfc-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>

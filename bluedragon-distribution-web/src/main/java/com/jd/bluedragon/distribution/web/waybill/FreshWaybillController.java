@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.waybill;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,16 +47,19 @@ public class FreshWaybillController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Authorization(Constants.DMS_WEB_SORTING_FRESH_R)
     @RequestMapping(value ="/index", method = RequestMethod.GET)
     public String toFreshWaybillIndex(){
         return "waybill/freshWaybill";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_FRESH_R)
     @RequestMapping(value ="/toAddPage", method = RequestMethod.GET)
     public String toFreshWaybillAdd() {
         return "waybill/freshWaybill_add";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_FRESH_R)
     @RequestMapping(value = "/toModifyPage",method = RequestMethod.GET)
     public String toFreshWaybillModify(FreshWaybill freshWaybill, Model model){
         if(null == freshWaybill || null == freshWaybill.getId()) {
@@ -66,6 +71,7 @@ public class FreshWaybillController {
         return "waybill/freshWaybill_modify";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_FRESH_R)
     @RequestMapping(value ="/query", method = RequestMethod.GET)
     public String doQueryFreshWaybill(FreshWaybill freshWaybill, Pager<FreshWaybill> pager, Model model){
         if(null == freshWaybill) {
@@ -100,6 +106,7 @@ public class FreshWaybillController {
         return "waybill/freshWaybill";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_FRESH_R)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> doAddFreshWaybill(FreshWaybill freshWaybill) {
@@ -134,7 +141,7 @@ public class FreshWaybillController {
     }
 
 
-
+    @Authorization(Constants.DMS_WEB_SORTING_FRESH_R)
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> doUpdateFreshWaybill(FreshWaybill freshWaybill) {

@@ -499,4 +499,15 @@ public class BusinessHelper {
 		
 		return false;
 	}
+	/**
+	 * 根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSopOrExternal(String waybillSign){
+		return (isSignChar(waybillSign, 1, '2')
+				||isSignChar(waybillSign, 1, '3')
+				||isSignChar(waybillSign, 1, '6')
+				||isSignChar(waybillSign, 1, 'K'));
+	}
 }

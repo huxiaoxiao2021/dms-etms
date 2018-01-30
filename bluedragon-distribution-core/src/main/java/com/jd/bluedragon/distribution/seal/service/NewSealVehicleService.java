@@ -4,6 +4,7 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.tms.tfc.dto.TransWorkItemDto;
 
 import java.util.List;
 
@@ -62,5 +63,13 @@ public interface NewSealVehicleService {
      * @return
      */
     public CommonDto<String> offlineSeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+
+    /**
+     * 根据任务简码查询任务信息
+     * @param simpleCode
+     * @return
+     * @throws Exception
+     */
+    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception;
 
 }
