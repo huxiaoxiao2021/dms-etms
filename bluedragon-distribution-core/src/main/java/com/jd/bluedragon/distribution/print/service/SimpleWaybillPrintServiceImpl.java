@@ -1,41 +1,50 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jmq.common.exception.JMQException;
+import com.jd.preseparate.vo.BaseResponseIncidental;
+import com.jd.preseparate.vo.MediumStationOrderInfo;
+import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -62,8 +71,17 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private TransbillMService transbillMService;
+
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private PresortMediumStationAPI presortMediumStation;
+
+    /* MQ消息生产者： topic:bd_waybill_original_site_change*/
+    @Autowired
+    @Qualifier("waybillSiteChangeProducer")
+    private DefaultJMQProducer waybillSiteChangeProducer;
 
     private List<ComposeService> composeServiceList;
     /**
@@ -128,9 +146,19 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private static final String USER_PLUS_FLAG_B="201";
 
     /**
+     * 2次预分拣变更提示信息
+     */
+    private static final String SITE_CHANGE_MSG ="单号‘%s’由中件站配送，请务必更换包裹标签";
+
+    /**
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
+
+    /**
+     * 包裹重量体积的默认值0
+     */
+    private static final Double DOUBLE_ZERO = 0.0;
 
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
@@ -423,21 +451,104 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     }
 
 	@Override
-	public WaybillPrintResponse loadBasicWaybillInfo(
-			Integer dmsCode, String waybillCode, Integer targetSiteCode) {
+	public InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context) {
 		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
+        InterceptResult<String> interceptResult = new InterceptResult<String>();
         try {
-            loadWaybillInfo(result, dmsCode, waybillCode, targetSiteCode);
+            loadWaybillInfo(result, context.getRequest().getDmsSiteCode(), context.getRequest().getBarCode(), context.getRequest().getTargetSiteCode());
             if (null != result.getData()) {
                 loadPrintedData(result.getData());
                 loadBasicData(result.getData());
-                return result.getData();
+                interceptResult = preSortingAgain(context, result.getData());
+                context.setResponse(result.getData());
+            }else{
+                interceptResult.toError(InterceptResult.CODE_ERROR, "加载运单基础数据为空！");
             }
         }catch (Exception ex){
             logger.error("标签打印接口异常",ex);
-            result.error(ex);
+            interceptResult.toError();
         }
-        return null;
+        return interceptResult;
 	}
-    
+
+    /**
+     * 一单一件且重新称重或量方的触发二次预分拣
+     */
+    private InterceptResult<String> preSortingAgain(WaybillPrintContext context, PrintWaybill commonWaybill){
+        InterceptResult<String> interceptResult = new InterceptResult<String>();
+
+        int size = commonWaybill.getPackList().size();
+        if(size == 1 && BusinessHelper.isExternal(commonWaybill.getWaybillSign()) &&
+                (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
+                        !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getVolume()))){
+            if(commonWaybill.getPrepareSiteCode() == null || commonWaybill.getPrepareSiteCode().equals(0)){
+                interceptResult.toError(InterceptResult.CODE_ERROR,"运单预分拣站点为空");
+                return interceptResult;
+            }
+            OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
+            originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());
+            originalOrderInfo.setHeight(context.getRequest().getWeightOperFlow().getHigh());
+            originalOrderInfo.setLength(context.getRequest().getWeightOperFlow().getLength());
+            originalOrderInfo.setWidth(context.getRequest().getWeightOperFlow().getWidth());
+            originalOrderInfo.setWaybillCode(commonWaybill.getWaybillCode());
+            originalOrderInfo.setPackageCode(commonWaybill.getPackList().get(0).getPackageCode());
+            originalOrderInfo.setOriginalStationId(commonWaybill.getPrepareSiteCode());
+            originalOrderInfo.setOriginalStationName(commonWaybill.getPrepareSiteName());
+            //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
+            originalOrderInfo.setSystemCode("DMS");
+            BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
+            if(info == null){
+                interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
+                return interceptResult;
+            }
+            PrintPackage pack = new PrintPackage();
+            if(JdResponse.CODE_OK.equals(info.getCode())){//二次预分拣中件站接口调用成功
+                if(!commonWaybill.getPrepareSiteCode().equals(info.getData().getMediumStationId())){//换站点了
+                    List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
+                    pack.setPackageCode(info.getData().getPackageCode());
+                    pack.setWeight(context.getRequest().getWeightOperFlow().getWeight());//设置最新的称重数据
+                    packageList.add(pack);
+                    commonWaybill.setPrepareSiteCode(info.getData().getMediumStationId());
+                    commonWaybill.setPrepareSiteName(info.getData().getMediumStationName());
+                    commonWaybill.setRoad(info.getData().getMediumStationRoad());
+                    commonWaybill.setPackList(packageList);
+                    context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
+                    interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
+                    sendSiteChangeMQ(context, commonWaybill);
+                }
+            }else{
+                interceptResult.toFail(InterceptResult.CODE_FAIL, info.getMessage());
+            }
+        }else{
+            interceptResult.toSuccess();
+        }
+        return interceptResult;
+    }
+
+    /**
+     * 发送外单中小件预分拣站点变更mq消息
+     * @param context
+     * @param commonWaybill
+     */
+    private void sendSiteChangeMQ(WaybillPrintContext context, PrintWaybill commonWaybill){
+        SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+        siteChangeMqDto.setWaybillCode(commonWaybill.getWaybillCode());
+        siteChangeMqDto.setPackageCode(commonWaybill.getPackList().get(0).getPackageCode());
+        siteChangeMqDto.setNewSiteId(commonWaybill.getPrepareSiteCode());
+        siteChangeMqDto.setNewSiteName(commonWaybill.getPrepareSiteName());
+        siteChangeMqDto.setNewSiteRoadCode(commonWaybill.getRoad());
+        siteChangeMqDto.setOperatorId(context.getRequest().getUserCode());
+        siteChangeMqDto.setOperatorName(context.getRequest().getUserName());
+        siteChangeMqDto.setOperatorSiteId(context.getRequest().getDmsSiteCode());
+        siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
+        siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+        try {
+            waybillSiteChangeProducer.send(commonWaybill.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+        } catch (JMQException e) {
+            SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
+                    siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
+            logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+        }
+    }
+
 }

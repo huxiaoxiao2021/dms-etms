@@ -500,14 +500,23 @@ public class BusinessHelper {
 		return false;
 	}
 	/**
-	 * 根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K）
+	 * 根据waybillSign第一位判断是否SOP(标识为 2)或纯外单（标识为 3、6、9、K、Y）
 	 * @param waybillSign
 	 * @return
 	 */
 	public static boolean isSopOrExternal(String waybillSign){
-		return (isSignChar(waybillSign, 1, '2')
-				||isSignChar(waybillSign, 1, '3')
+		return (isSignChar(waybillSign, 1, '2') ||isExternal(waybillSign));
+	}
+	/**
+	 * 根据waybillSign第一位判断是否纯外单（标识为 3、6、9、K、Y）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isExternal(String waybillSign){
+		return (isSignChar(waybillSign, 1, '3')
 				||isSignChar(waybillSign, 1, '6')
-				||isSignChar(waybillSign, 1, 'K'));
+				||isSignChar(waybillSign, 1, '9')
+				||isSignChar(waybillSign, 1, 'K')
+				||isSignChar(waybillSign, 1, 'Y'));
 	}
 }

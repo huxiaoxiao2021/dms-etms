@@ -241,4 +241,8 @@
     <bean id="weighByWaybillProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillWeight}"/>
     </bean>
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
+    </bean>
 </beans>
