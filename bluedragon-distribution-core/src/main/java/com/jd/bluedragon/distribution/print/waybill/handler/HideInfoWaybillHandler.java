@@ -25,9 +25,11 @@ public class HideInfoWaybillHandler implements Handler<WaybillPrintContext,JdRes
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("微笑面单-隐藏电话和地址");
+		JdResult<String> jdResult = new JdResult<String>() ;
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		hideInfoComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		return new JdResult<String>();
+		jdResult.toSuccess();
+		return jdResult;
 	}
 }

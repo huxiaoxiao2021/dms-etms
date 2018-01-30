@@ -6,6 +6,7 @@ import java.util.List;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.Context;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 
@@ -31,6 +32,10 @@ public class WaybillPrintContext implements Context{
 	 * 运单信息
 	 */
 	private PrintWaybill printWaybill;
+	/**
+	 * 记录全局状态
+	 */
+	private int status = InterceptResult.STATUS_PASSED;
 	
 	private	List<String> messages = new ArrayList<String>();
 	
@@ -86,5 +91,20 @@ public class WaybillPrintContext implements Context{
 	 */
 	public void setMessages(List<String> messages) {
 		this.messages = messages;
+	}
+	/**
+	 * @return the status
+	 */
+	public int getStatus() {
+		return status;
+	}
+	/**
+	 * 设置全局状态，状态值大于当前值时才会覆盖
+	 * @param status the status to set
+	 */
+	public void setStatus(int status) {
+		if(status>this.status){
+			this.status = status;
+		}
 	}
 }

@@ -15,7 +15,7 @@
 		</property>
 	</bean>
 	<!-- 包裹标签打印-指令处理配置 -->
-	<bean id="waybillPrintCommandHandler" class ="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintCommandHandler">
+	<bean id="waybillPrintCommandHandler" class ="com.jd.bluedragon.distribution.command.WaybillPrintCommandHandler">
 		<property name="jsonOperateHandlerMapping" ref="waybillPrintOperateHandlerMapping"/>
 	</bean>
 	<!-- 包裹标签打印-打印逻辑映射关系配置 -->

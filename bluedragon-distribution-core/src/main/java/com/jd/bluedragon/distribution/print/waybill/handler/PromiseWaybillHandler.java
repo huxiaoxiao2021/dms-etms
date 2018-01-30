@@ -26,9 +26,11 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("获取时效信息");
+		JdResult<String> jdResult = new JdResult<String>() ;
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		promiseComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		return new JdResult<String>();
+		jdResult.toSuccess();
+		return jdResult;
 	}
 }

@@ -17,10 +17,12 @@ public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,Jd
 	private ComposeService specialMarkComposeService;
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
+		JdResult<String> jdResult = new JdResult<String>() ;
 		logger.info("运单特殊标记合成");
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		specialMarkComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		return new JdResult<String>();
+		jdResult.toSuccess();
+		return jdResult;
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -31,7 +32,9 @@ public class BasicWaybillPrintHandler extends InterceptHandler<WaybillPrintConte
 	}
 	@Override
 	public InterceptResult<String> doHandle(WaybillPrintContext context) {
-		return new InterceptResult<String>();
+		InterceptResult<String> jdResult = new InterceptResult<String>() ;
+		jdResult.toSuccess();
+		return jdResult;
 	}
 	@Override
 	public void afterHandle(WaybillPrintContext context) {

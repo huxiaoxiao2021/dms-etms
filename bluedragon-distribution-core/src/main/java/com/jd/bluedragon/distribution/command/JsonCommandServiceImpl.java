@@ -28,7 +28,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	
 	@Override
 	public String execute(String context) {
-		JdCommand<String> jdCommand = JsonHelper.fromJson(context, JdCommand.class);
+		JdCommand<String> jdCommand = JsonHelper.fromJsonUseGson(context, JdCommand.class);
 		//返回参数错误信息
 		if(jdCommand == null){
 			return JsonHelper.toJson(JdResults.REST_FAIL_PARAM_ERROR);
