@@ -16,6 +16,7 @@ public class WaybillPrintOperateHandler extends InterceptHandler<WaybillPrintCon
 	@Override
 	public InterceptResult<String> preHandle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = new InterceptResult<String>();
+		interceptResult.toSuccess();
 		if(preHandlers != null && !preHandlers.isEmpty()){
 			for(Handler<WaybillPrintContext,JdResult<String>> handler:preHandlers){
 				if(handler instanceof InterceptHandler){
@@ -44,6 +45,7 @@ public class WaybillPrintOperateHandler extends InterceptHandler<WaybillPrintCon
 	@Override
 	public InterceptResult<String> doHandle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = new InterceptResult<String>();
+		interceptResult.toSuccess();
 		if(handlers != null && !handlers.isEmpty()){
 			for(Handler<WaybillPrintContext,JdResult<String>> handler:handlers){
 				if(handler instanceof InterceptHandler){
@@ -59,7 +61,6 @@ public class WaybillPrintOperateHandler extends InterceptHandler<WaybillPrintCon
 				}else{
 					JdResult<String> jdResult = handler.handle(context);
 					if(jdResult == null || jdResult.getCode()!=JdResult.CODE_SUC){
-						context.appendMessage(jdResult.getMessage());
 						context.setStatus(InterceptResult.STATUS_NO_PASSED);
 						interceptResult.toFail(jdResult.getMessageCode(), jdResult.getMessage());
 						return interceptResult;
@@ -67,7 +68,6 @@ public class WaybillPrintOperateHandler extends InterceptHandler<WaybillPrintCon
 				}
 			}
 		}
-		interceptResult.toSuccess();
 		interceptResult.setData(JsonHelper.toJson(context.getResponse()));
 		if(context.getStatus()==InterceptResult.STATUS_WEAK_PASSED){
 			interceptResult.setStatus(context.getStatus());

@@ -22,17 +22,18 @@
 	<bean id="waybillPrintOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
-				<entry key="100001"  value-ref="plateSitePrint"/>
-				<entry key="100002"  value-ref="plateSitePrint"/>
-				<entry key="100003"  value-ref="plateSitePrint"/>
-				<entry key="100004"  value-ref="plateSitePrint"/>
-				<entry key="100005"  value-ref="plateSitePrint"/>
-				<entry key="100006"  value-ref="plateSitePrint"/>
-				<entry key="100007"  value-ref="plateSitePrint"/>
+				<entry key="100001"  value-ref="platePrint"/>
+				<entry key="100002"  value-ref="sitePlatePrint"/>
+				<entry key="100003"  value-ref="platePrint"/>
+				<entry key="100004"  value-ref="platePrint"/>
+				<entry key="100005"  value-ref="platePrint"/>
+				<entry key="100006"  value-ref="platePrint"/>
+				<entry key="100007"  value-ref="platePrint"/>
 			</map>
 		</property>
 	</bean>
-	<bean id="plateSitePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintOperateHandler">
+	<!-- 包裹标签打印-平台打印 -->
+	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintOperateHandler">
 		<property name="preHandlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
@@ -51,4 +52,6 @@
 			</list>
 		</property>
 	</bean>
+	<!-- 包裹标签打印-站点平台打印 -->
+	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlateWaybillPrintOperateHandler"/>
 </beans>
