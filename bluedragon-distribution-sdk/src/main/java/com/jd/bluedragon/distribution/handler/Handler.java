@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.handler;
 
-import com.jd.bluedragon.distribution.command.JdResult;
-
 
 /**
  * 
@@ -15,8 +13,9 @@ import com.jd.bluedragon.distribution.command.JdResult;
  */
 public interface Handler<T,R> {
 	/**
-	 * 处理逻辑单元
-	 * @param context
+	 * 执行处理，返回处理结果
+	 * @param target
+	 * @return
 	 */
-	JdResult<R> handle(T context);
+	R handle(T target);
 }

@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.handler;
 
-
-
 /**
  * 
  * @ClassName: HandlerMapping

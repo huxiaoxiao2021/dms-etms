@@ -9,7 +9,7 @@ package com.jd.bluedragon.distribution.handler;
  * 
  * @param <T> 处理上下文实体
  */
-public abstract class InterceptHandler<T,R> implements Handler<T,R>{
+public abstract class InterceptHandler<T,R> implements Handler<T,InterceptResult<R>>{
 	/**
 	 * 处理逻辑单元
 	 * @param context

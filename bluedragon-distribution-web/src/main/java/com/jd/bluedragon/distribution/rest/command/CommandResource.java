@@ -29,7 +29,7 @@ public class CommandResource {
     private static final Log logger= LogFactory.getLog(CommandResource.class);
 
     @Autowired
-    @Qualifier("JsonCommandService")
+    @Qualifier("jsonCommandService")
     private JdCommandService jdCommandService;
     /**
      * 

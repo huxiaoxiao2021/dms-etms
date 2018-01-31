@@ -7,13 +7,15 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 @Service
-public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(TemplateSelectorWaybillHandler.class);
 
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
+		JdResult<String> jdResult = new JdResult<String>() ;
 		logger.info("模板选择处理");
 		context.getResponse().setTemplateName("nopaper15");
-		return new JdResult<String>();
+		jdResult.toSuccess();
+		return jdResult;
 	}
 }

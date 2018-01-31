@@ -36,6 +36,22 @@ public class JdResult<T> implements Serializable{
 	 * 返回结果
 	 */
 	private T data;
+	public JdResult() {
+		super();
+	}
+	public JdResult(int code, int messageCode, String message) {
+		super();
+		this.code = code;
+		this.messageCode = messageCode;
+		this.message = message;
+	}
+	/**
+	 * 判断是否成功
+	 * @return
+	 */
+	public boolean isSucceed(){
+		return this.code == CODE_SUC;
+	}
 	/**
 	 * 更改状态为成功
 	 */

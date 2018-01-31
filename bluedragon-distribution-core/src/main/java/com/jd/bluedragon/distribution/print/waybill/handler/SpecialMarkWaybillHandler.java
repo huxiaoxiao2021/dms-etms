@@ -10,17 +10,19 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 @Service
-public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(SpecialMarkWaybillHandler.class);
 	@Autowired
 	@Qualifier("specialMarkComposeService")
 	private ComposeService specialMarkComposeService;
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
+		JdResult<String> jdResult = new JdResult<String>() ;
 		logger.info("运单特殊标记合成");
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		specialMarkComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		return new JdResult<String>();
+		jdResult.toSuccess();
+		return jdResult;
 	}
 }

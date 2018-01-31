@@ -18,7 +18,7 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
  *
  */
 @Service
-public class PromiseWaybillHandler implements Handler<WaybillPrintContext,String>{
+public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(PromiseWaybillHandler.class);
 	@Autowired
 	@Qualifier("promiseComposeService")
@@ -26,9 +26,11 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,String
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("获取时效信息");
+		JdResult<String> jdResult = new JdResult<String>() ;
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		promiseComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		return new JdResult<String>();
+		jdResult.toSuccess();
+		return jdResult;
 	}
 }
