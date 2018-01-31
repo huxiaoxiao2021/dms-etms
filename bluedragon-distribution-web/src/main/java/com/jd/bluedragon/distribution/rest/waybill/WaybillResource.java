@@ -905,10 +905,11 @@ public class WaybillResource {
 			resp.put("code",code);
 			resp.put("message",message);
 
+			logger.info("/waybill/queryPackcode success waybillCode--> " +waybillCode);
 
 		}catch (Exception e){
 
-			logger.error("/waybill/queryPackcode  waybillCode="+waybillCode+" | "+e.getMessage());
+			logger.error("/waybill/queryPackcode  waybillCode--> "+waybillCode+" | "+e.getMessage());
 
 			resp.put("code",400);
 			resp.put("message","ERROR");
@@ -968,6 +969,7 @@ public class WaybillResource {
 			resp.put("message","OK");
 			resp.put("data",true);
 
+			logger.info("/waybill/addPackState success context--> " +JsonHelper.toJson(req));
 		}catch (Exception e){
 
 			logger.error("/waybill/addPackState  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
@@ -1046,6 +1048,7 @@ public class WaybillResource {
 				resp.put("data",false);
 			}
 
+			logger.info("/waybill/editWeight success context--> " +JsonHelper.toJson(req));
 		}catch (Exception e){
 
 			logger.error("/waybill/editWeight  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
