@@ -478,9 +478,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         InterceptResult<String> interceptResult = new InterceptResult<String>();
 
         int size = commonWaybill.getPackList().size();
-        if(size == 1 && BusinessHelper.isExternal(commonWaybill.getWaybillSign()) &&
-                (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
-                        !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getVolume()))){
+        if(size == 1 && BusinessHelper.isExternal(commonWaybill.getWaybillSign()) && hasWeightOrVolume(context)){    //一单一件 纯外单 上传了新的体积或重量
             if(commonWaybill.getPrepareSiteCode() == null || commonWaybill.getPrepareSiteCode().equals(0)){
                 interceptResult.toError(InterceptResult.CODE_ERROR,"运单预分拣站点为空");
                 return interceptResult;
@@ -549,6 +547,21 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
             logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
         }
+    }
+
+    /**
+     * 判断是否上传了体积或者重量(重量不为0 或者 长宽高都不为0)
+     * @param context
+     * @return
+     */
+    private boolean hasWeightOrVolume(WaybillPrintContext context){
+        if(!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
+                (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWidth()) &&
+                        !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getLength()) &&
+                                !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getHigh()))){
+            return true;
+        }
+        return false;
     }
 
 }
