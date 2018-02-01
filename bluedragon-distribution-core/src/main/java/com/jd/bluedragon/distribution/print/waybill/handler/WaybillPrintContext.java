@@ -3,12 +3,14 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.Context;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 
 
 /**
@@ -29,9 +31,14 @@ public class WaybillPrintContext implements Context{
 	 */
 	private WaybillPrintResponse response;
 	/**
-	 * 运单信息
+	 * 运单接口查询到的运单信息
 	 */
-	private PrintWaybill printWaybill;
+	private BigWaybillDto bigWaybillDto;
+	/**
+	 * 冗余的运单信息
+	 */
+	private Waybill waybill;
+
 	/**
 	 * 记录全局状态
 	 */
@@ -69,18 +76,6 @@ public class WaybillPrintContext implements Context{
 		this.response = response;
 	}
 	/**
-	 * @return the printWaybill
-	 */
-	public PrintWaybill getPrintWaybill() {
-		return printWaybill;
-	}
-	/**
-	 * @param printWaybill the printWaybill to set
-	 */
-	public void setPrintWaybill(PrintWaybill printWaybill) {
-		this.printWaybill = printWaybill;
-	}
-	/**
 	 * @return the messages
 	 */
 	public List<String> getMessages() {
@@ -107,4 +102,20 @@ public class WaybillPrintContext implements Context{
 			this.status = status;
 		}
 	}
+
+    public BigWaybillDto getBigWaybillDto() {
+        return bigWaybillDto;
+    }
+
+    public void setBigWaybillDto(BigWaybillDto bigWaybillDto) {
+        this.bigWaybillDto = bigWaybillDto;
+    }
+
+    public Waybill getWaybill() {
+        return waybill;
+    }
+
+    public void setWaybill(Waybill waybill) {
+        this.waybill = waybill;
+    }
 }

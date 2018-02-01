@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -33,6 +35,7 @@ import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -55,9 +58,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private static final Log logger= LogFactory.getLog(SimpleWaybillPrintServiceImpl.class);
 
     @Autowired
-    private WaybillQueryApi waybillQueryApi;
-
-    @Autowired
     private PopPrintService popPrintService;
 
     @Autowired
@@ -76,12 +76,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private WaybillCommonService waybillCommonService;
 
     @Autowired
-    private PresortMediumStationAPI presortMediumStation;
+    private WaybillQueryManager waybillQueryManager;
 
-    /* MQ消息生产者： topic:bd_waybill_original_site_change*/
     @Autowired
-    @Qualifier("waybillSiteChangeProducer")
-    private DefaultJMQProducer waybillSiteChangeProducer;
+    private PreSortingSecondService preSortingSecondService;
 
     private List<ComposeService> composeServiceList;
     /**
@@ -146,32 +144,31 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private static final String USER_PLUS_FLAG_B="201";
 
     /**
-     * 2次预分拣变更提示信息
-     */
-    private static final String SITE_CHANGE_MSG ="单号‘%s’由中件站配送，请务必更换包裹标签";
-
-    /**
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
-    /**
-     * 包裹重量体积的默认值0
-     */
-    private static final Double DOUBLE_ZERO = 0.0;
+
 
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
         InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
         try {
-            loadWaybillInfo(result, dmsCode, waybillCode, targetSiteCode);
-            if (null != result.getData()) {
-                loadPrintedData(result.getData());
-                loadBasicData(result.getData());
-                for (ComposeService service : composeServiceList) {
-                    service.handle(result.getData(), dmsCode, targetSiteCode);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                loadWaybillInfo(result,baseEntity.getData(), dmsCode, targetSiteCode);
+                if (null != result.getData()) {
+                    loadPrintedData(result.getData());
+                    loadBasicData(result.getData());
+                    for (ComposeService service : composeServiceList) {
+                        service.handle(result.getData(), dmsCode, targetSiteCode);
+                    }
                 }
+            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
+                result.error(baseEntity.getMessage());
+            }else{
+                result.error("查询运单信息为空");
             }
         }catch (Exception ex){
             logger.error("标签打印接口异常",ex);
@@ -184,28 +181,17 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 加载运单基础数据
      * @param result
      * @param dmsCode
-     * @param waybillCode
+     * @param bigWaybillDto
      * @param targetSiteCode
      */
-    private final void loadWaybillInfo(final InvokeResult<WaybillPrintResponse> result,Integer dmsCode,String waybillCode,Integer targetSiteCode){
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryPackList(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
-        if(logger.isDebugEnabled()){
-            logger.debug("获取运单信息为"+ JsonHelper.toJson(baseEntity));
-        }
-        if (baseEntity != null
-                && baseEntity.getData() != null
-                &&null!=baseEntity.getData().getWaybill()) {
+    private final void loadWaybillInfo(final InvokeResult<WaybillPrintResponse> result,BigWaybillDto bigWaybillDto, Integer dmsCode,Integer targetSiteCode){
+        if (null!=bigWaybillDto.getWaybill()) {
             if(null==result.getData()){
                 result.setData(new WaybillPrintResponse());
             }
             PrintWaybill commonWaybill=result.getData();
-            com.jd.etms.waybill.domain.Waybill tmsWaybill=baseEntity.getData().getWaybill();
-            WaybillManageDomain tmsWaybillManageDomain=baseEntity.getData().getWaybillState();
+            com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
+            WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
@@ -330,9 +316,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
-            if(null!=baseEntity.getData().getPackageList()){
-                List<PrintPackage> packageList=new ArrayList<PrintPackage>(baseEntity.getData().getPackageList().size());{
-                    for (DeliveryPackageD item:baseEntity.getData().getPackageList()){
+            if(null!=bigWaybillDto.getPackageList()){
+                List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
+                    for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
                         PrintPackage pack=new PrintPackage();
                         pack.setPackageCode(item.getPackageBarcode());
                         pack.setWeight(item.getGoodWeight());
@@ -455,12 +441,17 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         try {
-            loadWaybillInfo(result, context.getRequest().getDmsSiteCode(), context.getRequest().getBarCode(), context.getRequest().getTargetSiteCode());
-            if (null != result.getData()) {
-                loadPrintedData(result.getData());
-                loadBasicData(result.getData());
-                interceptResult = preSortingAgain(context, result.getData());
-                context.setResponse(result.getData());
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(context.getRequest().getBarCode(), true, true, true, true);
+            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
+                if (null != result.getData()) {
+                    interceptResult = preSortingSecondService.preSortingAgain(context, result.getData());//处理是否触发2次预分拣
+                    loadPrintedData(result.getData());
+                    loadBasicData(result.getData());
+                    context.setResponse(result.getData());
+                }
+            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
+                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
                 interceptResult.toError(InterceptResult.CODE_ERROR, "加载运单基础数据为空！");
             }
@@ -471,97 +462,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         return interceptResult;
 	}
 
-    /**
-     * 一单一件且重新称重或量方的触发二次预分拣
-     */
-    private InterceptResult<String> preSortingAgain(WaybillPrintContext context, PrintWaybill commonWaybill){
-        InterceptResult<String> interceptResult = new InterceptResult<String>();
 
-        int size = commonWaybill.getPackList().size();
-        if(size == 1 && BusinessHelper.isExternal(commonWaybill.getWaybillSign()) && hasWeightOrVolume(context)){    //一单一件 纯外单 上传了新的体积或重量
-            if(commonWaybill.getPrepareSiteCode() == null || commonWaybill.getPrepareSiteCode().equals(0)){
-                interceptResult.toError(InterceptResult.CODE_ERROR,"运单预分拣站点为空");
-                return interceptResult;
-            }
-            OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
-            originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());
-            originalOrderInfo.setHeight(context.getRequest().getWeightOperFlow().getHigh());
-            originalOrderInfo.setLength(context.getRequest().getWeightOperFlow().getLength());
-            originalOrderInfo.setWidth(context.getRequest().getWeightOperFlow().getWidth());
-            originalOrderInfo.setWaybillCode(commonWaybill.getWaybillCode());
-            originalOrderInfo.setPackageCode(commonWaybill.getPackList().get(0).getPackageCode());
-            originalOrderInfo.setOriginalStationId(commonWaybill.getPrepareSiteCode());
-            originalOrderInfo.setOriginalStationName(commonWaybill.getPrepareSiteName());
-            //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
-            originalOrderInfo.setSystemCode("DMS");
-            BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
-            if(info == null){
-                interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
-                return interceptResult;
-            }
-            PrintPackage pack = new PrintPackage();
-            if(JdResponse.CODE_OK.equals(info.getCode())){//二次预分拣中件站接口调用成功
-                if(!commonWaybill.getPrepareSiteCode().equals(info.getData().getMediumStationId())){//换站点了
-                    List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
-                    pack.setPackageCode(info.getData().getPackageCode());
-                    pack.setWeight(context.getRequest().getWeightOperFlow().getWeight());//设置最新的称重数据
-                    packageList.add(pack);
-                    commonWaybill.setPrepareSiteCode(info.getData().getMediumStationId());
-                    commonWaybill.setPrepareSiteName(info.getData().getMediumStationName());
-                    commonWaybill.setRoad(info.getData().getMediumStationRoad());
-                    commonWaybill.setPackList(packageList);
-                    context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
-                    interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
-                    sendSiteChangeMQ(context, commonWaybill);
-                }
-            }else{
-                interceptResult.toFail(InterceptResult.CODE_FAIL, info.getMessage());
-            }
-        }else{
-            interceptResult.toSuccess();
-        }
-        return interceptResult;
-    }
-
-    /**
-     * 发送外单中小件预分拣站点变更mq消息
-     * @param context
-     * @param commonWaybill
-     */
-    private void sendSiteChangeMQ(WaybillPrintContext context, PrintWaybill commonWaybill){
-        SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
-        siteChangeMqDto.setWaybillCode(commonWaybill.getWaybillCode());
-        siteChangeMqDto.setPackageCode(commonWaybill.getPackList().get(0).getPackageCode());
-        siteChangeMqDto.setNewSiteId(commonWaybill.getPrepareSiteCode());
-        siteChangeMqDto.setNewSiteName(commonWaybill.getPrepareSiteName());
-        siteChangeMqDto.setNewSiteRoadCode(commonWaybill.getRoad());
-        siteChangeMqDto.setOperatorId(context.getRequest().getUserCode());
-        siteChangeMqDto.setOperatorName(context.getRequest().getUserName());
-        siteChangeMqDto.setOperatorSiteId(context.getRequest().getDmsSiteCode());
-        siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
-        siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
-        try {
-            waybillSiteChangeProducer.send(commonWaybill.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
-        } catch (JMQException e) {
-            SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
-                    siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
-            logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
-        }
-    }
-
-    /**
-     * 判断是否上传了体积或者重量(重量不为0 或者 长宽高都不为0)
-     * @param context
-     * @return
-     */
-    private boolean hasWeightOrVolume(WaybillPrintContext context){
-        if(!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
-                (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWidth()) &&
-                        !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getLength()) &&
-                                !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getHigh()))){
-            return true;
-        }
-        return false;
-    }
 
 }
