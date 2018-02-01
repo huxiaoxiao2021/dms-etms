@@ -48,6 +48,15 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 包裹称重类型 
 	 */
 	private Integer weightOperType;
+
+    /**
+     * 始发站点类型（temp）
+     * */
+    private Integer startSiteType;
+    /**
+     * 是否获取称重信息（temp）
+     */
+    private Integer packOpeFlowFlg;
 	/**
 	 * 包裹称重信息
 	 */
@@ -148,7 +157,24 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setWeightOperType(Integer weightOperType) {
 		this.weightOperType = weightOperType;
 	}
-	/**
+
+    public Integer getPackOpeFlowFlg() {
+        return packOpeFlowFlg;
+    }
+
+    public void setPackOpeFlowFlg(Integer packOpeFlowFlg) {
+        this.packOpeFlowFlg = packOpeFlowFlg;
+    }
+
+    public Integer getStartSiteType() {
+        return startSiteType;
+    }
+
+    public void setStartSiteType(Integer startSiteType) {
+        this.startSiteType = startSiteType;
+    }
+
+    /**
 	 * @return the weightOperFlow
 	 */
 	public WeightOperFlow getWeightOperFlow() {

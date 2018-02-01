@@ -440,8 +440,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 	public InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context) {
 		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
         InterceptResult<String> interceptResult = new InterceptResult<String>();
+        String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
         try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(context.getRequest().getBarCode(), true, true, true, true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
                 loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
                 if (null != result.getData()) {

@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.service.WayBillPrintRedundanceService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * 
  * @ClassName: SitePlateWaybillPrintOperateHandler
@@ -12,10 +15,11 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
  */
 public class SitePlateWaybillPrintOperateHandler implements Handler<WaybillPrintContext,InterceptResult<String>>{
 
+	@Autowired
+	private WayBillPrintRedundanceService wayBillPrintRedundanceService;
+
 	@Override
-	public InterceptResult<String> handle(WaybillPrintContext target) {
-		InterceptResult<String> interceptResult = new InterceptResult<String>();
-		interceptResult.toSuccess();
-		return interceptResult;
+	public InterceptResult<String> handle(WaybillPrintContext context) {
+		return wayBillPrintRedundanceService.getWaybillPack(context);
 	}
 }

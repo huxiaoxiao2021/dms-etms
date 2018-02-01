@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 
@@ -9,5 +11,10 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
  */
 public interface WayBillPrintRedundanceService {
 
+    /**
+     * 获取打印数据
+     * @param context 打印请求上下文
+     * @return
+     */
     InterceptResult<String> getWaybillPack(WaybillPrintContext context);
 }
