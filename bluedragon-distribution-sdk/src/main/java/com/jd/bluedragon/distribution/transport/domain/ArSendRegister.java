@@ -147,6 +147,11 @@ public class ArSendRegister extends DbEntity {
     private Integer operatorId;
 
     /**
+     * 操作人名称
+     */
+    private String operatorName;
+
+    /**
      * 操作部门
      */
     private String operationDept;
@@ -382,6 +387,14 @@ public class ArSendRegister extends DbEntity {
 
     public void setOperatorId(Integer operatorId) {
         this.operatorId = operatorId;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 
     public String getOperationDept() {

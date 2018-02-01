@@ -95,7 +95,7 @@ public class ArPdaSendRegister {
      */
     private String batchCode;
 
-    private String userCode;
+    private Integer userCode;
 
     private String userName;
 
@@ -286,11 +286,11 @@ public class ArPdaSendRegister {
         this.batchCode = batchCode;
     }
 
-    public String getUserCode() {
+    public Integer getUserCode() {
         return userCode;
     }
 
-    public void setUserCode(String userCode) {
+    public void setUserCode(Integer userCode) {
         this.userCode = userCode;
     }
 

@@ -351,6 +351,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setShuttleBusType(pdaSendRegister.getOperateType());
         sendRegister.setShuttleBusNum(pdaSendRegister.getCarCode());
         sendRegister.setOperatorErp(pdaSendRegister.getSendUserCode());
+        sendRegister.setOperatorName(pdaSendRegister.getUserName());
+        sendRegister.setOperatorId(pdaSendRegister.getUserCode());
         sendRegister.setOperationDept(pdaSendRegister.getSiteName());
         sendRegister.setOperationDeptCode(pdaSendRegister.getSiteCode());
         sendRegister.setOperationTime(pdaSendRegister.getOperateTime());
@@ -477,7 +479,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         tWaybillStatus.setCreateSiteType(siteDto.getSiteType());
         tWaybillStatus.setOperatorId(arSendRegister.getOperatorId());
         tWaybillStatus.setOperateTime(arSendRegister.getOperationTime());
-        tWaybillStatus.setOperator(arSendRegister.getOperatorErp());
+        tWaybillStatus.setOperator(arSendRegister.getOperatorName());
         tWaybillStatus.setOrgId(siteDto.getOrgId());
         tWaybillStatus.setOrgName(siteDto.getOrgName());
         return tWaybillStatus;
