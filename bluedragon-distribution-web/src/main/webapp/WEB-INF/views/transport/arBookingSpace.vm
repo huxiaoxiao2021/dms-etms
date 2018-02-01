@@ -24,7 +24,7 @@
             <fieldset>
 
                 <div class="row">
-                    <div class="col-lg-9 col-lg-offset-1">
+                    <div class="col-lg-12 ">
                         <div class="col-lg-8">
                             <div class="form-group" >
                                 <label class="control-label col-lg-3" for="site-select">分拣中心 ：</label>
@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-9 col-lg-offset-1">
+                    <div class="col-lg-12 ">
                         <div class="col-lg-8">
                             <div class="form-group">
                                 <label class="control-label col-lg-3 " for="startDate">预计起飞日期 ：</label>

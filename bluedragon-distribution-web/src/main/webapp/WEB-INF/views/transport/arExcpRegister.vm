@@ -23,7 +23,7 @@
             <fieldset>
 
                 <div class="row">
-                    <div class="col-lg-9 col-lg-offset-1">
+                    <div class="col-lg-12">
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label class="control-label col-lg-4 " for="startDate">异常节点 ：</label>
@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-9 col-lg-offset-1">
+                    <div class="col-lg-12">
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label class="control-label col-lg-4 " for="startDate">异常日期 ：</label>
