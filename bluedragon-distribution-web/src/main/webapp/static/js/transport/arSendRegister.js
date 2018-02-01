@@ -6,6 +6,7 @@ $(function () {
     var queryUrl = '/transport/arSendRegister/listData';
     var getTransportInfoUrl = '/transport/arSendRegister/getTransportInfo';
     var getAllBusTypeUrl = '/transport/arSendRegister/getAllBusType';
+    var isloadTransInfo = false;
 
     /**
      * 获取所有车辆类型信息
@@ -344,6 +345,7 @@ $(function () {
     }
 
     var clearTransportInfo = function () {
+        isloadTransInfo = false;
         $("#transCompany").text('');
         $("#transCompanyCode").text('');
         $("#startCityId").val('');
@@ -360,6 +362,7 @@ $(function () {
     }
 
     var setTransportInfo = function (data, type) {
+        isloadTransInfo = true;
         $("#transCompany").text(data.transCompany == null ? "" : data.transCompany);
         $("#transCompanyCode").text(data.transCompanyCode == null ? "" : data.transCompanyCode);
         $("#startCityId").val(data.startCityId);
@@ -535,37 +538,41 @@ $(function () {
                 $('#edit-form').bootstrapValidator('validate');
                 var isValid = $("#edit-form").data("bootstrapValidator").isValid();
                 if (isValid) {
-                    var url;
-                    var id = $('#id').val();
-                    if (id != null && id != '') {
-                        url = updateUrl;
-                    } else {
-                        url = insertUrl;
-                    }
-                    var params = {};
-                    $('.edit-param').each(function () {
-                        var _k = this.name;
-                        var _v = $(this).val();
-                        if (_k && _v) {
-                            params[_k] = _v;
-                        }
-                    });
-                    params["shuttleBusType"] = $('#shuttleBusType').val();
-                    params = getTransportInfo(params);
-                    $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
-                        if (res && res.data) {
-                            alert('操作成功');
-                            clearAllInfo();
-                            tableInit().refresh();
-                            $("#transportNameEdit").attr("disabled", false);
-                            $("#orderCodeEdit").attr("disabled", false);
-                            $("#siteOrderEdit").attr("disabled", false);
-                            $('#dataEditDiv').hide();
-                            $('#dataTableDiv').show();
+                    if (isloadTransInfo){
+                        var url;
+                        var id = $('#id').val();
+                        if (id != null && id != '') {
+                            url = updateUrl;
                         } else {
-                            alert(res.message);
+                            url = insertUrl;
                         }
-                    });
+                        var params = {};
+                        $('.edit-param').each(function () {
+                            var _k = this.name;
+                            var _v = $(this).val();
+                            if (_k && _v) {
+                                params[_k] = _v;
+                            }
+                        });
+                        params["shuttleBusType"] = $('#shuttleBusType').val();
+                        params = getTransportInfo(params);
+                        $.ajaxHelper.doPostSync(url, JSON.stringify(params), function (res) {
+                            if (res && res.data) {
+                                alert('操作成功');
+                                clearAllInfo();
+                                tableInit().refresh();
+                                $("#transportNameEdit").attr("disabled", false);
+                                $("#orderCodeEdit").attr("disabled", false);
+                                $("#siteOrderEdit").attr("disabled", false);
+                                $('#dataEditDiv').hide();
+                                $('#dataTableDiv').show();
+                            } else {
+                                alert(res.message);
+                            }
+                        });
+                    } else {
+                        alert("无效运输信息，请重新确认航班号/铁路车次号输入是否正确！");
+                    }
                 }
             });
 
@@ -597,9 +604,9 @@ $(function () {
                         param["transportName"] = transportName;
                         param["orderCode"] = orderCode;
                         $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
+                            clearTransportInfo();
                             if (response.code == 200) {
                                 $("#siteOrderEdit").val("");
-                                clearTransportInfo();
                                 setTransportInfo(response.data, 2);
                             } else {
                                 alert(response.message);
@@ -623,9 +630,9 @@ $(function () {
                         param["transportName"] = transportName;
                         param["siteOrder"] = siteOrder;
                         $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
+                            clearTransportInfo();
                             if (response.code == 200) {
                                 $("#orderCodeEdit").val("");
-                                clearTransportInfo();
                                 setTransportInfo(response.data, 2);
                             } else {
                                 alert(response.message);
