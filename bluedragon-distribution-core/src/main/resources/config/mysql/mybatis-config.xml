@@ -32,7 +32,7 @@
                 sorting=id:sorting_id
              "/>
             <property name="replaceNextValue" value="true"/>
-            <property name="replaceExistsNewId" value="true"/>
+            <property name="replaceExistsNewId" value="false"/>
         </plugin>
     </plugins>
 
