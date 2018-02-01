@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdPartyOverrunRequest;
@@ -16,7 +17,6 @@ import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.exception.GetWaybillInfoFailException;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
@@ -64,9 +64,8 @@ public class SiteServiceImpl implements SiteService {
     @Autowired
     private VtsQueryWSProxy vtsQueryWSProxy;
 
-    /* 运单查询 */
     @Autowired
-    private WaybillQueryApi waybillQueryApi;
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private BasicSecondaryWS basicSecondaryWS;
@@ -272,16 +271,16 @@ public class SiteServiceImpl implements SiteService {
         ThirdPartyOverrunResponse response = new ThirdPartyOverrunResponse();
         try {
             this.rebuildRequestParam(request);
-            //BaseResult<BaseSiteGoods> baseResult = basicSecondaryWS.getGoodsVolumeLimitBySiteCode(request.getSiteCode());
-            BaseResult<BaseSiteGoods> baseResult = new BaseResult<BaseSiteGoods>();
-            baseResult.setResultCode(BaseResult.RESULT_SUCCESS);
-            BaseSiteGoods baseSiteGoods1 = new BaseSiteGoods();
-            baseSiteGoods1.setGoodsWeight(10.0f);
-            baseSiteGoods1.setGoodsVolume(10.0);
-            baseSiteGoods1.setGoodsLength(10.0f);
-            baseSiteGoods1.setGoodsWidth(10.0f);
-            baseSiteGoods1.setGoodsHeight(10.0f);
-            baseResult.setData(baseSiteGoods1);
+            BaseResult<BaseSiteGoods> baseResult = basicSecondaryWS.getGoodsVolumeLimitBySiteCode(request.getSiteCode());
+//            BaseResult<BaseSiteGoods> baseResult = new BaseResult<BaseSiteGoods>();
+//            baseResult.setResultCode(BaseResult.RESULT_SUCCESS);
+//            BaseSiteGoods baseSiteGoods1 = new BaseSiteGoods();
+//            baseSiteGoods1.setGoodsWeight(10.0f);
+//            baseSiteGoods1.setGoodsVolume(10.0);
+//            baseSiteGoods1.setGoodsLength(10.0f);
+//            baseSiteGoods1.setGoodsWidth(10.0f);
+//            baseSiteGoods1.setGoodsHeight(10.0f);
+//            baseResult.setData(baseSiteGoods1);
             if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
                 BaseSiteGoods baseSiteGoods = baseResult.getData();
                 if (baseSiteGoods != null) {
@@ -311,9 +310,6 @@ public class SiteServiceImpl implements SiteService {
             } else {
                 response.set(ThirdPartyOverrunResponse.CODE_SERVICE_ERROR, "调用基础资料接口获取标准信息失败");
             }
-        } catch (GetWaybillInfoFailException e) {
-            response.set(ThirdPartyOverrunResponse.CODE_SERVICE_ERROR, e.getMessage());
-            logger.error("[验证三方承运商商品是否超限]" + e.getMessage(), e);
         } catch (Exception e) {
             response.set(ThirdPartyOverrunResponse.CODE_SERVICE_ERROR, "[验证三方承运商商品是否超限]调用基础资料接口获取三方站点限制信息时发生异常");
             logger.error("[验证三方承运商商品是否超限]调用基础资料接口获取三方站点限制信息时发生异常", e);
@@ -349,10 +345,10 @@ public class SiteServiceImpl implements SiteService {
         sizeArray[0] = request.getLength() == null ? 0.0 : request.getLength();
         sizeArray[1] = request.getWidth() == null ? 0.0 : request.getWidth();
         sizeArray[2] = request.getHeight() == null ? 0.0 : request.getHeight();
-        Double[] orderArray = this.getOrderArray(sizeArray);
-        request.setHeight(orderArray[0]);
-        request.setWidth(orderArray[1]);
-        request.setLength(orderArray[2]);
+        Arrays.sort(sizeArray);
+        request.setHeight(sizeArray[0]);
+        request.setWidth(sizeArray[1]);
+        request.setLength(sizeArray[2]);
         if (request.getVolume() == null || request.getVolume() == 0.0) {
             request.setVolume(request.getLength() * request.getWidth() * request.getHeight());
         }
@@ -420,9 +416,9 @@ public class SiteServiceImpl implements SiteService {
      *
      * @param packageSizeInfo
      */
-    private void loadWaybillPackageSizeInfo(ThirdPartyOverrunRequest packageSizeInfo) {
+    private boolean loadWaybillPackageSizeInfo(ThirdPartyOverrunRequest packageSizeInfo) {
         String packageCode = packageSizeInfo.getPackageCode();
-        BigWaybillDto waybillDto = getWaybillDto(packageCode);
+        BigWaybillDto waybillDto = waybillQueryManager.getReturnWaybillByOldWaybillCode(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
         if (waybillDto != null) {
             Goods goods = getGoods(packageCode, waybillDto.getGoodsList());
             Waybill waybill = waybillDto.getWaybill();
@@ -438,7 +434,6 @@ public class SiteServiceImpl implements SiteService {
             if (goods != null) {
                 packageSizeInfo.setVolume(goods.getGoodVolume());
             }
-
             String formula = waybill.getVolumeFormula();
             if (StringUtils.isNotEmpty(formula)) {
                 String[] sizeInfo = formula.split("/*");
@@ -449,9 +444,9 @@ public class SiteServiceImpl implements SiteService {
                     packageSizeInfo.setLength(sizeInfoOrder[2]);
                 }
             }
-        } else {
-            throw new GetWaybillInfoFailException("根据包裹号获取运单信息失败！");
+            return true;
         }
+        return false;
     }
 
     /**
@@ -496,42 +491,6 @@ public class SiteServiceImpl implements SiteService {
                     return goodsInfo;
                 }
             }
-        }
-        return null;
-    }
-
-    /**
-     * 根据包裹号获取运单信息
-     *
-     * @param packageCode
-     * @return
-     */
-    private BigWaybillDto getWaybillDto(String packageCode) {
-        String waybillCode = BusinessHelper.getWaybillCode(packageCode);
-        if (StringUtils.isNotEmpty(waybillCode)) {
-            BaseEntity<BigWaybillDto> baseEntity;
-            try {
-                WChoice wChoice = new WChoice();
-                wChoice.setQueryWaybillC(true);
-                wChoice.setQueryWaybillE(true);
-                wChoice.setQueryWaybillM(true);
-                wChoice.setQueryPackList(true);
-                baseEntity = this.waybillQueryApi.getReturnWaybillByOldWaybillCode(waybillCode, wChoice);
-            } catch (Exception e) {
-                logger.error("[验证三方承运商商品是否超限]调用运单接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取运单信息时发生异常，waybillCode:" + waybillCode, e);
-                throw new GetWaybillInfoFailException("根据包裹号调用运单接口时发生异常！");
-            }
-            if (baseEntity != null) {
-                if (baseEntity.getResultCode() == 1) {
-                    return baseEntity.getData();
-                } else if (baseEntity.getResultCode() == -3) {
-                    logger.error("[验证三方承运商商品是否超限]调用运单接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取运单信息反馈该运单信息不存在，waybillCode:" + waybillCode);
-                    throw new GetWaybillInfoFailException("包裹号对应运单信息不存在！");
-                }
-            }
-        } else {
-            logger.error("[验证三方承运商商品是否超限]根据包裹号获取运单号为空，packageCode:" + packageCode);
-            throw new GetWaybillInfoFailException("根据包裹号获取运单号失败！");
         }
         return null;
     }

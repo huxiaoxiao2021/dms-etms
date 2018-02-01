@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.utils.BusinessHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,8 +205,45 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}
 		return changedWaybillCode;
 	}
-	
-	
+
+	/**
+	 * 根据旧运单号获取新运单信息
+	 *
+	 * @param waybillCode 运单号
+	 * @param queryC 获取的运单信息中是否包含waybillC数据
+	 * @param queryE 获取的运单信息中是否包含waybillE数据
+	 * @param queryM 获取的运单信息中是否包含waybillM数据
+	 * @param queryPackList 获取的运单信息中是否包含PackList数据
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public BigWaybillDto getReturnWaybillByOldWaybillCode(String waybillCode, boolean queryC, boolean queryE, boolean queryM, boolean queryPackList) {
+		if (StringUtils.isNotEmpty(waybillCode)) {
+			CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", false, true);
+			BaseEntity<BigWaybillDto> baseEntity = null;
+			try {
+				WChoice wChoice = new WChoice();
+				wChoice.setQueryWaybillC(queryC);
+				wChoice.setQueryWaybillE(queryE);
+				wChoice.setQueryWaybillM(queryM);
+				wChoice.setQueryPackList(queryPackList);
+				baseEntity = this.waybillQueryApi.getReturnWaybillByOldWaybillCode(waybillCode, wChoice);
+			} catch (Exception e) {
+				Profiler.functionError(info);
+				logger.error("根据旧运单号调用接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取新运单信息时发生异常，waybillCode:" + waybillCode, e);
+			}
+			if (baseEntity != null) {
+				if (baseEntity.getResultCode() == 1) {
+					return baseEntity.getData();
+				} else if (baseEntity.getResultCode() == -3) {
+					logger.warn("[验证三方承运商商品是否超限]调用运单接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取运单信息反馈该运单信息不存在，waybillCode:" + waybillCode);
+				}
+			}
+		}
+		return null;
+	}
+
 	public static void main(String [] args){
 //		WaybillQueryManagerImpl manager = new WaybillQueryManagerImpl();
 //		Integer changedWaybill = manager.checkReDispatchtest("1460638776");
