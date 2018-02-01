@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
+import com.jd.bluedragon.distribution.api.request.ThirdPartyOverrunRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.ThirdPartyOverrunResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -41,5 +43,12 @@ public interface SiteService {
 	 * @param sendCode
      */
 	public Integer[]  getSiteCodeBySendCode (String sendCode);
+
+	/**
+	 * 验证三方承运商商品是否超限
+	 *
+	 * @return
+	 */
+	ThirdPartyOverrunResponse thirdPartyIsOverrun(ThirdPartyOverrunRequest request);
 
 }

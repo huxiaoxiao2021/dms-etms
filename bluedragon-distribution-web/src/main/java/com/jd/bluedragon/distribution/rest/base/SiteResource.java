@@ -10,7 +10,9 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.request.ThirdPartyOverrunRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.ThirdPartyOverrunResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
@@ -190,4 +192,26 @@ public class SiteResource {
 
 		return result;
 	}
+
+	/**
+	 * 验证三方承运商商品是否超限
+	 *
+	 * @param request
+	 * @return
+	 */
+	@POST
+	@Path("/site/thirdPartyIsOverrun")
+	public ThirdPartyOverrunResponse thirdPartyIsOverrun(ThirdPartyOverrunRequest request) {
+		ThirdPartyOverrunResponse response = new ThirdPartyOverrunResponse();
+		/**
+		 * 验证站点信息
+		 */
+		BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(request.getSiteCode());
+		if (siteOrgDto == null) {
+			response.set(response.CODE_PARAM_ERROR, response.MESSAGE_PARAM_ERROR);
+			return response;
+		}
+		return siteService.thirdPartyIsOverrun(request);
+	}
+
 }
