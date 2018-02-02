@@ -483,11 +483,11 @@
         from ar_send_register
         where 1=1
         <if test="startCityId != null and startCityId != 0">
-            and start_city_id = #{startCityId,jdbcType = INTEGER}
+            and start_city_id = #{startCityId,jdbcType=INTEGER}
         </if>
 
         <if test="endCityId != null and endCityId != 0">
-            and end_city_id = #{endCityId, jdbcType = INTEGER}
+            and end_city_id = #{endCityId, jdbcType=INTEGER}
         </if>
 
         <if test="orderCode != null">
