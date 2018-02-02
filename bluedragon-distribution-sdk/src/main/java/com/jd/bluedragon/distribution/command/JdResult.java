@@ -15,6 +15,8 @@ public class JdResult<T> implements Serializable{
 	
 	public static final int CODE_SUC = 200;
 	public static final JdMessage MESSAGE_SUC = new JdMessage(CODE_SUC,"操作成功");
+	public static final int CODE_WARN = 300;
+	public static final JdMessage MESSAGE_WARN = new JdMessage(CODE_WARN,"操作警告");
 	public static final int CODE_FAIL = 400;
 	public static final JdMessage MESSAGE_FAIL = new JdMessage(CODE_FAIL,"操作失败");
 	public static final int CODE_ERROR = 500;
@@ -36,6 +38,7 @@ public class JdResult<T> implements Serializable{
 	 * 返回结果
 	 */
 	private T data;
+	
 	public JdResult() {
 		super();
 	}
@@ -50,7 +53,14 @@ public class JdResult<T> implements Serializable{
 	 * @return
 	 */
 	public boolean isSucceed(){
-		return this.code == CODE_SUC;
+		return this.code == CODE_SUC || this.code == CODE_WARN;
+	}
+	/**
+	 * 判断是否成功
+	 * @return
+	 */
+	public boolean isWarn(){
+		return this.code == CODE_WARN;
 	}
 	/**
 	 * 更改状态为成功
@@ -65,6 +75,22 @@ public class JdResult<T> implements Serializable{
 	 */
 	public void toSuccess(int messageCode,String message){
 		this.code = CODE_SUC;
+		this.messageCode = messageCode;
+		this.message = message;
+	}
+	/**
+	 * 更改状态为警告
+	 */
+	public void toWarn(){
+		this.toWarn(MESSAGE_WARN.getMsgCode(), MESSAGE_WARN.formatMsg());
+	}
+	/**
+	 * 更改状态为警告,并设置返回消息编码和内容
+	 * @param messageCode
+	 * @param message
+	 */
+	public void toWarn(int messageCode,String message){
+		this.code = CODE_WARN;
 		this.messageCode = messageCode;
 		this.message = message;
 	}
