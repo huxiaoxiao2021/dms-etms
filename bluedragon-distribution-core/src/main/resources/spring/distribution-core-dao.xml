@@ -376,9 +376,25 @@
     </bean>
 
     <bean id="taskPopRecieveCountDao"
-          class=" com.jd.bluedragon.distribution.popReveice.dao.TaskPopRecieveCountDao">
+          class="com.jd.bluedragon.distribution.popReveice.dao.TaskPopRecieveCountDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
     <!-- task end -->
-
+    <bean id="unDivBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <!--空铁基础字典表 -->
+    <bean id="dmsBaseDictDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.base.dao.impl.DmsBaseDictDaoImpl"/>
+    <!-- 空铁业务表Dao配置 -->
+    <bean id="arBookingSpaceDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArBookingSpaceDaoImpl"/>
+    <bean id="arExcpRegisterDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArExcpRegisterDaoImpl"/>
+    <bean id="arSendCodeDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendCodeDaoImpl"/>
+    <bean id="arSendRegisterDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
+    <bean id="arReceiveDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
 </beans>

@@ -1,5 +1,18 @@
 package com.jd.bluedragon.distribution.worker.offline;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
@@ -9,29 +22,22 @@ import com.jd.bluedragon.distribution.offline.service.OfflineService;
 import com.jd.bluedragon.distribution.offline.service.OfflineSortingService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.fastjson.JSONArray;
 import com.jd.fastjson.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author zhaohc
  * @E-mail zhaohengchong@360buy.com
  * @createTime 2012-11-28 上午10:28:50
  * 
- *             离线
+ * 离线-处理逻辑统一移到OfflineCoreTaskExecutor处理
  */
+@Deprecated
 public class OfflineCoreTask extends DBSingleScheduler {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
@@ -59,6 +65,12 @@ public class OfflineCoreTask extends DBSingleScheduler {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+    
+	@Resource(name = "offlineArReceiveService")
+	private OfflineService offlineArReceiveService;
+
+    @Autowired
+    private ArSendRegisterService arSendRegisterService;
 
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
@@ -71,6 +83,8 @@ public class OfflineCoreTask extends DBSingleScheduler {
             Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
+            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
+                result = arSendRegisterService.executeOfflineTask(body);
             }else{
                 result = offlineCore(body);
             }
@@ -138,6 +152,17 @@ public class OfflineCoreTask extends DBSingleScheduler {
                     if (resultCode < 1) {
                         return true;
                     }
+                } else if (Task.TASK_TYPE_AR_RECEIVE.equals(offlineLogRequest.getTaskType())) {
+                	//空铁提货
+                	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
+                } else if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(offlineLogRequest.getTaskType())) {
+                	//空铁提货并发货
+                	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
+                	//先加入一个提货worker，操作时间延后30s然后加入一个一车一单发货任务
+                	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime());
+                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, 30));
+                	offlineLogRequest.setOperateTime(operateTimeStr);
+                	resultCode = offlineDeliveryService.parseToTask(offlineLogRequest);
                 }
                 if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())
                         || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) && resultCode > 0) {
@@ -224,6 +249,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
             scDto.setSource(Constants.SEAL_SOURCE);
             scDto.setTransportCode(obj.getString("sealBoxCode"));
             scDto.setVehicleNumber(obj.getString("carCode"));
+            scDto.setSealCarType(Constants.SEAL_TYPE_TRANSPORT);//离线封车设置封车方式为按运力封车
             sealCarDtos.add(scDto);
         }
 

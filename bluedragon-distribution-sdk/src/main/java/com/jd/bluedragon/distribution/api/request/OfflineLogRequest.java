@@ -20,9 +20,29 @@ public class OfflineLogRequest extends JdRequest {
 	private Double volume;
 	private String exceptionType;
 	private Integer operateType;
+	/**
+	 * 航空单号
+	 */
+	private String airNo;
+	/**
+	 * 运力资源名
+	 */
+	private String transName;
+	/**
+	 * 铁路序号
+	 */
+	private String railwayNo;
 
 	/** 航标发货标示*/
 	private Integer transporttype;
+	/**
+	 * 数量
+	 */
+	private Integer num;
+	/**
+	 * 备注信息
+	 */
+	private String demo;
 
 	public Integer getOperateType() {
 		return operateType;
@@ -175,5 +195,75 @@ public class OfflineLogRequest extends JdRequest {
 		str.append("transporttype:"+this.transporttype).append(",");
 		str.append("waybillCode:"+this.waybillCode).append("}");
 		return str.toString();
+	}
+
+	/**
+	 * @return the airNo
+	 */
+	public String getAirNo() {
+		return airNo;
+	}
+
+	/**
+	 * @param airNo the airNo to set
+	 */
+	public void setAirNo(String airNo) {
+		this.airNo = airNo;
+	}
+
+	/**
+	 * @return the transName
+	 */
+	public String getTransName() {
+		return transName;
+	}
+
+	/**
+	 * @param transName the transName to set
+	 */
+	public void setTransName(String transName) {
+		this.transName = transName;
+	}
+
+	/**
+	 * @return the railwayNo
+	 */
+	public String getRailwayNo() {
+		return railwayNo;
+	}
+
+	/**
+	 * @param railwayNo the railwayNo to set
+	 */
+	public void setRailwayNo(String railwayNo) {
+		this.railwayNo = railwayNo;
+	}
+
+	/**
+	 * @return the num
+	 */
+	public Integer getNum() {
+		return num;
+	}
+
+	/**
+	 * @param num the num to set
+	 */
+	public void setNum(Integer num) {
+		this.num = num;
+	}
+
+	/**
+	 * @return the demo
+	 */
+	public String getDemo() {
+		return demo;
+	}
+
+	/**
+	 * @param demo the demo to set
+	 */
+	public void setDemo(String demo) {
+		this.demo = demo;
 	}
 }

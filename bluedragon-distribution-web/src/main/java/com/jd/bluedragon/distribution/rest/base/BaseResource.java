@@ -87,7 +87,7 @@ public class BaseResource {
 
 	@Autowired
 	private SysLoginLogService sysLoginLogService;
-	
+
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
 

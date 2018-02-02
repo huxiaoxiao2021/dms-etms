@@ -49,6 +49,26 @@ public class SealCarMqDto{
 	 */
 	private String sealCarCode;
 
+    /**
+     * 封车类型（10：按运力编码；20：按任务封车）
+     */
+	private Integer sealCarType;
+
+    /**
+     * 任务简码
+     */
+	private String itemSimpleCode;
+
+    /**
+     * 重量
+     */
+	private Double weight;
+
+    /**
+     * 体积
+     */
+	private Double volume;
+
 
 	public String getSealCarCode() {
 		return sealCarCode;
@@ -166,4 +186,36 @@ public class SealCarMqDto{
 	public void setSealCodes(List<String> sealCodes) {
 		this.sealCodes = sealCodes;
 	}
+
+    public String getItemSimpleCode() {
+        return itemSimpleCode;
+    }
+
+    public void setItemSimpleCode(String itemSimpleCode) {
+        this.itemSimpleCode = itemSimpleCode;
+    }
+
+    public Integer getSealCarType() {
+        return sealCarType;
+    }
+
+    public void setSealCarType(Integer sealCarType) {
+        this.sealCarType = sealCarType;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
 }

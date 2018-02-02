@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao">
+
+    <resultMap id="ArSendRegister" type="com.jd.bluedragon.distribution.transport.domain.ArSendRegister">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="SMALLINT"/>
+        <result column="transport_type" property="transportType" javaType="java.lang.Integer" jdbcType="SMALLINT"/>
+        <result column="order_code" property="orderCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="transport_name" property="transportName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="site_order" property="siteOrder" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="send_date" property="sendDate" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="trans_company_code" property="transCompanyCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="trans_company" property="transCompany" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="start_city_name" property="startCityName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="start_city_id" property="startCityId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="end_city_name" property="endCityName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="end_city_id" property="endCityId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="start_station_name" property="startStationName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="start_station_id" property="startStationId" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="end_station_name" property="endStationName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="end_station_id" property="endStationId" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="plan_start_time" property="planStartTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="plan_end_time" property="planEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="aging" property="aging" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="send_num" property="sendNum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="charged_weight" property="chargedWeight" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="shuttle_bus_type" property="shuttleBusType" javaType="java.lang.Integer" jdbcType="SMALLINT"/>
+        <result column="shuttle_bus_num" property="shuttleBusNum" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operator_erp" property="operatorErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operation_dept" property="operationDept" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operation_dept_code" property="operationDeptCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="operation_time" property="operationTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,status,transport_type,order_code,transport_name,site_order,
+        send_date,trans_company_code,trans_company,start_city_name,start_city_id,end_city_name,
+        end_city_id,start_station_name,start_station_id,end_station_name,end_station_id,
+        plan_start_time,plan_end_time,aging,send_num,charged_weight,remark,
+        shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept,operation_time,
+        create_user,update_user,create_time,update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into ar_send_register
+        (
+        status,
+        transport_type,
+        transport_name,
+        <if test="orderCode != null">
+            order_code,
+        </if>
+        <if test="siteOrder != null">
+            site_order,
+        </if>
+        send_date,
+        <if test="transCompanyCode != null">
+            trans_company_code,
+        </if>
+        <if test="transCompany != null">
+            trans_company,
+        </if>
+        <if test="startCityName != null">
+            start_city_name,
+        </if>
+        <if test="startCityId != null">
+            start_city_id,
+        </if>
+        <if test="endCityName != null">
+            end_city_name,
+        </if>
+        <if test="endCityId != null">
+            end_city_id,
+        </if>
+        <if test="startStationName != null">
+            start_station_name,
+        </if>
+        <if test="startStationId != null">
+            start_station_id,
+        </if>
+        <if test="endStationName != null">
+            end_station_name,
+        </if>
+        <if test="endStationId != null">
+            end_station_id,
+        </if>
+        <if test="planStartTime != null">
+            plan_start_time,
+        </if>
+        <if test="planEndTime != null">
+            plan_end_time,
+        </if>
+        <if test="aging != null">
+            aging,
+        </if>
+        send_num,
+        charged_weight,
+        <if test="remark != null">
+            remark,
+        </if>
+        <if test="shuttleBusType != null">
+            shuttle_bus_type,
+        </if>
+        <if test="shuttleBusNum != null">
+            shuttle_bus_num,
+        </if>
+        <if test="operatorErp != null">
+            operator_erp,
+        </if>
+        <if test="operationDeptCode != null">
+            operation_dept_code,
+        </if>
+        <if test="operationDept != null">
+            operation_dept,
+        </if>
+        <if test="operationTime != null">
+            operation_time,
+        </if>
+        <if test="createUser != null">
+            create_user,
+        </if>
+        <if test="updateUser != null">
+            update_user,
+        </if>
+        create_time,
+        update_time
+        )
+        values
+        (
+        #{status,jdbcType=SMALLINT},
+        #{transportType,jdbcType=SMALLINT},
+        #{transportName,jdbcType=VARCHAR},
+        <if test="orderCode != null">
+            #{orderCode,jdbcType=VARCHAR},
+        </if>
+        <if test="siteOrder != null">
+            #{siteOrder,jdbcType=VARCHAR},
+        </if>
+        #{sendDate,jdbcType=TIMESTAMP},
+        <if test="transCompanyCode != null">
+            #{transCompanyCode,jdbcType=VARCHAR},
+        </if>
+        <if test="transCompany != null">
+            #{transCompany,jdbcType=VARCHAR},
+        </if>
+        <if test="startCityName != null">
+            #{startCityName,jdbcType=VARCHAR},
+        </if>
+        <if test="startCityId != null">
+            #{startCityId,jdbcType=INTEGER},
+        </if>
+        <if test="endCityName != null">
+            #{endCityName,jdbcType=VARCHAR},
+        </if>
+        <if test="endCityId != null">
+            #{endCityId,jdbcType=INTEGER},
+        </if>
+        <if test="startStationName != null">
+            #{startStationName,jdbcType=VARCHAR},
+        </if>
+        <if test="startStationId != null">
+            #{startStationId,jdbcType=VARCHAR},
+        </if>
+        <if test="endStationName != null">
+            #{endStationName,jdbcType=VARCHAR},
+        </if>
+        <if test="endStationId != null">
+            #{endStationId,jdbcType=VARCHAR},
+        </if>
+        <if test="planStartTime != null">
+            #{planStartTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="planEndTime != null">
+            #{planEndTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="aging != null">
+            #{aging,jdbcType=INTEGER},
+        </if>
+            #{sendNum,jdbcType=INTEGER},
+            #{chargedWeight,jdbcType=DECIMAL},
+        <if test="remark != null">
+            #{remark,jdbcType=VARCHAR},
+        </if>
+        <if test="shuttleBusType != null">
+            #{shuttleBusType,jdbcType=SMALLINT},
+        </if>
+        <if test="shuttleBusNum != null">
+            #{shuttleBusNum,jdbcType=VARCHAR},
+        </if>
+        <if test="operatorErp != null">
+            #{operatorErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operationDeptCode != null">
+            #{operationDeptCode,jdbcType=INTEGER},
+        </if>
+        <if test="operationDept != null">
+            #{operationDept,jdbcType=VARCHAR},
+        </if>
+        <if test="operationTime != null">
+            #{operationTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="createUser != null">
+            #{createUser,jdbcType=VARCHAR},
+        </if>
+        <if test="updateUser != null">
+            #{updateUser,jdbcType=VARCHAR},
+        </if>
+        NOW(),
+        NOW()
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into ar_send_register
+        (
+        status,transport_type,order_code,transport_name,
+        site_order,send_date,trans_company_code,trans_company,start_city_name,start_city_id,
+        end_city_name,end_city_id,start_station_name,start_station_id,end_station_name,
+        end_station_id,plan_start_time,plan_end_time,aging,send_num,charged_weight,
+        remark,shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept_code,operation_dept,
+        operation_time,create_user,update_user,create_time,update_time
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.status,jdbcType=SMALLINT},
+            #{item.transportType,jdbcType=SMALLINT},
+            #{item.orderCode,jdbcType=VARCHAR},
+            #{item.transportName,jdbcType=VARCHAR},
+            #{item.siteOrder,jdbcType=VARCHAR},
+            #{item.sendDate,jdbcType=TIMESTAMP},
+            #{item.transCompanyCode,jdbcType=VARCHAR},
+            #{item.transCompany,jdbcType=VARCHAR},
+            #{item.startCityName,jdbcType=VARCHAR},
+            #{item.startCityId,jdbcType=INTEGER},
+            #{item.endCityName,jdbcType=VARCHAR},
+            #{item.endCityId,jdbcType=INTEGER},
+            #{item.startStationName,jdbcType=VARCHAR},
+            #{item.startStationId,jdbcType=VARCHAR},
+            #{item.endStationName,jdbcType=VARCHAR},
+            #{item.endStationId,jdbcType=VARCHAR},
+            #{item.planStartTime,jdbcType=TIMESTAMP},
+            #{item.planEndTime,jdbcType=TIMESTAMP},
+            #{item.aging,jdbcType=INTEGER},
+            #{item.sendNum,jdbcType=INTEGER},
+            #{item.chargedWeight,jdbcType=DECIMAL},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.shuttleBusType,jdbcType=SMALLINT},
+            #{item.shuttleBusNum,jdbcType=VARCHAR},
+            #{item.operatorErp,jdbcType=VARCHAR},
+            #{item.operationTime,jdbcType=TIMESTAMP},
+            #{item.operationDeptCode,jdbcType=INTEGER},
+            #{item.operationDept,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.updateUser,jdbcType=VARCHAR},
+            NOW(),
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister">
+        update ar_send_register
+        <set>
+            <if test="status != null">
+                status = #{status,jdbcType=SMALLINT},
+            </if>
+            <if test="transportType != null">
+                transport_type = #{transportType,jdbcType=SMALLINT},
+            </if>
+            <if test="orderCode != null">
+                order_code = #{orderCode,jdbcType=VARCHAR},
+            </if>
+            <if test="transportName != null">
+                transport_name = #{transportName,jdbcType=VARCHAR},
+            </if>
+            <if test="siteOrder != null">
+                site_order = #{siteOrder,jdbcType=VARCHAR},
+            </if>
+            <if test="sendDate != null">
+                send_date = #{sendDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="transCompanyCode != null">
+                trans_company_code = #{transCompanyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="transCompany != null">
+                trans_company = #{transCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="startCityName != null">
+                start_city_name = #{startCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="startCityId != null">
+                start_city_id = #{startCityId,jdbcType=INTEGER},
+            </if>
+            <if test="endCityName != null">
+                end_city_name = #{endCityName,jdbcType=VARCHAR},
+            </if>
+            <if test="endCityId != null">
+                end_city_id = #{endCityId,jdbcType=INTEGER},
+            </if>
+            <if test="startStationName != null">
+                start_station_name = #{startStationName,jdbcType=VARCHAR},
+            </if>
+            <if test="startStationId != null">
+                start_station_id = #{startStationId,jdbcType=VARCHAR},
+            </if>
+            <if test="endStationName != null">
+                end_station_name = #{endStationName,jdbcType=VARCHAR},
+            </if>
+            <if test="endStationId != null">
+                end_station_id = #{endStationId,jdbcType=VARCHAR},
+            </if>
+            <if test="planStartTime != null">
+                plan_start_time = #{planStartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="planEndTime != null">
+                plan_end_time = #{planEndTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="aging != null">
+                aging = #{aging,jdbcType=INTEGER},
+            </if>
+            <if test="sendNum != null">
+                send_num = #{sendNum,jdbcType=INTEGER},
+            </if>
+            <if test="chargedWeight != null">
+                charged_weight = #{chargedWeight,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="shuttleBusType != null">
+                shuttle_bus_type = #{shuttleBusType,jdbcType=SMALLINT},
+            </if>
+            <if test="shuttleBusNum != null">
+                shuttle_bus_num = #{shuttleBusNum,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorErp != null">
+                operator_erp = #{operatorErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operationDeptCode != null">
+                operation_dept_code = #{operationDeptCode,jdbcType=INTEGER},
+            </if>
+            <if test="operationDept != null">
+                operation_dept = #{operationDept,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTime != null">
+                operation_time = #{operationTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="deleteById" parameterType="Long">
+        update ar_send_register
+        set is_delete = 1
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="deleteByIds" parameterType="List">
+        update ar_send_register
+        set is_delete = 1
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <update id="deleteByIdsUser" parameterType="java.util.Map">
+        update ar_send_register
+        set is_delete = 1,
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        update_time = NOW()
+        where id in
+        <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <select id="getList" parameterType="List" resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from ar_send_register
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="findById" parameterType="Long" resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_register
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister"
+            resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_register
+        where id = #{id,jdbcType=BIGINT}
+        order by ts desc
+        limit 1
+    </select>
+
+    <sql id="Base_Condition_Sql">
+        is_delete = 0
+        <if test="orderCode != null">
+            and order_code = #{orderCode,jdbcType=VARCHAR}
+        </if>
+        <if test="transportName != null">
+            and transport_name = #{transportName,jdbcType=VARCHAR}
+        </if>
+        <if test="operationDept != null">
+            and operation_dept = #{operationDept,jdbcType=VARCHAR}
+        </if>
+        <if test="startOperTime != null">
+            and operation_time <![CDATA[>=]]> str_to_date(#{startOperTime, jdbcType=VARCHAR}, '%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endOperTime != null">
+            and operation_time <![CDATA[<=]]> str_to_date(#{endOperTime, jdbcType=VARCHAR}, '%Y-%m-%d %H:%i:%s')
+        </if>
+    </sql>
+
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultType="Integer">
+        select
+        count(1) as num
+        from
+        ar_send_register
+        where
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition"
+            resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_register
+        where
+        <include refid="Base_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryStartCityInfo" resultMap="ArSendRegister">
+        SELECT start_city_id, start_city_name
+        FROM ar_send_register
+        GROUP BY start_city_id
+    </select>
+
+    <select id="queryEndCityInfo" resultMap="ArSendRegister">
+        SELECT end_city_id, end_city_name
+        FROM ar_send_register
+        GROUP BY end_city_id
+    </select>
+
+    <select id="queryWaitReceive" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister"
+            resultMap="ArSendRegister">
+        select order_code,transport_name,
+        start_city_id,start_city_name,
+        start_station_id,start_station_name,
+        end_city_id,end_city_name,
+        end_station_id,end_station_name,
+        plan_start_time,plan_end_time
+        from ar_send_register
+        where 1=1
+        <if test="startCityId != null and startCityId != 0">
+            and start_city_id = #{startCityId,jdbcType = INTEGER}
+        </if>
+
+        <if test="endCityId != null and endCityId != 0">
+            and end_city_id = #{endCityId, jdbcType = INTEGER}
+        </if>
+
+        <if test="orderCode != null">
+            and order_code = #{orderCode,jdbcType=VARCHAR}
+        </if>
+
+        <if test="transportName != null">
+            and transport_name = #{transportName,jdbcType=VARCHAR}
+        </if>
+        and plan_end_time <![CDATA[ >= ]]> now()-INTERVAL 12 HOUR and plan_end_time <![CDATA[ <= ]]> NOW()+INTERVAL 1 DAY
+        order by plan_end_time desc
+    </select>
+
+</mapper>

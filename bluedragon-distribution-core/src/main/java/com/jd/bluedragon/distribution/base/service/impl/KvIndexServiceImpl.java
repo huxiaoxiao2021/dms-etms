@@ -46,4 +46,9 @@ public class KvIndexServiceImpl implements KvIndexService {
 			return kvIndexDao.add(KvIndexDao.namespace, kvIndex);
 		}
 	}
+
+	@Override
+	public List<Integer> queryRecentSiteCodesByKey(String keyword) {
+		return kvIndexDao.queryRecentSiteCodesByKey(keyword);
+	}
 }
