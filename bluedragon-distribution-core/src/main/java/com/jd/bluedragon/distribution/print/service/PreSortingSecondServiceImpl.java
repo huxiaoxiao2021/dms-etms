@@ -75,7 +75,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             return interceptResult;
         }
         int size = commonWaybill.getPackList().size();
-        if(size == 1 && BusinessHelper.isExternal(commonWaybill.getWaybillSign()) && hasWeightOrVolume(context)){    //一单一件 纯外单 上传了新的体积或重量
+        if(Integer.valueOf(0).equals(context.getRequest().getTargetSiteCode()) && size == 1 && BusinessHelper.isExternal(commonWaybill.getWaybillSign()) && hasWeightOrVolume(context)){    //一单一件 纯外单 上传了新的体积或重量
             OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
             originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());
             originalOrderInfo.setHeight(context.getRequest().getWeightOperFlow().getHigh());

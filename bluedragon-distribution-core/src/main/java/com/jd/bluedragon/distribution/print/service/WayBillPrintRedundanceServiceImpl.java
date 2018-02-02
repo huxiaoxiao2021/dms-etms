@@ -4,6 +4,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
@@ -11,21 +14,29 @@ import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.jmq.common.exception.JMQException;
+import com.jd.preseparate.vo.MediumStationOrderInfo;
+import com.jd.preseparate.vo.OriginalOrderInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,19 +61,30 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Autowired
     private LabelPrinting labelPrinting;
 
+    @Autowired
+    private PresortMediumStationAPI presortMediumStation;
 
-    public InterceptResult<String> getWaybillPack1(WaybillPrintContext context) {
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
-        return null;
-    }
+    /* MQ消息生产者： topic:bd_waybill_original_site_change*/
+    @Autowired
+    @Qualifier("waybillSiteChangeProducer")
+    private DefaultJMQProducer waybillSiteChangeProducer;
+    /**
+     * 2次预分拣变更提示信息
+     */
+    private static final String SITE_CHANGE_MSG ="单号‘%s’由中件站配送，请务必更换包裹标签";
+    /**
+     * 包裹重量体积的默认值0
+     */
+    private static final Double DOUBLE_ZERO = 0.0;
+
     @Override
     public InterceptResult<String> getWaybillPack(WaybillPrintContext context) {
         InterceptResult<String> result = new InterceptResult<String>();
         Integer startDmsCode = context.getRequest().getDmsSiteCode();
         String waybillCodeOrPackage = context.getRequest().getBarCode();
-        Integer localSchedule = context.getRequest().getTargetSiteCode();
-        Boolean nopaperFlg = context.getRequest().getNopaperFlg();
-        Integer startSiteType = context.getRequest().getStartSiteType();
         Integer packOpeFlowFlg = context.getRequest().getPackOpeFlowFlg();
         // 判断传入参数
         if (startDmsCode == null || startDmsCode.equals(0) || StringUtils.isEmpty(waybillCodeOrPackage)) {
@@ -80,10 +102,13 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 result.toError(JdResponse.CODE_OK_NULL, JdResponse.MESSAGE_OK_NULL);
             }else{
                 //调用分拣接口获得基础资料信息
-                setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, nopaperFlg,startSiteType);
-                logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
-                result.toSuccess();
                 context.setWaybill(waybill);
+                result = preSortingAgain(context);
+                InterceptResult<String> temp = setBasicMessageByDistribution(context);
+                if(temp.getStatus() > result.getStatus()){
+                    result = temp;
+                }
+                logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
             }
         } catch (Exception e) {
             // 调用服务异常
@@ -100,7 +125,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
      */
     private Waybill findWaybillMessage(String waybillCode,Integer packOpeFlowFlg) {
         Waybill waybill = this.waybillCommonService.findWaybillAndPack(waybillCode);
-
         if (waybill == null) {
             return waybill;
         }
@@ -156,16 +180,17 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
 
     /**
      * 设置打印数据基础信息
-     * @param waybill 运单实体
-     * @param startDmsCode 始发分拣中心code
-     * @param localSchedule 目的站点code
-     * @param nopaperFlg  是否无纸化
-     * @param startSiteType 始发站点类型
+     * @param context 上下文
      */
-    private void setBasicMessageByDistribution(Waybill waybill, Integer startDmsCode ,Integer localSchedule,Boolean nopaperFlg,Integer startSiteType) {
+    private InterceptResult<String> setBasicMessageByDistribution(WaybillPrintContext context) {
+        Waybill waybill = context.getWaybill();
+        Integer localSchedule = context.getRequest().getTargetSiteCode();
+        Boolean nopaperFlg = context.getRequest().getNopaperFlg();
+        Integer startSiteType = context.getRequest().getStartSiteType();
+        Integer startDmsCode = context.getRequest().getDmsSiteCode();
+        InterceptResult<String> result = new InterceptResult<String>();
         try {
             LabelPrintingRequest request = new LabelPrintingRequest();
-            BaseResponseIncidental<LabelPrintingResponse> response = new BaseResponseIncidental<LabelPrintingResponse>();
             request.setWaybillCode(waybill.getWaybillCode());
             request.setDmsCode(startDmsCode);
             request.setStartSiteType(startSiteType);
@@ -175,46 +200,40 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 request.setLocalSchedule(0);
             request.setCky2(waybill.getCky2());
             request.setOrgCode(waybill.getOrgId());
-
             //是否航空
             if(checkAireSigns(waybill)){
-                //request
                 request.setAirTransport(true);
             }
-
             request.setStoreCode(waybill.getStoreId());
-
             // 是否调度
             // request.setPreSeparateCode(waybill.getOldCode());
             if (localSchedule!=null && !localSchedule.equals(0))
                 request.setPreSeparateCode(localSchedule);// 调度站点
-
             // 是否DMS调用
             request.setOriginalType(OriginalType.DMS.getValue());
-
             //是否有纸化
             if(nopaperFlg){
                 request.setLabelType(LableType.PAPERLESS.getLabelPaper());
             }else {
                 request.setLabelType(LableType.PAPER.getLabelPaper());
             }
-
             //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
             if(BusinessHelper.isYHD(waybill.getSendPay())){
                 request.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
             }
 
-            response = labelPrinting.dmsPrint(request);
-
+            BaseResponseIncidental<LabelPrintingResponse> response = labelPrinting.dmsPrint(request,context);
             if(response==null || response.getData()==null){
-                this.logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空response对象");
-                return;
+                logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空response对象");
+                result.toError(JdResponse.CODE_PARAM_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空response对象");
+                return result;
             }
 
             LabelPrintingResponse labelPrinting = response.getData();
             if(labelPrinting==null){
-                this.logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
-                return;
+                logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
+                result.toError(JdResponse.CODE_PARAM_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
+                return result;
             }
 
             if (response != null) {
@@ -227,16 +246,19 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 waybill.setAddress(labelPrinting.getOrderAddress());
                 waybill.setJsonData(response.getJsonData());
                 waybill.setRoad(labelPrinting.getRoad());
-
+                result.toSuccess();
                 if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
                     this.logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印路区信息为空");
                 }
             } else {
                 this.logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空");
+                result.toError(JdResponse.CODE_PARAM_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空");
             }
         } catch (Throwable e) {
             this.logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息接口 --> 异常", e);
+            result.toError(JdResponse.CODE_SERVICE_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息接口异常");
         }
+        return result;
     }
 
     /**
@@ -303,4 +325,104 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
         return signs;
     }
 
+    /**
+     * 一单一件且重新称重或量方的触发二次预分拣
+     * @param context 上下文
+     * @return 处理结果，处理是否通过
+     */
+    private InterceptResult<String> preSortingAgain(WaybillPrintContext context){
+        InterceptResult<String> interceptResult = new InterceptResult<String>();
+        Waybill waybill = context.getWaybill();
+        //如果预分拣站点为0超区或者999999999EMS全国直发，则无法触发二次预分拣
+        if(null!=waybill.getSiteCode()&&waybill.getSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
+                && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getSiteCode())){
+            interceptResult.toSuccess();
+            return interceptResult;
+        }
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+        if(baseStaffSiteOrgDto == null){
+            // interceptResult.toError(InterceptResult.CODE_ERROR, "查询预分拣站点为空："+commonWaybill.getPrepareSiteCode());    //查询不到预分拣站点，不做处理直接返回
+            interceptResult.toSuccess();
+            return interceptResult;
+        }
+        int size = waybill.getPackList().size();
+        if(Integer.valueOf(0).equals(context.getRequest().getTargetSiteCode()) && size == 1 && BusinessHelper.isExternal(waybill.getWaybillSign()) && hasWeightOrVolume(context)){    //一单一件 纯外单 上传了新的体积或重量
+            OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
+            originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());
+            originalOrderInfo.setHeight(context.getRequest().getWeightOperFlow().getHigh());
+            originalOrderInfo.setLength(context.getRequest().getWeightOperFlow().getLength());
+            originalOrderInfo.setWidth(context.getRequest().getWeightOperFlow().getWidth());
+            originalOrderInfo.setWaybillCode(waybill.getWaybillCode());
+            originalOrderInfo.setPackageCode(waybill.getPackList().get(0).getPackCode());
+            originalOrderInfo.setOriginalStationId(waybill.getSiteCode());
+            originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
+            //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
+            originalOrderInfo.setSystemCode("DMS");
+            com.jd.preseparate.vo.BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
+            if(info == null){
+                interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
+                return interceptResult;
+            }
+            PrintPackage pack = new PrintPackage();
+            if(JdResponse.CODE_OK.equals(info.getCode())){//二次预分拣中件站接口调用成功
+                if(!waybill.getSiteCode().equals(info.getData().getMediumStationId())){//换站点了
+                    waybill.getPackList().get(0).setPackCode(info.getData().getPackageCode());
+                    waybill.getPackList().get(0).setWeight(Double.toString(context.getRequest().getWeightOperFlow().getWeight()));//设置最新的称重数据
+                    waybill.setSiteCode(info.getData().getMediumStationId());
+                    waybill.setSiteName(info.getData().getMediumStationName());
+                    waybill.setRoad(info.getData().getMediumStationRoad());
+                    context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
+                    context.setStatus(InterceptResult.STATUS_WEAK_PASSED);
+                    interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
+                    sendSiteChangeMQ(context);
+                }
+            }else{
+                interceptResult.toFail(InterceptResult.CODE_FAIL, info.getMessage());
+            }
+        }else{
+            interceptResult.toSuccess();
+        }
+        return interceptResult;
+    }
+
+    /**
+     * 发送外单中小件预分拣站点变更mq消息
+     * @param context
+     */
+    private void sendSiteChangeMQ(WaybillPrintContext context){
+        SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+        Waybill waybill = context.getWaybill();
+        siteChangeMqDto.setWaybillCode(waybill.getWaybillCode());
+        siteChangeMqDto.setPackageCode(waybill.getPackList().get(0).getPackCode());
+        siteChangeMqDto.setNewSiteId(waybill.getSiteCode());
+        siteChangeMqDto.setNewSiteName(waybill.getSiteName());
+        siteChangeMqDto.setNewSiteRoadCode(waybill.getRoad());
+        siteChangeMqDto.setOperatorId(context.getRequest().getUserCode());
+        siteChangeMqDto.setOperatorName(context.getRequest().getUserName());
+        siteChangeMqDto.setOperatorSiteId(context.getRequest().getDmsSiteCode());
+        siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
+        siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+        try {
+            waybillSiteChangeProducer.send(waybill.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+        } catch (JMQException e) {
+            SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
+                    siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
+            logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+        }
+    }
+
+    /**
+     * 判断是否上传了体积或者重量(重量不为0 或者 长宽高都不为0)
+     * @param context 请求上下文
+     * @return 是否上传体积或重量
+     */
+    private boolean hasWeightOrVolume(WaybillPrintContext context){
+        if(!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
+                (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWidth()) &&
+                        !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getLength()) &&
+                        !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getHigh()))){
+            return true;
+        }
+        return false;
+    }
 }
