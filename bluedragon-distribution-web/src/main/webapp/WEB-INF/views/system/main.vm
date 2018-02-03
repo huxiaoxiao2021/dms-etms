@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta name="author" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta name="description" content="京东青龙分拣系统 自动化 分拣自动化 ">
+    <meta name="keyword" content="京东青龙分拣自动化,分拣,无人,自动化">
+    <title>青龙分拣自动化系统</title>
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link rel="shortcut icon" href="#springUrl('/static/assets/system/images/favicon.ico')">
+
+    <style type="text/css">
+
+    </style>
+</head>
+<body>
+<div id="automatic-index-container" class="container">
+
+    <div id="automatic-header-row" class="row clearfix" >
+        <div id="automatic-header" class="col-md-12 column">
+            <div id="automatic-title">
+                <div id="automatic-title-wrapper">
+                    <span id="automatic-title-span">青龙分拣自动化系统 </span>
+                </div>
+            </div>
+
+            <!--一级菜单-->
+            <div id="automatic-first-level-menus-zone">
+                <div id="first-level-menu-wrapper" class="nav navbar-top-links">
+                        <span v-for='i in values' @click="loadSecondMenus(i)">
+                            {{i.name}}
+                        </span>
+                </div>
+            </div>
+
+            <div id="automatic-user-info-zone">
+                <!--<div id="automatic-user-info-wrapper">-->
+                <!--<span id="automatic-user-info-prefix">当前用户 ：</span>-->
+                <!--<span id="automatic-user-info"></span>-->
+                <!--<span id="automatic-user-log-out">退出</span>-->
+                <!--</div>-->
+            </div>
+
+        </div>
+    </div>
+
+    <div id="automatic-main-row" class="row clearfix" >
+        <div id="automatic-left-zone" class="col-md-2 column">
+
+            <!--二、三级菜单-->
+            <nav id="automatic-left-nav" class="sidebar-nav" >
+                <ul id="automatic-left-menu" class="metismenu">
+                    <li class="active" v-for='i in values' >
+                        <a href="#" @click="secondLevelMenuOnClick" aria-expanded="false">
+                            <span style="float: left;font-size: 15px;margin-right: 10px;line-height: 15px;" v-bind:class="i.icon"></span>
+                            <span>{{i.name}}</span>
+                            <icon style="float: right;font-size: 10px;margin-right: 10px;" class="glyphicon glyphicon-menu-down"></icon>
+                        </a>
+                        <ul class="metismenu" >
+                            <li class="active" v-for="j in i.menus">
+                                <a href="#" aria-expanded="false" @click="thirdLevelMenuOnClick(j)">
+                                    <span style="float: left;font-size: 15px;margin-right: 10px;line-height: 20px;" v-bind:class="j.icon"></span>
+                                    <span>{{j.name}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!--主界面显示区-->
+        <div id="automatic-middle-zone" class="col-md-10 column" >
+            <div id="automatic-iframe-page-wrapper">
+                <iframe id="automatic-main-iframe" scrolling="yes" marginwidth="0" marginheight="0"
+                        src="" frameborder="0"  allowfullscreen="true" allowtransparency="true">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/imports/requirejs/v2.2.0/require.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/js/system/console/config.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    require(['IndexEntry']);
+</script>
+
+</body>
+</html>

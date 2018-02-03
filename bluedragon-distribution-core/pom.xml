@@ -69,7 +69,13 @@
 			<version>1.2.8-SNAPSHOT</version>
 		</dependency>
 
-        <dependency>
+		<dependency>
+			<groupId>com.jd.tms.basic</groupId>
+			<artifactId>tms-basic-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
@@ -80,8 +86,7 @@
 			<artifactId>xmlsec</artifactId>
 			<version>1.4.3</version>
         </dependency>
-  
-  
+
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -511,7 +516,11 @@
 			<artifactId>etms-vos-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.tms.tfc</groupId>
+			<artifactId>tms-tfc-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>
@@ -545,7 +554,13 @@
 			<artifactId>etms-vts-client</artifactId>
 			<version>1.1-SNAPSHOT</version>
         </dependency>
-        
+
+		<dependency>
+			<groupId>com.jd.tms.basic</groupId>
+			<artifactId>tms-basic-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
         <!-- cassandra -->
 		<dependency>
             <groupId>com.datastax.cassandra</groupId>

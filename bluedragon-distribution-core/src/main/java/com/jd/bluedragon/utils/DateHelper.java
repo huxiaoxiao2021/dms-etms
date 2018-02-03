@@ -215,5 +215,17 @@ public class DateHelper {
             return pdaTime;
         }
     }
-    
+    /**
+     * 比较2个时间
+     * <p>1、同时为空返回0
+     * <p>2、都不为空，返回o1.compareTo(o2)比较结果
+     * <p>3、o1为空o2不为空，返回-1
+     * <p>4、o2为空哦o1不为空，返回1
+     * @param date
+     * @param date1
+     * @return
+     */
+    public static int compare(Date date,Date date1) {
+    	return ObjectHelper.compare(date, date1);
+    }
 }

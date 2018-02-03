@@ -106,4 +106,29 @@ public class ObjectHelper {
 		}
     	return fields;
     }
+    /**
+     * 比较2个对象
+     * <p>1、同时为空返回0
+     * <p>2、都不为空，返回o1.compareTo(o2)比较结果
+     * <p>3、o1为空o2不为空，返回-1
+     * <p>4、o2为空哦o1不为空，返回1
+     * @param date
+     * @param date1
+     * @return
+     */
+    public static <T> int compare(T o1,T o2) {
+    	if(o1 != null && o1 != null){
+    		if(o1 instanceof Comparable){
+    			return ((Comparable)o1).compareTo(((Comparable)o2));
+    		}else{
+    			throw new RuntimeException("The params must be comparable!");
+    		}
+    	}else if(o1 == null && o2 == null){
+    		return 0;
+    	}else if(o1 == null && o2 != null){
+    		return -1;
+    	}else{
+    		return 1;
+    	}
+    }
 }
