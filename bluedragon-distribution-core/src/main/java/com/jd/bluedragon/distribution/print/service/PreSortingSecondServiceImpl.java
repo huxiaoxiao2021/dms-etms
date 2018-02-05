@@ -1,29 +1,35 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
-import com.jd.bluedragon.utils.*;
-import com.jd.jmq.common.exception.JMQException;
-import com.jd.preseparate.vo.BaseResponseIncidental;
-import com.jd.preseparate.vo.MediumStationOrderInfo;
-import com.jd.preseparate.vo.OriginalOrderInfo;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.jmq.common.exception.JMQException;
+import com.jd.preseparate.vo.BaseResponseIncidental;
+import com.jd.preseparate.vo.MediumStationOrderInfo;
+import com.jd.preseparate.vo.OriginalOrderInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * 纯外单中小件二次预分拣服务
@@ -152,6 +158,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
      * @return 是否上传体积或重量
      */
     private boolean hasWeightOrVolume(WaybillPrintContext context){
+    	if(context.getRequest().getWeightOperFlow()==null){
+    		return false;
+    	}
         if(!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
                 (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWidth()) &&
                         !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getLength()) &&
