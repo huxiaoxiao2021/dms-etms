@@ -41,9 +41,13 @@
 		</property>
 		<property name="handlers">
 			<list>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialSiteWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
-				<ref bean="specialMarkWaybillHandler"/>
+				
 			</list>
 		</property>
 		<property name="afterHandlers">

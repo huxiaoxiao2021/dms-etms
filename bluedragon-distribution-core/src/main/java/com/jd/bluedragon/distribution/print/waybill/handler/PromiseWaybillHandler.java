@@ -23,14 +23,13 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 	@Autowired
 	@Qualifier("promiseComposeService")
 	private ComposeService promiseComposeService;
+	
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("获取时效信息");
-		JdResult<String> jdResult = new JdResult<String>() ;
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		promiseComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		jdResult.toSuccess();
-		return jdResult;
+		return context.getResult();
 	}
 }

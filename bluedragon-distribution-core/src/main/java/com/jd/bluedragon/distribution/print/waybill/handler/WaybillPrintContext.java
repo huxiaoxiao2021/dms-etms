@@ -6,9 +6,9 @@ import java.util.List;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Context;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
@@ -30,6 +30,8 @@ public class WaybillPrintContext implements Context{
 	 * 请求响应
 	 */
 	private WaybillPrintResponse response;
+	
+	private JdResult<String> result;
 	/**
 	 * 运单接口查询到的运单信息
 	 */
@@ -118,4 +120,16 @@ public class WaybillPrintContext implements Context{
     public void setWaybill(Waybill waybill) {
         this.waybill = waybill;
     }
+	/**
+	 * @return the result
+	 */
+	public JdResult<String> getResult() {
+		return result;
+	}
+	/**
+	 * @param result the result to set
+	 */
+	public void setResult(JdResult<String> result) {
+		this.result = result;
+	}
 }

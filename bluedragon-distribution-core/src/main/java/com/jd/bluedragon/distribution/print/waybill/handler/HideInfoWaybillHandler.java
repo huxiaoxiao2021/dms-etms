@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
 /**
  * 
  * @ClassName: HideInfoWaybillHandler
- * @Description: 微笑面单处理逻辑
+ * @Description: 包裹标签打印-微笑面单处理逻辑
  * @author: wuyoude
  * @date: 2018年1月30日 上午9:18:31
  */
@@ -22,14 +22,13 @@ public class HideInfoWaybillHandler implements Handler<WaybillPrintContext,JdRes
 	@Autowired
 	@Qualifier("hideInfoComposeService")
 	private ComposeService hideInfoComposeService;
+	
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
-		logger.info("微笑面单-隐藏电话和地址");
-		JdResult<String> jdResult = new JdResult<String>() ;
+		logger.info("包裹标签打印-微笑面单-隐藏电话和地址");
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		hideInfoComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
-		jdResult.toSuccess();
-		return jdResult;
+		return context.getResult();
 	}
 }
