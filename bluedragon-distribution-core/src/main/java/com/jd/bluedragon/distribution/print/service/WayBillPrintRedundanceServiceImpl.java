@@ -334,8 +334,8 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         Waybill waybill = context.getWaybill();
         //如果预分拣站点为0超区或者999999999EMS全国直发，则无法触发二次预分拣
-        if(null!=waybill.getSiteCode()&&waybill.getSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
-                && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getSiteCode())){
+        if(null!=waybill.getSiteCode() && (ComposeService.PREPARE_SITE_CODE_NOTHING.equals(waybill.getSiteCode())
+                || ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getSiteCode()))){
             interceptResult.toSuccess();
             return interceptResult;
         }

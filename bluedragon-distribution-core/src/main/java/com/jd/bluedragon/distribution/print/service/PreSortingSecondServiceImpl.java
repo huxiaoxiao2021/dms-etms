@@ -63,8 +63,8 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     public InterceptResult<String> preSortingAgain(WaybillPrintContext context, PrintWaybill commonWaybill){
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         //如果预分拣站点为0超区或者999999999EMS全国直发，则无法触发二次预分拣
-        if(null!=commonWaybill.getPrepareSiteCode()&&commonWaybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
-                && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(commonWaybill.getPrepareSiteCode())){
+        if(null!=commonWaybill.getPrepareSiteCode()&&(ComposeService.PREPARE_SITE_CODE_NOTHING.equals(commonWaybill.getPrepareSiteCode())
+                || ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(commonWaybill.getPrepareSiteCode()))){
             interceptResult.toSuccess();
             return interceptResult;
         }
