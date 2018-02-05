@@ -16,9 +16,9 @@ public enum WaybillPrintOperateTypeEnum {
     private Integer type;//操作类型
     private String name;//操作名称
 
-    WaybillPrintOperateTypeEnum(String name, Integer type) {
-        this.name = name;
+    WaybillPrintOperateTypeEnum(Integer type, String name) {
         this.type = type;
+        this.name = name;
     }
 
     public Integer PLATE_PRINT_TYPE = 100101;      //平台打印操作类型
