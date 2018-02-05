@@ -237,7 +237,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 				if (baseEntity.getResultCode() == 1) {
 					return baseEntity.getData();
 				} else if (baseEntity.getResultCode() == -3) {
-					logger.warn("[验证三方承运商商品是否超限]调用运单接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取运单信息反馈该运单信息不存在，waybillCode:" + waybillCode);
+					logger.warn("根据旧运单号调用接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取运单信息反馈该运单信息不存在，waybillCode:" + waybillCode);
 				}
 			}
 		}

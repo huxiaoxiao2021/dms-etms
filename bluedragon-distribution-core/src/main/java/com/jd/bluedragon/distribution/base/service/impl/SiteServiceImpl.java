@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.utils.ArraysUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -22,20 +23,15 @@ import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.BaseSiteGoods;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +63,6 @@ public class SiteServiceImpl implements SiteService {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
-    @Autowired
-    private BasicSecondaryWS basicSecondaryWS;
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -269,50 +263,40 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public ThirdPartyOverrunResponse thirdPartyIsOverrun(ThirdPartyOverrunRequest request) {
         ThirdPartyOverrunResponse response = new ThirdPartyOverrunResponse();
-        try {
-            this.rebuildRequestParam(request);
-            BaseResult<BaseSiteGoods> baseResult = basicSecondaryWS.getGoodsVolumeLimitBySiteCode(request.getSiteCode());
-//            BaseResult<BaseSiteGoods> baseResult = new BaseResult<BaseSiteGoods>();
-//            baseResult.setResultCode(BaseResult.RESULT_SUCCESS);
-//            BaseSiteGoods baseSiteGoods1 = new BaseSiteGoods();
-//            baseSiteGoods1.setGoodsWeight(10.0f);
-//            baseSiteGoods1.setGoodsVolume(10.0);
-//            baseSiteGoods1.setGoodsLength(10.0f);
-//            baseSiteGoods1.setGoodsWidth(10.0f);
-//            baseSiteGoods1.setGoodsHeight(10.0f);
-//            baseResult.setData(baseSiteGoods1);
-            if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
-                BaseSiteGoods baseSiteGoods = baseResult.getData();
-                if (baseSiteGoods != null) {
-                    if (request.getWeight() > baseSiteGoods.getGoodsWeight()) {
-                        response.set(ThirdPartyOverrunResponse.CODE_WEIGHT_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_WEIGHT_OVERRUN);
-                        return response;
-                    }
-                    if (request.getVolume() > baseSiteGoods.getGoodsVolume()) {
-                        response.set(ThirdPartyOverrunResponse.CODE_VOLUME_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_VOLUME_OVERRUN);
-                        return response;
-                    }
-                    if (request.getLength() > baseSiteGoods.getGoodsLength()) {
-                        response.set(ThirdPartyOverrunResponse.CODE_LENGTH_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_LENGTH_OVERRUN);
-                        return response;
-                    }
-                    if (request.getWidth() > baseSiteGoods.getGoodsWidth()) {
-                        response.set(ThirdPartyOverrunResponse.CODE_WIDTH_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_WIDTH_OVERRUN);
-                        return response;
-                    }
-                    if (request.getHeight() > baseSiteGoods.getGoodsHeight()) {
-                        response.set(ThirdPartyOverrunResponse.CODE_HEIGHT_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_HEIGHT_OVERRUN);
-                        return response;
-                    }
-                } else { //获取标准值为空 视为未维护标准值 则默认为无标准，不超限
-                    response.set(ThirdPartyOverrunResponse.CODE_OK, ThirdPartyOverrunResponse.MESSAGE_OK);
-                }
-            } else {
-                response.set(ThirdPartyOverrunResponse.CODE_SERVICE_ERROR, "调用基础资料接口获取标准信息失败");
+        if (this.rebuildRequestParam(request)){
+            BaseSiteGoods baseSiteGoods = null;
+            try {
+                baseSiteGoods = baseMinorManager.getGoodsVolumeLimitBySiteCode(request.getSiteCode());
+            } catch (Exception e) {
+                response.set(ThirdPartyOverrunResponse.CODE_SERVICE_ERROR, "[验证三方承运商商品是否超限]调用基础资料接口获取三方站点限制信息时发生异常");
+                logger.error("[验证三方承运商商品是否超限]调用基础资料接口获取三方站点限制信息时发生异常", e);
             }
-        } catch (Exception e) {
-            response.set(ThirdPartyOverrunResponse.CODE_SERVICE_ERROR, "[验证三方承运商商品是否超限]调用基础资料接口获取三方站点限制信息时发生异常");
-            logger.error("[验证三方承运商商品是否超限]调用基础资料接口获取三方站点限制信息时发生异常", e);
+            if (baseSiteGoods != null) {
+                if (request.getWeight() > baseSiteGoods.getGoodsWeight()) {
+                    response.set(ThirdPartyOverrunResponse.CODE_WEIGHT_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_WEIGHT_OVERRUN);
+                    return response;
+                }
+                if (request.getVolume() > baseSiteGoods.getGoodsVolume()) {
+                    response.set(ThirdPartyOverrunResponse.CODE_VOLUME_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_VOLUME_OVERRUN);
+                    return response;
+                }
+                if (request.getLength() > baseSiteGoods.getGoodsLength()) {
+                    response.set(ThirdPartyOverrunResponse.CODE_LENGTH_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_LENGTH_OVERRUN);
+                    return response;
+                }
+                if (request.getWidth() > baseSiteGoods.getGoodsWidth()) {
+                    response.set(ThirdPartyOverrunResponse.CODE_WIDTH_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_WIDTH_OVERRUN);
+                    return response;
+                }
+                if (request.getHeight() > baseSiteGoods.getGoodsHeight()) {
+                    response.set(ThirdPartyOverrunResponse.CODE_HEIGHT_OVERRUN, ThirdPartyOverrunResponse.MESSAGE_HEIGHT_OVERRUN);
+                    return response;
+                }
+            } else { //获取标准值为空 视为未维护标准值 则默认为无标准，不超限
+                response.set(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+            }
+        } else {
+            response.set(JdResponse.CODE_SERVICE_ERROR, "根据运单数据重构包裹尺寸信息失败");
         }
         return response;
     }
@@ -322,17 +306,21 @@ public class SiteServiceImpl implements SiteService {
      *
      * @param request
      */
-    private void rebuildRequestParam(ThirdPartyOverrunRequest request) {
+    private boolean rebuildRequestParam(ThirdPartyOverrunRequest request) {
         this.resetParams(request);
-        boolean isLoad = false;
         ThirdPartyOverrunRequest packageSizeInfo = new ThirdPartyOverrunRequest();
         packageSizeInfo.setPackageCode(request.getPackageCode());
         // 重构重量参数
-        isLoad = this.rebuildWeightParam(request, packageSizeInfo, isLoad);
-        // 重构体积参数
-        isLoad = this.rebuildVolumeParam(request, packageSizeInfo, isLoad);
-        // 重构长 宽 高 参数
-        this.rebuildSizeParam(request, packageSizeInfo, isLoad);
+        if (this.rebuildWeightParam(request, packageSizeInfo)) {
+            // 重构体积参数
+            if (this.rebuildVolumeParam(request, packageSizeInfo)) {
+                // 重构长 宽 高 参数
+                if (this.rebuildSizeParam(request, packageSizeInfo)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -359,18 +347,22 @@ public class SiteServiceImpl implements SiteService {
      *
      * @param request
      * @param packageSizeInfo
-     * @param isLoad
      * @return
      */
-    private boolean rebuildWeightParam(ThirdPartyOverrunRequest request, ThirdPartyOverrunRequest packageSizeInfo, boolean isLoad) {
+    private boolean rebuildWeightParam(ThirdPartyOverrunRequest request, ThirdPartyOverrunRequest packageSizeInfo) {
         if (request.getWeight() == null || request.getWeight() == 0.0) {
-            if (!isLoad) {
-                this.loadWaybillPackageSizeInfo(packageSizeInfo);
-                isLoad = true;
+            if (packageSizeInfo.getWeight() != null) {
+                request.setWeight(packageSizeInfo.getWeight());
+            } else {
+                if (this.loadWaybillPackageSizeInfo(packageSizeInfo)) {
+                    request.setWeight(packageSizeInfo.getWeight());
+                } else {
+                    return false;
+                }
             }
             request.setWeight(packageSizeInfo.getWeight());
         }
-        return isLoad;
+        return true;
     }
 
     /**
@@ -378,18 +370,21 @@ public class SiteServiceImpl implements SiteService {
      *
      * @param request
      * @param packageSizeInfo
-     * @param isLoad
      * @return
      */
-    private boolean rebuildVolumeParam(ThirdPartyOverrunRequest request, ThirdPartyOverrunRequest packageSizeInfo, boolean isLoad) {
+    private boolean rebuildVolumeParam(ThirdPartyOverrunRequest request, ThirdPartyOverrunRequest packageSizeInfo) {
         if (request.getVolume() == null || request.getVolume() == 0.0) {
-            if (!isLoad) {
-                this.loadWaybillPackageSizeInfo(packageSizeInfo);
-                isLoad = true;
+            if (packageSizeInfo.getVolume() != null) {
+                request.setVolume(packageSizeInfo.getVolume());
+            } else {
+                if (this.loadWaybillPackageSizeInfo(packageSizeInfo)) {
+                    request.setVolume(packageSizeInfo.getVolume());
+                } else {
+                    return false;
+                }
             }
-            request.setVolume(packageSizeInfo.getVolume());
         }
-        return isLoad;
+        return true;
     }
 
     /**
@@ -397,18 +392,20 @@ public class SiteServiceImpl implements SiteService {
      *
      * @param request
      * @param packageSizeInfo
-     * @param isLoad
      * @return
      */
-    private void rebuildSizeParam(ThirdPartyOverrunRequest request, ThirdPartyOverrunRequest packageSizeInfo, boolean isLoad) {
+    private boolean rebuildSizeParam(ThirdPartyOverrunRequest request, ThirdPartyOverrunRequest packageSizeInfo) {
         if (request.getLength() == 0.0 && request.getWidth() == 0.0 && request.getHeight() == 0.0) {
-            if (!isLoad) {
-                this.loadWaybillPackageSizeInfo(packageSizeInfo);
+            if (packageSizeInfo.getLength() == null && packageSizeInfo.getWidth() == null && packageSizeInfo.getHeight() == null) {
+                if (!this.loadWaybillPackageSizeInfo(packageSizeInfo)) {
+                    return false;
+                }
             }
             request.setLength(packageSizeInfo.getLength());
             request.setWidth(packageSizeInfo.getWidth());
             request.setHeight(packageSizeInfo.getHeight());
         }
+        return true;
     }
 
     /**
@@ -425,7 +422,7 @@ public class SiteServiceImpl implements SiteService {
             Double againWeight = this.getAgainWeight(packageCode, waybillDto.getPackageList());
             if (againWeight == null || againWeight == 0.0) {
                 if (goods != null) {
-                    packageSizeInfo.setWeight(goods.getGoodWeight());
+                    packageSizeInfo.setWeight(goods.getGoodWeight() == null ? 0.0 : goods.getGoodWeight());
                 }
             } else {
                 packageSizeInfo.setWeight(againWeight);
@@ -438,39 +435,19 @@ public class SiteServiceImpl implements SiteService {
             if (StringUtils.isNotEmpty(formula)) {
                 String[] sizeInfo = formula.split("/*");
                 if (sizeInfo.length == 3) {
-                    Double[] sizeInfoOrder = getOrderArray(sizeInfo);
-                    packageSizeInfo.setHeight(sizeInfoOrder[0]);
-                    packageSizeInfo.setWidth(sizeInfoOrder[1]);
-                    packageSizeInfo.setLength(sizeInfoOrder[2]);
+                    double[] orderArray = ArraysUtil.getOrderArray(sizeInfo);
+                    packageSizeInfo.setHeight(orderArray[0]);
+                    packageSizeInfo.setWidth(orderArray[1]);
+                    packageSizeInfo.setLength(orderArray[2]);
+                } else {
+                    packageSizeInfo.setHeight(0.0);
+                    packageSizeInfo.setWidth(0.0);
+                    packageSizeInfo.setLength(0.0);
                 }
             }
             return true;
         }
         return false;
-    }
-
-    /**
-     * 获取尺寸信息进行排序 按照由小到大 分别对应高 宽 长
-     *
-     * @param sizeInfo
-     * @return
-     */
-    private Double[] getOrderArray(Object[] sizeInfo) {
-        if (sizeInfo instanceof Double[]) {
-            Arrays.sort(sizeInfo);
-            return (Double[]) sizeInfo;
-        } else {
-            Double[] orderArray = new Double[sizeInfo.length];
-            for (int i = 0, len = orderArray.length; i < len; i++) {
-                if (sizeInfo[i] != null && NumberUtils.isNumber(sizeInfo[i].toString())) {
-                    orderArray[i] = Double.valueOf(sizeInfo[i].toString());
-                } else {
-                    orderArray[i] = 0.0;
-                }
-            }
-            Arrays.sort(orderArray);
-            return orderArray;
-        }
     }
 
     private Double getAgainWeight(String packageCode, List<DeliveryPackageD> packageDList) {
