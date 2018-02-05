@@ -87,7 +87,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
             //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
             originalOrderInfo.setSystemCode("DMS");
+            logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
             BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
+            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(info));
             if(info == null){
                 interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
                 return interceptResult;
@@ -95,6 +97,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             PrintPackage pack = new PrintPackage();
             if(JdResponse.CODE_OK.equals(info.getCode())){//二次预分拣中件站接口调用成功
                 if(!commonWaybill.getPrepareSiteCode().equals(info.getData().getMediumStationId())){//换站点了
+                    logger.info("中小件二次预分拣换预分拣站点了："+info.getData().getMediumStationId());
                     List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
                     pack.setPackageCode(info.getData().getPackageCode());
                     pack.setWeight(context.getRequest().getWeightOperFlow().getWeight());//设置最新的称重数据
@@ -135,6 +138,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
         try {
             waybillSiteChangeProducer.send(commonWaybill.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+            logger.info("发送外单中小件预分拣站点变更mq消息成功："+JsonHelper.toJsonUseGson(siteChangeMqDto));
         } catch (JMQException e) {
             SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);

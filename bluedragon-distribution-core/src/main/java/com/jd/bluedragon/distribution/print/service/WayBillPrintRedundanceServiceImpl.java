@@ -358,7 +358,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
             //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
             originalOrderInfo.setSystemCode("DMS");
+            logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
             com.jd.preseparate.vo.BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
+            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(info));
             if(info == null){
                 interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
                 return interceptResult;
@@ -404,6 +406,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
         try {
             waybillSiteChangeProducer.send(waybill.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+            logger.info("发送外单中小件预分拣站点变更mq消息成功："+JsonHelper.toJsonUseGson(siteChangeMqDto));
         } catch (JMQException e) {
             SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
