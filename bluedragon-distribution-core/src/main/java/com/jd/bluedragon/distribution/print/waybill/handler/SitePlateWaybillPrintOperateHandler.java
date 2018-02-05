@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WayBillPrintRedundanceService;
+import com.jd.bluedragon.utils.JsonHelper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -20,6 +22,10 @@ public class SitePlateWaybillPrintOperateHandler implements Handler<WaybillPrint
 
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
-		return wayBillPrintRedundanceService.getWaybillPack(context);
+		InterceptResult<String> result = wayBillPrintRedundanceService.getWaybillPack(context);
+		if(result.isSucceed()){
+			result.setData(JsonHelper.toJson(context.getWaybill()));
+		}
+		return result;
 	}
 }
