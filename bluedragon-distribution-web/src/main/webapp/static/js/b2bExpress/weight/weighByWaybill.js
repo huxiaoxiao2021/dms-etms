@@ -340,9 +340,9 @@ $(function () {
                 var cbm = $('#waybill-weight-cbm-input').numberbox('getValue');
                 /*校验密度*/
                 if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
-                    var messageBodyStr = '重量体积比值经校验不符合常规范围，重量体积可能输入相反，请问您确认要录入吗？';
+                    var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
 
-                    $.messager.confirm('请仔细确认重量体积参数是否输反',messageBodyStr
+                    $.messager.confirm('请您仔细确认',messageBodyStr
                         ,function(confirmFlag){
                             if(confirmFlag == true){
                                 /*提交业务流程*/
