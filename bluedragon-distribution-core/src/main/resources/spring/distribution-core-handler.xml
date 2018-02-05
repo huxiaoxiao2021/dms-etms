@@ -10,7 +10,7 @@
 	<bean id="jsonCommandHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping">
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
-				<entry key="1000"  value-ref="waybillPrintCommandHandler"/>
+				<entry key="1001"  value-ref="waybillPrintCommandHandler"/>
 			</map>
 		</property>
 	</bean>
@@ -22,13 +22,13 @@
 	<bean id="waybillPrintOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
-				<entry key="100001"  value-ref="platePrint"/>
-				<entry key="100002"  value-ref="sitePlatePrint"/>
-				<entry key="100003"  value-ref="platePrint"/>
-				<entry key="100004"  value-ref="platePrint"/>
-				<entry key="100005"  value-ref="platePrint"/>
-				<entry key="100006"  value-ref="platePrint"/>
-				<entry key="100007"  value-ref="platePrint"/>
+				<entry key="100101"  value-ref="platePrint"/>
+				<entry key="100102"  value-ref="sitePlatePrint"/>
+				<entry key="100103"  value-ref="platePrint"/>
+				<entry key="100104"  value-ref="platePrint"/>
+				<entry key="100105"  value-ref="platePrint"/>
+				<entry key="100106"  value-ref="platePrint"/>
+				<entry key="100107"  value-ref="sitePlatePrint"/>
 			</map>
 		</property>
 	</bean>
