@@ -108,6 +108,11 @@ public class BasePrintWaybill implements Serializable {
      * 标识是否SOP商家和纯外单
      */
     private boolean sopOrExternalFlg;
+
+	/**
+	 * 打印时间
+	 */
+	private String printTime;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -401,4 +406,12 @@ public class BasePrintWaybill implements Serializable {
 		this.sopOrExternalFlg = sopOrExternalFlg;
 	}
 
+
+	public String getPrintTime() {
+		return printTime;
+	}
+
+	public void setPrintTime(String printTime) {
+		this.printTime = printTime;
+	}
 }

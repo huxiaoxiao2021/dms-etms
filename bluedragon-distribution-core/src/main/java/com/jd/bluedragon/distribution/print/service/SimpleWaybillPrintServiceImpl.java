@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -175,6 +177,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 result.setData(new PrintWaybill());
             }
             PrintWaybill commonWaybill=result.getData();
+            //设置运单打印时间，取后台服务器时间
+            String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            commonWaybill.setPrintTime(printTime);
+
             com.jd.etms.waybill.domain.Waybill tmsWaybill=baseEntity.getData().getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=baseEntity.getData().getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
@@ -420,5 +426,4 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
     }
-    
 }
