@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -65,11 +67,18 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
             if (sendCodes != null && sendCodes.size() > 0) {
                 for (ArSendCode sendCode : sendCodes) {
-                    SealCarDto sealCarDto = vosManager.querySealCarByBatchCode(sendCode.getSendCode());
-                    if (sealCarDto != null) {
-                        this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
-                    } else {
-                        logger.error("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号获取封车信息为空");
+                    SealCarDto sealCarDto = new SealCarDto();
+                    try {
+                        sealCarDto = vosManager.querySealCarByBatchCode(sendCode.getSendCode());
+                        if (sealCarDto != null) {
+                            this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
+                        } else {
+                            logger.error("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号获取封车信息为空");
+                        }
+                    } catch (Exception e){
+                        SystemLogUtil.log(sendCode.getSendCode(), sealCarDto.getTransportCode(), sealCarDto.getSealCarCode(), sendRegister.getId().longValue(),
+                                JsonHelper.toJsonUseGson(sealCarDto), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
+                        throw e;
                     }
                 }
             } else {
@@ -78,6 +87,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         } else {
             logger.error("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFilghtDate()) + ")获取发货登记信息为null");
         }
+
     }
 
     /**
