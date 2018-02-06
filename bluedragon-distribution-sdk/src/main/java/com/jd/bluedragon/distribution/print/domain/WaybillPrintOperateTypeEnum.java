@@ -28,4 +28,20 @@ public enum WaybillPrintOperateTypeEnum {
     public Integer PACKAGE_WEIGH_PRINT_TYPE = 100105;//包裹称重操作类型
     public Integer FIELD_PRINT_TYPE = 100106;       //驻场打印操作类型
     public Integer BATCH_SORT_WEIGH_PRINT_TYPE = 100107;//批量分拣称重操作类型
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 }
