@@ -61,9 +61,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private SendDatailDao sendDetailDao;
-
-    @Autowired
     protected TaskService taskService;
 
 
@@ -413,6 +410,17 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 }
             }
             logger.error("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
+        }
+        return null;
+    }
+
+    @Override
+    public ArSendRegister getByFlightInfo(String flightNumber, Date flightDate) {
+        Map<String, Object> parameter = new HashMap<String, Object>();
+        if (StringUtils.isNotEmpty(flightNumber) && flightDate != null) {
+            parameter.put("transportName", flightNumber);
+            parameter.put("sendDate", flightDate);
+            return arSendRegisterDao.getByFlightInfo(parameter);
         }
         return null;
     }

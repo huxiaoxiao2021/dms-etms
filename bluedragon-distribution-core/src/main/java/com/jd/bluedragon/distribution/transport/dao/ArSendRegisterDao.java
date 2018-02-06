@@ -5,19 +5,19 @@ import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- *
+ * @author wuyoude
  * @ClassName: ArSendRegisterDao
  * @Description: 发货登记表--Dao接口
- * @author wuyoude
  * @date 2017年12月28日 09:46:12
- *
  */
 public interface ArSendRegisterDao extends Dao<ArSendRegister> {
 
     /**
      * 根据ids批量获取
+     *
      * @param ids
      * @return
      */
@@ -34,21 +34,32 @@ public interface ArSendRegisterDao extends Dao<ArSendRegister> {
 
     /**
      * 从发货登记表中获取所有的已经登记的始发城市的信息
+     *
      * @return
      */
     List<ArSendRegister> queryStartCityInfo();
 
     /**
      * 从发货登记表中获取所有的已经登记的目的城市的信息
+     *
      * @return
      */
     List<ArSendRegister> queryEndCityInfo();
 
     /**
      * 从发货登记表中获取24小时内到达所选城市的航班/铁路信息
+     *
      * @param arSendRegister
      * @return
      */
     List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister);
+
+    /**
+     * 根据参数获取发货登记信息
+     *
+     * @param parameter
+     * @return
+     */
+    ArSendRegister getByFlightInfo(Map<String, Object> parameter);
 
 }

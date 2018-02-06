@@ -431,6 +431,9 @@
         <if test="operationDept != null">
             and operation_dept = #{operationDept,jdbcType=VARCHAR}
         </if>
+        <if test="sendDate != null">
+            and send_date = #{sendDate,jdbcType=TIMESTAMP}
+        </if>
         <if test="startOperTime != null">
             and operation_time <![CDATA[>=]]> str_to_date(#{startOperTime, jdbcType=VARCHAR}, '%Y-%m-%d %H:%i:%s')
         </if>
@@ -499,6 +502,15 @@
         </if>
         and plan_end_time <![CDATA[ >= ]]> now()-INTERVAL 12 HOUR and plan_end_time <![CDATA[ <= ]]> NOW()+INTERVAL 1 DAY
         order by plan_end_time desc
+    </select>
+
+    <select id="getByFlightInfo" parameterType="java.util.Map" resultMap="ArSendRegister">
+        select
+        <include refid="Base_Column_List"/>
+        from ar_send_register
+        where
+        <include refid="Base_Condition_Sql"/>
+        order by create_time desc limit 1
     </select>
 
 </mapper>
