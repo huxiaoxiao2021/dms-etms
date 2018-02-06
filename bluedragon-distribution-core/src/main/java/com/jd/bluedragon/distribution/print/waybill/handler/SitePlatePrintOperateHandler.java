@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WayBillPrintRedundanceService;
@@ -25,6 +26,10 @@ public class SitePlatePrintOperateHandler implements Handler<WaybillPrintContext
 		InterceptResult<String> result = wayBillPrintRedundanceService.getWaybillPack(context);
 		if(result.isSucceed()){
 			result.setData(JsonHelper.toJson(context.getWaybill()));
+			if(context.getStatus()==InterceptResult.STATUS_WEAK_PASSED){
+				result.setStatus(context.getStatus());
+				result.setMessage(context.getMessages().get(0));
+			}
 		}
 		return result;
 	}
