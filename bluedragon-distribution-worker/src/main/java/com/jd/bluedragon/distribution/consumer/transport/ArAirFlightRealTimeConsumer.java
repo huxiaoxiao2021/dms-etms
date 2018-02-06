@@ -140,6 +140,8 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                 waybillSets.add(sendDetail.getWaybillCode());
             }
             return waybillSets.toArray(new String[waybillSets.size()]);
+        } else {
+            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据批次号获取发货明细为空，批次号：" + sendCode);
         }
         return null;
     }

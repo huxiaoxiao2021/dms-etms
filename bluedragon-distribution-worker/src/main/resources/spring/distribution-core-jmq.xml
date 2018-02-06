@@ -222,7 +222,7 @@
 
     <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
     <bean id="arAirWaybillStatusMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_ar_air_waybill_status"/>
+        <property name="topic" value="bd_ar_air_waybill_status"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>

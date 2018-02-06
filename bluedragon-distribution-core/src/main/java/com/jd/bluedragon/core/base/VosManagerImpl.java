@@ -3,6 +3,8 @@ package com.jd.bluedragon.core.base;
 import java.util.List;
 
 import com.jd.etms.vos.dto.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +30,7 @@ public class VosManagerImpl implements VosManager{
 		return vosQueryWS.queryCarriagePlanDetails(carriagePlanCode);
 	}
 
+	@JProfiler(jKey = "DMS.BASE.VosManagerImpl.querySealCarByBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public SealCarDto querySealCarByBatchCode(String batchCode) throws Exception {
 		if (StringUtils.isEmpty(batchCode)) {
