@@ -212,8 +212,8 @@ public class PopPrintResource {
 				}else{
 					if(Integer.valueOf(4).equals(bDto.getSiteType())){
 						//操作站点类型符合 是站点
-						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已换货");
-						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成");
+						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",new Date(System.currentTimeMillis()-30000L));
+						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",new Date(System.currentTimeMillis()-30000L));
 					}
 				}
 
@@ -534,7 +534,7 @@ public class PopPrintResource {
         return operationLog;
     }
 
-    private void toTask(PopPrintRequest req,Integer operateType,String remark){
+    private void toTask(PopPrintRequest req,Integer operateType,String remark,Date date){
 		WaybillStatus waybillStatus = new WaybillStatus();
 
 		waybillStatus.setPackageCode(req.getPackageBarcode());
@@ -545,7 +545,7 @@ public class PopPrintResource {
 		waybillStatus.setOperator(req.getOperatorName());
 		waybillStatus.setOperateType(operateType);
 		waybillStatus.setRemark(remark);
-		waybillStatus.setOperateTime(new Date());
+		waybillStatus.setOperateTime(date);
 
 		String body = JsonHelper.toJson(waybillStatus);
 
