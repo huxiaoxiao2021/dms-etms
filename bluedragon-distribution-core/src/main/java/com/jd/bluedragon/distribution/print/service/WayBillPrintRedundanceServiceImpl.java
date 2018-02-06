@@ -425,6 +425,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
      * @return 是否上传体积或重量
      */
     private boolean hasWeightOrVolume(WaybillPrintContext context){
+    	if(context.getRequest().getWeightOperFlow()==null){
+    		return false;
+    	}
         if(!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWeight()) ||
                 (!DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getWidth()) &&
                         !DOUBLE_ZERO.equals(context.getRequest().getWeightOperFlow().getLength()) &&
