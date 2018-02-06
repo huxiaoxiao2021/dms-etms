@@ -376,7 +376,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
             //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
             if(newPreSiteInfo.getMediumStationId()!=null
-            	&&newPreSiteInfo.getMediumStationId().equals(waybill.getSiteCode())){
+            	&& !newPreSiteInfo.getMediumStationId().equals(waybill.getSiteCode())){
             	//换站点了
                     waybill.getPackList().get(0).setPackCode(newPreSiteInfo.getPackageCode());
                     waybill.getPackList().get(0).setWeight(Double.toString(context.getRequest().getWeightOperFlow().getWeight()));//设置最新的称重数据

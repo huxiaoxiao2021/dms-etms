@@ -106,7 +106,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
             //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
             if(newPreSiteInfo.getMediumStationId()!=null
-            	&&newPreSiteInfo.getMediumStationId().equals(commonWaybill.getPrepareSiteCode())){
+            	&& !newPreSiteInfo.getMediumStationId().equals(commonWaybill.getPrepareSiteCode())){
             	//换站点了
                 logger.info("中小件二次预分拣换预分拣站点了："+newPreSiteInfo.getMediumStationId());
                 List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
