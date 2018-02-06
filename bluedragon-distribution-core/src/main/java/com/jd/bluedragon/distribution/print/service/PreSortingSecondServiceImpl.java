@@ -111,8 +111,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
                 commonWaybill.setPrepareSiteName(newPreSiteInfo.getMediumStationName());
                 commonWaybill.setRoad(newPreSiteInfo.getMediumStationRoad());
                 context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
-                interceptResult.toSuccess();
-                interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
+                interceptResult.toWeakSuccess(JdResult.CODE_SUC, String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
                 sendSiteChangeMQ(context, commonWaybill);
             }
         }else{
