@@ -24,6 +24,9 @@ import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by yanghongqiang on 2015/11/30.
  */
@@ -231,6 +234,10 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         }
 
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
+
+        //打印时间,取后台服务器时间
+        String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        labelPrinting.setPrintTime(printTime);
 
         //订单号
         labelPrinting.setOrderCode(waybill.getVendorId());
