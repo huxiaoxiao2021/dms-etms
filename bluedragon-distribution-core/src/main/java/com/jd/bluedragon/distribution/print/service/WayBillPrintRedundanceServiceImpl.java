@@ -383,6 +383,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                     waybill.setRoad(newPreSiteInfo.getMediumStationRoad());
                     context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
                     context.setStatus(InterceptResult.STATUS_WEAK_PASSED);
+                    interceptResult.toSuccess();
                     interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
                     sendSiteChangeMQ(context);
             }
