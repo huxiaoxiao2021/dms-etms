@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,14 +107,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             	&& !newPreSiteInfo.getMediumStationId().equals(commonWaybill.getPrepareSiteCode())){
             	//换站点了
                 logger.info("中小件二次预分拣换预分拣站点了："+newPreSiteInfo.getMediumStationId());
-                List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
-                pack.setPackageCode(newPreSiteInfo.getPackageCode());
-                pack.setWeight(context.getRequest().getWeightOperFlow().getWeight());//设置最新的称重数据
-                packageList.add(pack);
                 commonWaybill.setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
                 commonWaybill.setPrepareSiteName(newPreSiteInfo.getMediumStationName());
                 commonWaybill.setRoad(newPreSiteInfo.getMediumStationRoad());
-                commonWaybill.setPackList(packageList);
                 context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
                 interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
                 sendSiteChangeMQ(context, commonWaybill);

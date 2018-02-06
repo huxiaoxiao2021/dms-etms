@@ -378,8 +378,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             if(newPreSiteInfo.getMediumStationId()!=null
             	&& !newPreSiteInfo.getMediumStationId().equals(waybill.getSiteCode())){
             	//换站点了
-                    waybill.getPackList().get(0).setPackCode(newPreSiteInfo.getPackageCode());
-                    waybill.getPackList().get(0).setWeight(Double.toString(context.getRequest().getWeightOperFlow().getWeight()));//设置最新的称重数据
                     waybill.setSiteCode(newPreSiteInfo.getMediumStationId());
                     waybill.setSiteName(newPreSiteInfo.getMediumStationName());
                     waybill.setRoad(newPreSiteInfo.getMediumStationRoad());
