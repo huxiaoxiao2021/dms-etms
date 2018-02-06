@@ -441,6 +441,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         try {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                context.setBigWaybillDto(baseEntity.getData());
                 loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
                 if (null != result.getData()) {
                     interceptResult = preSortingSecondService.preSortingAgain(context, result.getData());//处理是否触发2次预分拣
@@ -469,16 +470,23 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
         if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
             String packageCode = context.getRequest().getBarCode();
-            BigWaybillDto waybillDto = waybillQueryManager.getReturnWaybillByOldWaybillCode(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
-            if (waybillDto != null) {
-                Map<String, Double> goodsWeightMap = getGoodsWeightMap(waybillDto.getGoodsList());
-                Map<String, Double> againWeightMap = getAgainWeightMap(waybillDto.getPackageList());
-                Waybill waybill = waybillDto.getWaybill();
+            BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
+            if(bigWaybillDto == null){
+                BaseEntity<BigWaybillDto> baseEntity  = waybillQueryManager.getDataByChoice(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
+                if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                    bigWaybillDto = baseEntity.getData();
+                    context.setBigWaybillDto(bigWaybillDto);
+                }
+            }
+//            BigWaybillDto waybillDto = waybillQueryManager.getReturnWaybillByOldWaybillCode(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
+            if (bigWaybillDto != null) {
+                Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
                 for(PrintPackage pack : commonWaybill.getPackList()){
-                    if(againWeightMap.get(pack.getPackageCode()) != null && !againWeightMap.get(pack.getPackageCode()).equals(0.0)){
-                        pack.setWeight(againWeightMap.get(pack.getPackageCode()));
-                    }else{
-                        pack.setWeight(goodsWeightMap.get(pack.getPackageCode()));
+                    DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
+                    if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getAgainWeight())){
+                        pack.setWeight(deliveryPackageD.getAgainWeight());
+                    }else if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getGoodWeight())){
+                        pack.setWeight(deliveryPackageD.getGoodWeight());
                     }
                 }
             }
@@ -490,28 +498,12 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * @param packageDList
      * @return
      */
-    private Map<String, Double> getAgainWeightMap(List<DeliveryPackageD> packageDList) {
-        Map<String, Double> result = null;
+    private Map<String, DeliveryPackageD> getAgainWeightMap(List<DeliveryPackageD> packageDList) {
+        Map<String, DeliveryPackageD> result = null;
         if (packageDList != null && packageDList.size() > 0) {
-            result = new HashMap<String, Double>(packageDList.size());
+            result = new HashMap<String, DeliveryPackageD>(packageDList.size());
             for (DeliveryPackageD deliveryPackageD : packageDList) {
-                result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD.getAgainWeight());
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 获取商品重量的map
-     * @param goods
-     * @return
-     */
-    private Map<String, Double> getGoodsWeightMap(List<Goods> goods) {
-        Map<String, Double> result = null;
-        if (goods != null && goods.size() > 0) {
-            result = new HashMap<String, Double>(goods.size());
-            for (Goods goodsInfo : goods) {
-                result.put(goodsInfo.getPackBarcode(), goodsInfo.getGoodWeight() == null ? 0.0 : goodsInfo.getGoodWeight());
+                result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD);
             }
         }
         return result;
