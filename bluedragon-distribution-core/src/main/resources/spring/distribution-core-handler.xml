@@ -52,6 +52,8 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<!-- 三方超限拦截 -->
+				<ref bean="thirdOverRunInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>

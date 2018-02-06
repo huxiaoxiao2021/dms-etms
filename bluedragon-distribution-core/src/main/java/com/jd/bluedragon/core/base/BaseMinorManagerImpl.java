@@ -175,4 +175,15 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return traderList;
 	}
 
+	@Cache(key = "DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BaseSiteGoods getGoodsVolumeLimitBySiteCode(Integer siteCode) {
+		BaseResult<BaseSiteGoods> baseResult = basicSecondaryWS.getGoodsVolumeLimitBySiteCode(siteCode);
+		if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
+			return baseResult.getData();
+		}
+		return null;
+	}
+
 }

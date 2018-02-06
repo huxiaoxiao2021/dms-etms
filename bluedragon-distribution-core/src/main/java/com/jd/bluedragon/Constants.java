@@ -1,6 +1,7 @@
 package com.jd.bluedragon;
 
 import com.jd.bluedragon.utils.LogHelper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 
@@ -110,7 +111,7 @@ public class Constants {
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
     public static final int OPERATE_TYPE_In = 1150;//驻场
     /** 大件包裹标识 **/
-    public static final String BOXING_TYPE = "2";
+    public static final Short BOXING_TYPE = 2;
     /* 基础资料SiteType: 16为三方，4为自营 */
     public static final int BASE_SITE_SITE = 4;//站点
     public static final Integer BASE_SITE_TYPE_THIRD = 16;
@@ -394,6 +395,10 @@ public class Constants {
      * 备件库条码前缀默认值-"null"
      */
     public static final String SPARE_CODE_PREFIX_DEFAULT="null";
+    /**
+     * 空铁提货操作
+     */
+    public static final int OPERATE_TYPE_AR_RECEIVE = 1810;
 
     /********************************************* UIM权限资源码相关start *********************************************/
     public static final String DMS_WEB_PTORDER_DIFF_R="DMS-WEB-PTORDER-DIFF-R"; //平台差异处理
@@ -428,4 +433,16 @@ public class Constants {
     public static final Integer SEAL_TYPE_TRANSPORT = 10;    //按运力封车
     public static final Integer SEAL_TYPE_TASK = 20;   //按任务封车
     /******************************************** 封车类型相关end *****************************************/
+    /**
+     * 第三方站点
+     */
+    public static final Integer THIRD_SITE_TYPE = 16;
+    /**
+     * 第三方站点-二级类型
+     */
+    public static final Integer THIRD_SITE_SUB_TYPE = 16;
+    /**
+     * 包裹重量体积的默认值0
+     */
+    public static final Double DOUBLE_ZERO = 0.0;
 }

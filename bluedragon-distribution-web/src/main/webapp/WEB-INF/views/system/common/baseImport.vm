@@ -1,0 +1,50 @@
+## 公共引入部分
+
+####################
+## Jquery
+####################
+<script src="/static/imports/jquery/v1.11.3/jquery.min.js"></script>
+
+####################
+## Bootstrap UI
+####################
+<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/css/bootstrap-theme.min.css">
+<script src="/static/imports/bootstrap/v3.3.7/js/bootstrap.min.js"></script>
+
+####################
+## 插件
+####################
+<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-table/bootstrap-table.min.css">
+<script src="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+
+<link rel="stylesheet" href="/static/imports/plugin/select2/select2.min.css">
+<script src="/static/imports/plugin/select2/select2.full.min.js"></script>
+
+<script src="/static/imports/plugin/laydate/laydate.js"></script>
+
+<link rel="stylesheet" href="/static/imports/plugin/sweetalert/jdversion/sweetalert.css">
+<script src="/static/imports/plugin/sweetalert/jdversion/sweetalert.min.js"></script>
+
+<script src="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-validator/bootstrapValidator.min.js"></script>
+<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-validator/bootstrapValidator.min.css">
+
+<script src="/static/imports/plugin/npmutil/date-and-time.min.js"></script>
+<script src="/static/imports/plugin/jqueryForm/jquery.form.min.js"></script>
+####################
+## 组件api封装
+####################
+<script src="/static/js/common/plugin-helper.js"></script>
+
+####################
+## 基础样式
+####################
+<style type="text/css">
+    .min_120{
+        min-width: 120px;
+    }
+    .min_180{
+        min-width: 180px;
+    }
+</style>
