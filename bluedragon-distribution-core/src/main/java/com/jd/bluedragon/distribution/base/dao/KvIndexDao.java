@@ -12,6 +12,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -169,4 +170,41 @@ public class KvIndexDao extends BaseDao<KvIndex> {
         System.out.println(JsonHelper.toJson(sets));
 
     }
+    /**
+     * 根据keyword查询站点信息，按时间降序排列
+     * @param keyword
+     * @return
+     */
+	public List<Integer> queryRecentSiteCodesByKey(String keyword) {
+		if(StringHelper.isEmpty(keyword)){
+            return new ArrayList<Integer>(0);
+        }
+        keyword=keyword.trim().toUpperCase();
+        if(keyword.length()>50){
+            if(LOGGER.isWarnEnabled()){
+                LOGGER.warn(MessageFormat.format("KEY={0}值超过50，截断为50",keyword));
+            }
+            keyword=keyword.substring(0,50);
+        }
+        List<String> values= this.getSqlSession().selectList(namespace + ".queryRecentSiteCodesByKey", keyword);
+        if(null==values||values.size()==0){
+            return new ArrayList<Integer>(0);
+        }else{
+        	List<Integer> restList = new ArrayList<Integer>(8);
+            Set<Integer> sets=new HashSet<Integer>(values.size());
+            for (String item:values){
+            	//判断是否存在，不存在放入新的list中
+                try {
+                	Integer siteCode = NumberUtils.createInteger(item);
+                	if(!sets.contains(siteCode)){
+                		restList.add(siteCode);
+                		sets.add(siteCode);
+                	}
+                }catch (Throwable throwable){
+                    LOGGER.error(MessageFormat.format("分库索引值转成为数字失败keyword:{0}", keyword), throwable);
+                }
+            }
+            return restList;
+        }
+	}
 }

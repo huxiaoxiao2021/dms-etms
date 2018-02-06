@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.basic;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -39,6 +40,8 @@ public class DefaultDataChange implements DataChange {
 				ret = val == null?0f : this.getDouble(val, field, columnIndex).floatValue();
 			} else if (field.getType() == Boolean.class) {
 				ret = val == null?false : Boolean.valueOf(val);
+			} else if (field.getType() == BigDecimal.class) {
+				ret = val == null?false : this.getBigDecimal(val, field, columnIndex);
 			} else {
 				throw new Exception(field.getName() + "没有找到匹配的类型"
 						+ field.getType());
@@ -60,7 +63,26 @@ public class DefaultDataChange implements DataChange {
 		}
 		return t;
 	}
-	
+
+
+	private BigDecimal getBigDecimal(String val, Field field, int columnIndex){
+		BigDecimal t = null;
+		Row row = ExcelContext.getCurrentRow();
+		if(val == null || "".equals(val.trim())){
+			throw new IllegalArgumentException("第" + row.getRowNum() + "行,第" + (columnIndex+1) + "列," + field.getName() + "字段为空");
+		}
+
+		if(val.trim().matches("^\\d{1,10}(\\.\\d{2})?$")){
+			if(val.indexOf('.') == -1){
+				val = val+".00";
+			}
+			t = new BigDecimal(val);
+
+		}else{
+			throw new IllegalArgumentException("第" + row.getRowNum() + "行,第" + (columnIndex+1) + "列," + field.getName() + "字段类型不匹配，应为数字类型,小数点后保留两位且不得大于9999999999.99");
+		}
+		return t;
+	}
 
 	protected String getCellValue(Cell cell) {
 		return this.getCellValue(cell, null);

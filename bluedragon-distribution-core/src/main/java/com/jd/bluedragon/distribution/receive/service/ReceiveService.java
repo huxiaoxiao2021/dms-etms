@@ -10,6 +10,12 @@ import java.util.Map;
 
 public interface ReceiveService {
 	/**
+	 * 新增一条收货记录
+	 * @param receive
+	 * @return
+	 */
+	public boolean addReceive(Receive receive);
+	/**
 	 * 收货
 	 * */
 	public void doReceiveing(Receive receive);
