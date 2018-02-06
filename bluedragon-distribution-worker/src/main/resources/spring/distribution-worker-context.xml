@@ -12,8 +12,7 @@
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-worker-task.xml" />
 	<import resource="classpath:spring/distribution-worker-jmq.xml" />
-	<import resource="classpath:spring/distribution-worker-task-redis.xml" />
-	<import resource="classpath:spring/distribution-worker-wss.xml"/>
+    <import resource="classpath:spring/distribution-worker-task-redis.xml" />	<import resource="classpath:spring/distribution-worker-wss.xml"/>
     <import resource="distribution-worker-asynBuffer-comsumer.xml"/>
 
 	<!-- ump monitor begin -->

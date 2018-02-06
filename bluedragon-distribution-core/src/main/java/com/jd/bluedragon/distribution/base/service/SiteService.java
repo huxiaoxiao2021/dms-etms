@@ -36,5 +36,10 @@ public interface SiteService {
      */
     public Pager<List<SiteWareHouseMerchant>> getSitesByPage(int category,int pageNo);
 
+	/**
+	 * 根据批次号获取始发分拣中心id和目的分拣中心id
+	 * @param sendCode
+     */
+	public Integer[]  getSiteCodeBySendCode (String sendCode);
 
 }

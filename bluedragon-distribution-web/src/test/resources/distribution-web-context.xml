@@ -10,15 +10,33 @@
 	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-3.1.xsd">
-	
+
+
 	<context:property-placeholder location="classpath:authen.properties" ignore-unresolvable="true"/>
-	<context:component-scan base-package="com.jd.bluedragon.distribution.web" />
-	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />
-	
-	<import resource="classpath:spring/distribution-core-context.xml" />
-	<!--<import resource="classpath:spring/distribution-web-mvc.xml" />-->
-	<import resource="classpath:spring/distribution-web-authen.xml" />
-	<import resource="classpath:spring/distribution-web-resteasy.xml" />
-	<import resource="classpath:spring/distribution-web-wss-service.xml" /> 
-	
+	<context:component-scan base-package="com.jd.bluedragon.distribution.web"/>
+	<context:component-scan base-package="com.jd.bluedragon.distribution.rest"/>
+	<context:component-scan base-package="com.jd.bluedragon.distribution.external"/>
+	<context:component-scan base-package="com.jd.common.authorization"/>
+
+	<!-- 扩容Mysql主备配置表 -->
+	<import resource="classpath:spring/mysql/distribution-core-common.xml"/>
+	<!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
+	<!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
+
+	<import resource="classpath:spring/distribution-core-context.xml"/>
+	<import resource="classpath:spring/distribution-web-mvc.xml"/>
+	<!--<import resource="classpath:spring/distribution-web-new-authen.xml" />-->
+	<import resource="classpath:spring/distribution-web-resteasy.xml"/>
+	<import resource="classpath:spring/distribution-web-wss-service.xml"/>
+	<import resource="classpath:spring/distribution-web-jsf-server.xml"/>
+	<import resource="classpath:spring/distribution-web-jmq.xml"/>
+	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>
+
+	<!-- ump monitor begin -->
+	<!--  监控注解处理器 -->
+	<bean class="com.jd.ump.annotation.JAnnotation">
+		<property name="jvmKey" value="Bluedragon_dms_web.jvm"></property>
+		<property name="systemKey" value="Bluedragon_dms_web.system"></property>
+	</bean>
+	<!-- ump monitor end -->
 </beans>

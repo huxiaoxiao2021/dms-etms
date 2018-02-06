@@ -109,8 +109,9 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 */
 	@JProfiler(jKey= "DMSWEB.receiveService.doReceiveing", mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Deprecated
 	public void doReceiveing(Receive receive) {
-		receiveDao.add(ReceiveDao.namespace, receive);
+		this.addReceive(receive);
 		// 必须有封车号，才更新封车表
 		String code = receive.getShieldsCarCode();
 		if (code != null && !code.equals("")) {
@@ -121,8 +122,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 			createSealBox(receive);
 		}
 		// 插收货确认表
-		if (receive.getBoxingType().equals(
-				Short.parseShort(Constants.BOXING_TYPE))) {
+		if (Constants.BOXING_TYPE.equals(receive.getBoxingType())) {
 			addOperationLog(receive);// 记录日志
 			CenConfirm cenConfirm=cenConfirmService.createCenConfirmByReceive(receive);
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
@@ -151,7 +151,7 @@ public class ReceiveServiceImpl implements ReceiveService {
                  }
             }
 		}else{
-			List<SendDetail> sendDetails=deliveryService.getSendByBox(receive.getBoxCode());
+			List<SendDetail> sendDetails=deliveryService.getCancelSendByBox(receive.getBoxCode());
 			if (sendDetails == null || sendDetails.isEmpty()){
 				log.error("根据[boxCode=" + receive.getBoxCode()
 						+ "]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪");
@@ -561,6 +561,11 @@ public class ReceiveServiceImpl implements ReceiveService {
 		pickWare.setOperator("lidong");
 		pickWare.setOperateTime("2013-08-19 15:33:20");
 		System.out.println(JsonHelper.toJson(pickWare));
+	}
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Override
+	public boolean addReceive(Receive receive) {
+		return receiveDao.add(ReceiveDao.namespace, receive)==1;
 	}
 
 }
