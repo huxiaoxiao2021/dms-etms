@@ -22,7 +22,7 @@ public class WaybillPrintCommandHandler extends AbstractJsonCommandHandler<Waybi
 	public WaybillPrintContext fromJson(String jsonData) {
 		WaybillPrintContext context = new WaybillPrintContext();
 		//初始化请求信息和返回结果信息
-		JdResult<String> result = new JdResult<String>();
+		InterceptResult<String> result = new InterceptResult<String>();
 		result.toSuccess();
 		context.setRequest(JsonHelper.fromJson(jsonData, WaybillPrintRequest.class));
 		context.setResult(result);

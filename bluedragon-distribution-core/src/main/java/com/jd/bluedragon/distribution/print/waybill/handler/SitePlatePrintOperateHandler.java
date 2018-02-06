@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date: 2018年1月31日 下午5:40:04
  *
  */
-public class SitePlateWaybillPrintOperateHandler implements Handler<WaybillPrintContext,InterceptResult<String>>{
+public class SitePlatePrintOperateHandler implements Handler<WaybillPrintContext,InterceptResult<String>>{
 
 	@Autowired
 	private WayBillPrintRedundanceService wayBillPrintRedundanceService;

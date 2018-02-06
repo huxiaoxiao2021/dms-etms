@@ -11,15 +11,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -40,7 +39,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     private static final Log logger= LogFactory.getLog(PreSortingSecondServiceImpl.class);
 
     @Autowired
-    private PresortMediumStationAPI presortMediumStation;
+    private PreseparateWaybillManager preseparateWaybillManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -94,30 +93,33 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
             originalOrderInfo.setSystemCode("DMS");
             logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
-            BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
-            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(info));
-            if(info == null){
-                interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
+            JdResult<BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo = preseparateWaybillManager.getMediumStation(originalOrderInfo);
+            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(mediumStationOrderInfo));
+            //接口调用失败/返回站点为空，直接通过不强制拦截
+            if(!mediumStationOrderInfo.isSucceed()
+            		|| mediumStationOrderInfo.getData() == null
+            		|| mediumStationOrderInfo.getData().getData() == null){
+                interceptResult.toSuccess();
                 return interceptResult;
             }
             PrintPackage pack = new PrintPackage();
-            if(JdResponse.CODE_OK.equals(info.getCode())){//二次预分拣中件站接口调用成功
-                if(!commonWaybill.getPrepareSiteCode().equals(info.getData().getMediumStationId())){//换站点了
-                    logger.info("中小件二次预分拣换预分拣站点了："+info.getData().getMediumStationId());
-                    List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
-                    pack.setPackageCode(info.getData().getPackageCode());
-                    pack.setWeight(context.getRequest().getWeightOperFlow().getWeight());//设置最新的称重数据
-                    packageList.add(pack);
-                    commonWaybill.setPrepareSiteCode(info.getData().getMediumStationId());
-                    commonWaybill.setPrepareSiteName(info.getData().getMediumStationName());
-                    commonWaybill.setRoad(info.getData().getMediumStationRoad());
-                    commonWaybill.setPackList(packageList);
-                    context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
-                    interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
-                    sendSiteChangeMQ(context, commonWaybill);
-                }
-            }else{
-                interceptResult.toFail(InterceptResult.CODE_FAIL, info.getMessage());
+            MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
+            //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
+            if(newPreSiteInfo.getMediumStationId()!=null
+            	&&newPreSiteInfo.getMediumStationId().equals(commonWaybill.getPrepareSiteCode())){
+            	//换站点了
+                logger.info("中小件二次预分拣换预分拣站点了："+newPreSiteInfo.getMediumStationId());
+                List<PrintPackage> packageList=new ArrayList<PrintPackage>(size);
+                pack.setPackageCode(newPreSiteInfo.getPackageCode());
+                pack.setWeight(context.getRequest().getWeightOperFlow().getWeight());//设置最新的称重数据
+                packageList.add(pack);
+                commonWaybill.setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
+                commonWaybill.setPrepareSiteName(newPreSiteInfo.getMediumStationName());
+                commonWaybill.setRoad(newPreSiteInfo.getMediumStationRoad());
+                commonWaybill.setPackList(packageList);
+                context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
+                interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
+                sendSiteChangeMQ(context, commonWaybill);
             }
         }else{
             interceptResult.toSuccess();

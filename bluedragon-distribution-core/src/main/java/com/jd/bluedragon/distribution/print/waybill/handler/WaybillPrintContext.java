@@ -31,7 +31,7 @@ public class WaybillPrintContext implements Context{
 	 */
 	private WaybillPrintResponse response;
 	
-	private JdResult<String> result;
+	private InterceptResult<String> result;
 	/**
 	 * 运单接口查询到的运单信息
 	 */
@@ -123,13 +123,13 @@ public class WaybillPrintContext implements Context{
 	/**
 	 * @return the result
 	 */
-	public JdResult<String> getResult() {
+	public InterceptResult<String> getResult() {
 		return result;
 	}
 	/**
 	 * @param result the result to set
 	 */
-	public void setResult(JdResult<String> result) {
+	public void setResult(InterceptResult<String> result) {
 		this.result = result;
 	}
 }

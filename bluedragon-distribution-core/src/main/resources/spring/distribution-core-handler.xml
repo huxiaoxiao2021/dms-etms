@@ -24,38 +24,44 @@
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100101"  value-ref="platePrint"/>
 				<entry key="100102"  value-ref="sitePlatePrint"/>
-				<entry key="100103"  value-ref="platePrint"/>
-				<entry key="100104"  value-ref="platePrint"/>
-				<entry key="100105"  value-ref="platePrint"/>
-				<entry key="100106"  value-ref="platePrint"/>
+				<entry key="100103"  value-ref="basicPrint"/>
+				<entry key="100104"  value-ref="basicPrint"/>
+				<entry key="100105"  value-ref="basicPrint"/>
+				<entry key="100106"  value-ref="basicPrint"/>
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 			</map>
 		</property>
 	</bean>
-	<!-- 包裹标签打印-平台打印 -->
-	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintOperateHandler">
-		<property name="preHandlers">
-			<list>
-				<ref bean="basicWaybillPrintHandler"/>
-			</list>
-		</property>
+	<!-- 包裹标签打印-通用打印逻辑处理 -->
+	<bean id="basicPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
+				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialSiteWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
-				
+				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
-		<property name="afterHandlers">
+	</bean>
+	<!-- 包裹标签打印-平台打印 -->
+	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
 			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialSiteWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
 	</bean>
 	<!-- 包裹标签打印-站点平台打印 -->
-	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlateWaybillPrintOperateHandler"/>
+	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler"/>
 </beans>

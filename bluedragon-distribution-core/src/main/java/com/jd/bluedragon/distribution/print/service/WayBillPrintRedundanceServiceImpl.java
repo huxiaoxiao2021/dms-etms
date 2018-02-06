@@ -1,33 +1,9 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Pack;
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.jmq.common.exception.JMQException;
-import com.jd.preseparate.vo.MediumStationOrderInfo;
-import com.jd.preseparate.vo.OriginalOrderInfo;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,10 +11,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Pack;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.PreseparateWaybillManager;
+import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.jmq.common.exception.JMQException;
+import com.jd.preseparate.vo.MediumStationOrderInfo;
+import com.jd.preseparate.vo.OriginalOrderInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * 面单打印冗余服务
@@ -62,7 +67,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     private LabelPrinting labelPrinting;
 
     @Autowired
-    private PresortMediumStationAPI presortMediumStation;
+    private PreseparateWaybillManager preseparateWaybillManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -359,27 +364,29 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
             originalOrderInfo.setSystemCode("DMS");
             logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
-            com.jd.preseparate.vo.BaseResponseIncidental<MediumStationOrderInfo> info = presortMediumStation.getMediumStation(originalOrderInfo);
-            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(info));
-            if(info == null){
-                interceptResult.toError(InterceptResult.CODE_ERROR, "二次预分拣中件站接口返回为空");
+            JdResult<com.jd.preseparate.vo.BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo  = preseparateWaybillManager.getMediumStation(originalOrderInfo);
+            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(mediumStationOrderInfo));
+            //接口调用失败/返回站点为空，直接通过不强制拦截
+            if(!mediumStationOrderInfo.isSucceed()
+            		|| mediumStationOrderInfo.getData() == null
+            		|| mediumStationOrderInfo.getData().getData() == null){
+                interceptResult.toSuccess();
                 return interceptResult;
             }
-            PrintPackage pack = new PrintPackage();
-            if(JdResponse.CODE_OK.equals(info.getCode())){//二次预分拣中件站接口调用成功
-                if(!waybill.getSiteCode().equals(info.getData().getMediumStationId())){//换站点了
-                    waybill.getPackList().get(0).setPackCode(info.getData().getPackageCode());
+            MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
+            //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
+            if(newPreSiteInfo.getMediumStationId()!=null
+            	&&newPreSiteInfo.getMediumStationId().equals(waybill.getSiteCode())){
+            	//换站点了
+                    waybill.getPackList().get(0).setPackCode(newPreSiteInfo.getPackageCode());
                     waybill.getPackList().get(0).setWeight(Double.toString(context.getRequest().getWeightOperFlow().getWeight()));//设置最新的称重数据
-                    waybill.setSiteCode(info.getData().getMediumStationId());
-                    waybill.setSiteName(info.getData().getMediumStationName());
-                    waybill.setRoad(info.getData().getMediumStationRoad());
+                    waybill.setSiteCode(newPreSiteInfo.getMediumStationId());
+                    waybill.setSiteName(newPreSiteInfo.getMediumStationName());
+                    waybill.setRoad(newPreSiteInfo.getMediumStationRoad());
                     context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
                     context.setStatus(InterceptResult.STATUS_WEAK_PASSED);
                     interceptResult.setStatus(InterceptResult.STATUS_WEAK_PASSED);
                     sendSiteChangeMQ(context);
-                }
-            }else{
-                interceptResult.toFail(InterceptResult.CODE_FAIL, info.getMessage());
             }
         }else{
             interceptResult.toSuccess();

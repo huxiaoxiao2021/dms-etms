@@ -1,15 +1,23 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.preseparate.vo.PsOrderSeparateVo;
-import com.jd.preseparate.vo.external.ExternalOrderDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF;
+import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.preseparate.vo.BaseResponseIncidental;
+import com.jd.preseparate.vo.MediumStationOrderInfo;
+import com.jd.preseparate.vo.OriginalOrderInfo;
+import com.jd.preseparate.vo.PsOrderSeparateVo;
+import com.jd.preseparate.vo.external.ExternalOrderDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * Created by wangtingwei on 2015/10/28.
@@ -22,7 +30,13 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
     @Autowired
     @Qualifier("preseparateOrderService")
     private CommonOrderServiceJSF preseparateOrderService;
-
+	/**
+	 * 中小件-接口调用成功编码-200
+	 */
+	private static final Integer CODE_SUC = 200;
+    @Autowired
+    private PresortMediumStationAPI presortMediumStation;
+    
     @Override
     public Integer getPreseparateSiteId(String waybillCode) throws Exception {
         Integer siteId=null;
@@ -46,4 +60,32 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
         }
         return siteId;
     }
+	/**
+	 * 根据原站点和上传的称重信息获取新预分拣站点
+	 * @param originalOrderInfo 原站点及运单+重量信息
+	 * @return
+	 */
+	@Override
+	public JdResult<BaseResponseIncidental<MediumStationOrderInfo>> getMediumStation(
+			OriginalOrderInfo originalOrderInfo) {
+		JdResult<BaseResponseIncidental<MediumStationOrderInfo>> result = new JdResult<BaseResponseIncidental<MediumStationOrderInfo>>();
+		CallerInfo monitor = Profiler.registerInfo("dmsWeb.jsf.PresortMediumStationAPI.getMediumStation", false, true);
+		try {
+			BaseResponseIncidental<MediumStationOrderInfo> apiResult = presortMediumStation.getMediumStation(originalOrderInfo);
+			if(apiResult != null && CODE_SUC.equals(apiResult.getCode())){
+				result.toSuccess();
+				result.setData(apiResult);
+			}else{
+				logger.warn("中小件-调用外部接口获取预分拣站点数据为空！");
+				result.toFail(JdResult.CODE_FAIL, "中小件-调用外部接口获取预分拣站点数据为空！");
+			}
+        }catch (Throwable throwable){
+        	result.toFail(JdResult.CODE_ERROR, "调用外部接口获取预分拣站点异常:"+throwable.getMessage());
+        	logger.error("中小件-调用JSF-PresortMediumStationAPI.getMediumStation获取预分拣站点异常", throwable);
+			Profiler.functionError(monitor);
+		}finally{
+			Profiler.registerInfoEnd(monitor);
+		}
+		return result;
+	}
 }
