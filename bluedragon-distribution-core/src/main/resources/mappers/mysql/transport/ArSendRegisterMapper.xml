@@ -509,7 +509,8 @@
         <include refid="Base_Column_List"/>
         from ar_send_register
         where
-        <include refid="Base_Condition_Sql"/>
+        transport_name = #{transportName,jdbcType=VARCHAR}
+        and DATE_FORMAT(send_date, '%Y-%m-%d') = DATE_FORMAT(#{sendDate,jdbcType=TIMESTAMP}, '%Y-%m-%d')
         order by create_time desc limit 1
     </select>
 
