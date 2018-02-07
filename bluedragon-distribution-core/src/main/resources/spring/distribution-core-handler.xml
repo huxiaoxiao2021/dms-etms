@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	<!-- 业务指令集配置 -->
+	<bean id="jsonCommandHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping">
+		<property name="handlerMap">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+				<entry key="1001"  value-ref="waybillPrintCommandHandler"/>
+			</map>
+		</property>
+	</bean>
+	<!-- 包裹标签打印-指令处理配置 -->
+	<bean id="waybillPrintCommandHandler" class ="com.jd.bluedragon.distribution.command.WaybillPrintCommandHandler">
+		<property name="jsonOperateHandlerMapping" ref="waybillPrintOperateHandlerMapping"/>
+	</bean>
+	<!-- 包裹标签打印-打印逻辑映射关系配置 -->
+	<bean id="waybillPrintOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
+		<property name="handlerMap">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+				<entry key="100101"  value-ref="platePrint"/>
+				<entry key="100102"  value-ref="sitePlatePrint"/>
+				<entry key="100103"  value-ref="basicPrint"/>
+				<entry key="100104"  value-ref="basicPrint"/>
+				<entry key="100105"  value-ref="basicPrint"/>
+				<entry key="100106"  value-ref="basicPrint"/>
+				<entry key="100107"  value-ref="sitePlatePrint"/>
+			</map>
+		</property>
+	</bean>
+	<!-- 包裹标签打印-通用打印逻辑处理 -->
+	<bean id="basicPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialSiteWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 包裹标签打印-平台打印 -->
+	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialSiteWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 包裹标签打印-站点平台打印 -->
+	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler"/>
+</beans>
