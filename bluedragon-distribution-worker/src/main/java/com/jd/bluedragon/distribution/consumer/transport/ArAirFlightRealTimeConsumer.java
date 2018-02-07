@@ -18,6 +18,8 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
     @Qualifier("arAirWaybillStatusMQ")
     private DefaultJMQProducer defaultJMQProducer;
 
+    @JProfiler(jKey = "DMSCORE.ArAirFlightRealTimeConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -73,9 +76,10 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                         if (sealCarDto != null) {
                             this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
                         } else {
-                            logger.error("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号获取封车信息为空");
+                            logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号获取封车信息为空");
                         }
-                    } catch (Exception e){
+                    } catch (Exception e) {
+                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode.getSendCode() + ")-调用运输接口获取封车信息及发送运单维度MQ给路由时发生异常", e);
                         SystemLogUtil.log(sendCode.getSendCode(), sealCarDto.getTransportCode(), sealCarDto.getSealCarCode(), sendRegister.getId().longValue(),
                                 JsonHelper.toJsonUseGson(sealCarDto), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
                         throw e;
@@ -85,9 +89,8 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                 logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次信息为空");
             }
         } else {
-            logger.error("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFilghtDate()) + ")获取发货登记信息为null");
+            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFilghtDate()) + ")获取发货登记信息为null");
         }
-
     }
 
     /**
