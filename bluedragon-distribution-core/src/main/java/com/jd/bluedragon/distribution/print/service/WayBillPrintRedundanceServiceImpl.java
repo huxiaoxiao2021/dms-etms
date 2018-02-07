@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
@@ -76,6 +77,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Autowired
     @Qualifier("waybillSiteChangeProducer")
     private DefaultJMQProducer waybillSiteChangeProducer;
+    @Autowired
+    @Qualifier("thirdOverRunInterceptHandler")
+    private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     /**
      * 2次预分拣变更提示信息
      */
@@ -108,6 +112,10 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             }else{
                 //调用分拣接口获得基础资料信息
                 context.setWaybill(waybill);
+                InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
+                if(!overRunInterceptResult.isSucceed()){
+                	return overRunInterceptResult;
+                }
                 result = preSortingAgain(context);
                 InterceptResult<String> temp = setBasicMessageByDistribution(context);
                 if(temp.getStatus() > result.getStatus()){
