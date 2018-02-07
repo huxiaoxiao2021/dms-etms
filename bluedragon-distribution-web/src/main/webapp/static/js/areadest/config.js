@@ -55,7 +55,7 @@ function main() {
         }
     });
     // 初始化站点下拉框
-    intSite();
+    // intSite();
     // 初始化分拣中心下拉框
     initDms();
     // 加载跨分拣配置
@@ -91,6 +91,36 @@ function initDms() {
 function clearMultiSelect() {
     $('#multiSelect_from').empty();
     $('#multiSelect_to').empty();
+}
+
+/**
+ * 机构更改触发对应可选站点加载
+ */
+function siteChange(){
+    var optionName=$("#siteDeviceOrg").val();
+    initSiteByOrg(optionName);
+}
+
+function initSiteByOrg(optionName) {
+    var urlOrg = $("#contextPath").val() + "/services/bases/sites/" + optionName;
+    $.getJSON(urlOrg, function (data) {
+        var dmsList = data;
+        if (data == undefined || data == null) {
+            alert("提示:HTTP请求无数据返回！");
+            return;
+        }
+        if (dmsList.length > 0 && dmsList[0].code == 200) {
+            clearMultiSelect();
+            initDmsSelect("destSite", data);
+            loadMultiSelect(data);
+        } else if (dmsList.length > 0 && dmsList[0].code == 404) {
+            jQuery.messager.alert('提示:', '获取分拣中心列表为空！', 'info');
+        } else if (dmsList.length > 0 && dmsList[0].code == 20000) {
+            jQuery.messager.alert('提示:', dmsList[0].message, 'error');
+        } else {
+            jQuery.messager.alert('提示:', '数据异常！', 'error');
+        }
+    });
 }
 
 function intSite() {
@@ -467,7 +497,7 @@ function importExcel() {
             var jsonData = eval(data);
             if (200 == jsonData.code) {
                 //初始化站点下拉框
-                intSite();
+                // intSite();
                 multiDmsLoad(1);
                 directDmsLoad(1);
                 jQuery.messager.alert('提示:', jsonData.message, 'info');
