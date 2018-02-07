@@ -13,15 +13,15 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
 public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(SpecialMarkWaybillHandler.class);
 	@Autowired
-	@Qualifier("specialSiteComposeService")
-	private ComposeService specialSiteComposeService;
+	@Qualifier("specialMarkComposeService")
+	private ComposeService specialMarkComposeService;
 	
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("包裹标签打印-特殊标记合成");
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
-		specialSiteComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
+		specialMarkComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
 		return context.getResult();
 	}
 }
