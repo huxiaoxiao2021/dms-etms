@@ -168,7 +168,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      * @throws JMQException
      */
     private void sendMQ(ArAirWaybillStatus arAirWaybillStatus) throws JMQException {
-        arAirWaybillStatusMQ.send(arAirWaybillStatus.getBatchCode(), JsonHelper.toJson(arAirWaybillStatus));
+        arAirWaybillStatusMQ.send(arAirWaybillStatus.getWayBillCode(), JsonHelper.toJson(arAirWaybillStatus));
     }
 
 }
