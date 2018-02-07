@@ -210,7 +210,7 @@ public class PopPrintResource {
 				if(bDto==null){
 					logger.error("驻厂打印时获取站点为空 站点编号："+popPrintRequest.getOperateSiteCode());
 				}else{
-					if(Integer.valueOf(4).equals(bDto.getSiteType())){
+					if(BusinessHelper.isSiteType(bDto.getSiteType())){
 						//操作站点类型符合 是站点
 						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",new Date(System.currentTimeMillis()-30000L));
 						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",new Date(System.currentTimeMillis()-30000L));

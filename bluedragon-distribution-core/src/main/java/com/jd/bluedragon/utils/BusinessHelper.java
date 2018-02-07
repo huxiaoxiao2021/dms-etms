@@ -510,4 +510,14 @@ public class BusinessHelper {
 				||isSignChar(waybillSign, 1, '6')
 				||isSignChar(waybillSign, 1, 'K'));
 	}
+
+	/**
+	 * 站点类型判断
+	 * @param type
+	 * @return
+	 */
+	public static boolean isSiteType(Integer type){
+		return Integer.valueOf(4).equals(type);
+	}
+
 }
