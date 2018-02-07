@@ -169,6 +169,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      */
     private void sendMQ(ArAirWaybillStatus arAirWaybillStatus) throws JMQException {
         arAirWaybillStatusMQ.send(arAirWaybillStatus.getWayBillCode(), JsonHelper.toJson(arAirWaybillStatus));
+        logger.info("[空铁项目]消费航班起飞降落实时MQ-发送运单维度消息成功，消息体：" + JsonHelper.toJson(arAirWaybillStatus));
     }
 
 }
