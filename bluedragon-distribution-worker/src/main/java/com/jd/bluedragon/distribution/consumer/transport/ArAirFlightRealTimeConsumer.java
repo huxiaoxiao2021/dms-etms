@@ -55,7 +55,8 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
     private SendDatailDao sendDetailDao;
 
     @Qualifier("arAirWaybillStatusMQ")
-    private DefaultJMQProducer defaultJMQProducer;
+    @Autowired
+    private DefaultJMQProducer arAirWaybillStatusMQ;
 
     @JProfiler(jKey = "DMSCORE.ArAirFlightRealTimeConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -82,7 +83,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                     }
                 }
             } else {
-                logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次信息为空");
+                logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次号列表为空或null");
             }
         } else {
             logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFilghtDate()) + ")获取发货登记信息为null");
@@ -127,7 +128,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             /* 发车条码 */
             airWaybillStatus.setSendCarCode(sealCarDto.getSealCarCode());
         } else {
-            logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号获取封车信息为空");
+            logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号(" + sendCode + ")获取封车信息为null");
         }
 
         String[] waybillArray = this.getWaybillBySendCode(sendCode);
@@ -167,7 +168,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      * @throws JMQException
      */
     private void sendMQ(ArAirWaybillStatus arAirWaybillStatus) throws JMQException {
-        defaultJMQProducer.send(arAirWaybillStatus.getBatchCode(), JsonHelper.toJson(arAirWaybillStatus));
+        arAirWaybillStatusMQ.send(arAirWaybillStatus.getBatchCode(), JsonHelper.toJson(arAirWaybillStatus));
     }
 
 }
