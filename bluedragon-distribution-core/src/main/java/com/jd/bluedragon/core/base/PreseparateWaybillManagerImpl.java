@@ -66,12 +66,13 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 	 * @return
 	 */
 	@Override
-	public JdResult<BaseResponseIncidental<MediumStationOrderInfo>> getMediumStation(
-			OriginalOrderInfo originalOrderInfo) {
+	public JdResult<BaseResponseIncidental<MediumStationOrderInfo>> getMediumStation(OriginalOrderInfo originalOrderInfo) {
 		JdResult<BaseResponseIncidental<MediumStationOrderInfo>> result = new JdResult<BaseResponseIncidental<MediumStationOrderInfo>>();
 		CallerInfo monitor = Profiler.registerInfo("dmsWeb.jsf.PresortMediumStationAPI.getMediumStation", false, true);
 		try {
+			logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
 			BaseResponseIncidental<MediumStationOrderInfo> apiResult = presortMediumStation.getMediumStation(originalOrderInfo);
+            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(apiResult));
 			if(apiResult != null && CODE_SUC.equals(apiResult.getCode())){
 				result.toSuccess();
 				result.setData(apiResult);

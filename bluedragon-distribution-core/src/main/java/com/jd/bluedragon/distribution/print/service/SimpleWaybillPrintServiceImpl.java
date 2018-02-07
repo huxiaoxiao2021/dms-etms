@@ -453,7 +453,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
-                interceptResult.toError(InterceptResult.CODE_ERROR, "加载运单基础数据为空！");
+                interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
             }
         }catch (Exception ex){
             logger.error("标签打印接口异常",ex);
@@ -478,7 +478,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                     context.setBigWaybillDto(bigWaybillDto);
                 }
             }
-//            BigWaybillDto waybillDto = waybillQueryManager.getReturnWaybillByOldWaybillCode(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
             if (bigWaybillDto != null) {
                 Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
                 for(PrintPackage pack : commonWaybill.getPackList()){

@@ -66,7 +66,8 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     public InterceptResult<String> preSortingAgain(WaybillPrintContext context, PrintWaybill commonWaybill){
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         //如果预分拣站点为0超区或者999999999EMS全国直发，则无法触发二次预分拣
-        if(null!=commonWaybill.getPrepareSiteCode()&&(ComposeService.PREPARE_SITE_CODE_NOTHING.equals(commonWaybill.getPrepareSiteCode())
+        if(null==commonWaybill.getPrepareSiteCode()
+                ||(ComposeService.PREPARE_SITE_CODE_NOTHING.equals(commonWaybill.getPrepareSiteCode())
                 || ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(commonWaybill.getPrepareSiteCode()))){
             interceptResult.toSuccess();
             return interceptResult;
@@ -90,9 +91,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
             //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
             originalOrderInfo.setSystemCode("DMS");
-            logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
             JdResult<BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo = preseparateWaybillManager.getMediumStation(originalOrderInfo);
-            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(mediumStationOrderInfo));
             //接口调用失败/返回站点为空，直接通过不强制拦截
             if(!mediumStationOrderInfo.isSucceed()
             		|| mediumStationOrderInfo.getData() == null
@@ -100,7 +99,6 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
                 interceptResult.toSuccess();
                 return interceptResult;
             }
-            PrintPackage pack = new PrintPackage();
             MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
             //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
             if(newPreSiteInfo.getMediumStationId()!=null
