@@ -34,4 +34,12 @@ public interface BaseMinorManager {
     
     public BasePdaUserDto pdaUserLogin(String erpcode, String password);
 
+	/**
+	 * 根据站点code查找三方承运超限指标
+	 *
+	 * @param siteCode 站点编码
+	 * @return
+	 */
+	BaseSiteGoods getGoodsVolumeLimitBySiteCode(Integer siteCode);
+
 }

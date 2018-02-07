@@ -102,4 +102,17 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	public String getChangeWaybillCode(String oldWaybillCode);
+
+	/**
+	 * 根据旧运单号获取新运单信息
+	 *
+	 * @param waybillCode 运单号
+	 * @param queryC 获取的运单信息中是否包含waybillC数据
+	 * @param queryE 获取的运单信息中是否包含waybillE数据
+	 * @param queryM 获取的运单信息中是否包含waybillM数据
+	 * @param queryPackList 获取的运单信息中是否包含PackList数据
+	 * @return
+	 */
+	BigWaybillDto getReturnWaybillByOldWaybillCode(String waybillCode, boolean queryC, boolean queryE, boolean queryM, boolean queryPackList);
+
 }

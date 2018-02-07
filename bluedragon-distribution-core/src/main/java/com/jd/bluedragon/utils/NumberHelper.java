@@ -72,4 +72,28 @@ public class NumberHelper {
         }
         return false;
     }
+    /**
+     * 返回结果a是否大于b,返回 a>b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean gt(Number a,Number b) {
+        if (a != null && b != null) {
+            return a.doubleValue() > b.doubleValue();
+        }
+        return false;
+    }
+    /**
+     * 返回结果a是否大于b,返回 a<b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean lt(Number a,Number b) {
+    	if (a != null && b != null) {
+            return a.doubleValue() < b.doubleValue();
+        }
+        return false;
+    }
 }

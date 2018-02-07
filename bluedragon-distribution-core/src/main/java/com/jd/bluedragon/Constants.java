@@ -1,6 +1,7 @@
 package com.jd.bluedragon;
 
 import com.jd.bluedragon.utils.LogHelper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 
@@ -432,4 +433,16 @@ public class Constants {
     public static final Integer SEAL_TYPE_TRANSPORT = 10;    //按运力封车
     public static final Integer SEAL_TYPE_TASK = 20;   //按任务封车
     /******************************************** 封车类型相关end *****************************************/
+    /**
+     * 第三方站点
+     */
+    public static final Integer THIRD_SITE_TYPE = 16;
+    /**
+     * 第三方站点-二级类型
+     */
+    public static final Integer THIRD_SITE_SUB_TYPE = 16;
+    /**
+     * 包裹重量体积的默认值0
+     */
+    public static final Double DOUBLE_ZERO = 0.0;
 }

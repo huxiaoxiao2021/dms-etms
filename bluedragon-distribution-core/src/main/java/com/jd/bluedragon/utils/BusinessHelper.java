@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 
 public class BusinessHelper {
@@ -529,4 +530,37 @@ public class BusinessHelper {
 		return Integer.valueOf(4).equals(type);
 	}
 
+    /**
+     * 判断是否上传了体积或者重量(重量不为0 或者 长宽高都不为0)
+     * @param context 请求上下文
+     * @return 是否上传体积或重量
+     */
+    public static boolean hasWeightOrVolume(WaybillPrintRequest waybillPrintRequest){
+    	if(waybillPrintRequest.getWeightOperFlow()==null){
+    		return false;
+    	}
+        if(!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getWeight()) 
+        	||(!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getWidth())
+        		&&!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getLength())
+        		&&!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getHigh()))){
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 将体积装换为3个长度值
+     * @param volumeFormula 体积值 长*宽*高
+     * @return 空字符串，返回空
+     */
+    public static double[] convertVolumeFormula(String volumeFormula) {
+    	if(StringHelper.isEmpty(volumeFormula)){
+    		return null;
+    	}
+    	double[] volumeArray = new double[3];
+        String[] volumes = volumeFormula.split("/*");
+        if (volumes.length == 3) {
+        	volumeArray = ArraysUtil.getOrderArray(volumes);
+        }
+        return volumeArray;
+    }
 }
