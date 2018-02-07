@@ -73,15 +73,14 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                     SealCarDto sealCarDto = new SealCarDto();
                     try {
                         sealCarDto = vosManager.querySealCarByBatchCode(sendCode.getSendCode());
-                        if (sealCarDto != null) {
-                            this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
-                        } else {
+                        if (sealCarDto == null) {
                             logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号获取封车信息为空");
                         }
+                        this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
                     } catch (Exception e) {
-                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode.getSendCode() + ")-调用运输接口获取封车信息及发送运单维度MQ给路由时发生异常", e);
-                        SystemLogUtil.log(sendCode.getSendCode(), sealCarDto.getTransportCode(), sealCarDto.getSealCarCode(), sendRegister.getId().longValue(),
-                                JsonHelper.toJsonUseGson(sealCarDto), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
+                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode.getSendCode() + ")-根据批次号封装运单维度消息体并发送给路由时发生异常", e);
+                        SystemLogUtil.log(sendCode.getSendCode(), realTimeStatus.getFlightNumber(), sealCarDto.getTransportCode(), sendRegister.getId().longValue(),
+                                JsonHelper.toJsonUseGson(realTimeStatus), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
                         throw e;
                     }
                 }
@@ -109,8 +108,6 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         airWaybillStatus.setStatus(realTimeStatus.getStatus());
         /* 实际时间 起飞/降落时间 */
         airWaybillStatus.setRealTime(realTimeStatus.getRealTime());
-        /* 发车条码 */
-        airWaybillStatus.setSendCarCode(sealCarDto.getSealCarCode());
         /* 批次号 */
         airWaybillStatus.setBatchCode(sendCode);
         /* 始发机场编码 */
@@ -127,8 +124,13 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         airWaybillStatus.setTouchDownTime(realTimeStatus.getTouchDownTime());
         /* 是否延误 */
         airWaybillStatus.setDelayFlag(realTimeStatus.getDelayFlag());
-        /* 运力编码 */
-        airWaybillStatus.setTransportCode(sealCarDto.getTransportCode());
+        if (sealCarDto != null) {
+            /* 运力编码 */
+            airWaybillStatus.setTransportCode(sealCarDto.getTransportCode());
+            /* 发车条码 */
+            airWaybillStatus.setSendCarCode(sealCarDto.getSealCarCode());
+        }
+
         String[] waybillArray = this.getWaybillBySendCode(sendCode);
         if (waybillArray != null && waybillArray.length > 0) {
             for (int i = 0, len = waybillArray.length; i < len; i++) {
