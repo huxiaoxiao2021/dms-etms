@@ -1,25 +1,9 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
@@ -32,30 +16,25 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.jmq.common.exception.JMQException;
-import com.jd.preseparate.vo.BaseResponseIncidental;
-import com.jd.preseparate.vo.MediumStationOrderInfo;
-import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -65,9 +44,6 @@ import java.util.*;
 public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     private static final Log logger= LogFactory.getLog(SimpleWaybillPrintServiceImpl.class);
-
-    @Autowired
-    private WaybillQueryApi waybillQueryApi;
 
     @Autowired
     private PopPrintService popPrintService;
@@ -207,9 +183,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             //设置运单打印时间，取后台服务器时间
             String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             commonWaybill.setPrintTime(printTime);
-
-            com.jd.etms.waybill.domain.Waybill tmsWaybill=baseEntity.getData().getWaybill();
-            WaybillManageDomain tmsWaybillManageDomain=baseEntity.getData().getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
