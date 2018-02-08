@@ -129,7 +129,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
                         if (commonDto != null) {
                             if (commonDto.getCode() != 1) {
-                                logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：" + commonDto.getCode() + "][消息：" + commonDto.getMessage() + "]！");
+                                logger.warn("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：" + commonDto.getCode() + "][消息：" + commonDto.getMessage() + "]！");
                             }
                         }
                     } catch (Exception e) {
@@ -211,14 +211,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryStartCityInfo();
         List<City> cities = new ArrayList<City>();
         if (arSendRegisters == null) {
-            logger.error("从发货登记表找查询到的始发城市信息为空！");
+            logger.warn("从发货登记表找查询到的始发城市信息为空！");
             return null;
         }
 
         for (ArSendRegister arSendRegister : arSendRegisters) {
             //如果城市的id和name有一个为空，则无法对应，直接舍弃该条记录
             if (arSendRegister.getStartCityId() == null || StringHelper.isEmpty(arSendRegister.getStartCityName())) {
-                logger.error("发货登记表中的始发城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getStartCityId() +
+                logger.warn("发货登记表中的始发城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getStartCityId() +
                         "，城市名称：" + arSendRegister.getStartCityName());
                 continue;
             }
@@ -238,14 +238,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryEndCityInfo();
         List<City> cities = new ArrayList<City>();
         if (arSendRegisters == null) {
-            logger.error("从发货登记表找查询到的目的城市信息为空！");
+            logger.warn("从发货登记表找查询到的目的城市信息为空！");
             return null;
         }
 
         for (ArSendRegister arSendRegister : arSendRegisters) {
             //如果城市的id和name有一个为空，则无法对应，直接舍弃该条记录
             if (arSendRegister.getEndCityId() == null || StringHelper.isEmpty(arSendRegister.getEndCityName())) {
-                logger.error("发货登记表中的目的城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getEndCityId() +
+                logger.warn("发货登记表中的目的城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getEndCityId() +
                         "，城市名称：" + arSendRegister.getEndCityName());
                 continue;
             }
@@ -414,7 +414,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     return calendar.getTime();
                 }
             }
-            logger.error("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
+            logger.warn("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
         }
         return null;
     }
@@ -429,7 +429,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             if (dateStr.indexOf(DATE_SEPARATOR) > 0) {
                 return DateHelper.parseDate(dateStr, "yyyy-MM-dd");
             }
-            logger.error("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
+            logger.warn("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
         }
         return null;
     }
@@ -444,7 +444,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         try {
             BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(arSendRegister.getOperationDeptCode());
             if (siteDto == null) {
-                logger.error("[运输类型=" + ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())
+                logger.warn("[运输类型=" + ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())
                         + "][运力名称=" + arSendRegister.getTransportName() + "][航空单号=" + arSendRegister.getOrderCode()
                         + "][铁路站序=" + arSendRegister.getSiteOrder() + "]根据[siteCode=" + arSendRegister.getOperationDeptCode()
                         + "]获取基础资料站点信息[getBaseSiteBySiteId]返回null,[空铁发货登记]不能回传全程跟踪");

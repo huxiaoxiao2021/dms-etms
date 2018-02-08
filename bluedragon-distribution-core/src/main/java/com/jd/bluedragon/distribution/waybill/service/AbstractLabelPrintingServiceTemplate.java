@@ -167,7 +167,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
 
         if(crossPackageTag==null){
-            log.error(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
             if(StringHelper.isEmpty(labelPrinting.getPrepareSiteName())){
                 labelPrinting.setPrepareSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
             }
@@ -262,13 +262,13 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         wchoice.setQueryWaybillE(true);
         BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
         if(entity==null || entity.getData()==null){
-            log.error(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
             return null;
         }
 
         Waybill waybill = entity.getData().getWaybill();
         if(waybill==null){
-            log.error(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
             return null;
         }
         if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED == context.getStatus()){//二次预分拣时重置目的站点和路区
@@ -296,17 +296,17 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         if (LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA.equals(labelPrinting.getPrepareSiteCode())) {
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
-            log.error(LOG_PREFIX+" 没有获取预分拣站点(-2超区),"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(-2超区),"+request.getWaybillCode());
             //未定位门店
         } else if(labelPrinting.getPrepareSiteCode()==null || (labelPrinting.getPrepareSiteCode()<=LabelPrintingService.PREPARE_SITE_CODE_NOTHING && labelPrinting.getPrepareSiteCode() > LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE)){
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_NOTHING);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_NOTHING);
-            log.error(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
         } else if(labelPrinting.getPrepareSiteCode() !=null && labelPrinting.getPrepareSiteCode().intValue() < LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
             labelPrinting.setPrepareSiteCode(labelPrinting.getPrepareSiteCode());
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
-            log.error(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());
         }
 
         //EMS全国直发

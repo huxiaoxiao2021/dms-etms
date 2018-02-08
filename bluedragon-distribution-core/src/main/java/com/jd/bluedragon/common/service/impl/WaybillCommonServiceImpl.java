@@ -108,7 +108,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
                 if (Waybill.isInvalidWaybill(waybill)) {
-                    this.logger.error("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
+                    this.logger.warn("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
                     return null;
                 }
             }
@@ -136,7 +136,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
                 if (Waybill.isInvalidWaybill(waybill)) {
-                    this.logger.error("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
+                    this.logger.warn("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
                     return null;
                 }
             }
@@ -190,11 +190,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMSWEB.WaybillCommonServiceImpl.getWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
-            this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
+            this.logger.warn("通过运单号调用非运单接口获取运单数据，传入参数为空");
             return null;
         }
         if (!StringUtils.isNumeric(waybillCode.trim())) {
-            this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为非数字,立即返回NULL");
+            this.logger.warn("通过运单号调用非运单接口获取运单数据，传入参数为非数字,立即返回NULL");
             return null;
         }
         this.logger.info("通过运单号调用非运单接口获取运单数据，调用运单中间件开始");
@@ -206,7 +206,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     + waybill.getType() + "】");
             waybill.setProList(products);
         } else {
-            this.logger.error("通过运单号调用非运单接口获取运单数据，调用运单中间件结束，运单为空");
+            this.logger.warn("通过运单号调用非运单接口获取运单数据，调用运单中间件结束，运单为空");
         }
         return waybill;
     }
@@ -214,7 +214,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMSWEB.WaybillCommonServiceImpl.getHisWaybillFromOrderService", mState = {JProEnum.TP})
     public Waybill getHisWaybillFromOrderService(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
-            this.logger.error("通过运单号调用非运单接口获取运单数据，传入参数为空");
+            this.logger.warn("通过运单号调用非运单接口获取运单数据，传入参数为空");
             return null;
         }
 
@@ -232,7 +232,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     + waybill.getType() + "】");
             waybill.setProList(products);
         } else {
-            this.logger.error("通过运单号调用非运单接口获取运单数据，调用运单中间件结束，运单为空");
+            this.logger.warn("通过运单号调用非运单接口获取运单数据，调用运单中间件结束，运单为空");
         }
         return waybill;
     }
@@ -295,7 +295,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if (isSetPack) {
             List<DeliveryPackageD> ds = bigWaybillDto.getPackageList();
             if (ds == null || ds.size() <= 0) {
-                this.logger.error("转换包裹信息 --> 运单号【" + waybill.getWaybillCode() + "】,原始运单数据集bigWaybillDto为空或size为空");
+                this.logger.warn("转换包裹信息 --> 运单号【" + waybill.getWaybillCode() + "】,原始运单数据集bigWaybillDto为空或size为空");
             } else {
                 // 转换包裹信息
                 this.logger.debug("转换包裹信息 --> 运单号：" + waybill.getWaybillCode()
@@ -321,7 +321,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     }
                     waybill.setPackList(packList);
                 } else {
-                    this.logger.error("转换包裹信息【运单返回】 --> 运单号："
+                    this.logger.warn("转换包裹信息【运单返回】 --> 运单号："
                             + waybill.getWaybillCode() + ", 包裹数量为:" + ds.size());
                 }
             }
