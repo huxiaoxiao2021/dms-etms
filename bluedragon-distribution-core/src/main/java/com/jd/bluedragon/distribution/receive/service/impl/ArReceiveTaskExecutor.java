@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -78,12 +79,13 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		arReceive.setSealBoxCode(arReceiveRequest.getSealBoxCode());
 		arReceive.setReceiveType(arReceiveRequest.getBusinessType().shortValue());
 		arReceive.setCreateSiteCode(arReceiveRequest.getSiteCode());
-		arReceive.setCreateTime(DateHelper.getSeverTime(arReceiveRequest
-				.getOperateTime()));
+		Date operateTime = DateHelper.getSeverTime(arReceiveRequest
+				.getOperateTime());
+		arReceive.setCreateTime(operateTime);
 		arReceive.setCreateUser(arReceiveRequest.getUserName());
 		arReceive.setCreateUserCode(arReceiveRequest.getUserCode());
-		arReceive.setUpdateTime(DateHelper.getSeverTime(arReceiveRequest
-				.getOperateTime()));
+		arReceive.setUpdateTime(operateTime);
+		arReceive.setOperateTime(operateTime);
 		arReceive.setCreateSiteName(arReceiveRequest.getSiteName());
 		arReceive.setTurnoverBoxCode(arReceiveRequest.getTurnoverBoxCode());
 		arReceive.setQueueNo(arReceiveRequest.getQueueNo());

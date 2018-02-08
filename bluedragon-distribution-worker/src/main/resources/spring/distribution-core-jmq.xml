@@ -220,6 +220,13 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
+    <bean id="arAirWaybillStatusMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_ar_air_waybill_status"/>
+        <property name="timeout" value="1000"/>
+        <!--已修改主题-->
+    </bean>
+
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
     <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="dms_waybill_weight"/>
@@ -238,5 +245,9 @@
     <!--解封车mq-->
     <bean id="unsealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.unsealCar}"/>
+    </bean>
+    <!--纯外单 中小件 二次预分拣MQ 发送给运单系统 added by shipeilin-->
+    <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
     </bean>
 </beans>

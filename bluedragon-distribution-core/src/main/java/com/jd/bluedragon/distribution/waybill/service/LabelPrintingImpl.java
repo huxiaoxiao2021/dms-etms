@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
@@ -38,6 +39,23 @@ public class  LabelPrintingImpl implements LabelPrinting {
             }
             log.info(new StringBuilder(LOG_PREFIX).append("分拣中心打印，参数").append(request.toString()).toString());
             return dmsLablePrintingService.packageLabelPrint(request);
+        } catch (Exception e) {
+            log.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息："+e.getMessage(), e);
+            return new BaseResponseIncidental<LabelPrintingResponse>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+    /**
+     * 分拣中心打印接口,有二次预分拣逻辑（旧的保留不变）
+     */
+    @Override
+    public BaseResponseIncidental<LabelPrintingResponse> dmsPrint(LabelPrintingRequest request, WaybillPrintContext context) {
+        try {
+            if(request==null){
+                log.error(LOG_PREFIX+"分拣中心打印，参数为空");
+                return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
+            }
+            log.info(new StringBuilder(LOG_PREFIX).append("分拣中心打印，参数").append(request.toString()).toString());
+            return dmsLablePrintingService.packageLabelPrint(request, context);
         } catch (Exception e) {
             log.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息："+e.getMessage(), e);
             return new BaseResponseIncidental<LabelPrintingResponse>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);

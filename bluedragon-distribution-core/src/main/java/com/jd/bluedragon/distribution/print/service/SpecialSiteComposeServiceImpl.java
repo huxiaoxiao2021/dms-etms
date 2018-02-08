@@ -3,13 +3,16 @@ package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by wangtingwei on 2015/12/24.
  */
+@Service("specialSiteComposeService")
 public class SpecialSiteComposeServiceImpl implements ComposeService {
 
     private static final Log logger = LogFactory.getLog(SpecialSiteComposeServiceImpl.class);

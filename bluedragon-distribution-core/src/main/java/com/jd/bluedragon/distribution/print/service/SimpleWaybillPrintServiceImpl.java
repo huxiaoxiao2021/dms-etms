@@ -1,42 +1,41 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.urban.domain.TransbillM;
-import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -45,9 +44,6 @@ import com.jd.ql.basic.ws.BasicSecondaryWS;
 public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     private static final Log logger= LogFactory.getLog(SimpleWaybillPrintServiceImpl.class);
-
-    @Autowired
-    private WaybillQueryApi waybillQueryApi;
 
     @Autowired
     private PopPrintService popPrintService;
@@ -63,8 +59,15 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private TransbillMService transbillMService;
+
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private PreSortingSecondService preSortingSecondService;
 
     private List<ComposeService> composeServiceList;
     /**
@@ -133,18 +136,27 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
-    @Override
-    public InvokeResult<PrintWaybill> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
-        InvokeResult<PrintWaybill> result=new InvokeResult<PrintWaybill>();
+
+    @Override
+    public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
+
+        InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
         try {
-            loadWaybillInfo(result, dmsCode, waybillCode, targetSiteCode);
-            if (null != result.getData()) {
-                loadPrintedData(result.getData());
-                loadBasicData(result.getData());
-                for (ComposeService service : composeServiceList) {
-                    service.handle(result.getData(), dmsCode, targetSiteCode);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                loadWaybillInfo(result,baseEntity.getData(), dmsCode, targetSiteCode);
+                if (null != result.getData()) {
+                    loadPrintedData(result.getData());
+                    loadBasicData(result.getData());
+                    for (ComposeService service : composeServiceList) {
+                        service.handle(result.getData(), dmsCode, targetSiteCode);
+                    }
                 }
+            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
+                result.error(baseEntity.getMessage());
+            }else{
+                result.error("查询运单信息为空");
             }
         }catch (Exception ex){
             logger.error("标签打印接口异常",ex);
@@ -157,32 +169,20 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 加载运单基础数据
      * @param result
      * @param dmsCode
-     * @param waybillCode
+     * @param bigWaybillDto
      * @param targetSiteCode
      */
-    private final void loadWaybillInfo(final InvokeResult<PrintWaybill> result,Integer dmsCode,String waybillCode,Integer targetSiteCode){
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryPackList(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
-        if(logger.isDebugEnabled()){
-            logger.debug("获取运单信息为"+ JsonHelper.toJson(baseEntity));
-        }
-        if (baseEntity != null
-                && baseEntity.getData() != null
-                &&null!=baseEntity.getData().getWaybill()) {
+    private final void loadWaybillInfo(final InvokeResult<WaybillPrintResponse> result,BigWaybillDto bigWaybillDto, Integer dmsCode,Integer targetSiteCode){
+        if (null!=bigWaybillDto.getWaybill()) {
             if(null==result.getData()){
-                result.setData(new PrintWaybill());
+                result.setData(new WaybillPrintResponse());
             }
             PrintWaybill commonWaybill=result.getData();
+            com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
+            WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
             //设置运单打印时间，取后台服务器时间
             String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             commonWaybill.setPrintTime(printTime);
-
-            com.jd.etms.waybill.domain.Waybill tmsWaybill=baseEntity.getData().getWaybill();
-            WaybillManageDomain tmsWaybillManageDomain=baseEntity.getData().getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
@@ -307,9 +307,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
-            if(null!=baseEntity.getData().getPackageList()){
-                List<PrintPackage> packageList=new ArrayList<PrintPackage>(baseEntity.getData().getPackageList().size());{
-                    for (DeliveryPackageD item:baseEntity.getData().getPackageList()){
+            if(null!=bigWaybillDto.getPackageList()){
+                List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
+                    for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
                         PrintPackage pack=new PrintPackage();
                         pack.setPackageCode(item.getPackageBarcode());
                         pack.setWeight(item.getGoodWeight());
@@ -425,5 +425,80 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     public void setComposeServiceList(List<ComposeService> composeServiceList) {
         this.composeServiceList = composeServiceList;
+    }
+
+	@Override
+	public InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context) {
+		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
+        InterceptResult<String> interceptResult = new InterceptResult<String>();
+        String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
+        try {
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                context.setBigWaybillDto(baseEntity.getData());
+                loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
+                if (null != result.getData()) {
+                    interceptResult = preSortingSecondService.preSortingAgain(context, result.getData());//处理是否触发2次预分拣
+                    loadWaybillPackageWeight(context, result.getData());
+                    loadPrintedData(result.getData());
+                    loadBasicData(result.getData());
+                    context.setResponse(result.getData());
+                }
+            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
+                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
+            }else{
+                interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
+            }
+        }catch (Exception ex){
+            logger.error("标签打印接口异常",ex);
+            interceptResult.toError();
+        }
+        return interceptResult;
+	}
+
+    /**
+     * 逆向换单设置终端重量
+     * @param context
+     * @param commonWaybill
+     */
+    private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
+        if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
+            String packageCode = context.getRequest().getBarCode();
+            BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
+            if(bigWaybillDto == null){
+                BaseEntity<BigWaybillDto> baseEntity  = waybillQueryManager.getDataByChoice(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
+                if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+                    bigWaybillDto = baseEntity.getData();
+                    context.setBigWaybillDto(bigWaybillDto);
+                }
+            }
+            if (bigWaybillDto != null) {
+                Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
+                for(PrintPackage pack : commonWaybill.getPackList()){
+                    DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
+                    if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getAgainWeight())){
+                        pack.setWeight(deliveryPackageD.getAgainWeight());
+                    }else if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getGoodWeight())){
+                        pack.setWeight(deliveryPackageD.getGoodWeight());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取终端重量的map
+     * @param packageDList
+     * @return
+     */
+    private Map<String, DeliveryPackageD> getAgainWeightMap(List<DeliveryPackageD> packageDList) {
+        Map<String, DeliveryPackageD> result = null;
+        if (packageDList != null && packageDList.size() > 0) {
+            result = new HashMap<String, DeliveryPackageD>(packageDList.size());
+            for (DeliveryPackageD deliveryPackageD : packageDList) {
+                result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD);
+            }
+        }
+        return result;
     }
 }
