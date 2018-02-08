@@ -120,4 +120,13 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
      */
    Date getPlanDate(Date sendDate, String time, Integer aging);
 
+    /**
+     * 根据航班号、飞行日期获取发货登记信息
+     *
+     * @param flightNumber
+     * @param flightDate
+     * @return
+     */
+   ArSendRegister getByFlightInfo(String flightNumber, Date flightDate);
+
 }
