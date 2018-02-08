@@ -558,7 +558,7 @@ public class BusinessHelper {
     		return null;
     	}
     	double[] volumeArray = new double[3];
-        String[] volumes = volumeFormula.split("/*");
+        String[] volumes = volumeFormula.split("\\*");
         if (volumes.length == 3) {
         	volumeArray = ArraysUtil.getOrderArray(volumes);
         }

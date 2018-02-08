@@ -127,11 +127,13 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 	 * @return
 	 */
 	private BaseStaffSiteOrgDto getPrepareSiteInfo(WaybillPrintContext context){
-		Integer prepareSiteCode = context.getResponse().getPrepareSiteCode();
+		Integer prepareSiteCode = null;
 		//站点平台打印/批量分拣称重
 		if(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(context.getRequest().getOperateType())
 				||WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT_TYPE.equals(context.getRequest().getOperateType())){
 			prepareSiteCode = context.getWaybill().getSiteCode();
+		}else{
+			prepareSiteCode = context.getResponse().getPrepareSiteCode();
 		}
 		BaseStaffSiteOrgDto prepareSiteInfo= baseService.getSiteBySiteID(prepareSiteCode);
         return prepareSiteInfo;

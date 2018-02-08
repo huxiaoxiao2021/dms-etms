@@ -434,15 +434,15 @@ public class Constants {
     public static final Integer SEAL_TYPE_TASK = 20;   //按任务封车
     /******************************************** 封车类型相关end *****************************************/
     /**
-     * 第三方站点
+     * 第三方配送站点-16
      */
     public static final Integer THIRD_SITE_TYPE = 16;
     /**
-     * 第三方站点-二级类型
+     * 第三方配送站点-二级类型-16
      */
     public static final Integer THIRD_SITE_SUB_TYPE = 16;
     /**
-     * 包裹重量体积的默认值0
+     * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
 }

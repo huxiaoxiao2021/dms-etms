@@ -118,8 +118,6 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderByName", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BasicTraderInfoDTO> getBaseTraderByName(String name) {
-		// TODO Auto-generated method stub
-//		return basicSecondaryWS.getBaseTraderByName(name);
 		ResponseDTO<List<BasicTraderInfoDTO>> responseDTO =  basicTraderAPI.getBaseTraderByName(name);
 		if(responseDTO == null){
 			return Collections.emptyList();

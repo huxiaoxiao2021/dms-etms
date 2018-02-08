@@ -17,6 +17,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -40,6 +41,8 @@ import com.jd.bluedragon.utils.LableType;
 import com.jd.bluedragon.utils.OriginalType;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
@@ -72,6 +75,10 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+    
 
     /* MQ消息生产者： topic:bd_waybill_original_site_change*/
     @Autowired
@@ -105,18 +112,18 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
         String waybillCode = BusinessHelper.getWaybillCode(waybillCodeOrPackage);
         // 调用服务
         try {
-            Waybill waybill = findWaybillMessage(waybillCode,packOpeFlowFlg);
+            Waybill waybill = loadBasicWaybillInfo(context,waybillCode,packOpeFlowFlg);
             if (waybill == null) {
                 logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功, 无数据");
                 result.toError(JdResponse.CODE_OK_NULL, JdResponse.MESSAGE_OK_NULL);
             }else{
                 //调用分拣接口获得基础资料信息
                 context.setWaybill(waybill);
+                result = preSortingAgain(context);
                 InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
                 if(!overRunInterceptResult.isSucceed()){
                 	return overRunInterceptResult;
                 }
-                result = preSortingAgain(context);
                 InterceptResult<String> temp = setBasicMessageByDistribution(context);
                 if(temp.getStatus() > result.getStatus()){
                     result = temp;
@@ -136,8 +143,15 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
      * @param packOpeFlowFlg 是否获取称重信息
      * @return 运单实体
      */
-    private Waybill findWaybillMessage(String waybillCode,Integer packOpeFlowFlg) {
-        Waybill waybill = this.waybillCommonService.findWaybillAndPack(waybillCode);
+    private Waybill loadBasicWaybillInfo(WaybillPrintContext context,String waybillCode,Integer packOpeFlowFlg) {
+    	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+    	if (baseEntity == null 
+    			||baseEntity.getResultCode() != 1
+    			||baseEntity.getData()==null) {
+    		return null;
+    	}
+    	context.setBigWaybillDto(baseEntity.getData());
+    	Waybill waybill = this.waybillCommonService.convWaybillWS(baseEntity.getData(), true, true);
         if (waybill == null) {
             return waybill;
         }
