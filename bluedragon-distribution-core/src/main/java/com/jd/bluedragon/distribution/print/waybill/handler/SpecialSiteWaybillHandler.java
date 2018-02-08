@@ -22,15 +22,15 @@ public class SpecialSiteWaybillHandler implements Handler<WaybillPrintContext,Jd
 	private static final Log logger= LogFactory.getLog(SpecialSiteWaybillHandler.class);
 	
 	@Autowired
-	@Qualifier("scheduleComposeService")
-	private ComposeService scheduleComposeService;
+	@Qualifier("specialSiteComposeService")
+	private ComposeService specialSiteComposeService;
 	
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("包裹标签打印-站点名称显示处理");
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
-		scheduleComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
+		specialSiteComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
 		return context.getResult();
 	}
 }

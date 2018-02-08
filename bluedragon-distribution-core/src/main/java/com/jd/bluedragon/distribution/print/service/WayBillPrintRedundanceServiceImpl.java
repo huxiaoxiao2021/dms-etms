@@ -351,7 +351,10 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             interceptResult.toSuccess();
             return interceptResult;
         }
-        int size = waybill.getPackList().size();
+        int size = 0;
+        if(waybill.getPackList() != null){
+        	size = waybill.getPackList().size();
+        }
         if(Integer.valueOf(0).equals(context.getRequest().getTargetSiteCode()) && size == 1 && BusinessHelper.isExternal(waybill.getWaybillSign()) && hasWeightOrVolume(context)){    //一单一件 纯外单 上传了新的体积或重量
             OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
             originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());
