@@ -66,4 +66,7 @@
 	</bean>
 	<!-- 包裹标签打印-站点平台打印 -->
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler"/>
+	<bean id="thirdOverRunInterceptHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.ThirdOverRunInterceptHandler">
+		<property name="open" value="${beans.thirdOverRunInterceptHandler.open}"/>
+	</bean>
 </beans>

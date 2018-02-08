@@ -39,7 +39,11 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
     @Autowired
     private BaseService baseService;
     @Autowired
-    private SiteService siteService;    
+    private SiteService siteService;
+    /**
+     * 三方超限拦截开关-默认为true
+     */
+    private boolean open = true;
     
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -47,9 +51,7 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 		//校验是否打开
 			//获取预分拣站点，校验是三方站点才走拦截
 			BaseStaffSiteOrgDto prepareSiteInfo = getPrepareSiteInfo(context);
-			if(prepareSiteInfo!=null
-				&&Constants.THIRD_SITE_TYPE.equals(prepareSiteInfo.getSiteType())
-				&&Constants.THIRD_SITE_SUB_TYPE.equals(prepareSiteInfo.getSubType())){
+			if(open && BusinessHelper.isThirdSite(prepareSiteInfo)){
 				String barCode = context.getRequest().getBarCode();
 				WeightOperFlow weightOperFlow = context.getRequest().getWeightOperFlow();
 				double weight = 0d;
@@ -76,12 +78,14 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 				BigWaybillDto waybillDto = context.getBigWaybillDto();
 				//校验并从运单获取重量级体积信息
 				if(waybillDto != null){
+					//重量为0，先取AgainWeight然后取GoodsWeight
 					if(weight == 0){
 						weight = getMaxAgainWeight(waybillDto.getPackageList(),barCode);
 						if(weight == 0){
 							weight = getMaxGoodsWeight(waybillDto.getPackageList(),barCode);
 						}
 					}
+					//上传体积为0并且上传长宽高为0，取运单体积
 					if(volume == 0 && (volumes[0] + volumes[1] + volumes[2])==0){
 						double[] newVolumes = BusinessHelper.convertVolumeFormula(waybillDto.getWaybill().getVolumeFormula());
 						if(newVolumes != null){
@@ -162,5 +166,17 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 			}
 		}
         return maxWeight;
+	}
+	/**
+	 * @return the open
+	 */
+	public boolean isOpen() {
+		return open;
+	}
+	/**
+	 * @param open the open to set
+	 */
+	public void setOpen(boolean open) {
+		this.open = open;
 	}
 }

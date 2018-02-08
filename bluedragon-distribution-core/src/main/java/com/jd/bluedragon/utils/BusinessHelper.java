@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public class BusinessHelper {
 
@@ -562,5 +563,15 @@ public class BusinessHelper {
         	volumeArray = ArraysUtil.getOrderArray(volumes);
         }
         return volumeArray;
+    }
+    /**
+     * 验证是否三方站点，siteType=16并且subType=16
+     * @param baseStaffSiteOrgDto
+     * @return
+     */
+    public static boolean isThirdSite(BaseStaffSiteOrgDto baseStaffSiteOrgDto){
+    	return baseStaffSiteOrgDto!=null
+				&&Constants.THIRD_SITE_TYPE.equals(baseStaffSiteOrgDto.getSiteType())
+				&&Constants.THIRD_SITE_SUB_TYPE.equals(baseStaffSiteOrgDto.getSubType());
     }
 }
