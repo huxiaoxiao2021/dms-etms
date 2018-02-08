@@ -368,6 +368,10 @@ public class GantryAutoSendController {
                 scannerFrameBatchSend.setCreateSiteName(gantrys.get(0).getSiteName());
                 scannerFrameBatchSend.setReceiveSiteCode(item.getReceiveSiteCode());
                 BaseStaffSiteOrgDto site =  siteService.getSite((int) item.getReceiveSiteCode());//理论上会存在溢出的风险，但是实际站点没有那么大的，故可以忽略
+                if (null == site) {
+                    logger.warn("该站点已经失效：" + item.getReceiveSiteCode());
+                    continue;
+                }
                 scannerFrameBatchSend.setReceiveSiteName(site.getSiteName());//通过基础资料获取站点名称
                 scannerFrameBatchSend.setPrintTimes((byte) 0);
                 scannerFrameBatchSend.setCreateUserCode(userCode);
