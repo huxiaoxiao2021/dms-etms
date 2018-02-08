@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -13,6 +14,7 @@ import com.jd.ql.basic.ws.BasicAirConfigWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,8 +118,6 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderByName", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BasicTraderInfoDTO> getBaseTraderByName(String name) {
-		// TODO Auto-generated method stub
-//		return basicSecondaryWS.getBaseTraderByName(name);
 		ResponseDTO<List<BasicTraderInfoDTO>> responseDTO =  basicTraderAPI.getBaseTraderByName(name);
 		if(responseDTO == null){
 			return Collections.emptyList();
@@ -173,6 +173,24 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		log.info("getBaseAllTrader获取数据count[" + count + "]");
 		log.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
 		return traderList;
+	}
+
+	@Cache(key = "DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BaseSiteGoods getGoodsVolumeLimitBySiteCode(Integer siteCode) {
+		try {
+			BaseResult<BaseSiteGoods> baseResult = basicSecondaryWS.getGoodsVolumeLimitBySiteCode(siteCode);
+			if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
+				return baseResult.getData();
+			}else{
+				log.warn("获取三方站点超限配置为空，siteCode："+siteCode+
+						",返回结果："+baseResult==null?"null":JsonHelper.toJson(baseResult));
+			}
+		} catch (Exception e) {
+			log.error("获取三方站点超限配置异常，siteCode："+siteCode, e);
+		}
+		return null;
 	}
 
 }

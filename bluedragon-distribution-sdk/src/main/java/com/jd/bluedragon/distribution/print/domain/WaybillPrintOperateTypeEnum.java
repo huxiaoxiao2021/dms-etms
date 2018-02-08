@@ -21,13 +21,13 @@ public enum WaybillPrintOperateTypeEnum {
         this.name = name;
     }
 
-    public Integer PLATE_PRINT_TYPE = 100101;      //平台打印操作类型
-    public Integer SITE_PLATE_PRINT_TYPE = 100102;//站点平台打印操作类型
-    public Integer PACKAGE_AGAIN_PRINT_TYPE = 100103;//包裹补打操作类型
-    public Integer SWITCH_BILL_PRINT_TYPE = 100104;//换单打印操作类型
-    public Integer PACKAGE_WEIGH_PRINT_TYPE = 100105;//包裹称重操作类型
-    public Integer FIELD_PRINT_TYPE = 100106;       //驻场打印操作类型
-    public Integer BATCH_SORT_WEIGH_PRINT_TYPE = 100107;//批量分拣称重操作类型
+    public static Integer PLATE_PRINT_TYPE = 100101;      //平台打印操作类型
+    public static Integer SITE_PLATE_PRINT_TYPE = 100102;//站点平台打印操作类型
+    public static Integer PACKAGE_AGAIN_PRINT_TYPE = 100103;//包裹补打操作类型
+    public static Integer SWITCH_BILL_PRINT_TYPE = 100104;//换单打印操作类型
+    public static Integer PACKAGE_WEIGH_PRINT_TYPE = 100105;//包裹称重操作类型
+    public static Integer FIELD_PRINT_TYPE = 100106;       //驻场打印操作类型
+    public static Integer BATCH_SORT_WEIGH_PRINT_TYPE = 100107;//批量分拣称重操作类型
 
     public String getName() {
         return name;
