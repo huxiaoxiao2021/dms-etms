@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
@@ -120,9 +121,11 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 //调用分拣接口获得基础资料信息
                 context.setWaybill(waybill);
                 result = preSortingAgain(context);
-                InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
-                if(!overRunInterceptResult.isSucceed()){
-                	return overRunInterceptResult;
+                if(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(context.getRequest().getOperateType())){
+                	InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
+                    if(!overRunInterceptResult.isSucceed()){
+                    	return overRunInterceptResult;
+                    }
                 }
                 InterceptResult<String> temp = setBasicMessageByDistribution(context);
                 if(temp.getStatus() > result.getStatus()){
