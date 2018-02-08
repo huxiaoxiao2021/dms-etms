@@ -101,15 +101,20 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 				//查询三方站点超限标准
 				BaseSiteGoods baseSiteGoods = baseMinorManager.getGoodsVolumeLimitBySiteCode(prepareSiteInfo.getSiteCode());
 				if (baseSiteGoods != null) {
-	                if (NumberHelper.gt(weight, baseSiteGoods.getGoodsWeight())) {
+	                if (NumberHelper.gt(baseSiteGoods.getGoodsWeight(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(weight, baseSiteGoods.getGoodsWeight())) {
 	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("重量"));
-	                }else if (NumberHelper.gt(volume,baseSiteGoods.getGoodsVolume())) {
+	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsVolume(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volume,baseSiteGoods.getGoodsVolume())) {
 	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("体积"));
-	                }else if (NumberHelper.gt(volumes[0],baseSiteGoods.getGoodsLength())) {
+	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsLength(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volumes[2],baseSiteGoods.getGoodsLength())) {
 	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("长度"));
-	                }else if (NumberHelper.gt(volumes[1],baseSiteGoods.getGoodsWidth())) {
+	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsWidth(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volumes[1],baseSiteGoods.getGoodsWidth())) {
 	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("宽度"));
-	                }else if (NumberHelper.gt(volumes[2],baseSiteGoods.getGoodsHeight())) {
+	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsHeight(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volumes[0],baseSiteGoods.getGoodsHeight())) {
 	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("高度"));
 	                }
 				}
