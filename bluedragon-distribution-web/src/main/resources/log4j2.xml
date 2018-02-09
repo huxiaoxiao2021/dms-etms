@@ -30,6 +30,18 @@
             <DefaultRolloverStrategy max="100"/>
         </RollingFile>
 
+        <RollingFile name="bluedragon.warn" fileName="${LOG_HOME}/bluedragon-distribution-web-warn.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-warn.log.%d{yyyyMMdd}">
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+
         <RollingFile name="bluedragon.task" fileName="${LOG_HOME}/bluedragon-distribution-web-task.log"
                      filePattern="${LOG_HOME}/bluedragon-distribution-web-task.log.%d{yyyyMMdd}">
             <Filters>
@@ -86,7 +98,8 @@
             <AppenderRef ref="bluedragon.etms.mq.sender"/>
         </Logger>
 
-        <Logger name="com.jd.bluedragon" level="INFO" additivity="false">
+        <Logger name="com.jd.bluedragon" level="ERROR" additivity="false">
+            <AppenderRef ref="bluedragon.warn"/>
             <AppenderRef ref="bluedragon.error"/>
             <AppenderRef ref="console"/>
         </Logger>
