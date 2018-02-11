@@ -235,6 +235,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(2, "批次号错误：" + domain.getSendCode());
         }
+        if(checkSendCode(domain.getSendCode())){
+            return new SendResult(2, "批次号已操作封车，请换批次！");
+        }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -396,7 +399,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @author lihuachang  
      * @category 2017.11.30
      * @param domain
-     * @param barCode
+     * @param packageCode
      */
     private void pushAtuoSorting(SendM domain,String packageCode) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
@@ -1450,6 +1453,23 @@ public class DeliveryServiceImpl implements DeliveryService {
         return falge;
     }
 
+    /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendCode
+     * @return
+     */
+    private boolean checkSendCode(String sendCode) {
+        boolean result = false;
+        try {
+            String isSeal = redisManager.getCache(sendCode);
+            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
+                result = true;
+            }
+        }catch (Throwable e){
+            logger.warn("redis取封车批次号失败："+e.getMessage());
+        }
+        return result;
+    }
     /**
      * 校验sendm中的批次号
      * @param sendm

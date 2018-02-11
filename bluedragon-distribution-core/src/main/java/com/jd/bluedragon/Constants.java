@@ -320,7 +320,14 @@ public class Constants {
      * Integer类型标识-true
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
-    
+    /**
+     * String类型标识-true
+     */
+    public static final String STRING_FLG_TRUE = "1";
+    /**
+     * String类型标识-false
+     */
+    public static final String STRING_FLG_FALSE = "0";
     /**
      * 包裹称重流水-操作类型-分拣
      */

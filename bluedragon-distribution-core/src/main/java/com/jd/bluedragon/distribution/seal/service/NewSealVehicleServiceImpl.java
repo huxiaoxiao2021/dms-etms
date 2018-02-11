@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.seal.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -61,7 +62,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Qualifier("unsealCarProducer")
     private DefaultJMQProducer unsealCarProducer;
 
+    @Autowired
+    private RedisManager redisManager;
+
     private final Log logger = LogFactory.getLog(this.getClass());
+
+    private static final int timeout = 86400;//已封车批次号缓存一天，单位秒
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP})
@@ -78,6 +84,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 sealCarMQ(paramList);
+                addRedisCache(paramList);
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -111,6 +118,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 sealCarMQ(paramList);
+                addRedisCache(paramList);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -181,6 +189,26 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
 		return sendM != null;
 	}
+
+
+    /**
+     * 将封车的批次号缓存到Redis里
+     * @param paramList
+     */
+    private void addRedisCache(List<SealCarDto> paramList) {
+        if(paramList == null || paramList.size() == 0){
+            return;
+        }
+        for(SealCarDto dto : paramList){
+            for(String sendCode : dto.getBatchCodes()){
+                try{
+                    redisManager.setex(sendCode, timeout, Constants.STRING_FLG_TRUE);
+                }catch (Throwable e){
+                    logger.warn("已封车批次号存入缓存失败:"+sendCode+";异常："+e.getMessage());
+                }
+            }
+        }
+    }
 
     /**
      * 记录封车解封车操作日志
