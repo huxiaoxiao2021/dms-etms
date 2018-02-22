@@ -233,6 +233,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--PDA操作取消发货MQ-->
+    <bean id="deliveryCancelSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_dms_delivery_cancel_send"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
@@ -250,4 +256,5 @@
     <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
     </bean>
+
 </beans>
