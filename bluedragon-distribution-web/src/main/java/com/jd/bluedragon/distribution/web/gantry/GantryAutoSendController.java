@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
@@ -345,16 +346,39 @@ public class GantryAutoSendController {
             userCode = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
             userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
         }
+        if (null == lists || lists.length == 0){
+            result.setCode(10000);
+            result.setMessage("参数为空");
+            return result;
+        }
         try {
+            Map<String ,Object> param = new HashMap<String, Object>();
+            param.put("machineId",lists[0].getMachineId());
+            param.put("version",1);//版本号1表示的是自动发货的新版本，可以去掉这个限制，加上是防止龙门架注册的时候，两个版本用了同一个machineId
+            List<GantryDevice> gantrys = gantryDeviceService.getGantry(param);
+            if (null == gantrys || gantrys.size() == 0){
+                result.setCode(400);
+                result.setMessage("龙门架的配置信息为空");
+                return result;
+            }
             for (ScannerFrameBatchSend item : lists) {
-                // // FIXME: 2016/12/21  是否可以不读库，读库为了保险
-                ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.selectCurrentBatchSend(item.getMachineId(), item.getReceiveSiteCode(), item.getCreateTime());
+                ScannerFrameBatchSend scannerFrameBatchSend = new ScannerFrameBatchSend();
+                scannerFrameBatchSend.setMachineId(item.getMachineId());
+                scannerFrameBatchSend.setCreateSiteCode(gantrys.get(0).getSiteCode());
+                scannerFrameBatchSend.setCreateSiteName(gantrys.get(0).getSiteName());
+                scannerFrameBatchSend.setReceiveSiteCode(item.getReceiveSiteCode());
+                BaseStaffSiteOrgDto site =  siteService.getSite((int) item.getReceiveSiteCode());//理论上会存在溢出的风险，但是实际站点没有那么大的，故可以忽略
+                if (null == site) {
+                    logger.warn("该站点已经失效：" + item.getReceiveSiteCode());
+                    continue;
+                }
+                scannerFrameBatchSend.setReceiveSiteName(site.getSiteName());//通过基础资料获取站点名称
                 scannerFrameBatchSend.setPrintTimes((byte) 0);
-                scannerFrameBatchSend.setLastPrintTime(null);
                 scannerFrameBatchSend.setCreateUserCode(userCode);
                 scannerFrameBatchSend.setCreateUserName(userName);
                 scannerFrameBatchSend.setUpdateUserCode(Long.valueOf(userCode));
                 scannerFrameBatchSend.setUpdateUserName(userName);
+                scannerFrameBatchSend.setLastPrintTime(null);
                 scannerFrameBatchSend.setCreateTime(new Date());
                 scannerFrameBatchSend.setUpdateTime(new Date());
                 scannerFrameBatchSend.setYn((byte) 1);

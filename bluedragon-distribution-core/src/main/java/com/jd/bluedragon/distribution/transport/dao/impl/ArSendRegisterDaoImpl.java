@@ -46,4 +46,9 @@ public class ArSendRegisterDaoImpl extends BaseDao<ArSendRegister> implements Ar
     public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister) {
         return sqlSession.selectList(this.nameSpace + ".queryWaitReceive", arSendRegister);
     }
+
+    @Override
+    public ArSendRegister getByFlightInfo(Map<String, Object> parameter) {
+        return sqlSession.selectOne(this.nameSpace + ".getByFlightInfo", parameter);
+    }
 }

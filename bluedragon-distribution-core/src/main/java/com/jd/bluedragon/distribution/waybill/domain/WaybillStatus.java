@@ -103,6 +103,17 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_AR_SEND_REGISTER = 6700;
 
+    /**
+     * 全程跟踪-配送员上门收货
+     */
+    public static final Integer WAYBILL_TRACK_UP_DELIVERY = 700;
+
+    /**
+     * 全程跟踪-配送员完成揽收
+     */
+    public static final Integer WAYBILL_TRACK_COMPLETE_DELIVERY = 5400;
+
+
     private Long id;
 
     private String sendCode;

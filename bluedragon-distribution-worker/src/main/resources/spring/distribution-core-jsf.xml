@@ -254,7 +254,11 @@
 		protocol="jsf" alias="${jsf.rdWmsStoreExtendService.alias}" timeout="5000" retries="3">
 	</jsf:consumer>
 		<!-- 运输jsf接口 -->
-	<jsf:consumer id="basicSyncWS" interface="com.jd.tms.basic.ws.BasicSyncWS" 
+	<jsf:consumer id="basicSyncWS" interface="com.jd.tms.basic.ws.BasicSyncWS"
 		protocol="jsf" alias="${jsf.basicSyncWS.alias}" timeout="5000" retries="3">
 	</jsf:consumer>
+    <!-- 二次预分拣中件站接口  -->
+    <jsf:consumer id="presortMediumStation" interface="com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI"
+                  protocol="jsf" alias="${jsf.presortMediumStationAPI.alias}" timeout="5000" retries="3">
+    </jsf:consumer>
 </beans>
