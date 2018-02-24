@@ -13,4 +13,10 @@ public interface BusTypeService {
      * @return
      */
     public List<BusType> getAllBusType();
+
+    /**
+     * 按需求过滤到不需要的车型信息，只保留需要的
+     * @return
+     */
+    public List<BusType> getNeedsBusType();
 }
