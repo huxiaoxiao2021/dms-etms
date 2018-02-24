@@ -63,7 +63,7 @@ $(function() {
 		    $(_selector).each(function () {
 		    	var _k = this.id;
 		        var _v = $(this).val();
-		        if(_k && _v){
+		        if(_k && (_v != null)){
 		        	params[_k] = _v;
 		        }
 		    });
@@ -78,11 +78,17 @@ $(function() {
 				field : 'typeName',
 				title : '名称'
 			}, {
+				field : 'nodeLevel',
+				title : '层级'
+			}, {
+				field : 'parentId',
+				title : '上级Id'
+			}, {
+				field : 'typeGroup',
+				title : '分组'
+			}, {
 				field : 'memo',
 				title : '描述'
-			}, {
-				field : 'createTime',
-				title : '创建时间'
 			} ];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
@@ -91,35 +97,8 @@ $(function() {
 	};
 	var pageInit = function() {
 		var oInit = new Object();
-		var postdata = {};
 		oInit.init = function() {
 			$('#dataEditDiv').hide();
-		    /*起始时间*/
-		    $.datePicker.createNew({
-		        elem: '#startDate',
-		        type: 'datetime',
-		        theme: '#3f92ea',
-		        btns: ['now', 'confirm'],
-		        done: function(value, date, endDate){
-		            /*重置表单验证状态*/
-		            $('#query-form').data("bootstrapValidator").resetForm();
-		        }
-		    });
-
-		    /*截止时间*/
-		    $.datePicker.createNew({
-		        elem: '#endDate',
-		        type: 'datetime',
-		        theme: '#3f92ea',
-		        done: function(value, date, endDate){
-		            $('#startDate').val(value);
-		            console.log(value); //得到日期生成的值，如：2017-08-18
-		            console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
-		            console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
-		            // alert($('#date-test1').val()); //获取值 或 设置值
-
-		        }
-		    });
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
@@ -150,9 +129,13 @@ $(function() {
 					    $('.edit-param').each(function () {
 					    	var _k = this.id;
 					        var _v = res.data[_k];
-					        if(_k && _v){
-					        	$(this).val(_v);
-					        }
+					        if(_k){
+					        	if(_v != null && _v != undefined){
+						        	$(this).val(_v);
+						        }else{
+						        	$(this).val('');
+						        }
+					        } 
 					    });
 			    	}
 			    });
@@ -206,49 +189,11 @@ $(function() {
 			$('#btn_return').click(function() {
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
-			});			
+			});
 		};
 		return oInit;
 	};
-    /*日期选择*/
-    laydate.render({
-        elem: '#date-test1', //指定元素
-        type: 'datetime',
-        theme: '#3f92ea',
-        change: function(value, date, endDate){
-            console.log(value); //得到日期生成的值，如：2017-08-18
-            console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
-            console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
-            // alert($('#date-test1').val()); //获取值 或 设置值
-        }
-    });
-    /*下拉框*/
-    $('#com1').select2({
-        width: '300',
-        placeholder:'请选择',
-        allowClear:true,
-        data:[
-            {id:1,text:'选择项1'},
-            {id:2,text:'选择项2'},
-            {id:3,text:'选择项3'},
-            {id:4,text:'选择项4'}
-
-        ]
-    });
-
-    $('#com2').select2({
-        width: '300',
-        placeholder:'请选择',
-        allowClear:true,
-        data:[
-            {id:1,text:'选择项1'},
-            {id:2,text:'选择项2'},
-            {id:3,text:'选择项3'},
-            {id:4,text:'选择项4'}
-        ],
-        multiple:true,
-    });
-    
+	
 	tableInit().init();
 	pageInit().init();
 });

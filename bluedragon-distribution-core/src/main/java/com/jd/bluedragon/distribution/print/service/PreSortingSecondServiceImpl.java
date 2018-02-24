@@ -136,7 +136,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         siteChangeMqDto.setNewSiteRoadCode(commonWaybill.getRoad());
         siteChangeMqDto.setOperatorId(context.getRequest().getUserCode());
         siteChangeMqDto.setOperatorName(context.getRequest().getUserName());
-        siteChangeMqDto.setOperatorSiteId(context.getRequest().getDmsSiteCode());
+        siteChangeMqDto.setOperatorSiteId(context.getRequest().getSiteCode());
         siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
         try {
