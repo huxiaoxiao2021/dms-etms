@@ -520,6 +520,24 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 }
                 task.setYn(0);
             }
+			/**
+			 * 全程跟踪-配送员上门收货
+			 */
+			if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_UP_DELIVERY).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+			/**
+			 * 全程跟踪-配送员完成揽收
+			 */
+			if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this

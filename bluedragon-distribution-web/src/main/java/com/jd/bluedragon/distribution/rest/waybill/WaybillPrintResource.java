@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.print.domain.InvoiceParameters;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.print.service.InvoicePrintService;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -13,8 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.print.domain.InvoiceParameters;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.service.InvoicePrintService;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 
 /**
  * 根据运单打印相关RESTful接口
@@ -46,7 +53,7 @@ public class WaybillPrintResource {
     @GET
     @GZIP
     @Path("/waybill/getPrintWaybill/{dmsCode}/{waybillCode}/{targetSiteCode}")
-    public InvokeResult<PrintWaybill> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
+    public InvokeResult<WaybillPrintResponse> getPrintWaybill(@PathParam("dmsCode") Integer dmsCode,
                                                       @PathParam("waybillCode")String waybillCode,
                                                       @PathParam("targetSiteCode")Integer targetSiteCode){
         //return printService.
@@ -65,5 +72,4 @@ public class WaybillPrintResource {
         return invoicePrintService.generateInvoice(parameters);
 
     }
-
 }

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
@@ -49,5 +50,12 @@ public interface LabelPrintingService {
      * @return
      */
     BaseResponseIncidental<LabelPrintingResponse> packageLabelPrint(LabelPrintingRequest request);
+
+    /**
+     * 打印主要方法，有二次预分拣逻辑（旧的保留不变）
+     * @param request
+     * @return
+     */
+    public BaseResponseIncidental<LabelPrintingResponse> packageLabelPrint(LabelPrintingRequest request, WaybillPrintContext context);
 
 }

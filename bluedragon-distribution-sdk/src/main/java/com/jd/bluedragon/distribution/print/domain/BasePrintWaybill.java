@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.print.domain;
 
 import java.io.Serializable;
 
-import com.jd.bluedragon.utils.StringHelper;
-
 /**
  * 面单打印信息
  * @ClassName: BasePrintWaybill
@@ -75,7 +73,7 @@ public class BasePrintWaybill implements Serializable {
     /**
     * 包裹特殊标识
     */
-    private String specialMark ;
+    private String specialMark = "";
 
     /**
     * 包裹特殊标识-builder类型
@@ -323,7 +321,7 @@ public class BasePrintWaybill implements Serializable {
      */
     public void appendSpecialMark(String markText){
     	//标识不为空，并且不包含此标记时加入标记
-    	if(StringHelper.isNotEmpty(markText)
+    	if(markText!=null && markText.length()>0
     			&& specialMarkBuilder.indexOf(markText) < 0){
     		specialMarkBuilder.append(markText);
     		this.specialMark = specialMarkBuilder.toString();
@@ -336,8 +334,8 @@ public class BasePrintWaybill implements Serializable {
      */
     public void dealConflictSpecialMark(String markText,String markText1){
     	//2个标记同时包含时删除标记markText1
-    	if(StringHelper.isNotEmpty(markText)
-    			&& StringHelper.isNotEmpty(markText1)
+    	if(markText!=null && markText.length()>0
+    			&& markText1!=null && markText1.length()>0
     			&& specialMarkBuilder.indexOf(markText) >= 0
     			&& specialMarkBuilder.indexOf(markText1) >= 0){
     		specialMarkBuilder.deleteCharAt(specialMarkBuilder.indexOf(markText1));

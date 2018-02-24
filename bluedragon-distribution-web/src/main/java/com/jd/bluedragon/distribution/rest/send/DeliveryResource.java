@@ -209,7 +209,7 @@ public class DeliveryResource {
 
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
-            tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request));
+            tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request), true);
         } catch (Exception e) {
             this.logger.error("写入取消发货信息失败", e);
         }

@@ -26,6 +26,11 @@ public class PopPrintRequest extends JdObject {
 	 * 接货类型-4-配送员接货
 	 */
 	public static final Integer POP_RECEIVE_TYPE_4 = 4;
+
+	/**
+	 * 接货类型-5
+	 */
+	public static final Integer POP_RECEIVE_TYPE_5 = 5;
 	
 	/**
 	 * 业务类型-平台打印
@@ -35,7 +40,10 @@ public class PopPrintRequest extends JdObject {
 	 * 业务类型-站点平台打印
 	 */
 	public static final Integer BUS_TYPE_SITE_PLATFORM_PRINT = 2;
-
+	/**
+	 * 业务类型-驻厂打印
+	 */
+	public static final Integer BUS_TYPE_IN_FACTORY_PRINT = 0;
 	/**
 	 * 运单号
 	 */
