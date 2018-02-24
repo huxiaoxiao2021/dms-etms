@@ -87,7 +87,7 @@ public class ArSendRegisterController {
     JdResponse<List<BusType>> getAllBusType() {
         JdResponse<List<BusType>> response = new JdResponse<List<BusType>>();
         try {
-            response.setData(busTypeService.getAllBusType());
+            response.setData(busTypeService.getNeedsBusType());
         } catch (Exception e) {
             logger.error("fail to getAllBusType！" + e.getMessage(), e);
             response.toError("获取所有车辆信息异常！");
