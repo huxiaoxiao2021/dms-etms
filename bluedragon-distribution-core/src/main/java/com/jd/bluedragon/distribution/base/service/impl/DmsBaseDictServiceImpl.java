@@ -64,4 +64,18 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
         dmsBaseDictCondition.setTypeGroup(typeGroup);
         return queryByCondition(dmsBaseDictCondition);
     }
+    /**
+     * 根据parentId和typeGroup查找分拣基础数据
+     * @param parentId
+     * @param typeGroup
+     * @return
+     */
+    @Cache(key = "DmsBaseDictService.queryByParentId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @Override
+    public List<DmsBaseDict> queryByParentId(Integer parentId) {
+        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setParentId(parentId);
+        return queryByCondition(dmsBaseDictCondition);
+    }
 }
