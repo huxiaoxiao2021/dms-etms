@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -27,6 +28,7 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -435,6 +437,13 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         try {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
+            	//运单数据为空，直接返回运单数据为空异常
+            	if(baseEntity.getData() == null
+            			||baseEntity.getData().getWaybill() == null){
+            		interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+            		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
+            		return interceptResult;
+            	}
                 context.setBigWaybillDto(baseEntity.getData());
                 loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
                 if (null != result.getData()) {

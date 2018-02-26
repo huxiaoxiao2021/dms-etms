@@ -30,7 +30,6 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -92,7 +91,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         return waybill;
     }
-
     @Override
     public Waybill findWaybillAndPack(String waybillCode) {
         Waybill waybill = null;
@@ -243,7 +241,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param
      * @return
      */
-    private Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack) {
+    public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack) {
         if (bigWaybillDto == null) {
             this.logger.debug("转换运单基本信息 --> 原始运单数据集bigWaybillDto为空");
             return null;

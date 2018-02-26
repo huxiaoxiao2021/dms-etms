@@ -32,7 +32,7 @@ public class ArSendRegister extends DbEntity {
     private String orderCode;
 
     /**
-     * 运力名称
+     * 运力名称 航班号/铁路车次号
      */
     private String transportName;
 

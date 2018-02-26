@@ -152,5 +152,11 @@
     <jmq:consumer id="jmq.sortSchemeSelfConsumer" transport="jmq.dmsWeb.transport">
         <jmq:listener topic="bd_sortscheme_send_DTC" listener="sortSchemeConsumer"/>
     </jmq:consumer>
+
+    <!-- 消费运输非常准起飞降落时间 -->
+    <jmq:consumer id="jmq.arAirFlightRealTimeConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="tms_air_flight_realtime_status" listener="arAirFlightRealTimeConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
