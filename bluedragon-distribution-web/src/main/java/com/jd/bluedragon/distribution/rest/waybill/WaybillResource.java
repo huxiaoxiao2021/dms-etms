@@ -12,6 +12,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
+import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +92,9 @@ public class WaybillResource {
 
 	@Autowired
 	private CrossSortingService crossSortingService;
+
+	@Autowired
+	private WeighByWaybillController weighByWaybillController;
 
 	public static final Integer DMSTYPE = 10; // 建包
 
@@ -851,5 +857,26 @@ public class WaybillResource {
 		}
 	}
 
+	/**
+	 * 运单称重对外接口
+	 * @param req 入参
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/weight")
+	public InvokeResult<Boolean> saveWaybillWeight(WaybillWeightVO req){
+
+		InvokeResult<Boolean> checkResult = weighByWaybillController.verifyWaybillReality(req.getCodeStr());
+
+		if(checkResult.getData()){
+			//通过
+			req.setStatus(10); //存在运单
+			InvokeResult<Boolean> insertResult = weighByWaybillController.insertWaybillWeight(req);
+			return insertResult;
+		}else{
+			//校验没通过
+			return checkResult;
+		}
+	}
 
 }
