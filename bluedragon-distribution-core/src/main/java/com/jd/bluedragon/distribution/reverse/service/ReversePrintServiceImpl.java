@@ -193,20 +193,21 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * 4.配送异常类订单：新运单规则：T+原运单号,调取运单来源：从运单处获得，调取运单新接口。
      * 5.返单换单：1）新运单规则：F+原运单号  或  F+8位数字,调取运单来源：从运单处获得，调取运单新接口。2）分拣中心集中换单，暂时不做。
      * @param oldWaybillCode 原单号
+     * @param isPickUpFinished 是否限制取件完成
      * @return
      */
     @Override
-    public InvokeResult<String> getNewWaybillCode(String oldWaybillCode) {
+    public InvokeResult<String> getNewWaybillCode(String oldWaybillCode, boolean isPickUpFinished) {
         if(oldWaybillCode.toUpperCase().startsWith("Q")) {
             InvokeResult<String> targetResult=new InvokeResult<String>();
 
             BaseEntity<PickupTask> result= waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
             if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
-                if(PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
+                if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
+                    targetResult.customMessage(-1,"未操作取件完成无法打印面单");
+                }else{
                     targetResult.setData(result.getData().getSurfaceCode());
                     targetResult.setMessage(result.getData().getServiceCode());
-                }else{
-                    targetResult.customMessage(-1,"未操作取件完成无法打印面单");
                 }
             }else{
                 targetResult.customMessage(-1,"没有获取到新的取件单");
