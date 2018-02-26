@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="ERROR">
+<Configuration status="WARN">
     <properties>
         <!-- 日志路径 -->
         <property name="LOG_HOME">d:/logs/dms.web</property>
@@ -9,128 +9,112 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n"/>
         </Console>
-
+        <!-- info -->
         <RollingFile name="bluedragon" fileName="${LOG_HOME}/bluedragon-distribution-web.log"
-                     filePattern="${LOG_HOME}/bluedragon-distribution-web.log.%d{yyyyMMdd}">
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web.%i.log">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
             <Policies>
-                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
             </Policies>
+            <DefaultRolloverStrategy max="20"/>
         </RollingFile>
-
+        <!-- warn -->
+        <RollingFile name="bluedragon.warn" fileName="${LOG_HOME}/bluedragon-distribution-web-warn.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-warn.%i.log">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+        <!-- error -->
         <RollingFile name="bluedragon.error" fileName="${LOG_HOME}/bluedragon-distribution-web-error.log"
-                     filePattern="${LOG_HOME}/bluedragon-distribution-web-error.log.%d{yyyyMMdd}">
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-error.%i.log">
             <Filters>
                 <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="100 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="100"/>
-        </RollingFile>
-
-        <RollingFile name="bluedragon.warn" fileName="${LOG_HOME}/bluedragon-distribution-web-warn.log"
-                     filePattern="${LOG_HOME}/bluedragon-distribution-web-warn.log.%d{yyyyMMdd}">
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
 
-        <RollingFile name="bluedragon.task" fileName="${LOG_HOME}/bluedragon-distribution-web-task.log"
-                     filePattern="${LOG_HOME}/bluedragon-distribution-web-task.log.%d{yyyyMMdd}">
+        <RollingFile name="bluedragon.consumer" fileName="${LOG_HOME}/bluedragon-distribution-web-consumer.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-consumer.%i.log">
             <Filters>
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="100"/>
-        </RollingFile>
-
-        <RollingFile name="bluedragon.consumer" fileName="${LOG_HOME}/bluedragon-distribution-web-consumer.log"
-                     filePattern="${LOG_HOME}/bluedragon-distribution-web-consumer.log.%d{yyyyMMdd}">
-            <Filters>
-                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="100"/>
+            <DefaultRolloverStrategy max="20"/>
         </RollingFile>
 
         <RollingFile name="bluedragon.etms.mq.sender"
                      fileName="${LOG_HOME}/bluedragon-distribution-web-mq-sender.log"
-                     filePattern="${LOG_HOME}/bluedragon-distribution-web-mq-sender.log.%d{yyyyMMdd}">
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-mq-sender.%i.log">
             <Filters>
-                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n" charset="UTF-8"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="100"/>
+            <DefaultRolloverStrategy max="20"/>
         </RollingFile>
 
     </Appenders>
 
     <Loggers>
-        <Logger name="org.apache.ibatis" level="INFO" additivity="true">
+        <!-- sql  -->
+        <logger name="java.sql" level="INFO" additivity="true"/>
+        <!-- mybatis  -->
+        <logger name="org.mybatis" level="ERROR" additivity="true"/>
+        <logger name="org.apache.ibatis" level="ERROR" additivity="true"/>
+        <logger name="org.springframework" level="ERROR" additivity="true"/>
+        <logger name="org.apache.commons" level="ERROR" additivity="true"/>
+
+        <logger name="com.jd.jsf" level="INFO" additivity="true"/>
+        <logger name="com.jd.jmq" level="INFO" additivity="true"/>
+        <logger name="com.jd.common" level="ERROR" additivity="true"/>
+        <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
+        <logger name="org.apache.cxf" level="ERROR" additivity="true"/>
+
+        <Logger name="com.jd.dbs.transaction" level="ERROR" additivity="true">
         </Logger>
 
-        <Logger name="java.sql" level="INFO" additivity="true">
+        <Logger name="com.jd.etms.basic.cache" level="ERROR" additivity="true">
         </Logger>
 
-        <Logger name="com.jd.dbs.transaction" level="ERROR">
+        <Logger name="com.jd.bluedragon" level="INFO" additivity="true">
+            <AppenderRef ref="bluedragon.warn"/>
         </Logger>
 
-        <Logger name="com.jd.etms.basic.cache" level="ERROR">
-        </Logger>
-
-        <Logger name="com.jd.etms.message" level="INFO">
+        <Logger name="com.jd.etms.message" level="WARN"  additivity="true">
             <AppenderRef ref="bluedragon.etms.mq.sender"/>
         </Logger>
 
-        <Logger name="com.jd.bluedragon" level="ERROR" additivity="false">
-            <AppenderRef ref="bluedragon.warn"/>
-            <AppenderRef ref="bluedragon.error"/>
-            <AppenderRef ref="console"/>
-        </Logger>
-
-        <Logger name="com.jd.bluedragon.core.message" level="INFO" additivity="false">
+        <Logger name="com.jd.bluedragon.core.message" level="WARN"  additivity="true">
             <AppenderRef ref="bluedragon.consumer"/>
-            <AppenderRef ref="console"/>
-        </Logger>
-
-        <Logger name="com.jd.bluedragon.distribution.batch.service" level="INFO" additivity="false">
-            <AppenderRef ref="bluedragon"/>
-            <AppenderRef ref="console"/>
-        </Logger>
-
-        <Logger name="com.jd.bluedragon.distribution.rest.base" level="INFO">
-            <AppenderRef ref="bluedragon.error"/>
-        </Logger>
-
-        <Logger name="com.jd.bluedragon.core.message.base" level="INFO" additivity="false">
-            <AppenderRef ref="bluedragon.error"/>
-            <AppenderRef ref="console"/>
         </Logger>
 
         <!-- 建立一个默认的root的Logger -->
         <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
+            <AppenderRef ref="bluedragon.warn"/>
             <AppenderRef ref="bluedragon.error"/>
-            <AppenderRef ref="bluedragon.task"/>
-            <AppenderRef ref="bluedragon.consumer"/>
-            <AppenderRef ref="bluedragon.etms.mq.sender"/>
         </Root>
     </Loggers>
 
