@@ -12,6 +12,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -69,6 +70,7 @@ public class ExtendedResteasyJacksonProvider extends ResteasyJacksonProvider {
             InputStream entityStream) throws IOException {
         ObjectMapper mapper = this.locateMapper(type, mediaType);
         mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         JsonParser jp = mapper.getJsonFactory().createJsonParser(entityStream);
         /*
          * Important: we are NOT to close the underlying stream after mapping,

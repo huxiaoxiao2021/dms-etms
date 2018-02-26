@@ -3,13 +3,16 @@ package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * 取消锁定拦截
  * Created by wangtingwei on 2015/12/24.
  */
+@Service("interceptComposeService")
 public class InterceptComposeServiceImpl implements ComposeService {
 
     private static final Log logger= LogFactory.getLog(InterceptComposeServiceImpl.class);

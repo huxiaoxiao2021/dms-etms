@@ -10,6 +10,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,9 +59,15 @@ public class PopPrintResource {
 	
 	@Autowired
     private OperationLogService operationLogService;
-	
+
+	@Autowired
+	private TaskService taskService;
+
 	@Autowired
 	private RedisManager redisManager;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	
     @Autowired
     @Qualifier("popPrintToSmsProducer")
@@ -175,9 +186,41 @@ public class PopPrintResource {
 			/**
 			 * 需求：R2017M07N00868配送员接货，打印后发送mq信息给终端-sms
 			 */
+			boolean isNeedSendMQ = false;
 			if(isPrintPack
 					&&PopPrintRequest.POP_RECEIVE_TYPE_4.equals(popPrintRequest.getPopReceiveType())
 					&&PopPrintRequest.BUS_TYPE_SITE_PLATFORM_PRINT.equals(popPrintRequest.getBusinessType())){
+				isNeedSendMQ = true;
+			}else if(isPrintPack
+					&&PopPrintRequest.POP_RECEIVE_TYPE_5.equals(popPrintRequest.getPopReceiveType())
+					&&PopPrintRequest.BUS_TYPE_IN_FACTORY_PRINT.equals(popPrintRequest.getBusinessType())
+					){
+				//驻厂打印 时
+				if(StringUtils.isNotBlank(popPrintRequest.getBoxCode())){
+					// 箱号不为空时 发送MQ
+					isNeedSendMQ = true;
+				}
+				//操作站点类型 是站点的情况下 发送全程跟踪
+				BaseStaffSiteOrgDto bDto = null;
+				try {
+					bDto = this.baseMajorManager.getBaseSiteBySiteId(popPrintRequest.getOperateSiteCode());
+				} catch (Exception e) {
+					logger.error("驻厂打印时获取站点失败 站点编号："+popPrintRequest.getOperateSiteCode()+"  "+e.getMessage());
+				}
+				if(bDto==null){
+					logger.error("驻厂打印时获取站点为空 站点编号："+popPrintRequest.getOperateSiteCode());
+				}else{
+					if(BusinessHelper.isSiteType(bDto.getSiteType())){
+						//操作站点类型符合 是站点
+						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",new Date(System.currentTimeMillis()-30000L));
+						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",new Date(System.currentTimeMillis()-30000L));
+					}
+				}
+
+
+			}
+
+			if(isNeedSendMQ){
 				PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
 				BeanUtils.copyProperties(popPrint, popPrintSmsMsg);
 				popPrintToSmsProducer.send(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
@@ -490,5 +533,37 @@ public class PopPrintResource {
         operationLog.setRemark(remark);
         return operationLog;
     }
-	
+
+    private void toTask(PopPrintRequest req,Integer operateType,String remark,Date date){
+		WaybillStatus waybillStatus = new WaybillStatus();
+
+		waybillStatus.setPackageCode(req.getPackageBarcode());
+		waybillStatus.setWaybillCode(req.getWaybillCode());
+		waybillStatus.setCreateSiteCode(req.getOperateSiteCode());
+		waybillStatus.setCreateSiteName(req.getOperateSiteName());
+		waybillStatus.setOperatorId(req.getOperatorCode());
+		waybillStatus.setOperator(req.getOperatorName());
+		waybillStatus.setOperateType(operateType);
+		waybillStatus.setRemark(remark);
+		waybillStatus.setOperateTime(date);
+
+		String body = JsonHelper.toJson(waybillStatus);
+
+
+
+		Task task = new Task();
+		task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+		task.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+		task.setSequenceName(Task.getSequenceName(task.getTableName()));
+		task.setKeyword1(remark);
+		task.setKeyword2(operateType.toString());
+		task.setCreateSiteCode(req.getOperateSiteCode());
+		task.setBody(body);
+		task.setOwnSign(BusinessHelper.getOwnSign());
+
+		taskService.add(task,true);  //直接创建task对象。因为taskService.toTask
+
+	}
+
+
 }

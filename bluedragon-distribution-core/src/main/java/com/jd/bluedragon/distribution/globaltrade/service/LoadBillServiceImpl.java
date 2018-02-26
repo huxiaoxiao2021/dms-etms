@@ -440,7 +440,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                 //取消预装载 取消分拣
 
                 //取消预装载 取消发货
-                deliveryService.dellCancelDeliveryMessage(toSendM(loadBill));
+                deliveryService.dellCancelDeliveryMessage(toSendM(loadBill), false);
                 //取消预装载 操作日志
                 addOperationLog(loadBill);
             }

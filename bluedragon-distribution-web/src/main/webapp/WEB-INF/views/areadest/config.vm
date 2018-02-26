@@ -175,6 +175,19 @@
                         <div id="multiselect" >
                             <table class="display" style="width:70%;float:center;margin:0 auto">
                                 <tbody>
+                                <tr align="left">
+
+                                    <td > 可选站点所属区域：
+                                        <select id="siteDeviceOrg" onchange="siteChange()" style="width:150px">
+                                            <option value="">机构名称</option>
+                                            #if(!$null.isNull($!allOrgs))
+                                                #foreach($org in $allOrgs)
+                                                    <option value="$org.orgId">$org.orgName</option>
+                                                #end
+                                            #end
+                                        </select>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td><h1 class="myfont">可选站点：</h1></td>
                                     <td></td>

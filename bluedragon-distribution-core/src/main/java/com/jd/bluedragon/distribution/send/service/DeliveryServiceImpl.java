@@ -64,6 +64,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,6 +76,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.*;
@@ -184,6 +186,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("turnoverBoxMQ")
     private DefaultJMQProducer turnoverBoxMQ;
+
+    @Autowired
+    @Qualifier("deliveryCancelSendMQ")
+    private DefaultJMQProducer deliveryCancelSendMQ;
 
     @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
@@ -343,6 +349,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.pushStatusTask(domain);
         return new SendResult(1, "发货成功");
     }
+
 
     /**
      * 推分拣任务
@@ -936,7 +943,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param tSendM 发货相关数据
      */
     @JProfiler(jKey = "DMSWEB.DeliveryService.dellCancel", mState = {JProEnum.TP})
-    public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM) {
+    public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ) {
         try {
             SendDetail tSendDatail = new SendDetail();
             tSendDatail.setBoxCode(tSendM.getBoxCode());
@@ -959,7 +966,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(tSendM, tlist);
                     if (responsePack.getCode().equals(200)) {
                         delDeliveryFromRedis(tSendM);      //取消发货成功，删除redis缓存的发货数据
-                        sendMessage(tlist, tSendM);
+                        sendMessage(tlist, tSendM, needSendMQ);
                     }
 					return responsePack;
 				} else {
@@ -975,7 +982,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDatail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
-                    sendMessage(sendDatails, tSendM);
+                    sendMessage(sendDatails, tSendM, needSendMQ);
 
                     // 更新箱子状态为正常
 //                    List<String> boxCodes = new ArrayList<String>();
@@ -1016,26 +1023,45 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-
     /****
-     * 发送全程跟踪
+     * 发送全程跟踪和取消发货MQ消息
      *
      * @param senddetail
      * @param tSendM
      */
-    private void sendMessage(List<SendDetail> senddetail, SendM tSendM) {
+    private void sendMessage(List<SendDetail> senddetail, SendM tSendM, boolean needSendMQ) {
         try {
             if (senddetail == null || senddetail.isEmpty()) {
                 return;
             }
             //按照包裹
             for (SendDetail model : senddetail) {
+                // 发送全程跟踪任务
                 send(model, tSendM);
+                if (needSendMQ){
+                    // 发送取消发货MQ
+                    sendMQ(model, tSendM);
+                }
             }
         } catch (Exception ex) {
             logger.error("取消发货 发全程跟踪sendMessage： " + ex);
         }
+    }
 
+    /**
+     * PDA操作取消发货MQ消息发送
+     */
+    private void sendMQ(SendDetail sendDetail, SendM sendM) {
+        try {
+            DeliveryCancelSendMQBody body = new DeliveryCancelSendMQBody();
+            body.setPackageBarcode(sendDetail.getPackageBarcode());
+            body.setWaybillCode(sendDetail.getWaybillCode());
+            body.setSendCode(sendDetail.getSendCode());
+            body.setOperateTime(sendM.getUpdateTime());
+            deliveryCancelSendMQ.send(sendDetail.getPackageBarcode(), JsonHelper.toJson(body));
+        } catch (Exception e) {
+            logger.error("[PDA操作取消发货]发送MQ消息时发生异常", e);
+        }
     }
 
     /******
@@ -2620,7 +2646,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer bReceiveSiteCode = task.getReceiveSiteCode();
         String boxCode = task.getBoxCode();
         Integer type = Integer.valueOf(task.getKeyword2());//业务的正逆向
-        List<SendDetail> list = getSendByBox(boxCode);
+        List<SendDetail> list = getCancelSendByBox(boxCode);
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
@@ -2676,7 +2702,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 //		}
     }
 
-    public List<SendDetail> getSendByBox(String boxCode) {
+    public List<SendDetail> getCancelSendByBox(String boxCode) {
         Box box = null;
         box = this.boxService.findBoxByCode(boxCode);
         if (box == null) {
@@ -3187,6 +3213,24 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
+	@Override
+	public List<SendDetail> getSendDetailsByBoxCode(String boxCode) {
+        Box box = null;
+        box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            return null;
+        }
+        Integer yCreateSiteCode = box.getCreateSiteCode();
+        Integer yReceiveSiteCode = box.getReceiveSiteCode();
+        SendDetail tsendDatail = new SendDetail();
+        tsendDatail.setBoxCode(boxCode);
+        tsendDatail.setCreateSiteCode(yCreateSiteCode);
+        tsendDatail.setReceiveSiteCode(yReceiveSiteCode);
+        tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+        List<SendDetail> sendDatailist = this.sendDatailDao
+                .querySendDatailsBySelective(tsendDatail);
+        return sendDatailist;
+	}
 
     /**
      * 推验货任务

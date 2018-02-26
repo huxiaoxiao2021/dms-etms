@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.utils.StringHelper;
  * 合成特殊标记
  * Created by wangtingwei on 2015/12/24.
  */
+@Service("specialMarkComposeService")
 public class SpecialMarkComposeServiceImpl implements ComposeService {
     @Autowired
     private TransbillMService transbillMService;
@@ -70,15 +72,15 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         }
 
         //安利--waybillSign第27位等于1的为允许半收的订单，包裹标签打“半”
-        if(waybill.getWaybillSign().length() > 26 && waybill.getWaybillSign().charAt(26) == '1'){
+        if(BusinessHelper.isSignY(waybill.getWaybillSign(), 27)){
             waybill.appendSpecialMark(ALLOW_HALF_ACCEPT);
         }
         //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
-        if(waybill.getWaybillSign().length() > 34 && waybill.getWaybillSign().charAt(34) == '1'){
+        if(BusinessHelper.isSignY(waybill.getWaybillSign(), 35)){
             waybill.appendSpecialMark(SPECIAL_MARK_SENIOR);
         }
         //当前打“空”的逻辑不变，“空”字变为“航”，同时增加waybillsign 第31为1 打“航”逻辑。Waybillsign标识 2017年8月22日16:23:47
-        if(waybill.getWaybillSign().length() > 30 && waybill.getWaybillSign().charAt(30) == '1'){
+        if(BusinessHelper.isSignY(waybill.getWaybillSign(), 31)){
             waybill.appendSpecialMark(SPECIAL_MARK_AIRTRANSPORT);
         }else {
             if(waybill.getIsAir()){
@@ -96,7 +98,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_SITE);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
-        
+
+        //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
+        if(StringHelper.isNotEmpty(waybill.getSpecialMark()) && waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
+            waybill.setTransportMode("");
+        }
+
         //“半”与“航”互斥，且“航”字为大
         waybill.dealConflictSpecialMark(SPECIAL_MARK_AIRTRANSPORT, ALLOW_HALF_ACCEPT);
         //处理标记冲突，安和众

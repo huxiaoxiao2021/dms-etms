@@ -9,12 +9,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
-import com.jd.bluedragon.distribution.departure.domain.Departure;
-import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.departure.service.impl.DepartureServiceImpl;
 import com.jd.bluedragon.distribution.receive.service.impl.ReceiveServiceImpl;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.common.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
