@@ -1,13 +1,12 @@
 package com.jd.ql.dms.common.domain;
 
 import java.io.Serializable;
-
 /**
  * 空铁项目的基础数据字典
  * Created by xumei3 on 2017/12/28.
  *
  */
-public class DictionaryInfoModel implements Serializable {
+public class DictionaryInfoModel implements Serializable,Comparable<DictionaryInfoModel>{
     private static final long serialVersionUID = 1L;
 
     /** 数据编码 **/
@@ -48,5 +47,26 @@ public class DictionaryInfoModel implements Serializable {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    @Override
+    public int compareTo(DictionaryInfoModel dictionaryInfoModel) {
+        if (dictionaryInfoModel == null) {
+            throw new NullPointerException();
+        }
+        //优先使用typeGroup排序，在typeGroup相同的情况下，使用typeCode排序
+        if(this.typeGroup > dictionaryInfoModel.typeGroup){
+            return 1;
+        } else if (this.typeGroup < dictionaryInfoModel.typeGroup) {
+            return -1;
+        } else {
+            if (this.typeCode > dictionaryInfoModel.typeCode) {
+                return 1;
+            } else if (this.typeCode < dictionaryInfoModel.typeCode) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 }
