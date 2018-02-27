@@ -10,6 +10,7 @@
 		<result column="parent_id" property="parentId" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="node_level" property="nodeLevel" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="type_group" property="typeGroup" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -18,7 +19,7 @@
 
 	<sql id="Base_Column_List" >
 		id,type_name,type_code,memo,parent_id,node_level,
-		type_group,create_time,update_time,is_delete,ts
+		type_group,order_num,create_time,update_time,is_delete,ts
 	</sql>
 
 	<sql id="where_condition">
@@ -67,6 +68,9 @@
 				<if test="typeGroup != null">
 					type_group,
 				</if>
+				<if test="orderNum != null">
+					order_num,
+				</if>
 					create_time,
 					update_time,
 					is_delete
@@ -93,6 +97,9 @@
 				<if test="typeGroup != null">
 					#{typeGroup,jdbcType=INTEGER},
 				</if>
+				<if test="orderNum != null">
+					#{orderNum,jdbcType=INTEGER},
+				</if>				
                     NOW(),
                     NOW(),
                     0
@@ -104,7 +111,7 @@
 		insert into dms_base_dict
 			(
 				type_name,type_code,memo,parent_id,
-				node_level,type_group,create_time,update_time,is_delete
+				node_level,type_group,order_num,create_time,update_time,is_delete
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -115,6 +122,7 @@
 					#{item.parentId,jdbcType=INTEGER},
 					#{item.nodeLevel,jdbcType=INTEGER},
 					#{item.typeGroup,jdbcType=INTEGER},
+					#{item.orderNum,jdbcType=INTEGER},
                     NOW(),
                     NOW(),
                     0
@@ -142,6 +150,9 @@
 				</if>
 				<if test="typeGroup != null">
 					type_group = #{typeGroup,jdbcType=INTEGER},
+				</if>
+				<if test="orderNum != null">
+					order_num = #{orderNum,jdbcType=INTEGER},
 				</if>
 					update_time = NOW(),
 				<if test="isDelete != null">
@@ -198,6 +209,7 @@
 		from 
 		  dms_base_dict 
         <include refid="where_condition"/>
+         order by parent_id,type_group,order_num
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
