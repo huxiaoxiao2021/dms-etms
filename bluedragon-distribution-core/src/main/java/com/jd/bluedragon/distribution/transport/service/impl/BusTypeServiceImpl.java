@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
@@ -26,6 +27,25 @@ public class BusTypeServiceImpl implements BusTypeService {
     @Autowired
     private VtsQueryWS vtsQueryWS;
 
+    /**
+     * 所需要的摆渡车系车型id
+     */
+    private static List<Integer> usefulBusTypeIds;
+
+    static {
+        usefulBusTypeIds = new ArrayList<Integer>();
+
+        //读取配置文件的信息
+        String usefulBusTypeStr = PropertiesHelper.newInstance()
+                .getValue("usefulBusTypes");
+
+        //转换成整形
+        String [] busTypeConfig = usefulBusTypeStr.split(",");
+        for(String busType : busTypeConfig){
+            usefulBusTypeIds.add(Integer.parseInt(busType));
+        }
+    }
+
     public List<BusType> getAllBusType(){
         List<BusType> busTypes = new ArrayList<BusType>();
         try {
@@ -48,5 +68,23 @@ public class BusTypeServiceImpl implements BusTypeService {
         }
 
         return busTypes;
+    }
+
+    /**
+     * 根据配置文件获取需要的车型，并进行过滤
+     * @return
+     */
+    public List<BusType> getNeedsBusType(){
+        List<BusType> needsBusTypes = new ArrayList<BusType>();
+        //获取所有摆渡车车型信息
+        List<BusType> allBusTypes = getAllBusType();
+
+        //便利所有摆渡车车型进行过滤
+        for(BusType busType : allBusTypes){
+            if(usefulBusTypeIds.contains(busType.getBusTypeId())){
+                needsBusTypes.add(busType);
+            }
+        }
+        return needsBusTypes;
     }
 }

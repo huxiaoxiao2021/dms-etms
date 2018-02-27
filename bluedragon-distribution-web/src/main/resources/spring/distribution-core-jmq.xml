@@ -213,6 +213,13 @@
         <property name="topic" value="delivery_to_finance"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--PDA操作取消发货MQ-->
+    <bean id="deliveryCancelSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_dms_delivery_cancel_send"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--配送员接货，打印后发送mq信息给sms-->
     <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
