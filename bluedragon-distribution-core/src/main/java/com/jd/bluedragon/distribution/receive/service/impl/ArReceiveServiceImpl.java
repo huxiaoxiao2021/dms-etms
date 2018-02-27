@@ -97,9 +97,9 @@ public class ArReceiveServiceImpl extends BaseService<ArReceive> implements ArRe
 						@Override
 						public int compare(SendM o1, SendM o2) {
 							if(o1 != null && o2 != null){
-								return 0 - ObjectHelper.compare(o1.getOperateTime(), o2.getOperateTime());
+								return ObjectHelper.compare(o2.getOperateTime(), o1.getOperateTime());
 							}else{
-								return 0 - ObjectHelper.compare(o1, o2);
+								return ObjectHelper.compare(o2, o1);
 							}
 						}
 					});
@@ -117,9 +117,9 @@ public class ArReceiveServiceImpl extends BaseService<ArReceive> implements ArRe
 									@Override
 									public int compare(ArSendCode o1, ArSendCode o2) {
 										if(o1 != null && o2 != null){
-											return 0 - DateHelper.compare(o1.getTs(), o2.getTs());
+											return DateHelper.compare(o2.getTs(), o1.getTs());
 										}else{
-											return 0 - ObjectHelper.compare(o1, o2);
+											return ObjectHelper.compare(o2, o1);
 										}
 									}
 								});

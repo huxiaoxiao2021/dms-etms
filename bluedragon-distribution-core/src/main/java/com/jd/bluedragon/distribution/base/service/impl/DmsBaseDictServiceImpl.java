@@ -60,6 +60,7 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
     @Override
     public List<DmsBaseDict> queryByParentIdAndTypeGroup(Integer parentId, Integer typeGroup) {
         DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
         dmsBaseDictCondition.setParentId(parentId);
         dmsBaseDictCondition.setTypeGroup(typeGroup);
         return queryByCondition(dmsBaseDictCondition);
@@ -75,6 +76,7 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
     @Override
     public List<DmsBaseDict> queryByParentId(Integer parentId) {
         DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
         dmsBaseDictCondition.setParentId(parentId);
         return queryByCondition(dmsBaseDictCondition);
     }
