@@ -263,8 +263,8 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	        }
 	        
 	        String jsonStr = JsonHelper.toJson(reverseReceiveLoss);
-	    	logger.error("青龙逆向发货后回传报损系统MQ orderid为" + orderId);
-	    	logger.error("青龙逆向发货后回传报损系统MQ json为"+jsonStr);
+	    	logger.info("青龙逆向发货后回传报损系统MQ orderid为" + orderId);
+	    	logger.info("青龙逆向发货后回传报损系统MQ json为"+jsonStr);
     	
 			//this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
             dmsSendLossMQ.send(orderId,jsonStr);

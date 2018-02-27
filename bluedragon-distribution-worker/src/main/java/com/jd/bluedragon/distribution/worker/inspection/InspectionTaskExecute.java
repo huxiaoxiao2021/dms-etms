@@ -66,7 +66,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         } else {
             String errorMsg = "验货条码不符合规则:" + code;
             if(logger.isErrorEnabled()){
-                logger.error(errorMsg);
+                logger.warn(errorMsg);
             }
             throw new WayBillCodeIllegalException(errorMsg);
         }
@@ -155,7 +155,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         if (StringUtils.isNotBlank(request.getWaybillCode())) {
             if (null == bigWaybillDto||null==bigWaybillDto.getPackageList()||bigWaybillDto.getPackageList().size()==0) {
                 if(logger.isErrorEnabled()){
-                    logger.error(MessageFormat.format("验货包裹信息为空{0}",context.getBusinessKey()));
+                    logger.warn(MessageFormat.format("验货包裹信息为空{0}",context.getBusinessKey()));
                 }
                 context.setPassCheck(false);
                 return;
