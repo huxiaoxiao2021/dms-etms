@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterNodeDao">
+    <resultMap id="b2bRouterNodeMap" type="B2BRouterNode">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+		<result column="chain_id" jdbcType="INTEGER" property="routerChainId"/>
+
+        <result column="original_site_type" jdbcType="INTEGER" property="originalSiteType"/>
+        <result column="original_site_code" jdbcType="INTEGER" property="originalSiteCode"/>
+        <result column="original_site_name" jdbcType="VARCHAR" property="originalSiteName"/>
+
+        <result column="destination_site_type" jdbcType="INTEGER" property="destinationSiteType"/>
+        <result column="destination_site_code" jdbcType="INTEGER" property="destinationSiteCode"/>
+        <result column="destination_site_name" jdbcType="VARCHAR" property="destinationSiteName"/>
+
+        <result column="operator_code" jdbcType="VARCHAR" property="operatorUserErp"/>
+        <result column="operator_name" jdbcType="VARCHAR" property="operatorUserName"/>
+
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <!--<sql id="sql_columns">-->
+		<!--id,original_dms_id,original_dms_name,destination_dms_id,destination_dms_name,transfer_one_id,transfer_one_name,-->
+		<!--transfer_two_id,transfer_two_name,transfer_three_id,transfer_three_name,full_line,create_time,-->
+		<!--update_time,create_operator_name,update_operator_name,remark,yn,expiry_date,effective_date,origin_id-->
+	<!--</sql>-->
+
+
+    <insert id="addB2BRouterNodes" parameterType="java.util.List">
+		insert into
+		b2b_router(
+		chain_id,original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
+		operator_code,operator_name,create_time,update_time)
+		values
+		<foreach collection="list" item="b2bRouterNode" index="index" separator=",">
+			#{b2bRouterNode.routerChainId,jdbcType=INTEGER},
+
+			#{b2bRouterNode.originalSiteType,jdbcType=INTEGER},
+			#{b2bRouterNode.originalSiteCode,jdbcType=INTEGER},
+			#{b2bRouterNode.originalSiteName,jdbcType=VARCHAR},
+
+			#{b2bRouterNode.destinationSiteType,jdbcType=INTEGER},
+			#{b2bRouterNode.destinationSiteCode,jdbcType=INTEGER},
+			#{b2bRouterNode.destinationSiteName,jdbcType=VARCHAR},
+
+			#{b2bRouterNode.operatorUserErp,jdbcType=VARCHAR},
+			#{b2bRouterNode.operatorUserName,jdbcType=VARCHAR},
+
+			#{b2bRouterNode.createTime,jdbcType=TIMESTAMP},
+			#{b2bRouterNode.createTime,jdbcType=TIMESTAMP},
+			#{b2bRouterNode.updateTime,jdbcType=TIMESTAMP}
+		</foreach>
+	</insert>
+
+    <!--<update id="deleteById" parameterType="crossBox">-->
+		<!--update cross_box-->
+		<!--set-->
+		<!--update_operator_name = #{updateOperatorName,jdbcType=VARCHAR},-->
+		<!--yn = 0,-->
+		<!--update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+		<!--remark =-->
+		<!--#{remark,jdbcType=VARCHAR}-->
+		<!--where-->
+		<!--id=#{id,jdbcType=INTEGER}-->
+	<!--</update>-->
+
+    <!--<update id="updateYnCrossBoxById" parameterType="crossBox">-->
+		<!--update cross_box-->
+		<!--set yn = #{yn,jdbcType=TINYINT} ,-->
+		<!--update_time = #{updateTime,jdbcType=VARCHAR},-->
+		<!--remark = #{remark,jdbcType=VARCHAR}-->
+		<!--where id = #{id,jdbcType=INTEGER}-->
+	<!--</update>-->
+
+    <!--<update id="updateCrossBoxByDms" parameterType="crossBox">-->
+        <!--update cross_box-->
+        <!--<set>-->
+            <!--<if test="originalDmsId != null">-->
+                <!--original_dms_id = #{originalDmsId,jdbcType=INTEGER},-->
+            <!--</if>-->
+            <!--<if test="originalDmsName != null">-->
+                <!--original_dms_name = #{originalDmsName,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--<if test="destinationDmsId != null">-->
+                <!--destination_dms_id =-->
+                <!--#{destinationDmsId,jdbcType=INTEGER},-->
+            <!--</if>-->
+            <!--<if test="destinationDmsName != null">-->
+                <!--destination_dms_name =-->
+                <!--#{destinationDmsName,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--<if test="transferOneId != null">-->
+                <!--transfer_one_id = #{transferOneId,jdbcType=INTEGER},-->
+            <!--</if>-->
+            <!--<if test="transferOneName != null">-->
+                <!--transfer_one_name = #{transferOneName,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--transfer_two_id = #{transferTwoId,jdbcType=INTEGER},-->
+            <!--transfer_two_name = #{transferTwoName,jdbcType=VARCHAR},-->
+            <!--transfer_three_id = #{transferThreeId,jdbcType=INTEGER},-->
+            <!--transfer_three_name = #{transferThreeName,jdbcType=VARCHAR},-->
+            <!--<if test="fullLine != null">-->
+                <!--full_line = #{fullLine,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--<if test="remark != null">-->
+                <!--remark = #{remark,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--<if test="updateOperatorName != null">-->
+                <!--update_operator_name =-->
+                <!--#{updateOperatorName,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--<if test="effectiveDate != null">-->
+                <!--effective_date = #{effectiveDate,jdbcType=VARCHAR},-->
+            <!--</if>-->
+
+            <!--<if test="expiryDate != null">-->
+                <!--expiry_date = #{expiryDate,jdbcType=VARCHAR},-->
+            <!--</if>-->
+            <!--<if test="originId != null">-->
+                <!--origin_id = #{originId,jdbcType=INTEGER},-->
+            <!--</if>-->
+            <!--<if test="yn != null">-->
+                <!--yn = #{yn,jdbcType=INTEGER},-->
+            <!--</if>-->
+            <!--update_time = #{updateTime,jdbcType=TIMESTAMP}-->
+        <!--</set>-->
+        <!--where original_dms_id = #{originalDmsId,jdbcType=INTEGER} and-->
+        <!--destination_dms_id = #{destinationDmsId,jdbcType=INTEGER} and-->
+        <!--yn = 1-->
+    <!--</update>-->
+
+    <!--<select id="getFullLineById" parameterType="crossBox"-->
+            <!--resultType="String">-->
+		<!--select full_line from cross_box-->
+		<!--where-->
+		<!--original_dms_id =-->
+		<!--#{originalDmsId,jdbcType=INTEGER} and destination_dms_id =-->
+		<!--#{destinationDmsId,jdbcType=INTEGER} and yn =1-->
+	<!--</select>-->
+
+    <!--<select id="selectActiveCrossBoxByDmsId" parameterType="crossBox"-->
+            <!--resultMap="crossBoxMap">-->
+        <!--select-->
+        <!--<include refid="sql_columns"/>-->
+        <!--from cross_box-->
+        <!--where-->
+        <!--original_dms_id =-->
+        <!--#{originalDmsId,jdbcType=INTEGER}-->
+        <!--and destination_dms_id =-->
+        <!--#{destinationDmsId,jdbcType=INTEGER} and yn =1-->
+        <!--limit 1-->
+    <!--</select>-->
+
+    <!--<select id="selectInactiveCrossBoxByDmsId" parameterType="crossBox"-->
+            <!--resultMap="crossBoxMap">-->
+        <!--select-->
+        <!--<include refid="sql_columns"/>-->
+        <!--from cross_box-->
+        <!--where-->
+        <!--original_dms_id =-->
+        <!--#{originalDmsId,jdbcType=INTEGER}-->
+        <!--and destination_dms_id =-->
+        <!--#{destinationDmsId,jdbcType=INTEGER} and yn =2-->
+        <!--and effective_date= #{effectiveDate,jdbcType=INTEGER}-->
+        <!--limit 1-->
+    <!--</select>-->
+
+    <!--<select id="queryByCondition" parameterType="java.util.Map" resultMap="crossBoxMap">-->
+        <!--select-->
+        <!--<include refid="sql_columns"/>-->
+        <!--from cross_box-->
+        <!--<include refid="selectWhere"/>-->
+        <!--order by id desc-->
+        <!--<if test="startIndex != null">-->
+			<!--LIMIT #{startIndex},#{pageSize}-->
+		<!--</if>-->
+    <!--</select>-->
+
+    <!--<select id="countByCondition" parameterType="java.util.Map"-->
+            <!--resultType="int">-->
+        <!--select count(*) from cross_box-->
+        <!--<include refid="selectWhere"/>-->
+    <!--</select>-->
+
+    <!--<select id="getCrossBoxById" parameterType="int" resultMap="crossBoxMap">-->
+        <!--select-->
+        <!--<include refid="sql_columns"/>-->
+        <!--from cross_box-->
+        <!--<where>-->
+            <!--yn =1 and id = #{id,jdbcType=INTEGER}-->
+        <!--</where>-->
+    <!--</select>-->
+
+    <!--<select id="checkLineExist" parameterType="crossBox" resultType="String">-->
+		<!--select full_line-->
+		<!--from cross_box-->
+		<!--where original_dms_id =-->
+		<!--#{originalDmsId,jdbcType=INTEGER} and-->
+		<!--destination_dms_id=#{destinationDmsId,jdbcType=INTEGER}-->
+		<!--and yn =1-->
+	<!--</select>-->
+
+    <!--<select id="selectCrossBoxByDmsId" parameterType="crossBox"-->
+            <!--resultMap="crossBoxMap">-->
+        <!--select-->
+        <!--<include refid="sql_columns"/>-->
+        <!--from cross_box-->
+        <!--where-->
+        <!--original_dms_id =-->
+        <!--#{originalDmsId,jdbcType=INTEGER} and destination_dms_id =-->
+        <!--#{destinationDmsId,jdbcType=INTEGER} and (yn =1 or yn=2)-->
+        <!--limit 1-->
+    <!--</select>-->
+
+    <!--<select id="getFullLineByDmsId" parameterType="crossBox"-->
+            <!--resultType="String">-->
+        <!--select full_line from cross_box-->
+        <!--where-->
+        <!--original_dms_id =-->
+        <!--#{originalDmsId,jdbcType=INTEGER} and destination_dms_id =-->
+        <!--#{destinationDmsId,jdbcType=INTEGER} and yn =1-->
+    <!--</select>-->
+</mapper>

@@ -1401,6 +1401,19 @@ public class BaseResource {
 		return ll;
 	}
 
+	@GET
+	@GZIP
+	@Path("/bases/getB2BSiteAll/{subType}")
+	public List<BaseStaffSiteOrgDto> getB2BSiteAll(@PathParam("subType") Integer subType){
+		List<BaseOrg>  allOrgs = baseService.getAllOrg();
+		List<BaseStaffSiteOrgDto> result = new ArrayList<BaseStaffSiteOrgDto>();
+		for(BaseOrg baseOrg : allOrgs){
+			result.addAll(baseMajorManager.getBaseSiteByOrgIdSubType(baseOrg.getOrgId(),subType));
+		}
+
+		return result;
+	}
+
 	private List<BaseStaffSiteOrgDto> dmsFilter(List<BaseStaffSiteOrgDto> baseSiteList) {
 		List<BaseStaffSiteOrgDto> dmsList = new ArrayList<BaseStaffSiteOrgDto>(512);
 		if(null != baseSiteList && baseSiteList.size() > 0){
