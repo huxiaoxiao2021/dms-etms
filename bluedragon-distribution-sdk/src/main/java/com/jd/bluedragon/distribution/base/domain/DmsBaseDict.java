@@ -31,6 +31,9 @@ public class DmsBaseDict extends DbEntity {
 
 	 /** 类型分类 */
 	private Integer typeGroup;
+	
+	 /** 排序值 */
+	private Integer orderNum;
 
 	/**
 	 * The set method for typeName.
@@ -126,6 +129,20 @@ public class DmsBaseDict extends DbEntity {
 	 */
 	public Integer getTypeGroup() {
 		return this.typeGroup;
+	}
+
+	/**
+	 * @return the orderNum
+	 */
+	public Integer getOrderNum() {
+		return orderNum;
+	}
+
+	/**
+	 * @param orderNum the orderNum to set
+	 */
+	public void setOrderNum(Integer orderNum) {
+		this.orderNum = orderNum;
 	}
 
 

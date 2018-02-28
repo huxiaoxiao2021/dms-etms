@@ -497,6 +497,7 @@ public class BaseServiceImpl implements BaseService {
 		}
 	}
 
+	@Deprecated
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
 		CallerInfo info = Profiler.registerInfo("DMS.BaseServiceImpl.getDmsSiteAll", false, true);
 		try {

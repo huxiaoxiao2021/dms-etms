@@ -92,8 +92,9 @@ public class BaseResource {
 	private VtsQueryWS vtsQueryWS;
 
 	@GET
-	@Path("/bases/allsite/")
+	//Path("/bases/allsite/")
 	@GZIP
+	@Deprecated
 	public List<BaseResponse> getDmsSiteAll() {
 		this.logger.info("查询所有站点信息");
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
@@ -774,8 +775,9 @@ public class BaseResource {
 	}
 
 	@GET
-	@Path("/newbases/allsite/")
+	//Path("/newbases/allsite/")
 	@GZIP
+	@Deprecated
 	public List<BaseResponse> getDmsSiteAll_New() {
 		this.logger.info("查询所有站点信息");
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
