@@ -21,8 +21,6 @@ public class B2BRouter implements Serializable{
     private String siteIdFullLine;
     private String siteNameFullLine;
 
-    private Integer routerChainId;
-
     private String operatorUserErp;
     private String operatorUserName;
 
@@ -109,14 +107,6 @@ public class B2BRouter implements Serializable{
 
     public void setOriginalSiteType(Integer originalSiteType) {
         this.originalSiteType = originalSiteType;
-    }
-
-    public Integer getRouterChainId() {
-        return routerChainId;
-    }
-
-    public void setRouterChainId(Integer routerChainId) {
-        this.routerChainId = routerChainId;
     }
 
     public String getSiteIdFullLine() {

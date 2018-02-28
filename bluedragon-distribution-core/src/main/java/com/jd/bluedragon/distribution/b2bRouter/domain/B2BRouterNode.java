@@ -18,6 +18,8 @@ public class B2BRouterNode implements Serializable{
     private Integer destinationSiteCode;
     private String destinationSiteName;
 
+    private Integer yn;
+
     public Integer getChainId() {
         return chainId;
     }
@@ -72,5 +74,13 @@ public class B2BRouterNode implements Serializable{
 
     public void setOriginalSiteType(Integer originalSiteType) {
         this.originalSiteType = originalSiteType;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }

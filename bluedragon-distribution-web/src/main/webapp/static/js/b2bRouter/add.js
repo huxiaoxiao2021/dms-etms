@@ -1,210 +1,100 @@
 function main() {
-//	getSiteData(-1, -1);
-	if($("#originateOrg")){
-		var orgId = $("#originateOrg").val();
-		getSiteData(1, orgId);
-	}
-	
-	if($("#destinationOrg")){
-		var orgId = $("#destinationOrg").val();
-		getSiteData(2, orgId);
-	}
-	
-	if($("#transferOneOrg")){
-		var orgId = $("#transferOneOrg").val();
-		getSiteData(3, orgId);
-	}
-	
-	if($("#transferTwoOrg")){
-		var orgId = $("#transferTwoOrg").val();
-		getSiteData(4, orgId);
-	}
-	
-	if($("#transferThreeOrg")){
-		var orgId = $("#transferThreeOrg").val();
-		getSiteData(5, orgId);
-	}
-	
-	$("#originateOrg").change(function() {
-		$("#originalDmsName").val("");
-		$("#originalDmsId").val("");
-		$("#originalDmsName").unautocomplete();
-		var orgId = $("#originateOrg").val();
-		getSiteData(1, orgId);
-	});
-	$("#destinationOrg").change(function() {
-		$("#destinationDmsName").val("");
-		$("#destinationDmsId").val("");
-		$("#destinationDmsName").unautocomplete();
-		var orgId = $("#destinationOrg").val();
-		getSiteData(2, orgId);
-	});
-	$("#transferOneOrg").change(function() {
-		$("#transferOneName").val("");
-		$("#transferOneId").val("");
-		$("#transferOneName").unautocomplete();
-		var orgId = $("#transferOneOrg").val();
-		getSiteData(3, orgId);
-	});
-	$("#transferTwoOrg").change(function() {
-		$("#transferTwoName").val("");
-		$("#transferTwoId").val("");
-		$("#transferTwoName").unautocomplete();
-		var orgId = $("#transferTwoOrg").val();
-		getSiteData(4, orgId);
-	});
-	$("#transferThreeOrg").change(function() {
-		$("#transferThreeName").val("");
-		$("#transferThreeId").val("");
-		$("#transferThreeName").unautocomplete();
-		var orgId = $("#transferThreeOrg").val();
-		getSiteData(5, orgId);
-	});
-	
-	// 初始化机构下拉框
-	initOrg();
-}
+	initOriAndTrans();
+	initDes();
 
-// 初始化机构下拉框
-function initOrg() {
-	var url = $("#contextPath").val() + "/services/bases/allorgs";
-	var param = {};
-	$.getJSON(url, function(data) {
-		var orgList = data;
-		var tableObj_originateOrg = $('#originateOrg');
-		var tableObj_destinationOrg = $('#destinationOrg');
-		var tableObj_transferOneOrg = $('#transferOneOrg');
-		var tableObj_transferTwoOrg = $('#transferTwoOrg');
-		var tableObj_transferThreeOrg = $('#transferThreeOrg');
-
-		var optionList;
-		for (var i = 0; i < orgList.length; i++) {
-			if (orgList[i].orgId != -100) {
-				optionList += "<option value='" + orgList[i].orgId + "'>"
-						+ orgList[i].orgName + "</option>";
-			}
-		}
-		tableObj_originateOrg.append(optionList);
-		tableObj_destinationOrg.append(optionList);
-		tableObj_transferOneOrg.append(optionList);
-		tableObj_transferTwoOrg.append(optionList);
-		tableObj_transferThreeOrg.append(optionList);
+	$("#destinationSiteType").change(function() {
+		alert("change")
+		$("#destinationSiteName").val("");
+		$("#destinationSiteCode").val("");
+		$("#destinationSiteName").unautocomplete();
+		initDes();
 	});
 }
 
-function getSiteData(index, orgId) {
-	var subType = 6420;
+function initDes() {
+	var siteType = $("#destinationSiteType").val();
+	var subTypes = 6420;
 	var contextPath = $("#contextPath").val();
-	var b2bSites = "";
 	var b2bSiteArray=new Array();
-	var url = contextPath + "/services/bases/getB2BSiteAll/" + subType;
+	var url = "/services/bases/getB2BSiteAll/"+subTypes;
+
+	alert(siteType);
+	if (siteType == 1){
+		jQuery.ajax({
+			type : "GET",
+			url : url,
+			data : {
+				subTypes : subTypes
+			},
+			success : function(msg) {
+				jQuery.each(msg, function(infoIndex, info) {
+					if(info.code == 200) {
+						var node = {
+							label: info.siteName,
+							value: info.siteCode
+						};
+						b2bSiteArray[infoIndex] = node;
+					}
+				});
+				initSiteList(b2bSiteArray,$("#destinationSiteName"),$("#destinationSiteCode"));
+			}
+		});
+	}else{
+		var data = [{label:'仓库1',value:101},{label:'仓库2',value:102},{label:'仓库3',value:103}];
+		initSiteList(data,$("#destinationSiteName"),$("#destinationSiteCode"));
+	}
+}
+
+function initOriAndTrans() {
+	var subTypes = 6420;
+	var contextPath = $("#contextPath").val();
+	var b2bSiteArray=new Array();
+	var url = "/services/bases/getB2BSiteAll/"+subTypes;
 	jQuery.ajax({
 		type : "GET",
 		url : url,
 		data : {
-			subType : subType
+			subTypes : subTypes
 		},
 		success : function(msg) {
 			jQuery.each(msg, function(infoIndex, info) {
-				if (info.code == 200) {
+				if(info.code == 200) {
 					var node = {
-						label:info.siteName,
-						value:info.siteCode
+						label: info.siteName,
+						value: info.siteCode
 					};
 					b2bSiteArray[infoIndex] = node;
 				}
 			});
-
-			initSiteList(b2bSiteArray);
-
-			// b2bfSiteArray = b2bSites.split(" ");
-            //
-			// orginalDms(b2bfSiteArray);
-			// destinationDms(b2bfSiteArray);
-			// transferDms1(b2bfSiteArray);
-			// transferDms2(b2bfSiteArray);
-			// transferDms3(b2bfSiteArray);
-
-			initSiteList(b2bSiteArray);
+			initSiteList(b2bSiteArray,$("#originalSiteName"),$("#originalSiteCode"));
+			initSiteList(b2bSiteArray,$("#transOneSiteName"),$("#transOneSiteCode"));
+			initSiteList(b2bSiteArray,$("#transTwoSiteName"),$("#transTwoSiteCode"));
+			initSiteList(b2bSiteArray,$("#transThreeSiteName"),$("#transThreeSiteCode"));
+			initSiteList(b2bSiteArray,$("#transFourSiteName"),$("#transFourSiteCode"));
+			initSiteList(b2bSiteArray,$("#transFiveSiteName"),$("#transFiveSiteCode"));
 		}
 	});
 }
 
-function initSiteList(b2bSiteArray){
-	$("#originalDmsName").autocomplete({
-		// 静态的数据源
-		source: b2bSiteArray,
-		select: function(event, ui){
-			// 这里的this指向当前输入框的DOM元素
-			// event参数是事件对象
-			// ui对象只有一个item属性，对应数据源中被选中的对象
+function initSiteList(b2bSiteArray,siteNameObj,siteCodeObj){
+	if(b2bSiteArray.length<1){
+		siteNameObj.clear();
+		siteCodeObj.clear();
+	}else {
+		siteNameObj.autocomplete(b2bSiteArray, {
+			formatItem: function (item) {
+				return item.label;
+			},
+			minChars: 0,
+			max: 20,
+			matchContains: true,
+		}).result(function (event, item) {
+			siteNameObj.val(item.label);
+			siteCodeObj.val(item.value);
+		});
+	}
+}
 
-			$(this).value = ui.item.label;
-			$("#originalSiteCode").val( ui.item.value );
-
-			// 必须阻止默认行为，因为autocomplete默认会把ui.item.value设为输入框的value值
-			event.preventDefault();
-		}
-	});
-}
-function orginalDms(b2bfSiteArray) {
-	$('#originalDmsName').autocomplete(b2bfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data) {
-		var result = data[0].split("|");
-		$("#originalSiteName").val(result[0]);
-		$("#originalSiteCode").val(result[1]);
-	});
-}
-function destinationDms(selfSiteArray) {
-	$('#destinationDmsName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#destinationDmsName").val(result[0]);
-		$("#destinationDmsId").val(result[1]);
-	});
-}
-function transferDms1(selfSiteArray) {
-	$('#transferOneName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#transferOneName").val(result[0]);
-		$("#transferOneId").val(result[1]);
-	});
-}
-function transferDms2(selfSiteArray) {
-	$('#transferTwoName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#transferTwoName").val(result[0]);
-		$("#transferTwoId").val(result[1]);
-	});
-}
-function transferDms3(selfSiteArray) {
-	$('#transferThreeName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#transferThreeName").val(result[0]);
-		$("#transferThreeId").val(result[1]);
-	});
-}
-function getSites(info) {
-	return info.siteName + "|" + info.siteCode + "|";
-}
 
 function clearHiddenInput() {
 	if ($("#transferOneName").val() == "") {
@@ -223,26 +113,73 @@ function sbmt() {
 	var contextPath = $("#contextPath").val();		
 			
 	if ($("#dataForm").validate()) {
-		var originalDmsName = $("#originalDmsName").val();
-		var desDmsName = $("#destinationDmsName").val();
-		var transferOneName = $("#transferOneName").val();
-		var transferTwoName = $("#transferTwoName").val();
-		var transferThreeName = $("#transferThreeName").val();
-  
-		if (originalDmsName == "" || desDmsName == "" || transferOneName == ""){
-			alert("始发分拣中心&中转1&目的分拣中心必填");
-		}else if (originalDmsName == desDmsName){
-			alert("始发分拣中心和目的分拣中心不能重复");
-		}else if (transferOneName == ""
-				&& (transferTwoName != "" || transferThreeName != "")) {
-			alert("请按照顺序填写中转地");
-		} else if (transferTwoName == "" && transferThreeName != "") {
-			alert("请按照顺序填写中转地");
+		var originalSiteName = $("#originalSiteName").val();
+		var transOneSiteName = $("#transOneSiteName").val();
+		var transTwoSiteName = $("#transTwoSiteName").val();
+		var transThreeSiteName = $("#transThreeSiteName").val();
+		var transFourSiteName = $("#transFourSiteName").val();
+		var transFiveSiteName = $("#transFiveSiteName").val();
+		var destinationSiteName = $("#destinationSiteName").val();
+		var destinationSiteType = $("#destinationSiteType").val();
+
+		if (originalSiteName == "" || destinationSiteName == ""){
+			alert("始发网点&目的网点必填");
+		}else if (originalSiteName == destinationSiteName){
+			alert("始发网点和目的网点不能重复");
+		}else if (transOneSiteName == "" &&
+			(transTwoSiteName != "" || transThreeSiteName != "" || transFourSiteName !="" || transFiveSiteName!= "")) {
+			alert("请按照顺序填写中转网点");
+		} else if (transTwoSiteName == "" &&
+			(transThreeSiteName != "" || transFourSiteName !="" || transFiveSiteName!= "")) {
+			alert("请按照顺序填写中转网点");
+		} else if(transThreeSiteName == "" && (transFourSiteName !="" || transFiveSiteName!= "")) {
+			alert("请按照顺序填写中转网点");
+		} else if(transFourSiteName =="" && transFiveSiteName!= ""){
+			alert("请按照顺序填写中转网点");
 		} else {
 			var flag = false;
 			var message = "";
+
+			var originalSiteCode = $("#originalSiteCode").val();
+			var transOneSiteCode = $("#transOneSiteCode").val();
+			var transTwoSiteCode = $("#transTwoSiteCode").val();
+			var transThreeSiteCode = $("#transThreeSiteCode").val();
+			var transFourSiteCode = $("#transFourSiteCode").val();
+			var transFiveSiteCode = $("#transFiveSiteCode").val();
+			var destinationSiteCode = $("#destinationSiteCode").val();
+
+			var siteNameFullLine=destinationSiteName;
+			var siteCodeFullLine=destinationSiteCode;
+
+			if(transFiveSiteName!= ""){
+				siteNameFullLine = transFiveSiteName +"-"+siteNameFullLine;
+				siteCodeFullLine = transFiveSiteCode +"-"+siteCodeFullLine;
+			}
+			if(transFourSiteName!=""){
+				siteNameFullLine = transFourSiteName +"-"+siteNameFullLine;
+				siteCodeFullLine = transFourSiteCode +"-"+siteCodeFullLine;
+			}
+			if(transThreeSiteName!=""){
+				siteNameFullLine = transThreeSiteName +"-"+siteNameFullLine;
+				siteCodeFullLine = transThreeSiteCode +"-"+siteCodeFullLine;
+			}
+			if(transTwoSiteName!=""){
+				siteNameFullLine = transTwoSiteName +"-"+siteNameFullLine;
+				siteCodeFullLine = transTwoSiteCode +"-"+siteCodeFullLine;
+			}
+			if(transOneSiteName!=""){
+				siteNameFullLine = transOneSiteName +"-"+siteNameFullLine;
+				siteCodeFullLine = transOneSiteCode +"-"+siteCodeFullLine;
+			}
+
+			siteNameFullLine = originalSiteName +"-"+siteNameFullLine;
+			siteCodeFullLine = originalSiteCode +"-"+siteCodeFullLine;
+
+			$("#siteNameFullLine").val(siteNameFullLine);
+			$("#siteIdFullLine").val(siteCodeFullLine);
+
 			jQuery.ajax({
-				url : contextPath + "/base/crossbox/check?" + Math.random(),
+				url : contextPath + "/b2bRouter/check?" + Math.random(),
 				type : 'post',
 				data : $('#dataForm').formSerialize(),
 				dataType : 'json',

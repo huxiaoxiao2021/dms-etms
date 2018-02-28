@@ -14,8 +14,6 @@
         <result column="code_full_line" jdbcType="VARCHAR" property="siteIdFullLine"/>
         <result column="name_full_line" jdbcType="VARCHAR" property="siteNameFullLine"/>
 
-        <result column="chain_id" jdbcType="INTEGER" property="routerChainId"/>
-
         <result column="operator_code" jdbcType="VARCHAR" property="operatorUserErp"/>
         <result column="operator_name" jdbcType="VARCHAR" property="operatorUserName"/>
 
@@ -25,18 +23,16 @@
         <result column="yn" jdbcType="TINYINT" property="yn"/>
     </resultMap>
 
-    <!--<sql id="sql_columns">-->
-		<!--id,original_dms_id,original_dms_name,destination_dms_id,destination_dms_name,transfer_one_id,transfer_one_name,-->
-		<!--transfer_two_id,transfer_two_name,transfer_three_id,transfer_three_name,full_line,create_time,-->
-		<!--update_time,create_operator_name,update_operator_name,remark,yn,expiry_date,effective_date,origin_id-->
-	<!--</sql>-->
-
+	<sql id="sql_columns">
+		original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
+		code_full_line,operator_code,operator_name,create_time,update_time
+	</sql>
 
     <insert id="addB2BRouter" parameterType="B2BRouter" keyProperty="id" useGeneratedKeys="true">
 		insert into
 		b2b_router(
 		original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
-		code_full_line,chain_id,operator_code,operator_name,create_time,update_time)
+		code_full_line,operator_code,operator_name,create_time,update_time)
 		values(
 		#{originalSiteType,jdbcType=INTEGER},
 		#{originalSiteCode,jdbcType=INTEGER},
@@ -49,8 +45,6 @@
 		#{siteIdFullLine,jdbcType=VARCHAR},
 		#{siteNameFullLine,jdbcType=VARCHAR},
 
-		#{routerChainId,jdbcType=INTEGER},
-
 		#{operatorUserErp,jdbcType=VARCHAR},
 		#{operatorUserName,jdbcType=VARCHAR},
 
@@ -59,172 +53,40 @@
 		#{yn,jdbcType=TINYINT}
 	</insert>
 
-    <!--<update id="deleteById" parameterType="crossBox">-->
-		<!--update cross_box-->
-		<!--set-->
-		<!--update_operator_name = #{updateOperatorName,jdbcType=VARCHAR},-->
-		<!--yn = 0,-->
-		<!--update_time = #{updateTime,jdbcType=TIMESTAMP},-->
-		<!--remark =-->
-		<!--#{remark,jdbcType=VARCHAR}-->
-		<!--where-->
-		<!--id=#{id,jdbcType=INTEGER}-->
-	<!--</update>-->
+	<update id="deleteById" parameterType="B2BRouter">
+		update b2b_router
+		set
+		operator_code = #{operatorUserErp,jdbcType=VARCHAR},
+		operator_name = #{operatorUserName,jdbcType=VARCHAR},
+		yn = 0,
+		update_time = #{updateTime,jdbcType=TIMESTAMP}
+		where
+		id=#{id,jdbcType=INTEGER}
+	</update>
 
-    <!--<update id="updateYnCrossBoxById" parameterType="crossBox">-->
-		<!--update cross_box-->
-		<!--set yn = #{yn,jdbcType=TINYINT} ,-->
-		<!--update_time = #{updateTime,jdbcType=VARCHAR},-->
-		<!--remark = #{remark,jdbcType=VARCHAR}-->
-		<!--where id = #{id,jdbcType=INTEGER}-->
-	<!--</update>-->
+	<select id="selectFullLineBySiteCode" parameterType="B2BRouter" resultType="B2BRouter">
+		select sql_columns from b2b_router
+		where
+		original_site_type = #{originalSiteType,jdbcType=INTEGER}
+		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		and destination_site_type = #{destinationSiteType,jdbcType=INTEGER}
+		and destination_site_code=#{destinationSiteCode,jdbcType=INTEGER}
+		and yn =1
+	</select>
 
-    <!--<update id="updateCrossBoxByDms" parameterType="crossBox">-->
-        <!--update cross_box-->
-        <!--<set>-->
-            <!--<if test="originalDmsId != null">-->
-                <!--original_dms_id = #{originalDmsId,jdbcType=INTEGER},-->
-            <!--</if>-->
-            <!--<if test="originalDmsName != null">-->
-                <!--original_dms_name = #{originalDmsName,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--<if test="destinationDmsId != null">-->
-                <!--destination_dms_id =-->
-                <!--#{destinationDmsId,jdbcType=INTEGER},-->
-            <!--</if>-->
-            <!--<if test="destinationDmsName != null">-->
-                <!--destination_dms_name =-->
-                <!--#{destinationDmsName,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--<if test="transferOneId != null">-->
-                <!--transfer_one_id = #{transferOneId,jdbcType=INTEGER},-->
-            <!--</if>-->
-            <!--<if test="transferOneName != null">-->
-                <!--transfer_one_name = #{transferOneName,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--transfer_two_id = #{transferTwoId,jdbcType=INTEGER},-->
-            <!--transfer_two_name = #{transferTwoName,jdbcType=VARCHAR},-->
-            <!--transfer_three_id = #{transferThreeId,jdbcType=INTEGER},-->
-            <!--transfer_three_name = #{transferThreeName,jdbcType=VARCHAR},-->
-            <!--<if test="fullLine != null">-->
-                <!--full_line = #{fullLine,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--<if test="remark != null">-->
-                <!--remark = #{remark,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--<if test="updateOperatorName != null">-->
-                <!--update_operator_name =-->
-                <!--#{updateOperatorName,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--<if test="effectiveDate != null">-->
-                <!--effective_date = #{effectiveDate,jdbcType=VARCHAR},-->
-            <!--</if>-->
+	<select id="selectFullLineId" parameterType="B2BRouter" resultType="String">
+		select code_full_line from b2b_router
+		where original_site_type = #{originalSiteType,jdbcType=INTEGER}
+		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		and destination_site_type = #{destinationSiteType,jdbcType=INTEGER}
+		and destination_site_code=#{destinationSiteCode,jdbcType=INTEGER}
+		and yn =1
+	</select>
 
-            <!--<if test="expiryDate != null">-->
-                <!--expiry_date = #{expiryDate,jdbcType=VARCHAR},-->
-            <!--</if>-->
-            <!--<if test="originId != null">-->
-                <!--origin_id = #{originId,jdbcType=INTEGER},-->
-            <!--</if>-->
-            <!--<if test="yn != null">-->
-                <!--yn = #{yn,jdbcType=INTEGER},-->
-            <!--</if>-->
-            <!--update_time = #{updateTime,jdbcType=TIMESTAMP}-->
-        <!--</set>-->
-        <!--where original_dms_id = #{originalDmsId,jdbcType=INTEGER} and-->
-        <!--destination_dms_id = #{destinationDmsId,jdbcType=INTEGER} and-->
-        <!--yn = 1-->
-    <!--</update>-->
+	<select id="selectAllRouter" parameterType="B2BRouter" resultType="B2BRouter">
+		select code_full_line from b2b_router
+		where
+		yn =1
+	</select>
 
-    <!--<select id="getFullLineById" parameterType="crossBox"-->
-            <!--resultType="String">-->
-		<!--select full_line from cross_box-->
-		<!--where-->
-		<!--original_dms_id =-->
-		<!--#{originalDmsId,jdbcType=INTEGER} and destination_dms_id =-->
-		<!--#{destinationDmsId,jdbcType=INTEGER} and yn =1-->
-	<!--</select>-->
-
-    <!--<select id="selectActiveCrossBoxByDmsId" parameterType="crossBox"-->
-            <!--resultMap="crossBoxMap">-->
-        <!--select-->
-        <!--<include refid="sql_columns"/>-->
-        <!--from cross_box-->
-        <!--where-->
-        <!--original_dms_id =-->
-        <!--#{originalDmsId,jdbcType=INTEGER}-->
-        <!--and destination_dms_id =-->
-        <!--#{destinationDmsId,jdbcType=INTEGER} and yn =1-->
-        <!--limit 1-->
-    <!--</select>-->
-
-    <!--<select id="selectInactiveCrossBoxByDmsId" parameterType="crossBox"-->
-            <!--resultMap="crossBoxMap">-->
-        <!--select-->
-        <!--<include refid="sql_columns"/>-->
-        <!--from cross_box-->
-        <!--where-->
-        <!--original_dms_id =-->
-        <!--#{originalDmsId,jdbcType=INTEGER}-->
-        <!--and destination_dms_id =-->
-        <!--#{destinationDmsId,jdbcType=INTEGER} and yn =2-->
-        <!--and effective_date= #{effectiveDate,jdbcType=INTEGER}-->
-        <!--limit 1-->
-    <!--</select>-->
-
-    <!--<select id="queryByCondition" parameterType="java.util.Map" resultMap="crossBoxMap">-->
-        <!--select-->
-        <!--<include refid="sql_columns"/>-->
-        <!--from cross_box-->
-        <!--<include refid="selectWhere"/>-->
-        <!--order by id desc-->
-        <!--<if test="startIndex != null">-->
-			<!--LIMIT #{startIndex},#{pageSize}-->
-		<!--</if>-->
-    <!--</select>-->
-
-    <!--<select id="countByCondition" parameterType="java.util.Map"-->
-            <!--resultType="int">-->
-        <!--select count(*) from cross_box-->
-        <!--<include refid="selectWhere"/>-->
-    <!--</select>-->
-
-    <!--<select id="getCrossBoxById" parameterType="int" resultMap="crossBoxMap">-->
-        <!--select-->
-        <!--<include refid="sql_columns"/>-->
-        <!--from cross_box-->
-        <!--<where>-->
-            <!--yn =1 and id = #{id,jdbcType=INTEGER}-->
-        <!--</where>-->
-    <!--</select>-->
-
-    <!--<select id="checkLineExist" parameterType="crossBox" resultType="String">-->
-		<!--select full_line-->
-		<!--from cross_box-->
-		<!--where original_dms_id =-->
-		<!--#{originalDmsId,jdbcType=INTEGER} and-->
-		<!--destination_dms_id=#{destinationDmsId,jdbcType=INTEGER}-->
-		<!--and yn =1-->
-	<!--</select>-->
-
-    <!--<select id="selectCrossBoxByDmsId" parameterType="crossBox"-->
-            <!--resultMap="crossBoxMap">-->
-        <!--select-->
-        <!--<include refid="sql_columns"/>-->
-        <!--from cross_box-->
-        <!--where-->
-        <!--original_dms_id =-->
-        <!--#{originalDmsId,jdbcType=INTEGER} and destination_dms_id =-->
-        <!--#{destinationDmsId,jdbcType=INTEGER} and (yn =1 or yn=2)-->
-        <!--limit 1-->
-    <!--</select>-->
-
-    <!--<select id="getFullLineByDmsId" parameterType="crossBox"-->
-            <!--resultType="String">-->
-        <!--select full_line from cross_box-->
-        <!--where-->
-        <!--original_dms_id =-->
-        <!--#{originalDmsId,jdbcType=INTEGER} and destination_dms_id =-->
-        <!--#{destinationDmsId,jdbcType=INTEGER} and yn =1-->
-    <!--</select>-->
 </mapper>

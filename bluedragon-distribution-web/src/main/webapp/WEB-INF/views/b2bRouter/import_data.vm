@@ -39,6 +39,7 @@
 	</div>
 	<!--[if !ie]>breadcrumb<![endif]-->
 	<div id="content">
+        <input type="hidden" id="contextPath" value="#springUrl('')">
 		<!--[if !ie]>tbl-n<![endif]-->
 	    <div id="opening" class="noborder">
 			<div class="tbl-bg">

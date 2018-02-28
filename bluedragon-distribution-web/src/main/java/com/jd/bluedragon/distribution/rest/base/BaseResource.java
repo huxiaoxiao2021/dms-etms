@@ -1403,12 +1403,68 @@ public class BaseResource {
 
 	@GET
 	@GZIP
-	@Path("/bases/getB2BSiteAll/{subType}")
-	public List<BaseStaffSiteOrgDto> getB2BSiteAll(@PathParam("subType") Integer subType){
-		List<BaseOrg>  allOrgs = baseService.getAllOrg();
-		List<BaseStaffSiteOrgDto> result = new ArrayList<BaseStaffSiteOrgDto>();
-		for(BaseOrg baseOrg : allOrgs){
-			result.addAll(baseMajorManager.getBaseSiteByOrgIdSubType(baseOrg.getOrgId(),subType));
+	@Path("/bases/getB2BSiteAll/{subTypes}")
+	public List<BaseResponse> getB2BSiteAll(@PathParam("subTypes") String subTypes){
+		this.logger.info("获取全国所有的转运中心，站点类型：" + subTypes);
+		List<BaseResponse> result = new ArrayList<BaseResponse>();
+
+		String [] subTypeArray = subTypes.split(",");
+
+		List<BaseOrg> allOrgs = null;
+		try {
+			logger.info("获取全国所有的转运中心-加载全国所有机构");
+			allOrgs = baseService.getAllOrg();
+		}catch (Exception e){
+			logger.error("获取全国所有的转运中心失败-加载全国所有机构失败");
+
+			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+					JdResponse.MESSAGE_SERVICE_ERROR);
+			result.add(response);
+			return result;
+		}
+
+		List<BaseStaffSiteOrgDto> siteList = new ArrayList<BaseStaffSiteOrgDto>();
+
+		for(String subTypeStr : subTypeArray) {
+			Integer subType = 0;
+			try {
+				subType = Integer.parseInt(subTypeStr);
+			}catch (Exception e){
+				logger.error("获取全国所有的转运中心失败"+subTypeStr +"无法转换成Integer类型");
+
+				BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+						JdResponse.MESSAGE_SERVICE_ERROR);
+				result.add(response);
+				return result;
+			}
+			logger.info("获取站点类型为：" + subType +"的站点");
+			try {
+				for (BaseOrg baseOrg : allOrgs) {
+					siteList.addAll(baseMajorManager.getBaseSiteByOrgIdSubType(baseOrg.getOrgId(), subType));
+				}
+			}catch (Exception e){
+				logger.error("获取全国所有的转运中心失败",e);
+
+				BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+						JdResponse.MESSAGE_SERVICE_ERROR);
+				result.add(response);
+				return result;
+			}
+		}
+
+		if(siteList == null || siteList.size() <1){
+			logger.error("获取全国所有的转运中心列表为空");
+			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
+					JdResponse.MESSAGE_SITES_EMPTY);
+			result.add(response);
+			return result;
+		}
+
+		for(BaseStaffSiteOrgDto dto : siteList){
+			BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+			br.setSiteCode(dto.getSiteCode());;
+			br.setSiteName(dto.getSiteName());
+			result.add(br);
 		}
 
 		return result;

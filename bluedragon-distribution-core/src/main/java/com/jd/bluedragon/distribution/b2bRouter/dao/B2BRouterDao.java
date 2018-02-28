@@ -13,7 +13,7 @@ import java.util.List;
 public class B2BRouterDao {
     private SqlSession sqlSession;
     private SqlSessionTemplate sqlSessionRead;
-    public static final String namespace = CrossSortingDao.class.getName();
+    public static final String namespace = B2BRouterDao.class.getName();
 
     public SqlSession getSqlSession() {
         return sqlSession;
@@ -31,18 +31,6 @@ public class B2BRouterDao {
         this.sqlSessionRead = sqlSessionRead;
     }
 
-    /**
-     * 根据始发网点id和目的网点id查找完成路径
-     * @router router
-     * @return
-     */
-    public List<B2BRouter> selectFullLine(B2BRouter router){
-        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectFullLineBySiteCode", router);
-    }
-
-    public B2BRouter selectByFullLineId(String fullLineId){
-        return this.getSqlSessionRead().selectOne(B2BRouterDao.namespace + ".selectByFullLineId", fullLineId);
-    }
 
     /**
      * 新增一条路由信息
@@ -53,7 +41,6 @@ public class B2BRouterDao {
         return this.getSqlSession().insert(B2BRouterDao.namespace + ".addB2BRouter",router);
     }
 
-
     /**
      * 删除一条路由信息
      * @param router
@@ -62,4 +49,22 @@ public class B2BRouterDao {
     public int deleteById(B2BRouter router){
         return this.getSqlSession().update(B2BRouterDao.namespace + ".deleteById", router);
     }
+
+    /**
+     * 根据始发网点id和目的网点id查找完成路径
+     * @router router
+     * @return
+     */
+    public List<B2BRouter> selectFullLineBySiteCode(B2BRouter router){
+        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectFullLineBySiteCode", router);
+    }
+
+    public List<String> selectFullLineId(B2BRouter router){
+        return this.getSqlSessionRead().selectOne(B2BRouterDao.namespace + ".selectFullLineId", router);
+    }
+
+    public List<B2BRouter> selectAllRouter(){
+        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectAllRouter");
+    }
+
 }

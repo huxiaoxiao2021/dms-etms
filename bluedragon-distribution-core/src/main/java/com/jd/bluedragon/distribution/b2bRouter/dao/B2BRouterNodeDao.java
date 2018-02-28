@@ -33,8 +33,20 @@ public class B2BRouterNodeDao {
     }
 
 
+    /**
+     * 增
+     * @param nodes
+     * @return
+     */
     public Integer addB2BRouterNodes(List<B2BRouterNode> nodes){
         return this.getSqlSession().insert(B2BRouterNodeDao.namespace+".addB2BRouterNodes", nodes);
     }
 
+    public Integer deleteRouterNodeByChainId(Integer chainId){
+        return this.getSqlSession().update(B2BRouterNodeDao.namespace +".deleteRouterNodeByChainId", chainId);
+    }
+
+    public List<B2BRouterNode> getNextNode(B2BRouterNode node){
+        return this.getSqlSession().selectList(B2BRouterNodeDao.namespace +"getNextNode",node);
+    }
 }

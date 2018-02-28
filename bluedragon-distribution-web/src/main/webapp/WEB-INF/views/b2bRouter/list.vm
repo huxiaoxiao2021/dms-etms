@@ -33,6 +33,7 @@
 </div>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content" width="100%">
+    <input type="hidden" id="contextPath" value="#springUrl('')">
 	<div class="m">
 		<div class="tbl-n">
 			<form id="dataForm" name="dataForm" action="" method="post">
