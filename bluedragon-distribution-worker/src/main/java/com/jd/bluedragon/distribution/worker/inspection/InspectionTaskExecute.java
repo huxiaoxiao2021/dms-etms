@@ -65,9 +65,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             request.setWaybillCode(code);
         } else {
             String errorMsg = "验货条码不符合规则:" + code;
-            if(logger.isErrorEnabled()){
-                logger.warn(errorMsg);
-            }
+            logger.warn(errorMsg);
             throw new WayBillCodeIllegalException(errorMsg);
         }
         if(BusinessHelper.isPackageCode(code) && !SerialRuleUtil.isMatchCommonPackageCode(code)){
