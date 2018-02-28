@@ -330,7 +330,12 @@
 			<version>2.3</version>
 			<scope>runtime</scope>
 		</dependency>
-
+		<!--安全相关 ConfigSecSDK importants运行环境加密-->
+		<dependency>
+			<groupId>com.jd.security.configsec</groupId>
+			<artifactId>spring-configsec-sdk</artifactId>
+			<version>1.0.2.RELEASE</version>
+		</dependency>
 	</dependencies>
 
 	<build>

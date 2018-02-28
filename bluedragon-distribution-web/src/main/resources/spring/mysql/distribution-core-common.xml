@@ -7,15 +7,7 @@
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
 
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:configured/*.properties</value>
-                <value>classpath:configured/important.properties</value>
-            </list>
-        </property>
-    </bean>
+
     <bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
