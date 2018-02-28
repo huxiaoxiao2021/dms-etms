@@ -24,15 +24,15 @@
     </resultMap>
 
 	<sql id="sql_columns">
-		original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
-		code_full_line,operator_code,operator_name,create_time,update_time
+		id,original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
+		code_full_line,name_full_line,operator_code,operator_name,create_time,update_time,yn
 	</sql>
 
     <insert id="addB2BRouter" parameterType="B2BRouter" keyProperty="id" useGeneratedKeys="true">
 		insert into
 		b2b_router(
 		original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
-		code_full_line,operator_code,operator_name,create_time,update_time)
+		code_full_line,name_full_line,operator_code,operator_name,create_time,update_time,yn)
 		values(
 		#{originalSiteType,jdbcType=INTEGER},
 		#{originalSiteCode,jdbcType=INTEGER},
@@ -50,7 +50,7 @@
 
 		#{createTime,jdbcType=TIMESTAMP},
 		#{updateTime,jdbcType=TIMESTAMP},
-		#{yn,jdbcType=TINYINT}
+		#{yn,jdbcType=TINYINT})
 	</insert>
 
 	<update id="deleteById" parameterType="B2BRouter">
@@ -64,29 +64,81 @@
 		id=#{id,jdbcType=INTEGER}
 	</update>
 
-	<select id="selectFullLineBySiteCode" parameterType="B2BRouter" resultType="B2BRouter">
+	<select id="selectFullLineBySiteCode" parameterType="B2BRouter" resultMap="b2bRouterMap">
 		select sql_columns from b2b_router
 		where
 		original_site_type = #{originalSiteType,jdbcType=INTEGER}
-		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
-		and destination_site_type = #{destinationSiteType,jdbcType=INTEGER}
-		and destination_site_code=#{destinationSiteCode,jdbcType=INTEGER}
-		and yn =1
+		 and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		 and destination_site_type = #{destinationSiteType,jdbcType=INTEGER}
+		 and destination_site_code=#{destinationSiteCode,jdbcType=INTEGER}
+		 and yn =1
 	</select>
 
 	<select id="selectFullLineId" parameterType="B2BRouter" resultType="String">
 		select code_full_line from b2b_router
-		where original_site_type = #{originalSiteType,jdbcType=INTEGER}
-		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
-		and destination_site_type = #{destinationSiteType,jdbcType=INTEGER}
-		and destination_site_code=#{destinationSiteCode,jdbcType=INTEGER}
-		and yn =1
+		where original_site_type=#{originalSiteType,jdbcType=INTEGER}
+		 and original_site_code=#{originalSiteCode,jdbcType=INTEGER}
+		 and destination_site_type=#{destinationSiteType,jdbcType=INTEGER}
+		 and destination_site_code=#{destinationSiteCode,jdbcType=INTEGER}
+		 and yn =1
 	</select>
 
-	<select id="selectAllRouter" parameterType="B2BRouter" resultType="B2BRouter">
+	<select id="selectAllRouter" parameterType="B2BRouter" resultMap="b2bRouterMap">
 		select code_full_line from b2b_router
 		where
 		yn =1
+	</select>
+
+
+	<select id="queryByCondition" parameterType="java.util.Map" resultMap="b2bRouterMap">
+		select
+		<include refid="sql_columns"/>
+		from b2b_router
+		where
+		  yn !=0
+		<if test="originalSiteType != null and originalSiteType != ''">
+		    and original_site_type=#{originalSiteType,jdbcType=INTEGER}
+		</if>
+		<if test="originalSiteCode != null and originalSiteCode != ''">
+		    and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="destinationSiteType != null and destinationSiteType != ''">
+		    and destination_site_type=#{destinationSiteType,jdbcType=INTEGER}
+		</if>
+		<if test="destinationSiteCode != null and destinationSiteCode != ''">
+		    and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+		</if>
+		 order by id desc
+		<if test="startIndex != null">
+		    LIMIT #{startIndex},#{pageSize}
+		</if>
+	</select>
+
+	<select id="countByCondition" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from b2b_router
+		where
+		yn !=0
+		<if test="originalSiteType != null and originalSiteType != ''">
+			 and original_site_type=#{originalSiteType,jdbcType=INTEGER}
+		</if>
+		<if test="originalSiteCode != null and originalSiteCode != ''">
+		     and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="destinationSiteType != null and destinationSiteType != ''">
+		    and destination_site_type=#{destinationSiteType,jdbcType=INTEGER}
+		</if>
+		<if test="destinationSiteCode != null and destinationSiteCode != ''">
+		    and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="getRouterById" parameterType="int" resultMap="b2bRouterMap">
+		select
+		<include refid="sql_columns"/>
+		from b2b_router
+		<where>
+			yn =1 and id = #{id,jdbcType=INTEGER}
+		</where>
 	</select>
 
 </mapper>

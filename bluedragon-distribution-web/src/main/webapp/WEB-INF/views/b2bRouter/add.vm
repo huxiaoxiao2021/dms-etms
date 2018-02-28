@@ -69,63 +69,63 @@
 	                        <tr>
                                 <td align="right" class="c_f8f8f8">始发网点：</td>
                                 <td>
-                                    <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
+                                    <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" style="width:130px" value="$!originalSiteName"/>
                                     <font class="star" style = "color:red">*</font>
-                                    <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
-                                    <input type="hidden" name="id" id="id" value="$!crossDmsBox.id"/>
+                                    <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!originalSiteCode"/>
+                                    <input type="hidden" name="id" id="id" value ="$!id"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="right" class="c_f8f8f8">中转1网点：</td>
                                 <td>
-                                    <input type="text" name="transOneSiteName" id="transOneSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transOneSiteCode" id="transOneSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                    <input type="text" name="transOneSiteName" id="transOneSiteName" v="require;length:30;" value="$!transOneSiteName" maxlength="50" style="width:130px"/>
+                                    <input type="hidden" name="transOneSiteCode" id="transOneSiteCode" value="$!transOneSiteCode"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="right" class="c_f8f8f8">中转2网点：</td>
                                 <td>
-                                    <input type="text" name="transTwoSiteName" id="transTwoSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transTwoSiteCode" id="transTwoSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                    <input type="text" name="transTwoSiteName" id="transTwoSiteName" v="require;length:30;" value="$!transTwoSiteName" maxlength="50" style="width:130px"/>
+                                    <input type="hidden" name="transTwoSiteCode" id="transTwoSiteCode" value="$!transTwoSiteCode"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="right" class="c_f8f8f8">中转3网点：</td>
                                 <td>
-                                    <input type="text" name="transThreeSiteName" id="transThreeSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transThreeSiteCode" id="transThreeSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                    <input type="text" name="transThreeSiteName" id="transThreeSiteName" v="require;length:30;" value="$!transThreeSiteName" maxlength="50" style="width:130px"/>
+                                    <input type="hidden" name="transThreeSiteCode" id="transThreeSiteCode" value="$!transThreeSiteCode"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="right" class="c_f8f8f8">中转4网点：</td>
                                 <td>
-                                    <input type="text" name="transFourSiteName" id="transFourSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transFourSiteCode" id="transFourSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                    <input type="text" name="transFourSiteName" id="transFourSiteName" v="require;length:30;" value="$!transFourSiteName" maxlength="50" style="width:130px"/>
+                                    <input type="hidden" name="transFourSiteCode" id="transFourSiteCode" value="$!transFourSiteCode"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="right" class="c_f8f8f8">中转5网点：</td>
                                 <td>
-                                    <input type="text" name="transFiveSiteName" id="transFiveSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transFiveSiteCode" id="transFiveSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                    <input type="text" name="transFiveSiteName" id="transFiveSiteName" v="require;length:30;" value="$!transFiveSiteName" maxlength="50" style="width:130px"/>
+                                    <input type="hidden" name="transFiveSiteCode" id="transFiveSiteCode" value="$!transFiveSiteCode"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="right" class="c_f8f8f8">目的网点：</td>
                                 <td>
-                                    <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px">
+                                    <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px" value="$!destinationSiteType">
                                         <option value= 1 >转运</option>
                                         <option value= 2 >仓库</option>
                                     </select>
-                                    <input type="text" name="destinationSiteName" id="destinationSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
+                                    <input type="text" name="destinationSiteName" id="destinationSiteName" value="$!destinationSiteName" v="require;length:30;" maxlength="50" style="width:130px"/>
                                     <font class="star" style = "color:red">*</font>
-                                    <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                    <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!destinationSiteCode"/>
                                 </td>
                             </tr>
                             <tr>

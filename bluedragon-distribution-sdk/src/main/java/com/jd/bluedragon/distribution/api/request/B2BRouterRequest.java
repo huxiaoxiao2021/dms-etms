@@ -8,29 +8,39 @@ import java.io.Serializable;
 public class B2BRouterRequest implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    private Integer originalB2BSiteId;
-    private String  originalB2BSiteName;
+    private Integer id;
+    private Integer originalSiteCode;
+    private String  originalSiteName;
 
-    private Integer destinalB2BSiteId;
-    private String  destinalB2BSiteName;
+    private Integer destinationSiteType;
+    private Integer destinationSiteCode;
+    private String  destinationSiteName;
 
     private Integer startIndex;
     private Integer endIndex;
 
-    public Integer getDestinalB2BSiteId() {
-        return destinalB2BSiteId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setDestinalB2BSiteId(Integer destinalB2BSiteId) {
-        this.destinalB2BSiteId = destinalB2BSiteId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getDestinalB2BSiteName() {
-        return destinalB2BSiteName;
+    public Integer getDestinationSiteCode() {
+        return destinationSiteCode;
     }
 
-    public void setDestinalB2BSiteName(String destinalB2BSiteName) {
-        this.destinalB2BSiteName = destinalB2BSiteName;
+    public void setDestinationSiteCode(Integer destinationSiteCode) {
+        this.destinationSiteCode = destinationSiteCode;
+    }
+
+    public String getDestinationSiteName() {
+        return destinationSiteName;
+    }
+
+    public void setDestinationSiteName(String destinationSiteName) {
+        this.destinationSiteName = destinationSiteName;
     }
 
     public Integer getEndIndex() {
@@ -41,20 +51,20 @@ public class B2BRouterRequest implements Serializable{
         this.endIndex = endIndex;
     }
 
-    public Integer getOriginalB2BSiteId() {
-        return originalB2BSiteId;
+    public Integer getOriginalSiteCode() {
+        return originalSiteCode;
     }
 
-    public void setOriginalB2BSiteId(Integer originalB2BSiteId) {
-        this.originalB2BSiteId = originalB2BSiteId;
+    public void setOriginalSiteCode(Integer originalSiteCode) {
+        this.originalSiteCode = originalSiteCode;
     }
 
-    public String getOriginalB2BSiteName() {
-        return originalB2BSiteName;
+    public String getOriginalSiteName() {
+        return originalSiteName;
     }
 
-    public void setOriginalB2BSiteName(String originalB2BSiteName) {
-        this.originalB2BSiteName = originalB2BSiteName;
+    public void setOriginalSiteName(String originalSiteName) {
+        this.originalSiteName = originalSiteName;
     }
 
     public Integer getStartIndex() {
@@ -63,5 +73,13 @@ public class B2BRouterRequest implements Serializable{
 
     public void setStartIndex(Integer startIndex) {
         this.startIndex = startIndex;
+    }
+
+    public Integer getDestinationSiteType() {
+        return destinationSiteType;
+    }
+
+    public void setDestinationSiteType(Integer destinationSiteType) {
+        this.destinationSiteType = destinationSiteType;
     }
 }

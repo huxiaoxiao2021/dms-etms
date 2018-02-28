@@ -185,6 +185,7 @@ function sbmt() {
 				dataType : 'json',
 				async : false,
 				success : function(data) {
+					alert(data.code);
 					if (data && data.code == 0) {
 						if (data.message) {
 							alert(data.message);
@@ -211,7 +212,7 @@ function sbmt() {
 function doAdd() {
 	var contextPath = $("#contextPath").val();
 	jQuery.ajax({
-		url : contextPath + "/base/crossbox/doAdd?" + Math.random(),
+		url : contextPath + "/b2bRouter/doAdd?" + Math.random(),
 		type : 'post',
 		data : $('#dataForm').formSerialize(),
 		dataType : 'json',
@@ -226,7 +227,7 @@ function doAdd() {
 			} else {
 				alert("添加成功");
 				document.location.href = contextPath
-						+ "/base/crossbox/index";
+						+ "/b2bRouter/index";
 			}
 		}
 	});
@@ -234,7 +235,7 @@ function doAdd() {
 function doUpdate() {
 	var contextPath = $("#contextPath").val();
 	jQuery.ajax({
-		url : contextPath + "/base/crossbox/doUpdate?" + Math.random(),
+		url : contextPath + "/b2bRouter/doUpdate?" + Math.random(),
 		type : 'post',
 		data : $('#dataForm').formSerialize(),
 		dataType : 'json',
@@ -284,7 +285,7 @@ function getQueryParams() {
  */
 function back_index(){
 	var params = getQueryParams();
-	var url =  "/base/crossbox/index?originateOrg="
+	var url =  "/b2bRouter/index?originateOrg="
 		+ params.originateOrg + "&originateOrgName=" + encodeURIComponent(encodeURIComponent(params.originateOrgName))+"&originalDmsName=" + encodeURIComponent(encodeURIComponent(params.originalDmsName)) + "&updateOperatorName="
 		+ encodeURIComponent(encodeURIComponent(params.updateOperatorName)) + "&destinationOrg=" + params.destinationOrg + "&destinationOrgName=" + encodeURIComponent(encodeURIComponent(params.destinationOrgName)) + "&destinationDmsName="
 		+ encodeURIComponent(encodeURIComponent(params.destinationDmsName)) +  "&startDate=" + params.startDate + "&endDate="

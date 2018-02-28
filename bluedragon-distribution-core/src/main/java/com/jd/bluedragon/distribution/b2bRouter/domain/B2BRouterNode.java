@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.b2bRouter.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by xumei3 on 2018/2/26.
@@ -17,6 +18,12 @@ public class B2BRouterNode implements Serializable{
     private Integer destinationSiteType;
     private Integer destinationSiteCode;
     private String destinationSiteName;
+
+    private String operatorUserErp;
+    private String operatorUserName;
+
+    private Date createTime;
+    private Date updateTime;
 
     private Integer yn;
 
@@ -82,5 +89,37 @@ public class B2BRouterNode implements Serializable{
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getOperatorUserErp() {
+        return operatorUserErp;
+    }
+
+    public void setOperatorUserErp(String operatorUserErp) {
+        this.operatorUserErp = operatorUserErp;
+    }
+
+    public String getOperatorUserName() {
+        return operatorUserName;
+    }
+
+    public void setOperatorUserName(String operatorUserName) {
+        this.operatorUserName = operatorUserName;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }
