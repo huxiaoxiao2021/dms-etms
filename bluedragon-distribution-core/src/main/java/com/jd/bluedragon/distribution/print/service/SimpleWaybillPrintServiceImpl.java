@@ -1,5 +1,20 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -7,17 +22,21 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -28,16 +47,6 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -70,6 +79,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private PreSortingSecondService preSortingSecondService;
+    
+    @Autowired
+    private DmsBaseDictService dmsBaseDictService;
 
     private List<ComposeService> composeServiceList;
     /**
@@ -182,9 +194,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             PrintWaybill commonWaybill=result.getData();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
-            //设置运单打印时间，取后台服务器时间
-            String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-            commonWaybill.setPrintTime(printTime);
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
@@ -510,4 +519,30 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         }
         return result;
     }
+    /**
+     * 
+     */
+    @Override
+	public void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName){
+		if(StringHelper.isNotEmpty(signStr)){
+			Map<Integer,SignConfig> signConfigs = dmsBaseDictService.getSignConfigsByConfigName(signConfigName);
+			String signText = "";
+			for(Integer position:signConfigs.keySet()){
+				SignConfig signConfig = signConfigs.get(position);
+				signText = null;
+				if(position>0&&position<=signStr.length()){
+					signText = signConfig.getSignTexts().get(signStr.subSequence(position - 1, position));
+				}
+				if(signText==null){
+					signText = "";
+				}
+				Field field = ObjectHelper.getField(target, signConfig.getFieldName());
+				try {
+					ObjectHelper.setValue(target, field, signText);
+				} catch (Exception e) {
+					logger.error(signConfig.getFieldName() + "属性设置异常", e);
+				}
+			}
+		}
+	}
 }

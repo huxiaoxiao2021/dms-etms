@@ -111,6 +111,10 @@ public class BasePrintWaybill implements Serializable {
 	 * 打印时间
 	 */
 	private String printTime;
+	/**
+	 * 清真标识-1、清真 2、易污染 3、清真 易污染
+	 */
+	private String muslimSignText;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -411,5 +415,19 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setPrintTime(String printTime) {
 		this.printTime = printTime;
+	}
+
+	/**
+	 * @return the muslimSignText
+	 */
+	public String getMuslimSignText() {
+		return muslimSignText;
+	}
+
+	/**
+	 * @param muslimSignText the muslimSignText to set
+	 */
+	public void setMuslimSignText(String muslimSignText) {
+		this.muslimSignText = muslimSignText;
 	}
 }
