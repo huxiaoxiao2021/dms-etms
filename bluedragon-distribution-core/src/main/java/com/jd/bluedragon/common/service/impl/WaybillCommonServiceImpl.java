@@ -511,11 +511,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
         target.setPriceProtectText(priceProtectText);
-        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(
-        		waybill.getWaybillSign(),
-        		Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE);
-        //设置签单返还、配送类型、运输产品
-        target.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE));
 
         //b2b快运 运输产品类型打标
         if(waybill.getWaybillSign().length() > 39){
