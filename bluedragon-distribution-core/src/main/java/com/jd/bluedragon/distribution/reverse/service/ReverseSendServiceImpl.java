@@ -309,7 +309,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 String body = generateCustomerBody("dms_send", "VirtualTopic.bd_dms_reverse_send",
                         "java.util.String", JsonHelper.toJson(send), MessageConstant.ReverseSend.getName()
                                 + tSendDetail.getPackageBarcode());
-                logger.error("推送售后MQ" + body);
+                logger.info("推送售后MQ" + body);
                 bdDmsReverseSendMQ.send(tSendDetail.getPackageBarcode(), body);
                 try {
                     //业务流程监控, 售后埋点
@@ -837,10 +837,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
             }
         } else {
-            this.logger.error("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
-            this.logger.error("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
-            this.logger.error("青龙发货至仓储WS消息失败，result.getResultValue()=" + result.getResultValue());
-            this.logger.error("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            this.logger.warn("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
+            this.logger.warn("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
+            this.logger.warn("青龙发货至仓储WS消息失败，result.getResultValue()=" + result.getResultValue());
+            this.logger.warn("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
             return false;
         }
 
@@ -926,10 +926,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
             sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
         } else {
-            this.logger.error("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
-            this.logger.error("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
-            this.logger.error("青龙发货至仓储WS消息失败，result.getResultValue()=" + result.getResultValue());
-            this.logger.error("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
+            this.logger.warn("青龙发货至仓储WS消息失败，result.getResultCode()=" + result.getResultCode());
+            this.logger.warn("青龙发货至仓储WS消息失败，result.getResultMessage()=" + result.getResultMessage());
+            this.logger.warn("青龙发货至仓储WS消息失败，result.getResultValue()=" + result.getResultValue());
+            this.logger.warn("青龙发货至仓储WS消息失败，运单号为" + wallBillCode);
             return false;
         }
 
@@ -956,14 +956,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @SuppressWarnings("rawtypes")
     public boolean sendReverseMessageToSpwms(SendM sendM, Integer baseOrgId, String baseStoreId) throws Exception {
         if (sendM == null) {
-            this.logger.error("reverse_spwms:sendM数据为空");
+            this.logger.warn("reverse_spwms:sendM数据为空");
             return true;
         }
 
         List<SendDetail> sendDetails = this.sendDatailDao.queryBySiteCodeAndSendCode(this.paramSendDetail(sendM));
 
         if (sendDetails == null || sendDetails.size() == 0) {
-            this.logger.error("reverse_spwms:sendD数据为空." + sendM.getSendCode());
+            this.logger.warn("reverse_spwms:sendD数据为空." + sendM.getSendCode());
             return true;
         }
 
@@ -996,7 +996,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             try {
                 Waybill waybill = this.getWaybill(waybillCode);
                 if (null == waybill) {
-                    this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取订单数据失败");
+                    this.logger.warn(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取订单数据失败");
                     continue;
                 }
 
@@ -1007,11 +1007,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                             sendDetail.getSendCode());
                     List<Product> products = waybill.getProList();
                     if (products == null || products.size() == 0) {
-                        this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
+                        this.logger.warn(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
                     }
                     List<Spare> spares = this.getSpare(baseOrgId,Integer.parseInt(baseStoreId), sendDetail, products);
                     if(spares==null || spares.isEmpty()){
-                    	this.logger.error(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms,获取备件条码为空");
+                    	this.logger.warn(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms,获取备件条码为空");
                     	continue;
                     }
                     int spare_num = 0;
@@ -1058,7 +1058,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     sendReverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
                             sendDetail.getSendCode());
                     if (null == sendReverseSpare || sendReverseSpare.size() == 0) {
-                        this.logger.error("spwms处理备件库退货出错waybillCode=" + waybillCode);
+                        this.logger.warn("spwms处理备件库退货出错waybillCode=" + waybillCode);
                         continue;
                     }
                 }
@@ -1168,18 +1168,18 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 //调用备货仓 jsf 接口 distributionReceiveJsfService
                 MessageResult msgResult = distributionReceiveJsfService.createIn(order);
                 if(null == msgResult ){
-                    this.logger.error("distributionReceiveJsfService接口返回 msgResult 为空");
+                    this.logger.warn("distributionReceiveJsfService接口返回 msgResult 为空");
                     continue;
                 }
                 //getReturnFlag ：100 - 成功 ，200 - 异常
                 if (null != msgResult.getReturnFlag() && msgResult.getReturnFlag() != 100) {
-                    this.logger.error("msgResult.getReturnFlag() != 100 [" + msgResult.getReturnFlag() + "]");
+                    this.logger.warn("msgResult.getReturnFlag() != 100 [" + msgResult.getReturnFlag() + "]");
                     continue;
                 }
                 String transferId = StringHelper.getStringValue(msgResult.getTransferId());
                 this.logger.info(waybillCode + "返回 transferId 结果:" + transferId);
                 if (StringHelper.isEmpty(transferId)) {
-                    this.logger.error(waybillCode + "spwms发货备件库失败，返回 ErrorMessage 结果:" + msgResult.getErrorMessage());
+                    this.logger.warn(waybillCode + "spwms发货备件库失败，返回 ErrorMessage 结果:" + msgResult.getErrorMessage());
                 } else {
                     //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
                     sendReportLoss(order.getOrderId().toString(), RECEIVE_TYPE_SPARE, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
@@ -1254,7 +1254,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private Waybill getWaybill(String waybillCode) {
         Waybill waybill = this.waybillCommonService.findWaybillAndGoods(waybillCode);
         if (null == waybill) {
-            this.logger.error(waybillCode + "ReverseSendServiceImpl --> getWaybill 获取运单数据失败");
+            this.logger.warn(waybillCode + "ReverseSendServiceImpl --> getWaybill 获取运单数据失败");
         }
         return waybill;
     }
@@ -1382,8 +1382,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             reverseReceiveLoss.setIsLock(ReverseReceiveLoss.LOCK);
             String jsonStr = JsonHelper.toJson(reverseReceiveLoss);
-            logger.error("青龙逆向发货后回传报损系统锁定MQ orderid为" + orderId);
-            logger.error("青龙逆向发货后回传报损系统锁定MQ json为" + jsonStr);
+            logger.warn("青龙逆向发货后回传报损系统锁定MQ orderid为" + orderId);
+            logger.warn("青龙逆向发货后回传报损系统锁定MQ json为" + jsonStr);
 
 
             //this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
@@ -1520,7 +1520,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
             workerProducer.send(messageList);
         } catch (Exception e) {
-            logger.warn(String.format("推送维修外单MQ失败, 发货明细 : %s", JsonHelper.toJson(sendDetailList)), e);
+            logger.error(String.format("推送维修外单MQ失败, 发货明细 : %s", JsonHelper.toJson(sendDetailList)), e);
         }
 
     }

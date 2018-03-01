@@ -30,4 +30,10 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      * @return
      */
     public List<DmsBaseDict> queryByCondition(PagerCondition pagerCondition);
+    /**
+     * 根据parentId查找所有下级节点数据
+     * @param parentId
+     * @return
+     */
+    List<DmsBaseDict> queryByParentId(Integer parentId);
 }

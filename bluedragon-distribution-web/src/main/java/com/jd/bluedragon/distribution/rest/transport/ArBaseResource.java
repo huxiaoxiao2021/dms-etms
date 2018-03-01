@@ -8,6 +8,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.transport.domain.ARCommonDictionaryType;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.domain.DictionaryInfoModel;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -34,7 +36,6 @@ public class ArBaseResource {
 
     @Autowired
     private BusTypeService busTypeService;
-
 
     /**
      * 获取空铁项目的城市信息和车型信息
@@ -54,11 +55,12 @@ public class ArBaseResource {
         }
 
         //2-获取摆渡车型信息
-        List<BusType> busTypes = busTypeService.getAllBusType();
-        for (BusType busType : busTypes) {
+        List<BusType> allBusTypes = busTypeService.getNeedsBusType();
+        for (BusType busType : allBusTypes) {
             result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.BUS_TYPE.getType()));
         }
 
+        Collections.sort(result);
         return result;
     }
 
