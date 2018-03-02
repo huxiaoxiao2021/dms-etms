@@ -1009,7 +1009,8 @@ public class WaybillResource {
 					packOpeDetail.setOpeUserName(editWeightRequest.getOperatorUser());
 					packOpeDetail.setOpeSiteId(editWeightRequest.getOperatorSiteId());
 					packOpeDetail.setOpeSiteName(editWeightRequest.getOperatorSite());
-					packOpeDetail.setOpeTime(DateHelper.formatDateTime(new Date()));
+					packOpeDetail.setOpeTime(DateHelper.formatDateTime(new Date(Long.valueOf(editWeightRequest.getOpeTime()))));
+
 					packOpeDetailList.add(packOpeDetail);
 					packOpeDto.setOpeDetails(packOpeDetailList);
 

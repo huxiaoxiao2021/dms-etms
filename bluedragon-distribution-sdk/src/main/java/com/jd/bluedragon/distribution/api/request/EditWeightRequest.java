@@ -29,6 +29,8 @@ public class EditWeightRequest implements Serializable {
 
     private String operatorSite;
 
+    private String opeTime;
+
     public String getPackageBarcode() {
         return packageBarcode;
     }
@@ -83,5 +85,16 @@ public class EditWeightRequest implements Serializable {
 
     public void setOperatorSite(String operatorSite) {
         this.operatorSite = operatorSite;
+    }
+
+    public String getOpeTime() {
+        if(opeTime==null || "".equals(opeTime)){
+            return System.currentTimeMillis()+"";
+        }
+        return opeTime;
+    }
+
+    public void setOpeTime(String opeTime) {
+        this.opeTime = opeTime;
     }
 }
