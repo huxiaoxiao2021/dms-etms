@@ -1486,6 +1486,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         boolean result = false;
         try {
             String isSeal = redisManager.getCache(sendCode);
+            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
             if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
                 result = true;
             }
