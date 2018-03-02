@@ -1056,8 +1056,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             DeliveryCancelSendMQBody body = new DeliveryCancelSendMQBody();
             body.setPackageBarcode(sendDetail.getPackageBarcode());
             body.setWaybillCode(sendDetail.getWaybillCode());
-            // 获取批次号，SendDetail中的批次号已设置为null，取SendM
-            body.setSendCode(sendM.getSendCode());
+            body.setSendCode(sendDetail.getSendCode());
             body.setOperateTime(sendM.getUpdateTime());
             deliveryCancelSendMQ.send(sendDetail.getPackageBarcode(), JsonHelper.toJson(body));
         } catch (Exception e) {
