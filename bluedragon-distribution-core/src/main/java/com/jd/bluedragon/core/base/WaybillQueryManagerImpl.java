@@ -99,12 +99,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			BaseEntity<Boolean> baseEntity = waybillTraceApi.sendOrderTrace(orderTraceDto);
 			if(baseEntity!=null){
 				if(!baseEntity.getData()){
-					this.logger.error("分拣数据回传全程跟踪sendOrderTrace异常："+baseEntity.getMessage()+baseEntity.getData());
+					this.logger.warn("分拣数据回传全程跟踪sendOrderTrace异常："+baseEntity.getMessage()+baseEntity.getData());
 					Profiler.functionError(info);
 					return false;
 				}
 			}else{
-				this.logger.error("分拣数据回传全程跟踪接口sendOrderTrace异常");
+				this.logger.warn("分拣数据回传全程跟踪接口sendOrderTrace异常");
 				Profiler.functionError(info);
 				return false;
 			}
@@ -124,18 +124,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
 			if(baseEntity!=null){
 				if(baseEntity.getResultCode()!=1){
-					this.logger.error(JsonHelper.toJson(bdTraceDto));
-					this.logger.error(bdTraceDto.getWaybillCode());
-					this.logger.error("分拣数据回传全程跟踪sendBdTrace异常："+baseEntity.getMessage());
+					this.logger.warn(JsonHelper.toJson(bdTraceDto));
+					this.logger.warn(bdTraceDto.getWaybillCode());
+					this.logger.warn("分拣数据回传全程跟踪sendBdTrace异常："+baseEntity.getMessage());
 					Profiler.functionError(info);
 					return false;
 				}
 			}else{
-				this.logger.error("分拣数据回传全程跟踪接口sendBdTrace异常"+bdTraceDto.getWaybillCode());
+				this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常"+bdTraceDto.getWaybillCode());
 				Profiler.functionError(info);
 				return false;
 			}
 		}catch(Exception e){
+			logger.error("分拣数据回传全程跟踪sendBdTrace异常："+bdTraceDto.getWaybillCode(), e);
 			Profiler.functionError(info);
 		}finally {
 			Profiler.registerInfoEnd(info);
@@ -153,7 +154,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, WAYBILL_STATUS_REDISPATCH);
 			if (baseEntity != null) {
 				if (baseEntity.getResultCode() != 1) {
-					this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode + ","
+					this.logger.warn("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode + ","
 							+ baseEntity.getResultCode() + "," + baseEntity.getMessage());
 					result = REDISPATCH_ERROR;
 				} else{
@@ -164,7 +165,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 					}
 				}
 			} else {
-				this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：" + waybillCode);
+				this.logger.warn("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：" + waybillCode);
 				result = REDISPATCH_ERROR;
 			}
 		} catch (Exception e) {
@@ -189,13 +190,13 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			baseEntity = waybillPickupTaskApi.batchQuerySurfaceCodes(waybillCodes);
 			if (baseEntity != null) {
 				if (baseEntity.getResultCode() != 1) {
-					this.logger.error("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState异常：" + oldWaybillCode + ","
+					this.logger.warn("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState异常：" + oldWaybillCode + ","
 							+ baseEntity.getResultCode() + "," + baseEntity.getMessage());
 				} else if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
 					changedWaybillCode = baseEntity.getData().get(oldWaybillCode);
 				}
 			} else {
-				this.logger.error("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState返回空：" + oldWaybillCode);
+				this.logger.warn("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState返回空：" + oldWaybillCode);
 			}
 		} catch (Exception e) {
 			Profiler.functionError(info);

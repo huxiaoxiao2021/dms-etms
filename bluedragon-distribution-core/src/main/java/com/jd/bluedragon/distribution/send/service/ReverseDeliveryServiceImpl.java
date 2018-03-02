@@ -170,7 +170,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			SendDetail tSendDatail) {
 		List<SendDetail> tlist = new ArrayList<SendDetail>();
 		tSendDatail.setIsCancel(2);
-		tSendDatail.setSendCode(tSendM.getSendCode());
+		if (StringUtils.isNotEmpty(tSendM.getSendCode())) {
+			tSendDatail.setSendCode(tSendM.getSendCode());
+		}
 		tSendDatail.setOperateTime(new Date());
 		tSendDatail.setCreateUser(tSendM.getUpdaterUser());
 		tSendDatail.setCreateUserCode(tSendM.getUpdateUserCode());
@@ -181,8 +183,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateIsCancelByPackageCode(SendM tSendM, SendDetail tSendDatail) {
+		String sendCode = tSendDatail.getSendCode();
 		tSendDatail.setSendCode(null);
 		deliveryService.cancelSendDatailByPackage(tSendDatail);
+		tSendDatail.setSendCode(sendCode);
 		if (BusinessHelper.isPackageCode(tSendDatail.getBoxCode())) {
 			tSendM.setBoxCode(tSendDatail.getBoxCode());
 			deliveryService.cancelSendM(tSendM);

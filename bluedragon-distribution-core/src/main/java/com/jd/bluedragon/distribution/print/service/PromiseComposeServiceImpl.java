@@ -79,13 +79,13 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     waybill.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
+                    log.warn("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
                 }
                 log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
-            log.error("外单调用promise接口异常" + e.toString() + waybill.getWaybillCode(),e);
+            log.error("外单调用promise接口异常" +waybill.getWaybillCode(),e);
         }
     }
 }

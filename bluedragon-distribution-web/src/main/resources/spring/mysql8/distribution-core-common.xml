@@ -10,15 +10,7 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:configured/*.properties</value>
-                <value>classpath:configured/important.properties</value>
-            </list>
-        </property>
-    </bean>
+
 
 	<import resource="classpath:spring/mysql8/distribution-core-datasource-backup.xml"/>
 	
