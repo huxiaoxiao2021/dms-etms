@@ -878,43 +878,23 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/queryPackcode/{waybillCode}")
-	public Map<String,Object> queryPackcode(@PathParam("waybillCode") String waybillCode){
+	public InvokeResult<List<PackageWeigh>> queryPackcode(@PathParam("waybillCode") String waybillCode){
 
-		Map<String,Object> resp = new HashMap<String, Object>();
+
+		InvokeResult<List<PackageWeigh>> result = new InvokeResult<List<PackageWeigh>>();
 		try{
 
-			BaseEntity<List<PackageWeigh>> packListByCode = waybillPackageApi.getPackListByCode(waybillCode);
-			int code = packListByCode.getResultCode();
-			String message =  packListByCode.getMessage();
+			result = this.waybillCommonService.getPackListByCode(waybillCode);
 
-			/*		1,"接口调用成功"
-					-1,"接口调用失败"
-					-2,"参数非法"
-					-3,"不存在的数据"	*/
-
-			if(code == 1){
-				//成功
-				code = 200;
-				message = "OK";
-				resp.put("data",packListByCode.getData());
-			}else{
-				//失败
-				code = 401;
-			}
-
-			resp.put("code",code);
-			resp.put("message",message);
-
-			logger.info("/waybill/queryPackcode success waybillCode--> " +waybillCode);
-
+			logger.info("/waybill/queryPackcode success waybillCode--> "+waybillCode);
 		}catch (Exception e){
 
 			logger.error("/waybill/queryPackcode  waybillCode--> "+waybillCode+" | "+e.getMessage());
 
-			resp.put("code",400);
-			resp.put("message","ERROR");
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
-		return resp;
+		return result;
 	}
 
 	/**
@@ -931,10 +911,10 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/addPackState")
-	public Map<String,Object> addPackState(PopAddPackStateRequest req){
+	public InvokeResult<Boolean> addPackState(PopAddPackStateRequest req){
 
-		Map<String,Object> resp = new HashMap<String, Object>();
 
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try{
 
 			PopAddPackStateTaskBody popAddPackStateTaskBody = new PopAddPackStateTaskBody();
@@ -965,20 +945,20 @@ public class WaybillResource {
 
 			taskService.add(task,true);  //直接创建task对象。因为taskService.toTask
 
-			resp.put("code",200);
-			resp.put("message","OK");
-			resp.put("data",true);
 
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			result.setData(true);
 			logger.info("/waybill/addPackState success context--> " +JsonHelper.toJson(req));
 		}catch (Exception e){
 
 			logger.error("/waybill/addPackState  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
 
-			resp.put("code",400);
-			resp.put("message","ERROR");
-			resp.put("data",false);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			result.setData(false);
 		}
-		return resp;
+		return result;
 
 	}
 
@@ -1001,8 +981,9 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/editWeight")
-	public Map<String,Object> editWeight(List<EditWeightRequest> req){
-		Map<String,Object> resp = new HashMap<String, Object>();
+	public InvokeResult<Boolean>editWeight(List<EditWeightRequest> req){
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+
 		//模拟离线称重 TASK
 		try{
 
@@ -1039,13 +1020,15 @@ public class WaybillResource {
 					taskService.add(this.taskService.toTask(taskRequest, body),true);
 
 				}
-				resp.put("code",200);
-				resp.put("message","OK");
-				resp.put("data",true);
+			
+				result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+				result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+				result.setData(true);
 			}else{
-				resp.put("code",400);
-				resp.put("message","参数异常");
-				resp.put("data",false);
+
+				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				result.setMessage(InvokeResult.PARAM_ERROR);
+				result.setData(false);
 			}
 
 			logger.info("/waybill/editWeight success context--> " +JsonHelper.toJson(req));
@@ -1053,12 +1036,12 @@ public class WaybillResource {
 
 			logger.error("/waybill/editWeight  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
 
-			resp.put("code",400);
-			resp.put("message","ERROR");
-			resp.put("data",false);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			result.setData(false);
 		}
 
-		return resp;
+		return result;
 	}
 
 }
