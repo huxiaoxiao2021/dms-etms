@@ -40,6 +40,9 @@ import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -494,13 +497,18 @@ public class BaseServiceImpl implements BaseService {
 		}
 	}
 
+	@Deprecated
 	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
+		CallerInfo info = Profiler.registerInfo("DMS.BaseServiceImpl.getDmsSiteAll", false, true);
 		try {
 			List<BaseStaffSiteOrgDto> results = baseMajorManager.getDmsSiteAll();
 			return results;
 		} catch (Exception e) {
 			log.error("调用basicMajorServiceProxy.getDmsSiteAll()异常", e);
+			Profiler.functionError(info);
 			return null;
+		}finally{
+			Profiler.registerInfoEnd(info);
 		}
 	}
 
@@ -511,6 +519,7 @@ public class BaseServiceImpl implements BaseService {
 	 * @return
 	 */
 	public Map<Integer, String> getSiteInfoByBaseStaffId(Integer baseStaffId) {
+		CallerInfo info = Profiler.registerInfo("DMS.BaseServiceImpl.getSiteInfoByBaseStaffId", false, true);
 		BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager
 		        .getBaseStaffByStaffId(baseStaffId);
 
@@ -532,11 +541,13 @@ public class BaseServiceImpl implements BaseService {
 
 		Map<Integer, String> map = new HashMap<Integer, String>();
 		if (baseStaffSiteOrgList.isEmpty()) {
+			Profiler.registerInfoEnd(info);
 			return map;
 		}
 		for (BaseStaffSiteOrgDto dto : baseStaffSiteOrgList) {
 			map.put(dto.getSiteCode(), dto.getSiteName());
 		}
+		Profiler.registerInfoEnd(info);
 		return map;
 	}
 

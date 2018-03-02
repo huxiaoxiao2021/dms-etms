@@ -1,13 +1,23 @@
 package com.jd.bluedragon.distribution.asynbuffer.service;
 
-import IceInternal.Ex;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.partnerWaybill.service.PartnerWaybillService;
-import com.jd.bluedragon.distribution.receive.service.ReceiveService;
+import com.jd.bluedragon.distribution.receive.service.impl.ReceiveTaskExecutor;
 import com.jd.bluedragon.distribution.receiveInspectionExc.service.ShieldsErrorService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
@@ -18,16 +28,6 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Created by xumei3 on 2017/4/17.
@@ -41,14 +41,17 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     }.getType();
 
     //分拣中心收货
+//    @Autowired
+//    private ReceiveService receiveService;
     @Autowired
-    private ReceiveService receiveService;
+    private ReceiveTaskExecutor receiveTaskExecutor;
+    
 
     public boolean receiveTaskProcess(Task task)
             throws Exception {
 
         try {
-            receiveService.doReceiveing(receiveService.taskToRecieve(task));
+        	receiveTaskExecutor.execute(task, "");
         } catch (Exception e) {
             logger.error(
                     "处理收货任务失败[taskId=" + task.getId() + "]异常信息为："
@@ -90,9 +93,16 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             logger.warn(sb.toString());
 
             return false;
-        } catch (Exception e) {
-            logger.error("验货worker失败, task id: " + task.getId()
-                    + ". 异常信息: " + e.getMessage(), e);
+        }catch (WayBillCodeIllegalException wayBillCodeIllegalEx){
+            StringBuilder sb=new StringBuilder("验货执行失败,已知异常");
+            sb.append(wayBillCodeIllegalEx.getMessage());
+            sb.append(SPLIT_CHAR).append(task.getBoxCode());
+            sb.append(SPLIT_CHAR).append(task.getKeyword1());
+            sb.append(SPLIT_CHAR).append(task.getKeyword2());
+            logger.warn(sb.toString());
+            return false;
+        }catch (Exception e) {
+            logger.error("验货worker失败, task id: " + task.getId() + ". 异常信息: " + e.getMessage(), e);
             return false;
         }
         return true;

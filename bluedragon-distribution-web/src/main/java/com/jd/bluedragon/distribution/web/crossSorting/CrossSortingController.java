@@ -312,8 +312,10 @@ public class CrossSortingController {
      * 导入excel文件
      * @param file
      * @param response
+     * 前台已经注释掉了
      */
     @RequestMapping(value = "/import", method = RequestMethod.POST)
+    @Deprecated
     public void doImportExcel(@RequestParam("importExcelFile") MultipartFile file, HttpServletResponse response){
         response.setContentType("text/json;charset=utf-8");
         PrintWriter pw = null;

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.base.dao.DmsBaseDictDao">
+
+	<resultMap id="DmsBaseDict" type="com.jd.bluedragon.distribution.base.domain.DmsBaseDict" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_code" property="typeCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="memo" property="memo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="parent_id" property="parentId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="node_level" property="nodeLevel" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="type_group" property="typeGroup" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,type_name,type_code,memo,parent_id,node_level,
+		type_group,order_num,create_time,update_time,is_delete,ts
+	</sql>
+
+	<sql id="where_condition">
+		<where>
+                is_delete = 0
+			<if test="id != null">
+				AND id = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="typeName != null">
+				AND type_name = #{typeName,jdbcType=VARCHAR}
+			</if>
+			<if test="typeCode != null">
+				AND type_code = #{typeCode,jdbcType=INTEGER}
+			</if>
+			<if test="parentId != null">
+				AND parent_id = #{parentId,jdbcType=INTEGER}
+			</if>
+			<if test="nodeLevel != null">
+				AND node_level = #{nodeLevel,jdbcType=INTEGER}
+			</if>
+			<if test="typeGroup != null">
+				AND type_group = #{typeGroup,jdbcType=INTEGER}
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.base.domain.DmsBaseDict">
+		insert into dms_base_dict
+			(
+			<trim suffixOverrides=",">
+				<if test="typeName != null">
+					type_name,
+				</if>
+				<if test="typeCode != null">
+					type_code,
+				</if>
+				<if test="memo != null">
+					memo,
+				</if>
+				<if test="parentId != null">
+					parent_id,
+				</if>
+				<if test="nodeLevel != null">
+					node_level,
+				</if>
+				<if test="typeGroup != null">
+					type_group,
+				</if>
+				<if test="orderNum != null">
+					order_num,
+				</if>
+					create_time,
+					update_time,
+					is_delete
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="typeName != null">
+					#{typeName,jdbcType=VARCHAR},
+				</if>
+				<if test="typeCode != null">
+					#{typeCode,jdbcType=INTEGER},
+				</if>
+				<if test="memo != null">
+					#{memo,jdbcType=VARCHAR},
+				</if>
+				<if test="parentId != null">
+					#{parentId,jdbcType=INTEGER},
+				</if>
+				<if test="nodeLevel != null">
+					#{nodeLevel,jdbcType=INTEGER},
+				</if>
+				<if test="typeGroup != null">
+					#{typeGroup,jdbcType=INTEGER},
+				</if>
+				<if test="orderNum != null">
+					#{orderNum,jdbcType=INTEGER},
+				</if>				
+                    NOW(),
+                    NOW(),
+                    0
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into dms_base_dict
+			(
+				type_name,type_code,memo,parent_id,
+				node_level,type_group,order_num,create_time,update_time,is_delete
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.typeName,jdbcType=VARCHAR},
+					#{item.typeCode,jdbcType=INTEGER},
+					#{item.memo,jdbcType=VARCHAR},
+					#{item.parentId,jdbcType=INTEGER},
+					#{item.nodeLevel,jdbcType=INTEGER},
+					#{item.typeGroup,jdbcType=INTEGER},
+					#{item.orderNum,jdbcType=INTEGER},
+                    NOW(),
+                    NOW(),
+                    0
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.base.domain.DmsBaseDict">
+		update dms_base_dict
+			<set>
+				<if test="typeName != null">
+					type_name = #{typeName,jdbcType=VARCHAR},
+				</if>
+				<if test="typeCode != null">
+					type_code = #{typeCode,jdbcType=INTEGER},
+				</if>
+				<if test="memo != null">
+					memo = #{memo,jdbcType=VARCHAR},
+				</if>
+				<if test="parentId != null">
+					parent_id = #{parentId,jdbcType=INTEGER},
+				</if>
+				<if test="nodeLevel != null">
+					node_level = #{nodeLevel,jdbcType=INTEGER},
+				</if>
+				<if test="typeGroup != null">
+					type_group = #{typeGroup,jdbcType=INTEGER},
+				</if>
+				<if test="orderNum != null">
+					order_num = #{orderNum,jdbcType=INTEGER},
+				</if>
+					update_time = NOW(),
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update dms_base_dict
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update dms_base_dict
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="DmsBaseDict">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_base_dict 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.base.domain.DmsBaseDict" resultMap="DmsBaseDict">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_base_dict 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  dms_base_dict 
+        <include refid="where_condition"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsBaseDict">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_base_dict 
+        <include refid="where_condition"/>
+         order by parent_id,type_group,order_num
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsBaseDict">
+		select
+		 <include refid="Base_Column_List"/>
+		from
+		  dms_base_dict
+        <include refid="where_condition"/>
+	</select>
+
+</mapper>

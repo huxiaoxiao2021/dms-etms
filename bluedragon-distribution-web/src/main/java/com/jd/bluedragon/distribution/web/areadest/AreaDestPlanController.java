@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.areadest;
 
 import com.jd.bk.common.util.string.StringUtils;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
@@ -61,6 +63,7 @@ public class AreaDestPlanController {
      * @param model
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
         try {
@@ -85,6 +88,7 @@ public class AreaDestPlanController {
      * @param pager
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestPlanResponse<Pager<List<AreaDestPlan>>> getList(Model model, AreaDestPlanRequest request, Pager<List<AreaDestPlan>> pager) {
@@ -117,6 +121,7 @@ public class AreaDestPlanController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/getAllList", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestPlanResponse<List<AreaDestPlan>> getAllList(AreaDestPlanRequest request) {
@@ -140,6 +145,7 @@ public class AreaDestPlanController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/addView", method = RequestMethod.GET)
     public String addView(Model model, Integer machineId) {
         try {
@@ -174,6 +180,7 @@ public class AreaDestPlanController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestPlanResponse save(@RequestBody AreaDestPlanRequest request) {
@@ -222,6 +229,7 @@ public class AreaDestPlanController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/getMayPlan", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<AreaDestPlanDetail> queryMyPlan(AreaDestPlanRequest request) {
@@ -254,6 +262,7 @@ public class AreaDestPlanController {
         return areaDestPlan;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @ResponseBody
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public JdResponse delete(Integer planId) {
@@ -288,6 +297,7 @@ public class AreaDestPlanController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public String detail(Model model, Integer id) {
         try {
@@ -303,6 +313,7 @@ public class AreaDestPlanController {
         return "areadest/detail";
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/config", method = RequestMethod.GET)
     public String config(Model model, Integer id) {
         try {

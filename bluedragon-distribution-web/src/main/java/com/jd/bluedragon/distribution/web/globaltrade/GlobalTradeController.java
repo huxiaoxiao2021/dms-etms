@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.globaltrade;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -48,6 +50,7 @@ public class GlobalTradeController {
     @Autowired
     private LoadBillService loadBillService;
 
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
         return "globaltrade/global-trade-index";
@@ -55,6 +58,7 @@ public class GlobalTradeController {
 
 
     @JProfiler(jKey = "DMSWEB.GlobalTradeController.prepareLoadBill", mState = JProEnum.TP)
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "/preload", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse prepareLoadBill(HttpServletRequest request) {
@@ -93,6 +97,7 @@ public class GlobalTradeController {
         return new LoadBillReportResponse(200, "预装载成功[" + effectSize + "]条订单");
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {
         try {
@@ -104,6 +109,7 @@ public class GlobalTradeController {
         return "globaltrade/global-trade-index";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "/cancel", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse cancelLoadBillStatus(LoadBillRequest request) {
@@ -135,7 +141,7 @@ public class GlobalTradeController {
         }
         return response;
     }
-
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "/loadBill/list", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest request, Pager<List<LoadBill>> pager) {
@@ -198,6 +204,7 @@ public class GlobalTradeController {
         return params;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "/loadBill/initial", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<String> initialLoadBill(LoadBillRequest request) {

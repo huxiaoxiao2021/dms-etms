@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发货登记</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/transport/arSendRegister.js"></script>
+
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+    <ol class="breadcrumb">
+        <li><a href="#">空铁系统</a></li>
+        <li class="active">发货登记</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-inline">
+            <fieldset>
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="box-code-input">运力名称：</label>
+                    <input type="text" id="transportName" class="form-control search-param" name="transportName"
+                           style="width: 190px;">
+                </div>
+
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="box-code-input">航空单号 ：</label>
+                    <input type="text" id="orderCode" class="form-control search-param" name="orderCode"
+                           style="width: 190px;">
+                </div>
+
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="box-code-input">操作部门 ：</label>
+                    <input type="text" id="operationDept" class="form-control search-param" name="operationDept"
+                           style="width: 190px;">
+                </div>
+
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="startOperTime">操作时间 ：</label>
+                    <input type="text" id="startOperTime" name="startOperTime" class="form-control search-param"
+                           style="width: 190px;">
+                    <span>-</span>
+                    <input type="text" id="endOperTime" name="endOperTime" class="form-control search-param"
+                           style="width: 190px;">
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+        </button>
+        <button id="btn_edit" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+        </button>
+        <button id="btn_delete" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+
+<div id="dataEditDiv" class="main" style="margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="#">发货登记维护</a></li>
+        <li class="active">编辑</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="edit-form" class="form-horizontal" role="form">
+            <fieldset>
+                <div style="float:left;width: 50%;">
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label"><span style="color: red;">*</span>运力名称：</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control edit-param" id="transportNameEdit" name="transportName"
+                                   placeholder="航班号/车次号"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">航空单号：</label>
+                        <div class="col-lg-5">
+                            <input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                            <input type="text" class="form-control edit-param" id="orderCodeEdit" name="orderCode"
+                                    placeholder="航空必填"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">铁路站序：</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control edit-param" id="siteOrderEdit" name="siteOrder"
+                                    placeholder="铁路必填"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label"><span style="color: red;">*</span>发货批次号：</label>
+                        <div class="col-lg-5">
+                            <textarea type="text" class="form-control edit-param" id="sendCode" name="sendCode" placeholder="支持多选/扫描"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label"><span style="color: red;">*</span>发货件数：</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control edit-param" id="sendNumEdit" name="sendNum"
+                                    placeholder="输入"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label"><span style="color: red;">*</span>计费重量kg：</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control edit-param" id="chargedWeightEdit" name="chargedWeight"
+                                    placeholder="输入"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">发货备注：</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control edit-param" id="remarkEdit" name="remark" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">摆渡车：</label>
+                        <div class="col-lg-5">
+                            <select id="shuttleBusType" name="shuttleBusType" class="form-control edit-param"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-lg-offset-3 col-lg-5">
+                            <input type="text" class="form-control edit-param" id="shuttleBusNumEdit" name="shuttleBusNum"
+                                    placeholder="车牌号"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">预计起飞/发车日期：</label>
+                        <div class="col-lg-5">
+                            <input type="text" id="sendDateEdit" name="sendDate" class="form-control edit-param">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">已扫批次数：</label>
+                        <div class="col-lg-5">
+                            <span id="sendCodeNum" style="font-size: 30px;color: red;text-align: left;display:block;">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="float:right;width:50%;">
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">航空公司：</label>
+                        <div class="col-lg-5">
+                            <input type="hidden" class="form-control edit-param" id="transCompanyCode" name="transCompanyCode"/>
+                            <input type="hidden" class="form-control edit-param" id="aging" name="aging"/>
+                            <span id="transCompany" style="font-size: 20px;text-align: left;display:block;"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">起飞：</label>
+                        <div class="col-lg-5">
+                            <input type="hidden" class="form-control edit-param" id="startCityId" name="startCityId"/>
+                            <input type="hidden" class="form-control edit-param" id="startStationId" name="startStationId"/>
+                            <span id="startCityName" style="font-size: 20px;float:left;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="startStationName" style="font-size: 20px;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="planStartTime" style="font-size: 20px;"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">落地：</label>
+                        <div class="col-lg-5">
+                            <input type="hidden" class="form-control edit-param" id="endCityId" name="endCityId"/>
+                            <input type="hidden" class="form-control edit-param" id="endStationId" name="endStationId"/>
+                            <span id="endCityName" style="font-size: 20px;text-align: left;float:left;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="endStationName" style="font-size: 20px;"></span>&nbsp;&nbsp;&nbsp;
+                            <span id="planEndTime" style="font-size: 20px;"></span>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        <button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">保存</button>
+                        <button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+</div>
+</body>
+</html>

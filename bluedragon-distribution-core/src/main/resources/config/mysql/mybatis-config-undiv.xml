@@ -4,7 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
     <settings>
         <setting name="lazyLoadingEnabled" value="false"/>
         <setting name="autoMappingBehavior" value="FULL"/>
@@ -120,6 +122,9 @@
             <property name="replaceNextValue" value="true"/>
             <property name="replaceExistsNewId" value="true"/>
         </plugin>
+        <!--
+        	<plugin interceptor="com.jd.ql.dms.common.pager.PaginationInterceptor"/>
+         -->
     </plugins>
 
     <mappers>
@@ -186,6 +191,7 @@
         <mapper resource="mappers/mysql/send/SendQueryMapper.xml"/>
 
         <mapper resource="mappers/mysql/systemLog/SystemLogMapper.xml"/>
+        <mapper resource="mappers/mysql/loginlog/SysLoginLogMapper.xml"/>
 
         <mapper resource="mappers/mysql/crossSorting/CrossSortingMapper.xml"/>
         <mapper resource="mappers/mysql/globaltrade/LoadBillMapper.xml"/>
@@ -219,6 +225,13 @@
         <!--jinjingcheng -->
         <mapper resource="mappers/mysql/sendGroup/SortMachineSendGroupMapper.xml"/>
         <mapper resource="mappers/mysql/sendGroup/SortMachineGroupConfigMapper.xml"/>
+        <!-- �����±� -->
+        <mapper resource="mappers/mysql/base/DmsBaseDictMapper.xml"/>
+        <!-- ����ҵ��� -->
+        <mapper resource="mappers/mysql/transport/ArBookingSpaceMapper.xml"/>
+        <mapper resource="mappers/mysql/transport/ArExcpRegisterMapper.xml"/>
+        <mapper resource="mappers/mysql/transport/ArSendCodeMapper.xml"/>
+        <mapper resource="mappers/mysql/transport/ArSendRegisterMapper.xml"/>
+        <mapper resource="mappers/mysql/receive/ArReceiveMapper.xml"/>
     </mappers>
-
 </configuration>

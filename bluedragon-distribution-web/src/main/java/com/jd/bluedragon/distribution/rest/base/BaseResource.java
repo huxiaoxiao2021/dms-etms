@@ -6,7 +6,9 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BaseRequest;
+import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
@@ -14,7 +16,11 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.client.JsonUtil;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
+import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -30,6 +36,7 @@ import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -42,6 +49,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -76,13 +84,17 @@ public class BaseResource {
 
 	@Autowired
 	private SysConfigService sysConfigService;
-	
+
+	@Autowired
+	private SysLoginLogService sysLoginLogService;
+
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
 
 	@GET
-	@Path("/bases/allsite/")
+	//Path("/bases/allsite/")
 	@GZIP
+	@Deprecated
 	public List<BaseResponse> getDmsSiteAll() {
 		this.logger.info("查询所有站点信息");
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
@@ -176,7 +188,7 @@ public class BaseResource {
 		}
 
 		if (null == driver) {
-			logger.error("没有对应司机");
+			logger.warn("没有对应司机");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_DRIVERS_EMPTY);
 			return response;
@@ -216,7 +228,7 @@ public class BaseResource {
 				response.setLicense(temp.getVehicleNumber() );
 				return response;
 			} else {
-				this.logger.error("没有对应车辆");
+				this.logger.warn("没有对应车辆");
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 				        JdResponse.MESSAGE_VEHICLES_EMPTY);
 				return response;
@@ -237,7 +249,7 @@ public class BaseResource {
 			BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(code);
 			logger.info("获取站点信息成功");
 			if (dto == null) {
-				logger.error("没有对应站点");
+				logger.warn("没有对应站点");
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 				        JdResponse.MESSAGE_SITE_EMPTY);
 				return response;
@@ -310,7 +322,7 @@ public class BaseResource {
 		}
 
 		if (null == siteName) {
-			logger.error("没有对应站点");
+			logger.warn("没有对应站点");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
@@ -332,7 +344,7 @@ public class BaseResource {
 
 	@POST
 	@Path("/bases/login")
-	public BaseResponse login(BaseRequest request) {
+	public BaseResponse login(LoginRequest request) {
 		this.logger.info("erpAccount is " + request.getErpAccount());
 		this.logger.info("password is " + request.getPassword());
 
@@ -358,7 +370,19 @@ public class BaseResource {
 		} else {
 			// 验证完成，返回相关信息
 			this.logger.info("erpAccount is " + erpAccount + " 验证成功");
-
+            try{
+                ClientInfo info = null;
+                if(StringUtils.isNotBlank(request.getClientInfo())){
+                    info = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+                    info.setLoginUserErp(erpAccount);
+                }else{
+                    info = new  ClientInfo();
+                    info.setLoginUserErp(erpAccount);
+                }
+                sysLoginLogService.insert(result, info);
+            }catch (Exception e){
+                this.logger.error("用户登录保存日志失败：" + erpAccount, e);
+            }
 			if (null == result.getSiteId()) {
 				BaseResponse response = new BaseResponse(JdResponse.CODE_SITE_ERROR,
 				        JdResponse.MESSAGE_SITE_ERROR);
@@ -389,7 +413,7 @@ public class BaseResource {
 		}
 	}
 
-	@GET
+    @GET
 	@Path("/bases/drivers/{orgId}")
 	public List<BaseResponse> getDrivers(@PathParam("orgId") Integer orgId) {
 		// 根据机构ID获取对应的司机信息列表
@@ -410,7 +434,7 @@ public class BaseResource {
 		}
 
 		if (null == result) {
-			logger.error("获取司机信息失败");
+			logger.warn("获取司机信息失败");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -418,7 +442,7 @@ public class BaseResource {
 		}
 
 		if (result.length == 0) {
-			logger.error("获取司机信息为空");
+			logger.warn("获取司机信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_DRIVERS_EMPTY);
 			ll.add(response);
@@ -457,7 +481,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.size() == 0) {
-			logger.error("获取全部机构信息为空");
+			logger.warn("获取全部机构信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ALLORGS_EMPTY);
 			ll.add(response);
@@ -511,7 +535,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取站点信息为空");
+			logger.warn("获取站点信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -582,7 +606,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取错误信息为空");
+			logger.warn("获取错误信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			ll.add(response);
@@ -638,7 +662,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取错误信息为空");
+			logger.warn("获取错误信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			ll.add(response);
@@ -678,7 +702,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取站点类型信息为空");
+			logger.warn("获取站点类型信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITETYPE_EMPTY);
 			ll.add(response);
@@ -738,7 +762,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取站点信息为空");
+			logger.warn("获取站点信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -751,8 +775,9 @@ public class BaseResource {
 	}
 
 	@GET
-	@Path("/newbases/allsite/")
+	//Path("/newbases/allsite/")
 	@GZIP
+	@Deprecated
 	public List<BaseResponse> getDmsSiteAll_New() {
 		this.logger.info("查询所有站点信息");
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
@@ -860,7 +885,7 @@ public class BaseResource {
 		}
 
 		if (null == siteName) {
-			logger.error("没有对应站点");
+			logger.warn("没有对应站点");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
@@ -885,7 +910,7 @@ public class BaseResource {
 		List<SysConfigResponse> result = new ArrayList<SysConfigResponse>();
 
 		if (configs == null) {
-			logger.error("没有对应参数配置");
+			logger.warn("没有对应参数配置");
 			return result;
 		} else {
 			for (SysConfig config : configs) {
@@ -1070,7 +1095,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取运力信息为空");
+			logger.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			responseList.add(response);
@@ -1128,7 +1153,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取运力信息为空");
+			logger.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			responseList.add(response);
@@ -1329,7 +1354,7 @@ public class BaseResource {
 			return ll;
 		}
 		if(null == dmsList || dmsList.size() == 0){
-			logger.error("根据orgId获取分拣中心列表为空");
+			logger.warn("根据orgId获取分拣中心列表为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -1363,7 +1388,7 @@ public class BaseResource {
 		// 过滤非分拣中心的数据
 		List<BaseStaffSiteOrgDto> dmsList = dmsFilter(baseSiteList);
 		if(null == dmsList || dmsList.size() == 0){
-			logger.error("获取所有的分拣中心为空");
+			logger.warn("获取所有的分拣中心为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);

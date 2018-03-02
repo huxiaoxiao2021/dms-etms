@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>异常登记</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/transport/arExcpRegister.js"></script>
+    <script src="/static/js/transport/arExcpRegisterValidator.js"></script>
+
+</head>
+<body class="container-fluid">
+<div id="dataTableDiv" >
+    <ol class="breadcrumb">
+        <li><a href="#">空铁系统</a></li>
+        <li class="active">异常登记</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="startDate">异常节点 ：</label>
+                                <div class=" col-xs-8">
+                                    <select type="text" class="form-control " id="excpNodeSelect" name="excpNodeSelect">
+                                        <option value="1">发货异常</option>
+                                        <option value="2">提货异常</option>
+                                    </select>
+                                    <input type="hidden" id="excpNode" class="form-control  search-param " name="excpNode">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="startDate">异常类型 ：</label>
+                                <div class=" col-xs-8">
+
+                                    <select class="form-control search-param" id="excpType" name="excpType"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4" for="box-code-input">运力名称 ：</label>
+
+                                <div class="col-xs-8">
+                                    <input type="text" id="transportName" class="form-control  search-param " name="transportName">
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="startDate">异常日期 ：</label>
+                                <div class=" col-xs-8">
+                                    <input type="text" id="excpTimeGE" name="excpTimeGE" class="form-control search-param ">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="startDate"> 至 </label>
+                                <div class=" col-xs-8">
+                                    <input type="text" id="excpTimeLE" name="excpTimeLE" class="form-control search-param ">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group" >
+                                <label class="control-label col-xs-4" for="box-code-input">航空单号 ：</label>
+                                <div class="col-xs-8 ">
+                                    <input type="text" id="orderCode" name="orderCode" class="form-control search-param ">
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+        </button>
+        <button id="btn_edit" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+        </button>
+        <button id="btn_delete" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+        </button>
+
+
+    </div>
+    <table id="dataTable"></table>
+</div>
+<div id="dataEditDiv" class="main" style="display: true">
+    <ol class="breadcrumb">
+        <li><a href="#">异常登记</a></li>
+        <li class="active">编辑</li>
+    </ol>
+
+    <div id="edit-condition">
+        <form id="edit-form" class="form-horizontal  col-xs-12">
+            <fieldset>
+                <input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                <hr/>
+                <div class="row">
+                    <!--两列-->
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>异常日期 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="excpTime" name="excpTime"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>异常节点 ：</label>
+                            <div class="col-xs-9">
+                                <select type="text" class="form-control edit-param" id="excpNode" name="excpNode">
+                                    <option value="1">发货异常</option>
+                                    <option value="2">提货异常</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">运力名称 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="transportName" name="transportName" placeholder="航班号/车次号"/>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">铁路站序 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="siteOrder" name="siteOrder"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">航空单号 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="orderCode" name="orderCode"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>异常类型 ：</label>
+                            <div class="col-xs-9">
+                                <select  class="form-control " id="excpTypeEdit" name="excpTypeEdit"></select>
+                                <input type="hidden" class="form-control edit-param" id="excpType" name="excpType" />
+                                <input type="hidden" class="form-control edit-param" id="excpTypeName" name="excpTypeName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>异常原因 ：</label>
+                            <div class="col-xs-9">
+                                <select class="form-control " id="excpReasonEdit" name="excpReasonEdit"></select>
+                                <input type="hidden" class="form-control edit-param" id="excpReason" name="excpReason" />
+                                <input type="hidden" class="form-control edit-param" id="excpReasonName" name="excpReasonName" />
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>异常结果 ：</label>
+                            <div class="col-xs-9">
+                                <select class="form-control " id="excpResultEdit" name="excpResultEdit"></select>
+                                <input type="hidden" class="form-control edit-param" id="excpResult" name="excpResult" />
+                                <input type="hidden" class="form-control edit-param" id="excpResultName" name="excpResultName" />
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">备注 ：</label>
+                            <div class="col-xs-9">
+                                <textarea type="text" class="form-control edit-param" style="height: 80px;" id="remark" name="remark"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-6">
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>发现异常城市 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="excpCity" name="excpCity"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">起飞城市 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="startCityName" name="startCityName"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">落地城市 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="endCityName" name="endCityName"/>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">起飞时间 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="planStartTime" name="planStartTime"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">落地时间 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="planEndTime" name="planEndTime"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">发货批次号 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="sendCode" name="sendCode"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">异常件数 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="excpNum" name="excpNum"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">异常包裹数 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="excpPackageNum" name="excpPackageNum"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">现场操作人 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="operatorErp" name="operatorErp"/>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+                <hr/>
+
+                <div class="form-group " style="text-align:right;">
+                    <button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">提交</button>
+                    <button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+</div>
+
+
+</body>
+</html>

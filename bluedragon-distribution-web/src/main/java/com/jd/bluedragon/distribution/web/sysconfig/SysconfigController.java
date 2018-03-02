@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,11 +221,13 @@ public class SysconfigController {
         return querySysconfig(null, null, model);
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_DAFU_R)
     @RequestMapping(value = "/dafu/index", method = RequestMethod.GET)
     public String dafuWhiteList() {
         return "sysconfig/dafuWhiteList";
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_DAFU_R)
     @RequestMapping(value = "/dafu/whiteList", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse updateDafuWhiteList(String type, String content) {

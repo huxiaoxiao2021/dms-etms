@@ -488,7 +488,56 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
+            /**
+             * 全程跟踪-空铁提货
+             */
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_RECEIVE).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 
+            /**
+             * 全程跟踪:回传 空铁发货登记全程跟踪
+             */
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER).equals(task.getKeyword2())) {
+                toWaybillStatus2(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                this.logger.info("向运单系统回传全程跟踪，空铁发货登记");
+                String sendCode = tWaybillStatus.getSendCode();
+                if (sendCode != null) {
+                    List<SendDetail> sendDetailList = sendDatailDao.queryWaybillsBySendCode(sendCode);
+                    if (null != sendDetailList && sendDetailList.size() > 0) {
+                        for (SendDetail sendDetail : sendDetailList) {
+                            bdTraceDto.setWaybillCode(sendDetail.getWaybillCode());
+                            bdTraceDto.setPackageBarCode(sendDetail.getPackageBarcode());
+                            waybillQueryManager.sendBdTrace(bdTraceDto);
+                        }
+                    }
+                } else {
+                    this.logger.error("向运单系统回传全程跟踪，空铁发货登记：批次号为空");
+                }
+                task.setYn(0);
+            }
+			/**
+			 * 全程跟踪-配送员上门收货
+			 */
+			if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_UP_DELIVERY).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+			/**
+			 * 全程跟踪-配送员完成揽收
+			 */
+			if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 			/**
 			 * 提交POP打印数据 回传全程跟踪
 			 */

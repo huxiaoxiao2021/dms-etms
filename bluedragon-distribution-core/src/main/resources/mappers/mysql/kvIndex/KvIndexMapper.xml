@@ -53,4 +53,10 @@
         FROM kv_index
         WHERE keyword = #{keyword}
     </delete>
+    <select id="queryRecentSiteCodesByKey" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+			value
+		FROM kv_index
+		WHERE keyword = #{keyword} order by ts desc
+	</select>
 </mapper>

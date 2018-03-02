@@ -5,6 +5,7 @@ import java.util.Map;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 
 
@@ -125,4 +126,12 @@ public interface WaybillCommonService {
      * @param waybill 原始运单对象
      */
 	BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill);
+	/**
+	 * 将运单数据包装成自己的waybill数据
+	 * @param bigWaybillDto
+	 * @param isSetName
+	 * @param isSetPack
+	 * @return
+	 */
+	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack);
 }
