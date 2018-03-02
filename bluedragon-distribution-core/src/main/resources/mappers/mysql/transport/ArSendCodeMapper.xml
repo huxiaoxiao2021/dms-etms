@@ -10,11 +10,12 @@
         <result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
 		id,send_register_id,send_code,create_user,update_user,create_time,
-		update_time
+		update_time,ts
 	</sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendCode">

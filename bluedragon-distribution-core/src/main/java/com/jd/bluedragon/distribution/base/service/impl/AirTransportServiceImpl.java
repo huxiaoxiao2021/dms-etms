@@ -29,14 +29,14 @@ public class AirTransportServiceImpl implements AirTransportService{
 		try {
 			BaseStaffSiteOrgDto baseDto = siteService.getSite(startDmsCode);
 			if (baseDto == null) {
-				log.error("基础资料获取分拣中心站点信息为空"+startDmsCode);
+				log.warn("基础资料获取分拣中心站点信息为空"+startDmsCode);
 				return 0;
 			}
 			Integer originalProvinceId = baseDto.getProvinceId();
 			Integer originalCityId = baseDto.getCityId();
 			baseDto = siteService.getSite(siteCode);
 			if (baseDto == null) {
-				log.error("基础资料获取目的站点信息为空"+siteCode);
+				log.warn("基础资料获取目的站点信息为空"+siteCode);
 				return 0;
 			}
 			Integer destinationProvinceId = baseDto.getProvinceId();

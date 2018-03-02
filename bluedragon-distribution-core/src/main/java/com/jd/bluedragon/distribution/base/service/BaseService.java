@@ -144,6 +144,7 @@ public interface BaseService {
 	 *
 	 * @return List<BaseStaffSiteOrgDto>
 	 */
+	@Deprecated
 	List<BaseStaffSiteOrgDto> getDmsSiteAll();
 
 	/**

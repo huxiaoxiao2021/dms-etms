@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,10 @@ public class ArReceiveServiceImpl extends BaseService<ArReceive> implements ArRe
 		//根据箱号查询最近操作的站点
 		List<Integer> siteCodes = kvIndexService.queryRecentSiteCodesByKey(barcode);
 		if(siteCodes!=null && !siteCodes.isEmpty()){
+			/**
+			 * 记录已处理的批次号
+			 */
+			Set<String> dealSendCodes = new HashSet<String>();
 			for(Integer siteCode:siteCodes){
 				SendM sendMParam = new SendM();
 				sendMParam.setBoxCode(barcode);
@@ -91,26 +97,29 @@ public class ArReceiveServiceImpl extends BaseService<ArReceive> implements ArRe
 						@Override
 						public int compare(SendM o1, SendM o2) {
 							if(o1 != null && o2 != null){
-								return ObjectHelper.compare(o1.getOperateTime(), o2.getOperateTime());
+								return ObjectHelper.compare(o2.getOperateTime(), o1.getOperateTime());
 							}else{
-								return ObjectHelper.compare(o1, o2);
+								return ObjectHelper.compare(o2, o1);
 							}
 						}
 					});
-					//循环sendM的数据，根据批次号查询对应的发货登记信息
+					//循环sendM的数据，根据批次号查询对应的发货登记信息,处理过的批次号放入dealSendCodes中，避免重复处理
 					for(SendM sendM: sendMs){
-						if(StringHelper.isNotEmpty(sendM.getSendCode())){
+						if(StringHelper.isNotEmpty(sendM.getSendCode())
+								&&!dealSendCodes.contains(sendM.getSendCode())){
+							dealSendCodes.add(sendM.getSendCode());
 							ArSendCodeCondition pagerCondition = new ArSendCodeCondition();
 							pagerCondition.setSendCode(sendM.getSendCode());
 							PagerResult<ArSendCode> rest = arSendCodeService.queryByPagerCondition(pagerCondition);
 							if(rest.getTotal()>0){
+								//对查询结果按ts倒序排列，取最近的一条数据
 								Collections.sort(rest.getRows(), new Comparator<ArSendCode>(){
 									@Override
 									public int compare(ArSendCode o1, ArSendCode o2) {
 										if(o1 != null && o2 != null){
-											return DateHelper.compare(o1.getTs(), o2.getTs());
+											return DateHelper.compare(o2.getTs(), o1.getTs());
 										}else{
-											return ObjectHelper.compare(o1, o2);
+											return ObjectHelper.compare(o2, o1);
 										}
 									}
 								});

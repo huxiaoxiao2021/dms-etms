@@ -107,7 +107,7 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	}
 
 	protected boolean saveConsumerFailedTask(Task task) {
-		logger.error("【异步缓冲组件】消费消息失败，执行落库,消息内容："+task);
+		logger.info("【异步缓冲组件】消费消息失败，执行落库,消息内容："+task);
 		task.setStatus(Task.TASK_STATUS_UNHANDLED);
 		task.setExecuteCount(0);
 		try {

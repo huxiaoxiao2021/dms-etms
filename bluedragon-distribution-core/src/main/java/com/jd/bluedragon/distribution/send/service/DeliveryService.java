@@ -87,7 +87,7 @@ public interface DeliveryService {
      * 
      * @param
      */
-    public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM);
+    public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ);
 
     /**
      * 生成发货数据处理

@@ -139,7 +139,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 		
 		if (reverseReceive.getReceiveType() == 5){//如果是开放平台订单
-			InvokeResult<String> newWaybilCode = reversePrintService.getNewWaybillCode(reverseReceive.getOrderId());
+			InvokeResult<String> newWaybilCode = reversePrintService.getNewWaybillCode(reverseReceive.getOrderId(), false);
 			if (StringHelper.isNotEmpty(newWaybilCode.getData())) {
 				tsendDatail.setWaybillCode(newWaybilCode.getData());
 				List<SendDetail> sendDatailistMcs = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
