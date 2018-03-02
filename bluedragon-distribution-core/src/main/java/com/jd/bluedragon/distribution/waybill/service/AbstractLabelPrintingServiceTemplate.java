@@ -213,9 +213,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         response.setData(labelPrinting);
         response.setJsonData(JsonHelper.toJson(labelPrinting));
 
-
-
-        log.info(LOG_PREFIX+" jsonData=="+response.getJsonData());
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
 
@@ -262,17 +259,27 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      * @return
      */
     public LabelPrintingResponse initWaybillInfo(LabelPrintingRequest request, WaybillPrintContext context){
-        /**查询运单*/
-        WChoice wchoice = new WChoice();
-        wchoice.setQueryWaybillC(true);
-        wchoice.setQueryWaybillE(true);
-        BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
-        if(entity==null || entity.getData()==null){
-            log.error(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
-            return null;
+    	BigWaybillDto bigWaybillDto = null;
+    	//先从context不为空，先context中获取原运单数据，否则调取运单接口
+        if(context != null){
+        	bigWaybillDto = context.getBigWaybillDto();
+        }else{
+            /**查询运单*/
+            WChoice wchoice = new WChoice();
+            wchoice.setQueryWaybillC(true);
+            wchoice.setQueryWaybillE(true);
+            BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
+            if(entity==null || entity.getData()==null){
+                log.error(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+                return null;
+            }
+            bigWaybillDto = entity.getData();
         }
-
-        Waybill waybill = entity.getData().getWaybill();
+        if(bigWaybillDto==null){
+        	log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+        	return null;
+        }
+        Waybill waybill = bigWaybillDto.getWaybill();
         if(waybill==null){
             log.error(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
             return null;
@@ -286,8 +293,8 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
         //优先级较高，加载完基础数据进行处理
         log.info("包裹标签打印-waybillSign及sendPay打标处理");
-		String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
-		String sendPay = context.getBigWaybillDto().getWaybill().getSendPay();
+		String waybillSign = waybill.getWaybillSign();
+		String sendPay = waybill.getSendPay();
 		waybillPrintService.dealSignTexts(waybillSign, labelPrinting, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
 		waybillPrintService.dealSignTexts(sendPay, labelPrinting, Constants.DIC_NAME_SEND_PAY_CONFIG);
 
