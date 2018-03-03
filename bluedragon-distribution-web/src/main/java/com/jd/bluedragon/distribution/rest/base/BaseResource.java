@@ -1401,6 +1401,11 @@ public class BaseResource {
 		return ll;
 	}
 
+	/**
+	 * 调用基础资料接口获取所有的转运中心（包括TC + （枢纽+集运）：6420）
+	 * @param subTypes
+	 * @return
+     */
 	@GET
 	@GZIP
 	@Path("/bases/getB2BSiteAll/{subTypes}")
@@ -1415,7 +1420,7 @@ public class BaseResource {
 			logger.info("获取全国所有的转运中心-加载全国所有机构");
 			allOrgs = baseService.getAllOrg();
 		}catch (Exception e){
-			logger.error("获取全国所有的转运中心失败-加载全国所有机构失败");
+			logger.error("获取全国所有的转运中心失败-加载全国所有机构失败",e);
 
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
@@ -1466,7 +1471,20 @@ public class BaseResource {
 			br.setSiteName(dto.getSiteName());
 			result.add(br);
 		}
+		return result;
+	}
 
+
+	/**
+	 * 获取所有的仓库
+	 * @return
+     */
+	@GET
+	@GZIP
+	@Path("/bases/getWarehouseAll")
+	public List<BaseResponse> getWarehouseAll(){
+		this.logger.info("获取所有的仓库");
+		List<BaseResponse> result = new ArrayList<BaseResponse>();
 		return result;
 	}
 

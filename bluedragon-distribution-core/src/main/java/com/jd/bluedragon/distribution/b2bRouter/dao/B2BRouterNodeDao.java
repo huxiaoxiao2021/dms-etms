@@ -5,6 +5,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xumei3 on 2018/2/26.
@@ -34,7 +35,7 @@ public class B2BRouterNodeDao {
 
 
     /**
-     * 增
+     * 增加一条路由链路
      * @param nodes
      * @return
      */
@@ -42,11 +43,30 @@ public class B2BRouterNodeDao {
         return this.getSqlSession().insert(B2BRouterNodeDao.namespace+".addB2BRouterNodes", nodes);
     }
 
-    public Integer deleteRouterNodeByChainId(Integer chainId){
-        return this.getSqlSession().update(B2BRouterNodeDao.namespace +".deleteRouterNodeByChainId", chainId);
+    /**
+     * 逻辑删除一条路由链路
+     * @param params
+     * @return
+     */
+    public Integer deleteRouterNodeByChainId(Map<String,Object> params){
+        return this.getSqlSession().update(B2BRouterNodeDao.namespace +".deleteRouterNodeByChainId", params);
     }
 
+    /**
+     * 更新一条路由线路
+     * @param params
+     * @return
+     */
+    public Integer updateByChainId(Map<String,Object> params){
+        return this.getSqlSession().update(B2BRouterNodeDao.namespace +".updateByChainId",params);
+    }
+
+    /**
+     * 获得当前网点可达的下一个网点
+     * @param node
+     * @return
+     */
     public List<B2BRouterNode> getNextNode(B2BRouterNode node){
-        return this.getSqlSession().selectList(B2BRouterNodeDao.namespace +"getNextNode",node);
+        return this.getSqlSession().selectList(B2BRouterNodeDao.namespace +".getNextNode",node);
     }
 }

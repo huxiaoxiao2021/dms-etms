@@ -25,7 +25,7 @@
 
 	<script type="text/javascript">
 	    $(document).ready(function(){
-				main();
+            main();
 	    });
 	</script>
 <div id="breadcrumb">
@@ -42,27 +42,27 @@
 						<tr>
                             <td align="right">始发网点：</td>
                             <td>
-                                <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
+                                <input type="hidden"name ="originalSiteType" id="originalSiteType" value = "1" />
+                                <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" value="$!queryInfo.originalSiteName" maxlength="50" style="width:130px"/>
                                 <font class="star" style = "color:red">*</font>
-                                <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
-                                <input type="hidden" name="id" id="id" value="$!crossDmsBox.id"/>
+                                <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!queryInfo.originalSiteCode"/>
                             </td>
 
                             <td align="right">目的网点：</td>
                             <td>
-                                <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px">
+                                <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px" value="$!queryInfo.destinationSiteType">
                                     <option value= 1 >转运</option>
                                     <option value= 2 >仓库</option>
                                 </select>
-                                <input type="text" name="destinationSiteName" id="destinationSiteName" v="require;length:30;" value="$!BaseStaffSiteOrgDto.siteName" maxlength="50" style="width:130px"/>
+                                <input type="text" name="destinationSiteName" id="destinationSiteName" v="require;length:30;" value="$!queryInfo.destinationSiteName" maxlength="50" style="width:130px"/>
                                 <font class="star" style = "color:red">*</font>
-                                <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!BaseStaffSiteOrgDto.siteCode"/>
+                                <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!queryInfo.destinationSiteCode"/>
                             </td>
 
 							<td>
-                                <input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1);"/>
+                                <input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1)"/>
                                 <input type="button" id="add"    name="add"    value="新增" class="btn_c" onclick="addBtn()"/>
-                                <input type="button" id="change" name="change" value="修改" class="btn_c"  onclick="updateBtn();"/>
+                                <input type="button" id="change" name="change" value="修改" class="btn_c"  onclick="updateBtn()"/>
                                 <input type="button" id="delete" name="delete" value="删除" class="btn_c" onclick="deleteBtn()"/>
                                 <input type="button" id="import" name="import" value="导入" class="btn_c" onclick="importBtn()"/>
 							</td>
@@ -79,8 +79,8 @@
 				<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
 					<THEAD>
 						<TR>
-							<TH rowspan="2">
-								<input type="checkbox" id='checkAll' name="checkAll">
+							<TH field="checkboxField" checkbox="true" rowspan="2">
+								<input type="checkbox" id="checkAll" name="checkAll">
 							</TH>
 							<TH rowspan="2">始发网点</TH>
 							<TH rowspan="2">中转网点1</TH>

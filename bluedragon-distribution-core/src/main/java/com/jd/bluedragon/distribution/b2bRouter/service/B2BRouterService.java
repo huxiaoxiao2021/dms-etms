@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.b2bRouter.service;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.B2BRouterRequest;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
@@ -17,7 +16,7 @@ public interface B2BRouterService {
      * @param router
      * @return
      */
-    public boolean isHasRouter(B2BRouter router);
+    public Integer isHasRouter(B2BRouter router);
 
     /**
      * 增加一条路由配置信息
@@ -25,6 +24,13 @@ public interface B2BRouterService {
      * @return
      */
     public boolean addRouter(B2BRouter router);
+
+    /**
+     * 导入时批量添加路由信息
+     * @param routers
+     * @return
+     */
+    public String handleRouterBatch(List<B2BRouter> routers);
 
     /**
      * 根据查询条件查询路由信息
@@ -42,26 +48,18 @@ public interface B2BRouterService {
     public B2BRouter getRouterById(int id);
 
     /**
-     * 校验网点code和网点名称是否匹配
-     * @param code
-     * @param name
-     * @return
-     */
-    public boolean B2BSiteNameVertify(Integer code, String name);
-
-    /**
      * 根据网点Code获取网点名称
      * @param code
      * @return
      */
-    public String getB2BSiteNameByCode(Integer code);
+    public String getB2BSiteNameByCode(Integer code, Integer siteType);
 
     /**
      * 更新一条路由信息
      * @param router
      * @return
      */
-    public Boolean updateRotuer(B2BRouter router)throws Exception;
+    public Boolean updateRouter(B2BRouter router)throws Exception;
 
     /**
      * 删除一条路由信息（逻辑删除）
@@ -79,4 +77,25 @@ public interface B2BRouterService {
      */
     public List<B2BRouterNode> getNextCode(B2BRouter router, B2BRouterNode currentRouterNode) throws Exception;
 
+
+    /**
+     * 校验导入router数据是否正确
+     * @param router
+     * @return
+     */
+    public String verifyRouterImportParam(B2BRouter router);
+
+
+    /**
+     * 校验新增的Router数据是否正确
+     * @param router
+     * @return
+     */
+    public String verifyRouterAddParam(B2BRouter router);
+
+    /**
+     * 组织完整路径
+     * @param router
+     */
+    public void setFullLine(B2BRouter router);
 }

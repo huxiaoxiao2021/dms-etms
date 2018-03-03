@@ -2,149 +2,134 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta http-equiv="content-type" content="text/html;charset=utf-8">
-	<meta http-equiv="pragma" content="no-cach" /> 
-	<meta http-equiv="cache-control" content="no-cache" /> 
-	<meta http-equiv="expires" content="0" />
-	<title>B网路由配置表</title>
-	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
-	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
-	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
-##	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/js/DatePicker/skin/WdatePicker.css')"></script>
-	
-	<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
-	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
-	<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
-	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="pragma" content="no-cach" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <title>B网路由配置表</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/js/DatePicker/skin/WdatePicker.css')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/json2.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery.autocomplete.js')"></script>
-    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
 
+    <style type="text/css"></style>
 </head>
 
 <body>
-	<script type="text/javascript" src="#springUrl('/static/js/b2bRouter/add.js')"></script>
-	<script type="text/javascript">
-//	     main();
-         var siteType =$('#destinationSiteType');
-         var siteType2 =siteType.val();
-        alert(JSON.stringify(siteType));
-		alert(siteType);
-        alert(siteType2);
-	</script>
-	
-	<div id="breadcrumb">
-	  <p><a href="#">转运中心</a>&nbsp;&gt;&nbsp;<a href="#"> B网路由配置表 </a></p>
-	</div>
-    
-##    <!-- 查询条件的参数隐藏接受领域 -->
-##    <div>
-##        <input type="hidden" id="query_originateOrg" name="originateOrg" value="$!{queryInfo.originateOrg}">
-##        <input type="hidden" id="query_originateOrgName" name="originateOrgName" value="$!{queryInfo.originateOrgName}">
-##        <input type="hidden" id="query_originalDmsName" name="originalDmsName" value="$!{queryInfo.originalDmsName}">
-##        <input type="hidden" id="query_updateOperatorName" name="updateOperatorName" value="$!{queryInfo.updateOperatorName}">
-##        <input type="hidden" id="query_destinationOrg" name="destinationOrg" value="$!{queryInfo.destinationOrg}">
-##        <input type="hidden" id="query_destinationOrgName" name="destinationOrgName" value="$!{queryInfo.destinationOrgName}">
-##        <input type="hidden" id="query_destinationDmsName" name="destinationDmsName" value="$!{queryInfo.destinationDmsName}">
-##        <input type="hidden" id="query_startDate" name="startDate" value="$!{queryInfo.startDate}">
-##        <input type="hidden" id="query_endDate" name="endDate" value="$!{queryInfo.endDate}">
-##        <input type="hidden" id="query_transferOrg" name="transferOrg" value="$!{queryInfo.transferOrg}">
-##        <input type="hidden" id="query_transferOrgName" name="transferOrgName" value="$!{queryInfo.transferOrgName}">
-##        <input type="hidden" id="query_transferName" name="transferName" value="$!{queryInfo.transferName}">
-##        <input type="hidden" id="query_yn" name="yn" value="$!{queryInfo.yn}">
-##    </div>
-    
-	<!--[if !ie]>breadcrumb<![endif]-->
-	<div id="content">
-	    <!--[if !ie]>tbl-n<![endif]-->
-	    <div id="opening" class="noborder">
-	        <div class="tbl-list">
-	            <div class="tbl-bg">
-	                <form id="dataForm" name="" action="" method="post">
-	                    <table width="100%" border="0" class="tb-x2" >
-	                        <tr>
-                                <td align="right" class="c_f8f8f8">始发网点：</td>
-                                <td>
-                                    <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" style="width:130px" value="$!originalSiteName"/>
-                                    <font class="star" style = "color:red">*</font>
-                                    <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!originalSiteCode"/>
-                                    <input type="hidden" name="id" id="id" value ="$!id"/>
-                                </td>
-                            </tr>
+<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+<script type="text/javascript" src="#springUrl('/static/js/b2bRouter/add.js')"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        main();
+    });
+</script>
 
-                            <tr>
-                                <td align="right" class="c_f8f8f8">中转1网点：</td>
-                                <td>
-                                    <input type="text" name="transOneSiteName" id="transOneSiteName" v="require;length:30;" value="$!transOneSiteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transOneSiteCode" id="transOneSiteCode" value="$!transOneSiteCode"/>
-                                </td>
-                            </tr>
+<div id="breadcrumb">
+    <p><a href="#">转运中心</a>&nbsp;&gt;&nbsp;<a href="#"> B网路由配置表 </a></p>
+</div>
 
-                            <tr>
-                                <td align="right" class="c_f8f8f8">中转2网点：</td>
-                                <td>
-                                    <input type="text" name="transTwoSiteName" id="transTwoSiteName" v="require;length:30;" value="$!transTwoSiteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transTwoSiteCode" id="transTwoSiteCode" value="$!transTwoSiteCode"/>
-                                </td>
-                            </tr>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+    <!--[if !ie]>tbl-n<![endif]-->
+    <div id="opening" class="noborder">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <form id="dataForm" name="" action="" method="post">
+                    <table width="100%" border="0" class="tb-x2" >
+                        <tr>
+                            <td align="right" class="c_f8f8f8">始发网点：</td>
+                            <td>
+                                <input type = "hidden"name ="originalSiteType" id="originalSiteType" value = "1" />
+                                <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" style="width:130px" value="$!originalSiteName"/>
+                                <font class="star" style = "color:red">*</font>
+                                <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!originalSiteCode"/>
+                                <input type="hidden" name="id" id="id" value ="$!id"/>
+                            </td>
+                        </tr>
 
-                            <tr>
-                                <td align="right" class="c_f8f8f8">中转3网点：</td>
-                                <td>
-                                    <input type="text" name="transThreeSiteName" id="transThreeSiteName" v="require;length:30;" value="$!transThreeSiteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transThreeSiteCode" id="transThreeSiteCode" value="$!transThreeSiteCode"/>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td align="right" class="c_f8f8f8">中转1网点：</td>
+                            <td>
+                                <input type="text" name="transferOneSiteName" id="transferOneSiteName" v="require;length:30;" value="$!transferOneSiteName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferOneSiteCode" id="transferOneSiteCode" value="$!transferOneSiteCode"/>
+                            </td>
 
-                            <tr>
-                                <td align="right" class="c_f8f8f8">中转4网点：</td>
-                                <td>
-                                    <input type="text" name="transFourSiteName" id="transFourSiteName" v="require;length:30;" value="$!transFourSiteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transFourSiteCode" id="transFourSiteCode" value="$!transFourSiteCode"/>
-                                </td>
-                            </tr>
+                        </tr>
 
-                            <tr>
-                                <td align="right" class="c_f8f8f8">中转5网点：</td>
-                                <td>
-                                    <input type="text" name="transFiveSiteName" id="transFiveSiteName" v="require;length:30;" value="$!transFiveSiteName" maxlength="50" style="width:130px"/>
-                                    <input type="hidden" name="transFiveSiteCode" id="transFiveSiteCode" value="$!transFiveSiteCode"/>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td align="right" class="c_f8f8f8">中转2网点：</td>
+                            <td>
+                                <input type="text" name="transferTwoSiteName" id="transferTwoSiteName" v="require;length:30;" value="$!transferTwoSiteName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferTwoSiteCode" id="transferTwoSiteCode" value="$!transferTwoSiteCode"/>
+                            </td>
+                        </tr>
 
-                            <tr>
-                                <td align="right" class="c_f8f8f8">目的网点：</td>
-                                <td>
-                                    <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px" value="$!destinationSiteType">
-                                        <option value= 1 >转运</option>
-                                        <option value= 2 >仓库</option>
-                                    </select>
-                                    <input type="text" name="destinationSiteName" id="destinationSiteName" value="$!destinationSiteName" v="require;length:30;" maxlength="50" style="width:130px"/>
-                                    <font class="star" style = "color:red">*</font>
-                                    <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!destinationSiteCode"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <th colspan="2" align="left">
-                                    <input  value="确定" class="btn_c" type="button" onclick="sbmt()">
-                                    <input value="返回" class="btn_c" type="button" onclick="back_index()">
-                                    <input type="hidden" id="contextPath" value="#springUrl('')">
-									<input type="hidden" id="siteIdFullLine" name="siteIdFullLine"/>
-									<input type="hidden" id="siteNameFullLine" name="siteNameFullLine"/>
-                                </th>
-                            </tr>
-						</table>
-					</form>
-				</div>
-			</div>
-	        <!--[if !ie]>tbl-list<![endif]-->
-	    </div>
-	    <!--opening end-->
-	</div>
+                        <tr>
+                            <td align="right" class="c_f8f8f8">中转3网点：</td>
+                            <td>
+                                <input type="text" name="transferThreeSiteName" id="transferThreeSiteName" v="require;length:30;" value="$!transferThreeSiteName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferThreeSiteCode" id="transferThreeSiteCode" value="$!transferThreeSiteCode"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right" class="c_f8f8f8">中转4网点：</td>
+                            <td>
+                                <input type="text" name="transferFourSiteName" id="transferFourSiteName" v="require;length:30;" value="$!transferFourSiteName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferFourSiteCode" id="transferFourSiteCode" value="$!transferFourSiteCode"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right" class="c_f8f8f8">中转5网点：</td>
+                            <td>
+                                <input type="text" name="transferFiveSiteName" id="transferFiveSiteName" v="require;length:30;" value="$!transferFiveSiteName" maxlength="50" style="width:130px"/>
+                                <input type="hidden" name="transferFiveSiteCode" id="transferFiveSiteCode" value="$!transferFiveSiteCode"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right" class="c_f8f8f8">目的网点：</td>
+                            <td>
+                                <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px" value="$!destinationSiteType">
+                                    <option value= 1 >转运</option>
+                                    <option value= 2 >仓库</option>
+
+                                </select>
+
+                                <input type="text" name="destinationSiteName" id="destinationSiteName" value="$!destinationSiteName" v="require;length:30;" maxlength="50" style="width:130px"/>
+                                <font class="star" style = "color:red">*</font>
+                                <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!destinationSiteCode"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th colspan="2" align="left">
+                                <input  value="确定" class="btn_c" type="button" onclick="sbmt()">
+                                <input value="返回" class="btn_c" type="button" onclick="back_index()">
+                                <input type="hidden" id="contextPath" value="#springUrl('')">
+                                <input type="hidden" id="siteIdFullLine" name="siteIdFullLine"/>
+                                <input type="hidden" id="siteNameFullLine" name="siteNameFullLine"/>
+                            </th>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+        <!--[if !ie]>tbl-list<![endif]-->
+    </div>
+    <!--opening end-->
+</div>
 </body>
 </html>

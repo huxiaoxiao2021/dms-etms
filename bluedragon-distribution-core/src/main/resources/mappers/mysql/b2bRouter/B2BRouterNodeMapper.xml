@@ -48,15 +48,15 @@
 		</foreach>
 	</insert>
 
-	<update id="deleteRouterNodeByChainId" parameterType="int">
+	<update id="deleteRouterNodeByChainId" parameterType="java.util.Map">
 		update b2b_router_chain
 		set
 		operator_code = #{operatorUserErp,jdbcType=VARCHAR},
 		operator_name = #{operatorUserName,jdbcType=VARCHAR},
-		yn = 0,
-		update_time = #{updateTime,jdbcType=TIMESTAMP}
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		yn=0
 		where
-		id=#{id,jdbcType=INTEGER}
+		chain_id=#{chainId,jdbcType=INTEGER}
 	</update>
 
 	<select id="getNextNode" parameterType="B2BRouterNode" resultMap="b2bRouterNodeMap">
@@ -69,4 +69,13 @@
 		 and yn =1
 	</select>
 
+	<update id="updateByChainId" parameterType="java.util.Map" >
+		update b2b_router_chain
+		set
+		operator_code = #{operatorUserErp,jdbcType=VARCHAR},
+		operator_name = #{operatorUserName,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP}
+		where
+		chain_id=#{chainId,jdbcType=INTEGER}
+	</update>
 </mapper>

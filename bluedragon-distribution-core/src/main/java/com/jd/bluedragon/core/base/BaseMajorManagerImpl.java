@@ -155,7 +155,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Deprecated
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType) {
 		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
     }

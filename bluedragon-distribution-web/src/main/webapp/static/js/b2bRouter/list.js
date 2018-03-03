@@ -1,42 +1,216 @@
 function main() {
 	// 初始化任务表下拉框
-	// initB2BSite();
+	var originalSiteType = $("#originalSiteType").val();
+	var destinationSiteType = $("#destinationSiteType").val();
+
+	getSiteData(originalSiteType,$("#originalSiteName"),$("#originalSiteCode"));
+	getSiteData(destinationSiteType,$("#destinationSiteName"),$("#destinationSiteCode"));
+
+	$("#destinationSiteType").change(function() {
+		$("#destinationSiteName").val("");
+		$("#destinationSiteCode").val("");
+		$("#destinationSiteName").unautocomplete();
+		var siteType = $("#destinationSiteType").val();
+		getSiteData(siteType,$("#destinationSiteName"),$("#destinationSiteCode"));
+	});
+
+	$("#checkAll").click(function () {
+		var checked = $("#checkAll").prop("checked");
+		$("#paperTable tbody input[type=checkbox][name=record]").each(function(){
+			if(checked) {
+				$(this).prop("checked", true);
+			} else {
+				$(this).removeAttr("checked");
+			}
+		});
+	});
+
 	queryBtn(1);
 }
 
-
-// 初始化始发网点和目的网点
-function initB2BSite() {
-	var url = $("#contextPath").val() + "/services/bases/getB2BSiteAll/";
-	var param = {};
-	$.getJSON(url, function(data) {
-		var B2BSiteList = data;
-		var tableObj_originateOrg = $('#originateB2BSite');
-		var tableObj_destinationOrg = $('#destinationB2BSite');
-		var optionList;
-		for (var i = 0; i < B2BSiteList.length; i++) {
-			if (B2BSiteList[i].siteCode != -100) {
-				optionList += "<option value='" + B2BSiteList[i].siteCode + "')>"
-						+ B2BSiteList[i].siteName + "</option>";
+/**
+ * 获取网点信息
+ * @param siteType
+ * @param siteNameObj
+ * @param siteCodeObj
+ */
+function getSiteData(siteType,siteNameObj,siteCodeObj) {
+	var subTypes = 6420;
+	var contextPath = $("#contextPath").val();
+	var b2bSiteArray=new Array();
+	if(siteType == 1) {
+		var url = "/services/bases/getB2BSiteAll/" + subTypes;
+		jQuery.ajax({
+			type: "GET",
+			url: url,
+			data: {
+				subTypes: subTypes
+			},
+			success: function (msg) {
+				jQuery.each(msg, function (infoIndex, info) {
+					if (info.code == 200) {
+						var node = {
+							label: info.siteName,
+							value: info.siteCode
+						};
+						b2bSiteArray[infoIndex] = node;
+					}
+				});
+				initSiteList(b2bSiteArray,siteNameObj,siteCodeObj);
 			}
-		}
-		tableObj_originateOrg.append(optionList);
-		tableObj_destinationOrg.append(optionList);
-	});
+		});
+	} else if(siteType == 2){
+		var url = "/services/bases/getWarehouseAll/";
+		jQuery.ajax({
+			type: "GET",
+			url: url,
+			success: function (msg) {
+				jQuery.each(msg, function (infoIndex, info) {
+					if (info.code == 200) {
+						var node = {
+							label: info.siteName,
+							value: info.siteCode
+						};
+						b2bSiteArray[infoIndex] = node;
+					}
+				});
+				initSiteList(b2bSiteArray,siteNameObj,siteCodeObj);
+			}
+		});
+	}
+}
+
+/**
+ * 初始化选择框
+ * @param b2bSiteArray
+ * @param siteNameObj
+ * @param siteCodeObj
+ */
+function initSiteList(b2bSiteArray,siteNameObj,siteCodeObj){
+	if(b2bSiteArray.length<1){
+		siteNameObj.val("");
+		siteCodeObj.val("");
+		siteNameObj.unautocomplete();
+	}else {
+		siteNameObj.autocomplete(b2bSiteArray, {
+			formatItem: function (item) {
+				return item.label;
+			},
+			minChars: 0,
+			max: 20,
+			matchContains: true,
+			change: function( event, ui ) {
+				alert("heelo");
+				alert(siteCodeObj.val());
+				// event 是当前事件对象
+
+				// ui对象仅有一个item属性，它表示当前选择的菜单项对应的数据源对象
+				// 该对象具有label和value属性，以及其它自定义(如果有的话)的属性
+				// 如果当前没有选择的菜单项，这item属性为null
+			}
+		}).result(function (event, item) {
+			alert(item.label);
+			siteNameObj.val(item.label);
+			siteCodeObj.val(item.value);
+		});
+	}
 }
 
 
-
-
-//查询
+/**
+ * 查询
+ * @param pageNo
+ */
 function queryBtn(pageNo) {
 	var params = getParams();
 	params.pageNo = pageNo;
 	doQuery(params);
 }
 
+/**
+ * 新增
+ */
+function addBtn() {
+	var contextPath = $("#contextPath").val();
+	location.href = contextPath + "/b2bRouter/toAdd";
+}
+
+/**
+ * 修改
+ */
+function updateBtn(){
+	var checkedKeys = $( "#paperTable  tbody input[type=checkbox][name='record']:checked");
+
+	if(checkedKeys) {
+		if(checkedKeys.length == 0){
+			alert("请选择一条记录！");
+		}
+		if (checkedKeys.length >1) {
+			alert("一次只能修改一条记录");
+		} else {
+			var params = getParams();
+			var id = $(checkedKeys[0]).val();
+			var url ="/b2bRouter/toEdit?id="+id + "&originalSiteCode=" + params.originalSiteCode +
+				"&originalSiteName=" + params.originalSiteName + "&destinationSiteType=" + params.destinationSiteType +
+				"&destinationSiteCode=" + params.destinationSiteCode + "&destinationSiteName=" + params.destinationSiteName;
+			window.location.href = url;
+
+		}
+	}else{
+		alert("请选择一条记录！");
+	}
+}
+
+
+/**
+ * 删除
+ */
+function deleteBtn(){
+	var checkedKeys = $( "#paperTable  tbody input[type=checkbox][name='record']:checked");
+
+	if(checkedKeys) {
+		if (checkedKeys.length > 0) {
+			var re = confirm("确认删除这 "+ checkedKeys.length +" 条记录？");
+			if (re == true) {
+				var contextPath = $("#contextPath").val();
+				var idList = new Array();
+				for(var i=0;i<checkedKeys.length;i++){
+					idList[i] = $(checkedKeys[i]).val();
+				}
+
+				var url = contextPath + "/b2bRouter/delete";
+				jQuery.ajax({
+					type: 'post',
+					url: url,
+					dataType : "json",//必须json
+					contentType : "application/json", // 指定这个协议很重要  
+					data : JSON.stringify(idList),
+					async : false,
+					success: function (msg) {
+						alert("删除成功！");
+						window.location.href='/b2bRouter/index';
+					}
+				});
+			}
+		}else{
+			alert("请选择要删除的记录！");
+		}
+	}else{
+		alert("请选择要删除的记录！");
+	}
+}
+
+/**
+ * 导入
+ */
+function importBtn(){
+	var contextPath = $("#contextPath").val();
+	location.href = contextPath + "/b2bRouter/toImport";
+}
+
 function getParams() {
 	var params = {};
+	params.originalSiteType = $.trim($("#originalSiteType").val());
 	params.originalSiteCode = $.trim($("#originalSiteCode").val());
 	params.originalSiteName = $.trim($("#originalSiteName").val());
 	params.destinationSiteType =$.trim($("#destinationSiteType").val());
@@ -60,18 +234,15 @@ function doQuery(params) {
 			if (resultList == null) {
 				var temp = "";
 			} else {
-				alert("获取数据成功");
-				alert(resultList.length);
 				var temp = "";
 				for (var i = 0; i < resultList.length; i++) {
 					temp += "<tr class='a2' style=''>";
-					temp += "<td> <input type='checkbox' id="+ resultList[i].id +" name= "+resultList[i].id+"/> </td>"
+					temp += "<td> <input type='checkbox' id="+ resultList[i].id +" name= 'record' value="+resultList[i].id +" /> </td>"
 
 					temp += "<td>"
 					if (resultList[i].originalSiteName != null)
 						temp += resultList[i].originalSiteName;
 					temp += "</td>";
-
 
 					var siteNameFullLine = resultList[i].siteNameFullLine;
 					if(siteNameFullLine != null) {
@@ -94,8 +265,8 @@ function doQuery(params) {
 					temp += "</td>";
 
 					temp += "<td> ";
-					if (resultList[i].operatorUserName != null)
-						temp += resultList[i].operatorUserName;
+					if (resultList[i].operatorUserErp != null)
+						temp += resultList[i].operatorUserErp;
 					temp += "</td>";
 
 					temp += "<td>" + dateFormat(resultList[i].updateTime)
@@ -114,27 +285,6 @@ function doQuery(params) {
 			alert('提示:', data.message, 'info');
 		}
 	});
-}
-
-//新增
-function addBtn() {
-	var contextPath = $("#contextPath").val();
-	location.href = contextPath + "/b2bRouter/toAdd";
-}
-
-function updateBtn(){
-	var params = getParams();
-	var id = 11;
-	var url ="/b2bRouter/toEdit?id="+id + "&destinationSiteType=" + params.destinationSiteType;
-	alert(url);
-
-	// +"&originalSiteCode="
-	// + params.originalSiteCode + "&originalSiteName=" + encodeURIComponent(encodeURIComponent(params.originalSiteName))
-	// + "&destinationSiteType=" + params.destinationSiteType + "&destinationSiteCode="+ params.destinationSiteCode
-	// + "&destinationSiteName=" + encodeURIComponent(encodeURIComponent(params.destinationSiteName))
-
-	window.location.href = url;
-
 }
 
 

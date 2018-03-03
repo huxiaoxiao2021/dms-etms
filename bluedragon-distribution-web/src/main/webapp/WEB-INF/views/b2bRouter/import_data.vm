@@ -28,7 +28,7 @@
 <body>
 	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
 	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
-	<script type="text/javascript" src="#springUrl('/static/js/crossbox/import_data.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/b2bRouter/import_data.js')"></script>
 	<script type="text/javascript">
 	
 	</script>
@@ -43,7 +43,7 @@
 		<!--[if !ie]>tbl-n<![endif]-->
 	    <div id="opening" class="noborder">
 			<div class="tbl-bg">
-	            <form id="pitchUploadForm" enctype="multipart/form-data" name="pitchFrom" action="#springUrl('')/base/crossbox/uploadExcel" onsubmit='return upload()' method="POST">
+	            <form id="pitchUploadForm" enctype="multipart/form-data" name="pitchFrom" action="#springUrl('')/b2bRouter/uploadExcel" onsubmit='return upload()' method="POST">
 	    			<table width="80%" border="0" class="tb-x2" >
 	    				<tbody>		
 							<tr>
@@ -57,7 +57,7 @@
 	                    </tr>
 	    					<tr>
 	    						 <td align="center">
-	    							<a href="#springUrl('')/static/importFileModel/crossbox.xls" type="application/vnd.ms-excel">下载excel模版</a> 
+	    							<a href="#springUrl('')/static/importFileModel/b2bRouter.xls" type="application/vnd.ms-excel">下载模版</a>
 	                			 </td>
 	                            <td align="center">
 	    							<label >导入Excel:</label>
@@ -65,8 +65,8 @@
 	    						</td>
 	        					<td align="center"> 
 									<input type="hidden" id = "inputExcel" value="$!excelFile"/>
-	        						<input type="submit" id="uploadBtn" name="uploadBtn" value="上  传" class="btn_c"></input>
-	        						<input value="返回" class="btn_c" type="button" onclick="return_back()">
+	        						<input type="submit" id="uploadBtn" name="uploadBtn" value="上传" class="btn_c"></input>
+	        						<input value="取消" class="btn_c" type="button" onclick="return_back()">
 	        						<input type="hidden" id="contextPath" value="#springUrl('')">
 	        					</td>
 	    					</tr>

@@ -36,7 +36,7 @@ public class B2BRouterDao {
 
 
     /**
-     * 新增一条路由信息
+     * 新增一条路由
      *
      * @param router
      * @return
@@ -46,8 +46,7 @@ public class B2BRouterDao {
     }
 
     /**
-     * 删除一条路由信息
-     *
+     * 删除一条路由
      * @param router
      * @return
      */
@@ -55,33 +54,49 @@ public class B2BRouterDao {
         return this.getSqlSession().update(B2BRouterDao.namespace + ".deleteById", router);
     }
 
+
     /**
-     * 根据始发网点id和目的网点id查找完成路径
-     *
+     * 更新路由信息
+     * @param router
      * @return
-     * @router router
      */
-    public List<B2BRouter> selectFullLineBySiteCode(B2BRouter router) {
-        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectFullLineBySiteCode", router);
+    public int updateById(B2BRouter router){
+        return this.getSqlSession().update(B2BRouterDao.namespace + ".updateById", router);
     }
 
-    public List<String> selectFullLineId(B2BRouter router) {
-        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectFullLineId", router);
-    }
-
-    public List<B2BRouter> selectAllRouter() {
-        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectAllRouter");
-    }
-
+    /**
+     * 根据条件查询路由信息
+     * @param params
+     * @return
+     */
     public List<B2BRouter> queryByCondition(Map<String,Object> params) {
         return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".queryByCondition",params);
     }
 
+    /**
+     * 统计符合条件的路由数量
+     * @param params
+     * @return
+     */
     public Integer countByCondition(Map<String, Object> params) {
         return (Integer) this.getSqlSessionRead().selectOne(B2BRouterDao.namespace + ".countByCondition", params);
     }
 
+    /**
+     * 根据id获取路由信息
+     * @param id
+     * @return
+     */
     public B2BRouter getRouterById(int id){
         return this.getSqlSessionRead().selectOne(B2BRouterDao.namespace + ".getRouterById", id);
+    }
+
+    /**
+     * 根据完整线路获取对应的路由信息
+     * @param siteIdFullLine
+     * @return
+     */
+    public List<B2BRouter> selectByFullLine(String siteIdFullLine){
+        return this.getSqlSessionRead().selectList(B2BRouterDao.namespace + ".selectByFullLine", siteIdFullLine);
     }
 }

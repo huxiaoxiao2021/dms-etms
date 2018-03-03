@@ -30,7 +30,7 @@ function upload(){
 
 function return_back(){
 	var contextPath = $("#contextPath").val();
-	location.href =contextPath+"/base/crossbox/index";
+	location.href =contextPath+"/b2bRouter/index";
 }
 
 

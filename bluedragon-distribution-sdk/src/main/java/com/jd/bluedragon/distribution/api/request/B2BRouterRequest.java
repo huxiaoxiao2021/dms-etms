@@ -9,11 +9,34 @@ public class B2BRouterRequest implements Serializable{
     private static final long serialVersionUID = 1L;
 
     private Integer id;
+    /**
+     *始发网点类型
+     */
+    private Integer originalSiteType;
+
+    /**
+     * 始发网点编码
+     */
     private Integer originalSiteCode;
+
+    /**
+     * 始发网点名称
+     */
     private String  originalSiteName;
 
+    /**
+     * 目的网点类型
+     */
     private Integer destinationSiteType;
+
+    /**
+     * 目的网点编码
+     */
     private Integer destinationSiteCode;
+
+    /**
+     * 目的网点名称
+     */
     private String  destinationSiteName;
 
     private Integer startIndex;
@@ -81,5 +104,13 @@ public class B2BRouterRequest implements Serializable{
 
     public void setDestinationSiteType(Integer destinationSiteType) {
         this.destinationSiteType = destinationSiteType;
+    }
+
+    public Integer getOriginalSiteType() {
+        return originalSiteType;
+    }
+
+    public void setOriginalSiteType(Integer originalSiteType) {
+        this.originalSiteType = originalSiteType;
     }
 }

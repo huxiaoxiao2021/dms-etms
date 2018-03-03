@@ -1,34 +1,46 @@
 function main() {
-	initOriAndTrans();
-	initDes();
+	//初始化网点信息
+	var originalSiteType = $("#originalSiteType").val();
+	var destinationSiteType = $("#destinationSiteType").val();
+
+	getSiteData(originalSiteType,$("#originalSiteName"),$("#originalSiteCode"));
+	getSiteData(originalSiteType,$("#transferOneSiteName"),$("#transferOneSiteCode"));
+	getSiteData(originalSiteType,$("#transferTwoSiteName"),$("#transferTwoSiteCode"));
+	getSiteData(originalSiteType,$("#transferThreeSiteName"),$("#transferThreeSiteCode"));
+	getSiteData(originalSiteType,$("#transferFourSiteName"),$("#transferFourSiteCode"));
+	getSiteData(originalSiteType,$("#transferFiveSiteName"),$("#transferFiveSiteCode"));
+	getSiteData(destinationSiteType,$("#destinationSiteName"),$("#destinationSiteCode"));
 
 	$("#destinationSiteType").change(function() {
-		alert("change")
 		$("#destinationSiteName").val("");
 		$("#destinationSiteCode").val("");
 		$("#destinationSiteName").unautocomplete();
-		initDes();
+		var siteType = $("#destinationSiteType").val();
+		getSiteData(siteType,$("#destinationSiteName"),$("#destinationSiteCode"));
 	});
 }
 
-function initDes() {
-	var siteType = $("#destinationSiteType").val();
+/**
+ * 获取网点信息
+ * @param siteType
+ * @param siteNameObj
+ * @param siteCodeObj
+ */
+function getSiteData(siteType,siteNameObj,siteCodeObj) {
 	var subTypes = 6420;
 	var contextPath = $("#contextPath").val();
 	var b2bSiteArray=new Array();
-	var url = "/services/bases/getB2BSiteAll/"+subTypes;
-
-	alert(siteType);
-	if (siteType == 1){
+	if(siteType == 1) {
+		var url = "/services/bases/getB2BSiteAll/" + subTypes;
 		jQuery.ajax({
-			type : "GET",
-			url : url,
-			data : {
-				subTypes : subTypes
+			type: "GET",
+			url: url,
+			data: {
+				subTypes: subTypes
 			},
-			success : function(msg) {
-				jQuery.each(msg, function(infoIndex, info) {
-					if(info.code == 200) {
+			success: function (msg) {
+				jQuery.each(msg, function (infoIndex, info) {
+					if (info.code == 200) {
 						var node = {
 							label: info.siteName,
 							value: info.siteCode
@@ -36,50 +48,35 @@ function initDes() {
 						b2bSiteArray[infoIndex] = node;
 					}
 				});
-				initSiteList(b2bSiteArray,$("#destinationSiteName"),$("#destinationSiteCode"));
+				initSiteList(b2bSiteArray,siteNameObj,siteCodeObj);
 			}
 		});
-	}else{
-		var data = [{label:'仓库1',value:101},{label:'仓库2',value:102},{label:'仓库3',value:103}];
-		initSiteList(data,$("#destinationSiteName"),$("#destinationSiteCode"));
+	} else if(siteType == 2){
+		var url = "/services/bases/getWarehouseAll/";
+		jQuery.ajax({
+			type: "GET",
+			url: url,
+			success: function (msg) {
+				jQuery.each(msg, function (infoIndex, info) {
+					if (info.code == 200) {
+						var node = {
+							label: info.siteName,
+							value: info.siteCode
+						};
+						b2bSiteArray[infoIndex] = node;
+					}
+				});
+				initSiteList(b2bSiteArray,siteNameObj,siteCodeObj);
+			}
+		});
 	}
-}
-
-function initOriAndTrans() {
-	var subTypes = 6420;
-	var contextPath = $("#contextPath").val();
-	var b2bSiteArray=new Array();
-	var url = "/services/bases/getB2BSiteAll/"+subTypes;
-	jQuery.ajax({
-		type : "GET",
-		url : url,
-		data : {
-			subTypes : subTypes
-		},
-		success : function(msg) {
-			jQuery.each(msg, function(infoIndex, info) {
-				if(info.code == 200) {
-					var node = {
-						label: info.siteName,
-						value: info.siteCode
-					};
-					b2bSiteArray[infoIndex] = node;
-				}
-			});
-			initSiteList(b2bSiteArray,$("#originalSiteName"),$("#originalSiteCode"));
-			initSiteList(b2bSiteArray,$("#transOneSiteName"),$("#transOneSiteCode"));
-			initSiteList(b2bSiteArray,$("#transTwoSiteName"),$("#transTwoSiteCode"));
-			initSiteList(b2bSiteArray,$("#transThreeSiteName"),$("#transThreeSiteCode"));
-			initSiteList(b2bSiteArray,$("#transFourSiteName"),$("#transFourSiteCode"));
-			initSiteList(b2bSiteArray,$("#transFiveSiteName"),$("#transFiveSiteCode"));
-		}
-	});
 }
 
 function initSiteList(b2bSiteArray,siteNameObj,siteCodeObj){
 	if(b2bSiteArray.length<1){
-		siteNameObj.clear();
-		siteCodeObj.clear();
+		siteNameObj.val();
+		siteCodeObj.val();
+		siteNameObj.unautocomplete();
 	}else {
 		siteNameObj.autocomplete(b2bSiteArray, {
 			formatItem: function (item) {
@@ -87,7 +84,7 @@ function initSiteList(b2bSiteArray,siteNameObj,siteCodeObj){
 			},
 			minChars: 0,
 			max: 20,
-			matchContains: true,
+			matchContains: true
 		}).result(function (event, item) {
 			siteNameObj.val(item.label);
 			siteCodeObj.val(item.value);
@@ -95,16 +92,21 @@ function initSiteList(b2bSiteArray,siteNameObj,siteCodeObj){
 	}
 }
 
-
 function clearHiddenInput() {
-	if ($("#transferOneName").val() == "") {
-		$("#transferOneId").val("");
+	if ($("#transOneSiteName").val() == "") {
+		$("#transOneSiteCode").val("");
 	}
-	if ($("#transferTwoName").val() == "") {
-		$("#transferTwoId").val("");
+	if ($("#transTwoSiteName").val() == "") {
+		$("#transTwoSiteCode").val("");
 	}
-	if ($("#transferThreeName").val() == "") {
-		$("#transferThreeId").val("");
+	if ($("#transThreeSiteName").val() == "") {
+		$("#transThreeSiteCode").val("");
+	}
+	if ($("#transFourSiteName").val() == "") {
+		$("#transFourSiteCode").val("");
+	}
+	if ($("#transFiveSiteName").val() == "") {
+		$("#transFiveSiteCode").val("");
 	}
 }
 function sbmt() {
@@ -114,13 +116,14 @@ function sbmt() {
 			
 	if ($("#dataForm").validate()) {
 		var originalSiteName = $("#originalSiteName").val();
-		var transOneSiteName = $("#transOneSiteName").val();
-		var transTwoSiteName = $("#transTwoSiteName").val();
-		var transThreeSiteName = $("#transThreeSiteName").val();
-		var transFourSiteName = $("#transFourSiteName").val();
-		var transFiveSiteName = $("#transFiveSiteName").val();
+		var transOneSiteName = $("#transferOneSiteName").val();
+		var transTwoSiteName = $("#transferTwoSiteName").val();
+		var transThreeSiteName = $("#transferThreeSiteName").val();
+		var transFourSiteName = $("#transferFourSiteName").val();
+		var transFiveSiteName = $("#transferFiveSiteName").val();
 		var destinationSiteName = $("#destinationSiteName").val();
 		var destinationSiteType = $("#destinationSiteType").val();
+
 
 		if (originalSiteName == "" || destinationSiteName == ""){
 			alert("始发网点&目的网点必填");
@@ -140,44 +143,6 @@ function sbmt() {
 			var flag = false;
 			var message = "";
 
-			var originalSiteCode = $("#originalSiteCode").val();
-			var transOneSiteCode = $("#transOneSiteCode").val();
-			var transTwoSiteCode = $("#transTwoSiteCode").val();
-			var transThreeSiteCode = $("#transThreeSiteCode").val();
-			var transFourSiteCode = $("#transFourSiteCode").val();
-			var transFiveSiteCode = $("#transFiveSiteCode").val();
-			var destinationSiteCode = $("#destinationSiteCode").val();
-
-			var siteNameFullLine=destinationSiteName;
-			var siteCodeFullLine=destinationSiteCode;
-
-			if(transFiveSiteName!= ""){
-				siteNameFullLine = transFiveSiteName +"-"+siteNameFullLine;
-				siteCodeFullLine = transFiveSiteCode +"-"+siteCodeFullLine;
-			}
-			if(transFourSiteName!=""){
-				siteNameFullLine = transFourSiteName +"-"+siteNameFullLine;
-				siteCodeFullLine = transFourSiteCode +"-"+siteCodeFullLine;
-			}
-			if(transThreeSiteName!=""){
-				siteNameFullLine = transThreeSiteName +"-"+siteNameFullLine;
-				siteCodeFullLine = transThreeSiteCode +"-"+siteCodeFullLine;
-			}
-			if(transTwoSiteName!=""){
-				siteNameFullLine = transTwoSiteName +"-"+siteNameFullLine;
-				siteCodeFullLine = transTwoSiteCode +"-"+siteCodeFullLine;
-			}
-			if(transOneSiteName!=""){
-				siteNameFullLine = transOneSiteName +"-"+siteNameFullLine;
-				siteCodeFullLine = transOneSiteCode +"-"+siteCodeFullLine;
-			}
-
-			siteNameFullLine = originalSiteName +"-"+siteNameFullLine;
-			siteCodeFullLine = originalSiteCode +"-"+siteCodeFullLine;
-
-			$("#siteNameFullLine").val(siteNameFullLine);
-			$("#siteIdFullLine").val(siteCodeFullLine);
-
 			jQuery.ajax({
 				url : contextPath + "/b2bRouter/check?" + Math.random(),
 				type : 'post',
@@ -185,7 +150,6 @@ function sbmt() {
 				dataType : 'json',
 				async : false,
 				success : function(data) {
-					alert(data.code);
 					if (data && data.code == 0) {
 						if (data.message) {
 							alert(data.message);
@@ -209,6 +173,7 @@ function sbmt() {
 		}
 	}
 }
+
 function doAdd() {
 	var contextPath = $("#contextPath").val();
 	jQuery.ajax({
@@ -232,6 +197,8 @@ function doAdd() {
 		}
 	});
 }
+
+
 function doUpdate() {
 	var contextPath = $("#contextPath").val();
 	jQuery.ajax({
@@ -249,7 +216,8 @@ function doUpdate() {
 				}
 			} else {
 				alert("更新成功");
-				back_index();//携带之前的查询条件参数跳转到主页
+				document.location.href = contextPath
+					+ "/b2bRouter/index";
 			}
 		}
 	});
