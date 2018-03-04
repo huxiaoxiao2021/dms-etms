@@ -114,7 +114,7 @@ public class BasePrintWaybill implements Serializable {
 	/**
 	 * 北京已验视标识
 	 */
-	private boolean bjCheckFLg;
+	private boolean bjCheckFlg;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -417,11 +417,17 @@ public class BasePrintWaybill implements Serializable {
 		this.printTime = printTime;
 	}
 
-	public boolean isBjCheckFLg() {
-		return bjCheckFLg;
+	/**
+	 * @return the bjCheckFlg
+	 */
+	public boolean isBjCheckFlg() {
+		return bjCheckFlg;
 	}
 
-	public void setBjCheckFLg(boolean bjCheckFLg) {
-		this.bjCheckFLg = bjCheckFLg;
+	/**
+	 * @param bjCheckFlg the bjCheckFlg to set
+	 */
+	public void setBjCheckFlg(boolean bjCheckFlg) {
+		this.bjCheckFlg = bjCheckFlg;
 	}
 }

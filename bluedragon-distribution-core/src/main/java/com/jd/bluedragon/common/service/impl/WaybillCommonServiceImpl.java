@@ -534,7 +534,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //根据waybillSign第一位判断是否SOP或纯外单（根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K））
         target.setSopOrExternalFlg(BusinessHelper.isSopOrExternal(waybill.getWaybillSign()));
         //判断始发分拣中心是否属于北京
-        target.setBjCheckFLg(siteService.getBjDmsSiteCodes()
+        target.setBjCheckFlg(siteService.getBjDmsSiteCodes()
         		.contains(target.getOriginalDmsCode()));
         return target;
     }
