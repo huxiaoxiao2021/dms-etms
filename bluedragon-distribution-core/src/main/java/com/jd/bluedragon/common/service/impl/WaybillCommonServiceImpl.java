@@ -18,6 +18,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.product.domain.Product;
@@ -64,6 +65,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private OrderWebService orderWebService;
     @Autowired
     private BaseService baseService;
+    @Autowired
+    private SiteService siteService; 
     
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -530,6 +533,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setSenderCompany(waybill.getSenderCompany());
         //根据waybillSign第一位判断是否SOP或纯外单（根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K））
         target.setSopOrExternalFlg(BusinessHelper.isSopOrExternal(waybill.getWaybillSign()));
+        //判断始发分拣中心是否属于北京
+        target.setBjCheckFLg(siteService.getBjDmsSiteCodes()
+        		.contains(target.getOriginalDmsCode()));
         return target;
     }
 }
