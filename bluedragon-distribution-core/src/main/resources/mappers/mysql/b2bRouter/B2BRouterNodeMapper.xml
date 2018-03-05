@@ -60,12 +60,16 @@
 	</update>
 
 	<select id="getNextNode" parameterType="B2BRouterNode" resultMap="b2bRouterNodeMap">
-		select destination_site_type,destination_site_code,destination_site_name,
+		select destination_site_type,destination_site_code,destination_site_name
         from b2b_router_chain
 		where
-		chain_id = #{routerChainId,jdbcType=INTEGER}
-		 and original_site_type = #{originalSiteType,jdbcType=INTEGER}
-		 and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		chain_id = #{chainId,jdbcType=INTEGER}
+		<if test="originalSiteType != null and originalSiteType != ''">
+			and original_site_type=#{originalSiteType,jdbcType=INTEGER}
+		</if>
+		<if test="originalSiteCode != null and originalSiteCode != ''">
+			and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		</if>
 		 and yn =1
 	</select>
 

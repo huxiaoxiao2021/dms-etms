@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -13,6 +14,9 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
+import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
+import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -29,6 +33,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -92,6 +97,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DeliveryVerification cityDeliveryVerification;
 
     @Autowired
+    B2BRouterService b2bRouterService;
+
+    @Autowired
     DepartureService departureService;
 
     @Autowired
@@ -120,6 +128,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     WaybillPackageApi waybillPackageApi;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private DmsToTmsWebService dmsToTmsWebService;
@@ -400,7 +411,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @author lihuachang  
      * @category 2017.11.30
      * @param domain
-     * @param barCode
+     * @param packageCode
      */
     private void pushAtuoSorting(SendM domain,String packageCode) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
@@ -2064,6 +2075,115 @@ public class DeliveryServiceImpl implements DeliveryService {
         }else{
             return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
         }
+    }
+    /**
+     * 快运发货校验路由信息
+     * @param sendM
+     * @return
+     */
+    public DeliveryResponse checkRouterForKY(SendM sendM){
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        Integer receiveSiteCode = sendM.getReceiveSiteCode();
+        Integer createSiteCode = sendM.getCreateSiteCode();
+        BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        if(receiveSite == null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无法获取目的站点："+receiveSiteCode);
+            logger.warn("快运发货无法获取目的站点："+receiveSiteCode);
+            return response;
+        }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
+            logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
+            return response;
+        }
+        Integer destinationSiteCode = getDestinationSiteCode(sendM);
+        logger.info("根据包裹号或箱号获取目的分拣中心："+destinationSiteCode);
+        if(destinationSiteCode == null){
+            response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+            response.setMessage(DeliveryResponse.MESSAGE_ROUTER_SITE_ERROR);
+            return response;
+        }
+        //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
+        B2BRouter router = new B2BRouter();
+        router.setDestinationSiteCode(destinationSiteCode);
+        router.setOriginalSiteCode(createSiteCode);
+        B2BRouterNode currentRouterNode = new B2BRouterNode();
+        currentRouterNode.setOriginalSiteCode(receiveSiteCode);
+        try {
+            logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
+            List<B2BRouterNode> nodes = b2bRouterService.getNextCode(router, currentRouterNode);
+            logger.info("B网路由查询结果："+JsonHelper.toJson(nodes));
+            if(nodes == null || nodes.isEmpty()){
+                response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                response.setMessage(DeliveryResponse.MESSAGE_ROUTER_ERROR);
+            }
+        }catch (Exception e){
+            logger.error("B网路由查询异常："+JsonHelper.toJson(sendM), e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+        //2.发货数据判断包裹是否不全
+        return response;
+    }
+
+    /**
+     *  获取包裹或者箱子的末级分拣中心
+     * @param sendM
+     * @return
+     */
+    private Integer getDestinationSiteCode(SendM sendM){
+        Integer destinationSiteCode = null;
+        if (BusinessHelper.isBoxcode(sendM.getBoxCode())) {
+            Box box = boxService.findBoxByCode(sendM.getBoxCode());
+            if(box == null){
+                logger.warn("快运发货箱号不存在，无法获取最终目的地："+JsonHelper.toJson(sendM));
+                return destinationSiteCode;
+            }
+            BaseStaffSiteOrgDto boxReceiveSiteCode = baseMajorManager.getBaseSiteBySiteId(box.getReceiveSiteCode());
+            if(boxReceiveSiteCode != null){
+                destinationSiteCode = Integer.valueOf(Constants.DMS_SITE_TYPE).equals(boxReceiveSiteCode.getSiteType()) ? box.getReceiveSiteCode():boxReceiveSiteCode.getDmsId();
+            }else{
+                logger.warn("快运发货箱号目的地不存在，无法获取最终目的地："+JsonHelper.toJson(sendM));
+            }
+        } else if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+            Integer preSiteCode = null;
+            String waybillCode = BusinessHelper.getWaybillCode(sendM.getBoxCode());
+            if(StringUtils.isBlank(waybillCode)){
+                logger.warn("快运发货包裹号非法，无法获取最终目的地："+JsonHelper.toJson(sendM));
+            }else{
+                preSiteCode = getPreSiteCodeByWayBillCode(waybillCode);
+            }
+            if(preSiteCode != null){
+                BaseStaffSiteOrgDto preSiteCodeDto = baseMajorManager.getBaseSiteBySiteId(preSiteCode);
+                if(preSiteCodeDto != null){
+                    destinationSiteCode = preSiteCodeDto.getDmsId();
+                }else{
+                    logger.warn("快运发货包裹预分拣站点不存在，无法获取最终目的地："+JsonHelper.toJson(sendM));
+                }
+            }
+        }
+        return destinationSiteCode;
+    }
+
+    /**
+     * 获取运单的预分拣站点
+     * @param waybillCode
+     * @return
+     */
+    private Integer getPreSiteCodeByWayBillCode(String waybillCode){
+        Integer preSiteCode = null;
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+        if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()) {
+            //运单数据为空，直接返回运单数据为空异常
+            if (baseEntity.getData() == null || baseEntity.getData().getWaybill() == null) {
+                logger.warn("调用运单接口获取运单数据为空，waybillCode：" + waybillCode);
+            }else{
+                preSiteCode = baseEntity.getData().getWaybill().getOldSiteId();
+            }
+        }
+        if(preSiteCode == null){
+            logger.warn("调用运单接口获取运单预分拣站点为空，waybillCode：" + waybillCode);
+        }
+        return preSiteCode;
     }
 
     /**

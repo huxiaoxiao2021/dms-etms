@@ -70,10 +70,10 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.apache.ibatis" level="INFO" additivity="true">
+        <Logger name="org.apache.ibatis" level="DEBUG" additivity="true">
         </Logger>
 
-        <Logger name="java.sql" level="INFO" additivity="true">
+        <Logger name="java.sql" level="DEBUG" additivity="true">
         </Logger>
 
         <Logger name="com.jd.dbs.transaction" level="ERROR">

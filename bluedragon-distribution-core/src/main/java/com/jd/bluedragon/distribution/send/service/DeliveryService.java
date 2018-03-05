@@ -142,6 +142,9 @@ public interface DeliveryService {
 	/** 快运发货不全验证 */
 	public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
 
+    /** 快运发货路由信息验证 */
+    public DeliveryResponse checkRouterForKY(SendM sendm);
+
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
 	
