@@ -8,7 +8,7 @@ import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.receive.service.ReceiveService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
-@Service
+//@Service
 public class ReceiveTask extends DBSingleScheduler {
 	private Logger logger = Logger.getLogger(ReceiveTask.class);
 	@Autowired

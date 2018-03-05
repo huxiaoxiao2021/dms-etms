@@ -86,6 +86,10 @@
         <property name="vtsQueryWS" ref="vtsQueryWS"></property>
     </bean>
 
+    <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
+                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="10000" retries="0">
+    </jsf:consumer>
+
     <!-- 车辆管理系统 VMS 系统 李胜涛  -->
     <jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
                   protocol="jsf" alias="${vms.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
@@ -231,7 +235,10 @@
     <!-- 封车解封车 jsf接口 隋红华 王显群-->
     <jsf:consumer id="vosBusinessWS" interface="com.jd.etms.vos.ws.VosBusinessWS"
                   protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
-
+    </jsf:consumer>
+    <!-- 任务封车简码查询 jsf接口 郝雄山-->
+    <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="0">
     </jsf:consumer>
 
     <!-- 车辆电子围栏 VOS系统 隋红华 王显群 李胜涛  -->
@@ -248,5 +255,13 @@
     <!-- 备件库扩展接口  -->
 	<jsf:consumer id="rdWmsStoreExtendService" interface="com.jd.rd.wms.jsf.bin.service.RdWmsStoreExtendService" 
 		protocol="jsf" alias="${jsf.rdWmsStoreExtendService.alias}" timeout="5000" retries="3">
+	</jsf:consumer>
+    <!-- 二次预分拣中件站接口  -->
+	<jsf:consumer id="presortMediumStation" interface="com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI"
+		protocol="jsf" alias="${jsf.presortMediumStationAPI.alias}" timeout="5000" retries="3">
+	</jsf:consumer>
+	<!-- 运输jsf接口 -->
+	<jsf:consumer id="basicSyncWS" interface="com.jd.tms.basic.ws.BasicSyncWS"
+		protocol="jsf" alias="${jsf.basicSyncWS.alias}" timeout="5000" retries="3">
 	</jsf:consumer>
 </beans>

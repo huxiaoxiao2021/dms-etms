@@ -22,10 +22,15 @@
 			value="com.jd.bluedragon.distribution.task.domain.Task" />
 		<property name="ownSign" value="${ownSign}" />
 	</bean>
-
+	<bean id="baseRedisSingleScheduler"
+		class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		abstract="true" parent="parentRedisTask">
+		<property name="open" value="${beans.baseRedisSingleScheduler.open}"/>
+	</bean>
 	<bean id="receiveRedisTask"
-		class="com.jd.bluedragon.distribution.worker.redis.ReceiveRedisTask"
-		parent="parentRedisTask">
+		class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		parent="baseRedisSingleScheduler">
+		<property name="dmsTaskExecutor" ref="receiveTaskExecutor"/>
 		<property name="taskType" value="ReceiveRedisTask" />
 		<property name="desc" value="分拣中心收货Redis任务" />
 	</bean>
@@ -149,13 +154,6 @@
 		<property name="desc" value="分拣Redis任务" />
 	</bean>
 
-	<bean id="offlineCoreRedisTask"
-		class="com.jd.bluedragon.distribution.worker.offline.redis.OfflineCoreRedisTask"
-		parent="parentRedisTask">
-		<property name="taskType" value="OfflineCoreRedisTask" />
-		<property name="desc" value="离线Redis任务" />
-	</bean>
-
 	<bean id="pushMQ2ArteryBillingSysRedisTask"
 		class="com.jd.bluedragon.distribution.worker.receive.redis.ReceivePushArteryMQRedisTask"
 		parent="parentRedisTask">
@@ -216,6 +214,19 @@
 		<property name="taskType" value="MessageRedisTask" />
 		<property name="desc" value="异步推送MQ" />
 	</bean>
-
+	<bean id="arReceiveRedisTask"
+		class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		parent="baseRedisSingleScheduler">
+		<property name="dmsTaskExecutor" ref="arReceiveTaskExecutor"/>
+		<property name="taskType" value="ArReceiveRedisTask" />
+		<property name="desc" value="空铁提货Redis任务" />
+	</bean>
+	<bean id="offlineCoreRedisTask"
+		class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		parent="baseRedisSingleScheduler">
+		<property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
+		<property name="taskType" value="OfflineCoreRedisTask" />
+		<property name="desc" value="离线Redis任务" />
+	</bean>
 </beans>
 

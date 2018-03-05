@@ -349,6 +349,7 @@ public class SendPrintServiceImpl implements SendPrintService{
                         	if(dSendDatail.getWaybillCode()!=null && !dSendDatail.getWaybillCode().isEmpty()){
                                 waybillCodes.add(dSendDatail.getWaybillCode());
                             }
+
                         	BasicQueryEntity tBasicQueryEntity = new BasicQueryEntity();
                             tBasicQueryEntity.setBoxCode(dendM.getBoxCode());
                             if(dSendDatail.getIsCancel()!=null && dSendDatail.getIsCancel()==0){

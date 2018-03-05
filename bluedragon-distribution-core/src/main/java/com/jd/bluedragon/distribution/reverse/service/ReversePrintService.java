@@ -20,9 +20,10 @@ public interface ReversePrintService {
     /**
      * 获取换单后对应的新运单号
      * @param oldWaybillCode 原单号
+     * @param isPickUpFinished 是否限制取件完成
      * @return
      */
-    InvokeResult<String> getNewWaybillCode(String oldWaybillCode);
+    InvokeResult<String> getNewWaybillCode(String oldWaybillCode, boolean isPickUpFinished);
 
     /**
      * 执行逆向换单

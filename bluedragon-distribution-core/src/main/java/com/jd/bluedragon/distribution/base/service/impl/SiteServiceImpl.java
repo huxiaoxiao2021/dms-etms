@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service("siteService")
@@ -45,6 +48,11 @@ public class SiteServiceImpl implements SiteService {
 	private VtsQueryWSProxy vtsQueryWSProxy;
 
     private final Log logger = LogFactory.getLog(this.getClass());
+
+	/**
+	 * 批次号正则
+	 */
+	private static final Pattern RULE_SEND_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
 
 	public BaseStaffSiteOrgDto getSite(Integer siteCode) {
 		return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -209,5 +217,23 @@ public class SiteServiceImpl implements SiteService {
         }
 
     }
+
+	/**
+	 * 根据批次号的正则匹配始发分拣中心id和目的分拣中心id
+	 * @param sendCode 批次号
+	 * @return
+     */
+	@Override
+	public Integer[] getSiteCodeBySendCode(String sendCode){
+		Integer[] sites = new Integer[]{-1, -1};
+		if (StringHelper.isNotEmpty(sendCode)) {
+			Matcher matcher = RULE_SEND_CODE_REGEX.matcher(sendCode.trim());
+			if (matcher.matches()) {
+				sites[0] = Integer.valueOf(matcher.group(1));
+				sites[1] = Integer.valueOf(matcher.group(2));
+			}
+		}
+		return sites;
+	}
 
 }

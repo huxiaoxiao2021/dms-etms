@@ -73,16 +73,27 @@
         </constructor-arg>
 
     </bean>
-    <bean id="receiveTask" class="com.jd.bluedragon.distribution.worker.ReceiveTask"
+    <bean id="baseDBSingleScheduler" abstract="true" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ReceiveTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
+        <property name="open" value="${beans.baseDBSingleScheduler.open}"/>
+    </bean>
+    <bean id="receiveTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
+          parent = "baseDBSingleScheduler">
+        <property name="taskType" value="ReceiveTaskN"/>
+        <property name="dmsTaskExecutor" ref="receiveTaskExecutor"/>
         <property name="type" value="1110"/>
         <property name="desc" value="分拣中心收货任务"/>
     </bean>
-
+    <bean id="arReceiveTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
+          parent = "baseDBSingleScheduler">
+        <property name="taskType" value="ArReceiveTask"/>
+        <property name="dmsTaskExecutor" ref="arReceiveTaskExecutor"/>
+        <property name="type" value="1810"/>
+        <property name="desc" value="空铁提货任务"/>
+    </bean>
     <bean id="sortingTask"
           class="com.jd.bluedragon.distribution.worker.sorting.SortingTask"
           init-method="init" depends-on="managerFactory">
@@ -320,15 +331,12 @@
     </bean>
 
     <!-- 离线 -->
-    <bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.worker.offline.OfflineCoreTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
+    <bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
+          parent = "baseDBSingleScheduler">
         <property name="taskType" value="OfflineCoreTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
+        <property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
         <property name="type" value="1800"/>
         <property name="desc" value="离线任务"/>
-
     </bean>
 
     <!-- 干线发车 -->

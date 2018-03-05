@@ -1,5 +1,12 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
@@ -9,15 +16,11 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
 
 /**
  * Created by wangtingwei on 2016/1/25.
  */
+@Service("promiseComposeService")
 public class PromiseComposeServiceImpl implements  ComposeService {
 
     private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);
@@ -76,13 +79,13 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     waybill.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
+                    log.warn("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
                 }
                 log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
-            log.error("外单调用promise接口异常" + e.toString() + waybill.getWaybillCode(),e);
+            log.error("外单调用promise接口异常" +waybill.getWaybillCode(),e);
         }
     }
 }
