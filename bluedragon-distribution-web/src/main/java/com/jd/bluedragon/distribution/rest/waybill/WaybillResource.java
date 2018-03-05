@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,7 +9,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
+import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
+import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
+import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
+import com.jd.bluedragon.distribution.waybill.domain.*;
+import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
+import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
+import com.jd.bluedragon.utils.*;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.dto.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,18 +53,8 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.OriginalType;
 import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
@@ -97,6 +97,12 @@ public class WaybillResource {
 	/* 运单查询 */
 	@Autowired
 	private WaybillQueryApi waybillQueryApi;
+
+	@Autowired
+	private WaybillPackageApi waybillPackageApi;
+
+	@Autowired
+	private WaybillTraceApi waybillTraceApi;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -851,5 +857,192 @@ public class WaybillResource {
 		}
 	}
 
+	/**
+	 * 获取运单称重数据queryPackcode
+	 *
+	 *
+	 * 返回示例：
+		 成功{"code":200,"message":"OK","data":[
+		 {
+		 "waybillCode":"111111111-1-",
+		 "packageBarcode":10,
+		 "againWeight":100,
+		 "operatorUserId":12.3,
+		 "operatorUser":30.5,
+		 "operatorSite":1010,
+		 "operatorSiteId":"张三",
+		 "operatorTime":39
+		 }]}
+		 失败{"code":400,"message":"ERROR"}
+		 失败{"code":401,"message":"*****"}
+	 */
+	@GET
+	@Path("/waybill/queryPackcode/{waybillCode}")
+	public InvokeResult<List<PackageWeigh>> queryPackcode(@PathParam("waybillCode") String waybillCode){
+
+
+		InvokeResult<List<PackageWeigh>> result = new InvokeResult<List<PackageWeigh>>();
+		try{
+
+			result = this.waybillCommonService.getPackListByCode(waybillCode);
+
+			logger.info("/waybill/queryPackcode success waybillCode--> "+waybillCode);
+		}catch (Exception e){
+
+			logger.error("/waybill/queryPackcode  waybillCode--> "+waybillCode+" | "+e.getMessage());
+
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+	/**
+	 * 提交POP打印数据至运单
+	 *
+	 * 改造异步模式
+	 * 	预埋worker 至  task_pop 中 type 6666
+	 *
+	 *  原WEB 接口 入参
+	 * {"packageBarcode":"VA00010628892","waybillCode":"VA00010628892","operatorUserId":"10053",
+	 * "operatorUser":"邢松","operatorSite":"北京马驹桥分拣中心",
+	 * "operatorSiteId":"910","state":"-250","remark":"驻厂标签打印","createTime":1516019841532}
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/addPackState")
+	public InvokeResult<Boolean> addPackState(PopAddPackStateRequest req){
+
+
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		try{
+
+			PopAddPackStateTaskBody popAddPackStateTaskBody = new PopAddPackStateTaskBody();
+
+            popAddPackStateTaskBody.setPackageCode(req.getPackageBarcode());
+            popAddPackStateTaskBody.setWaybillCode(req.getWaybillCode());
+            popAddPackStateTaskBody.setCreateSiteCode(req.getOperatorSiteId());
+            popAddPackStateTaskBody.setCreateSiteName(req.getOperatorSite());
+            popAddPackStateTaskBody.setOperatorId(req.getOperatorUserId());
+            popAddPackStateTaskBody.setOperator(req.getOperatorUser());
+            popAddPackStateTaskBody.setOperateType(WaybillStatus.WAYBILL_TRACK_POP_PRINT.toString());
+            popAddPackStateTaskBody.setRemark(req.getRemark());
+            popAddPackStateTaskBody.setOperateTime(DateHelper.formatDateTime(new Date()));
+
+			String body = JsonHelper.toJson(popAddPackStateTaskBody);
+
+
+
+			Task task = new Task();
+			task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+			task.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+			task.setSequenceName(Task.getSequenceName(task.getTableName()));
+			task.setKeyword1(req.getRemark());
+			task.setKeyword2(WaybillStatus.WAYBILL_TRACK_POP_PRINT.toString());
+			task.setCreateSiteCode(new Integer(req.getOperatorSiteId()));
+			task.setBody(body);
+			task.setOwnSign(BusinessHelper.getOwnSign());
+
+			taskService.add(task,true);  //直接创建task对象。因为taskService.toTask
+
+
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			result.setData(true);
+			logger.info("/waybill/addPackState success context--> " +JsonHelper.toJson(req));
+		}catch (Exception e){
+
+			logger.error("/waybill/addPackState  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
+
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			result.setData(false);
+		}
+		return result;
+
+	}
+
+
+	/**
+	 *	重量上传
+	 *	模拟离线称重任务
+	 *
+	 * 原WEB接口入参
+	 * [{"packageBarcode":"VA00013129830-1-1-","againWeight":12.3,
+	 * "waybillCode":"VA00013129830","operatorUserId":10053,"operatorUser":"邢松",
+	 * "operatorSiteId":910,
+	 * "operatorSite":"北京马驹桥分拣中心"}]
+	 *
+	 * @param req
+	 * @return
+	 *
+	 * 成功{"code":200,"message":"OK","data":true}
+		失败{"code":401,"message":"ERROR","data":false}或{"code":400,"message":"ERROR","data":false}
+	 */
+	@POST
+	@Path("/waybill/editWeight")
+	public InvokeResult<Boolean>editWeight(List<EditWeightRequest> req){
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+
+		//模拟离线称重 TASK
+		try{
+
+			if(req!=null && req.size()>0){
+				for(EditWeightRequest editWeightRequest : req){
+
+					TaskRequest taskRequest = new TaskRequest();
+					taskRequest.setType(Task.TASK_TYPE_WEIGHT);
+					taskRequest.setKeyword1(editWeightRequest.getWaybillCode());
+					taskRequest.setKeyword2("批量分拣称重操作");
+					taskRequest.setSiteCode(editWeightRequest.getOperatorSiteId());
+
+					List<PackOpeDto> packOpeDtoList = new ArrayList<PackOpeDto>();
+					PackOpeDto packOpeDto = new PackOpeDto();
+					packOpeDtoList.add(packOpeDto);
+					packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
+					packOpeDto.setOpeType(1);
+					List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
+					PackOpeDetail packOpeDetail = new PackOpeDetail();
+					packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
+					packOpeDetail.setpWeight(editWeightRequest.getAgainWeight());
+					packOpeDetail.setOpeUserId(editWeightRequest.getOperatorUserId());
+					packOpeDetail.setOpeUserName(editWeightRequest.getOperatorUser());
+					packOpeDetail.setOpeSiteId(editWeightRequest.getOperatorSiteId());
+					packOpeDetail.setOpeSiteName(editWeightRequest.getOperatorSite());
+					packOpeDetail.setOpeTime(DateHelper.formatDateTime(new Date(Long.valueOf(editWeightRequest.getOpeTime()))));
+
+					packOpeDetailList.add(packOpeDetail);
+					packOpeDto.setOpeDetails(packOpeDetailList);
+
+					//转换JSON 存入body
+					String body = JsonHelper.toJson(packOpeDtoList);
+					taskRequest.setBody(body);
+
+					taskService.add(this.taskService.toTask(taskRequest, body),true);
+
+				}
+			
+				result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+				result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+				result.setData(true);
+			}else{
+
+				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				result.setMessage(InvokeResult.PARAM_ERROR);
+				result.setData(false);
+			}
+
+			logger.info("/waybill/editWeight success context--> " +JsonHelper.toJson(req));
+		}catch (Exception e){
+
+			logger.error("/waybill/editWeight  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
+
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			result.setData(false);
+		}
+
+		return result;
+	}
 
 }
