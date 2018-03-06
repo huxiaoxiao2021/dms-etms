@@ -445,4 +445,8 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+    /**
+     * 配置信息-北京的分拣中心
+     */
+    public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +21,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.product.domain.Product;
@@ -64,6 +68,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private OrderWebService orderWebService;
     @Autowired
     private BaseService baseService;
+    @Autowired
+    private SiteService siteService; 
     
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -530,6 +536,51 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setSenderCompany(waybill.getSenderCompany());
         //根据waybillSign第一位判断是否SOP或纯外单（根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K））
         target.setSopOrExternalFlg(BusinessHelper.isSopOrExternal(waybill.getWaybillSign()));
+        //判断始发分拣中心是否属于北京
+        target.setBjCheckFlg(siteService.getBjDmsSiteCodes()
+        		.contains(target.getOriginalDmsCode()));
         return target;
+    }
+
+    /**
+     * 获取称重数据
+     * @param waybillCode 运单号
+     * @return
+     */
+    @Override
+    public InvokeResult<List<PackageWeigh>> getPackListByCode(String waybillCode) {
+        CallerInfo info = null;
+        InvokeResult<List<PackageWeigh>> result = new InvokeResult<List<PackageWeigh>>();
+        try{
+            info = Profiler.registerInfo( "DMSWEB.WaybillCommonServiceImpl.getPackListByCode",false, true);
+            BaseEntity<List<PackageWeigh>> packListByCode = waybillPackageApi.getPackListByCode(waybillCode);
+            int code = packListByCode.getResultCode();
+            String message =  packListByCode.getMessage();
+
+                /*		1,"接口调用成功"
+                        -1,"接口调用失败"
+                        -2,"参数非法"
+                        -3,"不存在的数据"	*/
+
+            if(code == 1){
+                //成功
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+                result.setData(packListByCode.getData());
+            }else{
+                //失败
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setMessage(message);
+
+            }
+
+        }catch(Exception e){
+            logger.error("异常getPackListByCode " +e.getMessage());
+            Profiler.functionError(info);
+        }finally{
+            Profiler.registerInfoEnd(info);
+            return result;
+        }
+
     }
 }
