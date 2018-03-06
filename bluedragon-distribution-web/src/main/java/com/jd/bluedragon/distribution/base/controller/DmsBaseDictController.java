@@ -129,4 +129,30 @@ public class DmsBaseDictController {
         rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(3, typeGroup));
         return rest;
     }
+    /**
+     * 根据节点层级获取字典列表
+     * @param nodeLevel
+     * @return
+     */
+    @RequestMapping(value = "/getDicListByNodeLevel/{nodeLevel}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getDicListByNodeLevel(@PathVariable("nodeLevel") Integer nodeLevel) {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
+        dmsBaseDictCondition.setNodeLevel(nodeLevel);
+        rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));
+        return rest;
+    }
+    /**
+     * 获取所有分组信息
+     * @return
+     */
+    @RequestMapping(value = "/getAllDicGroups")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getAllDicGroups() {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
+        rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));
+        return rest;
+    }
 }

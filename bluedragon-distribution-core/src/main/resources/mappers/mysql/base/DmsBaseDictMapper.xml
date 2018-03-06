@@ -209,7 +209,7 @@
 		from 
 		  dms_base_dict 
         <include refid="where_condition"/>
-         order by parent_id,type_group,order_num
+         order by node_level,order_num
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

@@ -52,11 +52,17 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      */
     Map<Integer, List<DmsBaseDict>> queryMapByParentId(Integer parentId);
     /**
+     * 根据typeCode查询根节点，parantId = 0的
+     * @param typeName
+     * @return
+     */
+    DmsBaseDict queryRootByTypeCode(Integer typeCode);
+    /**
      * 根据名称查询根节点配置，parantId = 0的
      * @param typeName
      * @return
      */
-    DmsBaseDict queryRootNodeByTypeName(String typeName);
+    DmsBaseDict queryRootByTypeName(String typeName);
     /**
      * 根据打标配置标识名查询打标配置信息
      * @param signConfigName

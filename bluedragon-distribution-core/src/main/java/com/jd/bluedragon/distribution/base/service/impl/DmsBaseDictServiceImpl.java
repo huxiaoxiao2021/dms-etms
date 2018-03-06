@@ -87,11 +87,27 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
     }
     /**
      * 根据parentId查找所有下级节点数据,返回list
+     * @param typeCode
+     * @return
+     */
+	@Override
+	public DmsBaseDict queryRootByTypeCode(Integer typeCode) {
+		DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setParentId(0);
+        dmsBaseDictCondition.setTypeCode(typeCode);
+        List<DmsBaseDict> parentNodes = queryByCondition(dmsBaseDictCondition);
+        if(parentNodes != null && !parentNodes.isEmpty()){
+        	return parentNodes.get(0);
+        }
+        return null;
+	}
+    /**
+     * 根据parentId查找所有下级节点数据,返回list
      * @param parentId
      * @return
      */
 	@Override
-	public DmsBaseDict queryRootNodeByTypeName(String typeName) {
+	public DmsBaseDict queryRootByTypeName(String typeName) {
 		DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
         dmsBaseDictCondition.setParentId(0);
         dmsBaseDictCondition.setTypeName(typeName);
@@ -142,8 +158,8 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 	@Override
 	public Map<Integer, SignConfig> getSignConfigsByConfigName(String signConfigName) {
 		Map<Integer, SignConfig> res = new TreeMap<Integer, SignConfig>();
-		DmsBaseDict positionNode = this.queryRootNodeByTypeName(signConfigName + DIC_SIGN_CONFIG_POSITION_SUFFIX);
-		DmsBaseDict signTextNode = this.queryRootNodeByTypeName(signConfigName + DIC_SIGN_CONFIG_TEXTS_SUFFIX);
+		DmsBaseDict positionNode = this.queryRootByTypeName(signConfigName + DIC_SIGN_CONFIG_POSITION_SUFFIX);
+		DmsBaseDict signTextNode = this.queryRootByTypeName(signConfigName + DIC_SIGN_CONFIG_TEXTS_SUFFIX);
 		if(positionNode != null && signTextNode != null){
 			Map<Integer, List<DmsBaseDict>> positions = this.queryMapByParentId(positionNode.getId().intValue());
 			Map<Integer, List<DmsBaseDict>> signTexts = this.queryMapByParentId(signTextNode.getId().intValue());
