@@ -239,7 +239,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(2, "批次号错误：" + domain.getSendCode());
         }
-        if(checkSendCode(domain.getSendCode())){
+        if(checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(2, "批次号已操作封车，请换批次！");
         }
         SendM queryPara = new SendM();
@@ -1482,10 +1482,10 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendCode
      * @return
      */
-    private boolean checkSendCode(String sendCode) {
+    private boolean checkSendCodeIsSealed(String sendCode) {
         boolean result = false;
         try {
-            String isSeal = redisManager.getCache(sendCode);
+            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
             logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
             if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
                 result = true;

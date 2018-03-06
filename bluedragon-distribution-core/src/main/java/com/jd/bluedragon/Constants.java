@@ -245,8 +245,17 @@ public class Constants {
     /**
      * 本地缓存默认失效时间
      */
-    public static final int POLLING_INTERVAL_TIME = 1500;// 秒    
-	/**
+    public static final int POLLING_INTERVAL_TIME = 1500;// 秒
+
+    /**
+     * 时间：一天的秒数
+     */
+    public static final int TIME_SECONDS_ONE_DAY = 86400;
+    /**
+     * 时间：一周的秒数
+     */
+    public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
+    /**
 	 * 亚一站点
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
@@ -452,4 +461,8 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+    /**
+     * 封车批次号缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
 }

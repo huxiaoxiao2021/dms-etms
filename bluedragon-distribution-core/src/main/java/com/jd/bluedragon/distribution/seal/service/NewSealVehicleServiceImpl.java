@@ -67,8 +67,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
-    private static final int timeout = 86400;//已封车批次号缓存一天，单位秒
-
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP})
 	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
@@ -202,7 +200,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         for(SealCarDto dto : paramList){
             for(String sendCode : dto.getBatchCodes()){
                 try{
-                    redisManager.setex(sendCode, timeout, Constants.STRING_FLG_TRUE);
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode, Constants.TIME_SECONDS_ONE_WEEK, Constants.STRING_FLG_TRUE);
                     logger.info("已封车批次号存入缓存成功:"+sendCode);
                 }catch (Throwable e){
                     logger.warn("已封车批次号存入缓存失败:"+sendCode+";异常："+e.getMessage());
