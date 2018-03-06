@@ -239,6 +239,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(2, "批次号错误：" + domain.getSendCode());
         }
+        if(checkSendCodeIsSealed(domain.getSendCode())){
+            return new SendResult(2, "批次号已操作封车，请换批次！");
+        }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -1473,6 +1476,24 @@ public class DeliveryServiceImpl implements DeliveryService {
         return falge;
     }
 
+    /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendCode
+     * @return
+     */
+    private boolean checkSendCodeIsSealed(String sendCode) {
+        boolean result = false;
+        try {
+            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
+            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
+            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
+                result = true;
+            }
+        }catch (Throwable e){
+            logger.warn("redis取封车批次号失败："+e.getMessage());
+        }
+        return result;
+    }
     /**
      * 校验sendm中的批次号
      * @param sendm
