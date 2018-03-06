@@ -19,13 +19,26 @@ function main() {
 		$("#paperTable tbody input[type=checkbox][name=record]").each(function(){
 			if(checked) {
 				$(this).prop("checked", true);
+				$(this).parents("tr").css("color","#FF6500");
 			} else {
 				$(this).removeAttr("checked");
+				$(this).parents("tr").css("color","#000000");
 			}
 		});
 	});
 
 	queryBtn(1);
+}
+
+
+function checkboxclick() {
+	$("input[name=record]").each(function () {
+		if($(this).prop("checked")){
+		    $(this).parents("tr").css("color","#FF6500");
+		}else{
+		    $(this).parents("tr").css("color","#000000");
+		}
+	})
 }
 
 /**
@@ -237,8 +250,8 @@ function doQuery(params) {
 				var temp = "";
 				for (var i = 0; i < resultList.length; i++) {
 					temp += "<tr class='a2' style=''>";
-					temp += "<td> <input type='checkbox' id="+ resultList[i].id +" name= 'record' value="+resultList[i].id +" /> </td>"
-
+					// temp += "<td> <input type='checkbox' id="+ resultList[i].id +" name= 'record' value="+resultList[i].id +" /> </td>"
+					temp += "<td> <input type='checkbox' id='"+ resultList[i].id +"' name= 'record' value='"+resultList[i].id +"' onclick='checkboxclick()' /> </td>"
 					temp += "<td>"
 					if (resultList[i].originalSiteName != null)
 						temp += resultList[i].originalSiteName;
