@@ -1597,56 +1597,27 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
         SendDetail tSendDatail = new SendDetail();
 //        List<Message> sendDetailMessageList = new ArrayList<Message>();
+        List<SendDetail> sendDatailListTemp = new ArrayList<SendDetail>();
         List<SendDetail> sendDatailList = new ArrayList<SendDetail>();
         for (SendM newSendM : tSendM) {
             tSendDatail.setBoxCode(newSendM.getBoxCode());
             tSendDatail.setCreateSiteCode(newSendM.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
-            sendDatailList = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+            sendDatailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
 
-            for (SendDetail dSendDatail : sendDatailList) {
+            for (SendDetail dSendDatail : sendDatailListTemp) {
+            	if(dSendDatail.getStatus().equals(1)) continue;//只处理未发货的数据
                 dSendDatail.setSendCode(newSendM.getSendCode());
                 dSendDatail.setOperateTime(newSendM.getOperateTime());
                 dSendDatail.setCreateUser(newSendM.getCreateUser());
                 dSendDatail.setCreateUserCode(newSendM.getCreateUserCode());
+                sendDatailList.add(dSendDatail);
 
-                //包装JMQ的Message对象,保存到sendDetailMessageList集合中
-//                sendDetailMessageList.add(parseSendDetailToMessage(dSendDatail));
             }
             logger.info("SEND_D明细" + JsonHelper.toJson(sendDatailList));
             updateWaybillStatus(sendDatailList);
-
-
-            // ============向西北西南区域三方配送用户发送预警短信 只运行在20150509~20150520============
-//			try {
-//				// 10. 循环所有发货批次
-//				// 20.根据发货目的地判断是不是三方运输到西北西南区域
-//				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
-//				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
-//				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
-//				int subType = rbDto.getSubType().intValue();
-//				int orgId = rbDto.getOrgId().intValue();// 获得机构id
-//				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
-//					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
-//					sendSms(sendDatailList);
-//				}
-//			} catch (Exception e) {
-//				logger.error("西北西南机构发送预警短信失败: ", e);
-//			}
-            //==================================================================
         }
-
-        //使用下面的这种方式会在发送mq失败之后 通过worker再发送一次 modified by zhanglei
-//        try {
-//            workerProducer.send(sendDetailMessageList);
-//        } catch (Throwable e) {
-//            logger.error("发货明细发送JMQ失败: ", e);
-//        }
-//        for(Message itemMessage : sendDetailMessageList){
-//            this.logger.info("发送MQ["+itemMessage.getTopic()+"],业务ID["+itemMessage.getBusinessId()+"],消息主题: " + itemMessage.getText());
-//            this.dmsWorkSendDetailMQ.sendOnFailPersistent(itemMessage.getBusinessId(),itemMessage.getText());
-//        }
         return true;
     }
 
