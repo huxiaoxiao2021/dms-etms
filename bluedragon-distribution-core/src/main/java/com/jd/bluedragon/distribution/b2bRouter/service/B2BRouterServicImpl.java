@@ -247,11 +247,35 @@ public class  B2BRouterServicImpl implements B2BRouterService{
     public List<B2BRouterNode> getNextCode(B2BRouter router, B2BRouterNode currentRouterNode) throws Exception{
         //根据始发网点和目的网点确定chain_id
         //将request转换成map
-        List<B2BRouterNode> result = new ArrayList<B2BRouterNode>();
         try {
             Map<String, Object> params = ObjectMapHelper.makeObject2Map(router);
             List<B2BRouter> routerList = b2bRouterDao.queryByCondition(params);
-            for (B2BRouter b2bRouter : routerList) {
+            if(routerList != null && !routerList.isEmpty()){
+                return getNextCodeByB2BRouters(routerList, currentRouterNode);
+            }
+        }catch (Exception e){
+            logger.error("获取当前路由节点可以到达的一个节点失败.",e);
+            throw e;
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前路由节点可以到达的一个节点
+     * @param routers
+     * @param currentRouterNode 操作网点的编码
+     * @return
+     * @throws Exception
+     */
+    public List<B2BRouterNode> getNextCodeByB2BRouters(List<B2BRouter> routers, B2BRouterNode currentRouterNode) throws Exception{
+        //根据始发网点和目的网点确定chain_id
+        //将request转换成map
+        List<B2BRouterNode> result = new ArrayList<B2BRouterNode>();
+        if(routers == null || routers.isEmpty()){
+            return result;
+        }
+        try {
+            for (B2BRouter b2bRouter : routers) {
                 B2BRouterNode node = new B2BRouterNode();
                 node.setChainId(b2bRouter.getId());
                 node.setOriginalSiteType(currentRouterNode.getOriginalSiteType());
@@ -263,6 +287,21 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             throw e;
         }
         return result;
+    }
+    /**
+     * 根据始发网点和目的网点获取路由信息
+     * @param router
+     * @return
+     * @throws Exception
+     */
+    public List<B2BRouter> getB2BRouters(B2BRouter router) throws Exception{
+        try {
+            Map<String, Object> params = ObjectMapHelper.makeObject2Map(router);
+            return b2bRouterDao.queryByCondition(params);
+        }catch (Exception e){
+            logger.error("获取当前路由节点可以到达的一个节点失败.",e);
+            throw e;
+        }
     }
 
     /**

@@ -2099,7 +2099,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("根据包裹号或箱号获取目的分拣中心："+destinationSiteCode);
         if(destinationSiteCode == null){
             response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-            response.setMessage(DeliveryResponse.MESSAGE_ROUTER_SITE_ERROR);
+            response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
             return response;
         }
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
@@ -2110,11 +2110,18 @@ public class DeliveryServiceImpl implements DeliveryService {
         currentRouterNode.setOriginalSiteCode(receiveSiteCode);
         try {
             logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
-            List<B2BRouterNode> nodes = b2bRouterService.getNextCode(router, currentRouterNode);
-            logger.info("B网路由查询结果："+JsonHelper.toJson(nodes));
-            if(nodes == null || nodes.isEmpty()){
+            List<B2BRouter> routers = b2bRouterService.getB2BRouters(router);
+            logger.info("B网路由查询结果："+JsonHelper.toJson(routers));
+            if(routers == null || routers.isEmpty()){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-                response.setMessage(DeliveryResponse.MESSAGE_ROUTER_ERROR);
+                response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
+            }else{
+                List<B2BRouterNode> nodes = b2bRouterService.getNextCodeByB2BRouters(routers, currentRouterNode);
+                logger.info("B网路由下一节点查询结果："+JsonHelper.toJson(nodes));
+                if(nodes == null && nodes.isEmpty()){
+                    response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                    response.setMessage(DeliveryResponse.MESSAGE_ROUTER_ERROR);
+                }
             }
         }catch (Exception e){
             logger.error("B网路由查询异常："+JsonHelper.toJson(sendM), e);
