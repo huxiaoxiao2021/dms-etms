@@ -62,11 +62,11 @@ public class B2BRouterNodeDao {
     }
 
     /**
-     * 获得当前网点可达的下一个网点
-     * @param node
+     * 获得当前网点可达的下一个网点集合
+     * @param params
      * @return
      */
-    public List<B2BRouterNode> getNextNode(B2BRouterNode node){
-        return this.getSqlSession().selectList(B2BRouterNodeDao.namespace +".getNextNode",node);
+    public List<B2BRouterNode> getNextNode(Map<String,Object> params){
+        return this.getSqlSession().selectList(B2BRouterNodeDao.namespace +".getNextNode",params);
     }
 }

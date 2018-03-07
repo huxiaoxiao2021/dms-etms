@@ -2084,7 +2084,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
-        Integer createSiteCode = sendM.getCreateSiteCode();
+        Integer originalSiteCode = sendM.getCreateSiteCode();
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
         if(receiveSite == null){
             response.setCode(JdResponse.CODE_PARAM_ERROR);
@@ -2103,20 +2103,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
-        B2BRouter router = new B2BRouter();
-        router.setDestinationSiteCode(destinationSiteCode);
-        router.setOriginalSiteCode(createSiteCode);
-        B2BRouterNode currentRouterNode = new B2BRouterNode();
-        currentRouterNode.setOriginalSiteCode(receiveSiteCode);
         try {
             logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
-            List<B2BRouter> routers = b2bRouterService.getB2BRouters(router);
+            List<B2BRouter> routers = b2bRouterService.getB2BRouters(originalSiteCode, destinationSiteCode);
             logger.info("B网路由查询结果："+JsonHelper.toJson(routers));
             if(routers == null || routers.isEmpty()){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                 response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
             }else{
-                List<B2BRouterNode> nodes = b2bRouterService.getNextCodeByB2BRouters(routers, currentRouterNode);
+                List<B2BRouterNode> nodes = b2bRouterService.getNextCodes(originalSiteCode, destinationSiteCode, receiveSiteCode);
                 logger.info("B网路由下一节点查询结果："+JsonHelper.toJson(nodes));
                 if(nodes == null && nodes.isEmpty()){
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);

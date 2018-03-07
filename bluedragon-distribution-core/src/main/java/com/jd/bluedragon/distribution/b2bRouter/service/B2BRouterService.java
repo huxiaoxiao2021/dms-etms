@@ -69,30 +69,23 @@ public interface B2BRouterService {
     public Boolean deleteById(B2BRouter router)throws Exception;
 
     /**
-     * 获取当前路由节点可以到达的一个节点
-     * @param router
-     * @param currentRouterNode 操作网点的编码
+     * 获取当前路由节点可以到达的一个节点集合
+     * @param originalSiteCode
+     * @param destinationSiteCode
+     * @param nextSiteCode
      * @return
      * @throws Exception
      */
-    public List<B2BRouterNode> getNextCode(B2BRouter router, B2BRouterNode currentRouterNode) throws Exception;
-
-    /**
-     * 获取当前路由节点可以到达的一个节点
-     * @param routers
-     * @param currentRouterNode 操作网点的编码
-     * @return
-     * @throws Exception
-     */
-    public List<B2BRouterNode> getNextCodeByB2BRouters(List<B2BRouter> routers, B2BRouterNode currentRouterNode) throws Exception;
+    public List<B2BRouterNode> getNextCodes(Integer originalSiteCode, Integer destinationSiteCode, Integer nextSiteCode) throws Exception;
 
     /**
      * 根据始发网点和目的网点获取路由信息
-     * @param router
+     * @param originalSiteCode
+     * @param destinationSiteCode
      * @return
      * @throws Exception
      */
-    public List<B2BRouter> getB2BRouters(B2BRouter router) throws Exception;
+    public List<B2BRouter> getB2BRouters(Integer originalSiteCode,Integer destinationSiteCode) throws Exception;
 
     /**
      * 校验导入router数据是否正确

@@ -59,18 +59,14 @@
 		chain_id=#{chainId,jdbcType=INTEGER}
 	</update>
 
-	<select id="getNextNode" parameterType="B2BRouterNode" resultMap="b2bRouterNodeMap">
-		select destination_site_type,destination_site_code,destination_site_name
-        from b2b_router_chain
+	<select id="getNextNode" parameterType="java.util.Map" resultMap="b2bRouterNodeMap">
+		select brc.destination_site_type,brc.destination_site_code,brc.destination_site_name
+        FROM b2b_router_chain brc INNER JOIN b2b_router br ON brc.chain_id = br.id
 		where
-		chain_id = #{chainId,jdbcType=INTEGER}
-		<if test="originalSiteType != null and originalSiteType != ''">
-			and original_site_type=#{originalSiteType,jdbcType=INTEGER}
-		</if>
-		<if test="originalSiteCode != null and originalSiteCode != ''">
-			and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
-		</if>
-		 and yn =1
+        br.original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+        and br.destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+        and brc.original_site_code = #{nextSiteCode,jdbcType=INTEGER}
+        and brc.yn =1
 	</select>
 
 	<update id="updateByChainId" parameterType="java.util.Map" >
