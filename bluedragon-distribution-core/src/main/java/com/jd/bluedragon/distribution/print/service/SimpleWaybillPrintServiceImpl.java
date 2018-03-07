@@ -520,7 +520,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         return result;
     }
     /**
-     * 
+     * 处理打标信息
      */
     @Override
 	public void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName){

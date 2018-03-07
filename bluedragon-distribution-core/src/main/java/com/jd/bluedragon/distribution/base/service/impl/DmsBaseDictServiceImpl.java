@@ -101,6 +101,9 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
         }
         return null;
 	}
+	/**
+	 * 根据typeCode和parantId查询节点
+	 */
 	@Override
 	public DmsBaseDict queryByTypeCodeAndParentId(Integer typeCode,
 			Integer parentId) {
@@ -113,6 +116,9 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
         }
         return null;
 	}
+	/**
+	 * 根据typeName和parantId查询节点
+	 */
 	@Override
 	public DmsBaseDict queryByTypeNameAndParentId(String typeName,
 			Integer parentId) {
@@ -166,6 +172,7 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 	@Override
 	public Map<Integer, SignConfig> getSignConfigsByConfigName(String signConfigName) {
 		Map<Integer, SignConfig> res = new TreeMap<Integer, SignConfig>();
+		//先查询根节点配置，101分组配置、102-打标配置
 		DmsBaseDict positionRoot = this.queryRootByTypeCode(DIC_ROOT_TYPE_CODE_TYPE_GROUPS);
 		DmsBaseDict signTextRoot = this.queryRootByTypeCode(DIC_ROOT_TYPE_CODE_SIGN_TEXTS);
 		DmsBaseDict positionNode = this.queryByTypeNameAndParentId(signConfigName + DIC_SIGN_CONFIG_POSITION_SUFFIX,positionRoot.getId().intValue());
@@ -193,7 +200,10 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 		}
 		return res;
 	}
-	@Cache(key = "dmsBaseDictService.queryAllGroups@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    /**
+     * 查询所有的分组信息，parant_id=101及下级节点
+     */
+	@Cache(key = "dmsBaseDictService.queryAllGroups", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 		   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@Override
 	public List<DmsBaseDict> queryAllGroups() {
