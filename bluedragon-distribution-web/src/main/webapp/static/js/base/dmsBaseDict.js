@@ -99,30 +99,37 @@ $(function() {
 		var oInit = new Object();
 		oInit.init = function() {
 			$('#dataEditDiv').hide();
-			$('#query-form #nodeLevel').change(function() {
-				var nodeLevel = $(this).val();
-				if(nodeLevel != null && nodeLevel != ''){
-					var url = "/base/dmsBaseDict/getDicListByNodeLevel/"+(nodeLevel-1);
-				    var param = {};
-				    $.get(url, param, function (myData) {
-				        var data = myData.data;
-				        var result = [];
-				        for(var i in data){
-				            if(data[i].id && data[i].typeName){
-				                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
-				            }
-				        }
-				        $("#query-form #parentId").html("");
-				        $('#query-form #parentId').select2({
-				            width: '240px',
-				            placeholder:'请选择上级节点',
-				            allowClear:true,
-				            data:result
-				        });
-				        $('#query-form #parentId').val(null).trigger('change');
-				    });
-				}
-	        });
+			$('#query-form #nodeLevel').change(
+					function() {
+						var nodeLevel = $(this).val();
+						if (nodeLevel == null || nodeLevel == '') {
+							nodeLevel = 0;
+						}
+						var url = "/base/dmsBaseDict/getDicListByNodeLevel/" + (nodeLevel - 1);
+						var param = {};
+						$.get(url, param, function(myData) {
+							var data = myData.data;
+							var result = [];
+							for ( var i in data) {
+								if (data[i].id && data[i].typeName) {
+									result.push({
+										id : data[i].id,
+										text : data[i].typeCode + '-'
+												+ data[i].typeName
+									});
+								}
+							}
+							$("#query-form #parentId").html("");
+							$('#query-form #parentId').select2({
+								width : '240px',
+								placeholder : '请选择上级节点',
+								allowClear : true,
+								data : result
+							});
+							$('#query-form #parentId').val(null).trigger(
+									'change');
+						});
+					});
 			$('#edit-form #nodeLevel').change(function() {
 				var nodeLevel = $(this).val();
 				if(nodeLevel != null && nodeLevel != ''){
