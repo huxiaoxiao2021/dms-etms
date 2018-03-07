@@ -161,8 +161,8 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
      * @param signConfigName
      * @return 以打标位为key的map信息
      */
-//    @Cache(key = "dmsBaseDictService.getSignConfigsByConfigName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-//		   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @Cache(key = "dmsBaseDictService.getSignConfigsByConfigName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+		   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@Override
 	public Map<Integer, SignConfig> getSignConfigsByConfigName(String signConfigName) {
 		Map<Integer, SignConfig> res = new TreeMap<Integer, SignConfig>();
@@ -193,8 +193,8 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 		}
 		return res;
 	}
-//  @Cache(key = "dmsBaseDictService.queryAllGroups@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-//	   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@Cache(key = "dmsBaseDictService.queryAllGroups@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+		   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@Override
 	public List<DmsBaseDict> queryAllGroups() {
 		return dmsBaseDictDao.queryAllGroups();
