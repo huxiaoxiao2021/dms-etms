@@ -867,8 +867,92 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
-        String reslut = "0";
-        Box box = null;
+        DeliveryResponse response = deliveryCheckHasSend(tSendM);
+        if(JdResponse.CODE_OK.equals(response.getCode())){
+            response = deliveryCheckTransit(tSendM, flage);
+        }
+        if(JdResponse.CODE_OK.equals(response.getCode())){
+            response = threeDeliveryCheck(tSendM);
+        }
+        return response;
+    }
+
+    /**
+     * 三方发货时校验箱子是否完验
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse threeDeliveryCheck(SendM tSendM){
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+            Box box = this.boxService.findBoxByCode(tSendM.getBoxCode());
+            if (box != null) {
+                if (tSendM.getSendType().equals(businessTypeTHR)) {
+                    // 查找该箱子的包裹数量
+                    SendDetail tsendDatail = new SendDetail();
+                    tsendDatail.setBoxCode(tSendM.getBoxCode());
+                    tsendDatail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                    tsendDatail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+                    tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
+                    List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+                    if (sendDatailist != null && !sendDatailist.isEmpty()) {
+                        response.setMessage(StringHelper.getStringValue(sendDatailist.size()));
+                    }
+                    if (inspectionExcetionService.queryExceptions(tSendM.getCreateSiteCode(),tSendM.getReceiveSiteCode(),tSendM.getBoxCode()) > 0) {
+                        // 第三方发货验证是否存在异常
+                        response.setCode(DeliveryResponse.CODE_Delivery_ALL_CHECK);
+                        response.setMessage(DeliveryResponse.MESSAGE_Delivery_ALL_CHECK);
+                    }
+                }
+            } else {
+                response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
+            }
+        }
+        return response;
+    }
+    /**
+     * 箱号与目的地不一致校验
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend){
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+            Box box = this.boxService.findBoxByCode(tSendM.getBoxCode());
+            if (box != null) {
+                if (!box.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
+                    response.setCode(DeliveryResponse.CODE_Delivery_IS_SITE);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SITE);
+                }
+            } else {
+                response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
+            }
+        } else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
+            response.setMessage(StringHelper.getStringValue(1));
+            Sorting sorting = new Sorting();
+            sorting.setBoxCode(tSendM.getBoxCode());
+            sorting.setCreateSiteCode(tSendM.getCreateSiteCode());
+            sorting.setType(tSendM.getSendType());
+            List<Sorting> tSorting = this.tSortingService.findByBoxCode(sorting);
+            if (tSorting != null && !tSorting.isEmpty()) {
+                Sorting nSorting = getLastSortingDate(tSorting);
+                if (!nSorting.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
+                    response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
+                }
+            }
+        }
+        return response;
+    }
+    /**
+     * 老发货-快运发货校验箱子是否已经发货
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse deliveryCheckHasSend(SendM tSendM){
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         List<SendM> tSendMList = new ArrayList<SendM>();
         // 验证是否发货箱子和包裹分开处理
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
@@ -883,67 +967,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         if (tSendMList != null && !tSendMList.isEmpty()) {
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_IS_SEND,
-                    DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+            response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
-        if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-            box = this.boxService.findBoxByCode(tSendM.getBoxCode());
-            if (box != null) {
-                if (!box.getReceiveSiteCode().equals(
-                        tSendM.getReceiveSiteCode())
-                        && !flage) {
-                    return new DeliveryResponse(
-                            DeliveryResponse.CODE_Delivery_IS_SITE,
-                            DeliveryResponse.MESSAGE_Delivery_IS_SITE);
-                }
-                if (tSendM.getSendType().equals(businessTypeTHR)) {
-                    // 查找该箱子的包裹数量
-                    SendDetail tsendDatail = new SendDetail();
-                    tsendDatail.setBoxCode(tSendM.getBoxCode());
-                    tsendDatail.setCreateSiteCode(tSendM.getCreateSiteCode());
-                    tsendDatail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
-                    tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
-                    List<SendDetail> sendDatailist = this.sendDatailDao
-                            .querySendDatailsBySelective(tsendDatail);
-                    if (sendDatailist != null && !sendDatailist.isEmpty()) {
-                        reslut = StringHelper.getStringValue(sendDatailist
-                                .size());
-                    }
-                    if (inspectionExcetionService.queryExceptions(
-                            tSendM.getCreateSiteCode(),
-                            tSendM.getReceiveSiteCode(),
-                            tSendM.getBoxCode()) > 0) {
-                        // 第三方发货验证是否存在异常
-                        return new DeliveryResponse(
-                                DeliveryResponse.CODE_Delivery_ALL_CHECK,
-                                DeliveryResponse.MESSAGE_Delivery_ALL_CHECK);
-                    }
-                }
-            } else {
-                return new DeliveryResponse(
-                        DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                        DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
-            }
-        } else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
-            reslut = StringHelper.getStringValue(1);
-            Sorting sorting = new Sorting();
-            sorting.setBoxCode(tSendM.getBoxCode());
-            sorting.setCreateSiteCode(tSendM.getCreateSiteCode());
-            sorting.setType(tSendM.getSendType());
-            List<Sorting> tSorting = this.tSortingService
-                    .findByBoxCode(sorting);
-            if (tSorting != null && !tSorting.isEmpty()) {
-                Sorting nSorting = getLastSortingDate(tSorting);
-                if (!nSorting.getReceiveSiteCode().equals(
-                        tSendM.getReceiveSiteCode())
-                        && !flage) {
-                    return new DeliveryResponse(
-                            DeliveryResponse.CODE_Delivery_TRANSIT,
-                            DeliveryResponse.MESSAGE_Delivery_TRANSIT);
-                }
-            }
-        }
-        return new DeliveryResponse(JdResponse.CODE_OK, reslut);
+        return response;
     }
 
     /**
@@ -2083,6 +2110,13 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        response = deliveryCheckHasSend(sendM);
+        if(JdResponse.CODE_OK.equals(response.getCode())){
+            response = threeDeliveryCheck(sendM);
+        }
+        if(!JdResponse.CODE_OK.equals(response.getCode())){
+            return response;
+        }
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
         Integer originalSiteCode = sendM.getCreateSiteCode();
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
