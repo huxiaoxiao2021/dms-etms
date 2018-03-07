@@ -239,6 +239,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(2, "批次号错误：" + domain.getSendCode());
         }
+        if(checkSendCodeIsSealed(domain.getSendCode())){
+            return new SendResult(2, "批次号已操作封车，请换批次！");
+        }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
         queryPara.setCreateSiteCode(domain.getCreateSiteCode());
@@ -1474,6 +1477,24 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendCode
+     * @return
+     */
+    private boolean checkSendCodeIsSealed(String sendCode) {
+        boolean result = false;
+        try {
+            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
+            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
+            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
+                result = true;
+            }
+        }catch (Throwable e){
+            logger.warn("redis取封车批次号失败："+e.getMessage());
+        }
+        return result;
+    }
+    /**
      * 校验sendm中的批次号
      * @param sendm
      * @return
@@ -1597,56 +1618,27 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
         SendDetail tSendDatail = new SendDetail();
 //        List<Message> sendDetailMessageList = new ArrayList<Message>();
+        List<SendDetail> sendDatailListTemp = new ArrayList<SendDetail>();
         List<SendDetail> sendDatailList = new ArrayList<SendDetail>();
         for (SendM newSendM : tSendM) {
             tSendDatail.setBoxCode(newSendM.getBoxCode());
             tSendDatail.setCreateSiteCode(newSendM.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
-            sendDatailList = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+            sendDatailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
 
-            for (SendDetail dSendDatail : sendDatailList) {
+            for (SendDetail dSendDatail : sendDatailListTemp) {
+            	if(dSendDatail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) continue;//只处理未发货的数据, 如果已发货则跳过
                 dSendDatail.setSendCode(newSendM.getSendCode());
                 dSendDatail.setOperateTime(newSendM.getOperateTime());
                 dSendDatail.setCreateUser(newSendM.getCreateUser());
                 dSendDatail.setCreateUserCode(newSendM.getCreateUserCode());
+                sendDatailList.add(dSendDatail);
 
-                //包装JMQ的Message对象,保存到sendDetailMessageList集合中
-//                sendDetailMessageList.add(parseSendDetailToMessage(dSendDatail));
             }
             logger.info("SEND_D明细" + JsonHelper.toJson(sendDatailList));
             updateWaybillStatus(sendDatailList);
-
-
-            // ============向西北西南区域三方配送用户发送预警短信 只运行在20150509~20150520============
-//			try {
-//				// 10. 循环所有发货批次
-//				// 20.根据发货目的地判断是不是三方运输到西北西南区域
-//				Integer receiveSiteCode = newSendM.getReceiveSiteCode();
-//				BaseStaffSiteOrgDto rbDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
-//				int siteType = rbDto.getSiteType().intValue();// 获得站点类型
-//				int subType = rbDto.getSubType().intValue();
-//				int orgId = rbDto.getOrgId().intValue();// 获得机构id
-//				if (siteType == 16 && subType == 16 && (orgId == 645 || orgId == 4)) {// 30.符合三方运输1616发往西北645 西南4区域
-//					logger.info("批次符合发送短信规则:" + newSendM.getSendCode());
-//					sendSms(sendDatailList);
-//				}
-//			} catch (Exception e) {
-//				logger.error("西北西南机构发送预警短信失败: ", e);
-//			}
-            //==================================================================
         }
-
-        //使用下面的这种方式会在发送mq失败之后 通过worker再发送一次 modified by zhanglei
-//        try {
-//            workerProducer.send(sendDetailMessageList);
-//        } catch (Throwable e) {
-//            logger.error("发货明细发送JMQ失败: ", e);
-//        }
-//        for(Message itemMessage : sendDetailMessageList){
-//            this.logger.info("发送MQ["+itemMessage.getTopic()+"],业务ID["+itemMessage.getBusinessId()+"],消息主题: " + itemMessage.getText());
-//            this.dmsWorkSendDetailMQ.sendOnFailPersistent(itemMessage.getBusinessId(),itemMessage.getText());
-//        }
         return true;
     }
 
