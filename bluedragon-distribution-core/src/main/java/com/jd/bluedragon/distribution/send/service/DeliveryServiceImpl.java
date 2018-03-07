@@ -1607,7 +1607,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sendDatailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
 
             for (SendDetail dSendDatail : sendDatailListTemp) {
-            	if(dSendDatail.getStatus().equals(1)) continue;//只处理未发货的数据
+            	if(dSendDatail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) continue;//只处理未发货的数据, 如果已发货则跳过
                 dSendDatail.setSendCode(newSendM.getSendCode());
                 dSendDatail.setOperateTime(newSendM.getOperateTime());
                 dSendDatail.setCreateUser(newSendM.getCreateUser());
