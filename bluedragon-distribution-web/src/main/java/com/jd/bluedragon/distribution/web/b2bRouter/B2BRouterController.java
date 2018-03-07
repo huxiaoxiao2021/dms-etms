@@ -187,36 +187,36 @@ public class B2BRouterController {
 
                     model.addAttribute("id",router.getId());
                     model.addAttribute("originalSiteCode", router.getOriginalSiteCode());
-                    model.addAttribute("originalSiteName", b2bRouterService.getB2BSiteNameByCode(router.getOriginalSiteCode(),router.getOriginalSiteType()));
+                    model.addAttribute("originalSiteName", b2bRouterService.getB2BSiteNameByCode(router.getOriginalSiteCode()));
 
                     model.addAttribute("destinationSiteType", router.getDestinationSiteType());
                     model.addAttribute("destinationSiteCode", router.getDestinationSiteCode());
-                    model.addAttribute("destinationSiteName", b2bRouterService.getB2BSiteNameByCode(router.getDestinationSiteCode(),router.getDestinationSiteType()));
+                    model.addAttribute("destinationSiteName", b2bRouterService.getB2BSiteNameByCode(router.getDestinationSiteCode()));
 
                     if(length > SITE_NUM_MAX -5){
                         Integer siteCode= Integer.parseInt(transferSiteCodes[1]);
                         model.addAttribute("transferOneSiteCode", siteCode);
-                        model.addAttribute("transferOneSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode,router.getOriginalSiteType()));
+                        model.addAttribute("transferOneSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode));
                     }
                     if(length >SITE_NUM_MAX - 4){
                         Integer siteCode= Integer.parseInt(transferSiteCodes[2]);
                         model.addAttribute("transferTwoSiteCode", siteCode);
-                        model.addAttribute("transferTwoSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode,router.getOriginalSiteType()));
+                        model.addAttribute("transferTwoSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode));
                     }
                     if(length >SITE_NUM_MAX - 3){
                         Integer siteCode= Integer.parseInt(transferSiteCodes[3]);
                         model.addAttribute("transferThreeSiteCode", siteCode);
-                        model.addAttribute("transferThreeSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode,router.getOriginalSiteType()));
+                        model.addAttribute("transferThreeSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode));
                     }
                     if(length >SITE_NUM_MAX - 2){
                         Integer siteCode= Integer.parseInt(transferSiteCodes[4]);
                         model.addAttribute("transferFourSiteCode", siteCode);
-                        model.addAttribute("transferFourSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode,router.getOriginalSiteType()));
+                        model.addAttribute("transferFourSiteName", b2bRouterService.getB2BSiteNameByCode(siteCode));
                     }
                     if(length >SITE_NUM_MAX -1){
                         Integer siteCode= Integer.parseInt(transferSiteCodes[5]);
                         model.addAttribute("transferFiveSiteName", siteCode);
-                        model.addAttribute("transferFiveSiteCode", b2bRouterService.getB2BSiteNameByCode(siteCode,router.getOriginalSiteType()));
+                        model.addAttribute("transferFiveSiteCode", b2bRouterService.getB2BSiteNameByCode(siteCode));
                     }
                 }
             }

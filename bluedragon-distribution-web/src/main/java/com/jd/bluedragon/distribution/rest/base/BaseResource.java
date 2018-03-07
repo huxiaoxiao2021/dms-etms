@@ -1467,7 +1467,7 @@ public class BaseResource {
 
 		for(BaseStaffSiteOrgDto dto : siteList){
 			BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-			br.setSiteCode(dto.getSiteCode());;
+			br.setSiteCode(dto.getSiteCode());
 			br.setSiteName(dto.getSiteName());
 			result.add(br);
 		}
@@ -1481,10 +1481,36 @@ public class BaseResource {
      */
 	@GET
 	@GZIP
-	@Path("/bases/getWarehouseAll")
-	public List<BaseResponse> getWarehouseAll(){
-		this.logger.info("获取所有的仓库");
+	@Path("/bases/getBaseAllStore/")
+	public List<BaseResponse> getBaseAllStore(){
+		this.logger.info("调用基础资料接口获取全国所有库房信息");
 		List<BaseResponse> result = new ArrayList<BaseResponse>();
+
+		try {
+			List<BaseStaffSiteOrgDto> storeList = baseMajorManager.getBaseAllStore();
+			if(storeList == null || storeList.size()<1){
+				logger.error("调用基础资料接口获取全国所有库房为空");
+				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
+						JdResponse.MESSAGE_SITES_EMPTY);
+				result.add(response);
+				return result;
+			}
+
+			for(BaseStaffSiteOrgDto dto : storeList){
+				BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+				br.setSiteCode(dto.getSiteCode());
+				br.setSiteName(dto.getSiteName());
+				result.add(br);
+			}
+
+		}catch (Exception  e){
+			logger.error("调用基础资料接口获取全国所有库房信息",e);
+			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+					JdResponse.MESSAGE_SERVICE_ERROR);
+			result.add(response);
+			return result;
+		}
+
 		return result;
 	}
 

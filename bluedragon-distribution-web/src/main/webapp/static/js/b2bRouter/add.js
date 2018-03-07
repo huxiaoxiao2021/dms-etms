@@ -52,7 +52,7 @@ function getSiteData(siteType,siteNameObj,siteCodeObj) {
 			}
 		});
 	} else if(siteType == 2){
-		var url = "/services/bases/getWarehouseAll/";
+		var url = "/services/bases/getBaseAllStore/";
 		jQuery.ajax({
 			type: "GET",
 			url: url,

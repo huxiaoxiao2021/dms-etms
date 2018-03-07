@@ -555,5 +555,19 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return traderList;
     }
 
+    @Cache(key = "baseMajorManagerImpl.getBaseAllStore", memoryEnable = false,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseAllStore", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getBaseAllStore() {
+        List<BaseStaffSiteOrgDto> allSite = new ArrayList<BaseStaffSiteOrgDto>();
+
+        //库房站点
+        List<BaseStoreInfoDto> baseStore = basicPrimaryWSProxy.getBaseAllStore();
+        for (BaseStoreInfoDto dto : baseStore) {
+            allSite.add(getBaseStaffSiteOrgDtoFromStore(dto));
+        }
+
+        return allSite;
+    }
 
 }

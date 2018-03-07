@@ -52,7 +52,7 @@ public interface B2BRouterService {
      * @param code
      * @return
      */
-    public String getB2BSiteNameByCode(Integer code, Integer siteType);
+    public String getB2BSiteNameByCode(Integer code);
 
     /**
      * 更新一条路由信息

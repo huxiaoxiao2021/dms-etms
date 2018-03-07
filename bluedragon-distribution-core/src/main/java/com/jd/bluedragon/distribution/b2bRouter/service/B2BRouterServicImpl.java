@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             //填充完整路径信息
             setFullLine(router);
 
-            //b2b_rotue表中写入数据
+            //b2b_router表中写入数据
             b2bRouterDao.addB2BRouter(router);
             //获取chain_id
             Integer chainId = router.getId();
@@ -274,20 +275,21 @@ public class  B2BRouterServicImpl implements B2BRouterService{
     }
 
     /**
-     * 根据网点类型和网点编码获取网点名称
-     * @param siteType  网点类型
+     * 根据网点编码获取网点名称
      * @param code  网点编码
      * @return
      */
-    public String getB2BSiteNameByCode(Integer code,Integer siteType){
-        if(siteType == 1) {
+    @Cache(key = "b2bRouterServiceImpl.getB2BSiteNameByCode-@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public String getB2BSiteNameByCode(Integer code){
+        try {
             BaseStaffSiteOrgDto result = baseSiteManager.getBaseSiteBySiteId(code);
             if (result != null) {
-                logger.info("调基础资料接口获取的网点" + code + "的名称为" + result.getSiteName());
+                logger.info("调基础资料接口获取的网点" + code + "的名称为：" + result.getSiteName());
                 return result.getSiteName();
             }
-        }else if(siteType ==2){
-            //仓库
+        }catch (Exception e){
+            logger.error("根据网点编码获取网点名称失败.",e);
         }
         return null;
     }
@@ -328,7 +330,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         Integer destinationSiteType = router.getDestinationSiteType();
         if(originalSiteCode != null){
             router.setOriginalSiteType(originalSiteType);
-            String siteName = getB2BSiteNameByCode(originalSiteCode,originalSiteType);
+            String siteName = getB2BSiteNameByCode(originalSiteCode);
             if(StringHelper.isNotEmpty(siteName)){
                 router.setOriginalSiteName(siteName);
             }else{
@@ -337,7 +339,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         }
 
         if(destinationSiteCode != null){
-            String siteName = getB2BSiteNameByCode(destinationSiteCode,destinationSiteType);
+            String siteName = getB2BSiteNameByCode(destinationSiteCode);
             if(StringHelper.isNotEmpty(siteName)){
                 router.setDestinationSiteName(siteName);
             }else{
@@ -352,7 +354,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         //校验各级中转站点是否存在
         if(router.getTransferOneSiteCode()!= null){
-            String siteName = getB2BSiteNameByCode(router.getTransferOneSiteCode(),originalSiteType);
+            String siteName = getB2BSiteNameByCode(router.getTransferOneSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferOneSiteName(siteName);
             }else{
@@ -361,7 +363,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         }
 
         if(router.getTransferTwoSiteCode()!= null){
-            String siteName = getB2BSiteNameByCode(router.getTransferTwoSiteCode(),originalSiteType);
+            String siteName = getB2BSiteNameByCode(router.getTransferTwoSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferTwoSiteName(siteName);
             }else{
@@ -370,7 +372,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         }
 
         if(router.getTransferThreeSiteCode()!= null){
-            String siteName = getB2BSiteNameByCode(router.getTransferThreeSiteCode(),originalSiteType);
+            String siteName = getB2BSiteNameByCode(router.getTransferThreeSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferThreeSiteName(siteName);
             }else{
@@ -379,7 +381,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         }
 
         if(router.getTransferFourSiteCode()!= null){
-            String siteName = getB2BSiteNameByCode(router.getTransferFourSiteCode(),originalSiteType);
+            String siteName = getB2BSiteNameByCode(router.getTransferFourSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferFourSiteName(siteName);
             }else{
@@ -388,7 +390,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         }
 
         if(router.getTransferFiveSiteCode()!= null){
-            String siteName = getB2BSiteNameByCode(router.getTransferFiveSiteCode(),originalSiteType);
+            String siteName = getB2BSiteNameByCode(router.getTransferFiveSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferFiveSiteName(siteName);
             }else{
@@ -405,35 +407,54 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      */
     public String verifyRouterAddParam(B2BRouter router){
         //校验始发网点Id、目的网点类型、目的网点ID为必填
-        Integer originalSiteType = router.getOriginalSiteType();
-        Integer originalSiteCode = router.getOriginalSiteCode();
-
-        Integer destinationSiteType = router.getDestinationSiteType();
-        Integer destinationSiteCode = router.getDestinationSiteCode();
-
-        if(originalSiteCode != null){
-            router.setOriginalSiteName(getB2BSiteNameByCode(originalSiteCode,originalSiteType));
-        }else{
-            return "始发网点_id[" + originalSiteCode + "]不存在";
+        if(StringHelper.isEmpty(router.getOriginalSiteName())){
+            return "始发网点不能为空";
         }
 
-        if(destinationSiteCode != null){
-            router.setDestinationSiteName(getB2BSiteNameByCode(destinationSiteCode,destinationSiteType));
-        }else{
-            return "目的网点_id[" + destinationSiteCode + "]不存在";
+        if(StringHelper.isEmpty(router.getDestinationSiteName())){
+            return "目的网点不能为空";
+        }
+
+        if(StringHelper.isNotEmpty(router.getOriginalSiteName())) {
+            Integer code = router.getOriginalSiteCode();
+            if(code!=null){
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName) || !siteName.equals(router.getOriginalSiteName())){
+                    return "始发网点[" + router.getOriginalSiteName() + "]不存在";
+                }
+                router.setOriginalSiteName(siteName);
+            }else{
+                return "始发网点[" + router.getOriginalSiteName() + "]不存在";
+            }
+        }
+
+        if(StringHelper.isNotEmpty(router.getDestinationSiteName())) {
+            Integer code = router.getDestinationSiteCode();
+            if(code!=null){
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName) || !siteName.equals(router.getDestinationSiteName())){
+                    return "目的网点[" + router.getDestinationSiteName() + "]不存在";
+                }
+                router.setDestinationSiteName(siteName);
+            }else{
+                return "目的网点[" + router.getDestinationSiteName() + "]不存在";
+            }
         }
 
         //检验始发网点和目的网点不能相同
-        if(originalSiteCode == destinationSiteCode){
-            return "始发网点_id[" + originalSiteCode + "]和目的网点_id[" +destinationSiteCode +"]不能相同";
+        if(router.getOriginalSiteName().equals(router.getDestinationSiteName())){
+            return "始发网点[" + router.getOriginalSiteName() + "]和目的网点[" +router.getDestinationSiteName() +"]不能相同";
         }
 
         //校验各级中转站点是否存在
         if(StringHelper.isNotEmpty(router.getTransferOneSiteName())) {
             Integer code = router.getTransferOneSiteCode();
             if(code!=null){
-                router.setTransferOneSiteName(getB2BSiteNameByCode(code,originalSiteType));
-                return null;
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName) || !siteName.equals(router.getTransferOneSiteName())){
+                    return "中转网点1[" + router.getTransferOneSiteName() + "]不存在";
+                }
+                router.setTransferOneSiteName(siteName);
             }else{
                 return "中转网点1[" + router.getTransferOneSiteName() + "]不存在";
             }
@@ -442,8 +463,11 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         if(StringHelper.isNotEmpty(router.getTransferTwoSiteName())) {
             Integer code = router.getTransferTwoSiteCode();
             if(code!=null){
-                router.setTransferTwoSiteName(getB2BSiteNameByCode(code,originalSiteType));
-                return null;
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName)){
+                    return "中转网点2[" + router.getTransferTwoSiteName() + "]不存在";
+                }
+                router.setTransferTwoSiteName(siteName);
             }else{
                 return "中转网点2[" + router.getTransferTwoSiteName() + "]不存在";
             }
@@ -452,30 +476,39 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         if(StringHelper.isNotEmpty(router.getTransferThreeSiteName())) {
             Integer code = router.getTransferThreeSiteCode();
             if(code!=null){
-                router.setTransferThreeSiteName(getB2BSiteNameByCode(code,originalSiteType));
-                return null;
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName)){
+                    return "中转网点3[" + router.getTransferThreeSiteName() + "]不存在";
+                }
+                router.setTransferThreeSiteName(siteName);
             }else{
-                return "中转网点2[" + router.getTransferThreeSiteName() + "]不存在";
+                return "中转网点3[" + router.getTransferThreeSiteName() + "]不存在";
             }
         }
 
         if(StringHelper.isNotEmpty(router.getTransferFourSiteName())) {
             Integer code = router.getTransferFourSiteCode();
             if(code!=null){
-                router.setTransferFourSiteName(getB2BSiteNameByCode(code,originalSiteType));
-                return null;
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName)){
+                    return "中转网点4[" + router.getTransferFourSiteName() + "]不存在";
+                }
+                router.setTransferFourSiteName(siteName);
             }else{
-                return "中转网点2[" + router.getTransferFourSiteName() + "]不存在";
+                return "中转网点4[" + router.getTransferFourSiteName() + "]不存在";
             }
         }
 
         if(StringHelper.isNotEmpty(router.getTransferFiveSiteName())) {
             Integer code = router.getTransferFiveSiteCode();
             if(code!=null){
-                router.setTransferFiveSiteName(getB2BSiteNameByCode(code,originalSiteType));
-                return null;
+                String siteName = getB2BSiteNameByCode(code);
+                if(StringHelper.isEmpty(siteName)){
+                    return "中转网点5[" + router.getTransferFiveSiteName() + "]不存在";
+                }
+                router.setTransferFiveSiteName(siteName);
             }else{
-                return "中转网点2[" + router.getTransferFiveSiteName() + "]不存在";
+                return "中转网点5[" + router.getTransferFiveSiteName() + "]不存在";
             }
         }
         return null;
@@ -491,31 +524,31 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(router.getTransferOneSiteCode()!=null){
             siteIdFullLine +=  router.getTransferOneSiteCode() + "-";
-            siteNameFullLine += getB2BSiteNameByCode(router.getTransferOneSiteCode(),router.getOriginalSiteType())+"-";
+            siteNameFullLine += getB2BSiteNameByCode(router.getTransferOneSiteCode())+"-";
         }
 
         if(router.getTransferTwoSiteCode()!=null){
             siteIdFullLine +=  router.getTransferTwoSiteCode() + "-";
-            siteNameFullLine += getB2BSiteNameByCode(router.getTransferTwoSiteCode(),router.getOriginalSiteType())+"-";
+            siteNameFullLine += getB2BSiteNameByCode(router.getTransferTwoSiteCode())+"-";
         }
 
         if(router.getTransferThreeSiteCode()!=null){
             siteIdFullLine +=  router.getTransferThreeSiteCode() + "-";
-            siteNameFullLine += getB2BSiteNameByCode(router.getTransferThreeSiteCode(),router.getOriginalSiteType())+"-";
+            siteNameFullLine += getB2BSiteNameByCode(router.getTransferThreeSiteCode())+"-";
         }
 
         if(router.getTransferFourSiteCode()!=null){
             siteIdFullLine +=  router.getTransferFourSiteCode() + "-";
-            siteNameFullLine += getB2BSiteNameByCode(router.getTransferFourSiteCode(),router.getOriginalSiteType())+"-";
+            siteNameFullLine += getB2BSiteNameByCode(router.getTransferFourSiteCode())+"-";
         }
 
         if(router.getTransferFiveSiteCode()!=null){
             siteIdFullLine +=  router.getTransferFiveSiteCode() + "-";
-            siteNameFullLine += getB2BSiteNameByCode(router.getTransferFiveSiteCode(),router.getOriginalSiteType())+"-";
+            siteNameFullLine += getB2BSiteNameByCode(router.getTransferFiveSiteCode())+"-";
         }
 
         siteIdFullLine += router.getDestinationSiteCode();
-        siteNameFullLine += getB2BSiteNameByCode(router.getDestinationSiteCode(),router.getDestinationSiteType());
+        siteNameFullLine += getB2BSiteNameByCode(router.getDestinationSiteCode());
 
         router.setSiteIdFullLine(siteIdFullLine);
         router.setSiteNameFullLine(siteNameFullLine);

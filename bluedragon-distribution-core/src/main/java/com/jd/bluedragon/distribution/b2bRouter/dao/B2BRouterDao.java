@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.b2bRouter.dao;
 
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.api.request.B2BRouterRequest;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
-import com.jd.bluedragon.distribution.cross.dao.CrossSortingDao;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
 

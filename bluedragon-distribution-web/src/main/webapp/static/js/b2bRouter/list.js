@@ -73,7 +73,7 @@ function getSiteData(siteType,siteNameObj,siteCodeObj) {
 			}
 		});
 	} else if(siteType == 2){
-		var url = "/services/bases/getWarehouseAll/";
+		var url = "/services/bases/getBaseAllStore/";
 		jQuery.ajax({
 			type: "GET",
 			url: url,
@@ -111,18 +111,8 @@ function initSiteList(b2bSiteArray,siteNameObj,siteCodeObj){
 			},
 			minChars: 0,
 			max: 20,
-			matchContains: true,
-			change: function( event, ui ) {
-				alert("heelo");
-				alert(siteCodeObj.val());
-				// event 是当前事件对象
-
-				// ui对象仅有一个item属性，它表示当前选择的菜单项对应的数据源对象
-				// 该对象具有label和value属性，以及其它自定义(如果有的话)的属性
-				// 如果当前没有选择的菜单项，这item属性为null
-			}
+			matchContains: true
 		}).result(function (event, item) {
-			alert(item.label);
 			siteNameObj.val(item.label);
 			siteCodeObj.val(item.value);
 		});
