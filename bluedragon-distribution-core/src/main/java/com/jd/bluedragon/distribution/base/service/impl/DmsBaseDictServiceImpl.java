@@ -93,27 +93,35 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 	@Override
 	public DmsBaseDict queryRootByTypeCode(Integer typeCode) {
 		DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
-        dmsBaseDictCondition.setParentId(0);
         dmsBaseDictCondition.setTypeCode(typeCode);
-        List<DmsBaseDict> parentNodes = queryByCondition(dmsBaseDictCondition);
-        if(parentNodes != null && !parentNodes.isEmpty()){
-        	return parentNodes.get(0);
+        dmsBaseDictCondition.setNodeLevel(DIC_ROOT_NODE_LEVEL);
+        List<DmsBaseDict> nodes = queryByCondition(dmsBaseDictCondition);
+        if(nodes != null && !nodes.isEmpty()){
+        	return nodes.get(0);
         }
         return null;
 	}
-    /**
-     * 根据parentId查找所有下级节点数据,返回list
-     * @param parentId
-     * @return
-     */
 	@Override
-	public DmsBaseDict queryRootByTypeName(String typeName) {
+	public DmsBaseDict queryByTypeCodeAndParentId(Integer typeCode,
+			Integer parentId) {
 		DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
-        dmsBaseDictCondition.setParentId(0);
+        dmsBaseDictCondition.setTypeCode(typeCode);
+        dmsBaseDictCondition.setParentId(parentId);
+        List<DmsBaseDict> nodes = queryByCondition(dmsBaseDictCondition);
+        if(nodes != null && !nodes.isEmpty()){
+        	return nodes.get(0);
+        }
+        return null;
+	}
+	@Override
+	public DmsBaseDict queryByTypeNameAndParentId(String typeName,
+			Integer parentId) {
+		DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
         dmsBaseDictCondition.setTypeName(typeName);
-        List<DmsBaseDict> parentNodes = queryByCondition(dmsBaseDictCondition);
-        if(parentNodes != null && !parentNodes.isEmpty()){
-        	return parentNodes.get(0);
+        dmsBaseDictCondition.setParentId(parentId);
+        List<DmsBaseDict> nodes = queryByCondition(dmsBaseDictCondition);
+        if(nodes != null && !nodes.isEmpty()){
+        	return nodes.get(0);
         }
         return null;
 	}
@@ -153,24 +161,26 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
      * @param signConfigName
      * @return 以打标位为key的map信息
      */
-    @Cache(key = "dmsBaseDictService.getSignConfigsByConfigName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-		   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+//    @Cache(key = "dmsBaseDictService.getSignConfigsByConfigName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+//		   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@Override
 	public Map<Integer, SignConfig> getSignConfigsByConfigName(String signConfigName) {
 		Map<Integer, SignConfig> res = new TreeMap<Integer, SignConfig>();
-		DmsBaseDict positionNode = this.queryRootByTypeName(signConfigName + DIC_SIGN_CONFIG_POSITION_SUFFIX);
-		DmsBaseDict signTextNode = this.queryRootByTypeName(signConfigName + DIC_SIGN_CONFIG_TEXTS_SUFFIX);
+		DmsBaseDict positionRoot = this.queryRootByTypeCode(DIC_ROOT_TYPE_CODE_TYPE_GROUPS);
+		DmsBaseDict signTextRoot = this.queryRootByTypeCode(DIC_ROOT_TYPE_CODE_SIGN_TEXTS);
+		DmsBaseDict positionNode = this.queryByTypeNameAndParentId(signConfigName + DIC_SIGN_CONFIG_POSITION_SUFFIX,positionRoot.getId().intValue());
+		DmsBaseDict signTextNode = this.queryByTypeNameAndParentId(signConfigName + DIC_SIGN_CONFIG_TEXTS_SUFFIX,signTextRoot.getId().intValue());
 		if(positionNode != null && signTextNode != null){
-			Map<Integer, List<DmsBaseDict>> positions = this.queryMapByParentId(positionNode.getId().intValue());
+			List<DmsBaseDict> positions = this.queryListByParentId(positionNode.getId().intValue());
 			Map<Integer, List<DmsBaseDict>> signTexts = this.queryMapByParentId(signTextNode.getId().intValue());
 			if(positions!=null && signTexts!=null && !signTexts.isEmpty()){
-				for(Integer typeGroup:positions.keySet()){
+				for(DmsBaseDict position:positions){
+					Integer typeGroup = position.getId().intValue();
 					List<DmsBaseDict> signTextItems = signTexts.get(typeGroup);
 					if(signTextItems!=null && !signTextItems.isEmpty()){
-						DmsBaseDict positionConfig = positions.get(typeGroup).get(0);
 						SignConfig signConfig = new SignConfig();
-						signConfig.setPosition(positionConfig.getTypeCode());
-						signConfig.setFieldName(positionConfig.getTypeName());
+						signConfig.setPosition(position.getTypeCode());
+						signConfig.setFieldName(position.getTypeName());
 						Map<String,String> signTextsMap = new HashMap<String,String>();
 						for(DmsBaseDict signTextItem:signTextItems){
 							signTextsMap.put(signTextItem.getTypeName(), signTextItem.getMemo());
@@ -182,5 +192,11 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 			}
 		}
 		return res;
+	}
+//  @Cache(key = "dmsBaseDictService.queryAllGroups@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+//	   redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@Override
+	public List<DmsBaseDict> queryAllGroups() {
+		return dmsBaseDictDao.queryAllGroups();
 	}
 }

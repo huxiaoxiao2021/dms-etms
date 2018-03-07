@@ -17,6 +17,18 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  *
  */
 public interface DmsBaseDictService extends Service<DmsBaseDict> {
+    /**
+     * 根根节点的nodeLevel值
+     */
+    public static final Integer DIC_ROOT_NODE_LEVEL = 1;
+    /**
+     * 打标配置根节点-101
+     */
+    public static final Integer DIC_ROOT_TYPE_CODE_TYPE_GROUPS = 101;
+    /**
+     * 打标配置根节点-102
+     */
+    public static final Integer DIC_ROOT_TYPE_CODE_SIGN_TEXTS = 102;
 	/**
      * 字典名称-打标位配置后缀
      */
@@ -58,15 +70,28 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      */
     DmsBaseDict queryRootByTypeCode(Integer typeCode);
     /**
-     * 根据名称查询根节点配置，parantId = 0的
-     * @param typeName
+     * 根据typeCode和parantId查询节点
+     * @param typeCode
+     * @param parentId
      * @return
      */
-    DmsBaseDict queryRootByTypeName(String typeName);
+    DmsBaseDict queryByTypeCodeAndParentId(Integer typeCode,Integer parentId);
+    /**
+     * 根据typeName和parantId查询节点
+     * @param typeName
+     * @param parentId
+     * @return
+     */
+    DmsBaseDict queryByTypeNameAndParentId(String typeName,Integer parentId);
     /**
      * 根据打标配置标识名查询打标配置信息
      * @param signConfigName
      * @return
      */
     Map<Integer, SignConfig> getSignConfigsByConfigName(String signConfigName);
+    /**
+     * 查询所有分组信息，返回list
+     * @return
+     */
+	List<DmsBaseDict> queryAllGroups();
 }

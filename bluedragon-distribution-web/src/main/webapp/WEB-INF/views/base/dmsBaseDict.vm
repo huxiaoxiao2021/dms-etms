@@ -26,7 +26,7 @@
 	                                <label class="control-label col-xs-4">层级：</label>
 	                                <div class="col-xs-8">
 				                        <select class="form-control search-param" style="width: 240px;" id="nodeLevel" name="nodeLevel">
-					                        <option value="">全部</option>
+					                        <option value="0">全部</option>
 					                        <option value="1">1</option>
 					                        <option value="2">2</option>
 					                       	<option value="3">3</option>
@@ -118,7 +118,7 @@
 		                    <label class="col-xs-3 control-label">层级 ：</label>
 		                    <div class=" col-xs-9">
                         		<select class="form-control edit-param" style="width: 300px;" id="nodeLevel" name="nodeLevel">
-                        			<option value="1">1</option>
+                        			<option value="1" selected="selected">1</option>
                         			<option value="2">2</option>
                         			<option value="3">3</option>
                         			<option value="4">4</option>

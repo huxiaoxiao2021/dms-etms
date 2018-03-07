@@ -139,7 +139,9 @@ public class DmsBaseDictController {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
         DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
         dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
-        dmsBaseDictCondition.setNodeLevel(nodeLevel);
+        if(nodeLevel != null && nodeLevel > 0){
+        	dmsBaseDictCondition.setNodeLevel(nodeLevel);
+        }
         rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));
         return rest;
     }
@@ -150,9 +152,7 @@ public class DmsBaseDictController {
     @RequestMapping(value = "/getAllDicGroups")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAllDicGroups() {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
-        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
-        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
-        rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));
+        rest.setData(dmsBaseDictService.queryAllGroups());
         return rest;
     }
 }

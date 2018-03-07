@@ -224,6 +224,10 @@ $(function() {
 			});
 			$('#btn_submit').click(function() {
 				var params = {};
+				if($('#edit-form #nodeLevel').val()==null){
+					alert('请选择层级');
+					return;
+				}
 				$('.edit-param').each(function () {
 			    	var _k = this.id;
 			        var _v = $(this).val();
@@ -279,7 +283,7 @@ $(function() {
 			}
 			//初始化分组下拉框
 			function initParentIdsSelect() {
-			    var url = "/base/dmsBaseDict/getAllDicGroups";
+				var url = "/base/dmsBaseDict/getDicListByNodeLevel/0";
 			    var param = {};
 			    $.get(url, param, function (myData) {
 			        var data = myData.data;
