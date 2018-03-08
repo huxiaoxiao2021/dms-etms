@@ -2111,9 +2111,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         response = deliveryCheckHasSend(sendM);
-        if(JdResponse.CODE_OK.equals(response.getCode())){
-            response = threeDeliveryCheck(sendM);
-        }
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
