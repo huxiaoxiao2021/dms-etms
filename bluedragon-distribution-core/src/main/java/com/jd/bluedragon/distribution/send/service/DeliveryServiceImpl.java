@@ -2062,6 +2062,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
         List<SendDetail> allList = new ArrayList<SendDetail>();
         getAllList(sendMList, allList);
+        List<String> waybillCodes = getWaybillCodes(allList);
+        List<String> noHasWeightWaybills = new ArrayList<String>();
+        for(String waybillCode:waybillCodes){
+        	if(!waybillCommonService.hasTotalWeight(waybillCode)){
+        		noHasWeightWaybills.add(waybillCode);
+        		if(noHasWeightWaybills.size()>=5){
+        			break;
+        		}
+        	}
+        }
+        if(!noHasWeightWaybills.isEmpty()){
+        	return new ThreeDeliveryResponse(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE, "以下运单"+noHasWeightWaybills+"未录入总重量，禁止发货！", null);
+        }
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
         DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
         scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
@@ -2087,8 +2100,24 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
         }
     }
-
     /**
+     * 获取sendD列表中的运单号数据
+     * @param sendDetails
+     * @return
+     */
+    private List<String> getWaybillCodes(List<SendDetail> sendDetails) {
+    	if(sendDetails!=null && !sendDetails.isEmpty()){
+    		List<String> waybillCodes = new ArrayList<String>();
+    		for(SendDetail sendDetail:sendDetails){
+    			if(!waybillCodes.contains(sendDetail.getWaybillCode())){
+    				waybillCodes.add(sendDetail.getWaybillCode());
+    			}
+    		}
+    		return waybillCodes;
+    	}
+		return Collections.EMPTY_LIST;
+	}
+	/**
      * 老发货校验服务，校验包裹不齐
      * @param sendMList
      * @return

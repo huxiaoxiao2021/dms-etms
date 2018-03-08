@@ -602,6 +602,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 					 return true;
 				 }else{
 					 //查询该运单是否已录入总重量
+					 
 				 }
 			 }
 		}
