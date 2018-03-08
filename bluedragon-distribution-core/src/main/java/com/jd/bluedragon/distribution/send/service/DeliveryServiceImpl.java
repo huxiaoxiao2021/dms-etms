@@ -2803,6 +2803,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
+                tsendDatail.setSendDId(null);//把主键置空，避免后面新增时报主键冲突
                 tsendDatail.setCreateSiteCode(bCreateSiteCode);
                 tsendDatail.setReceiveSiteCode(bReceiveSiteCode);
                 tsendDatail.setSendType(type);
