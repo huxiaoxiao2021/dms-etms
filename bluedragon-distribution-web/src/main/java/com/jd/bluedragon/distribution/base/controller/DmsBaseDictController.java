@@ -20,7 +20,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 /**
  * 
  * @ClassName: DmsBaseDictController
- * @Description: TODO
+ * @Description: 字典管理
  * @author: wuyoude
  * @date: 2017年12月23日 下午9:49:23
  *
@@ -139,7 +139,7 @@ public class DmsBaseDictController {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
         DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
         dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
-        if(nodeLevel != null && nodeLevel > 0){
+        if(nodeLevel != null && nodeLevel >= 0){
         	dmsBaseDictCondition.setNodeLevel(nodeLevel);
         }
         rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));

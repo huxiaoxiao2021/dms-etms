@@ -193,7 +193,7 @@ $(function() {
 			                        }
 						        	if(_k=='nodeLevel'){
 						        		var parentId = res.data['parentId'];
-							    		initEditParentIdSelect(nodeLevel,parentId);
+							    		initEditParentIdSelect(_v,parentId);
 						        	}
 						        }else{
 						        	$(this).val('');
@@ -290,7 +290,7 @@ $(function() {
 			}
 			//初始化分组下拉框
 			function initParentIdsSelect() {
-				var url = "/base/dmsBaseDict/getDicListByNodeLevel/0";
+				var url = "/base/dmsBaseDict/getDicListByNodeLevel/-1";
 			    var param = {};
 			    $.get(url, param, function (myData) {
 			        var data = myData.data;
