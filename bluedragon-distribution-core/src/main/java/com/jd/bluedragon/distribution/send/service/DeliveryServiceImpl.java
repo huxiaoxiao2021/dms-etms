@@ -273,7 +273,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             } catch (Exception ex) {
                 logger.error("调用总部VER验证JSF服务失败", ex);
                 return new SendResult(DeliveryResponse.CODE_VER_CHECK_EXCEPTION, DeliveryResponse.MESSAGE_VER_CHECK_EXCEPTION, 100, 0);
-            }finally {
+            } finally {
                 Profiler.registerInfoEnd(info1);
             }
             if (!response.getCode().equals(200)) {//如果校验不OK
@@ -1061,6 +1061,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             body.setWaybillCode(sendDetail.getWaybillCode());
             body.setSendCode(sendDetail.getSendCode());
             body.setOperateTime(sendM.getUpdateTime());
+            Integer userCode = sendM.getUpdateUserCode();
+            if (userCode != null) {
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffId(userCode);
+                if (dto != null) {
+                    body.setOperatorErp(dto.getErp());
+                }
+            }
             deliveryCancelSendMQ.send(sendDetail.getPackageBarcode(), JsonHelper.toJson(body));
         } catch (Exception e) {
             logger.error("[PDA操作取消发货]发送MQ消息时发生异常", e);
