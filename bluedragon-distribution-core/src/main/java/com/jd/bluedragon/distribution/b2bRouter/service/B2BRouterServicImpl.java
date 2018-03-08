@@ -349,7 +349,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         Integer originalSiteCode = router.getOriginalSiteCode();
         Integer destinationSiteCode = router.getDestinationSiteCode();
         Integer destinationSiteType = router.getDestinationSiteType();
-        if(originalSiteCode != null){
+        if(originalSiteCode != null && originalSiteCode>0){
             router.setOriginalSiteType(originalSiteType);
             String siteName = getB2BSiteNameByCode(originalSiteCode);
             if(StringHelper.isNotEmpty(siteName)){
@@ -359,7 +359,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             }
         }
 
-        if(destinationSiteCode != null){
+        if(destinationSiteCode != null && destinationSiteCode>0){
             String siteName = getB2BSiteNameByCode(destinationSiteCode);
             if(StringHelper.isNotEmpty(siteName)){
                 router.setDestinationSiteName(siteName);
@@ -374,7 +374,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         }
 
         //校验各级中转站点是否存在
-        if(router.getTransferOneSiteCode()!= null){
+        if(router.getTransferOneSiteCode()!= null && router.getTransferOneSiteCode()>0){
             String siteName = getB2BSiteNameByCode(router.getTransferOneSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferOneSiteName(siteName);
@@ -383,7 +383,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             }
         }
 
-        if(router.getTransferTwoSiteCode()!= null){
+        if(router.getTransferTwoSiteCode()!= null && router.getTransferTwoSiteCode() > 0){
             String siteName = getB2BSiteNameByCode(router.getTransferTwoSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferTwoSiteName(siteName);
@@ -392,7 +392,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             }
         }
 
-        if(router.getTransferThreeSiteCode()!= null){
+        if(router.getTransferThreeSiteCode()!= null && router.getTransferThreeSiteCode() > 0){
             String siteName = getB2BSiteNameByCode(router.getTransferThreeSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferThreeSiteName(siteName);
@@ -401,7 +401,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             }
         }
 
-        if(router.getTransferFourSiteCode()!= null){
+        if(router.getTransferFourSiteCode()!= null && router.getTransferFourSiteCode()>0){
             String siteName = getB2BSiteNameByCode(router.getTransferFourSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferFourSiteName(siteName);
@@ -410,7 +410,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             }
         }
 
-        if(router.getTransferFiveSiteCode()!= null){
+        if(router.getTransferFiveSiteCode()!= null && router.getTransferFiveSiteCode()>0){
             String siteName = getB2BSiteNameByCode(router.getTransferFiveSiteCode());
             if(StringHelper.isNotEmpty(siteName)){
                 router.setTransferFiveSiteName(siteName);
@@ -438,7 +438,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(StringHelper.isNotEmpty(router.getOriginalSiteName())) {
             Integer code = router.getOriginalSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName) || !siteName.equals(router.getOriginalSiteName())){
                     return "始发网点[" + router.getOriginalSiteName() + "]不存在";
@@ -451,7 +451,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(StringHelper.isNotEmpty(router.getDestinationSiteName())) {
             Integer code = router.getDestinationSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName) || !siteName.equals(router.getDestinationSiteName())){
                     return "目的网点[" + router.getDestinationSiteName() + "]不存在";
@@ -470,7 +470,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         //校验各级中转站点是否存在
         if(StringHelper.isNotEmpty(router.getTransferOneSiteName())) {
             Integer code = router.getTransferOneSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName) || !siteName.equals(router.getTransferOneSiteName())){
                     return "中转网点1[" + router.getTransferOneSiteName() + "]不存在";
@@ -483,7 +483,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(StringHelper.isNotEmpty(router.getTransferTwoSiteName())) {
             Integer code = router.getTransferTwoSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName)){
                     return "中转网点2[" + router.getTransferTwoSiteName() + "]不存在";
@@ -496,7 +496,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(StringHelper.isNotEmpty(router.getTransferThreeSiteName())) {
             Integer code = router.getTransferThreeSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName)){
                     return "中转网点3[" + router.getTransferThreeSiteName() + "]不存在";
@@ -509,7 +509,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(StringHelper.isNotEmpty(router.getTransferFourSiteName())) {
             Integer code = router.getTransferFourSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName)){
                     return "中转网点4[" + router.getTransferFourSiteName() + "]不存在";
@@ -522,7 +522,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
         if(StringHelper.isNotEmpty(router.getTransferFiveSiteName())) {
             Integer code = router.getTransferFiveSiteCode();
-            if(code!=null){
+            if(code!=null && code >0){
                 String siteName = getB2BSiteNameByCode(code);
                 if(StringHelper.isEmpty(siteName)){
                     return "中转网点5[" + router.getTransferFiveSiteName() + "]不存在";

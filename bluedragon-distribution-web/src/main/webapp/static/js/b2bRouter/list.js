@@ -148,7 +148,7 @@ function updateBtn(){
 		if(checkedKeys.length == 0){
 			alert("请选择一条记录！");
 		}
-		if (checkedKeys.length >1) {
+		else if (checkedKeys.length >1) {
 			alert("一次只能修改一条记录");
 		} else {
 			var params = getParams();
