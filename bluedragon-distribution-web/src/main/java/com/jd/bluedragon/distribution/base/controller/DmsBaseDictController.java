@@ -20,7 +20,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 /**
  * 
  * @ClassName: DmsBaseDictController
- * @Description: TODO
+ * @Description: 字典管理
  * @author: wuyoude
  * @date: 2017年12月23日 下午9:49:23
  *
@@ -127,6 +127,32 @@ public class DmsBaseDictController {
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionResult(@PathVariable("typeGroup") Integer typeGroup) {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
         rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(3, typeGroup));
+        return rest;
+    }
+    /**
+     * 根据节点层级获取字典列表
+     * @param nodeLevel
+     * @return
+     */
+    @RequestMapping(value = "/getDicListByNodeLevel/{nodeLevel}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getDicListByNodeLevel(@PathVariable("nodeLevel") Integer nodeLevel) {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
+        if(nodeLevel != null && nodeLevel >= 0){
+        	dmsBaseDictCondition.setNodeLevel(nodeLevel);
+        }
+        rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));
+        return rest;
+    }
+    /**
+     * 获取所有分组信息
+     * @return
+     */
+    @RequestMapping(value = "/getAllDicGroups")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getAllDicGroups() {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        rest.setData(dmsBaseDictService.queryAllGroups());
         return rest;
     }
 }

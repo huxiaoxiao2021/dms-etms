@@ -469,4 +469,12 @@ public class Constants {
      * 封车批次号缓存前缀
      */
     public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
+    /**
+     * 字典名称-WaybillSign打标配置标识
+     */
+    public static final String DIC_NAME_WAYBILL_SIGN_CONFIG = "WaybillSign";
+    /**
+     * 字典名称-SendPay打标配置标识
+     */
+    public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
 }

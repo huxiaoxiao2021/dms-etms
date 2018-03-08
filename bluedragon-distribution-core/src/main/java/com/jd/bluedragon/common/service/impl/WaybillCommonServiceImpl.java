@@ -1,6 +1,8 @@
 package com.jd.bluedragon.common.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -515,15 +517,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
         target.setPriceProtectText(priceProtectText);
-        Map<Integer,String> waybillSignTexts = BusinessHelper.getWaybillSignTexts(
-        		waybill.getWaybillSign(),
-        		Constants.WAYBILL_SIGN_POSITION_SIGN_BACK,
-        		Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE,
-        		Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE);
-        //设置签单返还、配送类型、运输产品
-        target.setSignBackText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_SIGN_BACK));
-        target.setDistributTypeText(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE));
-        target.setTransportMode(waybillSignTexts.get(Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE));
 
         //b2b快运 运输产品类型打标
         if(waybill.getWaybillSign().length() > 39){
@@ -539,6 +532,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //判断始发分拣中心是否属于北京
         target.setBjCheckFlg(siteService.getBjDmsSiteCodes()
         		.contains(target.getOriginalDmsCode()));
+        //打印时间,取后台服务器时间
+        String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        target.setPrintTime(printTime);
         return target;
     }
 
