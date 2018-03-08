@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterNodeDao">
+    <resultMap id="b2bRouterNodeMap" type="B2BRouterNode">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+		<result column="chain_id" jdbcType="INTEGER" property="chainId"/>
+
+        <result column="original_site_type" jdbcType="INTEGER" property="originalSiteType"/>
+        <result column="original_site_code" jdbcType="INTEGER" property="originalSiteCode"/>
+        <result column="original_site_name" jdbcType="VARCHAR" property="originalSiteName"/>
+
+        <result column="destination_site_type" jdbcType="INTEGER" property="destinationSiteType"/>
+        <result column="destination_site_code" jdbcType="INTEGER" property="destinationSiteCode"/>
+        <result column="destination_site_name" jdbcType="VARCHAR" property="destinationSiteName"/>
+
+        <result column="operator_code" jdbcType="VARCHAR" property="operatorUserErp"/>
+        <result column="operator_name" jdbcType="VARCHAR" property="operatorUserName"/>
+
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+
+		<result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <insert id="addB2BRouterNodes" parameterType="java.util.List">
+		insert into
+		b2b_router_chain(
+		chain_id,original_site_type,original_site_code,original_site_name,destination_site_type,destination_site_code,destination_site_name,
+		operator_code,operator_name,create_time,update_time,yn)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.chainId,jdbcType=INTEGER},
+
+			#{item.originalSiteType,jdbcType=INTEGER},
+			#{item.originalSiteCode,jdbcType=INTEGER},
+			#{item.originalSiteName,jdbcType=VARCHAR},
+
+			#{item.destinationSiteType,jdbcType=INTEGER},
+			#{item.destinationSiteCode,jdbcType=INTEGER},
+			#{item.destinationSiteName,jdbcType=VARCHAR},
+
+			#{item.operatorUserErp,jdbcType=VARCHAR},
+			#{item.operatorUserName,jdbcType=VARCHAR},
+
+			#{item.createTime,jdbcType=TIMESTAMP},
+			#{item.updateTime,jdbcType=TIMESTAMP},
+			#{item.yn,jdbcType=TINYINT})
+		</foreach>
+	</insert>
+
+	<update id="deleteRouterNodeByChainId" parameterType="java.util.Map">
+		update b2b_router_chain
+		set
+		operator_code = #{operatorUserErp,jdbcType=VARCHAR},
+		operator_name = #{operatorUserName,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		yn=0
+		where
+		chain_id=#{chainId,jdbcType=INTEGER}
+	</update>
+
+	<select id="getNextNode" parameterType="java.util.Map" resultMap="b2bRouterNodeMap">
+		select brc.destination_site_type,brc.destination_site_code,brc.destination_site_name
+        FROM b2b_router_chain brc INNER JOIN b2b_router br ON brc.chain_id = br.id AND br.original_site_code = brc.original_site_code
+		where
+        br.original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+        and br.destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+        and brc.destination_site_code = #{nextSiteCode,jdbcType=INTEGER}
+        and brc.yn =1
+	</select>
+
+	<update id="updateByChainId" parameterType="java.util.Map" >
+		update b2b_router_chain
+		set
+		operator_code = #{operatorUserErp,jdbcType=VARCHAR},
+		operator_name = #{operatorUserName,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP}
+		where
+		chain_id=#{chainId,jdbcType=INTEGER}
+	</update>
+</mapper>

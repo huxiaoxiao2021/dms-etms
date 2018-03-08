@@ -94,6 +94,9 @@
         <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode" alias="sendCodeToCarCode"/>
 
         <typeAlias type="com.jd.bluedragon.distribution.urban.domain.TransbillM" alias="TransbillM"/>
+
+        <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter" alias="B2BRouter" />
+        <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode" alias="B2BRouterNode"/>
     </typeAliases>
 
     <plugins>
@@ -233,5 +236,8 @@
         <mapper resource="mappers/mysql/transport/ArSendCodeMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArSendRegisterMapper.xml"/>
         <mapper resource="mappers/mysql/receive/ArReceiveMapper.xml"/>
+
+        <mapper resource="mappers/mysql/b2bRouter/B2BRouterMapper.xml"/>
+        <mapper resource="mappers/mysql/b2bRouter/B2BRouterNodeMapper.xml"/>
     </mappers>
 </configuration>

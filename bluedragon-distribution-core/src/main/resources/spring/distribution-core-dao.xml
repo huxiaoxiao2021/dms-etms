@@ -397,4 +397,14 @@
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
     <bean id="arReceiveDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
+
+    <bean id="b2bRouterDao" class = "com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionRead" ref="unDivSqlSessionTemplate" />
+    </bean>
+
+    <bean id="b2bRouterNodeDao" class="com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterNodeDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionRead" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>
