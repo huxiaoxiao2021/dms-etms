@@ -245,8 +245,17 @@ public class Constants {
     /**
      * 本地缓存默认失效时间
      */
-    public static final int POLLING_INTERVAL_TIME = 1500;// 秒    
-	/**
+    public static final int POLLING_INTERVAL_TIME = 1500;// 秒
+
+    /**
+     * 时间：一天的秒数
+     */
+    public static final int TIME_SECONDS_ONE_DAY = 86400;
+    /**
+     * 时间：一周的秒数
+     */
+    public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
+    /**
 	 * 亚一站点
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
@@ -320,7 +329,14 @@ public class Constants {
      * Integer类型标识-true
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
-    
+    /**
+     * String类型标识-true
+     */
+    public static final String STRING_FLG_TRUE = "1";
+    /**
+     * String类型标识-false
+     */
+    public static final String STRING_FLG_FALSE = "0";
     /**
      * 包裹称重流水-操作类型-分拣
      */
@@ -445,4 +461,20 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+    /**
+     * 配置信息-北京的分拣中心
+     */
+    public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
+    /**
+     * 封车批次号缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
+    /**
+     * 字典名称-WaybillSign打标配置标识
+     */
+    public static final String DIC_NAME_WAYBILL_SIGN_CONFIG = "WaybillSign";
+    /**
+     * 字典名称-SendPay打标配置标识
+     */
+    public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
 }

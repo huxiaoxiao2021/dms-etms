@@ -572,7 +572,7 @@ public class DepartureServiceImpl implements DepartureService {
 		if(isSealed == null){
 			result.setErrorMsg("服务异常，运输系统查询批次号状态为空！");
 			result.setResult(ServiceResultEnum.NOT_FOUND);
-			logger.error("服务异常，运输系统查询批次号状态为空, 批次号:" + sendCode);
+			logger.warn("服务异常，运输系统查询批次号状态为空, 批次号:" + sendCode);
 			return result;
 		}
 
@@ -588,8 +588,8 @@ public class DepartureServiceImpl implements DepartureService {
 		}else{// 服务出错或内部异常，打出日志
 			result.setResult(ServiceResultEnum.FAILED);
 			result.setErrorMsg("服务异常，运输系统查询批次号状态失败！");
-			logger.error("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
-			logger.error("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
+			logger.warn("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
+			logger.warn("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
 		}
 		return result;
 	}
@@ -652,7 +652,7 @@ public class DepartureServiceImpl implements DepartureService {
 				sendCode = sendDatail.getSendCode();
 				SendM sendM = sendMDao.selectBySendCode(sendCode);
 				if (sendM == null) {
-					logger.error(errMsg + "查询不到发货单[" + sendCode + "]");
+					logger.warn(errMsg + "查询不到发货单[" + sendCode + "]");
 					return false;
 				} else {
 					String dbCarCode = sendM.getCarCode();
@@ -660,7 +660,7 @@ public class DepartureServiceImpl implements DepartureService {
 							.equals(carCode);
 				}
 			} else {
-				logger.error(errMsg + "查询不到和箱号相关的发货单明细表");
+				logger.warn(errMsg + "查询不到和箱号相关的发货单明细表");
 			}
 		} catch (Exception e) {
 			logger.error(errMsg + e.getMessage());
@@ -694,14 +694,14 @@ public class DepartureServiceImpl implements DepartureService {
 						.querySendDatailsByBoxCode(queryDetail);
 			} else if (BusinessHelper.isPackageCode((boxCode))) {
 				if (siteCode == null) {
-					logger.error("所传站点为空： " + boxCode);
+					logger.warn("所传站点为空： " + boxCode);
 				} else {
 					queryDetail.setReceiveSiteCode(siteCode);
 					sendDatails = sendDatailDao
 							.querySendDatailsByPackageCode(queryDetail);
 				}
 			} else {
-				logger.error("传递的箱号或者大件包裹号不对：" + boxCode);
+				logger.warn("传递的箱号或者大件包裹号不对：" + boxCode);
 				return result;
 			}
 			if (sendDatails != null) {
@@ -715,7 +715,7 @@ public class DepartureServiceImpl implements DepartureService {
 							sendUser = sendM.getSendUser();
 							sendTime = sendM.getOperateTime();
 						} else {
-							logger.error(errMsg + "无法获得发货单[" + sendCode + "]数据");
+							logger.warn(errMsg + "无法获得发货单[" + sendCode + "]数据");
 						}
 					}
 					sendBoxInfo.setBoxCode(boxCode);// 箱号
@@ -728,7 +728,7 @@ public class DepartureServiceImpl implements DepartureService {
 					result.add(sendBoxInfo);
 				}
 			} else {
-				logger.error(errMsg + "无法获得发货明细数据");
+				logger.warn(errMsg + "无法获得发货明细数据");
 			}
 		} catch (Exception e) {
 			logger.error(errMsg + e.getMessage());
@@ -744,7 +744,7 @@ public class DepartureServiceImpl implements DepartureService {
 		try {
 			List<SendM> sendMs = sendMDao.selectOneBySendCode(sendCode);
 			if (sendMs == null || sendMs.size() == 0) {
-				logger.error(errMsg + "查询不到该批次号");
+				logger.warn(errMsg + "查询不到该批次号");
 				return result;
 			}
 
@@ -770,7 +770,7 @@ public class DepartureServiceImpl implements DepartureService {
 					result.add(sendBoxInfo);
 				}
 			} else {
-				logger.error(errMsg + "无法获得发货明细数据");
+				logger.warn(errMsg + "无法获得发货明细数据");
 			}
 		} catch (Exception e) {
 			logger.error(errMsg + e.getMessage());
@@ -886,10 +886,10 @@ public class DepartureServiceImpl implements DepartureService {
 		BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
 		if(baseEntity!=null){
 			if(baseEntity.getResultCode()!=1){
-				logger.error("发车数据回传全程跟踪异常："+baseEntity.getMessage());
+				logger.warn("发车数据回传全程跟踪异常："+baseEntity.getMessage());
 			}
 		}else{
-			logger.error("发车数据回传全程跟踪接口异常");
+			logger.warn("发车数据回传全程跟踪接口异常");
 		}
 	}
 	
@@ -929,7 +929,7 @@ public class DepartureServiceImpl implements DepartureService {
 	@Override
 	public boolean sendThirdDepartureInfoToTMS(Task task) {
 
-		logger.error("发车回传全称跟踪信息-----------task.getId()=" + task.getId()+"---"+task.getBody());
+		logger.info("发车回传全称跟踪信息-----------task.getId()=" + task.getId()+"---"+task.getBody());
 		if (task == null || task.getBoxCode() == null || task.getBody() == null)
 			return true;
 		try {
@@ -1116,7 +1116,7 @@ public class DepartureServiceImpl implements DepartureService {
             }
 
             if(null == dpr || null == dpr.getDepartureCarID()){
-                logger.error("执行干线计费信息任务转换失败，消息不合法 " + ArteryInfoTask.getBody());
+                logger.warn("执行干线计费信息任务转换失败，消息不合法 " + ArteryInfoTask.getBody());
                 taskService.doError(ArteryInfoTask);
                 return false;
             }
@@ -1154,12 +1154,12 @@ public class DepartureServiceImpl implements DepartureService {
 			DepartureRequest[] requests = JsonHelper.fromJson(sendTask.getBody(),DepartureRequest[].class);
 			request = requests[0];	// 正常数据只有一条发车
 		}catch(Exception ex){
-			logger.error("处理PDA 批量发车200的任务反序列化失败，原因 " + ex.getMessage());
+			logger.warn("处理PDA 批量发车200的任务反序列化失败，原因 " + ex.getMessage());
 			return false;
 		}
 
 		if(null == request || StringHelper.isEmpty(request.getBatchKey())){
-			logger.error("处理PDA 批量发车200的任务波次号为空，不执行");
+			logger.warn("处理PDA 批量发车200的任务波次号为空，不执行");
 			return false;
 		}
 
@@ -1184,9 +1184,9 @@ public class DepartureServiceImpl implements DepartureService {
 		}
 		if(null == response || response.getCode() != 200){
 			if(null == response){
-				logger.error("处理PDA 批量发车200的任务调用WEB发车接口处理失败，返回为空");
+				logger.warn("处理PDA 批量发车200的任务调用WEB发车接口处理失败，返回为空");
 			}else{
-				logger.error("处理PDA 批量发车200的任务调用WEB发车接口处理失败，编码 " + response.getCode() + "; 信息 " + response.getMessage());
+				logger.warn("处理PDA 批量发车200的任务调用WEB发车接口处理失败，编码 " + response.getCode() + "; 信息 " + response.getMessage());
 			}
 			return false;
 		}
@@ -1215,7 +1215,7 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	private void taskSendBdTrace(Task task) {
-		logger.error("收货的时候回传车辆到达全称跟踪，车次号为" + task.getBoxCode());
+		logger.info("收货的时候回传车辆到达全称跟踪，车次号为" + task.getBoxCode());
 		String[] result = task.getKeyword2().split("&");
 		if(result!=null && result.length==4){
 			List<DepartureSend> sendList = getDepartureSendByCarId(Long

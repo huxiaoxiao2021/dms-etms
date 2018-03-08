@@ -125,7 +125,7 @@ public class QualityControlService {
         for(SendDetail sendDetail : sendDetails){
             BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
             QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
-            logger.error("分拣中心异常页面发质控和全程跟踪开始。运单号" + JsonHelper.toJson(qualityControl));
+            logger.info("分拣中心异常页面发质控和全程跟踪开始。运单号" + JsonHelper.toJson(qualityControl));
             waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
             //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
@@ -221,7 +221,8 @@ public class QualityControlService {
                 task.setBody(Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(sortingReturn) + Constants.PUNCTUATION_CLOSE_BRACKET);
                 taskService.add(task);
             }catch(Exception e){
-                logger.warn("质控异常生成分拣退货数据异常，原因 " + e);
+                logger.error("质控异常生成分拣退货数据异常:"+JsonHelper.toJson(request));
+                logger.error("质控异常生成分拣退货数据异常，原因 " + e);
             }
         }
     }

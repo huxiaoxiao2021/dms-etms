@@ -1,10 +1,12 @@
 package com.jd.bluedragon.common.service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 
@@ -134,4 +136,11 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack);
+
+	/**
+	 * 获取包裹称重数据
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	InvokeResult<List<PackageWeigh>> getPackListByCode(String waybillCode);
 }

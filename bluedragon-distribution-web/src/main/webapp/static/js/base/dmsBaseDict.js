@@ -63,7 +63,7 @@ $(function() {
 		    $(_selector).each(function () {
 		    	var _k = this.id;
 		        var _v = $(this).val();
-		        if(_k && _v){
+		        if(_k && (_v != null && _v != '')){
 		        	params[_k] = _v;
 		        }
 		    });
@@ -78,11 +78,17 @@ $(function() {
 				field : 'typeName',
 				title : '名称'
 			}, {
+				field : 'nodeLevel',
+				title : '层级'
+			}, {
+				field : 'parentId',
+				title : '上级Id'
+			}, {
+				field : 'typeGroup',
+				title : '分组'
+			}, {
 				field : 'memo',
 				title : '描述'
-			}, {
-				field : 'createTime',
-				title : '创建时间'
 			} ];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
@@ -91,35 +97,63 @@ $(function() {
 	};
 	var pageInit = function() {
 		var oInit = new Object();
-		var postdata = {};
 		oInit.init = function() {
 			$('#dataEditDiv').hide();
-		    /*起始时间*/
-		    $.datePicker.createNew({
-		        elem: '#startDate',
-		        type: 'datetime',
-		        theme: '#3f92ea',
-		        btns: ['now', 'confirm'],
-		        done: function(value, date, endDate){
-		            /*重置表单验证状态*/
-		            $('#query-form').data("bootstrapValidator").resetForm();
-		        }
-		    });
-
-		    /*截止时间*/
-		    $.datePicker.createNew({
-		        elem: '#endDate',
-		        type: 'datetime',
-		        theme: '#3f92ea',
-		        done: function(value, date, endDate){
-		            $('#startDate').val(value);
-		            console.log(value); //得到日期生成的值，如：2017-08-18
-		            console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
-		            console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
-		            // alert($('#date-test1').val()); //获取值 或 设置值
-
-		        }
-		    });
+			$('#query-form #nodeLevel').change(
+					function() {
+						var nodeLevel = $(this).val();
+						if (nodeLevel == null || nodeLevel == '') {
+							nodeLevel = 0;
+						}
+						var url = "/base/dmsBaseDict/getDicListByNodeLevel/" + (nodeLevel - 1);
+						var param = {};
+						$.get(url, param, function(myData) {
+							var data = myData.data;
+							var result = [];
+							for ( var i in data) {
+								if (data[i].id && data[i].typeName) {
+									result.push({
+										id : data[i].id,
+										text : data[i].typeCode + '-'
+												+ data[i].typeName
+									});
+								}
+							}
+							$("#query-form #parentId").html("");
+							$('#query-form #parentId').select2({
+								width : '240px',
+								placeholder : '请选择上级节点',
+								allowClear : true,
+								data : result
+							});
+							$('#query-form #parentId').val(null).trigger(
+									'change');
+						});
+					});
+			$('#edit-form #nodeLevel').change(function() {
+				var nodeLevel = $(this).val();
+				if(nodeLevel != null && nodeLevel != ''){
+					var url = "/base/dmsBaseDict/getDicListByNodeLevel/"+(nodeLevel-1);
+				    var param = {};
+				    $.get(url, param, function (myData) {
+				        var data = myData.data;
+				        var result = [];
+				        for(var i in data){
+				            if(data[i].id && data[i].typeName){
+				                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+				            }
+				        }
+				        $("#edit-form #parentId").html("");
+				        $('#edit-form #parentId').select2({
+				            width: '300px',
+				            placeholder:'请选择上级节点',
+				            allowClear:true,
+				            data:result
+				        });
+				        $('#edit-form #parentId').val(null).trigger('change');
+				    });
+				}
+	        });			
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
@@ -130,11 +164,12 @@ $(function() {
 			        	$(this).val('');
 			        }
 			    });
+			    $('#edit-form #typeGroup').val(null).trigger('change');
+			    $('#edit-form #parentId').val(null).trigger('change');
 				$('#dataTableDiv').hide();
 				$('#dataEditDiv').show();
 			});
-			// 初始化页面上面的按钮事件
-			// 改
+			// 修改操作
 			$('#btn_edit').click(function() {
 				var rows = $('#dataTable').bootstrapTable('getSelections');
 				if (rows.length > 1) {
@@ -150,9 +185,20 @@ $(function() {
 					    $('.edit-param').each(function () {
 					    	var _k = this.id;
 					        var _v = res.data[_k];
-					        if(_k && _v){
-					        	$(this).val(_v);
-					        }
+					        if(_k){
+					        	if(_v != null && _v != undefined){
+						        	$(this).val(_v);
+						        	if(_k=='typeGroup'||_k=='parentId'){
+						        		$(this).trigger('change');
+			                        }
+						        	if(_k=='nodeLevel'){
+						        		var parentId = res.data['parentId'];
+							    		initEditParentIdSelect(_v,parentId);
+						        	}
+						        }else{
+						        	$(this).val('');
+						        }
+					        } 
 					    });
 			    	}
 			    });
@@ -185,6 +231,10 @@ $(function() {
 			});
 			$('#btn_submit').click(function() {
 				var params = {};
+				if($('#edit-form #nodeLevel').val()==null){
+					alert('请选择层级');
+					return;
+				}
 				$('.edit-param').each(function () {
 			    	var _k = this.id;
 			        var _v = $(this).val();
@@ -206,49 +256,95 @@ $(function() {
 			$('#btn_return').click(function() {
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
-			});			
+			});
+			initTypeGroupsSelect();
+			initParentIdsSelect();
+			//初始化分组下拉框
+			function initTypeGroupsSelect() {
+			    var url = "/base/dmsBaseDict/getAllDicGroups";
+			    var param = {};
+			    $.get(url, param, function (myData) {
+			        var data = myData.data;
+			        var result = [];
+			        for(var i in data){
+			            if(data[i].id && data[i].typeName){
+			                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+			            }
+			        }
+			        $('#query-form #typeGroup').select2({
+			            width: '240px',
+			            placeholder:'请选择分组',
+			            allowClear:true,
+			            data:result
+			        });
+
+			        $('#edit-form #typeGroup').select2({
+			            width: '300px',
+			            placeholder:'请选择分组',
+			            allowClear:true,
+			            data:result
+			        });
+			        $('#query-form #typeGroup').val(null).trigger('change');
+			        $('#edit-form #typeGroup').val(null).trigger('change');
+			    }, "json");
+			}
+			//初始化分组下拉框
+			function initParentIdsSelect() {
+				var url = "/base/dmsBaseDict/getDicListByNodeLevel/-1";
+			    var param = {};
+			    $.get(url, param, function (myData) {
+			        var data = myData.data;
+			        var result = [];
+			        for(var i in data){
+			            if(data[i].id && data[i].typeName){
+			                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+			            }
+			        }
+			        $('#query-form #parentId').select2({
+			            width: '240px',
+			            placeholder:'请选择上级节点',
+			            allowClear:true,
+			            data:result
+			        });
+
+			        $('#edit-form #parentId').select2({
+			            width: '300px',
+			            placeholder:'请选择上级节点',
+			            allowClear:true,
+			            data:result
+			        });
+			        $('#query-form #parentId').val(null).trigger('change');
+			        $('#edit-form #parentId').val(null).trigger('change');
+			    }, "json");
+			}
+			//初始化分组下拉框
+			function initEditParentIdSelect(nodeLevel,parentId) {
+				if(nodeLevel != null && nodeLevel != ''){
+					var url = "/base/dmsBaseDict/getDicListByNodeLevel/"+(nodeLevel-1);
+				    var param = {};
+				    $.get(url, param, function (myData) {
+				        var data = myData.data;
+				        var result = [];
+				        for(var i in data){
+				            if(data[i].id && data[i].typeName){
+				                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+				            }
+				        }
+				        $("#edit-form #parentId").html("");
+				        $('#edit-form #parentId').select2({
+				            width: '300px',
+				            placeholder:'请选择上级节点',
+				            allowClear:true,
+				            data:result
+				        });
+				        $('#edit-form #parentId').val(parentId).trigger('change');
+				    });
+				}
+			}			
 		};
 		return oInit;
 	};
-    /*日期选择*/
-    laydate.render({
-        elem: '#date-test1', //指定元素
-        type: 'datetime',
-        theme: '#3f92ea',
-        change: function(value, date, endDate){
-            console.log(value); //得到日期生成的值，如：2017-08-18
-            console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
-            console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
-            // alert($('#date-test1').val()); //获取值 或 设置值
-        }
-    });
-    /*下拉框*/
-    $('#com1').select2({
-        width: '300',
-        placeholder:'请选择',
-        allowClear:true,
-        data:[
-            {id:1,text:'选择项1'},
-            {id:2,text:'选择项2'},
-            {id:3,text:'选择项3'},
-            {id:4,text:'选择项4'}
-
-        ]
-    });
-
-    $('#com2').select2({
-        width: '300',
-        placeholder:'请选择',
-        allowClear:true,
-        data:[
-            {id:1,text:'选择项1'},
-            {id:2,text:'选择项2'},
-            {id:3,text:'选择项3'},
-            {id:4,text:'选择项4'}
-        ],
-        multiple:true,
-    });
-    
+	
 	tableInit().init();
 	pageInit().init();
 });

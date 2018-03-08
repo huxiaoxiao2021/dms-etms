@@ -95,7 +95,7 @@ public interface BaseMajorManager {
     public Pager<List<SiteWareHouseMerchant>>  getTraderListByPage(int pageIndex);
 
 	/**
-	 * 后去所有库房信息
+	 * 获取所有库房信息
 	 * @return
      */
 	public List<BaseStaffSiteOrgDto> getBaseAllStore();

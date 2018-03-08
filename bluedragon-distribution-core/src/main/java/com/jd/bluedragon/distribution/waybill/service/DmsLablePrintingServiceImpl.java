@@ -153,7 +153,7 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
                     labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     labelPrinting.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.error("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
+                    log.warn("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
                 }
                 log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 

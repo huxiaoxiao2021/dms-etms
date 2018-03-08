@@ -69,6 +69,12 @@
         </dependency>
 
 		<dependency>
+			<groupId>com.lmax</groupId>
+			<artifactId>disruptor</artifactId>
+			<version>3.3.6</version>
+		</dependency>
+
+		<dependency>
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.11.0.GA</version>
@@ -175,6 +181,14 @@
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.3</version>
 		</dependency>
+
+		<!--安全相关 ConfigSecSDK importants运行环境加密-->
+		<dependency>
+			<groupId>com.jd.security.configsec</groupId>
+			<artifactId>spring-configsec-sdk</artifactId>
+			<version>1.0.2.RELEASE</version>
+		</dependency>
+
 	</dependencies>
 	
 	<build>

@@ -70,16 +70,16 @@
 		from b2b_router
 		where
 		  yn =1
-		<if test="originalSiteType != null and originalSiteType != ''">
+		<if test="originalSiteType != null">
 		    and original_site_type=#{originalSiteType,jdbcType=INTEGER}
 		</if>
-		<if test="originalSiteCode != null and originalSiteCode != ''">
+		<if test="originalSiteCode != null">
 		    and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
 		</if>
-		<if test="destinationSiteType != null and destinationSiteType != ''">
+		<if test="destinationSiteType != null">
 		    and destination_site_type=#{destinationSiteType,jdbcType=INTEGER}
 		</if>
-		<if test="destinationSiteCode != null and destinationSiteCode != ''">
+		<if test="destinationSiteCode != null">
 		    and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 		</if>
 		 order by id desc
@@ -92,21 +92,21 @@
 		select count(*) from b2b_router
 		where
 		yn =1
-		<if test="originalSiteType != null and originalSiteType != ''">
+		<if test="originalSiteType != null">
 			 and original_site_type=#{originalSiteType,jdbcType=INTEGER}
 		</if>
-		<if test="originalSiteCode != null and originalSiteCode != ''">
+		<if test="originalSiteCode != null">
 		     and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
 		</if>
-		<if test="destinationSiteType != null and destinationSiteType != ''">
+		<if test="destinationSiteType != null">
 		    and destination_site_type=#{destinationSiteType,jdbcType=INTEGER}
 		</if>
-		<if test="destinationSiteCode != null and destinationSiteCode != ''">
+		<if test="destinationSiteCode != null">
 		    and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 		</if>
 	</select>
 
-	<select id="getRouterById" parameterType="int" resultMap="b2bRouterMap">
+	<select id="getRouterById" parameterType="java.lang.Integer" resultMap="b2bRouterMap">
 		select
 		<include refid="sql_columns"/>
 		from b2b_router

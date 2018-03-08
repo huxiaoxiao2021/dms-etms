@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,4 +82,14 @@ public class SysConfigServiceImpl implements SysConfigService {
         }
         return size;
     }
+    /**
+     * 通过配置名获取配置列表信息，并缓存10分钟
+     */
+    @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+	@Override
+	public List<SysConfig> getListByConfigName(String configName) {
+		SysConfig config = new SysConfig();
+		config.setConfigName(configName);
+		return this.sysConfigDao.getList(config);
+	}
 }

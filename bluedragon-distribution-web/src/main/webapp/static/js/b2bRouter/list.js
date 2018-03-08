@@ -48,7 +48,7 @@ function checkboxclick() {
  * @param siteCodeObj
  */
 function getSiteData(siteType,siteNameObj,siteCodeObj) {
-	var subTypes = 6420;
+	var subTypes = "6420,6450";
 	var contextPath = $("#contextPath").val();
 	var b2bSiteArray=new Array();
 	if(siteType == 1) {

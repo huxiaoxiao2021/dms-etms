@@ -125,7 +125,7 @@
         <li class="active">编辑</li>
     </ol>
 
-    <div id="query-condition">
+    <div id="edit-condition">
         <form id="edit-form" class="form-horizontal  col-xs-12">
             <fieldset>
                 <input type="hidden" class="form-control edit-param" id="id" name="id"/>

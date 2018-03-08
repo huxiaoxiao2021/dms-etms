@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -59,7 +60,15 @@ public class InspectionRedisTask extends RedisSingleScheduler {
                     domain.setBody(JsonHelper.toJson(request));
                     taskExecute.execute(domain);
                 }
-			} catch (Exception e) {
+			}catch (WayBillCodeIllegalException wayBillCodeIllegalEx){
+                StringBuilder sb=new StringBuilder("验货执行失败,已知异常");
+                sb.append(wayBillCodeIllegalEx.getMessage());
+                sb.append(SPLIT_CHAR).append(task.getBoxCode());
+                sb.append(SPLIT_CHAR).append(task.getKeyword1());
+                sb.append(SPLIT_CHAR).append(task.getKeyword2());
+                logger.warn(sb.toString());
+                return false;
+            }catch (Exception e) {
 				logger.error("验货worker失败, task id: " + task.getId()
 						+ ". 异常信息: " + e.getMessage(), e);
 				return false;
