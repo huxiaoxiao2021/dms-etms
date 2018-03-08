@@ -2144,7 +2144,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }else{
                 List<B2BRouterNode> nodes = b2bRouterService.getNextCodes(originalSiteCode, destinationSiteCode, receiveSiteCode);
                 logger.info("B网路由下一节点查询结果："+JsonHelper.toJson(nodes));
-                if(nodes == null && nodes.isEmpty()){
+                if(nodes == null || nodes.isEmpty()){
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                     response.setMessage(DeliveryResponse.MESSAGE_ROUTER_ERROR);
                 }
