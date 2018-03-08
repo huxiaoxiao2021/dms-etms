@@ -20,6 +20,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
@@ -103,6 +104,9 @@ public class DeliveryResource {
     
     @Autowired
     private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     
 
     /**
@@ -171,6 +175,8 @@ public class DeliveryResource {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("请输入正确的批次号！");
         }else{
+            /*一车一单操作增加提示，如果操作逆向则阻断*/
+            if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
                 if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车
@@ -188,6 +194,29 @@ public class DeliveryResource {
             }
         }
         return result;
+    }
+
+    private boolean forbid(InvokeResult<Map.Entry<Integer, String>> result, Integer receiveSiteCode) {
+        BaseStaffSiteOrgDto bDto = null;
+        try {
+            bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        } catch (Exception e) {
+            this.logger.error("通过站点ID获取基础资料失败",e);
+        }
+        Integer siteType=0;
+        if (null != bDto) {
+            siteType = bDto.getSiteType();
+            this.logger.info("站点类型为" + siteType);
+        }
+        String asm_type = PropertiesHelper.newInstance().getValue("asm_type");//售后
+        String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
+        String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
+        if(siteType==Integer.parseInt(asm_type)||siteType==Integer.parseInt(wms_type)||siteType==Integer.parseInt(spwms_type)){
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage("禁止逆向操作！");
+            return true;
+        }
+        return false;
     }
 
     @POST
