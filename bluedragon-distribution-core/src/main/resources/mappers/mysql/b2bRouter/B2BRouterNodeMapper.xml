@@ -61,11 +61,11 @@
 
 	<select id="getNextNode" parameterType="java.util.Map" resultMap="b2bRouterNodeMap">
 		select brc.destination_site_type,brc.destination_site_code,brc.destination_site_name
-        FROM b2b_router_chain brc INNER JOIN b2b_router br ON brc.chain_id = br.id
+        FROM b2b_router_chain brc INNER JOIN b2b_router br ON brc.chain_id = br.id AND br.original_site_code = brc.original_site_code
 		where
         br.original_site_code = #{originalSiteCode,jdbcType=INTEGER}
         and br.destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
-        and brc.original_site_code = #{nextSiteCode,jdbcType=INTEGER}
+        and brc.destination_site_code = #{nextSiteCode,jdbcType=INTEGER}
         and brc.yn =1
 	</select>
 
