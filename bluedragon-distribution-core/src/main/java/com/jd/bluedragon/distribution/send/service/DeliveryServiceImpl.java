@@ -2496,6 +2496,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 				SendDetail tSendDatail = new SendDetail();
 				tSendDatail.setBoxCode(sendM.getBoxCode());
 				tSendDatail.setCreateSiteCode(box.getCreateSiteCode());
+				tSendDatail.setReceiveSiteCode(box.getReceiveSiteCode());
 				tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
 				List<SendDetail> SendDList = sendDatailDao
 						.querySendDatailsBySelective(tSendDatail);
