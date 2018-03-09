@@ -264,9 +264,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private TransbillMService transbillMService;
     
     @Autowired
-    private WaybillQueryManager waybillQueryManager;
-    
-    @Autowired
     @Qualifier("dmsWeightFlowService")
     private DmsWeightFlowService dmsWeightFlowService;
 
@@ -2132,11 +2129,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
         List<SendDetail> allList = new ArrayList<SendDetail>();
         getAllList(sendMList, allList);
-        List<String> waybillCodes = getWaybillCodes(allList);
-        InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
-        if(!interceptResult.isSucceed()){
-        	return new ThreeDeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage(), null);
-        }
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
         DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
         scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
@@ -2172,6 +2164,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         response = deliveryCheckHasSend(sendM);
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
+        }
+        //快运称重及运费拦截
+        List<SendM> sendMList = new ArrayList<SendM>();
+        sendMList.add(sendM);
+        List<SendDetail> sendDList = new ArrayList<SendDetail>();
+        getAllList(sendMList, sendDList);
+        List<String> waybillCodes = getWaybillCodes(sendDList);
+        InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
+        if(!interceptResult.isSucceed()){
+        	return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
         }
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
         Integer originalSiteCode = sendM.getCreateSiteCode();
@@ -2295,12 +2297,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         	if(baseEntity != null
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
-        		boolean hasTotalWeight = true;
+        		boolean hasTotalWeight = false;
         		//先校验运单的againWeight然后校验称重流水
-        		if(!NumberHelper.gt0(baseEntity.getData().getWaybill().getAgainWeight())){
-        			hasTotalWeight = false;
+        		if(NumberHelper.gt0(baseEntity.getData().getWaybill().getAgainWeight())){
+        			hasTotalWeight = true;
 				 }else{
-					 hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
+					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
 				 }
         		if(!hasTotalWeight){
         			noHasWeightWaybills.add(waybillCode);
