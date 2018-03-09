@@ -397,4 +397,6 @@
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
     <bean id="arReceiveDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
+    <bean id="dmsWeightFlowDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.weight.dao.impl.DmsWeightFlowDaoImpl"/>	
 </beans>

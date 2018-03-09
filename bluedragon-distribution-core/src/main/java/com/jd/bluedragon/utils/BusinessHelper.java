@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public class BusinessHelper {
@@ -573,5 +574,25 @@ public class BusinessHelper {
     	return baseStaffSiteOrgDto!=null
 				&&Constants.THIRD_SITE_TYPE.equals(baseStaffSiteOrgDto.getSiteType())
 				&&Constants.THIRD_SITE_SUB_TYPE.equals(baseStaffSiteOrgDto.getSubType());
+    }
+    /**
+     * 验证运单数据是否包含-到付运费，waybillsign25位等于2，freight<=0 返回false
+     * @param bigWaybillDto
+     * @return
+     */
+    public static boolean hasFreight(BigWaybillDto bigWaybillDto){
+    	if(bigWaybillDto!=null
+    			&&bigWaybillDto.getWaybill()!=null){
+    		//waybillsign25位等于2，校验freight>0
+    		if(BusinessHelper.isSignChar(bigWaybillDto.getWaybill().getWaybillSign(), 25, '2')){
+    			String freightStr = bigWaybillDto.getWaybill().getFreight();
+    			if(NumberHelper.isStringNumber(freightStr)){
+    				return NumberHelper.getDoubleValue(freightStr).doubleValue() > 0d;
+    			}else{
+    				return false;
+    			}
+    		}
+    	}
+    	return true;
     }
 }

@@ -110,6 +110,14 @@ public class Constants {
     public static final int OPERATE_TYPE_SH = 26;//收货回传全程跟踪
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
     public static final int OPERATE_TYPE_In = 1150;//驻场
+    /**
+     * 业务类型-称重
+     */
+    public static final Integer BUSINESS_TYPE_WEIGHT = 1002;
+    /**
+     * 业务类型-按运单称重
+     */
+    public static final Integer OPERATE_TYPE_WEIGHT_BY_WAYBILL = 100201;
     /** 大件包裹标识 **/
     public static final Short BOXING_TYPE = 2;
     /* 基础资料SiteType: 16为三方，4为自营 */

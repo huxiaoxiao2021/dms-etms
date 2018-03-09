@@ -59,7 +59,10 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
     public static final String MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE = "运单不齐是否强制发货？";
-
+    /**
+     * 快运-拦截标识
+     */
+    public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
     public DeliveryResponse() {
         super();
     }
