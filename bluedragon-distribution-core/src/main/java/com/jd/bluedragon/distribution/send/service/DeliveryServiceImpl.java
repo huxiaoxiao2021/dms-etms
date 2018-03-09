@@ -2320,11 +2320,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         if(!noHasWeightWaybills.isEmpty()){
         	interceptResult.toFail();
-        	interceptResult.setMessage("以下运单"+noHasWeightWaybills+"无运单总重量,禁止发货！");
+        	interceptResult.setMessage("运单无总重量："+noHasWeightWaybills);
         }
         if(!noHasFreightWaybills.isEmpty()){
         	interceptResult.toFail();
-        	interceptResult.setMessage("以下运单"+noHasFreightWaybills+"无到付运费金额,禁止发货！");
+        	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
         }
         return interceptResult;
     }
