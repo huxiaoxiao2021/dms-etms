@@ -120,7 +120,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
     
-    private final int MAX_SHOW_NUM = 5;
+    private final int MAX_SHOW_NUM = 3;
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
 
