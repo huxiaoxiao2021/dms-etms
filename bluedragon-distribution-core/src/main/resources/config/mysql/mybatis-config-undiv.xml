@@ -228,9 +228,9 @@
         <!--jinjingcheng -->
         <mapper resource="mappers/mysql/sendGroup/SortMachineSendGroupMapper.xml"/>
         <mapper resource="mappers/mysql/sendGroup/SortMachineGroupConfigMapper.xml"/>
-        <!-- �����±� -->
+        <!-- 锟斤拷锟斤拷锟铰憋拷 -->
         <mapper resource="mappers/mysql/base/DmsBaseDictMapper.xml"/>
-        <!-- ����ҵ��� -->
+        <!-- 锟斤拷锟斤拷业锟斤拷锟� -->
         <mapper resource="mappers/mysql/transport/ArBookingSpaceMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArExcpRegisterMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArSendCodeMapper.xml"/>
@@ -239,5 +239,6 @@
 
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterMapper.xml"/>
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterNodeMapper.xml"/>
+        <mapper resource="mappers/mysql/weight/DmsWeightFlowMapper.xml"/>
     </mappers>
 </configuration>
