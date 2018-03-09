@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.util.Map;
+
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 
 /**
@@ -22,4 +26,11 @@ public interface WaybillPrintService {
      * @param context
      */
     InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context);
+    /**
+     * 处理打标信息
+     * @param signStr 打标字段
+     * @param target 目标对象
+     * @param signConfigName 打标对应的字典表配置名称
+     */
+    void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName);
 }
