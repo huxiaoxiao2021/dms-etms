@@ -2167,11 +2167,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         logger.info("快运发货运单重量及运费拦截开始");
         //快运称重及运费拦截
-        List<SendM> sendMList = new ArrayList<SendM>();
-        sendMList.add(sendM);
-        List<SendDetail> sendDList = new ArrayList<SendDetail>();
-        getAllList(sendMList, sendDList);
-        List<String> waybillCodes = getWaybillCodes(sendDList);
+        List<String> waybillCodes = getWaybillCodesBySendM(sendM);
         InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
         if(!interceptResult.isSucceed()){
         	logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
@@ -2285,7 +2281,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 运单拦截相关的处理逻辑
+     * b2b运单拦截相关的处理逻辑
      * @param waybillCodes
      * @return
      */
@@ -2330,23 +2326,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return interceptResult;
     }
-    /**
-     * 获取sendD列表中的运单号数据
-     * @param sendDetails
-     * @return
-     */
-    private List<String> getWaybillCodes(List<SendDetail> sendDetails) {
-    	if(sendDetails!=null && !sendDetails.isEmpty()){
-    		List<String> waybillCodes = new ArrayList<String>();
-    		for(SendDetail sendDetail:sendDetails){
-    			if(!waybillCodes.contains(sendDetail.getWaybillCode())){
-    				waybillCodes.add(sendDetail.getWaybillCode());
-    			}
-    		}
-    		return waybillCodes;
-    	}
-		return Collections.EMPTY_LIST;
-	}
 	/**
      * 老发货校验服务，校验包裹不齐
      * @param sendMList
@@ -2504,7 +2483,38 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
     }
-
+    /**
+     * 根据sendM查询运单号
+     * @param sendM
+     * @return
+     */
+    public List<String> getWaybillCodesBySendM(SendM sendM) {
+    	List<String> waybillCodes = new ArrayList<String>();
+		if (BusinessHelper.isBoxcode(sendM.getBoxCode())) {
+			Box box = this.boxService.findBoxByCode(sendM.getBoxCode());
+			if (box != null) {
+				SendDetail tSendDatail = new SendDetail();
+				tSendDatail.setBoxCode(sendM.getBoxCode());
+				tSendDatail.setCreateSiteCode(box.getCreateSiteCode());
+				tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
+				List<SendDetail> SendDList = sendDatailDao
+						.querySendDatailsBySelective(tSendDatail);
+				if (SendDList != null && !SendDList.isEmpty()) {
+					for (SendDetail dSendDatail : SendDList) {
+						if (!BusinessHelper.isPickupCode(dSendDatail
+								.getPackageBarcode())) {
+							waybillCodes.add(dSendDatail.getWaybillCode());
+						}
+					}
+				}
+			}
+		} else if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+			if (!BusinessHelper.isPickupCode(sendM.getBoxCode()))
+				waybillCodes.add(BusinessHelper.getWaybillCode(sendM
+						.getBoxCode()));
+		}
+        return waybillCodes;
+    }
 
     @SuppressWarnings("rawtypes")
     public List<SendThreeDetail> checkThreePackage4Cancel(List<SendM> sendMList) {
