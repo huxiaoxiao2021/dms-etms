@@ -322,7 +322,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public String handleRouterBatch(List<B2BRouter> routers){
-        String errString = null;
+        String errString = "";
         try {
             for (B2BRouter router : routers) {
                 setFullLine(router);
@@ -342,7 +342,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      * @return
      */
     public String verifyRouterImportParam(B2BRouter router) {
-        String errorString = null;
+        String errorString = "";
 
         //校验始发网点Id、目的网点类型、目的网点ID为必填
         Integer originalSiteType = router.getOriginalSiteType();
@@ -364,7 +364,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             if(StringHelper.isNotEmpty(siteName)){
                 router.setDestinationSiteName(siteName);
             }else{
-                errorString += "目的网点_id[" + originalSiteCode + "]不存在\n";
+                errorString += "目的网点_id[" + destinationSiteCode + "]不存在\n";
             }
         }
 
@@ -543,27 +543,27 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         String siteIdFullLine = router.getOriginalSiteCode()+"-";
         String siteNameFullLine = router.getOriginalSiteName()+"-";
 
-        if(router.getTransferOneSiteCode()!=null){
+        if(router.getTransferOneSiteCode()!=null && router.getTransferOneSiteCode()>0){
             siteIdFullLine +=  router.getTransferOneSiteCode() + "-";
             siteNameFullLine += getB2BSiteNameByCode(router.getTransferOneSiteCode())+"-";
         }
 
-        if(router.getTransferTwoSiteCode()!=null){
+        if(router.getTransferTwoSiteCode()!=null && router.getTransferTwoSiteCode()>0){
             siteIdFullLine +=  router.getTransferTwoSiteCode() + "-";
             siteNameFullLine += getB2BSiteNameByCode(router.getTransferTwoSiteCode())+"-";
         }
 
-        if(router.getTransferThreeSiteCode()!=null){
+        if(router.getTransferThreeSiteCode()!=null && router.getTransferThreeSiteCode()>0){
             siteIdFullLine +=  router.getTransferThreeSiteCode() + "-";
             siteNameFullLine += getB2BSiteNameByCode(router.getTransferThreeSiteCode())+"-";
         }
 
-        if(router.getTransferFourSiteCode()!=null){
+        if(router.getTransferFourSiteCode()!=null && router.getTransferFourSiteCode() >0){
             siteIdFullLine +=  router.getTransferFourSiteCode() + "-";
             siteNameFullLine += getB2BSiteNameByCode(router.getTransferFourSiteCode())+"-";
         }
 
-        if(router.getTransferFiveSiteCode()!=null){
+        if(router.getTransferFiveSiteCode()!=null && router.getTransferFiveSiteCode()>0){
             siteIdFullLine +=  router.getTransferFiveSiteCode() + "-";
             siteNameFullLine += getB2BSiteNameByCode(router.getTransferFiveSiteCode())+"-";
         }
