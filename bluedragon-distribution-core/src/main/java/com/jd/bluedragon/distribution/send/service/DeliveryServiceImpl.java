@@ -2165,6 +2165,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
+        logger.info("快运发货运单重量及运费拦截开始");
         //快运称重及运费拦截
         List<SendM> sendMList = new ArrayList<SendM>();
         sendMList.add(sendM);
@@ -2173,6 +2174,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<String> waybillCodes = getWaybillCodes(sendDList);
         InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
         if(!interceptResult.isSucceed()){
+        	logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
         	return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
         }
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
@@ -2307,7 +2309,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         		if(!hasTotalWeight){
         			noHasWeightWaybills.add(waybillCode);
         		}
-        		if(BusinessHelper.hasFreight(baseEntity.getData())){
+        		if(!BusinessHelper.hasFreight(baseEntity.getData())){
         			noHasFreightWaybills.add(waybillCode);
         		}
         	}else{
