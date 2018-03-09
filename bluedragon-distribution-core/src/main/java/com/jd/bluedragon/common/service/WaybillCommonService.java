@@ -143,4 +143,10 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	InvokeResult<List<PackageWeigh>> getPackListByCode(String waybillCode);
+	/**
+	 * 校验运单是否录入运单总重量
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	boolean hasTotalWeight(String waybillCode);
 }

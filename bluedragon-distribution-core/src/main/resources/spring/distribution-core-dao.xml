@@ -407,4 +407,6 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
         <property name="sqlSessionRead" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="dmsWeightFlowDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.weight.dao.impl.DmsWeightFlowDaoImpl"/>	
 </beans>

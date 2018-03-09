@@ -1,5 +1,31 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -25,6 +51,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -38,7 +65,19 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.distribution.send.domain.BoxInfo;
+import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
+import com.jd.bluedragon.distribution.send.domain.OrderInfo;
+import com.jd.bluedragon.distribution.send.domain.PackInfo;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
+import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -48,7 +87,16 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -90,7 +138,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
-
+    
+    private final int MAX_SHOW_NUM = 3;
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
 
@@ -213,6 +262,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Resource(name = "transbillMService")
     private TransbillMService transbillMService;
+    
+    @Autowired
+    @Qualifier("dmsWeightFlowService")
+    private DmsWeightFlowService dmsWeightFlowService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -2112,6 +2165,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
+        logger.info("快运发货运单重量及运费拦截开始");
+        //快运称重及运费拦截
+        List<String> waybillCodes = getWaybillCodesBySendM(sendM);
+        InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
+        if(!interceptResult.isSucceed()){
+        	logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
+        	return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
+        }
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
         Integer originalSiteCode = sendM.getCreateSiteCode();
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
@@ -2220,6 +2281,52 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * b2b运单拦截相关的处理逻辑
+     * @param waybillCodes
+     * @return
+     */
+    private InterceptResult<String> interceptWaybillForB2b(List<String> waybillCodes){
+    	InterceptResult<String> interceptResult = new InterceptResult<String>();
+    	interceptResult.toSuccess();
+    	List<String> noHasWeightWaybills = new ArrayList<String>();
+    	List<String> noHasFreightWaybills = new ArrayList<String>();
+        for(String waybillCode:waybillCodes){
+        	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false); 
+        	if(baseEntity != null
+					 && baseEntity.getData() != null
+					 && baseEntity.getData().getWaybill() != null){
+        		boolean hasTotalWeight = false;
+        		//先校验运单的againWeight然后校验称重流水
+        		if(NumberHelper.gt0(baseEntity.getData().getWaybill().getAgainWeight())){
+        			hasTotalWeight = true;
+				 }else{
+					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
+				 }
+        		if(!hasTotalWeight){
+        			noHasWeightWaybills.add(waybillCode);
+        		}
+        		if(!BusinessHelper.hasFreight(baseEntity.getData())){
+        			noHasFreightWaybills.add(waybillCode);
+        		}
+        	}else{
+        		noHasWeightWaybills.add(waybillCode);
+        	}
+        	//超过5单则中断校验逻辑
+    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM ||noHasFreightWaybills.size() >= MAX_SHOW_NUM){
+    			break;
+    		}
+        }
+        if(!noHasWeightWaybills.isEmpty()){
+        	interceptResult.toFail();
+        	interceptResult.setMessage("运单无总重量："+noHasWeightWaybills);
+        }
+        if(!noHasFreightWaybills.isEmpty()){
+        	interceptResult.toFail();
+        	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
+        }
+        return interceptResult;
+    }
+	/**
      * 老发货校验服务，校验包裹不齐
      * @param sendMList
      * @return
@@ -2376,7 +2483,39 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
     }
-
+    /**
+     * 根据sendM查询运单号
+     * @param sendM
+     * @return
+     */
+    public List<String> getWaybillCodesBySendM(SendM sendM) {
+    	List<String> waybillCodes = new ArrayList<String>();
+		if (BusinessHelper.isBoxcode(sendM.getBoxCode())) {
+			Box box = this.boxService.findBoxByCode(sendM.getBoxCode());
+			if (box != null) {
+				SendDetail tSendDatail = new SendDetail();
+				tSendDatail.setBoxCode(sendM.getBoxCode());
+				tSendDatail.setCreateSiteCode(box.getCreateSiteCode());
+				tSendDatail.setReceiveSiteCode(box.getReceiveSiteCode());
+				tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
+				List<SendDetail> SendDList = sendDatailDao
+						.querySendDatailsBySelective(tSendDatail);
+				if (SendDList != null && !SendDList.isEmpty()) {
+					for (SendDetail dSendDatail : SendDList) {
+						if (!BusinessHelper.isPickupCode(dSendDatail
+								.getPackageBarcode())) {
+							waybillCodes.add(dSendDatail.getWaybillCode());
+						}
+					}
+				}
+			}
+		} else if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+			if (!BusinessHelper.isPickupCode(sendM.getBoxCode()))
+				waybillCodes.add(BusinessHelper.getWaybillCode(sendM
+						.getBoxCode()));
+		}
+        return waybillCodes;
+    }
 
     @SuppressWarnings("rawtypes")
     public List<SendThreeDetail> checkThreePackage4Cancel(List<SendM> sendMList) {
