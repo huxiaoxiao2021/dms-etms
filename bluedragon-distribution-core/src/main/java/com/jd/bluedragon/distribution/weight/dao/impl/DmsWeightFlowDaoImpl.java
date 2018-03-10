@@ -20,8 +20,8 @@ public class DmsWeightFlowDaoImpl extends BaseDao<DmsWeightFlow> implements DmsW
 
 	@Override
 	public int queryNumByCondition(DmsWeightFlowCondition dmsWeightFlowCondition) {
-		return this.getSqlSession().selectOne(getNameSpace()+".pageNum_queryByPagerCondition", dmsWeightFlowCondition);
+		Integer num = this.getSqlSession().selectOne(getNameSpace()+".pageNum_queryByPagerCondition", dmsWeightFlowCondition);
+		return num.intValue();
 	}
-
 
 }
