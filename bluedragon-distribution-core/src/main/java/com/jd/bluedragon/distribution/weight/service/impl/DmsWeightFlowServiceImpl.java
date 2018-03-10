@@ -40,8 +40,8 @@ public class DmsWeightFlowServiceImpl extends BaseService<DmsWeightFlow> impleme
 			DmsWeightFlowCondition dmsWeightFlowCondition = new DmsWeightFlowCondition();
 			dmsWeightFlowCondition.setOperateType(Constants.OPERATE_TYPE_WEIGHT_BY_WAYBILL);
 			dmsWeightFlowCondition.setWaybillCode(waybillCode);
-			PagerResult<DmsWeightFlow> result = this.queryByPagerCondition(dmsWeightFlowCondition);
-			return result.getTotal()>0;
+			int num = dmsWeightFlowDao.queryNumByCondition(dmsWeightFlowCondition);
+			return num > 0;
 		}
 		return false;
 	}

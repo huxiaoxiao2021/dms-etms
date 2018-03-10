@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.weight.dao;
 
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
+import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlowCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 /**
  *
@@ -12,6 +14,11 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  *
  */
 public interface DmsWeightFlowDao extends Dao<DmsWeightFlow> {
-
+	/**
+	 * 根据条件查询数据条数
+	 * @param dmsWeightFlowCondition
+	 * @return
+	 */
+	int queryNumByCondition(DmsWeightFlowCondition dmsWeightFlowCondition);
 
 }

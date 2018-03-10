@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weight.dao.impl;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
+import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlowCondition;
 import com.jd.bluedragon.distribution.weight.dao.DmsWeightFlowDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
@@ -16,6 +17,11 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
  */
 @Repository("dmsWeightFlowDao")
 public class DmsWeightFlowDaoImpl extends BaseDao<DmsWeightFlow> implements DmsWeightFlowDao {
+
+	@Override
+	public int queryNumByCondition(DmsWeightFlowCondition dmsWeightFlowCondition) {
+		return this.getSqlSession().selectOne(getNameSpace()+".pageNum_queryByPagerCondition", dmsWeightFlowCondition);
+	}
 
 
 }

@@ -2311,7 +2311,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         	}else{
         		noHasWeightWaybills.add(waybillCode);
         	}
-        	//超过5单则中断校验逻辑
+        	//超过3单则中断校验逻辑
     		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM ||noHasFreightWaybills.size() >= MAX_SHOW_NUM){
     			break;
     		}
@@ -2319,10 +2319,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!noHasWeightWaybills.isEmpty()){
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无总重量："+noHasWeightWaybills);
+        	return interceptResult;
         }
         if(!noHasFreightWaybills.isEmpty()){
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
+        	return interceptResult;
         }
         return interceptResult;
     }
@@ -2504,7 +2506,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 					for (SendDetail dSendDatail : SendDList) {
 						if (!BusinessHelper.isPickupCode(dSendDatail
 								.getPackageBarcode())) {
-							waybillCodes.add(dSendDatail.getWaybillCode());
+							if(!waybillCodes.contains(dSendDatail.getWaybillCode())){
+								waybillCodes.add(dSendDatail.getWaybillCode());
+							}
 						}
 					}
 				}
