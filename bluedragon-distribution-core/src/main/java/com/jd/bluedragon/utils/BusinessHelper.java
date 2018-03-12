@@ -526,15 +526,18 @@ public class BusinessHelper {
 				&&Constants.THIRD_SITE_SUB_TYPE.equals(baseStaffSiteOrgDto.getSubType());
     }
     /**
-     * 验证运单数据是否包含-到付运费，waybillsign25位等于2，freight<=0 返回false
+     * 验证运单数据是否包含-到付运费，WaybillSign40=2或3时，并且WaybillSign25=2时，freight<=0 返回false
      * @param bigWaybillDto
      * @return
      */
-    public static boolean hasFreight(BigWaybillDto bigWaybillDto){
+    public static boolean hasFreightForB2b(BigWaybillDto bigWaybillDto){
     	if(bigWaybillDto!=null
-    			&&bigWaybillDto.getWaybill()!=null){
-    		//waybillsign25位等于2，校验freight>0
-    		if(BusinessHelper.isSignChar(bigWaybillDto.getWaybill().getWaybillSign(), 25, '2')){
+    			&&bigWaybillDto.getWaybill()!=null
+    			&&StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())){
+    		String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+    		//WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
+    		if((isSignChar(waybillSign, 40, '2')||isSignChar(waybillSign, 40, '3'))
+    				&&isSignChar(waybillSign, 25, '2')){
     			String freightStr = bigWaybillDto.getWaybill().getFreight();
     			if(NumberHelper.isStringNumber(freightStr)){
     				return NumberHelper.getDoubleValue(freightStr).doubleValue() > 0d;

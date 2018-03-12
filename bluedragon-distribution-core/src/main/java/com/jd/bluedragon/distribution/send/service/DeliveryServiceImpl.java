@@ -2295,17 +2295,23 @@ public class DeliveryServiceImpl implements DeliveryService {
         	if(baseEntity != null
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
-        		boolean hasTotalWeight = false;
-        		//先校验运单的againWeight然后校验称重流水
-        		if(NumberHelper.gt0(baseEntity.getData().getWaybill().getAgainWeight())){
-        			hasTotalWeight = true;
-				 }else{
-					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
-				 }
-        		if(!hasTotalWeight){
-        			noHasWeightWaybills.add(waybillCode);
+        		Waybill waybill = baseEntity.getData().getWaybill();
+        		//WaybillSign40=2时（只有外单快运纯配业务），需校验重量
+        		if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 
+        				40, '2')){
+        			boolean hasTotalWeight = false;
+            		//先校验运单的againWeight然后校验称重流水
+            		if(NumberHelper.gt0(waybill.getAgainWeight())){
+            			hasTotalWeight = true;
+    				 }else{
+    					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
+    				 }
+            		if(!hasTotalWeight){
+            			noHasWeightWaybills.add(waybillCode);
+            		}
         		}
-        		if(!BusinessHelper.hasFreight(baseEntity.getData())){
+        		//b2b校验是否包含-到付运费
+        		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
         			noHasFreightWaybills.add(waybillCode);
         		}
         	}else{
