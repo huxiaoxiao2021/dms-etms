@@ -253,6 +253,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Qualifier("dmsWorkSendDetailMQ")
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
+    @Autowired
+    @Qualifier("sendDetailProducer")
+    private DefaultJMQProducer sendDetailProducer;
+
     //added by hanjiaxing 2016.12.20
     @Autowired
     private GantryExceptionService gantryExceptionService;
@@ -1502,7 +1506,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 sendInspection(tSendDatail, sendDatailMap);
 
                                 //发送发货明细mq
-                                Message sendMessage = parseSendDetailToMessage(tSendDatail);
+                                Message sendMessage = parseSendDetailToMessage(tSendDatail,MessageDestinationConstant.SendDetailMQ.getName(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                 this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
 
@@ -1738,7 +1742,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    private Message parseSendDetailToMessage(SendDetail sendDatail) {
+    private Message parseSendDetailToMessage(SendDetail sendDatail,String topic,String source) {
         Message message = new Message();
         SendDetail newSendDetail = new SendDetail();
         if (sendDatail != null) {
@@ -1750,9 +1754,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             newSendDetail.setSendCode(sendDatail.getSendCode());
             newSendDetail.setCreateUserCode(sendDatail.getCreateUserCode());
             newSendDetail.setCreateUser(sendDatail.getCreateUser());
-            newSendDetail.setSource("DMS");
+            newSendDetail.setSource(source);
             newSendDetail.setBoxCode(sendDatail.getBoxCode());
-            message.setTopic(MessageDestinationConstant.SendDetailMQ.getName());
+            message.setTopic(topic);
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDatail.getPackageBarcode());
         }
@@ -3166,6 +3170,35 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return new DeliveryResponse(DeliveryResponse.CODE_OK,
                 DeliveryResponse.MESSAGE_OK);
+    }
+
+    @Override
+    public boolean sendDetailMQ(Task task) {
+        //body中是批次号,号分割
+        try{
+            String body = task.getBody();
+            if(StringUtils.isNotBlank(body)){
+                String[] sendCodes = body.split(Constants.SEPARATOR_COMMA);
+                for(String sendCode : sendCodes){
+                    List<SendDetail> sendDetailList = sendDatailDao.querySendDetailBySendCode(sendCode);
+                    if(null != sendDetailList && sendDetailList.size() > 0){
+                        for(SendDetail sendDetail : sendDetailList){
+                            //获取包裹明细
+                            Message sendMessage = parseSendDetailToMessage(sendDetail,MessageDestinationConstant.NewSendDetailMQ.getName(),Constants.SEND_DETAIL_SOUCRE_AR);
+                            this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
+                            this.sendDetailProducer.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+
+                        }
+                    }else{
+                        logger.error("新发货明细MQ任务根据批次号获取发货明细为空,批次号："+sendCode);
+                    }
+                }
+            }
+            return true;
+        }catch (Exception e){
+            logger.error("新发货明细MQ任务处理失败:"+e.getMessage());
+            return false;
+        }
     }
 
     /**

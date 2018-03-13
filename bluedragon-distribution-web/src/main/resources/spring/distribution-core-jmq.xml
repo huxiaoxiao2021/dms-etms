@@ -252,4 +252,10 @@
     <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
     </bean>
+    <!-- 发货明细MQ，根据source 区分具体发货操作类型 -->
+    <bean id="sendDetailProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.dmsSendDetail}"/>
+    </bean>
+
 </beans>

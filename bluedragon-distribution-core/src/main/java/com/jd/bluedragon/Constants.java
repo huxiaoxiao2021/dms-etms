@@ -485,4 +485,10 @@ public class Constants {
      * 字典名称-SendPay打标配置标识
      */
     public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
+
+    /**
+     * 发货明细MQ source类型  ar代表空铁  dms默认正常
+     */
+    public static final String SEND_DETAIL_SOUCRE_AR = "AR";
+    public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
 }

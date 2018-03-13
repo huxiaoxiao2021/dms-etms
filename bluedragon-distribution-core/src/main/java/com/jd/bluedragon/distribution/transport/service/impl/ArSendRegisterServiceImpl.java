@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
 import com.google.gson.reflect.TypeToken;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
@@ -121,6 +123,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
                     // 推送全程跟踪
                     this.sendTrack(arSendRegister, sendCodes);
+
+                    sendDetailMQTask(arSendRegister,sendCodes);
                     // 调用TMS BASIC订阅实时航班JSF接口
                     try {
                         CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
@@ -516,6 +520,30 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             }
         }
         return null;
+    }
+
+    private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes){
+
+        Task tTask = new Task();
+        //tTask.setBoxCode(sendM.getSendCode());
+        //tTask.setBody(sendM.getSendCode())
+        StringBuilder sb = new StringBuilder();
+        for(String sendCode : sendCodes){
+            sb.append(sendCode);
+            sb.append(Constants.SEPARATOR_COMMA);
+        }
+        tTask.setBody(sb.substring(0,sb.length()-1));
+        //tTask.setCreateSiteCode(sendM.getCreateSiteCode());
+        //tTask.setKeyword2(String.valueOf(sendM.getSendType()));
+        //tTask.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setKeyword1("6");// 发送新发货明细MQ任务
+        tTask.setFingerprint(arSendRegister.getId() + "_" + tTask.getKeyword1());
+        taskService.add(tTask, false);
     }
 
 }
