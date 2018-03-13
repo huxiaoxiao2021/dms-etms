@@ -3175,29 +3175,40 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public boolean sendDetailMQ(Task task) {
         //body中是批次号,号分割
+        CallerInfo info = null;
         try{
+            info = Profiler.registerInfo( "DMSWORKER.DeliveryServiceImpl.sendDetailMQ",false, true);
             String body = task.getBody();
             if(StringUtils.isNotBlank(body)){
                 String[] sendCodes = body.split(Constants.SEPARATOR_COMMA);
                 for(String sendCode : sendCodes){
-                    List<SendDetail> sendDetailList = sendDatailDao.querySendDetailBySendCode(sendCode);
-                    if(null != sendDetailList && sendDetailList.size() > 0){
-                        for(SendDetail sendDetail : sendDetailList){
-                            //获取包裹明细
-                            Message sendMessage = parseSendDetailToMessage(sendDetail,MessageDestinationConstant.NewSendDetailMQ.getName(),Constants.SEND_DETAIL_SOUCRE_AR);
-                            this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
-                            this.sendDetailProducer.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+                    if(StringUtils.isNotBlank(sendCode)){
+                        List<SendDetail> sendDetailList = sendDatailDao.querySendDetailBySendCode(sendCode);
+                        if(null != sendDetailList && sendDetailList.size() > 0){
+                            for(SendDetail sendDetail : sendDetailList){
+                                //获取包裹明细
+                                Message sendMessage = parseSendDetailToMessage(sendDetail,MessageDestinationConstant.NewSendDetailMQ.getName(),Constants.SEND_DETAIL_SOUCRE_AR);
+                                //this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
+                                this.sendDetailProducer.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
 
+                            }
+                        }else{
+                            logger.error("新发货明细MQ任务根据批次号获取发货明细为空,批次号："+sendCode);
                         }
                     }else{
-                        logger.error("新发货明细MQ任务根据批次号获取发货明细为空,批次号："+sendCode);
+                        logger.error("新发货明细MQ任务根据批次号为空,task_id:"+task.getId());
                     }
                 }
+            }else{
+                logger.error("新发货明细MQ任务body为空,task_id:"+task.getId());
             }
             return true;
         }catch (Exception e){
             logger.error("新发货明细MQ任务处理失败:"+e.getMessage());
+            Profiler.functionError(info);
             return false;
+        }finally{
+            Profiler.registerInfoEnd(info);
         }
     }
 
