@@ -523,7 +523,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes){
-
+        if(sendCodes.length==0){
+            logger.error("空铁发货登记批次号为空");
+            return;
+        }
         Task tTask = new Task();
         //tTask.setBoxCode(sendM.getSendCode());
         //tTask.setBody(sendM.getSendCode())
@@ -534,7 +537,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         }
         tTask.setBody(sb.substring(0,sb.length()-1));
         //tTask.setCreateSiteCode(sendM.getCreateSiteCode());
-        //tTask.setKeyword2(String.valueOf(sendM.getSendType()));
+        tTask.setKeyword2(String.valueOf(arSendRegister.getId()));
         //tTask.setReceiveSiteCode(sendM.getReceiveSiteCode());
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));

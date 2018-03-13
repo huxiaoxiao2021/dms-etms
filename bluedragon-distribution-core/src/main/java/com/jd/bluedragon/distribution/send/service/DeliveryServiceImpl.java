@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.send.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,19 +66,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -254,8 +242,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
     @Autowired
-    @Qualifier("sendDetailProducer")
-    private DefaultJMQProducer sendDetailProducer;
+    @Qualifier("arSendDetailProducer")
+    private DefaultJMQProducer arSendDetailProducer;
 
     //added by hanjiaxing 2016.12.20
     @Autowired
@@ -1506,7 +1494,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 sendInspection(tSendDatail, sendDatailMap);
 
                                 //发送发货明细mq
-                                Message sendMessage = parseSendDetailToMessage(tSendDatail,MessageDestinationConstant.SendDetailMQ.getName(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
+                                Message sendMessage = parseSendDetailToMessage(tSendDatail,dmsWorkSendDetailMQ.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                 this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
 
@@ -1762,7 +1750,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return message;
     }
-
+    private Message parseSendDetailToMessageOfAR(SendDetail sendDatail,String topic,String arSendRegisterId) {
+        Message message = new Message();
+        ArSendDetailMQBody arSendDetailMQBody = new ArSendDetailMQBody();
+        if (sendDatail != null) {
+            // MQ包含的信息:包裹号,发货站点,发货时间
+            arSendDetailMQBody.setPackageBarcode(sendDatail.getPackageBarcode());
+            arSendDetailMQBody.setCreateSiteCode(sendDatail.getCreateSiteCode());
+            arSendDetailMQBody.setReceiveSiteCode(sendDatail.getReceiveSiteCode());
+            arSendDetailMQBody.setOperateTime(sendDatail.getOperateTime());
+            arSendDetailMQBody.setSendCode(sendDatail.getSendCode());
+            arSendDetailMQBody.setCreateUserCode(sendDatail.getCreateUserCode());
+            arSendDetailMQBody.setCreateUser(sendDatail.getCreateUser());
+            arSendDetailMQBody.setBoxCode(sendDatail.getBoxCode());
+            arSendDetailMQBody.setArSendRegisterId(arSendRegisterId);
+            message.setTopic(topic);
+            message.setText(JSON.toJSONString(arSendDetailMQBody));
+            message.setBusinessId(sendDatail.getPackageBarcode());
+        }
+        return message;
+    }
     public boolean findSendwaybillMessage(Task task) throws Exception {
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null)
             return true;
@@ -3179,6 +3186,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         try{
             info = Profiler.registerInfo( "DMSWORKER.DeliveryServiceImpl.sendDetailMQ",false, true);
             String body = task.getBody();
+            String arSendRegisterId = task.getKeyword2();
             if(StringUtils.isNotBlank(body)){
                 String[] sendCodes = body.split(Constants.SEPARATOR_COMMA);
                 for(String sendCode : sendCodes){
@@ -3187,9 +3195,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                         if(null != sendDetailList && sendDetailList.size() > 0){
                             for(SendDetail sendDetail : sendDetailList){
                                 //获取包裹明细
-                                Message sendMessage = parseSendDetailToMessage(sendDetail,MessageDestinationConstant.NewSendDetailMQ.getName(),Constants.SEND_DETAIL_SOUCRE_AR);
+                                Message sendMessage = parseSendDetailToMessageOfAR(sendDetail,arSendDetailProducer.getTopic(),arSendRegisterId);
                                 //this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
-                                this.sendDetailProducer.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+                                this.arSendDetailProducer.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
 
                             }
                         }else{
