@@ -177,6 +177,7 @@ public class QualityControlService {
         qualityControl.setBlameDeptName(request.getDistCenterName());
         qualityControl.setCreateTime(request.getOperateTime());
         qualityControl.setCreateUserId(request.getUserID());
+        qualityControl.setCreateUserErp(request.getUserERP());
         qualityControl.setCreateUserName(request.getUserName());
         qualityControl.setMessageType(baseDataDict.getTypeGroup());
         if(null != boxCode){
