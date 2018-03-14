@@ -230,6 +230,7 @@
         <mapper resource="mappers/mysql/sendGroup/SortMachineGroupConfigMapper.xml"/>
         <!-- 锟斤拷锟斤拷锟铰憋拷 -->
         <mapper resource="mappers/mysql/base/DmsBaseDictMapper.xml"/>
+        <mapper resource="mappers/mysql/base/DmsStorageAreaMapper.xml"/>
         <!-- 锟斤拷锟斤拷业锟斤拷锟� -->
         <mapper resource="mappers/mysql/transport/ArBookingSpaceMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArExcpRegisterMapper.xml"/>
