@@ -253,6 +253,20 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".queryWaybillsBySendCode", query);
     }
 
+    public List<SendDetail> querySendDetailBySendCode(String sendCode){
+        SendDetail query = new SendDetail();
+        query.setSendCode(sendCode);
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+        query.setCreateSiteCode(createSiteCode);
+        if (null == createSiteCode) //为null说明不是合法的批次号,直接返回空List
+            return new ArrayList<SendDetail>();
+
+        return this.getSqlSession().selectList(
+                SendDatailDao.namespace + ".querySendDetailBySendCode", query);
+
+    }
+
+
     //wzx 2016-12-29 15:12:19
     public List<SendDetail> queryBoxCodeBySendCode(String sendCode) {
         SendDetail query = new SendDetail();
