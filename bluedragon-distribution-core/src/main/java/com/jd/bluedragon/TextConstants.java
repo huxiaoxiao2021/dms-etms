@@ -15,9 +15,9 @@ public class TextConstants {
     /**
      * 货款-货到付款
      */
-    public static final String PAYMENT_COD = "货到付款";
+    public static final String GOODS_PAYMENT_COD = "货到付款";
     /**
      * 货款-在线支付
      */
-    public static final String PAYMENT_ONLINE = "在线支付";
+    public static final String GOODS_PAYMENT_ONLINE = "在线支付";
 }

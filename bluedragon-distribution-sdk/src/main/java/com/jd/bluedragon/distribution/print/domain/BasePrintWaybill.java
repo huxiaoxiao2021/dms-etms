@@ -134,7 +134,7 @@ public class BasePrintWaybill implements Serializable {
 	/**
 	 * 货款
 	 */
-	private String paymentText;
+	private String goodsPaymentText;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -508,17 +508,17 @@ public class BasePrintWaybill implements Serializable {
 	}
 
 	/**
-	 * @return the paymentText
+	 * @return the goodsPaymentText
 	 */
-	public String getPaymentText() {
-		return paymentText;
+	public String getGoodsPaymentText() {
+		return goodsPaymentText;
 	}
 
 	/**
-	 * @param paymentText the paymentText to set
+	 * @param goodsPaymentText the goodsPaymentText to set
 	 */
-	public void setPaymentText(String paymentText) {
-		this.paymentText = paymentText;
+	public void setGoodsPaymentText(String goodsPaymentText) {
+		this.goodsPaymentText = goodsPaymentText;
 	}
 
 }

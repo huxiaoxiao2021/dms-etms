@@ -542,7 +542,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setPrintTime(printTime);
         //设置运费及货款信息
         String freightText = "";
-        String paymentText = "";
+        String goodsPaymentText = "";
         if(BusinessHelper.isB2b(waybill.getWaybillSign())){
         	//读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
         	if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 25, '2')){
@@ -551,14 +551,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	//货款字段金额等于0时，则货款位置显示为【在线支付】
         	//货款字段金额大于0时，则货款位置显示为【货到付款】
         	if(NumberHelper.gt0(waybill.getRecMoney())){
-        		paymentText = TextConstants.PAYMENT_COD;
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
         	}else{
-        		paymentText = TextConstants.PAYMENT_ONLINE;
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
         	}
         	target.setTemplateName("b2b");
         }
         target.setFreightText(freightText);
-        target.setPaymentText(paymentText);
+        target.setGoodsPaymentText(goodsPaymentText);
         return target;
     }
 
