@@ -119,6 +119,22 @@ public class BasePrintWaybill implements Serializable {
 	 * 清真标识-1、清真 2、易污染 3、清真 易污染
 	 */
 	private String muslimSignText;
+	/**
+	 * 模板名称
+	 */
+	private String templateName;
+	/**
+	 * 模板版本-默认为0，最后一个版本号
+	 */
+	private int templateVersion;
+	/**
+	 * 运费
+	 */
+	private String freightText;
+	/**
+	 * 货款
+	 */
+	private String paymentText;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -448,4 +464,61 @@ public class BasePrintWaybill implements Serializable {
 	public void setMuslimSignText(String muslimSignText) {
 		this.muslimSignText = muslimSignText;
 	}
+
+	/**
+	 * @return the templateName
+	 */
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	/**
+	 * @param templateName the templateName to set
+	 */
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	/**
+	 * @return the templateVersion
+	 */
+	public int getTemplateVersion() {
+		return templateVersion;
+	}
+
+	/**
+	 * @param templateVersion the templateVersion to set
+	 */
+	public void setTemplateVersion(int templateVersion) {
+		this.templateVersion = templateVersion;
+	}
+
+	/**
+	 * @return the freightText
+	 */
+	public String getFreightText() {
+		return freightText;
+	}
+
+	/**
+	 * @param freightText the freightText to set
+	 */
+	public void setFreightText(String freightText) {
+		this.freightText = freightText;
+	}
+
+	/**
+	 * @return the paymentText
+	 */
+	public String getPaymentText() {
+		return paymentText;
+	}
+
+	/**
+	 * @param paymentText the paymentText to set
+	 */
+	public void setPaymentText(String paymentText) {
+		this.paymentText = paymentText;
+	}
+
 }
