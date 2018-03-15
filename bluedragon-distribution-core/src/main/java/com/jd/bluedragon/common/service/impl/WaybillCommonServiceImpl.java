@@ -508,8 +508,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiOrderCode(waybill.getBusiOrderCode());
         }
 
-
-
         //面单打印新增寄件人、电话、手机号、地址信息
         target.setConsigner(waybill.getConsigner());
         target.setConsignerTel(waybill.getConsignerTel());
@@ -522,12 +520,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
         target.setPriceProtectText(priceProtectText);
-
-        //b2b快运 运输产品类型打标
-        if(waybill.getWaybillSign().length() > 39){
-            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
-            target.setjZDFlag(expressType);
-        }
         //收件公司名称
         target.setConsigneeCompany(waybill.getReceiveCompany());
         //寄件公司名称
@@ -555,7 +547,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}else{
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
         	}
-        	target.setTemplateName("b2b");
+        	target.setTemplateName("dms-nopaper-b2b-m");
         }
         target.setFreightText(freightText);
         target.setGoodsPaymentText(goodsPaymentText);
