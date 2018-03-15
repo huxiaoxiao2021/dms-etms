@@ -572,11 +572,6 @@ public class BusinessHelper {
     	}
     	return true;
     }
-    /**
-     * 验证运单数据是否包含-到付运费，WaybillSign40=2或3时，并且WaybillSign25=2时，freight<=0 返回false
-     * @param bigWaybillDto
-     * @return
-     */
 	/**
 	 * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
 	 * @param waybillSign
