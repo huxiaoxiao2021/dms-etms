@@ -14,7 +14,6 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 	public JdResult<String> handle(WaybillPrintContext context) {
 		JdResult<String> jdResult = new JdResult<String>() ;
 		logger.info("模板选择处理");
-		context.getResponse().setTemplateName("nopaper15");
 		jdResult.toSuccess();
 		return jdResult;
 	}
