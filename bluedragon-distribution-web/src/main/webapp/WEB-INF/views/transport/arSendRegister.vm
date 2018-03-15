@@ -106,7 +106,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label"><span style="color: red;">*</span>发货批次号：</label>
                         <div class="col-lg-5">
-                            <textarea type="text" class="form-control edit-param" id="sendCode" name="sendCode" placeholder="支持多选/扫描"></textarea>
+                            <textarea type="text" class="form-control edit-param no-update" id="sendCode" name="sendCode" placeholder="支持多选/扫描"></textarea>
                         </div>
                     </div>
 
