@@ -41,6 +41,23 @@ $(function() {
                 columns : oTableInit.tableColums
             });
         };
+        $("#province").change(function(){
+            $("#city").empty();
+            var p = $("#province option:selected").val();
+            $.ajax({
+                url : "/base/dmsStorageArea/getCity",
+                type : "post",
+                data:{"province": p },
+                dataType : "json",
+                success : function(data) {
+                    $.each(data, function(i, d) {
+                        $("#city").append(
+                            "<option>"+d+"</option>"
+                        );
+                    })
+                }
+            })
+        })
         oTableInit.getSearchParams = function(params) {
             var temp = oTableInit.getSearchCondition();
             if(!temp){

@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.base.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,14 +37,37 @@ public class DmsStorageAreaController {
 	@Autowired
 	private DmsStorageAreaService dmsStorageAreaService;
 
+	@Autowired
+	private BasicSecondaryWS basicSecondaryWS;
+
 	/**
 	 * 返回主页面
 	 * @return
 	 */
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
+	public String toIndex(Model model) {
+		ArrayList<String> plist = new ArrayList<String>();
+		plist.add("安徽");
+		plist.add("广东");
+		plist.add("河北");
+		model.addAttribute("plist",plist);
 		return "/base/dmsStorageArea";
 	}
+	/**
+	 * 根据省获得对应的市
+	 * @param provinceId
+	 * @return
+	 */
+	@RequestMapping("/getCity")
+	@ResponseBody
+	public List getCity(Integer provinceId) throws Exception {
+		ArrayList<String> clist = new ArrayList<String>();
+		clist.add("北京");
+		clist.add("上海");
+		clist.add("合肥");
+		return clist;
+	}
+
 	/**
 	 * 根据id获取基本信息
 	 * @param id

@@ -38,7 +38,11 @@
                             <div class="form-group">
                                 <label class="control-label col-xs-4" for="site-select">收件省 ：</label>
                                 <div class=" col-xs-7">
-                                    <select id="province" class="form-control " name="province" value=""></select>
+                                    <select id="province" class="form-control " name="province" value="">
+                                        #foreach($p in $plist)
+                                            <option>$p</option>>
+                                        #end
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -46,7 +50,8 @@
                             <div class="form-group">
                                 <label class="control-label col-xs-4" for="site-select">收件市 ：</label>
                                 <div class=" col-xs-7">
-                                    <select id="city" class="form-control " name="city" value=""></select>
+                                    <select id="city" class="form-control " name="city" value="">
+                                    </select>
                                 </div>
                             </div>
                         </div>
