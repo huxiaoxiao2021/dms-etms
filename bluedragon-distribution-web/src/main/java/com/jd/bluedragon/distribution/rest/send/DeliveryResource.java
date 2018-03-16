@@ -313,6 +313,27 @@ public class DeliveryResource {
     }
 
     @POST
+    @Path("/delivery/router/verification")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification", mState = {JProEnum.TP})
+    public DeliveryResponse checkThreeDelivery(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货路由验证出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    @POST
     @Path("/delivery/sortingdiff")
     public ThreeDeliveryResponse checkSortingDiff(DeliveryRequest request) {
         String boxCode = request.getBoxCode();
@@ -495,23 +516,32 @@ public class DeliveryResource {
         List<SendM> sendMList = new ArrayList<SendM>();
         if (request != null && !request.isEmpty()) {
             for (DeliveryRequest deliveryRequest : request) {
-                SendM sendM = new SendM();
-                sendM.setBoxCode(deliveryRequest.getBoxCode());
-                sendM.setCreateSiteCode(deliveryRequest.getSiteCode());
-                sendM.setReceiveSiteCode(deliveryRequest.getReceiveSiteCode());
-                sendM.setCreateUserCode(deliveryRequest.getUserCode());
-                sendM.setSendType(deliveryRequest.getBusinessType());
-                sendM.setCreateUser(deliveryRequest.getUserName());
-                sendM.setSendCode(deliveryRequest.getSendCode());
-                sendM.setCreateTime(new Date());
-                sendM.setOperateTime(new Date());
-                sendM.setYn(1);
-                sendM.setTurnoverBoxCode(deliveryRequest.getTurnoverBoxCode());
-                sendM.setTransporttype(deliveryRequest.getTransporttype());
-                sendMList.add(sendM);
+                sendMList.add(deliveryRequest2SendM(deliveryRequest));
             }
         }
         return sendMList;
+    }
+
+    /**
+     * DeliveryRequest对象转sendM
+     * @param deliveryRequest
+     * @return
+     */
+    private SendM deliveryRequest2SendM(DeliveryRequest deliveryRequest){
+        SendM sendM = new SendM();
+        sendM.setBoxCode(deliveryRequest.getBoxCode());
+        sendM.setCreateSiteCode(deliveryRequest.getSiteCode());
+        sendM.setReceiveSiteCode(deliveryRequest.getReceiveSiteCode());
+        sendM.setCreateUserCode(deliveryRequest.getUserCode());
+        sendM.setSendType(deliveryRequest.getBusinessType());
+        sendM.setCreateUser(deliveryRequest.getUserName());
+        sendM.setSendCode(deliveryRequest.getSendCode());
+        sendM.setCreateTime(new Date());
+        sendM.setOperateTime(new Date());
+        sendM.setYn(1);
+        sendM.setTurnoverBoxCode(deliveryRequest.getTurnoverBoxCode());
+        sendM.setTransporttype(deliveryRequest.getTransporttype());
+        return sendM;
     }
 
 

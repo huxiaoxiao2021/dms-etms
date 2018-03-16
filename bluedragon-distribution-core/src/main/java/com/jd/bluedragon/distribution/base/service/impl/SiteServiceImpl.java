@@ -1,5 +1,17 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -8,7 +20,9 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -20,15 +34,6 @@ import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 @Service("siteService")
@@ -46,6 +51,9 @@ public class SiteServiceImpl implements SiteService {
 	
 	@Autowired
 	private VtsQueryWSProxy vtsQueryWSProxy;
+	
+	@Autowired
+	private SysConfigService sysConfigService;
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -193,7 +201,6 @@ public class SiteServiceImpl implements SiteService {
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
@@ -235,5 +242,21 @@ public class SiteServiceImpl implements SiteService {
 		}
 		return sites;
 	}
-
+	/**
+	 * 获取属于北京的分拣中心列表
+	 */
+	@Cache(key = "SiteServiceImpl.getBjDmsSiteCodes",memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+	@Override
+	public Set<Integer> getBjDmsSiteCodes() {
+		Set<Integer> bjDmsSiteCodes = new TreeSet<Integer>();
+		List<SysConfig> bjDmsSiteConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_NAME_BJ_DMS_SITE_CODES);
+		if(bjDmsSiteConfigs != null && !bjDmsSiteConfigs.isEmpty()){
+			String contents = bjDmsSiteConfigs.get(0).getConfigContent();
+			Set<String> sites = StringHelper.splitToSet(contents, Constants.SEPARATOR_COMMA);
+			for(String site:sites){
+				bjDmsSiteCodes.add(Integer.valueOf(site));
+			}
+		}
+		return bjDmsSiteCodes;
+	}
 }

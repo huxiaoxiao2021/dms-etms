@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,7 +56,9 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     
     @Autowired
     private WaybillCommonService waybillCommonService;
-
+    
+    @Autowired
+    private WaybillPrintService waybillPrintService;
     /**
      * 收件人联系方式需要突出显示的位数
      */
@@ -167,7 +173,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
 
         if(crossPackageTag==null){
-            log.error(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
             if(StringHelper.isEmpty(labelPrinting.getPrepareSiteName())){
                 labelPrinting.setPrepareSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
             }
@@ -207,9 +213,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         response.setData(labelPrinting);
         response.setJsonData(JsonHelper.toJson(labelPrinting));
 
-
-
-        log.info(LOG_PREFIX+" jsonData=="+response.getJsonData());
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
 
@@ -256,19 +259,29 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      * @return
      */
     public LabelPrintingResponse initWaybillInfo(LabelPrintingRequest request, WaybillPrintContext context){
+    	BigWaybillDto bigWaybillDto = null;
+    	//先从context不为空，先context中获取原运单数据，否则调取运单接口
+        if(context != null){
+        	bigWaybillDto = context.getBigWaybillDto();
+        }else{
         /**查询运单*/
         WChoice wchoice = new WChoice();
         wchoice.setQueryWaybillC(true);
         wchoice.setQueryWaybillE(true);
         BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
         if(entity==null || entity.getData()==null){
-            log.error(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
             return null;
         }
-
-        Waybill waybill = entity.getData().getWaybill();
+            bigWaybillDto = entity.getData();
+        }
+        if(bigWaybillDto==null){
+        	log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+        	return null;
+        }
+        Waybill waybill = bigWaybillDto.getWaybill();
         if(waybill==null){
-            log.error(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
             return null;
         }
         if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED == context.getStatus()){//二次预分拣时重置目的站点和路区
@@ -278,10 +291,12 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         }
 
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
-
-        //打印时间,取后台服务器时间
-        String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        labelPrinting.setPrintTime(printTime);
+        //优先级较高，加载完基础数据进行处理
+        log.info("包裹标签打印-waybillSign及sendPay打标处理");
+		String waybillSign = waybill.getWaybillSign();
+		String sendPay = waybill.getSendPay();
+		waybillPrintService.dealSignTexts(waybillSign, labelPrinting, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
+		waybillPrintService.dealSignTexts(sendPay, labelPrinting, Constants.DIC_NAME_SEND_PAY_CONFIG);
 
         //订单号
         labelPrinting.setOrderCode(waybill.getVendorId());
@@ -296,17 +311,17 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         if (LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA.equals(labelPrinting.getPrepareSiteCode())) {
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
-            log.error(LOG_PREFIX+" 没有获取预分拣站点(-2超区),"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(-2超区),"+request.getWaybillCode());
             //未定位门店
         } else if(labelPrinting.getPrepareSiteCode()==null || (labelPrinting.getPrepareSiteCode()<=LabelPrintingService.PREPARE_SITE_CODE_NOTHING && labelPrinting.getPrepareSiteCode() > LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE)){
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_NOTHING);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_NOTHING);
-            log.error(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
         } else if(labelPrinting.getPrepareSiteCode() !=null && labelPrinting.getPrepareSiteCode().intValue() < LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
             labelPrinting.setPrepareSiteCode(labelPrinting.getPrepareSiteCode());
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
-            log.error(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());
         }
 
         //EMS全国直发

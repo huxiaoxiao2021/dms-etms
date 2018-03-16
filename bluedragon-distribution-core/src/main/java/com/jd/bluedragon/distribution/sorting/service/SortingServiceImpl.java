@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -11,7 +10,6 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
@@ -51,16 +49,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -93,12 +87,12 @@ public class SortingServiceImpl implements SortingService {
 	private WaybillPickupTaskApi waybillPickupTaskApi;
 
 	@Qualifier("bdBlockerCompleteMQ")
-    @Autowired
-    private DefaultJMQProducer bdBlockerCompleteMQ;
-	
+	@Autowired
+	private DefaultJMQProducer bdBlockerCompleteMQ;
+
 	@Qualifier("blockerComOrbrefundRqMQ")
-    @Autowired
-    private DefaultJMQProducer blockerComOrbrefundRqMQ;
+	@Autowired
+	private DefaultJMQProducer blockerComOrbrefundRqMQ;
 
 	@Autowired
 	private WaybillCancelService waybillCancelService;
@@ -114,19 +108,19 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private RedisManager redisManager;
-	
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 //	@Autowired
 //	private WaybillCommonService waybillCommonService;
-	
+
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
-	
+
 	@Autowired
 	WaybillService waybillService;
-	
+
 	@Autowired
 	FastRefundService fastRefundService;
 
@@ -143,7 +137,10 @@ public class SortingServiceImpl implements SortingService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addSortingAndSendDetail(Sorting sorting) {
 		this.addSorting(sorting, null);
-		this.addSendDetail(sorting, null);
+		SendDetail sendDetail = this.addSendDetail(sorting);
+		List<SendDetail> sendDList = new ArrayList<SendDetail>(1);
+		sendDList.add(sendDetail);
+		this.fixSendDAndSendTrack(sorting, sendDList);
 	}
 
 	public boolean existSortingByPackageCode(Sorting sorting) {
@@ -183,7 +180,7 @@ public class SortingServiceImpl implements SortingService {
 	public Boolean canCancel(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.canCancel", false, true);
-				
+
 		// sorting & send_d ---> cancel=1
 		boolean result = this.canCancelSorting(sorting);
 
@@ -193,7 +190,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 		Profiler.registerInfoEnd(info);
 		//added end
-		
+
 		return result;
 	}
 
@@ -251,13 +248,13 @@ public class SortingServiceImpl implements SortingService {
 		return sendDetail;
 	}
 
-	private WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
-			BaseStaffSiteOrgDto receiveSite) {
+    private WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
+                                             BaseStaffSiteOrgDto receiveSite) {
 
-		WaybillStatus waybillStatus = new WaybillStatus();
+        WaybillStatus waybillStatus = new WaybillStatus();
 
-		waybillStatus.setWaybillCode(sorting.getWaybillCode());
-		waybillStatus.setPackageCode(sorting.getPackageCode());
+        waybillStatus.setWaybillCode(sorting.getWaybillCode());
+        waybillStatus.setPackageCode(sorting.getPackageCode());
 		waybillStatus.setBoxCode(sorting.getBoxCode());
 
 		waybillStatus.setOrgId(createSite.getOrgId());
@@ -285,21 +282,21 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-    @JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean doSorting(Task task) {
-        List<Sorting> sortings = this.prepareSorting(task);
-        if (null == sortings || sortings.isEmpty()) {
-            return Boolean.FALSE;
-        } else {
-            if(!this.taskToSorting(sortings)){
-            	//离线取消分拣：如果取消失败，则隔15分钟重新处理
-            	return Boolean.FALSE;
-            }else{
-            	return Boolean.TRUE;
-            }
-        }
-    }
+	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public boolean doSorting(Task task) {
+		List<Sorting> sortings = this.prepareSorting(task);
+		if (null == sortings || sortings.isEmpty()) {
+			return Boolean.FALSE;
+		} else {
+			if(!this.taskToSorting(sortings)){
+				//离线取消分拣：如果取消失败，则隔15分钟重新处理
+				return Boolean.FALSE;
+			}else{
+				return Boolean.TRUE;
+			}
+		}
+	}
 
 	private List<Sorting> prepareSorting(Task task) {
 		if (StringHelper.isEmpty(task.getBody())) {
@@ -353,23 +350,26 @@ public class SortingServiceImpl implements SortingService {
 		}
 		Profiler.registerInfoEnd(info1);
 		//added end
-		
+
 		Collections.sort(sortings);
 		return sortings;
 	}
 
 	@Override
 	public boolean taskToSorting(List<Sorting> sortings) {
+		List<SendDetail> sendDList = new ArrayList<SendDetail>();
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
 				this.addSorting(sorting, null); // 添加分拣记录
-				this.addSendDetail(sorting, null); // 添加发货记录 FIXME:非主线任务
-				this.addSortingAdditionalTask(sorting);// 添加回传分拣的运单状态
+				this.addSortingAdditionalTask(sorting); // 添加回传分拣的运单状态
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
+				// 添加发货记录 FIXME:非主线任务
+				sendDList.add(this.addSendDetail(sorting));
 			} else if (sorting.getIsCancel().equals(SORTING_CANCEL)) {// 离线取消分拣
 				return this.canCancel(sorting);
 			}
 		}
+		this.fixSendDAndSendTrack(sortings.get(0), sendDList);
 		return true;
 	}
 
@@ -464,7 +464,7 @@ public class SortingServiceImpl implements SortingService {
 	private void addSortingAdditionalTask(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
-				
+
 		// prepare:
 		// 拆分分析字段
 		Integer createSiteCode = sorting.getCreateSiteCode();
@@ -488,10 +488,10 @@ public class SortingServiceImpl implements SortingService {
 		}
 		if (createSite == null)
 			createSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(createSiteCode));
-		
+
 		if (receiveSite == null)
 			receiveSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(receiveSiteCode));
-			
+
 		if (createSite == null || receiveSite == null) {
 			this.logger.warn("创建站点或接收站点信息为空.");
 			this.logger.info("创建站点：" + createSiteCode);
@@ -517,7 +517,7 @@ public class SortingServiceImpl implements SortingService {
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		this.taskService.add(task);
-		
+
 		Profiler.registerInfoEnd(info);
 		//added end
 	}
@@ -538,20 +538,20 @@ public class SortingServiceImpl implements SortingService {
 //            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
 			sorting.setPackageCode(sorting.getPackageCode());
-            if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
-            {
-               // sorting.setPickupCode(pickup.getData().getPickupCode());
-                sorting.setWaybillCode(sorting.getPackageCode());
+			if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
+			{
+				// sorting.setPickupCode(pickup.getData().getPickupCode());
+				sorting.setWaybillCode(sorting.getPackageCode());
 			} else {
-			BaseEntity<PickupTask> pickup = this.getPickup(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
-			if (pickup != null&&pickup.getData()!=null) {
-				sorting.setPickupCode(pickup.getData().getPickupCode());
-//				sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
-				sorting.setWaybillCode(pickup.getData().getSurfaceCode());
-			}}
+				BaseEntity<PickupTask> pickup = this.getPickup(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
+				if (pickup != null&&pickup.getData()!=null) {
+					sorting.setPickupCode(pickup.getData().getPickupCode());
+//                  sorting.setWaybillCode(pickup.getData().getOldWaybillCode());
+					sorting.setWaybillCode(pickup.getData().getSurfaceCode());
+				}}
 		}
 	}
-	
+
 	private void saveOrUpdate(Sorting sorting) {
 		if (Constants.NO_MATCH_DATA == this.update(sorting).intValue()) {
 			this.add(sorting);
@@ -560,7 +560,7 @@ public class SortingServiceImpl implements SortingService {
 
 	/**
 	 * 验货异常比对表插入数据
-	 * 
+	 *
 	 * @param sorting
 	 */
 	private void saveOrUpdateInspectionEC(Sorting sorting) {//FIXME:包装构建方法
@@ -599,7 +599,7 @@ public class SortingServiceImpl implements SortingService {
 			this.inspectionECDao.add(InspectionECDao.namespace, inspectionEC);
 		}
 	}
-	
+
 	private void addSorting(Sorting sorting, DeliveryPackageD aPackage) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSorting", false, true);
@@ -619,7 +619,7 @@ public class SortingServiceImpl implements SortingService {
 		Profiler.registerInfoEnd(info);
 		//added end
 	}
-	
+
 	/**
 	 * 正向【分拣理货】所有逆向订单发送topic是blockerComOrbrefundRq的mq,供快退系统和拦截系统消费.
 	 * add by lhc
@@ -631,11 +631,11 @@ public class SortingServiceImpl implements SortingService {
 //		String wayBillCode = "T42747129215";//VA00080450101
 		// 验证运单号
 		if(wayBillCode != null){
-            WChoice wChoice = new WChoice();
-            wChoice.setQueryWaybillC(true);
-            wChoice.setQueryWaybillE(false);
-            wChoice.setQueryWaybillM(false);
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
+			WChoice wChoice = new WChoice();
+			wChoice.setQueryWaybillC(true);
+			wChoice.setQueryWaybillE(false);
+			wChoice.setQueryWaybillM(false);
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
 			if(baseEntity != null && baseEntity.getData() != null){
 				Waybill waybill = baseEntity.getData().getWaybill();
 				if(waybill != null){
@@ -667,9 +667,9 @@ public class SortingServiceImpl implements SortingService {
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param sorting
 	 * @return
 	 */
@@ -702,7 +702,7 @@ public class SortingServiceImpl implements SortingService {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		frbc.setOperatTime(dateFormat.format(sorting.getOperateTime()));
 		frbc.setSys("ql.dms");
-		
+
 		return frbc;
 	}
 
@@ -740,19 +740,17 @@ public class SortingServiceImpl implements SortingService {
 		return operationLog;
 	}
 
-	private void addSendDetail(Sorting sorting, DeliveryPackageD aPackage) {
-		//added by huangliang
+	/**
+	 * 添加send_d明细数据
+	 *
+	 * @param sorting
+	 * @return
+	 */
+	private SendDetail addSendDetail(Sorting sorting) {
+		// added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
-		
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
-        sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + 30000));
-		if (aPackage != null) {
-			sendDetail.setPackageBarcode(aPackage.getPackageBarcode());
-			if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
-				sendDetail.setBoxCode(aPackage.getPackageBarcode());
-			}
-		}
-
+		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + 30000));
 		this.fillSendDetailIfPickup(sendDetail);
 		/* 补齐包裹重量 */
 		// String retrieveFlag =
@@ -761,69 +759,137 @@ public class SortingServiceImpl implements SortingService {
 		// "sure".equals(retrieveFlag)){
 		sendDetail = this.deliveryService.measureRetrieve(sendDetail);
 		// }
-        SendM sendM = getSendMSelective(sorting);
-        // 如果是正向、已经发货，则需要直接更新发货明细表（send_d)发货批次号(sendCode)
-        /*updated by wangtingwei@jd.com  正向逆向三方发货全部补全数据，下线com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask该WORKER*/
-        if(null != sendM){
-            sendDetail.setSendCode(sendM.getSendCode()); // 补全sendcode
-			this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-			sendDetail.setYn(1);
-			/*取SENDM创建人，作为全程跟踪发货人，以及操作时间  sendm发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14*/
-			if(sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()){
-				sendDetail.setOperateTime(sendDetail.getOperateTime());
-			}else{
-				sendDetail.setOperateTime(sendM.getOperateTime());
-			}
-			sendDetail.setCreateUser(sendM.getCreateUser());
-			sendDetail.setCreateUserCode(sendM.getCreateUserCode());
-			List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-			sendDetails.add(sendDetail);
-			deliveryService.updateWaybillStatus(sendDetails);	 // 回传发货全程跟踪
-        }else{
-            this.deliveryService.saveOrUpdate(sendDetail);
-        }
-        try {
-            if(BusinessHelper.isBoxcode(sorting.getBoxCode())) {
-                List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
-                if (null != sendList && sendList.size() > 0) {
-                    for (SendM sendM1 : sendList) {
-                        if (sendM1.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM1.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("过滤站点一致补全" + sorting.getWaybillCode());
-                            }
-                            continue;
-                        }
-                        if (sendM1.getOperateTime().before(sorting.getOperateTime())) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("过滤发货在前分拣在后数据" + sorting.getWaybillCode());
-                            }
-                            continue;
-                        }
-                        if (logger.isInfoEnabled()) {
-                            logger.info("分拣中转全程跟踪补全发货批次号为：" + sendM1.getSendCode() + "运单号为" + sorting.getPackageCode());
-                        }
-                        sendDetail.setCreateSiteCode(sendM1.getCreateSiteCode());
-                        sendDetail.setReceiveSiteCode(sendM1.getReceiveSiteCode());
-                        sendDetail.setSendCode(sendM1.getSendCode()); // 补全sendcode
-                        this.deliveryService.saveOrUpdate(sendDetail);       // 更新或者插入发货明细表
-                        sendDetail.setYn(1);
-                /*取SENDM创建人，作为全程跟踪发货人，以及操作时间*/
-                        sendDetail.setOperateTime(sendM1.getOperateTime());
-                        sendDetail.setCreateUser(sendM1.getCreateUser());
-                        sendDetail.setCreateUserCode(sendM1.getCreateUserCode());
-                        List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-                        sendDetails.add(sendDetail);
-                        deliveryService.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
-                    }
-                }
-            }
-        }catch (Exception ex){
-            if(logger.isErrorEnabled()) {
-                logger.error("分拣补中转发货异常" + sorting.getPackageCode());
-            }
-        }
+		this.deliveryService.saveOrUpdate(sendDetail); // 更新或者插入发货明细表
 		Profiler.registerInfoEnd(info);
-		//added end
+		return sendDetail;
+	}
+
+	/**
+	 * 分拣时已发货，补全中转发货数据
+	 *
+	 * @param sorting    分拣数据
+	 * @param sendDetail 发货明细数据
+	 */
+	private SendDetail addTransitSendDetail(Sorting sorting, SendDetail sendDetail, SendM sendM) {
+		// 分拣补中转发货
+		try {
+			SendDetail transitSendD = new SendDetail();
+			BeanUtils.copyProperties(sendDetail, transitSendD);
+
+			transitSendD.setCreateSiteCode(sendM.getCreateSiteCode());
+			transitSendD.setReceiveSiteCode(sendM.getReceiveSiteCode());
+			// 补全批次号SendCode
+			transitSendD.setSendCode(sendM.getSendCode());
+			// 更新或者插入发货明细表
+			this.deliveryService.saveOrUpdate(transitSendD);
+
+			transitSendD.setYn(1);
+			// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间
+			transitSendD.setOperateTime(sendM.getOperateTime());
+			transitSendD.setCreateUser(sendM.getCreateUser());
+			transitSendD.setCreateUserCode(sendM.getCreateUserCode());
+			return transitSendD;
+		} catch (Exception ex) {
+			logger.error("[分拣Worker]分拣补中转发货数据时发生异常，包裹号：" + sorting.getPackageCode(), ex);
+		}
+		return null;
+	}
+
+	/**
+	 * 1.补中转发货sendD发货数据并且发送全程跟踪
+	 * 2.判断是否已发货，若已发货补SendD表数据并且发送全程跟踪
+	 *
+	 * @param sorting
+	 * @param sendDs
+	 */
+	private void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
+		if (sendDs.size() > 0) {
+			List<SendM> sendMs = new ArrayList<SendM>();
+			List<SendM> transitSendMs = new ArrayList<SendM>();
+			// 获取sendM表中的发货数据
+			this.setSendMListByBoxCode(sorting, sendMs, transitSendMs);
+			// 判断是否存在跨分拣发货数据，则视为先发货后分拣，需要补中转的sendD发货明细数据和全程跟踪
+			if (transitSendMs.size() > 0) {
+				List<SendDetail> transitSendDs = new ArrayList<SendDetail>();
+				for (SendM sendM : transitSendMs) {
+					for (SendDetail sendDetail : sendDs) {
+					    // 只有按箱操作才存在跨分拣的情况
+						if (BusinessHelper.isBoxcode(sorting.getBoxCode())) {
+							SendDetail sendDetail1 = this.addTransitSendDetail(sorting, sendDetail, sendM);
+							if (sendDetail1 != null) {
+								transitSendDs.add(sendDetail1);
+							}
+						}
+					}
+				}
+				// 批量回传全程跟踪
+				this.deliveryService.updateWaybillStatus(transitSendDs);
+			}
+            // 判断直发分拣类型是否已经发货，若存在sendM数据，则视为先发货后分拣，需要补直发的sendD发货明细数据和全程跟踪
+			if (sendMs.size() > 0) {
+				// 正常情况，分拣与发货一致的sendM仅有一条数据
+				for (SendM sendM : sendMs) {
+					for (SendDetail sendDetail : sendDs) {
+						// 补全发货数据
+						this.fixSendDetail(sendDetail, sendM);
+					}
+				}
+				// 批量回传全程跟踪
+				this.deliveryService.updateWaybillStatus(sendDs);
+			}
+		}
+	}
+
+	/**
+	 * 获取直接发货和中转发货的SendM数据
+	 *
+	 * @param sorting
+	 * @param sendMs
+	 * @param transitSendMs
+	 */
+	private void setSendMListByBoxCode(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
+		List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
+		if (null != sendList && sendList.size() > 0) {
+			Iterator<SendM> iterator = sendList.iterator();
+			while (iterator.hasNext()) {
+				SendM sendM = iterator.next();
+				// 判断分拣始发站点与箱号的始发站点是否一致，不一致直接丢弃
+				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode())){
+					if (sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
+					    // 直发分拣
+						logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
+						sendMs.add(sendM);
+					} else {
+					    // 跨分拣发货
+						transitSendMs.add(sendM);
+						logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 分拣时已发货，补发货数据
+	 *
+	 * @param sendDetail
+	 * @param sendM
+	 */
+	private void fixSendDetail(SendDetail sendDetail, SendM sendM) {
+		// 如果是正向、已经发货，则需要直接更新发货明细表（send_d)发货批次号(sendCode)
+		/* updated by wangtingwei@jd.com  正向逆向三方发货全部补全数据，下线com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask该WORKER*/
+		sendDetail.setSendCode(sendM.getSendCode()); // 补全sendCode
+		//this.deliveryService.saveOrUpdate(sendDetail); // 更新或者插入发货明细表
+
+		sendDetail.setYn(1);
+		/* 取sendM创建人，作为全程跟踪发货人，以及操作时间  sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14*/
+		if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
+			sendDetail.setOperateTime(sendDetail.getOperateTime());
+		} else {
+			sendDetail.setOperateTime(sendM.getOperateTime());
+		}
+		sendDetail.setCreateUser(sendM.getCreateUser());
+		sendDetail.setCreateUserCode(sendM.getCreateUserCode());
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {
@@ -850,16 +916,16 @@ public class SortingServiceImpl implements SortingService {
 
 	private void fillSendDetailIfPickup(SendDetail sendDetail) {
 		if (BusinessHelper.isPickupCode(sendDetail.getPackageBarcode())) {
-            if(BusinessHelper.isPickupCodeWW(sendDetail.getPackageBarcode())) {
-                sendDetail.setWaybillCode(sendDetail.getPackageBarcode());
+			if(BusinessHelper.isPickupCodeWW(sendDetail.getPackageBarcode())) {
+				sendDetail.setWaybillCode(sendDetail.getPackageBarcode());
 			} else {
 //			BaseEntity<PickupTask> pickup = this.getPickup(sendDetail.getPackageBarcode());
-			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
-			BaseEntity<PickupTask> pickup = this.getPickup(SerialRuleUtil.getWaybillCode(sendDetail.getPackageBarcode()));
-			if (pickup != null&&pickup.getData()!=null) {
-				sendDetail.setPickupCode(pickup.getData().getPickupCode());
+				//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
+				BaseEntity<PickupTask> pickup = this.getPickup(SerialRuleUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+				if (pickup != null&&pickup.getData()!=null) {
+					sendDetail.setPickupCode(pickup.getData().getPickupCode());
 //				sendDetail.setWaybillCode(pickup.getData().getOldWaybillCode());
-				sendDetail.setWaybillCode(pickup.getData().getSurfaceCode());
+					sendDetail.setWaybillCode(pickup.getData().getSurfaceCode());
 				}
 			}
 		}
@@ -868,10 +934,10 @@ public class SortingServiceImpl implements SortingService {
 	private BaseEntity<PickupTask> getPickup(String packageCode) {
 		BaseEntity<PickupTask> pickup = this.waybillPickupTaskApi.getDataBySfCode(packageCode);
 		if (pickup != null&&pickup.getData()!=null) {
-            if(logger.isInfoEnabled()) {
-                this.logger.info("取件单号码为：" + pickup.getData().getPickupCode());
-                this.logger.info("取件单对应运单号码为：" + pickup.getData().getOldWaybillCode());
-            }
+			if(logger.isInfoEnabled()) {
+				this.logger.info("取件单号码为：" + pickup.getData().getPickupCode());
+				this.logger.info("取件单对应运单号码为：" + pickup.getData().getOldWaybillCode());
+			}
 		}
 		return pickup;
 	}
@@ -904,7 +970,7 @@ public class SortingServiceImpl implements SortingService {
 
 	/**
 	 * 根据包裹号或者运单号查询箱子、create_site_code、receive_site_code
-	 * 
+	 *
 	 * @param sorting
 	 * @return
 	 */
@@ -912,7 +978,7 @@ public class SortingServiceImpl implements SortingService {
 		this.logger.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
 		return this.sortingDao.queryByCode(sorting);
 	}
-	
+
 	/**
 	 * 根据包裹号或者运单号查询箱子、create_site_code、receive_site_code
 	 *
@@ -967,7 +1033,7 @@ public class SortingServiceImpl implements SortingService {
 						this.logger.info("退款100分MQ消息推送成功,运单号：" + waybill.getWaybillCode());
 						//【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
 						//这里需要暂时注释掉 逆向取件单不应该发送快退的mq,属于售后的范围  modified by zhanglei 20161025
-                        //fastRefundService.execRefund(sorting);
+						//fastRefundService.execRefund(sorting);
 					}else{
 						logger.info(wayBillCode + "对应的运单信息为空！");
 					}
@@ -975,14 +1041,14 @@ public class SortingServiceImpl implements SortingService {
 			}
 		} catch (Exception e) {
 			this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
-            try{
-                SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
-            }catch (Exception ex){
-                logger.error("退款100分MQ消息推送记录日志失败", ex);
-            }
+			try{
+				SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
+			}catch (Exception ex){
+				logger.error("退款100分MQ消息推送记录日志失败", ex);
+			}
 		}
 	}
-	
+
 	public BigWaybillDto queryWaybillByCode(String waybillCode){
 		BigWaybillDto dto = waybillService.getWaybill(waybillCode);
 		if(dto!=null){
@@ -1010,7 +1076,7 @@ public class SortingServiceImpl implements SortingService {
 		// TODO Auto-generated method stub
 		return this.sortingDao.findByBsendCode(sorting);
 	}
-	
+
 	public static void main(String args[]){
 //		SortingServiceImpl impl = new SortingServiceImpl();
 //		Sorting sorting = new Sorting();
@@ -1022,6 +1088,6 @@ public class SortingServiceImpl implements SortingService {
 		if("T".equals(a) || "6".equals(b)){
 			System.out.println(a);
 		}
-		
+
 	}
 }

@@ -37,6 +37,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -170,7 +171,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			SendDetail tSendDatail) {
 		List<SendDetail> tlist = new ArrayList<SendDetail>();
 		tSendDatail.setIsCancel(2);
-		tSendDatail.setSendCode(tSendM.getSendCode());
+		if (StringUtils.isNotEmpty(tSendM.getSendCode())) {
+			tSendDatail.setSendCode(tSendM.getSendCode());
+		}
 		tSendDatail.setOperateTime(new Date());
 		tSendDatail.setCreateUser(tSendM.getUpdaterUser());
 		tSendDatail.setCreateUserCode(tSendM.getUpdateUserCode());
@@ -181,8 +184,12 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateIsCancelByPackageCode(SendM tSendM, SendDetail tSendDatail) {
-		tSendDatail.setSendCode(null);
-		deliveryService.cancelSendDatailByPackage(tSendDatail);
+		// 由于使用了双写，写从库为异步操作，更新双写主从数据库的对象使用同一个，
+		// 若后续代码对该对象进行修改，会导致写从库写入出现问题，故此处copy一个新对象
+		SendDetail tSendDCopy = new SendDetail();
+		BeanUtils.copyProperties(tSendDatail, tSendDCopy);
+		tSendDCopy.setSendCode(null);
+		deliveryService.cancelSendDatailByPackage(tSendDCopy);
 		if (BusinessHelper.isPackageCode(tSendDatail.getBoxCode())) {
 			tSendM.setBoxCode(tSendDatail.getBoxCode());
 			deliveryService.cancelSendM(tSendM);

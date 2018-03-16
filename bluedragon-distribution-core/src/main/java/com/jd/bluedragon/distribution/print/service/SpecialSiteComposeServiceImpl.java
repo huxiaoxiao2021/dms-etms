@@ -42,7 +42,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
         if (PREPARE_SITE_CODE_OVER_AREA.equals(waybill.getPrepareSiteCode())) {
             waybill.setPrepareSiteCode(PREPARE_SITE_CODE_OVER_AREA);
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
-            logger.error(" 没有获取预分拣站点(-2超区),"+waybill.getWaybillCode());
+            logger.warn(" 没有获取预分拣站点(-2超区),"+waybill.getWaybillCode());
             //未定位门店
         } else if(waybill.getPrepareSiteCode()==null
                 || (waybill.getPrepareSiteCode()<=PREPARE_SITE_CODE_NOTHING
@@ -50,13 +50,13 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
                 ){
             waybill.setPrepareSiteCode(PREPARE_SITE_CODE_NOTHING);
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_NOTHING);
-            logger.error(" 没有获取预分拣站点(未定位门店),"+waybill.getWaybillCode());
+            logger.warn(" 没有获取预分拣站点(未定位门店),"+waybill.getWaybillCode());
         } else if(waybill.getPrepareSiteCode() !=null
                 && waybill.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
             waybill.setPrepareSiteCode(waybill.getPrepareSiteCode());
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
-            logger.error(" 没有获取预分拣站点(细分超区)," + waybill.getPrepareSiteCode() + ","+waybill.getWaybillCode());
+            logger.warn(" 没有获取预分拣站点(细分超区)," + waybill.getPrepareSiteCode() + ","+waybill.getWaybillCode());
         }
 
         //EMS全国直发

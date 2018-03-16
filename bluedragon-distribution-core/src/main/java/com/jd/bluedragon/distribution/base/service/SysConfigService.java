@@ -25,5 +25,10 @@ public interface SysConfigService {
 	 * @return
 	 */
 	public List<SysConfig> getRedisSwitchList(String conName);
-
+	/**
+	 * 根据配置名称获取配置列表
+	 * @param configName
+	 * @return
+	 */
+	public List<SysConfig> getListByConfigName(String configName);
 }

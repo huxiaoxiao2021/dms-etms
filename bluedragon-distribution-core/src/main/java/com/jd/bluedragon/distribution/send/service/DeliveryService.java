@@ -142,6 +142,9 @@ public interface DeliveryService {
 	/** 快运发货不全验证 */
 	public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
 
+    /** 快运发货路由信息验证 */
+    public DeliveryResponse checkRouterForKY(SendM sendm);
+
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
 	
@@ -275,4 +278,10 @@ public interface DeliveryService {
      * @param tDeliveryMessageJsonList 发货相关数据
      */
     public DeliveryResponse autoBatchSend(List<SendM> sendMList);
+
+	/**
+	 * 发送dms_send_detail发货明细MQ
+	 * @param task
+	 */
+	boolean sendDetailMQ(Task task);
 }

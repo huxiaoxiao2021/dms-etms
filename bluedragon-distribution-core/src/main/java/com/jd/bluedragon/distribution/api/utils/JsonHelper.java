@@ -34,7 +34,7 @@ public class JsonHelper {
             JsonHelper.mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.error("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.warn("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
 
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
@@ -50,7 +50,7 @@ public class JsonHelper {
         try {
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.error("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.warn("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
@@ -88,7 +88,7 @@ public class JsonHelper {
             Map<String, Map<String, Object>> maps = JsonHelper.mapper.readValue(jsonVal, Map.class);
             return maps;
         } catch (Exception e) {
-            e.printStackTrace();
+            JsonHelper.logger.warn("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
             try{
                 return  GSON_COMMON.fromJson(jsonVal,new TypeToken<Map<String, Map<String, Object>>>(){}.getType());
             }catch (Exception ex){

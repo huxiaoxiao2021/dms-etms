@@ -23,4 +23,9 @@ public interface DmsBaseDictDao extends Dao<DmsBaseDict> {
      * @return
      */
     public List<DmsBaseDict> queryByCondition(PagerCondition pagerCondition);
+    /**
+     * 查询所有的分组信息
+     * @return
+     */
+	public List<DmsBaseDict> queryAllGroups();
 }
