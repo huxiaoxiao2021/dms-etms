@@ -135,7 +135,7 @@ $(function() {
                 elem: '#startTime',
                 theme: '#3f92ea',
                 type: 'datetime',
-                min: -30,//最近30天内
+                min: -60,//最近30天内
                 max: 0,//最近30天内
                 btns: ['clear','now', 'confirm'],
                 done: function(value, date, endDate){
@@ -146,7 +146,7 @@ $(function() {
                 elem: '#endTime',
                 theme: '#3f92ea',
                 type: 'datetime',
-                min: -30,//最近30天内
+                min: -60,//最近30天内
                 max: 0,//最近30天内
                 btns: ['clear','now', 'confirm'],
                 done: function(value, date, endDate){

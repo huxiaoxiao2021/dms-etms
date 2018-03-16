@@ -77,7 +77,7 @@ public class DmsAbnormalEclpController {
                 condition.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
                 // 不限制该运单是否在进行外呼中，即，只能发起一次
                 //condition.setIsReceipt(0);
-                condition.setStartTime(DateHelper.add(new Date(), Calendar.MONTH, -1));
+                condition.setStartTime(DateHelper.add(new Date(), Calendar.MONTH, -2));
                 PagerResult result = dmsAbnormalEclpService.queryByPagerCondition(condition);
                 //判断当前运单是否有未进行完毕的外呼
                 if(result.getTotal() > 0){
