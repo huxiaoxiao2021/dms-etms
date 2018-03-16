@@ -39,9 +39,6 @@
 		insert into dms_abnormal_eclp
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
 				<if test="dmsSiteCode != null">
 					dms_site_code,
 				</if>
@@ -84,27 +81,9 @@
 				<if test="createUserName != null">
 					create_user_name,
 				</if>
-				<if test="createTime != null">
 					create_time,
-				</if>
-				<if test="updateUserCode != null">
-					update_user_code,
-				</if>
-				<if test="updateUser != null">
-					update_user,
-				</if>
-				<if test="updateUserName != null">
-					update_user_name,
-				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
 					is_delete,
-				</if>
-				<if test="ts != null">
 					ts
-				</if>
 			</trim>
 			)
 			values
@@ -155,27 +134,10 @@
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateUserCode != null">
-					#{updateUserCode,jdbcType=INTEGER},
-				</if>
-				<if test="updateUser != null">
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUserName != null">
-					#{updateUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+				now(),
+				0,
+				now()
+
 			</trim>
 			)
 	</insert>
@@ -206,13 +168,13 @@
 					#{item.createUserCode,jdbcType=INTEGER},
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
+					now(),
 					#{item.updateUserCode,jdbcType=INTEGER},
 					#{item.updateUser,jdbcType=VARCHAR},
 					#{item.updateUserName,jdbcType=VARCHAR},
 					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					0,
+					now()
 				)
 			</foreach>
 	</insert>
@@ -320,26 +282,41 @@
 		limit 1
 	</select>
 
-	<sql id="Base_Condition_Sql" >
-			and is_delete=0 
+	<sql id="where_condition">
+		<where>
+			is_delete = 0
+            <if test="dmsSiteCode != null">
+                AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+            </if>
+            <if test="waybillCode != null">
+                AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime != null">
+                AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null">
+                AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isReceipt != null">
+                AND is_receipt = #{isReceipt,jdbcType=TINYINT}
+            </if>
+		</where>
 	</sql>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
-		  dms_abnormal_eclp 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		  dms_abnormal_eclp
+        <include refid="where_condition"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsAbnormalEclp">
 		select 
 		 <include refid="Base_Column_List"/>
 		from 
-		  dms_abnormal_eclp 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		  dms_abnormal_eclp
+        <include refid="where_condition"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

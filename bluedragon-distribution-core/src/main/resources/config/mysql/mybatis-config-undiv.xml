@@ -240,5 +240,6 @@
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterMapper.xml"/>
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterNodeMapper.xml"/>
         <mapper resource="mappers/mysql/weight/DmsWeightFlowMapper.xml"/>
+        <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
     </mappers>
 </configuration>
