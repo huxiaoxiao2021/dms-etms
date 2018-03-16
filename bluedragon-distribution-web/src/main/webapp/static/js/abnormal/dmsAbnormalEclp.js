@@ -191,8 +191,10 @@ $(function() {
                     if(res&&res.succeed){
                         alert('操作成功');
                         tableInit().refresh();
+                    }else if(res){
+                        alert(res.message);
                     }else{
-                        alert('操作异常');
+                        alert('服务异常');
                     }
                     $('#btn_submit').attr("disabled",false);
                     //还原异常信息下拉框
