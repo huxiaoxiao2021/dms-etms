@@ -291,7 +291,7 @@ function changeExcpTypeEdit(selectVal1,selectVal2){
     if((!p || p ==_p) && !selectVal1){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
         return false;
     }
-    var k = excpTypeData[p]['typeGroup'];
+    var k = excpTypeData[p]['typeCode'];
     var v = excpTypeData[p]['typeName'];
     if(k){
         $("#edit-form #consultType").val(p);
