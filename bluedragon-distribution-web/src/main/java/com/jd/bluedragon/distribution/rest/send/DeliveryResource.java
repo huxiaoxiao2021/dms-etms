@@ -206,21 +206,22 @@ public class DeliveryResource {
         try {
             bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
         } catch (Exception e) {
-            this.logger.error("通过站点ID获取基础资料失败",e);
+            this.logger.error("一车一单发货通过站点ID获取基础资料失败:"+receiveSiteCode,e);
             return false;
         }
         Integer siteType=0;
         if (null != bDto) {
             siteType = bDto.getSiteType();
-            this.logger.info("站点类型为" + siteType);
-        }
-        String asm_type = PropertiesHelper.newInstance().getValue("asm_type");//售后
-        String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
-        String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
-        if(siteType==Integer.parseInt(asm_type)||siteType==Integer.parseInt(wms_type)||siteType==Integer.parseInt(spwms_type)){
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("禁止逆向操作！");
-            return true;
+            String asm_type = PropertiesHelper.newInstance().getValue("asm_type");//售后
+            String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
+            String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
+            if(siteType==Integer.parseInt(asm_type)||siteType==Integer.parseInt(wms_type)||siteType==Integer.parseInt(spwms_type)){
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setMessage("禁止逆向操作！");
+                return true;
+            }
+        }else{
+            this.logger.warn("一车一单发获取站点信息为空：" + receiveSiteCode);
         }
         return false;
     }
@@ -684,7 +685,7 @@ public class DeliveryResource {
     /**
      * 手动获取设备对应的批次号
      *
-     * @param request
+     * @param
      * @return
      */
     @POST
