@@ -25,17 +25,17 @@
                     <div class="col-xs-12">
                         <div class="col-xs-3">
                             <div class="form-group">
-                                <label class="control-label col-xs-6 " for="startDate"> 发起外呼申请时间 </label>
-                                <div class=" col-xs-6">
+                                <label class="control-label col-xs-4 " for="startDate">发起时间</label>
+                                <div class=" col-xs-8">
                                     <input type="text" id="startTime" name="startTime" class="form-control search-param ">
 
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-xs-3">
                             <div class="form-group">
-                                <label class="control-label col-xs-3 " for="startDate" style="text-align: center" >—</label>
-                                <div class=" col-xs-9">
+                                <label class="control-label col-xs-1 " for="startDate" style="text-align: center" >—</label>
+                                <div class=" col-xs-8">
                                     <input type="text" id="endTime" name="endTime" class="form-control search-param " >
 
                                 </div>
@@ -50,7 +50,7 @@
                             </div>
 
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-xs-3">
                             <div class="form-group">
                                 <label class="control-label col-xs-6 " for="startDate"> 客服是否反馈 </label>
                                 <div class=" col-xs-6">
