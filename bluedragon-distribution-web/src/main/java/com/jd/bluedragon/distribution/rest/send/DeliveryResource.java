@@ -175,7 +175,6 @@ public class DeliveryResource {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("请输入正确的批次号！");
         }else{
-            /*一车一单操作增加提示，如果操作逆向则阻断*/
             if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
@@ -196,12 +195,19 @@ public class DeliveryResource {
         return result;
     }
 
+    /**
+     * 一车一单操作增加提示，如果操作逆向则阻断
+     * @param result 返回结果
+     * @param receiveSiteCode 目的站点号
+     * @return
+     */
     private boolean forbid(InvokeResult<Map.Entry<Integer, String>> result, Integer receiveSiteCode) {
         BaseStaffSiteOrgDto bDto = null;
         try {
             bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
         } catch (Exception e) {
             this.logger.error("通过站点ID获取基础资料失败",e);
+            return false;
         }
         Integer siteType=0;
         if (null != bDto) {
