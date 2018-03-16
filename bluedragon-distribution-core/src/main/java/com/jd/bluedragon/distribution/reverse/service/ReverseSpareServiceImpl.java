@@ -181,7 +181,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
     public void toQualityControlAndWaybillTrace(SendDetail sendDetail, ReverseSpareRequest request){
         BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
         QualityControl qualityControl = convert2QualityControl(request);
-        logger.warn("分拣中心备件库分拣发质控和全程跟踪开始。运单号 " + request.getWaybillCode());
+        logger.warn("分拣中心备件库分拣发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
         waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
         //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
         bdExceptionToQcMQ.sendOnFailPersistent(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), JsonHelper.toJson(qualityControl));
