@@ -1,8 +1,8 @@
 $(function() {
-    var saveUrl = '/transport/arBookingSpace/save';
-    var deleteUrl = '/transport/arBookingSpace/deleteByIds';
-    var detailUrl = '/transport/arBookingSpace/detail/';
-    var queryUrl = '/transport/arBookingSpace/listData';
+    var saveUrl = '/base/dmsStorageArea/save';
+    var deleteUrl = '/base/dmsStorageArea/deleteByIds';
+    var detailUrl = '/base/dmsStorageArea/detail/';
+    var queryUrl = '/base/dmsStorageArea/listData';
     var tableInit = function() {
         var oTableInit = new Object();
         oTableInit.init = function() {

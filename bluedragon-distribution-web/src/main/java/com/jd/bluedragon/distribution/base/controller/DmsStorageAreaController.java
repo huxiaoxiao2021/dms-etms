@@ -61,11 +61,7 @@ public class DmsStorageAreaController {
 	@RequestMapping("/getCity")
 	@ResponseBody
 	public List getCity(Integer provinceId) throws Exception {
-		ArrayList<String> clist = new ArrayList<String>();
-		clist.add("北京");
-		clist.add("上海");
-		clist.add("合肥");
-		return clist;
+		return null;
 	}
 
 	/**
