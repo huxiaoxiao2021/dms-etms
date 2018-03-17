@@ -63,7 +63,7 @@ $(function() {
 		    $(_selector).each(function () {
 		    	var _k = this.id;
 		        var _v = $(this).val();
-		        if(_k && (_v != null)){
+		        if(_k && (_v != null && _v != '')){
 		        	params[_k] = _v;
 		        }
 		    });
@@ -99,6 +99,61 @@ $(function() {
 		var oInit = new Object();
 		oInit.init = function() {
 			$('#dataEditDiv').hide();
+			$('#query-form #nodeLevel').change(
+					function() {
+						var nodeLevel = $(this).val();
+						if (nodeLevel == null || nodeLevel == '') {
+							nodeLevel = 0;
+						}
+						var url = "/base/dmsBaseDict/getDicListByNodeLevel/" + (nodeLevel - 1);
+						var param = {};
+						$.get(url, param, function(myData) {
+							var data = myData.data;
+							var result = [];
+							for ( var i in data) {
+								if (data[i].id && data[i].typeName) {
+									result.push({
+										id : data[i].id,
+										text : data[i].typeCode + '-'
+												+ data[i].typeName
+									});
+								}
+							}
+							$("#query-form #parentId").html("");
+							$('#query-form #parentId').select2({
+								width : '240px',
+								placeholder : '请选择上级节点',
+								allowClear : true,
+								data : result
+							});
+							$('#query-form #parentId').val(null).trigger(
+									'change');
+						});
+					});
+			$('#edit-form #nodeLevel').change(function() {
+				var nodeLevel = $(this).val();
+				if(nodeLevel != null && nodeLevel != ''){
+					var url = "/base/dmsBaseDict/getDicListByNodeLevel/"+(nodeLevel-1);
+				    var param = {};
+				    $.get(url, param, function (myData) {
+				        var data = myData.data;
+				        var result = [];
+				        for(var i in data){
+				            if(data[i].id && data[i].typeName){
+				                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+				            }
+				        }
+				        $("#edit-form #parentId").html("");
+				        $('#edit-form #parentId').select2({
+				            width: '300px',
+				            placeholder:'请选择上级节点',
+				            allowClear:true,
+				            data:result
+				        });
+				        $('#edit-form #parentId').val(null).trigger('change');
+				    });
+				}
+	        });			
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
@@ -109,11 +164,12 @@ $(function() {
 			        	$(this).val('');
 			        }
 			    });
+			    $('#edit-form #typeGroup').val(null).trigger('change');
+			    $('#edit-form #parentId').val(null).trigger('change');
 				$('#dataTableDiv').hide();
 				$('#dataEditDiv').show();
 			});
-			// 初始化页面上面的按钮事件
-			// 改
+			// 修改操作
 			$('#btn_edit').click(function() {
 				var rows = $('#dataTable').bootstrapTable('getSelections');
 				if (rows.length > 1) {
@@ -132,6 +188,13 @@ $(function() {
 					        if(_k){
 					        	if(_v != null && _v != undefined){
 						        	$(this).val(_v);
+						        	if(_k=='typeGroup'||_k=='parentId'){
+						        		$(this).trigger('change');
+			                        }
+						        	if(_k=='nodeLevel'){
+						        		var parentId = res.data['parentId'];
+							    		initEditParentIdSelect(_v,parentId);
+						        	}
 						        }else{
 						        	$(this).val('');
 						        }
@@ -168,6 +231,10 @@ $(function() {
 			});
 			$('#btn_submit').click(function() {
 				var params = {};
+				if($('#edit-form #nodeLevel').val()==null){
+					alert('请选择层级');
+					return;
+				}
 				$('.edit-param').each(function () {
 			    	var _k = this.id;
 			        var _v = $(this).val();
@@ -190,6 +257,90 @@ $(function() {
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
 			});
+			initTypeGroupsSelect();
+			initParentIdsSelect();
+			//初始化分组下拉框
+			function initTypeGroupsSelect() {
+			    var url = "/base/dmsBaseDict/getAllDicGroups";
+			    var param = {};
+			    $.get(url, param, function (myData) {
+			        var data = myData.data;
+			        var result = [];
+			        for(var i in data){
+			            if(data[i].id && data[i].typeName){
+			                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+			            }
+			        }
+			        $('#query-form #typeGroup').select2({
+			            width: '240px',
+			            placeholder:'请选择分组',
+			            allowClear:true,
+			            data:result
+			        });
+
+			        $('#edit-form #typeGroup').select2({
+			            width: '300px',
+			            placeholder:'请选择分组',
+			            allowClear:true,
+			            data:result
+			        });
+			        $('#query-form #typeGroup').val(null).trigger('change');
+			        $('#edit-form #typeGroup').val(null).trigger('change');
+			    }, "json");
+			}
+			//初始化分组下拉框
+			function initParentIdsSelect() {
+				var url = "/base/dmsBaseDict/getDicListByNodeLevel/-1";
+			    var param = {};
+			    $.get(url, param, function (myData) {
+			        var data = myData.data;
+			        var result = [];
+			        for(var i in data){
+			            if(data[i].id && data[i].typeName){
+			                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+			            }
+			        }
+			        $('#query-form #parentId').select2({
+			            width: '240px',
+			            placeholder:'请选择上级节点',
+			            allowClear:true,
+			            data:result
+			        });
+
+			        $('#edit-form #parentId').select2({
+			            width: '300px',
+			            placeholder:'请选择上级节点',
+			            allowClear:true,
+			            data:result
+			        });
+			        $('#query-form #parentId').val(null).trigger('change');
+			        $('#edit-form #parentId').val(null).trigger('change');
+			    }, "json");
+			}
+			//初始化分组下拉框
+			function initEditParentIdSelect(nodeLevel,parentId) {
+				if(nodeLevel != null && nodeLevel != ''){
+					var url = "/base/dmsBaseDict/getDicListByNodeLevel/"+(nodeLevel-1);
+				    var param = {};
+				    $.get(url, param, function (myData) {
+				        var data = myData.data;
+				        var result = [];
+				        for(var i in data){
+				            if(data[i].id && data[i].typeName){
+				                result.push({id:data[i].id,text:data[i].typeCode+'-'+data[i].typeName});
+				            }
+				        }
+				        $("#edit-form #parentId").html("");
+				        $('#edit-form #parentId').select2({
+				            width: '300px',
+				            placeholder:'请选择上级节点',
+				            allowClear:true,
+				            data:result
+				        });
+				        $('#edit-form #parentId').val(parentId).trigger('change');
+				    });
+				}
+			}			
 		};
 		return oInit;
 	};

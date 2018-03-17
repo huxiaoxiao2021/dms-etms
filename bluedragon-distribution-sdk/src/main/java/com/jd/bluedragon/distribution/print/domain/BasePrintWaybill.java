@@ -84,7 +84,7 @@ public class BasePrintWaybill implements Serializable {
      */
     private String consigneeCompany;
     /**
-     * 运输产品类型
+     * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担、4-冷链整车、5-快运冷链
      */
     private String jZDFlag;
 
@@ -111,6 +111,30 @@ public class BasePrintWaybill implements Serializable {
 	 * 打印时间
 	 */
 	private String printTime;
+	/**
+	 * 北京已验视标识
+	 */
+	private boolean bjCheckFlg;
+	/**
+	 * 清真标识-1、清真 2、易污染 3、清真 易污染
+	 */
+	private String muslimSignText;
+	/**
+	 * 模板名称
+	 */
+	private String templateName;
+	/**
+	 * 模板版本-默认为0，最后一个版本号
+	 */
+	private int templateVersion;
+	/**
+	 * 运费
+	 */
+	private String freightText;
+	/**
+	 * 货款
+	 */
+	private String goodsPaymentText;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -412,4 +436,89 @@ public class BasePrintWaybill implements Serializable {
 	public void setPrintTime(String printTime) {
 		this.printTime = printTime;
 	}
+
+	/**
+	 * @return the bjCheckFlg
+	 */
+	public boolean isBjCheckFlg() {
+		return bjCheckFlg;
+	}
+
+	/**
+	 * @param bjCheckFlg the bjCheckFlg to set
+	 */
+	public void setBjCheckFlg(boolean bjCheckFlg) {
+		this.bjCheckFlg = bjCheckFlg;
+	}
+
+	/**
+	 * @return the muslimSignText
+	 */
+	public String getMuslimSignText() {
+		return muslimSignText;
+	}
+
+	/**
+	 * @param muslimSignText the muslimSignText to set
+	 */
+	public void setMuslimSignText(String muslimSignText) {
+		this.muslimSignText = muslimSignText;
+	}
+
+	/**
+	 * @return the templateName
+	 */
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	/**
+	 * @param templateName the templateName to set
+	 */
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	/**
+	 * @return the templateVersion
+	 */
+	public int getTemplateVersion() {
+		return templateVersion;
+	}
+
+	/**
+	 * @param templateVersion the templateVersion to set
+	 */
+	public void setTemplateVersion(int templateVersion) {
+		this.templateVersion = templateVersion;
+	}
+
+	/**
+	 * @return the freightText
+	 */
+	public String getFreightText() {
+		return freightText;
+	}
+
+	/**
+	 * @param freightText the freightText to set
+	 */
+	public void setFreightText(String freightText) {
+		this.freightText = freightText;
+	}
+
+	/**
+	 * @return the goodsPaymentText
+	 */
+	public String getGoodsPaymentText() {
+		return goodsPaymentText;
+	}
+
+	/**
+	 * @param goodsPaymentText the goodsPaymentText to set
+	 */
+	public void setGoodsPaymentText(String goodsPaymentText) {
+		this.goodsPaymentText = goodsPaymentText;
+	}
+
 }

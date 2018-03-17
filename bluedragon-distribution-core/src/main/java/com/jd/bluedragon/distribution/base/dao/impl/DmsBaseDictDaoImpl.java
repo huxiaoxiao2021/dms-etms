@@ -29,4 +29,11 @@ public class DmsBaseDictDaoImpl extends BaseDao<DmsBaseDict> implements DmsBaseD
     public List<DmsBaseDict> queryByCondition(PagerCondition pagerCondition) {
         return  this.sqlSession.selectList(getNameSpace()+".queryByCondition", pagerCondition);
     }
+    /**
+     * 查询所有的分组信息
+     */
+	@Override
+	public List<DmsBaseDict> queryAllGroups() {
+		return this.sqlSession.selectList(getNameSpace()+".queryAllGroups");
+	}
 }

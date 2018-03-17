@@ -19,7 +19,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -56,9 +55,6 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
 	@Autowired
     private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	WaybillSyncApi waybillSyncApi;
 	
     @Autowired
     private ReversePrintService reversePrintService;

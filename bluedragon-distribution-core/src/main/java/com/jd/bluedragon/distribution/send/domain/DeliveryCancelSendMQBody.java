@@ -29,6 +29,11 @@ public class DeliveryCancelSendMQBody {
      */
     private Date operateTime;
 
+    /**
+     * 操作人ERP
+     */
+    private String operatorErp;
+
     public String getPackageBarcode() {
         return packageBarcode;
     }
@@ -59,5 +64,13 @@ public class DeliveryCancelSendMQBody {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
     }
 }
