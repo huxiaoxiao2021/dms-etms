@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclpCondition;
 import com.jd.bluedragon.distribution.abnormal.service.DmsAbnormalEclpService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -96,7 +97,7 @@ public class DmsAbnormalEclpController {
                 rest.toFail("运单号非法：" + dmsAbnormalEclp.getWaybillCode());
             }
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			logger.error("库房拒收外呼申请保存异常：" + JsonHelper.toJson(dmsAbnormalEclp),e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -112,7 +113,7 @@ public class DmsAbnormalEclpController {
 		try {
 			rest.setData(dmsAbnormalEclpService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			logger.error("库房拒收外呼申请删除异常：" + JsonHelper.toJson(ids), e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
