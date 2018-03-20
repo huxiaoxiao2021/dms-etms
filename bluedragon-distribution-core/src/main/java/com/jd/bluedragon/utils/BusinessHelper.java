@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public class BusinessHelper {
@@ -426,6 +427,31 @@ public class BusinessHelper {
 		return false;
 	}
 	/**
+	 * 判断字符串指定的位置是否在指定的字符范围之内
+	 * @param signStr 目标字符串
+	 * @param position 标识位置
+	 * @param chars 字符范围
+	 * @return
+	 */
+	public static boolean isSignInChars(String signStr,int position,char... chars){
+		if(StringHelper.isNotEmpty(signStr) 
+				&& signStr.length() >= position
+				&& chars != null
+				&& chars.length > 0){
+			char positionChar = signStr.charAt(position-1);
+			if(chars.length == 1){
+				return chars[0] == positionChar;
+			}else{
+				for(char tmp:chars){
+					if(positionChar == tmp){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	/**
 	 * 根据waybillSign和sendSign判断是否城配运单
 	 * @param waybillSign 36为1
 	 * @param sendPay 146为1
@@ -441,7 +467,6 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isYHD(String sendPay){
-//		sendPay = "00000000100000000000000002001000030000100000000000000000000036000000000000000000000000000000000000000000003400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 		if(isSignChar(sendPay, 60, '0') && isSignChar(sendPay, 61, '3')){
 			if(isSignChar(sendPay, 62, '4')||isSignChar(sendPay, 62, '5')||isSignChar(sendPay, 62, '6')||
 					isSignChar(sendPay, 62, '7')||isSignChar(sendPay, 62, '8')||isSignChar(sendPay, 62, '9')){
@@ -524,4 +549,35 @@ public class BusinessHelper {
 				&&Constants.THIRD_SITE_TYPE.equals(baseStaffSiteOrgDto.getSiteType())
 				&&Constants.THIRD_SITE_SUB_TYPE.equals(baseStaffSiteOrgDto.getSubType());
     }
+    /**
+     * 验证运单数据是否包含-到付运费，WaybillSign40=2或3时，并且WaybillSign25=2时，freight<=0 返回false
+     * @param bigWaybillDto
+     * @return
+     */
+    public static boolean hasFreightForB2b(BigWaybillDto bigWaybillDto){
+    	if(bigWaybillDto!=null
+    			&&bigWaybillDto.getWaybill()!=null
+    			&&StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())){
+    		String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+    		//WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
+    		if((isSignChar(waybillSign, 40, '2')||isSignChar(waybillSign, 40, '3'))
+    				&&isSignChar(waybillSign, 25, '2')){
+    			String freightStr = bigWaybillDto.getWaybill().getFreight();
+    			if(NumberHelper.isStringNumber(freightStr)){
+    				return NumberHelper.getDoubleValue(freightStr).doubleValue() > 0d;
+    			}else{
+    				return false;
+    			}
+    		}
+    	}
+    	return true;
+    }
+	/**
+	 * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isB2b(String waybillSign){
+		return isSignInChars(waybillSign, 40,'1','2','3');
+	}
 }

@@ -15,37 +15,5 @@ public class WaybillPrintResponse extends PrintWaybill{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * 模板名称
-	 */
-	private String templateName;
-	/**
-	 * 模板版本-默认为1
-	 */
-	private int templateVersion = 1;
-	/**
-	 * @return the templateName
-	 */
-	public String getTemplateName() {
-		return templateName;
-	}
-	/**
-	 * @param templateName the templateName to set
-	 */
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
-	}
-	/**
-	 * @return the templateVersion
-	 */
-	public int getTemplateVersion() {
-		return templateVersion;
-	}
-	/**
-	 * @param templateVersion the templateVersion to set
-	 */
-	public void setTemplateVersion(int templateVersion) {
-		this.templateVersion = templateVersion;
-	}
 	
 }

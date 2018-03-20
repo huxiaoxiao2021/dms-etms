@@ -85,6 +85,28 @@ public class NumberHelper {
         return false;
     }
     /**
+     * 返回结果a是否大于0
+     * @param a
+     * @return
+     */
+    public static boolean gt0(Number a) {
+        if (a != null) {
+            return a.doubleValue() > 0;
+        }
+        return false;
+    }
+    /**
+     * 返回结果：字符串是否大于0的数字类型
+     * @param numStr-数字型的字符串
+     * @return
+     */
+    public static boolean gt0(String numStr) {
+        if (isStringNumber(numStr)) {
+            return gt0(Double.valueOf(numStr));
+        }
+        return false;
+    }
+    /**
      * 返回结果a是否大于b,返回 a<b 的值
      * @param a
      * @param b

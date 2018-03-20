@@ -63,6 +63,10 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_ROUTER_MISS_ERROR = "未查询到包裹/箱号配置的路由信息，是否继续操作？";
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
 
+    /**
+     * 快运-拦截标识
+     */
+    public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
 
     public DeliveryResponse() {
         super();

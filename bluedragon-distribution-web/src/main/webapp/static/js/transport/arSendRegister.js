@@ -501,6 +501,8 @@ $(function () {
                         $('#sendDateEdit').val(jQuery.dateHelper.formateDateOfTs(res.data.sendDate));
                         setTransportInfo(res.data, 1);
                     }
+                    //不允许修改字段
+                    $(".no-update").attr("readonly",true);
                 });
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
@@ -566,6 +568,8 @@ $(function () {
                                 $("#siteOrderEdit").attr("disabled", false);
                                 $('#dataEditDiv').hide();
                                 $('#dataTableDiv').show();
+                                //不允许修改字段
+                                $(".no-update").attr("readonly",false);
                             } else {
                                 alert(res.message);
                             }
@@ -583,6 +587,8 @@ $(function () {
                 $("#siteOrderEdit").attr("disabled", false);
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
+                //不允许修改字段
+                $(".no-update").attr("readonly",false);
             });
 
             $("#sendCode").keydown(function (event) {

@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.jd.etms.waybill.domain.PackageWeigh;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -30,18 +29,22 @@ import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.utils.BigDecimalHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 
 @Service("waybillCommonService")
@@ -71,7 +74,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private SiteService siteService; 
+    private SiteService siteService;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
     
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -503,8 +508,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiOrderCode(waybill.getBusiOrderCode());
         }
 
-
-
         //面单打印新增寄件人、电话、手机号、地址信息
         target.setConsigner(waybill.getConsigner());
         target.setConsignerTel(waybill.getConsignerTel());
@@ -517,12 +520,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
         target.setPriceProtectText(priceProtectText);
-
-        //b2b快运 运输产品类型打标
-        if(waybill.getWaybillSign().length() > 39){
-            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
-            target.setjZDFlag(expressType);
-        }
         //收件公司名称
         target.setConsigneeCompany(waybill.getReceiveCompany());
         //寄件公司名称
@@ -535,6 +532,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //打印时间,取后台服务器时间
         String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         target.setPrintTime(printTime);
+        //设置运费及货款信息
+        String freightText = "";
+        String goodsPaymentText = "";
+        if(BusinessHelper.isB2b(waybill.getWaybillSign())){
+        	//读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
+        	if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 25, '2')){
+        		freightText = TextConstants.FREIGHT_PAY_CASH;
+        	}
+        	//货款字段金额等于0时，则货款位置显示为【在线支付】
+        	//货款字段金额大于0时，则货款位置显示为【货到付款】
+        	if(NumberHelper.gt0(waybill.getRecMoney())){
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
+        	}else{
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
+        	}
+        	target.setTemplateName("dms-nopaper-b2b-m");
+        }
+        target.setFreightText(freightText);
+        target.setGoodsPaymentText(goodsPaymentText);
         return target;
     }
 
@@ -579,4 +595,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
     }
+    /**
+     * 先校验运单是否已录入总重量,否则查询分拣是否存在录入重量记录
+     */
+	@Override
+	public boolean hasTotalWeight(String waybillCode) {
+		if(StringHelper.isNotEmpty(waybillCode)){
+			 BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+			 if(baseEntity != null 
+					 && baseEntity.getData() != null
+					 && baseEntity.getData().getWaybill() != null){
+				 //先校验运单是否已录入总重量
+				 if(NumberHelper.gt0(baseEntity.getData().getWaybill().getAgainWeight())){
+					 return true;
+				 }else{
+					 //查询该运单是否已录入总重量
+					 
+				 }
+			 }
+		}
+		return false;
+	}
 }
