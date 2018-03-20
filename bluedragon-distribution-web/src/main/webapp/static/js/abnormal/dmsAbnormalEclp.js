@@ -75,8 +75,8 @@ $(function() {
 
 
         oTableInit.tableColums = [ /*{
-            checkbox : false
-        }, */{
+         checkbox : false
+         }, */{
             field : 'waybillCode',
             title : '运单号'
         } ,{
@@ -286,17 +286,17 @@ function initEditSelect(){
  * @param selectVal
  * @returns {boolean}
  */
-function changeExcpTypeEdit(selectVal1,selectVal2){
+function changeExcpTypeEdit(){
 
     var p = $("#excpTypeEdit").val();
     var _p = $("#edit-form #excpType").val();
-    if((!p || p ==_p) && !selectVal1){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
+    if(!p || p ==_p){ //防止 空值 或 修改的时候反选触发change事件 在多走一遍
         return false;
     }
     var k = excpTypeData[p]['typeCode'];
     var v = excpTypeData[p]['typeName'];
     if(k){
-        $("#edit-form #consultType").val(p);
+        $("#edit-form #consultType").val(k);
         $("#edit-form #consultReason").val(v);
     }
 }
