@@ -84,186 +84,27 @@ function editFormValidator(){
          */
         fields: {
             //多个重复
-            transportName: {
-                //隐藏或显示 该字段的验证
-
-                //错误提示信息
-                message: 'This value is not valid',
-
-                // 定义每个验证规则
-                validators: {
-                    //多个重复
-                    //官方默认验证参照  http://bv.doc.javake.cn/validators/
-                    // 注：使用默认前提是引入了bootstrapValidator-all.js
-                    // 若引入bootstrapValidator.js没有提供常用验证规则，需自定义验证规则哦
-                    //<validatorName>: <validatorOptions>
-                    notEmpty: {
-                        message: '运力名称不能为空'
-                    },
-                    stringLength: {
-                        max: 50,
-                        message: '运力名称不得超过50位'
-                    }
-                }
-            },
-            planStartDate:{
-                message: '预计起飞日期不能为空',
+            desProvinceCode:{
+                message: '收件省不能为空',
                 validators: {
                     notEmpty: {
 
                     }
                 }
             },
-            transportType:{
-                message: '运力类型不能为空',
-                validators: {
-                    notEmpty: {
-                    }
-                }
-            },
-            planStartTime:{
-                message: '预计起飞时间不能为空',
+            desCityCode:{
+                message: '收件市不能为空',
                 validators: {
                     notEmpty: {
 
                     }
                 }
             },
-            planEndTime:{
-                message: '预计落地时间不能为空',
+            storageCode:{
+                message: '库位号不能为空',
                 validators: {
                     notEmpty: {
-                    }
-                }
-            },
-            remark:{
-                validators: {
-                    stringLength: {
-                        max: 500,
-                        message: '备注长度不得超过500'
-                    }
-                }
 
-            },
-            priority:{
-                validators: {
-                   /* notEmpty: {
-                    },*/
-                    stringLength: {
-                        max: 20,
-                        message: '优先级长度不能超过20'
-                    }
-                }
-            },
-            gainSpace:{
-                message: '可获取舱位不能为空',
-                validators: {
-                    notEmpty: {
-                    },
-                    numeric: {
-                        message: '只能输入数字'
-                    },
-                    between: {
-                        min: 0.01,
-                        max: 9999999999.99,
-                        message: '必须在0.01到9999999999.99之间'
-                    },
-                    regexp: {
-                        regexp: /^\d+(\.\d{2})?$/,
-                        message: '小数点后仅可保留两位小数'
-                    }
-                }
-            },
-            planSpace:{
-                message: '计划订舱位不能为空',
-                validators: {
-                    notEmpty: {
-                    },
-                    numeric: {
-                        message: '只能输入数字'
-                    },
-                    between: {
-                        min: 0.01,
-                        max: 9999999999.99,
-                        message: '必须在0.01到9999999999.99之间'
-                    },
-                    regexp: {
-                        regexp: /^\d+(\.\d{2})?$/,
-                        message: '小数点后仅可保留两位小数'
-                    }
-                }
-            },
-            realSpace:{
-                message: '实际订舱位不能为空',
-                validators: {
-                    notEmpty: {
-                    },
-                    numeric: {
-                        message: '只能输入数字'
-                    },
-                    between: {
-                        min: 0.01,
-                        max: 9999999999.99,
-                        message: '必须在0.01到9999999999.99之间'
-                    },
-                    regexp: {
-                        regexp: /^\d+(\.\d{2})?$/,
-                        message: '小数点后仅可保留两位小数'
-                    }
-                }
-            },
-            bookingSpaceTime:{
-                message: '订舱日期不能为空',
-                validators: {
-                    notEmpty: {
-                    }
-                }
-            },
-            supplierName:{
-                //message: '供应商名称不能为空',
-                validators: {
-                    /*notEmpty: {
-                    },*/
-                    stringLength: {
-                        max: 50,
-                        message: '不得超过50位'
-                    }
-                }
-            },
-            phone:{
-                //message: '联系电话不能为空',
-                validators: {
-                    /*notEmpty: {
-                    },*/
-                    stringLength: {
-                        max: 20,
-                        message: '不得超过20位'
-                    },
-                    regexp: {
-                        regexp: /^[\d-]*$/,
-                        message: '只能数字和-组成'
-                    }
-                }
-            },
-            startCityName:{
-                message: '起飞城市不能为空',
-                validators: {
-                    notEmpty: {
-                    },
-                    stringLength: {
-                        max: 20,
-                        message: '不得超过20位'
-                    }
-                }
-            },
-            endCityName:{
-                message: '落地城市不能为空',
-                validators: {
-                    notEmpty: {
-                    },
-                    stringLength: {
-                        max: 20,
-                        message: '不得超过20位'
                     }
                 }
             }

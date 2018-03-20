@@ -3,29 +3,28 @@ package com.jd.bluedragon.distribution.base.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jd.ql.basic.ws.BasicSecondaryWS;
+import IceInternal.Ex;
+import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
+import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
+import com.jd.bluedragon.domain.ProvinceNode;
+import com.jd.bluedragon.utils.AreaHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageAreaCondition;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
- * @ClassName: DmsStorageAreaController
- * @Description: 分拣中心库位--Controller实现
  * @author wuyoude
- * @date 2018年03月13日 16:25:45
  *
  */
 @Controller
@@ -38,31 +37,53 @@ public class DmsStorageAreaController {
 	private DmsStorageAreaService dmsStorageAreaService;
 
 	@Autowired
-	private BasicSecondaryWS basicSecondaryWS;
+	private ProvinceAndCityService provinceAndCityService;
+
 
 	/**
 	 * 返回主页面
 	 * @return
 	 */
 	@RequestMapping(value = "/toIndex")
-	public String toIndex(Model model) {
-		ArrayList<String> plist = new ArrayList<String>();
-		plist.add("安徽");
-		plist.add("广东");
-		plist.add("河北");
-		model.addAttribute("plist",plist);
+	public String toIndex() throws Exception {
 		return "/base/dmsStorageArea";
 	}
+
 	/**
-	 * 根据省获得对应的市
+	 * 获取所有的省份
+	 * @return
+	 */
+	@RequestMapping("/getProvinceList")
+	@ResponseBody
+	public List getProvince() throws Exception{
+		this.logger.info("获取所有的省份");
+		List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
+        try{
+            provinces.addAll(AreaHelper.getAllProvince());
+        }catch(Exception e){
+            this.logger.warn("获取所有的省份失败" , e);
+        }
+        provinces.addAll(AreaHelper.getAllProvince());
+		return provinces;
+	}
+	/**
+	 * 根据省Id获得对应的市
 	 * @param provinceId
 	 * @return
 	 */
-	@RequestMapping("/getCity")
+	@RequestMapping("/getCityList")
 	@ResponseBody
 	public List getCity(Integer provinceId) throws Exception {
-		return null;
-	}
+	    this.logger.info("获取对应省下的所有城市");
+        List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
+        try{
+            cities = provinceAndCityService.getCityByProvince(provinceId);
+        }catch(Exception e){
+            this.logger.warn("根据省份Id获取城市失败："+ provinceId , e);
+        }
+        cities = provinceAndCityService.getCityByProvince(provinceId);
+        return cities;
+    }
 
 	/**
 	 * 根据id获取基本信息
@@ -81,7 +102,7 @@ public class DmsStorageAreaController {
 	 * @return
 	 */
 	@RequestMapping(value = "/save")
-	public @ResponseBody JdResponse<Boolean> save(@RequestBody DmsStorageArea dmsStorageArea) {
+	public @ResponseBody JdResponse<Boolean> save(DmsStorageArea dmsStorageArea) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
 			rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
@@ -118,4 +139,14 @@ public class DmsStorageAreaController {
 		rest.setData(dmsStorageAreaService.queryByPagerCondition(dmsStorageAreaCondition));
 		return rest.getData();
 	}
+
+	/**
+     * @param file
+     * @return*/
+	@RequestMapping("/uploadExcel")
+    @ResponseBody
+    public JdResponse uploadExcel( @RequestParam("importExcelFile") MultipartFile file) {
+
+	    return null;
+    }
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 /**
