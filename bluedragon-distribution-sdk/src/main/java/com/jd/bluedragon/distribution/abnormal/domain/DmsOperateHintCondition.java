@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.abnormal.domain;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
+import java.util.Date;
+
 /**
  *
  * @ClassName: DmsOperateHintCondition
@@ -53,6 +55,11 @@ public class DmsOperateHintCondition extends BasePagerCondition {
 	 /** 更新人名称 */
 	private String updateUserName;
 
+	/** 发起外呼起始时间 */
+	private Date startTime;
+
+	/** 发起外呼截止时间 */
+	private Date endTime;
 	/**
 	 * The set method for dmsSiteCode.
 	 * @param dmsSiteCode
@@ -261,5 +268,19 @@ public class DmsOperateHintCondition extends BasePagerCondition {
 		return this.updateUserName;
 	}
 
+    public Date getEndTime() {
+        return endTime;
+    }
 
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
 }

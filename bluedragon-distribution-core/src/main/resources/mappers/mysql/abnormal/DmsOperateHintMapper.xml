@@ -34,9 +34,6 @@
 		insert into dms_operate_hint
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
 				<if test="dmsSiteCode != null">
 					dms_site_code,
 				</if>
@@ -67,9 +64,7 @@
 				<if test="createUserName != null">
 					create_user_name,
 				</if>
-				<if test="createTime != null">
-					create_time,
-				</if>
+				create_time,
 				<if test="updateUserCode != null">
 					update_user_code,
 				</if>
@@ -79,23 +74,14 @@
 				<if test="updateUserName != null">
 					update_user_name,
 				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
-					is_delete,
-				</if>
-				<if test="ts != null">
-					ts
-				</if>
+				update_time,
+				is_delete,
+				ts
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
 				<if test="dmsSiteCode != null">
 					#{dmsSiteCode,jdbcType=INTEGER},
 				</if>
@@ -126,9 +112,7 @@
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
+				now(),
 				<if test="updateUserCode != null">
 					#{updateUserCode,jdbcType=INTEGER},
 				</if>
@@ -138,15 +122,9 @@
 				<if test="updateUserName != null">
 					#{updateUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+				now(),
+				0,
+				now()
 			</trim>
 			)
 	</insert>
@@ -207,18 +185,6 @@
 				<if test="isEnable != null">
 					is_enable = #{isEnable,jdbcType=TINYINT},
 				</if>
-				<if test="createUserCode != null">
-					create_user_code = #{createUserCode,jdbcType=INTEGER},
-				</if>
-				<if test="createUser != null">
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createUserName != null">
-					create_user_name = #{createUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
 				<if test="updateUserCode != null">
 					update_user_code = #{updateUserCode,jdbcType=INTEGER},
 				</if>
@@ -228,17 +194,9 @@
 				<if test="updateUserName != null">
 					update_user_name = #{updateUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
+				update_time = NOW()
 			</set>
-		where id = #{id,jdbcType=BIGINT}
+		where id = #{id,jdbcType=BIGINT} and waybill_code = #{waybillCode,jdbcType=VARCHAR} and is_delete = 0
 	</update>
 
 	<update id="deleteById" parameterType="Long">
@@ -274,26 +232,42 @@
 		limit 1
 	</select>
 
-	<sql id="Base_Condition_Sql" >
-			and is_delete=0 
-	</sql>
+    <sql id="where_condition">
+        <where>
+            is_delete = 0
+            <if test="dmsSiteCode != null">
+                AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+            </if>
+            <if test="waybillCode != null">
+                AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime != null">
+                AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null">
+                AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isEnable != null">
+                AND is_enable = #{isEnable,jdbcType=TINYINT}
+            </if>
+        </where>
+    </sql>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
-		  dms_operate_hint 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		  dms_operate_hint
+        <include refid="where_condition"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsOperateHint">
 		select 
 		 <include refid="Base_Column_List"/>
 		from 
-		  dms_operate_hint 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		 dms_operate_hint
+        <include refid="where_condition"/>
+         ORDER BY create_time DESC
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

@@ -2,6 +2,11 @@ package com.jd.bluedragon.distribution.abnormal.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.common.web.LoginContext;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +39,9 @@ public class DmsOperateHintController {
 	@Autowired
 	private DmsOperateHintService dmsOperateHintService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
 	/**
 	 * 返回主页面
 	 * @return
@@ -62,9 +70,45 @@ public class DmsOperateHintController {
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody DmsOperateHint dmsOperateHint) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
-			rest.setData(dmsOperateHintService.saveOrUpdate(dmsOperateHint));
-	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+        //根据ID判断，如果是新增，则把updateuser也设置为创建人
+            if(SerialRuleUtil.isMatchCommonWaybillCode(dmsOperateHint.getWaybillCode())){
+                LoginContext loginContext = LoginContext.getLoginContext();
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+                dmsOperateHint.setUpdateUser(loginContext.getPin());
+                dmsOperateHint.setUpdateUserCode(dto.getStaffNo());
+                dmsOperateHint.setUpdateUserName(loginContext.getNick());
+                dmsOperateHint.setDmsSiteCode(dto.getSiteCode());
+                dmsOperateHint.setDmsSiteName(dto.getSiteName());
+                dmsOperateHint.setDmsSiteCode(910);
+                dmsOperateHint.setDmsSiteName("马驹桥");
+
+                if(dmsOperateHint.getId() != null && dmsOperateHint.getId() > 0){//修改时
+                    DmsOperateHint temp = dmsOperateHintService.findById(dmsOperateHint.getId());
+                    if(temp == null){
+                        dmsOperateHint.setId(null);
+                    }else if(!dmsOperateHint.getWaybillCode().equals(temp.getWaybillCode())){
+                        rest.toFail("运单号不可修改，原始单号：" + temp.getWaybillCode());
+                    }
+                }else{//新增时
+                    DmsOperateHintCondition condition = new DmsOperateHintCondition();
+                    condition.setWaybillCode(dmsOperateHint.getWaybillCode());
+                    PagerResult list = dmsOperateHintService.queryByPagerCondition(condition);
+                    if(list != null && list.getTotal() > 0){
+                        rest.toFail("运单号已存在提示语：" + dmsOperateHint.getWaybillCode());
+                    }else {
+                    dmsOperateHint.setCreateUser(loginContext.getPin());
+                    dmsOperateHint.setCreateUserCode(dto.getStaffNo());
+                    dmsOperateHint.setCreateUserName(loginContext.getNick());
+                    }
+                }
+                if(rest.isSucceed()){
+                    rest.setData(dmsOperateHintService.saveOrUpdate(dmsOperateHint));
+                }
+            } else{
+                rest.toFail("运单号非法：" + dmsOperateHint.getWaybillCode());
+            }
+	    } catch (Exception e) {
+			logger.error("PDA验货发货提示信息保存失败：" + JsonHelper.toJson(dmsOperateHint), e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
