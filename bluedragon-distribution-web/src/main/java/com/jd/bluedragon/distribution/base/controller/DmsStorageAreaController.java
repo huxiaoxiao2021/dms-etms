@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import IceInternal.Ex;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
 import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
 import com.jd.bluedragon.domain.ProvinceNode;
@@ -21,6 +22,9 @@ import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 
 /**
  *
@@ -104,11 +108,19 @@ public class DmsStorageAreaController {
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(DmsStorageArea dmsStorageArea) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
-		try {
-			rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
-	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
-			rest.toError("保存失败，服务异常！");
+		DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsStorageArea);
+		if(dmsStorageArea.getStorageCode() == newDmsStorageArea.getStorageCode()){
+			rest.setCode(400);
+			rest.setMessage("同一省市只有一个库位号！");
+		}else{
+
+			dmsStorageArea =dmsStorageAreaService.getUserInfo(dmsStorageArea);
+			try {
+				rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
+			} catch (Exception e) {
+				logger.error("fail to save！"+e.getMessage(),e);
+				rest.toError("保存失败，服务异常！");
+			}
 		}
 		return rest;
 	}
@@ -149,4 +161,7 @@ public class DmsStorageAreaController {
 
 	    return null;
     }
+    //baseentity
+	//basemajormanager
+
 }
