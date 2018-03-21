@@ -382,6 +382,22 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(temp_info3);
         return new SendResult(1, "发货成功");
     }
+
+    /**
+     * 根据箱号查询箱号的运单号
+     * @param boxCode
+     * @return
+     */
+    private List<String> getWayBillCodesByBoxCode(String boxCode){
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if(box != null) {
+            return sendDatailReadDao.findWaybillByBoxCode(boxCode, box.getCreateSiteCode());
+        }else{
+            logger.warn("一车一单发货箱号为空："+boxCode);
+        }
+        return null;
+    }
+
     /**
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
      * （2）写SEND_M表
@@ -2178,20 +2194,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
 
-        Sorting sorting = new Sorting();
-        sorting.setBoxCode(queryPara.getBoxCode());
-        sorting.setCreateSiteCode(queryPara.getCreateSiteCode());
-        sorting.setReceiveSiteCode(queryPara.getReceiveSiteCode());
+        String boxCode = queryPara.getBoxCode();
+        Integer createSiteCode = queryPara.getCreateSiteCode();
+        Integer receiveSiteCode = queryPara.getReceiveSiteCode();
 
-        // /从分拣表sorting中获取箱中的包裹
-        List<Sorting> sortingList = this.tSortingService.findByBoxCode(sorting);
+        // /从分拣表sorting中获取箱中的运单号
+        List<String> waybillCodes = getWayBillCodesByBoxCode(boxCode);
 
         //获取运单对应的路由
         String routerStr = null;
-        if (sortingList != null && !sortingList.isEmpty()) {
-            for(Sorting nSorting : sortingList){
+        if (waybillCodes != null && !waybillCodes.isEmpty()) {
+            for(String  waybillCode : waybillCodes){
                 //获取路由信息
-                routerStr = jsfSortingResourceService.getRouterByWaybillCode(nSorting.getWaybillCode());
+                routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){
@@ -2209,7 +2224,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         for(int i=0 ;i< routerNodes.length-1; i++){
             int curNode = Integer.parseInt(routerNodes[i]);
             int nexNode = Integer.parseInt(routerNodes[i+1]);
-            if(curNode == queryPara.getCreateSiteCode() && nexNode != queryPara.getReceiveSiteCode()){
+            if(curNode == createSiteCode && nexNode != receiveSiteCode){
                 response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
                 response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR);
                 return response;
