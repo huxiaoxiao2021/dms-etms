@@ -2224,10 +2224,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         for(int i=0 ;i< routerNodes.length-1; i++){
             int curNode = Integer.parseInt(routerNodes[i]);
             int nexNode = Integer.parseInt(routerNodes[i+1]);
-            if(curNode == createSiteCode && nexNode != receiveSiteCode){
-                response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
-                response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR);
-                return response;
+            if(curNode == createSiteCode){
+                if(nexNode == receiveSiteCode){
+                    break;
+                }else {
+                    response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
+                    response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR);
+                }
             }
         }
 
