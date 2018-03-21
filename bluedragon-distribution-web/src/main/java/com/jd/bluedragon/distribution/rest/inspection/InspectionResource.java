@@ -13,18 +13,22 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.InspectionECRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionFCRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
 import com.jd.bluedragon.distribution.api.response.HandoverDetailResponse;
 import com.jd.bluedragon.distribution.api.response.HandoverResponse;
 import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
@@ -74,6 +78,12 @@ public class InspectionResource {
 
 	@Autowired
 	ReceiveService receiveService;
+
+	@Autowired
+	private DmsStorageAreaService dmsStorageAreaService;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	private final static Logger logger = Logger
 			.getLogger(InspectionResource.class);
@@ -502,6 +512,64 @@ public class InspectionResource {
 		} catch (Exception ex) {
 			logger.error("web访问/inspection/turnoverBox异常:turnoverBoxAdd处理失败",
 					ex);
+		}
+	}
+
+	@GET
+	@Path("/inspection/hintInfo/{packageOrWaybillCode}/{siteCode}")
+	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
+			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
+			@PathParam("siteCode") Integer siteCode){
+		com.jd.ql.dms.common.domain.JdResponse jdResponse = new com.jd.ql.dms.common.domain.JdResponse();
+		DmsStorageArea dmsStorageArea = new DmsStorageArea();
+		//判断是运单号还是包裹号
+		Integer dmsSiteCode = siteCode;
+		String waybillCode = packageBarOrWaybillCode;
+		if(packageBarOrWaybillCode.indexOf("-") != -1){
+			waybillCode = packageBarOrWaybillCode.substring(0, (packageBarOrWaybillCode.indexOf("-") - 1));
+		}
+		InspectionResult inspectionResult = getInspectionResult(jdResponse, dmsStorageArea, dmsSiteCode, waybillCode);
+		jdResponse.setData(inspectionResult);
+		return jdResponse;
+	}
+
+	/**
+	 *  通过运单号获得库位号
+	 * @param jdResponse
+	 * @param dmsStorageArea
+	 * @param dmsSiteCode 分拣中心ID
+	 * @param waybillCode 运单号ID
+	 * @return
+	 * */
+	private InspectionResult getInspectionResult(com.jd.ql.dms.common.domain.JdResponse jdResponse, DmsStorageArea dmsStorageArea, Integer dmsSiteCode, String waybillCode) {
+		try{
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+			if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+				// 获取运单信息
+				Waybill waybill = baseEntity.getData().getWaybill();
+				dmsStorageArea.setDesProvinceCode(waybill.getProvinceId());
+				dmsStorageArea.setDesCityCode(waybill.getCityId());
+				dmsStorageArea.setDmsSiteCode(dmsSiteCode);
+				DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsStorageArea);
+				if(newDmsStorageArea != null){
+					String storageCode = newDmsStorageArea.getStorageCode();
+					jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_SUCCESS);
+					return new InspectionResult(storageCode);
+				}else {
+					jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
+					jdResponse.setMessage("未找到对应的库位号");
+					return new InspectionResult("");
+				}
+			}else{
+				jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
+				jdResponse.setMessage("获取库位号失败");
+				return new InspectionResult("");
+			}
+		}catch(Exception e){
+			this.logger.warn("通过运单号获取库位号失败：" + waybillCode,e);
+			jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
+			jdResponse.setMessage("获取库位号失败");
+			return new InspectionResult("");
 		}
 	}
 }

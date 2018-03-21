@@ -31,4 +31,9 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		return this.dmsStorageAreaDao;
 	}
 
+	public  DmsStorageArea findByProAndCity(DmsStorageArea dmsStorageArea){
+
+		return dmsStorageAreaDao.findByProAndCity(dmsStorageArea);
+	}
+
 }

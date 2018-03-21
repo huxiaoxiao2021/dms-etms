@@ -17,5 +17,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("dmsStorageAreaDao")
 public class DmsStorageAreaDaoImpl extends BaseDao<DmsStorageArea> implements DmsStorageAreaDao {
 
+    public  DmsStorageArea findByProAndCity(DmsStorageArea dmsStorageArea){
 
+        return sqlSession.selectOne(getNameSpace() + ".findByProAndCity" , dmsStorageArea);
+    }
 }
