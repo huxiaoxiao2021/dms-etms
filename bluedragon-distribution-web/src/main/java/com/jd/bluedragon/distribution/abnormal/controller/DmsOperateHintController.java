@@ -1,12 +1,17 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
-import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.List;
 
 /**
  *
@@ -42,6 +43,8 @@ public class DmsOperateHintController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+	@Autowired
+	private RedisManager redisManager;
 	/**
 	 * 返回主页面
 	 * @return
@@ -103,6 +106,7 @@ public class DmsOperateHintController {
                 }
                 if(rest.isSucceed()){
                     rest.setData(dmsOperateHintService.saveOrUpdate(dmsOperateHint));
+                    setCache(dmsOperateHint);
                 }
             } else{
                 rest.toFail("运单号非法：" + dmsOperateHint.getWaybillCode());
@@ -140,4 +144,20 @@ public class DmsOperateHintController {
 		rest.setData(dmsOperateHintService.queryByPagerCondition(dmsOperateHintCondition));
 		return rest.getData();
 	}
+
+    /**
+     * PDA 提示语加入redis缓存
+     * @param dmsOperateHint
+     */
+    private void setCache(DmsOperateHint dmsOperateHint){
+        try{
+            String msg = "";
+            if(Constants.STRING_FLG_TRUE.equals(dmsOperateHint.getIsEnable())){
+                msg = dmsOperateHint.getHintMessage();
+            }
+            redisManager.setex(Constants.CACHE_KEY_PRE_PDA_HINT + dmsOperateHint.getWaybillCode(), Constants.TIME_SECONDS_ONE_MONTH, msg);
+        }catch (Exception e){
+            logger.warn("PDA提示语加缓存失败："+JsonHelper.toJson(dmsOperateHint), e);
+        }
+    }
 }
