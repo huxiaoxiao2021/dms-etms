@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
+import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -12,8 +14,11 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -28,7 +33,7 @@ import java.util.List;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class SendCodeResource {
-
+	private final Log logger = LogFactory.getLog(SendCodeResource.class);
 	private static final String IS_AIR_TRANSPORT_CARRIER = "Y";
 	private static final Integer TRANSPORT_TYPE_AIR = 1; // 航空
 
@@ -43,6 +48,9 @@ public class SendCodeResource {
 	
 	private static final String TASK_REVERSE_SEND_BUSINESS = "30";
 	private static final String TASK_REVERSE_SEND_NODIFY = "3";
+
+	private static final Integer CODE_CREATE_SEND_CODE_ERROR = 601;
+	private static final String MESSAGE_CODE_CREATE_SEND_CODE_ERROR = "创建批次号失败！";
 
 	@Autowired
 	private SiteService siteService;
@@ -200,5 +208,25 @@ if(waybills==null){
 	
 	private String getFingerprint(String sendCode) {
 		return Md5Helper.encode(sendCode + Constants.SEPARATOR_HYPHEN + SendCodeResource.TASK_REVERSE_SEND_NODIFY);
+	}
+
+	@POST
+	@Path("/sendCode/generate")
+	public GenerateSendCodeResponse generateSendCode(GenerateSendCodeRequest request) {
+		GenerateSendCodeResponse response = new GenerateSendCodeResponse();
+		try{
+			String sendCode = SerialRuleUtil.generateSendCode(
+					request.getCreateSiteCode(),
+					request.getReceiveSiteCode(),
+					request.getTime()
+			);
+			response.setCode(200);
+			response.setSendCode(sendCode);
+		}catch (Exception e){
+			response.setCode(CODE_CREATE_SEND_CODE_ERROR);
+			response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
+			logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+		}
+		return response;
 	}
 }
