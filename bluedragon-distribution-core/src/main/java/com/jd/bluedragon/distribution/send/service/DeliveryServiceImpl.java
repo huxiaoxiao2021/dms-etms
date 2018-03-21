@@ -105,22 +105,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.Map.Entry;
-
 @Service("deliveryService")
 public class DeliveryServiceImpl implements DeliveryService {
 
@@ -271,8 +255,14 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_REVERSE_SORTING = 40;
     private static final int OPERATE_TYPE_CANCEL_L = 0;
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
+    private static final int OPERATE_TYPE_NEW_PACKAGE_SEND=60;
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
+
+    /**
+     * 运单路由字段使用的分隔符
+     */
+    private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
 
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
@@ -319,7 +309,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserCode(domain.getCreateUserCode());
             sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
-            sortingCheck.setOperateType(1);
+            sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
             SortingJsfResponse response = null;
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
             try {
@@ -352,7 +342,16 @@ public class DeliveryServiceImpl implements DeliveryService {
                     return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-
+        } else {
+            //按箱发货，从箱中取出一单校验
+            DeliveryResponse response =  checkRouterForCBox(queryPara);
+            if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
+                SendResult  result = new SendResult();
+                result.setKey(DeliveryResponse.CODE_Delivery_SEND_CONFIRM);
+                result.setValue(response.getMessage());
+                result.setInterceptCode(response.getCode());
+                return result;
+            }
         }
         Profiler.registerInfoEnd(temp_info2);
         if(!isForceSend){
@@ -2164,6 +2163,60 @@ public class DeliveryServiceImpl implements DeliveryService {
         }else{
             return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
         }
+    }
+
+
+    /**
+     * 一车一单按箱发货路由检验
+     * 从sorting表中获取该箱号中的记录
+     * 取出一单，读取其路由，如果为空，则再取一单
+     * @param queryPara
+     * @return
+     */
+    public DeliveryResponse checkRouterForCBox(SendM queryPara){
+        DeliveryResponse response = new DeliveryResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+
+        Sorting sorting = new Sorting();
+        sorting.setBoxCode(queryPara.getBoxCode());
+        sorting.setCreateSiteCode(queryPara.getCreateSiteCode());
+        sorting.setReceiveSiteCode(queryPara.getReceiveSiteCode());
+
+        // /从分拣表sorting中获取箱中的包裹
+        List<Sorting> sortingList = this.tSortingService.findByBoxCode(sorting);
+
+        //获取运单对应的路由
+        String routerStr = null;
+        if (sortingList != null && !sortingList.isEmpty()) {
+            for(Sorting nSorting : sortingList){
+                //获取路由信息
+                routerStr = jsfSortingResourceService.getRouterByWaybillCode(nSorting.getWaybillCode());
+
+                //如果路由为空，则取下一单
+                if(StringHelper.isNotEmpty(routerStr)){
+                    break;
+                }
+            }
+        }
+
+        if(StringHelper.isEmpty(routerStr)){
+            return response;
+        }
+
+        //路由校验逻辑
+        String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
+        for(int i=0 ;i< routerNodes.length-1; i++){
+            int curNode = Integer.parseInt(routerNodes[i]);
+            int nexNode = Integer.parseInt(routerNodes[i+1]);
+            if(curNode == queryPara.getCreateSiteCode() && nexNode != queryPara.getReceiveSiteCode()){
+                response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
+                response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR);
+                return response;
+            }
+        }
+
+        return response;
     }
     /**
      * 快运发货校验路由信息
