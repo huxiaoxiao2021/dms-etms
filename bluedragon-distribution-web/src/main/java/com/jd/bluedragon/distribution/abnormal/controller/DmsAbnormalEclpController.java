@@ -11,6 +11,7 @@ import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,7 @@ public class DmsAbnormalEclpController {
 		try {
 
             if(SerialRuleUtil.isMatchCommonWaybillCode(dmsAbnormalEclp.getWaybillCode())){
-                //1.一个月内该运单只能发起一次库房拒收外呼申请
+                //1.2个月内该运单只能发起一次库房拒收外呼申请
                 DmsAbnormalEclpCondition condition = new DmsAbnormalEclpCondition();
                 condition.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
                 // 不限制该运单是否在进行外呼中，即，只能发起一次
@@ -82,7 +83,7 @@ public class DmsAbnormalEclpController {
                 PagerResult result = dmsAbnormalEclpService.queryByPagerCondition(condition);
                 //判断当前运单是否有未进行完毕的外呼
                 if(result.getTotal() > 0){
-                    rest.toFail("运单有正在进行的外呼申请：" + dmsAbnormalEclp.getWaybillCode());
+                    rest.toFail("运单已发起过库房拒收的外呼申请：" + dmsAbnormalEclp.getWaybillCode());
                 }else{
                     LoginContext loginContext = LoginContext.getLoginContext();
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
@@ -126,10 +127,12 @@ public class DmsAbnormalEclpController {
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<DmsAbnormalEclp> listData(@RequestBody DmsAbnormalEclpCondition dmsAbnormalEclpCondition) {
 		JdResponse<PagerResult<DmsAbnormalEclp>> rest = new JdResponse<PagerResult<DmsAbnormalEclp>>();
-        //限制只能查自己分拣中心的
-        LoginContext loginContext = LoginContext.getLoginContext();
-        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-        dmsAbnormalEclpCondition.setDmsSiteCode(dto.getSiteCode());
+        //查询条件无运单号时，限制只能查自己分拣中心的
+        if(StringUtils.isBlank(dmsAbnormalEclpCondition.getWaybillCode())){
+            LoginContext loginContext = LoginContext.getLoginContext();
+            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+            dmsAbnormalEclpCondition.setDmsSiteCode(dto.getSiteCode());
+        }
 		rest.setData(dmsAbnormalEclpService.queryByPagerCondition(dmsAbnormalEclpCondition));
 		return rest.getData();
 	}

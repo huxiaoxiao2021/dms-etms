@@ -137,7 +137,7 @@ $(function() {
                 type: 'datetime',
                 min: -60,//最近30天内
                 max: 0,//最近30天内
-                btns: ['clear','now', 'confirm'],
+                btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -148,7 +148,7 @@ $(function() {
                 type: 'datetime',
                 min: -60,//最近30天内
                 max: 0,//最近30天内
-                btns: ['clear','now', 'confirm'],
+                btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
