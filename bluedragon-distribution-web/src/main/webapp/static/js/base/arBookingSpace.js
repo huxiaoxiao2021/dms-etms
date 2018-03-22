@@ -114,7 +114,7 @@ $(function() {
                 tableInit().refresh();
             });
             $('#btn_add').click(function() {
-                initOrg("#provinceEG","#cityEG");
+                initProAndCity("#provinceEG","#cityEG");
                 $('.edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
@@ -234,8 +234,7 @@ $(function() {
     };
 
     initOrg();
-    initPronAndCity("#desProvinceCode","#desCityCode");
-    initPronAndCity("#provinceEG","#cityEG");
+    initProAndCity("#desProvinceCode","#desCityCode");
 
     tableInit().init();
     pageInit().init();
@@ -300,7 +299,7 @@ function findCity(selectId,cityListUrl,orgId){
 
 
 // 初始化收件省、收件市下拉框
-function initPronAndCity(comboxProvinceCondition,comboxCityCondition) {
+function initProAndCity(comboxProvinceCondition,comboxCityCondition) {
 
     var url = "/base/dmsStorageArea/getProvinceList";
     var param = {};
