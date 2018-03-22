@@ -82,9 +82,6 @@ public class DmsOperateHintController {
                 dmsOperateHint.setUpdateUserName(loginContext.getNick());
                 dmsOperateHint.setDmsSiteCode(dto.getSiteCode());
                 dmsOperateHint.setDmsSiteName(dto.getSiteName());
-                dmsOperateHint.setDmsSiteCode(910);
-                dmsOperateHint.setDmsSiteName("马驹桥");
-
                 if(dmsOperateHint.getId() != null && dmsOperateHint.getId() > 0){//修改时
                     DmsOperateHint temp = dmsOperateHintService.findById(dmsOperateHint.getId());
                     if(temp == null){
@@ -156,6 +153,7 @@ public class DmsOperateHintController {
                 msg = dmsOperateHint.getHintMessage();
             }
             redisManager.setex(Constants.CACHE_KEY_PRE_PDA_HINT + dmsOperateHint.getWaybillCode(), Constants.TIME_SECONDS_ONE_MONTH, msg);
+            logger.info("PDA提示语加redis缓存成功，运单号：" + dmsOperateHint.getWaybillCode() + ", 提示语：" + msg);
         }catch (Exception e){
             logger.warn("PDA提示语加缓存失败："+JsonHelper.toJson(dmsOperateHint), e);
         }
