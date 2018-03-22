@@ -242,10 +242,10 @@
                 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
             </if>
             <if test="startTime != null">
-                AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+                AND update_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
             </if>
             <if test="endTime != null">
-                AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+                AND update_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
             </if>
             <if test="isEnable != null">
                 AND is_enable = #{isEnable,jdbcType=TINYINT}

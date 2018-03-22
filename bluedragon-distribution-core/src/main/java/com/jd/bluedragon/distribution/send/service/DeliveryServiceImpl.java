@@ -409,7 +409,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     for (String wayBillCode : wayBillCodes){
                         msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT+wayBillCode);
                         if(StringUtils.isNotBlank(msg)){
-                            msg = msg + wayBillCode;
+                            msg = msg + "  "+ wayBillCode;
                             break;
                         }
                     }

@@ -125,7 +125,7 @@ $(function() {
                 type: 'datetime',
                 min: -60,//最近60天内
                 max: 0,//最近60天内
-                btns: ['clear','now', 'confirm'],
+                btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -136,7 +136,7 @@ $(function() {
                 type: 'datetime',
                 min: -60,//最近60天内
                 max: 0,//最近60天内
-                btns: ['clear','now', 'confirm'],
+                btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
                 }
@@ -273,7 +273,7 @@ var excpTypeData={};
 
 // 初始化异常类型下拉框
 function initExcpType() {
-    var url = "/base/dmsBaseDict/selectAndEnum/10001";
+    var url = "/base/dmsBaseDict/selectAndEnum/10002";
     var param = {};
     $.get(url, param, function (myData) {
         var data = myData.data;
