@@ -1,10 +1,11 @@
 $(function() {
-    var saveUrl = '/transport/arBookingSpace/save';
-    var deleteUrl = '/transport/arBookingSpace/deleteByIds';
-    var detailUrl = '/transport/arBookingSpace/detail/';
-    var queryUrl = '/transport/arBookingSpace/listData';
+    var saveUrl = '/base/dmsStorageArea/save';
+    var deleteUrl = '/base/dmsStorageArea/deleteByIds';
+    var detailUrl = '/base/dmsStorageArea/detail';
+    var queryUrl = '/base/dmsStorageArea/listData';
     var tableInit = function() {
         var oTableInit = new Object();
+        $("#dataEditDiv").hide();
         oTableInit.init = function() {
             $('#dataTable').bootstrapTable({
                 url : queryUrl, // 请求后台的URL（*）
@@ -41,6 +42,7 @@ $(function() {
                 columns : oTableInit.tableColums
             });
         };
+
         oTableInit.getSearchParams = function(params) {
             var temp = oTableInit.getSearchCondition();
             if(!temp){
@@ -74,7 +76,7 @@ $(function() {
         oTableInit.tableColums = [ {
             checkbox : true
         }, {
-            field : 'dmsSiteNname',
+            field : 'dmsSiteName',
             title : '操作机构名称',
             width:200,
             class:'min_120'
@@ -108,30 +110,11 @@ $(function() {
         var oInit = new Object();
         var postdata = {};
         oInit.init = function() {
-            $('#dataEditDiv').hide();
-            /*起始时间*/ /*截止时间*/
-            $.datePicker.createNew({
-                elem: '#planStartDateLE',
-                theme: '#3f92ea',
-               btns: ['clear','now'],
-                done: function(value, date, endDate){
-                    /*重置表单验证状态*/
-                }
-            });
-            $.datePicker.createNew({
-                elem: '#planStartDateGE',
-                theme: '#3f92ea',
-               btns: ['clear','now'],
-                done: function(value, date, endDate){
-                    /*重置表单验证状态*/
-                }
-            });
-
-
             $('#btn_query').click(function() {
                 tableInit().refresh();
             });
             $('#btn_add').click(function() {
+                initProAndCity("#provinceEG","#cityEG");
                 $('.edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
@@ -216,15 +199,16 @@ $(function() {
                     $('#btn_submit').attr("disabled",false);
                     return;
                 }
-
                 var params = {};
-                $('.edit-param').each(function () {
-                    var _k = this.id;
+                $('.eidt-param').each(function () {
+                    var _k = this.name;
                     var _v = $(this).val();
                     if(_k ){
                         params[_k]=_v;
                     }
                 });
+                var s= JSON.stringify(params);
+                alert(s);
                 $.post(saveUrl,params,function(res){
                         if(res&&res.succeed){
                             alert('操作成功');
@@ -250,237 +234,178 @@ $(function() {
     };
 
     initOrg();
+    initProAndCity("#desProvinceCode","#desCityCode");
 
-    initDateQuery();
     tableInit().init();
     pageInit().init();
 
     initSiteSelect();
-    initEditPage();
     editFormValidator();
-    initExport(tableInit());
     initImportExcel();
 
 
 
 });
 
-
-//初始化导出按钮
-function initExport(tableInit){
-    $("#btn_export").on("click",function(e){
-
-        var url = "/transport/arBookingSpace/toExport";
-        var params = tableInit.getSearchCondition();
-
-        var form = $("<form method='post'></form>"),
-            input;
-        form.attr({"action":url});
-
-        $.each(params,function(key,value){
-
-            input = $("<input type='hidden' class='search-param'>");
-            input.attr({"name":key});
-            input.val(value);
-            form.append(input);
-        });
-        form.appendTo(document.body);
-        form.submit();
-        document.body.removeChild(form[0]);
-        /*var index = 1;
-        $.each(params,function(key,value){
-            if(index == 1){
-                url+='?';
-            }else{
-                url+='&';
-            }
-            url+=key+"="+value;
-            index++;
-        });
-
-        window.location.href = url;*/
-
-    });
-}
-
 var initLogin = true;
 
 function initSiteSelect(){
-    $("#site-select").select2({
+
+    $("#dmsArea").select2({
+        width: '100%',
+        placeholder:'请选择机构',
+        allowClear:true
+    });
+    $("#dmsSiteCode").select2({
         width: '100%',
         placeholder:'请选择分拣中心',
         allowClear:true
-
     });
-    $("#transportType").select2({
+    $("#desProvinceCode").select2({
         width: '100%',
-        placeholder:'请选运力类型',
+        placeholder:'请选择收件省',
+        allowClear:true
+    });
+    $("#desCityCode").select2({
+        width: '100%',
+        placeholder:'请选择收件市',
+        allowClear:true
+    });
+    $("#provinceEG").select2({
+        width: '100%',
+        placeholder:'请选择收件省',
+        allowClear:true
+    });
+    $("#cityEG").select2({
+        width: '100%',
+        placeholder:'请选择收件市',
         allowClear:true
     });
 }
 
-function initEditPage(){
-    /*新增修改涉及的时间*/
-    $.datePicker.createNew({
-        elem: '#planStartDate',
-        theme: '#3f92ea',
-        btns: ['clear','now'],
-        done: function(value, date, endDate){
-
-            resetFieldValidator(value,"planStartDate");
+function findCity(selectId,cityListUrl,orgId){
+   $(selectId).empty();
+    $.ajax({
+        type : "post",
+        url : cityListUrl,
+        data : { provinceId : orgId },
+        async : false,
+        success : function (data) {
+            var result = [];
+            for(var i in data){
+                if(data[i].assortName && data[i].assortName != ""){
+                    result.push({id:data[i].assortCode,text:data[i].assortName});
+                }
+            }
+            $(selectId).select2({
+                width: '100%',
+                placeholder:'请选择收件市',
+                allowClear:true,
+                data:result
+            });
         }
     });
-    $.datePicker.createNew({
-        elem: '#bookingSpaceTime',
-        theme: '#3f92ea',
-        btns: ['clear','now'],
-        done: function(value, date, endDate){
-            resetFieldValidator(value,"bookingSpaceTime");
-        }
-    });
-    $.datePicker.createNew({
-        elem: '#planStartTime',
-        theme: '#3f92ea',
-        type: 'time',
-         //btns: ['clear','now'],
-        done: function(value, date, endDate){
-            resetFieldValidator(value,"planStartTime");
-        }
-    });
-    $.datePicker.createNew({
-        elem: '#planEndTime',
-        theme: '#3f92ea',
-        type: 'time',
-        //btns: ['clear','now'],
-        done: function(value, date, endDate){
-            resetFieldValidator(value,"planEndTime");
-        }
-    });
-
 }
 
 
-function findSite(selectId,siteListUrl,initIdSelectId){
-   $(selectId).html("");
+// 初始化收件省、收件市下拉框
+function initProAndCity(comboxProvinceCondition,comboxCityCondition) {
+
+    var url = "/base/dmsStorageArea/getProvinceList";
+    var param = {};
+    $.ajax({
+        type : "post",
+        url : url,
+        data : param,
+        async : false,
+        success : function (data) {
+            var result = [];
+            for(var i in data){
+                if(data[i].id && data[i].id != ""){
+                    result.push({id:data[i].id,text:data[i].name});
+                }
+            }
+
+            $(comboxProvinceCondition).select2({
+                width: '100%',
+                placeholder:'请选择收件省',
+                allowClear:true,
+                data:result
+            });
+            $(comboxProvinceCondition).val(null).trigger('change');
+            $(comboxProvinceCondition)
+                .on("change", function(e) {
+                    var orgId = $(comboxProvinceCondition).val();
+                    if(orgId){
+                        var siteListUrl = '/base/dmsStorageArea/getCityList';
+                        findCity(comboxCityCondition ,siteListUrl , Number($(comboxProvinceCondition).val()));
+                    }
+                });
+        }
+    });
+}
+
+function findSite(selectId,siteListUrl){
+    $(selectId).empty();
     $.ajax({
         type : "get",
         url : siteListUrl,
         data : {},
         async : false,
         success : function (data) {
-
-
             var result = [];
             if(data.length==1 && data[0].code!="200"){
-
-
                 result.push({id:"-999",text:data[0].message});
-
             }else{
                 for(var i in data){
                     if(data[i].siteCode && data[i].siteCode != ""){
                         result.push({id:data[i].siteCode,text:data[i].siteName});
                     }
                 }
-
             }
-            if(initIdSelectId && result[0].id!="-999"){
-                $(initIdSelectId).val(result[0].id);
-            }
-
             $(selectId).select2({
                 width: '100%',
                 placeholder:'请选择分拣中心',
                 allowClear:true,
                 data:result
             });
-
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
-
         }
     });
 }
-
-
-// 初始化大区下拉框
+//初始化区域、分拣中心
 function initOrg() {
-
-
-
     var url = "/services/bases/allorgs";
     var param = {};
     $.ajax({
-                type : "get",
-                url : url,
-                data : param,
-                async : false,
-                success : function (data) {
-
-                    var result = [];
-                    for(var i in data){
-                        if(data[i].orgId && data[i].orgId != ""){
-                            result.push({id:data[i].orgId,text:data[i].orgName});
-
-                        }
-
-                    }
-
-                    $('#site-group-select').select2({
-                        width: '100%',
-                        placeholder:'请选择机构',
-                        allowClear:true,
-                        data:result
-                    });
-
-                    $("#site-group-select")
-                        .on("change", function(e) {
-                            $("#query-form #createSiteCode").val("");
-                            var orgId = $("#site-group-select").val();
-                            if(orgId){
-                                var siteListUrl = '/services/bases/dms/'+orgId;
-                                findSite("#site-select",siteListUrl,"#query-form #createSiteCode");
-                            }
-
-                        });
-
-                    $("#site-select").on("change",function(e){
-                        var _s = $("#site-select").val();
-                        $("#query-form #createSiteCode").val(_s);
-                    });
-
-
-                    if($("#loginUserOrgId").val() != -1){
-                        //登录人大区
-                        $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
-                    }else{
-                        $('#site-group-select').val(null).trigger('change');
-                    }
-
-
-
-
-
-
-
-
+        type : "get",
+        url : url,
+        data : param,
+        async : false,
+        success : function (data) {
+            var result = [];
+            for(var i in data){
+                if(data[i].orgId && data[i].orgId != ""){
+                    result.push({id:data[i].orgId,text:data[i].orgName});
                 }
-      });
-
-
-
-
-
-
-
+            }
+            $('#dmsArea').select2({
+                width: '100%',
+                placeholder:'请选择机构',
+                allowClear:true,
+                data:result
+            });
+            $("#dmsArea").val(null).trigger('change');
+            $("#dmsArea")
+                .on("change", function(e) {
+                    var orgId = $("#dmsArea").val();
+                    if(orgId){
+                        var siteListUrl = '/services/bases/dms/'+orgId;
+                        findSite("#dmsSiteCode",siteListUrl);
+                    }
+                });
+        }
+    });
 }
-
 
 function initImportExcel(){
     //上传按钮
@@ -488,7 +413,7 @@ function initImportExcel(){
         $('#btn_upload').attr("disabled",true);
         var form =  $("#upload_excel_form");
         var options = {
-            url:'/transport/arBookingSpace/uploadExcel',
+            url:'/base/dmsStorageArea/uploadExcel',
             type:'post',
             success:function(data){
                 var code = data.code;
@@ -519,16 +444,3 @@ function initImportExcel(){
 
 
 }
-
-
-function initDateQuery(){
-    var v = $.dateHelper.formatDate(new Date());
-
-    $("#planStartDateGE").val(v);
-    $("#planStartDateLE").val(v);
-}
-
-
-
-
-

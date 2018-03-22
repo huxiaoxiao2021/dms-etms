@@ -14,4 +14,5 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 public interface DmsStorageAreaDao extends Dao<DmsStorageArea> {
 
     public abstract DmsStorageArea findByProAndCity(DmsStorageArea dmsStorageArea);
+
 }
