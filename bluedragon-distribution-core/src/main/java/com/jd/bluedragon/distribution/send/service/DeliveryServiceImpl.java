@@ -381,8 +381,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.transitSend(domain);
         this.pushStatusTask(domain);
         Profiler.registerInfoEnd(temp_info3);
-
+        //获取发货提示语
+        CallerInfo temp_info4 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info4", false, true);
         String hints = getPdaHints(domain);
+        Profiler.registerInfoEnd(temp_info4);
+
         SendResult result = null;
         if(StringUtils.isNotBlank(hints)){
             result = new SendResult(SendResult.CODE_WARN, hints);
@@ -412,8 +415,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }else{
                     logger.warn("一车一单发货无法获取箱号下的运单号："+JsonHelper.toJson(sendM));
                 }
-            }else{//原包
-                msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT+BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
+            }else if(BusinessHelper.isPackageCode(sendM.getBoxCode())){//原包
+                msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
             }
             logger.info("redis取PDA提示语结果："+msg);
         }catch (Throwable e){
