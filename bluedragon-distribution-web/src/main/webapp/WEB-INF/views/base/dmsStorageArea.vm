@@ -11,8 +11,6 @@
     <script src="/static/js/base/arBookingSpaceValidator.js"></script>
 </head>
 <body class="container-fluid">
-<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
-<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
 <div id="dataTableDiv">
     <ol class="breadcrumb">
         <li><a href="#">快运中心</a></li>

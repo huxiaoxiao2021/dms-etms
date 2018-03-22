@@ -49,7 +49,7 @@ public class DmsStorageAreaController {
 	 * @return
 	 */
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() throws Exception {
+	public String toIndex()  {
 		return "/base/dmsStorageArea";
 	}
 
@@ -59,7 +59,7 @@ public class DmsStorageAreaController {
 	 */
 	@RequestMapping("/getProvinceList")
 	@ResponseBody
-	public List getProvince() throws Exception{
+	public List getProvince() {
 		this.logger.info("获取所有的省份");
 		List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
         try{
@@ -77,7 +77,7 @@ public class DmsStorageAreaController {
 	 */
 	@RequestMapping("/getCityList")
 	@ResponseBody
-	public List getCity(Integer provinceId) throws Exception {
+	public List getCity(Integer provinceId)  {
 	    this.logger.info("获取对应省下的所有城市");
         List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
         try{
