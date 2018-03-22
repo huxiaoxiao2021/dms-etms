@@ -20,8 +20,9 @@ public enum MessageDestinationConstant {
     QualityControlFXMMQ("bd_dms_abnormal_order_to_qc","配送外呼发送给质控MQ"),
 	//FIXME:已经失效
 	@Deprecated
-    SendDetailMQ("dmsWorkSendDetail", "发货明细消息");
-
+    SendDetailMQ("dmsWorkSendDetail", "发货明细消息"),
+	//根据source区分类型，未来可能代替dmsWorkSendDetail
+    NewSendDetailMQ("dms_send_detail", "新发货明细消息");
     private String name;
 
     private String desc;
