@@ -561,26 +561,7 @@ public class InspectionResource {
             hintMessage = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode);
             logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
         }catch (Exception e){
-            logger.warn("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
-            //DB 查询一个月内的运单提示语
-            try{
-                DmsOperateHintCondition condition = new DmsOperateHintCondition();
-                condition.setWaybillCode(waybillCode);
-                //查询一个月内启用的运单提示语，去最近的一条
-                Calendar c = Calendar.getInstance();
-                c.setTime(new Date());
-                c.add(Calendar.MONTH, -1);
-                condition.setStartTime(c.getTime());
-                condition.setIsEnable(Constants.INTEGER_FLG_TRUE);
-                PagerResult<DmsOperateHint> list = dmsOperateHintService.queryByPagerCondition(condition);
-                if(list != null && list.getTotal() > 0){
-                    hintMessage = list.getRows().get(0).getHintMessage();
-                }
-                logger.info("验货DB查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
-            }catch (Exception e1){
-                logger.warn("验货DB查询运单提示语异常，不再返回提示语，运单号：" + waybillCode, e1);
-            }
-
+            logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
         }
         return hintMessage;
     }
