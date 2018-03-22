@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.send.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,19 +66,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -253,6 +241,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Qualifier("dmsWorkSendDetailMQ")
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
+    @Autowired
+    @Qualifier("arSendDetailProducer")
+    private DefaultJMQProducer arSendDetailProducer;
+
     //added by hanjiaxing 2016.12.20
     @Autowired
     private GantryExceptionService gantryExceptionService;
@@ -299,10 +291,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     public SendResult packageSend(SendM domain, boolean isForceSend) {
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
-            return new SendResult(2, "批次号错误：" + domain.getSendCode());
+            return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
         }
         if(checkSendCodeIsSealed(domain.getSendCode())){
-            return new SendResult(2, "批次号已操作封车，请换批次！");
+            return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
@@ -312,7 +304,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
         if (null != sendMList && sendMList.size() > 0) {
-            return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
+            return new SendResult(SendResult.CODE_SENDED, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
         Profiler.registerInfoEnd(temp_info1);
 
@@ -357,7 +349,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if (!isForceSend)
                         return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
                 } else{
-                    return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
+                    return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
 
@@ -366,7 +358,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!isForceSend){
             DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
             if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
-                return new SendResult(4, verificationResult.getMessage());
+                return new SendResult(SendResult.CODE_CONFIRM, verificationResult.getMessage());
             }
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
@@ -389,7 +381,60 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.transitSend(domain);
         this.pushStatusTask(domain);
         Profiler.registerInfoEnd(temp_info3);
-        return new SendResult(1, "发货成功");
+
+        String hints = getPdaHints(domain);
+        SendResult result = null;
+        if(StringUtils.isNotBlank(hints)){
+            result = new SendResult(SendResult.CODE_WARN, hints);
+        }else{
+            result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        }
+        return result;
+    }
+
+    /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendM
+     * @return
+     */
+    private String getPdaHints(SendM sendM) {
+        String msg = "";
+        try {
+            if (SerialRuleUtil.isMatchBoxCode(sendM.getBoxCode())) {//按箱
+                List<String> wayBillCodes = getWayBillCodesByBoxCode(sendM.getBoxCode());
+                if(wayBillCodes != null && !wayBillCodes.isEmpty()){
+                    for (String wayBillCode : wayBillCodes){
+                        msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT+wayBillCode);
+                        if(StringUtils.isNotBlank(msg)){
+                            break;
+                        }
+                    }
+                }else{
+                    logger.warn("一车一单发货无法获取箱号下的运单号："+JsonHelper.toJson(sendM));
+                }
+            }else{//原包
+                msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT+BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
+            }
+            logger.info("redis取PDA提示语结果："+msg);
+        }catch (Throwable e){
+            logger.warn("redis取PDA提示语失败："+e.getMessage());
+        }
+        return msg;
+    }
+
+    /**
+     * 根据箱号查询箱号的运单号
+     * @param boxCode
+     * @return
+     */
+    private List<String> getWayBillCodesByBoxCode(String boxCode){
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if(box != null) {
+            return sendDatailReadDao.findWaybillByBoxCode(boxCode, box.getCreateSiteCode());
+        }else{
+            logger.warn("一车一单发货箱号为空："+boxCode);
+        }
+        return null;
     }
     /**
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
@@ -1502,7 +1547,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 sendInspection(tSendDatail, sendDatailMap);
 
                                 //发送发货明细mq
-                                Message sendMessage = parseSendDetailToMessage(tSendDatail);
+                                Message sendMessage = parseSendDetailToMessage(tSendDatail,dmsWorkSendDetailMQ.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                 this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
 
@@ -1738,7 +1783,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    private Message parseSendDetailToMessage(SendDetail sendDatail) {
+    private Message parseSendDetailToMessage(SendDetail sendDatail,String topic,String source) {
         Message message = new Message();
         SendDetail newSendDetail = new SendDetail();
         if (sendDatail != null) {
@@ -1750,15 +1795,34 @@ public class DeliveryServiceImpl implements DeliveryService {
             newSendDetail.setSendCode(sendDatail.getSendCode());
             newSendDetail.setCreateUserCode(sendDatail.getCreateUserCode());
             newSendDetail.setCreateUser(sendDatail.getCreateUser());
-            newSendDetail.setSource("DMS");
+            newSendDetail.setSource(source);
             newSendDetail.setBoxCode(sendDatail.getBoxCode());
-            message.setTopic(MessageDestinationConstant.SendDetailMQ.getName());
+            message.setTopic(topic);
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDatail.getPackageBarcode());
         }
         return message;
     }
-
+    private Message parseSendDetailToMessageOfAR(SendDetail sendDatail,String topic,String arSendRegisterId) {
+        Message message = new Message();
+        ArSendDetailMQBody arSendDetailMQBody = new ArSendDetailMQBody();
+        if (sendDatail != null) {
+            // MQ包含的信息:包裹号,发货站点,发货时间
+            arSendDetailMQBody.setPackageBarcode(sendDatail.getPackageBarcode());
+            arSendDetailMQBody.setCreateSiteCode(sendDatail.getCreateSiteCode());
+            arSendDetailMQBody.setReceiveSiteCode(sendDatail.getReceiveSiteCode());
+            arSendDetailMQBody.setOperateTime(sendDatail.getOperateTime());
+            arSendDetailMQBody.setSendCode(sendDatail.getSendCode());
+            arSendDetailMQBody.setCreateUserCode(sendDatail.getCreateUserCode());
+            arSendDetailMQBody.setCreateUser(sendDatail.getCreateUser());
+            arSendDetailMQBody.setBoxCode(sendDatail.getBoxCode());
+            arSendDetailMQBody.setArSendRegisterId(arSendRegisterId);
+            message.setTopic(topic);
+            message.setText(JSON.toJSONString(arSendDetailMQBody));
+            message.setBusinessId(sendDatail.getPackageBarcode());
+        }
+        return message;
+    }
     public boolean findSendwaybillMessage(Task task) throws Exception {
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null)
             return true;
@@ -3166,6 +3230,47 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return new DeliveryResponse(DeliveryResponse.CODE_OK,
                 DeliveryResponse.MESSAGE_OK);
+    }
+
+    @Override
+    public boolean sendDetailMQ(Task task) {
+        //body中是批次号,号分割
+        CallerInfo info = null;
+        try{
+            info = Profiler.registerInfo( "DMSWORKER.DeliveryServiceImpl.sendDetailMQ",false, true);
+            String body = task.getBody();
+            String arSendRegisterId = task.getKeyword2();
+            if(StringUtils.isNotBlank(body)){
+                String[] sendCodes = body.split(Constants.SEPARATOR_COMMA);
+                for(String sendCode : sendCodes){
+                    if(StringUtils.isNotBlank(sendCode)){
+                        List<SendDetail> sendDetailList = sendDatailDao.querySendDetailBySendCode(sendCode);
+                        if(null != sendDetailList && sendDetailList.size() > 0){
+                            for(SendDetail sendDetail : sendDetailList){
+                                //获取包裹明细
+                                Message sendMessage = parseSendDetailToMessageOfAR(sendDetail,arSendDetailProducer.getTopic(),arSendRegisterId);
+                                //this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
+                                this.arSendDetailProducer.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
+
+                            }
+                        }else{
+                            logger.error("新发货明细MQ任务根据批次号获取发货明细为空,批次号："+sendCode);
+                        }
+                    }else{
+                        logger.error("新发货明细MQ任务根据批次号为空,task_id:"+task.getId());
+                    }
+                }
+            }else{
+                logger.error("新发货明细MQ任务body为空,task_id:"+task.getId());
+            }
+            return true;
+        }catch (Exception e){
+            logger.error("新发货明细MQ任务处理失败:"+e.getMessage());
+            Profiler.functionError(info);
+            return false;
+        }finally{
+            Profiler.registerInfoEnd(info);
+        }
     }
 
     /**

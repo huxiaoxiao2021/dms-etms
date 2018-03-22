@@ -278,4 +278,10 @@ public interface DeliveryService {
      * @param tDeliveryMessageJsonList 发货相关数据
      */
     public DeliveryResponse autoBatchSend(List<SendM> sendMList);
+
+	/**
+	 * 发送dms_send_detail发货明细MQ
+	 * @param task
+	 */
+	boolean sendDetailMQ(Task task);
 }
