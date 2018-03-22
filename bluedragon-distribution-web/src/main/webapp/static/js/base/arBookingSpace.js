@@ -261,9 +261,19 @@ function initSiteSelect(){
         placeholder:'请选择分拣中心',
         allowClear:true
     });
+    $("#desProvinceCode").select2({
+        width: '100%',
+        placeholder:'请选择收件省',
+        allowClear:true
+    });
     $("#desCityCode").select2({
         width: '100%',
         placeholder:'请选择收件市',
+        allowClear:true
+    });
+    $("#provinceEG").select2({
+        width: '100%',
+        placeholder:'请选择收件省',
         allowClear:true
     });
     $("#cityEG").select2({
