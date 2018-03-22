@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.rest.inspection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +12,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
@@ -22,6 +24,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +88,12 @@ public class InspectionResource {
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
 
+    @Autowired
+    private DmsOperateHintService dmsOperateHintService;
+
+	@Autowired
+	private RedisManager redisManager;
+
 	private final static Logger logger = Logger
 			.getLogger(InspectionResource.class);
 
@@ -110,7 +119,7 @@ public class InspectionResource {
 	/**
 	 * 分拣助手，异常查询：查询多验、少验验货异常信息
 	 * 
-	 * @param jsonVal
+	 * @param inspectionECRequest
 	 *            传入第三方Code,异常类型
 	 * @return
 	 */
@@ -201,7 +210,7 @@ public class InspectionResource {
 	/**
 	 * 第三方：异常处理：超区退回|多验退回|少验取消 OR 多验直接配送
 	 * 
-	 * @param jsonVal
+	 * @param inspectionECRequest
 	 * @return
 	 */
 	@POST
@@ -326,7 +335,8 @@ public class InspectionResource {
 	 * 
 	 * @param code
 	 *            运单号或者包裹号
-	 * @param siteCode创建站点
+	 * @param siteCode
+     *           创建站点
 	 * @return
 	 */
 	@GET
@@ -529,9 +539,47 @@ public class InspectionResource {
 			waybillCode = packageBarOrWaybillCode.substring(0, (packageBarOrWaybillCode.indexOf("-") - 1));
 		}
 		InspectionResult inspectionResult = getInspectionResult(jdResponse, dmsStorageArea, dmsSiteCode, waybillCode);
+        inspectionResult.setHintMessage(getHintMessage(waybillCode));
+        jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);
 		return jdResponse;
 	}
+
+    /**
+     * 根据运单号，取一个月内启用的运单提示语
+     * 先从redis中查，查询异常再从DB查
+     * @param waybillCode
+     * @return
+     */
+    private String getHintMessage(String waybillCode){
+        String hintMessage = "";
+        try{
+            hintMessage = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode);
+            logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
+        }catch (Exception e){
+            logger.warn("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
+            //DB 查询一个月内的运单提示语
+            try{
+                DmsOperateHintCondition condition = new DmsOperateHintCondition();
+                condition.setWaybillCode(waybillCode);
+                //查询一个月内启用的运单提示语，去最近的一条
+                Calendar c = Calendar.getInstance();
+                c.setTime(new Date());
+                c.add(Calendar.MONTH, -1);
+                condition.setStartTime(c.getTime());
+                condition.setIsEnable(Constants.INTEGER_FLG_TRUE);
+                PagerResult<DmsOperateHint> list = dmsOperateHintService.queryByPagerCondition(condition);
+                if(list != null && list.getTotal() > 0){
+                    hintMessage = list.getRows().get(0).getHintMessage();
+                }
+                logger.info("验货DB查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
+            }catch (Exception e1){
+                logger.warn("验货DB查询运单提示语异常，不再返回提示语，运单号：" + waybillCode, e1);
+            }
+
+        }
+        return hintMessage;
+    }
 
 	/**
 	 *  通过运单号获得库位号

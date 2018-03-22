@@ -285,7 +285,7 @@
 		limit 1
 	</select>
 
-	<select id=".findByProAndCity" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
+	<select id="findByProAndCity" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
 		select
 		<include refid="Base_Column_List"/>
 		from

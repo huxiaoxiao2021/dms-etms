@@ -7,8 +7,13 @@ import java.io.Serializable;
  */
 public class InspectionResult implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /*库位号*/
     private String storageCode;
+
+    /*PDA验货提示语*/
+    private String hintMessage;
 
     public InspectionResult(String storageCode) {
         this.storageCode = storageCode;
@@ -20,5 +25,13 @@ public class InspectionResult implements Serializable {
 
     public void setStorageCode(String storageCode) {
         this.storageCode = storageCode;
+    }
+
+    public String getHintMessage() {
+        return hintMessage;
+    }
+
+    public void setHintMessage(String hintMessage) {
+        this.hintMessage = hintMessage;
     }
 }
