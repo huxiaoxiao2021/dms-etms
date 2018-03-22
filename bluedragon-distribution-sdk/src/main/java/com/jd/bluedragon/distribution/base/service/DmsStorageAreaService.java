@@ -14,4 +14,6 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
 public interface DmsStorageAreaService extends Service<DmsStorageArea> {
 
     public abstract DmsStorageArea findByProAndCity(DmsStorageArea dmsStorageArea);
+
+    public abstract DmsStorageArea getUserInfo(DmsStorageArea dmsStorageArea);
 }

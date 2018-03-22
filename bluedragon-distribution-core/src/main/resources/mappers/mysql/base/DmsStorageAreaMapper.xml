@@ -295,7 +295,7 @@
 			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER},
 		</if>
 		<if test="desCityCode != null">
-			AND	des_city_code = #{desCityCode,jdbcType=INTEGER},
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER},
 		</if>
 		<if test="dmsSiteCode != null">
 			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},

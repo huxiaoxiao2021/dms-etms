@@ -11,8 +11,6 @@
     <script src="/static/js/base/arBookingSpaceValidator.js"></script>
 </head>
 <body class="container-fluid">
-<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
-<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
 <div id="dataTableDiv">
     <ol class="breadcrumb">
         <li><a href="#">快运中心</a></li>
@@ -25,44 +23,59 @@
 
                 <div class="row">
                     <div class="col-xs-12 ">
-                        <div class="col-xs-3">
+                        <div class="col-xs-6">
                             <div class="form-group">
-                                <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
-                                <div class=" col-xs-7">
-                                    <select id="site-group-select" class="form-control " name="site-group-select"
+                                <label class="control-label col-xs-3" for="site-select">区域 ：</label>
+                                <div class=" col-xs-5">
+                                    <select id="dmsArea" class="form-control search-param " name="dmsArea"
                                             value=""></select>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-3">
+                        <div class="col-xs-6">
                             <div class="form-group">
-                                <label class="control-label col-xs-4" for="site-select">收件省 ：</label>
-                                <div class=" col-xs-7">
-                                    <select id="province" class="form-control " name="province" value=""></select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-3">
-                            <div class="form-group">
-                                <label class="control-label col-xs-4" for="site-select">收件市 ：</label>
-                                <div class=" col-xs-7">
-                                    <select id="city" class="form-control " name="city" value=""></select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-3">
-                            <div class="form-group">
-                                <label class="control-label col-xs-4" for="box-code-input">库位号 ：</label>
-                                <div class="col-xs-7">
-                                    <input type="text" id="transportName" class="form-control col-xs-8 search-param "
-                                           name="transportName">
+                                <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
+                                <div class=" col-xs-5">
+                                    <select id="dmsSiteCode" class="form-control search-param " name="dmsSiteCode"
+                                            value=""></select>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="row">
+                    <div class="col-xs-12 ">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="site-select">收件省 ：</label>
+                                <div class=" col-xs-6">
+                                    <select id="desProvinceCode" class="form-control search-param " name="desProvinceCode" value="">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="site-select">收件市 ：</label>
+                                <div class=" col-xs-6">
+                                    <select id="desCityCode" class="form-control search-param " name="desCityCode" value="">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="box-code-input">库位号 ：</label>
+                                <div class="col-xs-6">
+                                    <input type="text" id="storageCode" class="form-control col-xs-8 search-param "
+                                           name="storageCode">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </fieldset>
         </form>
     </div>
@@ -96,29 +109,29 @@
     <div id="edit-condition">
         <form id="edit-form" class="form-horizontal  col-xs-12">
             <fieldset>
-                <input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                <input type="hidden" class="form-control eidt-param" id="id" name="id"/>
                 <hr/>
                 <div class="row">
                     <div class="col-xs-6">
 
                         <div class="form-group">
                             <label class="col-xs-3 control-label">收件省 ：</label>
-                            <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="transportName"
-                                       name="transportName"/>
+                            <div class=" col-xs-5">
+                                <select id="provinceEG" class="form-control eidt-param" name="desProvinceCode" value="">
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-xs-3 control-label">收件市 ：</label>
-                            <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="startCityName"
-                                       name="startCityName"/>
+                            <div class=" col-xs-5">
+                                <select id="cityEG" class="form-control eidt-param" name="desCityCode" value="">
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-xs-3 control-label">库位号 ：</label>
-                            <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="endCityName" name="endCityName"/>
+                            <div class="col-xs-5">
+                                <input type="text" class="form-control eidt-param" id="storageCodeEG" name="storageCode"/>
                             </div>
                         </div>
 
@@ -129,7 +142,7 @@
     </div>
     <hr/>
 
-    <div class="form-group " style="text-align:right;">
+    <div class="form-group " style="text-align:center;">
         <button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">提交</button>
         <button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
     </div>
@@ -154,7 +167,7 @@
                         <label for="exampleInputFile">选择导入文件</label>
                         <input type="file" id="importExcelFile" name="importExcelFile">
                         <p class="help-block">请使用标准模板,记录条数不得超过1000条</p>
-                        <a href="#springUrl('')/static/importFileModel/arBookingSpace.xls"
+                        <a href="#springUrl('')/static/importFileModel/dmsStorageSpace.xls"
                            type="application/vnd.ms-excel">下载excel模版</a>
                     </div>
 

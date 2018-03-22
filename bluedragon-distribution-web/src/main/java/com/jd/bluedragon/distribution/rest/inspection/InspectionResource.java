@@ -122,7 +122,7 @@ public class InspectionResource {
 	/**
 	 * 分拣助手，异常查询：查询多验、少验验货异常信息
 	 * 
-	 * @param inspectionECRequest
+	 * @param jsonVal
 	 *            传入第三方Code,异常类型
 	 * @return
 	 */
@@ -213,7 +213,7 @@ public class InspectionResource {
 	/**
 	 * 第三方：异常处理：超区退回|多验退回|少验取消 OR 多验直接配送
 	 * 
-	 * @param inspectionECRequest
+	 * @param jsonVal
 	 * @return
 	 */
 	@POST
@@ -338,8 +338,7 @@ public class InspectionResource {
 	 * 
 	 * @param code
 	 *            运单号或者包裹号
-	 * @param siteCode
-     *           创建站点
+	 * @param siteCode创建站点
 	 * @return
 	 */
 	@GET
