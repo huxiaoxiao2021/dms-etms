@@ -149,7 +149,7 @@ public class DmsOperateHintController {
     private void setCache(DmsOperateHint dmsOperateHint){
         try{
             String msg = "";
-            if(Constants.STRING_FLG_TRUE.equals(dmsOperateHint.getIsEnable())){
+            if(Constants.INTEGER_FLG_TRUE.equals(dmsOperateHint.getIsEnable())){
                 msg = dmsOperateHint.getHintMessage();
             }
             redisManager.setex(Constants.CACHE_KEY_PRE_PDA_HINT + dmsOperateHint.getWaybillCode(), Constants.TIME_SECONDS_ONE_MONTH, msg);
