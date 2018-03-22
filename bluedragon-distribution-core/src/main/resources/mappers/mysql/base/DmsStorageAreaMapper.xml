@@ -297,6 +297,9 @@
 		<if test="desCityCode != null">
 			AND des_city_code = #{desCityCode,jdbcType=INTEGER},
 		</if>
+		<if test="dmsSiteCode != null">
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
+		</if>
 		limit 1
 	</select>
 
