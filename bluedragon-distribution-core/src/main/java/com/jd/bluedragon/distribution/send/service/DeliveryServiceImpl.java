@@ -409,6 +409,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     for (String wayBillCode : wayBillCodes){
                         msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT+wayBillCode);
                         if(StringUtils.isNotBlank(msg)){
+                            msg = msg + wayBillCode;
                             break;
                         }
                     }
@@ -420,7 +421,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             logger.info("redis取PDA提示语结果："+msg);
         }catch (Throwable e){
-            logger.warn("redis取PDA提示语失败："+e.getMessage());
+            logger.error("redis取PDA提示语失败："+ JsonHelper.toJson(sendM), e);
         }
         return msg;
     }

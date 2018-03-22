@@ -155,7 +155,7 @@ public class DmsOperateHintController {
             redisManager.setex(Constants.CACHE_KEY_PRE_PDA_HINT + dmsOperateHint.getWaybillCode(), Constants.TIME_SECONDS_ONE_MONTH, msg);
             logger.info("PDA提示语加redis缓存成功，运单号：" + dmsOperateHint.getWaybillCode() + ", 提示语：" + msg);
         }catch (Exception e){
-            logger.warn("PDA提示语加缓存失败："+JsonHelper.toJson(dmsOperateHint), e);
+            logger.error("PDA提示语加缓存失败："+JsonHelper.toJson(dmsOperateHint), e);
         }
     }
 }
