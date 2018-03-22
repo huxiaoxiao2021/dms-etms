@@ -21,10 +21,13 @@ import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -527,6 +530,7 @@ public class InspectionResource {
 
 	@GET
 	@Path("/inspection/hintInfo/{packageOrWaybillCode}/{siteCode}")
+    @JProfiler(jKey = "DMSWEB.REST.InspectionResource.getStorageCode",mState = {JProEnum.TP})
 	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
 			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
 			@PathParam("siteCode") Integer siteCode){
@@ -535,9 +539,9 @@ public class InspectionResource {
 		//判断是运单号还是包裹号
 		Integer dmsSiteCode = siteCode;
 		String waybillCode = packageBarOrWaybillCode;
-		if(packageBarOrWaybillCode.indexOf("-") != -1){
-			waybillCode = packageBarOrWaybillCode.substring(0, (packageBarOrWaybillCode.indexOf("-") - 1));
-		}
+        if(BusinessHelper.isPackageCode(packageBarOrWaybillCode)){
+            waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(packageBarOrWaybillCode);
+        }
 		InspectionResult inspectionResult = getInspectionResult(jdResponse, dmsStorageArea, dmsSiteCode, waybillCode);
         inspectionResult.setHintMessage(getHintMessage(waybillCode));
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
