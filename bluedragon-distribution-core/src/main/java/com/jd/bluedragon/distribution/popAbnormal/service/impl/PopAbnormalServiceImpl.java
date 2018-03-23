@@ -52,8 +52,8 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
 
-	@Autowired
-	private WaybillUpdateApi waybillUpdateApi;
+	/*@Autowired
+	private WaybillUpdateApi waybillUpdateApi;*/
 
 	@Autowired
 	private PopAbnormalDao popAbnormalDao;
@@ -246,7 +246,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		return flag;
 	}
 
-	@Override
+	/*@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateById(PopAbnormal popAbnormal) {
 		int flag = 0;
@@ -316,7 +316,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		flag++;
 		return flag;
 	}
-
+*/
 	/**
 	 * 转换运单基本信息
 	 * 

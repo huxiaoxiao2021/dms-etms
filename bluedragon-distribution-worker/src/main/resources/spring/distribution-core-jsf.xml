@@ -115,9 +115,9 @@
     <jsf:consumer id="waybillSyncApiJsf" interface="com.jd.etms.waybill.api.WaybillSyncApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
-    <jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
+    <!--<jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
-    </jsf:consumer>
+    </jsf:consumer>-->
     <jsf:consumer id="waybillPickupTaskApiJsf" interface="com.jd.etms.waybill.api.WaybillPickupTaskApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
