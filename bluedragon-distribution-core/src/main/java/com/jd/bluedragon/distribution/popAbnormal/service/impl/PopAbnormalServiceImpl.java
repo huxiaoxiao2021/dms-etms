@@ -52,7 +52,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	@Autowired
 	WaybillQueryApi waybillQueryApi;
 
-	@Autowired(required = false)
+	@Autowired
 	private WaybillUpdateApi waybillUpdateApi;
 
 	@Autowired
