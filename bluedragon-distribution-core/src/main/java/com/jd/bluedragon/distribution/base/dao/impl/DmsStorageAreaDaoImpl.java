@@ -17,8 +17,11 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("dmsStorageAreaDao")
 public class DmsStorageAreaDaoImpl extends BaseDao<DmsStorageArea> implements DmsStorageAreaDao {
 
-    public DmsStorageArea findByProAndCity(DmsStorageArea dmsStorageArea) {
-
+    public DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode) {
+        DmsStorageArea dmsStorageArea =new DmsStorageArea();
+        dmsStorageArea.setDmsSiteCode(dmsSiteCode);
+        dmsStorageArea.setDesProvinceCode(dmsProvinceCode);
+        dmsStorageArea.setDesCityCode(dmsCityCode);
         return sqlSession.selectOne(getNameSpace() + ".findByProAndCity",dmsStorageArea);
     }
 }

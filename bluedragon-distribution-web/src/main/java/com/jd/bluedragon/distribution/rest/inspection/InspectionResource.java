@@ -13,8 +13,6 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
@@ -582,17 +580,19 @@ public class InspectionResource {
 				dmsStorageArea.setDesProvinceCode(waybill.getProvinceId());
 				dmsStorageArea.setDesCityCode(waybill.getCityId());
 				dmsStorageArea.setDmsSiteCode(dmsSiteCode);
-				DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsStorageArea);
+				DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
 				if(newDmsStorageArea != null){
 					String storageCode = newDmsStorageArea.getStorageCode();
 					jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_SUCCESS);
 					return new InspectionResult(storageCode);
 				}else {
+					this.logger.warn("通过收件省市Id、分拣中心Id获取DmsStorageArea对象失败");
 					jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
 					jdResponse.setMessage("未找到对应的库位号");
 					return new InspectionResult("");
 				}
 			}else{
+				this.logger.warn("通过运单号获取运单信息失败：" + waybillCode);
 				jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
 				jdResponse.setMessage("获取库位号失败");
 				return new InspectionResult("");

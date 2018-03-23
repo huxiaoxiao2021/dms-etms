@@ -292,14 +292,15 @@
 		dms_storage_area
 		where 1=1
 		<if test="desProvinceCode != null">
-			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER},
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
 		</if>
 		<if test="desCityCode != null">
-			AND des_city_code = #{desCityCode,jdbcType=INTEGER},
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
 		</if>
 		<if test="dmsSiteCode != null">
-			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
 		</if>
+		<include refid="Base_Condition_Sql"/>
 		limit 1
 	</select>
 
@@ -312,7 +313,19 @@
 		 count(1) as num
 		from 
 		  dms_storage_area 
-		where 1=1 
+		where 1=1
+		<if test="storageCode != null">
+			AND storage_code = #{storageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="dmsSiteCode != null">
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="desProvinceCode != null">
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+		</if>
+		<if test="desCityCode != null">
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
+		</if>
 		 <include refid="Base_Condition_Sql"/>
 	</select>
 
@@ -321,7 +334,19 @@
 		 <include refid="Base_Column_List"/>
 		from 
 		  dms_storage_area 
-		where 1=1 
+		where 1=1
+		<if test="storageCode != null">
+			AND storage_code = #{storageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="dmsSiteCode != null">
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="desProvinceCode != null">
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+		</if>
+		<if test="desCityCode != null">
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
+		</if>
 		 <include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>

@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.base.service;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  *
  * @ClassName: DmsStorageAreaService
@@ -13,7 +16,9 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface DmsStorageAreaService extends Service<DmsStorageArea> {
 
-    public abstract DmsStorageArea findByProAndCity(DmsStorageArea dmsStorageArea);
+    DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
 
-    public abstract DmsStorageArea getUserInfo(DmsStorageArea dmsStorageArea);
+    DmsStorageArea getUserInfo(DmsStorageArea dmsStorageArea);
+
+    Boolean importExcel(List<DmsStorageArea>  dataList,String createUserCode,String createUserName,Date createTime);
 }

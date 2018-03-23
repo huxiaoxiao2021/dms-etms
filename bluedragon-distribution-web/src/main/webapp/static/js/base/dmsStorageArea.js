@@ -1,7 +1,7 @@
 $(function() {
     var saveUrl = '/base/dmsStorageArea/save';
     var deleteUrl = '/base/dmsStorageArea/deleteByIds';
-    var detailUrl = '/base/dmsStorageArea/detail';
+    var detailUrl = '/base/dmsStorageArea/detail/';
     var queryUrl = '/base/dmsStorageArea/listData';
     var tableInit = function() {
         var oTableInit = new Object();
@@ -97,6 +97,9 @@ $(function() {
         }, {
             field : 'createTime',
             title : '操作时间',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            },
             width:200,
             class:'min_120'
         } ];
@@ -144,24 +147,32 @@ $(function() {
                     }
                 });
                 $("#edit-form").data("bootstrapValidator").resetForm();
-                $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
-                    if(res&&res.succeed&&res.data){
-                        $('.edit-param').each(function () {
-                            var _k = this.id;
-                            var _v = res.data[_k];
-                            if(_k && _v){
-                                if(_k=='planStartDate' || _k=='bookingSpaceTime'){
-                                    _v =$.dateHelper.formateDateOfTs(_v);
-                                }else if(_k=='planStartTime' || _k=='planEndTime'){
-                                    _v =$.dateHelper.formateTimeOfTs(_v);
-                                }
-                                $(this).val(_v);
-                            }
-                        });
+                $('#dataEditDiv').show();
+                initProAndCity("#provinceEG","#cityEG");
+                var pro = "";
+                var city = "";
+                var editId = "";
+                $.ajax({
+                    type : "get",
+                    url : detailUrl+rows[0].id,
+                    data : {},
+                    async : false,
+                    success : function (data) {
+                        if(data&&data.code == 400){
+                            alert('操作异常');
+                            return;
+                        }else{
+                            editId = data.data.id;
+                            pro = data.data.desProvinceCode;
+                            city = data.data.desCityCode;
+                            $("#storageCodeEG").val(data.data.storageCode);
+                        }
                     }
                 });
+                $("#editId").val(editId);
+                $('#provinceEG').val(pro).trigger('change');
+                $('#cityEG').val(city).trigger('change');
                 $('#dataTableDiv').hide();
-                $('#dataEditDiv').show();
             });
 
             // 删
@@ -207,12 +218,17 @@ $(function() {
                         params[_k]=_v;
                     }
                 });
+                params["desProvinceName"] = $('#provinceEG option:selected').text();
+                params["desCityName"] = $('#cityEG option:selected').text();
+                params["storageCode"] = $('#storageCodeEG').val();
                 var s= JSON.stringify(params);
                 alert(s);
                 $.post(saveUrl,params,function(res){
                         if(res&&res.succeed){
                             alert('操作成功');
                             tableInit().refresh();
+                        }else if(res&& res.succeed == 400){
+                            alert(res.message);
                         }else{
                             alert('操作异常');
                         }

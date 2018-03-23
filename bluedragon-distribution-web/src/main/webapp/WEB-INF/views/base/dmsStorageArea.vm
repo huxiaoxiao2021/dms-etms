@@ -7,8 +7,8 @@
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
-    <script src="/static/js/base/arBookingSpace.js"></script>
-    <script src="/static/js/base/arBookingSpaceValidator.js"></script>
+    <script src="/static/js/base/dmsStorageArea.js"></script>
+    <script src="/static/js/base/dmsStorageAreaValidator.js"></script>
 </head>
 <body class="container-fluid">
 <div id="dataTableDiv">
@@ -27,7 +27,7 @@
                             <div class="form-group">
                                 <label class="control-label col-xs-3" for="site-select">区域 ：</label>
                                 <div class=" col-xs-5">
-                                    <select id="dmsArea" class="form-control search-param " name="dmsArea"
+                                    <select id="dmsArea" class="form-control search-params " name="dmsArea"
                                             value=""></select>
                                 </div>
                             </div>
@@ -109,7 +109,7 @@
     <div id="edit-condition">
         <form id="edit-form" class="form-horizontal  col-xs-12">
             <fieldset>
-                <input type="hidden" class="form-control eidt-param" id="id" name="id"/>
+                <input type="hidden" class="form-control eidt-param" id="editId" name="id"/>
                 <hr/>
                 <div class="row">
                     <div class="col-xs-6">
@@ -131,7 +131,7 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">库位号 ：</label>
                             <div class="col-xs-5">
-                                <input type="text" class="form-control eidt-param" id="storageCodeEG" name="storageCode"/>
+                                <input type="text" class="form-control edit-param" id="storageCodeEG" name="storageCode"/>
                             </div>
                         </div>
 
