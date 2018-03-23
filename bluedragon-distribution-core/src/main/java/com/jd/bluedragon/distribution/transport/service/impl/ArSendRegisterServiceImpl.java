@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
 import com.google.gson.reflect.TypeToken;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
@@ -121,12 +123,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
                     // 推送全程跟踪
                     this.sendTrack(arSendRegister, sendCodes);
+
+                    sendDetailMQTask(arSendRegister,sendCodes);
                     // 调用TMS BASIC订阅实时航班JSF接口
                     try {
                         CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
                         if (commonDto != null) {
                             if (commonDto.getCode() != 1) {
-                                logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：" + commonDto.getCode() + "][消息：" + commonDto.getMessage() + "]！");
+                                logger.warn("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：" + commonDto.getCode() + "][消息：" + commonDto.getMessage() + "]！");
                             }
                         }
                     } catch (Exception e) {
@@ -208,14 +212,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryStartCityInfo();
         List<City> cities = new ArrayList<City>();
         if (arSendRegisters == null) {
-            logger.error("从发货登记表找查询到的始发城市信息为空！");
+            logger.warn("从发货登记表找查询到的始发城市信息为空！");
             return null;
         }
 
         for (ArSendRegister arSendRegister : arSendRegisters) {
             //如果城市的id和name有一个为空，则无法对应，直接舍弃该条记录
             if (arSendRegister.getStartCityId() == null || StringHelper.isEmpty(arSendRegister.getStartCityName())) {
-                logger.error("发货登记表中的始发城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getStartCityId() +
+                logger.warn("发货登记表中的始发城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getStartCityId() +
                         "，城市名称：" + arSendRegister.getStartCityName());
                 continue;
             }
@@ -235,14 +239,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryEndCityInfo();
         List<City> cities = new ArrayList<City>();
         if (arSendRegisters == null) {
-            logger.error("从发货登记表找查询到的目的城市信息为空！");
+            logger.warn("从发货登记表找查询到的目的城市信息为空！");
             return null;
         }
 
         for (ArSendRegister arSendRegister : arSendRegisters) {
             //如果城市的id和name有一个为空，则无法对应，直接舍弃该条记录
             if (arSendRegister.getEndCityId() == null || StringHelper.isEmpty(arSendRegister.getEndCityName())) {
-                logger.error("发货登记表中的目的城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getEndCityId() +
+                logger.warn("发货登记表中的目的城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getEndCityId() +
                         "，城市名称：" + arSendRegister.getEndCityName());
                 continue;
             }
@@ -411,7 +415,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     return calendar.getTime();
                 }
             }
-            logger.error("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
+            logger.warn("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
         }
         return null;
     }
@@ -437,7 +441,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             if (dateStr.indexOf(DATE_SEPARATOR) > 0) {
                 return DateHelper.parseDate(dateStr, "yyyy-MM-dd");
             }
-            logger.error("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
+            logger.warn("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
         }
         return null;
     }
@@ -452,7 +456,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         try {
             BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(arSendRegister.getOperationDeptCode());
             if (siteDto == null) {
-                logger.error("[运输类型=" + ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())
+                logger.warn("[运输类型=" + ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())
                         + "][运力名称=" + arSendRegister.getTransportName() + "][航空单号=" + arSendRegister.getOrderCode()
                         + "][铁路站序=" + arSendRegister.getSiteOrder() + "]根据[siteCode=" + arSendRegister.getOperationDeptCode()
                         + "]获取基础资料站点信息[getBaseSiteBySiteId]返回null,[空铁发货登记]不能回传全程跟踪");
@@ -516,6 +520,33 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             }
         }
         return null;
+    }
+
+    private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes){
+        if(sendCodes.length==0){
+            logger.error("空铁发货登记批次号为空");
+            return;
+        }
+        Task tTask = new Task();
+        //tTask.setBoxCode(sendM.getSendCode());
+        //tTask.setBody(sendM.getSendCode())
+        StringBuilder sb = new StringBuilder();
+        for(String sendCode : sendCodes){
+            sb.append(sendCode);
+            sb.append(Constants.SEPARATOR_COMMA);
+        }
+        tTask.setBody(sb.substring(0,sb.length()-1));
+        //tTask.setCreateSiteCode(sendM.getCreateSiteCode());
+        tTask.setKeyword2(String.valueOf(arSendRegister.getId()));
+        //tTask.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setKeyword1("6");// 发送新发货明细MQ任务
+        tTask.setFingerprint(arSendRegister.getId() + "_" + tTask.getKeyword1());
+        taskService.add(tTask, false);
     }
 
 }

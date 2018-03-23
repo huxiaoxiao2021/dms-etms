@@ -132,7 +132,7 @@ public class TaskServiceImpl implements TaskService {
             if(!this.has(task)){
                 return routerDao.add(TaskDao.namespace, task);
             }else{
-                logger.error(" Duplicate task: "+task.getBody());
+                logger.warn(" Duplicate task: "+task.getBody());
             }
         }else{
             return routerDao.add(TaskDao.namespace, task);

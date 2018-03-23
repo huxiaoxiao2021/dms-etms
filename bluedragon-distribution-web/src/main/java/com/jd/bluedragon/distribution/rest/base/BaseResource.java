@@ -188,7 +188,7 @@ public class BaseResource {
 		}
 
 		if (null == driver) {
-			logger.error("没有对应司机");
+			logger.warn("没有对应司机");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_DRIVERS_EMPTY);
 			return response;
@@ -228,7 +228,7 @@ public class BaseResource {
 				response.setLicense(temp.getVehicleNumber() );
 				return response;
 			} else {
-				this.logger.error("没有对应车辆");
+				this.logger.warn("没有对应车辆");
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 				        JdResponse.MESSAGE_VEHICLES_EMPTY);
 				return response;
@@ -249,7 +249,7 @@ public class BaseResource {
 			BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(code);
 			logger.info("获取站点信息成功");
 			if (dto == null) {
-				logger.error("没有对应站点");
+				logger.warn("没有对应站点");
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 				        JdResponse.MESSAGE_SITE_EMPTY);
 				return response;
@@ -322,7 +322,7 @@ public class BaseResource {
 		}
 
 		if (null == siteName) {
-			logger.error("没有对应站点");
+			logger.warn("没有对应站点");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
@@ -434,7 +434,7 @@ public class BaseResource {
 		}
 
 		if (null == result) {
-			logger.error("获取司机信息失败");
+			logger.warn("获取司机信息失败");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -442,7 +442,7 @@ public class BaseResource {
 		}
 
 		if (result.length == 0) {
-			logger.error("获取司机信息为空");
+			logger.warn("获取司机信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_DRIVERS_EMPTY);
 			ll.add(response);
@@ -481,7 +481,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.size() == 0) {
-			logger.error("获取全部机构信息为空");
+			logger.warn("获取全部机构信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ALLORGS_EMPTY);
 			ll.add(response);
@@ -535,7 +535,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取站点信息为空");
+			logger.warn("获取站点信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -606,7 +606,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取错误信息为空");
+			logger.warn("获取错误信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			ll.add(response);
@@ -662,7 +662,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取错误信息为空");
+			logger.warn("获取错误信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			ll.add(response);
@@ -702,7 +702,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取站点类型信息为空");
+			logger.warn("获取站点类型信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITETYPE_EMPTY);
 			ll.add(response);
@@ -762,7 +762,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取站点信息为空");
+			logger.warn("获取站点信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -885,7 +885,7 @@ public class BaseResource {
 		}
 
 		if (null == siteName) {
-			logger.error("没有对应站点");
+			logger.warn("没有对应站点");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
@@ -910,7 +910,7 @@ public class BaseResource {
 		List<SysConfigResponse> result = new ArrayList<SysConfigResponse>();
 
 		if (configs == null) {
-			logger.error("没有对应参数配置");
+			logger.warn("没有对应参数配置");
 			return result;
 		} else {
 			for (SysConfig config : configs) {
@@ -1095,7 +1095,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取运力信息为空");
+			logger.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			responseList.add(response);
@@ -1153,7 +1153,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.error("获取运力信息为空");
+			logger.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			responseList.add(response);
@@ -1354,7 +1354,7 @@ public class BaseResource {
 			return ll;
 		}
 		if(null == dmsList || dmsList.size() == 0){
-			logger.error("根据orgId获取分拣中心列表为空");
+			logger.warn("根据orgId获取分拣中心列表为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -1388,7 +1388,7 @@ public class BaseResource {
 		// 过滤非分拣中心的数据
 		List<BaseStaffSiteOrgDto> dmsList = dmsFilter(baseSiteList);
 		if(null == dmsList || dmsList.size() == 0){
-			logger.error("获取所有的分拣中心为空");
+			logger.warn("获取所有的分拣中心为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -1401,6 +1401,119 @@ public class BaseResource {
 			ll.add(br);
 		}
 		return ll;
+	}
+
+	/**
+	 * 调用基础资料接口获取所有的转运中心（包括TC + （枢纽+集运）：6420）
+	 * @param subTypes
+	 * @return
+     */
+	@GET
+	@GZIP
+	@Path("/bases/getB2BSiteAll/{subTypes}")
+	public List<BaseResponse> getB2BSiteAll(@PathParam("subTypes") String subTypes){
+		this.logger.info("获取全国所有的转运中心，站点类型：" + subTypes);
+		List<BaseResponse> result = new ArrayList<BaseResponse>();
+
+		String [] subTypeArray = subTypes.split(",");
+
+		List<BaseOrg> allOrgs = null;
+		try {
+			logger.info("获取全国所有的转运中心-加载全国所有机构");
+			allOrgs = baseService.getAllOrg();
+		}catch (Exception e){
+			logger.error("获取全国所有的转运中心失败-加载全国所有机构失败",e);
+
+			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+					JdResponse.MESSAGE_SERVICE_ERROR);
+			result.add(response);
+			return result;
+		}
+
+		List<BaseStaffSiteOrgDto> siteList = new ArrayList<BaseStaffSiteOrgDto>();
+
+		for(String subTypeStr : subTypeArray) {
+			Integer subType = 0;
+			try {
+				subType = Integer.parseInt(subTypeStr);
+			}catch (Exception e){
+				logger.error("获取全国所有的转运中心失败"+subTypeStr +"无法转换成Integer类型");
+
+				BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+						JdResponse.MESSAGE_SERVICE_ERROR);
+				result.add(response);
+				return result;
+			}
+			logger.info("获取站点类型为：" + subType +"的站点");
+			try {
+				for (BaseOrg baseOrg : allOrgs) {
+					siteList.addAll(baseMajorManager.getBaseSiteByOrgIdSubType(baseOrg.getOrgId(), subType));
+				}
+			}catch (Exception e){
+				logger.error("获取全国所有的转运中心失败",e);
+
+				BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+						JdResponse.MESSAGE_SERVICE_ERROR);
+				result.add(response);
+				return result;
+			}
+		}
+
+		if(siteList == null || siteList.size() <1){
+			logger.error("获取全国所有的转运中心列表为空");
+			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
+					JdResponse.MESSAGE_SITES_EMPTY);
+			result.add(response);
+			return result;
+		}
+
+		for(BaseStaffSiteOrgDto dto : siteList){
+			BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+			br.setSiteCode(dto.getSiteCode());
+			br.setSiteName(dto.getSiteName());
+			result.add(br);
+		}
+		return result;
+	}
+
+
+	/**
+	 * 获取所有的仓库
+	 * @return
+     */
+	@GET
+	@GZIP
+	@Path("/bases/getBaseAllStore/")
+	public List<BaseResponse> getBaseAllStore(){
+		this.logger.info("调用基础资料接口获取全国所有库房信息");
+		List<BaseResponse> result = new ArrayList<BaseResponse>();
+
+		try {
+			List<BaseStaffSiteOrgDto> storeList = baseMajorManager.getBaseAllStore();
+			if(storeList == null || storeList.size()<1){
+				logger.error("调用基础资料接口获取全国所有库房为空");
+				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
+						JdResponse.MESSAGE_SITES_EMPTY);
+				result.add(response);
+				return result;
+			}
+
+			for(BaseStaffSiteOrgDto dto : storeList){
+				BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+				br.setSiteCode(dto.getSiteCode());
+				br.setSiteName(dto.getSiteName());
+				result.add(br);
+			}
+
+		}catch (Exception  e){
+			logger.error("调用基础资料接口获取全国所有库房信息",e);
+			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
+					JdResponse.MESSAGE_SERVICE_ERROR);
+			result.add(response);
+			return result;
+		}
+
+		return result;
 	}
 
 	private List<BaseStaffSiteOrgDto> dmsFilter(List<BaseStaffSiteOrgDto> baseSiteList) {

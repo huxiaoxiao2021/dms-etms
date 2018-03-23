@@ -19,26 +19,61 @@
         <div id="query-condition">
             <form id="query-form" class="form-inline">
                 <fieldset>
-                    <div class="form-group" style="margin-left: 20px;">
-                        <label class="control-label" for="box-code-input">ID：</label>
-                        <input type="text" id="id" name="id" class="form-control search-param" style="width: 190px;">
-                    </div>                    
-                    <div class="form-group" style="margin-left: 20px;">
-                        <label class="control-label" for="box-code-input">编码 ：</label>
-                        <input type="text" id="typeCode" name="typeCode" class="form-control search-param" style="width: 190px;">
-                    </div>
-                    <div class="form-group" style="margin-left: 20px;">
-                        <label class="control-label" for="box-code-input">层级 ：</label>
-                        <input type="text" id="nodeLevel" name="nodeLevel" class="form-control search-param" style="width: 190px;">
-                    </div>                    
-                    <div class="form-group" style="margin-left: 20px;">
-                        <label class="control-label" for="box-code-input">上级Id ：</label>
-                        <input type="text" id="parentId" name="parentId" class="form-control search-param" style="width: 190px;">
-                    </div>
-                    <div class="form-group" style="margin-left: 20px;">
-                        <label class="control-label" for="box-code-input">分组 ：</label>
-                        <input type="text" id="typeGroup" name="typeGroup" class="form-control search-param" style="width: 190px;">
-                    </div>
+                	<div class="row">
+                    	<div class="col-xs-12">
+                        	<div class="col-xs-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-xs-4">层级：</label>
+	                                <div class="col-xs-8">
+				                        <select class="form-control search-param" style="width: 240px;" id="nodeLevel" name="nodeLevel">
+					                        <option value="">全部</option>
+					                        <option value="1">1</option>
+					                        <option value="2">2</option>
+					                       	<option value="3">3</option>
+					                        <option value="4">4</option>
+					                        <option value="5">5</option>
+				                        </select>
+	                                </div>
+	                            </div>
+                        	</div>
+                        	<div class="col-xs-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-xs-4">上级：</label>
+	                                <div class="col-xs-8">
+										<select class="form-control search-param" style="width: 240px;" id="parentId" name="parentId"></select>
+	                                </div>
+	                            </div>
+                        	</div>                        	
+                        	<div class="col-xs-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-xs-4">分组：</label>
+	                                <div class="col-xs-8">
+										<select class="form-control search-param" style="width: 240px;" id="typeGroup" name="typeGroup"></select>
+	                                </div>
+	                            </div>
+                        	</div>
+                   		</div>
+               		</div>
+                	<div class="row">
+                    	<div class="col-xs-12">
+                        	<div class="col-xs-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-xs-4">编码：</label>
+	                                <div class="col-xs-8">
+										<input type="text" id="typeCode" name="typeCode" class="form-control search-param" style="width: 240px;">
+	                                </div>
+	                            </div>
+                        	</div>
+                        	<div class="col-xs-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-xs-4">名称：</label>
+	                                <div class="col-xs-8">
+										<input type="text" id="typeName" name="typeName" class="form-control search-param" style="width: 240px;">
+	                                </div>
+	                            </div>
+                        	</div>                        	
+                   		</div>
+               		</div>
                 </fieldset>
             </form>
         </div>
@@ -81,14 +116,20 @@
                     	</div>
 		                <div class="form-group">
 		                    <label class="col-xs-3 control-label">层级 ：</label>
-		                    <div class="col-xs-9">
-		                        <input type="text" class="form-control edit-param" id="nodeLevel" name="nodeLevel" style="width: 300px;"/>
-		                    </div>
+		                    <div class=" col-xs-9">
+                        		<select class="form-control edit-param" style="width: 300px;" id="nodeLevel" name="nodeLevel">
+                        			<option value="1" selected="selected">1</option>
+                        			<option value="2">2</option>
+                        			<option value="3">3</option>
+                        			<option value="4">4</option>
+                        			<option value="5">5</option>
+                        		</select>
+                        	</div>
                 		</div>
                 		<div class="form-group">
-		                    <label class="col-xs-3 control-label">分组 ：</label>
+                			<label class="col-xs-3 control-label">排序值 ：</label>
 		                    <div class="col-xs-9">
-		                        <input type="text" class="form-control edit-param" id="typeGroup" name="typeGroup" style="width: 300px;"/>
+		                        <input type="text" class="form-control edit-param" id="orderNum" name="orderNum" style="width: 300px;"/>
 		                    </div>
 	               		</div>
 	               		<div class="form-group">
@@ -107,16 +148,16 @@
 		                </div>
 		           	</div>
                 	<div class="form-group">
-	                    <label class="col-xs-3 control-label">上级Id ：</label>
-	                    <div class="col-xs-9">
-	                        <input type="text" class="form-control edit-param" id="parentId" name="parentId" style="width: 300px;"/>
-	                    </div>
+	                    <label class="col-xs-3 control-label">上级节点 ：</label>
+	                    <div class=" col-xs-9">
+                        	<select class="form-control edit-param" style="width: 300px;" id="parentId" name="parentId"></select>
+                        </div>
 	                </div>
 	                <div class="form-group">	                    
-	                    <label class="col-xs-3 control-label">排序值 ：</label>
-	                    <div class="col-xs-9">
-	                        <input type="text" class="form-control edit-param" id="orderNum" name="orderNum" style="width: 300px;"/>
-	                    </div>
+			            <label class="col-xs-3 control-label">分组 ：</label>
+			            <div class=" col-xs-9">
+	                    	<select class="form-control edit-param" style="width: 300px;" id="typeGroup" name="typeGroup"></select>
+                    	</div>
                 	</div>
                 </div>
                 </div>

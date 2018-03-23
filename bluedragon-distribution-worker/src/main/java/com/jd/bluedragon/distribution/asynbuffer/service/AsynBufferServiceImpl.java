@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,9 +93,16 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             logger.warn(sb.toString());
 
             return false;
-        } catch (Exception e) {
-            logger.error("验货worker失败, task id: " + task.getId()
-                    + ". 异常信息: " + e.getMessage(), e);
+        }catch (WayBillCodeIllegalException wayBillCodeIllegalEx){
+            StringBuilder sb=new StringBuilder("验货执行失败,已知异常");
+            sb.append(wayBillCodeIllegalEx.getMessage());
+            sb.append(SPLIT_CHAR).append(task.getBoxCode());
+            sb.append(SPLIT_CHAR).append(task.getKeyword1());
+            sb.append(SPLIT_CHAR).append(task.getKeyword2());
+            logger.warn(sb.toString());
+            return false;
+        }catch (Exception e) {
+            logger.error("验货worker失败, task id: " + task.getId() + ". 异常信息: " + e.getMessage(), e);
             return false;
         }
         return true;
@@ -246,7 +254,11 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             //中转发货补全任务
             return deliveryService.findTransitSend(task);
 
-        } else {
+        } else if (keyword1.equals("6")) {
+            //发送发货明细MQ任务
+            return deliveryService.sendDetailMQ(task);
+
+        }else {
             //没有找到对应的方法，提供报错信息
             this.logger.error("task id is " + task.getId()+"can not find process method");
         }

@@ -33,7 +33,7 @@ public class ReassignWaybillResource {
 	@Path("/tagPrint/returnPack")
 	public JdResponse add(ReassignWaybillRequest request) {
 		if (request == null || StringUtils.isBlank(request.getPackageBarcode())) {
-			this.logger.error("ReturnPackTagPrintResource add --> 传入参数非法");
+			this.logger.warn("ReturnPackTagPrintResource add --> 传入参数非法");
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -61,7 +61,7 @@ public class ReassignWaybillResource {
         this.logger.info("the packagecode is : " + packageCode);
         BaseResponse baseResponse = new BaseResponse();
         if(StringHelper.isEmpty(packageCode)){
-            this.logger.error("获取包裹最后一次反调度站点失败，参数包裹号为空。");
+            this.logger.warn("获取包裹最后一次反调度站点失败，参数包裹号为空。");
             baseResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             baseResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return baseResponse;
@@ -81,7 +81,7 @@ public class ReassignWaybillResource {
         }
 
         if(null == reassignWaybill){
-            this.logger.error("获取包裹 [" + packageCode +"] 最后一次反调度站点失败，反调度站点为空");
+            this.logger.warn("获取包裹 [" + packageCode +"] 最后一次反调度站点失败，反调度站点为空");
             baseResponse.setCode(JdResponse.CODE_PACKAGE_ERROR);
             baseResponse.setMessage(JdResponse.MESSAGE_PACKAGE_ERROR);
             return baseResponse;

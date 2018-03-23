@@ -110,6 +110,14 @@ public class Constants {
     public static final int OPERATE_TYPE_SH = 26;//收货回传全程跟踪
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
     public static final int OPERATE_TYPE_In = 1150;//驻场
+    /**
+     * 业务类型-称重
+     */
+    public static final Integer BUSINESS_TYPE_WEIGHT = 1002;
+    /**
+     * 业务类型-按运单称重
+     */
+    public static final Integer OPERATE_TYPE_WEIGHT_BY_WAYBILL = 100201;
     /** 大件包裹标识 **/
     public static final Short BOXING_TYPE = 2;
     /* 基础资料SiteType: 16为三方，4为自营 */
@@ -245,8 +253,17 @@ public class Constants {
     /**
      * 本地缓存默认失效时间
      */
-    public static final int POLLING_INTERVAL_TIME = 1500;// 秒    
-	/**
+    public static final int POLLING_INTERVAL_TIME = 1500;// 秒
+
+    /**
+     * 时间：一天的秒数
+     */
+    public static final int TIME_SECONDS_ONE_DAY = 86400;
+    /**
+     * 时间：一周的秒数
+     */
+    public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
+    /**
 	 * 亚一站点
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
@@ -320,7 +337,14 @@ public class Constants {
      * Integer类型标识-true
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
-    
+    /**
+     * String类型标识-true
+     */
+    public static final String STRING_FLG_TRUE = "1";
+    /**
+     * String类型标识-false
+     */
+    public static final String STRING_FLG_FALSE = "0";
     /**
      * 包裹称重流水-操作类型-分拣
      */
@@ -445,4 +469,26 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+    /**
+     * 配置信息-北京的分拣中心
+     */
+    public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
+    /**
+     * 封车批次号缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
+    /**
+     * 字典名称-WaybillSign打标配置标识
+     */
+    public static final String DIC_NAME_WAYBILL_SIGN_CONFIG = "WaybillSign";
+    /**
+     * 字典名称-SendPay打标配置标识
+     */
+    public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
+
+    /**
+     * 发货明细MQ source类型  ar代表空铁  dms默认正常
+     */
+    public static final String SEND_DETAIL_SOUCRE_AR = "AR";
+    public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
 }

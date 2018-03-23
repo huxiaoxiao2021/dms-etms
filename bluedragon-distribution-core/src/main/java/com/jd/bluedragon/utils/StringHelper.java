@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -298,4 +299,17 @@ public class StringHelper {
         Pattern pattern = Pattern.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
         return pattern.matcher(str).matches();
     }
+    /**
+     * 将字符串分割，返回set类型
+     * @param str
+     * @param regex 分隔符
+     * @return
+     */
+	public static Set<String> splitToSet(String str, String regex) {
+		if (null == str || str.length() < 1 || regex == null || regex.length() < 1) {
+			return new TreeSet<String>();
+		}
+		Iterable<String> it = Splitter.on(regex).trimResults().omitEmptyStrings().split(str);
+		return Sets.newTreeSet(it);
+	}
 }

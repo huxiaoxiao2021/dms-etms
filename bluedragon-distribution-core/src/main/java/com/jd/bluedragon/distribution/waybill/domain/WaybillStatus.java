@@ -114,6 +114,11 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_COMPLETE_DELIVERY = 5400;
 
 
+    /**
+     * POP打印
+     */
+    public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
+
     private Long id;
 
     private String sendCode;
