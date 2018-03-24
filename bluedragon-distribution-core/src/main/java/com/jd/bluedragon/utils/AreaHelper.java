@@ -168,4 +168,25 @@ public class AreaHelper {
     	}
     	return res;
     }
+
+    /**
+	 * 	根据省得名字获得省Id
+	 * 	@param proName
+	 * @return
+	 * */
+    public static Integer getProIdByProName(String proName){
+    	Integer proId = -1;
+    	//获得所有的区域id
+		Set<Integer> allAreaIds = getAllAreaIds();
+		for(Integer i : allAreaIds){
+			//根据区域id获得省份信息
+			List<ProvinceNode> provincesByAreaId = getProvincesByAreaId(i);
+			for (ProvinceNode p : provincesByAreaId){
+				if(p.getName().equals(proName)){
+					proId = p.getId();
+				}
+			}
+		}
+		return proId;
+	}
 }

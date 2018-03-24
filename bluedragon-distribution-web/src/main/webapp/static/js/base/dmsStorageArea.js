@@ -95,9 +95,12 @@ $(function() {
             field : 'createUserName',
             title : '操作人'
         }, {
-            field : 'createTime',
+            field : 'updateTime',
             title : '操作时间',
             formatter : function(value,row,index){
+                if(value == null){
+                    value = row.createTime;
+                }
                 return $.dateHelper.formateDateTimeOfTs(value);
             },
             width:200,
@@ -117,6 +120,7 @@ $(function() {
                 tableInit().refresh();
             });
             $('#btn_add').click(function() {
+                $("#cityEG").empty();
                 initProAndCity("#provinceEG","#cityEG");
                 $('.edit-param').each(function () {
                     var _k = this.id;
@@ -222,7 +226,6 @@ $(function() {
                 params["desCityName"] = $('#cityEG option:selected').text();
                 params["storageCode"] = $('#storageCodeEG').val();
                 var s= JSON.stringify(params);
-                alert(s);
                 $.post(saveUrl,params,function(res){
                         if(res&&res.succeed){
                             alert('操作成功');

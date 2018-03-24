@@ -65,32 +65,11 @@
 				<if test="createUserCode != null">
 					create_user_code,
 				</if>
-				<if test="createUser != null">
-					create_user,
-				</if>
 				<if test="createUserName != null">
 					create_user_name,
 				</if>
 				<if test="createTime != null">
 					create_time,
-				</if>
-				<if test="updateUserCode != null">
-					update_user_code,
-				</if>
-				<if test="updateUser != null">
-					update_user,
-				</if>
-				<if test="updateUserName != null">
-					update_user_name,
-				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
-					is_delete,
-				</if>
-				<if test="ts != null">
-					ts
 				</if>
 			</trim>
 			)
@@ -127,32 +106,11 @@
 				<if test="createUserCode != null">
 					#{createUserCode,jdbcType=INTEGER},
 				</if>
-				<if test="createUser != null">
-					#{createUser,jdbcType=VARCHAR},
-				</if>
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="createTime != null">
 					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateUserCode != null">
-					#{updateUserCode,jdbcType=INTEGER},
-				</if>
-				<if test="updateUser != null">
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUserName != null">
-					#{updateUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
 				</if>
 			</trim>
 			)
@@ -163,8 +121,7 @@
 			(
 				storage_type,storage_code,dms_site_code,dms_site_name,
 				des_province_code,des_province_name,des_city_code,des_city_name,create_user_code,
-				create_user,create_user_name,create_time,update_user_code,update_user,
-				update_user_name,update_time,is_delete,ts
+				create_user_name,create_time
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -178,15 +135,8 @@
 					#{item.desCityCode,jdbcType=INTEGER},
 					#{item.desCityName,jdbcType=VARCHAR},
 					#{item.createUserCode,jdbcType=INTEGER},
-					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateUserCode,jdbcType=INTEGER},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.updateUserName,jdbcType=VARCHAR},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					now()
 				)
 			</foreach>
 	</insert>
@@ -241,12 +191,6 @@
 				</if>
 				<if test="updateTime != null">
 					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
 				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}

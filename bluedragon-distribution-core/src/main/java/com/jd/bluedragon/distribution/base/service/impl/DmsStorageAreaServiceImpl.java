@@ -54,22 +54,28 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		//获得登陆人信息
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-		dmsStorageArea.setCreateUserName(erpUser.getUserName());
-		dmsStorageArea.setDmsSiteCode(baseStaffByErpNoCache.getSiteCode());
-		dmsStorageArea.setDmsSiteName(baseStaffByErpNoCache.getSiteName());
+		dmsStorageArea.setStorageType(1);
 		dmsStorageArea.setDmsSiteCode(baseStaffByErpNoCache.getDmsId());
 		dmsStorageArea.setDmsSiteName(baseStaffByErpNoCache.getDmsName());
-		dmsStorageArea.setCreateTime(new Date());
+		if(dmsStorageArea.getId() == null){
+			dmsStorageArea.setCreateUserCode(erpUser.getUserId());
+			dmsStorageArea.setCreateUserName(erpUser.getUserName());
+			dmsStorageArea.setCreateTime(new Date());
+		}else {
+			dmsStorageArea.setUpdateTime(new Date());
+			dmsStorageArea.setUpdateUserCode(erpUser.getUserId());
+			dmsStorageArea.setUpdateUserName(erpUser.getUserName());
+		}
 		return dmsStorageArea;
 	}
 
 	public Boolean importExcel(List<DmsStorageArea> dataList, String createUserCode, String createUserName, Date createTime){
-
 		List<DmsStorageArea> bufferList = new ArrayList<DmsStorageArea>();
 		for(DmsStorageArea dmsStorageArea : dataList){
 			dmsStorageArea.setCreateUserCode(Integer.parseInt(createUserCode));
 			dmsStorageArea.setCreateUserName(createUserName);
 			dmsStorageArea.setUpdateTime(createTime);
+			dmsStorageArea.setCreateTime(createTime);
 			//批量插入 默认值
 			initObjectValue(dmsStorageArea);
 			bufferList.add(dmsStorageArea);

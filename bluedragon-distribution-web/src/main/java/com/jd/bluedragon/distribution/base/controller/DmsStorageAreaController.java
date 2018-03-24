@@ -17,6 +17,7 @@ import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,6 @@ public class DmsStorageAreaController {
         }catch(Exception e){
             this.logger.warn("根据省份Id获取城市失败："+ provinceId , e);
         }
-        cities = provinceAndCityService.getCityByProvince(provinceId);
         return cities;
     }
 
@@ -132,17 +132,20 @@ public class DmsStorageAreaController {
 			Integer dmsCityCode = dmsStorageArea.getDesCityCode();
 			newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
 		}catch (Exception e){
+			e.printStackTrace();
 			this.logger.warn("获取信息失败",e);
 			rest.setCode(JdResponse.CODE_FAIL);
+			return rest;
 		}
-		if(dmsStorageArea.getStorageCode() == newDmsStorageArea.getStorageCode()){
+		if(dmsStorageArea != null && newDmsStorageArea != null && dmsStorageArea.getStorageCode().equals(newDmsStorageArea.getStorageCode()) ){
 			rest.setCode(JdResponse.CODE_FAIL);
-			rest.setMessage("同一省市只有一个库位号！");
+			rest.setMessage("同一省+市只对应一个库位号！");
 		}else{
 			try {
 				rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
 				rest.setCode(JdResponse.CODE_SUCCESS);
 			} catch (Exception e) {
+				e.printStackTrace();
 				logger.error("fail to save！"+e.getMessage(),e);
 				rest.toError("保存失败，服务异常！");
 			}
@@ -192,6 +195,8 @@ public class DmsStorageAreaController {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			String createUserCode = "";
 			String createUserName = "";
+			Integer dmsSiteCode ;
+			String dmsSiteName = "";
 			Date createTime = new Date();
 
 			if(erpUser!=null){
@@ -199,6 +204,8 @@ public class DmsStorageAreaController {
 				createUserName = erpUser.getUserName();
 			}
 			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(createUserCode);
+			dmsSiteCode = bssod.getDmsId();
+			dmsSiteName = bssod.getSiteName();
 			String fileName = file.getOriginalFilename();
 
 			int type = 0;
@@ -211,19 +218,26 @@ public class DmsStorageAreaController {
 			List<DmsStorageArea> dataList = null;
 
 			dataList = dataResolver.resolver(file.getInputStream(), DmsStorageArea.class, new PropertiesMetaDataFactory("/excel/dmsStorageArea.properties"));
+			//对导入的数据进行校验
+			checkExportData(dataList,dmsSiteCode,dmsSiteName);
+
 			if (dataList != null && dataList.size() > 0) {
 				if (dataList.size() > 1000) {
 					errorString = "导入数据超出1000条";
 					return new JdResponse(JdResponse.CODE_FAIL,errorString);
 				}
 				//批量插入数据
-				dmsStorageAreaService.importExcel(dataList,createUserCode,createUserName,createTime);
-
+				Boolean aBoolean = dmsStorageAreaService.importExcel(dataList, createUserCode, createUserName, createTime);
+				if(!aBoolean){
+					errorString = "导入数据失败";
+					return new JdResponse(JdResponse.CODE_FAIL,errorString);
+				}
 			} else {
 				errorString = "导入数据表格为空，请检查excel数据";
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			if (e instanceof IllegalArgumentException) {
 				errorString = e.getMessage();
 			} else {
@@ -234,5 +248,40 @@ public class DmsStorageAreaController {
 		}
 		return new JdResponse();
     }
+
+	/**
+	 *	对导入的数据进行校验
+	 * @param dataList
+	 * @return*/
+	private JdResponse checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName) {
+		String errorString = "";
+     	for (DmsStorageArea dmsStorageArea : dataList){
+     		dmsStorageArea.setDmsSiteCode(dmsSiteCode);
+			dmsStorageArea.setDmsSiteName(dmsSiteName);
+			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
+			if(proId == -1){
+				errorString = "导入的省不存在！";
+				return new JdResponse(JdResponse.CODE_FAIL,errorString);
+			}else {
+				dmsStorageArea.setDesProvinceCode(proId);
+				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
+				for (ProvinceAndCity c : cityList){
+					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
+						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
+					}
+				}
+				if(dmsStorageArea.getDesCityCode() == null){
+					errorString = "导入的市不存在！";
+					return new JdResponse(JdResponse.CODE_FAIL,errorString);
+				}
+			}
+			DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
+			if(byProAndCity != null && byProAndCity.getStorageCode() == dmsStorageArea.getStorageCode()){
+				errorString = "同一省+市只能对应一个库位号！";
+				return new JdResponse(JdResponse.CODE_FAIL,errorString);
+			}
+		}
+		return new JdResponse();
+	}
 
 }
