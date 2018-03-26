@@ -135,6 +135,7 @@ public class DmsStorageAreaController {
 			e.printStackTrace();
 			this.logger.warn("获取信息失败",e);
 			rest.setCode(JdResponse.CODE_FAIL);
+			rest.setMessage("获取信息失败");
 			return rest;
 		}
 		if(dmsStorageArea != null && newDmsStorageArea != null && dmsStorageArea.getStorageCode().equals(newDmsStorageArea.getStorageCode()) ){
@@ -147,7 +148,8 @@ public class DmsStorageAreaController {
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("fail to save！"+e.getMessage(),e);
-				rest.toError("保存失败，服务异常！");
+				rest.setCode(JdResponse.CODE_FAIL);
+				rest.setMessage("保存失败，服务异常！");
 			}
 		}
 		return rest;
@@ -179,7 +181,8 @@ public class DmsStorageAreaController {
 		try{
 			rest.setData(dmsStorageAreaService.queryByPagerCondition(dmsStorageAreaCondition));
 		}catch (Exception e){
-			e.printStackTrace();		}
+			e.printStackTrace();
+		}
 		return rest.getData();
 	}
 

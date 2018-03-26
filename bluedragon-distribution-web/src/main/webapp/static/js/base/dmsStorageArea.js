@@ -227,7 +227,7 @@ $(function() {
                         if(res&&res.succeed){
                             alert('操作成功');
                             tableInit().refresh();
-                        }else if(res&& res.succeed == 400){
+                        }else if(res.code == 400){
                             alert(res.message);
                         }else{
                             alert('操作异常');

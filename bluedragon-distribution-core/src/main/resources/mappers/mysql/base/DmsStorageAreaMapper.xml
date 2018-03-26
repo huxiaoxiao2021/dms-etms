@@ -74,6 +74,9 @@
 				<if test="updateTime != null">
 					update_time,
 				</if>
+				<if test="updateUserCode != null">
+					update_user_code,
+				</if>
 				<if test="updateUserName != null">
 					update_user_name,
 				</if>
@@ -120,6 +123,9 @@
 				</if>
 				<if test="updateTime != null">
 					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUserCode != null">
+					#{updateUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="updateUserName != null">
 					#{updateUserName,jdbcType=VARCHAR},
