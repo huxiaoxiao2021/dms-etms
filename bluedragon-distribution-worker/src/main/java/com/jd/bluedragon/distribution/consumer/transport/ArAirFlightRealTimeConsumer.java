@@ -66,7 +66,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
-        ArSendRegister sendRegister = arSendRegisterService.getByFlightInfo(realTimeStatus.getFlightNumber(), realTimeStatus.getFilghtDate());
+        ArSendRegister sendRegister = arSendRegisterService.getByFlightInfo(realTimeStatus.getFlightNumber(), realTimeStatus.getFlightDate());
         if (sendRegister != null) {
             List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
             if (sendCodes != null && sendCodes.size() > 0) {
@@ -86,7 +86,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                 logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次号列表为空或null");
             }
         } else {
-            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFilghtDate()) + ")获取发货登记信息为null");
+            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFlightDate()) + ")获取发货登记信息为null");
         }
     }
 

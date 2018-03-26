@@ -26,7 +26,7 @@ public class QualityControl implements Serializable {
     private String systemName; //来源系统 DMS
     private String extraCode; //额外标识码
     private String returnState; // 是否需要返回处理信息
-
+    private String createUserErp;//申请人ERP帐号
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -121,5 +121,13 @@ public class QualityControl implements Serializable {
 
     public void setReturnState(String returnState) {
         this.returnState = returnState;
+    }
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
     }
 }
