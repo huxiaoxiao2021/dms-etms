@@ -75,7 +75,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 	public Boolean importExcel(List<DmsStorageArea> dataList, String createUserCode, String createUserName, Date createTime){
 		List<DmsStorageArea> bufferList = new ArrayList<DmsStorageArea>();
 		for(DmsStorageArea dmsStorageArea : dataList){
-			dmsStorageArea.setCreateUserCode(Integer.parseInt(createUserCode));
+			dmsStorageArea.setCreateUser(createUserCode);
 			dmsStorageArea.setCreateUserName(createUserName);
 			dmsStorageArea.setUpdateUserName(createUserName);
 			dmsStorageArea.setUpdateTime(createTime);
