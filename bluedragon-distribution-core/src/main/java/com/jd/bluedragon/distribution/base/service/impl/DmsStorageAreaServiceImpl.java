@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.b2bRouter.domain.ErpUserClient;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -50,36 +49,16 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		return dmsStorageAreaDao.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
 	}
 
-	public  DmsStorageArea getUserInfo(DmsStorageArea dmsStorageArea){
-		//获得登陆人信息
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-		dmsStorageArea.setStorageType(1);
-		dmsStorageArea.setDmsSiteCode(baseStaffByErpNoCache.getDmsId());
-		dmsStorageArea.setDmsSiteName(baseStaffByErpNoCache.getDmsName());
-		if(dmsStorageArea.getId() == null){
-			dmsStorageArea.setCreateUserCode(erpUser.getUserId());
-			dmsStorageArea.setCreateUserName(erpUser.getUserName());
-			dmsStorageArea.setUpdateUserCode(erpUser.getUserId());
-			dmsStorageArea.setUpdateUserName(erpUser.getUserName());
-			dmsStorageArea.setCreateTime(new Date());
-			dmsStorageArea.setUpdateTime(new Date());
-		}else {
-			dmsStorageArea.setUpdateTime(new Date());
-			dmsStorageArea.setUpdateUserCode(erpUser.getUserId());
-			dmsStorageArea.setUpdateUserName(erpUser.getUserName());
-		}
-		return dmsStorageArea;
-	}
 
-	public Boolean importExcel(List<DmsStorageArea> dataList, String createUserCode, String createUserName, Date createTime){
+	public Boolean importExcel(List<DmsStorageArea> dataList, String createUser, String createUserName, Date createTime){
 		List<DmsStorageArea> bufferList = new ArrayList<DmsStorageArea>();
 		for(DmsStorageArea dmsStorageArea : dataList){
-			dmsStorageArea.setCreateUser(createUserCode);
+			dmsStorageArea.setCreateUser(createUser);
 			dmsStorageArea.setCreateUserName(createUserName);
+			dmsStorageArea.setCreateTime(createTime);
+			dmsStorageArea.setUpdateUser(createUser);
 			dmsStorageArea.setUpdateUserName(createUserName);
 			dmsStorageArea.setUpdateTime(createTime);
-			dmsStorageArea.setCreateTime(createTime);
 			//批量插入 默认值
 			initObjectValue(dmsStorageArea);
 			bufferList.add(dmsStorageArea);

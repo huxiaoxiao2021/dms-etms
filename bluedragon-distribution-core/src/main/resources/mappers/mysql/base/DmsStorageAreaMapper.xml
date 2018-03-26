@@ -62,8 +62,8 @@
 				<if test="desCityName != null">
 					des_city_name,
 				</if>
-				<if test="createUserCode != null">
-					create_user_code,
+				<if test="createUser != null">
+					create_user,
 				</if>
 				<if test="createUserName != null">
 					create_user_name,
@@ -74,8 +74,8 @@
 				<if test="updateTime != null">
 					update_time,
 				</if>
-				<if test="updateUserCode != null">
-					update_user_code,
+				<if test="updateUser != null">
+					update_user,
 				</if>
 				<if test="updateUserName != null">
 					update_user_name,
@@ -115,6 +115,9 @@
 				<if test="createUserCode != null">
 					#{createUserCode,jdbcType=INTEGER},
 				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
@@ -124,8 +127,8 @@
 				<if test="updateTime != null">
 					#{updateTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="updateUserCode != null">
-					#{updateUserCode,jdbcType=INTEGER},
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
 				</if>
 				<if test="updateUserName != null">
 					#{updateUserName,jdbcType=VARCHAR},
@@ -139,7 +142,7 @@
 			(
 				storage_type,storage_code,dms_site_code,dms_site_name,
 				des_province_code,des_province_name,des_city_code,des_city_name,create_user_code,
-				create_user_name,create_time,update_time,update_user_name
+				create_user,create_user_name,create_time,update_time,update_user,update_user_name
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -152,10 +155,11 @@
 					#{item.desProvinceName,jdbcType=VARCHAR},
 					#{item.desCityCode,jdbcType=INTEGER},
 					#{item.desCityName,jdbcType=VARCHAR},
-					#{item.createUserCode,jdbcType=INTEGER},
+					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
 					now(),
 					now(),
+					#{item.updateUser,jdbcType=VARCHAR},
 					#{item.updateUserName,jdbcType=VARCHAR}
 				)
 			</foreach>
@@ -188,14 +192,17 @@
 				<if test="desCityName != null">
 					des_city_name = #{desCityName,jdbcType=VARCHAR},
 				</if>
-				<if test="createUserCode != null">
-					create_user_code = #{createUserCode,jdbcType=INTEGER},
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
 				</if>
 				<if test="createUserName != null">
 					create_user_name = #{createUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="createTime != null">
 					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUserCode,jdbcType=VARCHAR},
 				</if>
 				<if test="updateUserName != null">
 					update_user_name = #{updateUserName,jdbcType=VARCHAR},

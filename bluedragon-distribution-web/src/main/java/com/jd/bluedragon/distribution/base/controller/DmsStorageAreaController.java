@@ -125,10 +125,33 @@ public class DmsStorageAreaController {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		DmsStorageArea newDmsStorageArea = null;
 		try{
-			dmsStorageArea = dmsStorageAreaService.getUserInfo(dmsStorageArea);
-			Integer dmsSiteCode = dmsStorageArea.getDmsSiteCode();
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+			Integer dmsSiteCode = baseStaffByErpNoCache.getSiteCode();
+			Integer siteType = baseStaffByErpNoCache.getSiteType();
+			if(siteType != 64){
+				rest.setCode(JdResponse.CODE_FAIL);
+				rest.setMessage("该操作机构不是分拣中心！");
+				return rest;
+			}
+			String dmsSiteName = baseStaffByErpNoCache.getSiteName();
 			Integer dmsProvinceCode = dmsStorageArea.getDesProvinceCode();
 			Integer dmsCityCode = dmsStorageArea.getDesCityCode();
+			dmsStorageArea.setDmsSiteCode(dmsSiteCode);
+			dmsStorageArea.setDmsSiteName(dmsSiteName);
+			dmsStorageArea.setStorageType(1);
+			if(dmsStorageArea.getId() == null){
+				dmsStorageArea.setCreateUser(erpUser.getUserCode());
+				dmsStorageArea.setCreateUserName(erpUser.getUserName());
+				dmsStorageArea.setUpdateUser(erpUser.getUserCode());
+				dmsStorageArea.setUpdateUserName(erpUser.getUserName());
+				dmsStorageArea.setCreateTime(new Date());
+				dmsStorageArea.setUpdateTime(new Date());
+			}else {
+				dmsStorageArea.setUpdateTime(new Date());
+				dmsStorageArea.setUpdateUser(erpUser.getUserCode());
+				dmsStorageArea.setUpdateUserName(erpUser.getUserName());
+			}
 			newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
 		}catch (Exception e){
 			e.printStackTrace();
@@ -195,18 +218,23 @@ public class DmsStorageAreaController {
 		String errorString = "";
 		try {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-			String createUserCode = "";
+			String createUser = "";
 			String createUserName = "";
 			Integer dmsSiteCode ;
 			String dmsSiteName = "";
 			Date createTime = new Date();
 
 			if(erpUser!=null){
-				createUserCode = erpUser.getUserCode();
+				createUser = erpUser.getUserCode();
 				createUserName = erpUser.getUserName();
 			}
-			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(createUserCode);
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(createUser);
 			dmsSiteCode = bssod.getDmsId();
+			Integer siteType = bssod.getSiteType();
+			if(siteType != 64){
+				errorString = "该操作机构不是分拣中心！";
+				return new JdResponse(JdResponse.CODE_FAIL,errorString);
+			}
 			dmsSiteName = bssod.getSiteName();
 			String fileName = file.getOriginalFilename();
 
@@ -229,7 +257,7 @@ public class DmsStorageAreaController {
 					return new JdResponse(JdResponse.CODE_FAIL,errorString);
 				}
 				//批量插入数据
-				Boolean aBoolean = dmsStorageAreaService.importExcel(dataList, createUserCode, createUserName, createTime);
+				Boolean aBoolean = dmsStorageAreaService.importExcel(dataList, createUser, createUserName, createTime);
 				if(!aBoolean){
 					errorString = "导入数据失败";
 					return new JdResponse(JdResponse.CODE_FAIL,errorString);

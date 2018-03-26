@@ -18,7 +18,5 @@ public interface DmsStorageAreaService extends Service<DmsStorageArea> {
 
     DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
 
-    DmsStorageArea getUserInfo(DmsStorageArea dmsStorageArea);
-
     Boolean importExcel(List<DmsStorageArea>  dataList,String createUserCode,String createUserName,Date createTime);
 }
