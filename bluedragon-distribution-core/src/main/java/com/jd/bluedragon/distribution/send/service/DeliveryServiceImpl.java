@@ -395,27 +395,14 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 校验批次号是否封车:默认返回false
+     * 原包发货获取PDA提示语
      * @param sendM
      * @return
      */
     private String getPdaHints(SendM sendM) {
         String msg = "";
         try {
-            if (SerialRuleUtil.isMatchBoxCode(sendM.getBoxCode())) {//按箱
-                List<String> wayBillCodes = getWayBillCodesByBoxCode(sendM.getBoxCode());
-                if(wayBillCodes != null && !wayBillCodes.isEmpty()){
-                    for (String wayBillCode : wayBillCodes){
-                        msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT+wayBillCode);
-                        if(StringUtils.isNotBlank(msg)){
-                            msg = msg + "  "+ wayBillCode;
-                            break;
-                        }
-                    }
-                }else{
-                    logger.warn("一车一单发货无法获取箱号下的运单号："+JsonHelper.toJson(sendM));
-                }
-            }else if(BusinessHelper.isPackageCode(sendM.getBoxCode())){//原包
+            if(BusinessHelper.isPackageCode(sendM.getBoxCode())){//原包
                 msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
             }
             logger.info("redis取PDA提示语结果："+msg);
@@ -423,21 +410,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("redis取PDA提示语失败："+ JsonHelper.toJson(sendM), e);
         }
         return msg;
-    }
-
-    /**
-     * 根据箱号查询箱号的运单号
-     * @param boxCode
-     * @return
-     */
-    private List<String> getWayBillCodesByBoxCode(String boxCode){
-        Box box = this.boxService.findBoxByCode(boxCode);
-        if(box != null) {
-            return sendDatailReadDao.findWaybillByBoxCode(boxCode, box.getCreateSiteCode());
-        }else{
-            logger.warn("一车一单发货箱号为空："+boxCode);
-        }
-        return null;
     }
 
     /**
