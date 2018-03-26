@@ -60,7 +60,7 @@ public interface PopAbnormalService {
 	 * @param popAbnormal
 	 * @return
 	 */
-	public int updateById(PopAbnormal popAbnormal);
+	/*public int updateById(PopAbnormal popAbnormal);*/
 	
 	/**
 	 * 更新商家确认时间New

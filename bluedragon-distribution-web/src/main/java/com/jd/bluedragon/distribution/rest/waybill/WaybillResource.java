@@ -22,6 +22,10 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.*;
+
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
+import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +93,9 @@ public class WaybillResource {
 
 	@Autowired
 	private CrossSortingService crossSortingService;
+
+	@Autowired
+	private WeighByWaybillController weighByWaybillController;
 
 	public static final Integer DMSTYPE = 10; // 建包
 
@@ -1021,7 +1028,7 @@ public class WaybillResource {
 					taskService.add(this.taskService.toTask(taskRequest, body),true);
 
 				}
-			
+
 				result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 				result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 				result.setData(true);
@@ -1043,6 +1050,27 @@ public class WaybillResource {
 		}
 
 		return result;
+	}
+	/**
+	 * 运单称重对外接口
+	 * @param req 入参
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/weight")
+	public InvokeResult<Boolean> saveWaybillWeight(WaybillWeightVO req){
+
+		InvokeResult<Boolean> checkResult = weighByWaybillController.verifyWaybillReality(req.getCodeStr());
+
+		if(checkResult.getData()){
+			//通过
+			req.setStatus(10); //存在运单
+			InvokeResult<Boolean> insertResult = weighByWaybillController.insertWaybillWeight(req);
+			return insertResult;
+		}else{
+			//校验没通过
+			return checkResult;
+		}
 	}
 
 }
