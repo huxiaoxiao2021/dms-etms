@@ -18,7 +18,7 @@ public class ArAirFlightRealTimeStatus {
     /**
      * 飞行日期
      */
-    private Date filghtDate;
+    private Date flightDate;
 
     /**
      * 起飞20 ,降落30
@@ -73,12 +73,12 @@ public class ArAirFlightRealTimeStatus {
         this.flightNumber = flightNumber;
     }
 
-    public Date getFilghtDate() {
-        return filghtDate;
+    public Date getFlightDate() {
+        return flightDate;
     }
 
-    public void setFilghtDate(Date filghtDate) {
-        this.filghtDate = filghtDate;
+    public void setFlightDate(Date flightDate) {
+        this.flightDate = flightDate;
     }
 
     public Integer getStatus() {
