@@ -60,7 +60,10 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		if(dmsStorageArea.getId() == null){
 			dmsStorageArea.setCreateUserCode(erpUser.getUserId());
 			dmsStorageArea.setCreateUserName(erpUser.getUserName());
+			dmsStorageArea.setUpdateUserCode(erpUser.getUserId());
+			dmsStorageArea.setUpdateUserName(erpUser.getUserName());
 			dmsStorageArea.setCreateTime(new Date());
+			dmsStorageArea.setUpdateTime(new Date());
 		}else {
 			dmsStorageArea.setUpdateTime(new Date());
 			dmsStorageArea.setUpdateUserCode(erpUser.getUserId());
@@ -74,6 +77,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		for(DmsStorageArea dmsStorageArea : dataList){
 			dmsStorageArea.setCreateUserCode(Integer.parseInt(createUserCode));
 			dmsStorageArea.setCreateUserName(createUserName);
+			dmsStorageArea.setUpdateUserName(createUserName);
 			dmsStorageArea.setUpdateTime(createTime);
 			dmsStorageArea.setCreateTime(createTime);
 			//批量插入 默认值

@@ -92,15 +92,12 @@ $(function() {
             field : 'storageCode',
             title : '库位号',
         } , {
-            field : 'createUserName',
+            field : 'updateUserName',
             title : '操作人'
         }, {
             field : 'updateTime',
             title : '操作时间',
             formatter : function(value,row,index){
-                if(value == null){
-                    value = row.createTime;
-                }
                 return $.dateHelper.formateDateTimeOfTs(value);
             },
             width:200,
