@@ -79,7 +79,6 @@ public class DmsStorageAreaController {
         }catch(Exception e){
             this.logger.warn("获取所有的省份失败" , e);
         }
-        provinces.addAll(AreaHelper.getAllProvince());
 		return provinces;
 	}
 	/**
