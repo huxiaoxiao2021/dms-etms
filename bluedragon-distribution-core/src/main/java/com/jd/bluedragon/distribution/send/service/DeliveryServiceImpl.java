@@ -445,21 +445,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param boxCode
      * @return
      */
-    private List<String>  getWayBillCodesByBoxCode(String boxCode){
-        Box box = this.boxService.findBoxByCode(boxCode);
-        if(box != null) {
-            return sendDatailReadDao.findWaybillByBoxCode(boxCode, box.getCreateSiteCode());
-        }else{
-            logger.warn("一车一单发货箱号为空："+boxCode);
-        }
-        return null;
-    }
-
-    /**
-     * 根据箱号查询箱号的运单号
-     * @param boxCode
-     * @return
-     */
     private List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum){
         Box box = this.boxService.findBoxByCode(boxCode);
         if(box != null) {
