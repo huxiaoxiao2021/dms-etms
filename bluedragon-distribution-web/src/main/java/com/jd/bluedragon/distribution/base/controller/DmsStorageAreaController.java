@@ -249,8 +249,10 @@ public class DmsStorageAreaController {
 
 			dataList = dataResolver.resolver(file.getInputStream(), DmsStorageArea.class, new PropertiesMetaDataFactory("/excel/dmsStorageArea.properties"));
 			//对导入的数据进行校验
-			checkExportData(dataList,dmsSiteCode,dmsSiteName);
-
+			checkExportData(dataList,dmsSiteCode,dmsSiteName,errorString);
+			if(errorString != ""){
+				return new JdResponse(JdResponse.CODE_FAIL,errorString);
+			}
 			if (dataList != null && dataList.size() > 0) {
 				if (dataList.size() > 1000) {
 					errorString = "导入数据超出1000条";
@@ -283,15 +285,13 @@ public class DmsStorageAreaController {
 	 *	对导入的数据进行校验
 	 * @param dataList
 	 * @return*/
-	private JdResponse checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName) {
-		String errorString = "";
+	private void checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName,String errorString) {
      	for (DmsStorageArea dmsStorageArea : dataList){
      		dmsStorageArea.setDmsSiteCode(dmsSiteCode);
 			dmsStorageArea.setDmsSiteName(dmsSiteName);
 			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
 			if(proId == -1){
 				errorString = "导入的省不存在！";
-				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}else {
 				dmsStorageArea.setDesProvinceCode(proId);
 				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
@@ -302,16 +302,13 @@ public class DmsStorageAreaController {
 				}
 				if(dmsStorageArea.getDesCityCode() == null){
 					errorString = "导入的市不存在！";
-					return new JdResponse(JdResponse.CODE_FAIL,errorString);
 				}
 			}
 			DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
 			if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
 				errorString = "同一省+市只能对应一个库位号！";
-				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
 		}
-		return new JdResponse();
 	}
 
 }
