@@ -292,21 +292,22 @@ public class DmsStorageAreaController {
 			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
 			if(proId == -1){
 				errorString = "导入的省不存在！";
+				return ;
 			}else {
 				dmsStorageArea.setDesProvinceCode(proId);
 				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
 				for (ProvinceAndCity c : cityList){
 					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
 						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
+					}else {
+						errorString = "导入的市不存在！";
+						return ;
+					}
+					DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
+					if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
+						errorString = "同一省+市只能对应一个库位号！";
 					}
 				}
-				if(dmsStorageArea.getDesCityCode() == null){
-					errorString = "导入的市不存在！";
-				}
-			}
-			DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-			if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
-				errorString = "同一省+市只能对应一个库位号！";
 			}
 		}
 	}

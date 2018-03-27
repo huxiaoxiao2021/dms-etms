@@ -42,8 +42,8 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		return this.dmsStorageAreaDao;
 	}
 
-	@Cache(key = "dmsStorageAreaServiceImpl.findByProAndCity@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@Cache(key = "dmsStorageAreaServiceImpl.findByProAndCity@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	public DmsStorageArea findByProAndCity( Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode){
 
 		return dmsStorageAreaDao.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
