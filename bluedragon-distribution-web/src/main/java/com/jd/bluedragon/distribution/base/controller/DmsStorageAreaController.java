@@ -296,11 +296,15 @@ public class DmsStorageAreaController {
 					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
 						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
 						DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-						String oldStorageCode = dmsStorageArea.getStorageCode().trim();
-						String newStorageCode = byProAndCity.getStorageCode().trim();
-						if(byProAndCity != null && oldStorageCode.equals(newStorageCode)){
-							errorString = "同一省+市只能对应一个库位号！";
-							return errorString;
+						if(byProAndCity != null){
+							String oldStorageCode = dmsStorageArea.getStorageCode().trim();
+							String newStorageCode = byProAndCity.getStorageCode().trim();
+							if(oldStorageCode.equals(newStorageCode)){
+								errorString = "同一省+市只能对应一个库位号！";
+								return errorString;
+							}
+						}else {
+							break;
 						}
 					}
 				}
