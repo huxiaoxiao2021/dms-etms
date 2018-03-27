@@ -38,6 +38,8 @@ public class BaseResponse extends JdResponse {
     private Integer siteType;
 
     private Integer siteType2;
+	/** 站点子类型 */
+	private Integer subType;
     /** ERP帐号 */
     private String erpAccount;
 
@@ -516,5 +518,12 @@ public class BaseResponse extends JdResponse {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	
+
+	public Integer getSubType() {
+		return subType;
+	}
+
+	public void setSubType(Integer subType) {
+		this.subType = subType;
+	}
 }
