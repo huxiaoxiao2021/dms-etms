@@ -168,9 +168,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6) {
 			String sendCode = "";
-			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
+			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if (reverseReceive.getReceiveType() == 4) {
