@@ -281,10 +281,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     public SendResult packageSend(SendM domain, boolean isForceSend) {
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
-            return new SendResult(2, "批次号错误：" + domain.getSendCode());
+            return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
         }
         if(checkSendCodeIsSealed(domain.getSendCode())){
-            return new SendResult(2, "批次号已操作封车，请换批次！");
+            return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
         SendM queryPara = new SendM();
         queryPara.setBoxCode(domain.getBoxCode());
@@ -294,7 +294,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
 
         if (null != sendMList && sendMList.size() > 0) {
-            return new SendResult(2, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
+            return new SendResult(SendResult.CODE_SENDED, "箱子已经在批次" + sendMList.get(0).getSendCode() + "中发货");
         }
         Profiler.registerInfoEnd(temp_info1);
 
@@ -345,7 +345,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if (!isForceSend)
                         return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
                 } else{
-                    return new SendResult(2, response.getMessage(), response.getCode(), preSortingSiteCode);
+                    return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
         } else if(domain.getCreateSiteCode()==1609){
@@ -363,7 +363,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!isForceSend){
             DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
             if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
-                return new SendResult(4, verificationResult.getMessage());
+                return new SendResult(SendResult.CODE_CONFIRM, verificationResult.getMessage());
             }
         }
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
@@ -386,22 +386,36 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.transitSend(domain);
         this.pushStatusTask(domain);
         Profiler.registerInfoEnd(temp_info3);
-        return new SendResult(1, "发货成功");
+        //获取发货提示语
+        CallerInfo temp_info4 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info4", false, true);
+        String hints = getPdaHints(domain);
+        Profiler.registerInfoEnd(temp_info4);
+
+        SendResult result = null;
+        if(StringUtils.isNotBlank(hints)){
+            result = new SendResult(SendResult.CODE_WARN, hints);
+        }else{
+            result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        }
+        return result;
     }
 
     /**
-     * 根据箱号查询箱号的运单号
-     * @param boxCode
+     * 原包发货获取PDA提示语
+     * @param sendM
      * @return
      */
-    private List<String>  getWayBillCodesByBoxCode(String boxCode){
-        Box box = this.boxService.findBoxByCode(boxCode);
-        if(box != null) {
-            return sendDatailReadDao.findWaybillByBoxCode(boxCode, box.getCreateSiteCode());
-        }else{
-            logger.warn("一车一单发货箱号为空："+boxCode);
+    private String getPdaHints(SendM sendM) {
+        String msg = "";
+        try {
+            if(BusinessHelper.isPackageCode(sendM.getBoxCode())){//原包
+                msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
+            }
+            logger.info("redis取PDA提示语结果："+msg);
+        }catch (Throwable e){
+            logger.error("redis取PDA提示语失败："+ JsonHelper.toJson(sendM), e);
         }
-        return null;
+        return msg;
     }
 
     /**
