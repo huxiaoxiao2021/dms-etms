@@ -36,9 +36,6 @@
 		insert into package_half_redelivery
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
 				<if test="dmsSiteCode != null">
 					dms_site_code,
 				</if>
@@ -75,9 +72,7 @@
 				<if test="createUserName != null">
 					create_user_name,
 				</if>
-				<if test="createTime != null">
 					create_time,
-				</if>
 				<if test="updateUserCode != null">
 					update_user_code,
 				</if>
@@ -90,20 +85,13 @@
 				<if test="updateTime != null">
 					update_time,
 				</if>
-				<if test="isDelete != null">
 					is_delete,
-				</if>
-				<if test="ts != null">
 					ts
-				</if>
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
 				<if test="dmsSiteCode != null">
 					#{dmsSiteCode,jdbcType=INTEGER},
 				</if>
@@ -140,9 +128,7 @@
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
+					now(),
 				<if test="updateUserCode != null">
 					#{updateUserCode,jdbcType=INTEGER},
 				</if>
@@ -155,12 +141,8 @@
 				<if test="updateTime != null">
 					#{updateTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+					0,
+					now()
 			</trim>
 			)
 	</insert>
@@ -170,8 +152,7 @@
 			(
 				dms_site_code,dms_site_name,waybill_code,waybill_state,
 				package_code,deal_state,package_remark,package_state,eclp_deal_time,
-				create_user_code,create_user,create_user_name,create_time,update_user_code,
-				update_user,update_user_name,update_time,is_delete,ts
+				create_user_code,create_user,create_user_name,create_time,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -181,20 +162,16 @@
 					#{item.waybillCode,jdbcType=VARCHAR},
 					#{item.waybillState,jdbcType=INTEGER},
 					#{item.packageCode,jdbcType=VARCHAR},
-					#{item.dealState,jdbcType=TINYINT},
+					1,
 					#{item.packageRemark,jdbcType=VARCHAR},
 					#{item.packageState,jdbcType=INTEGER},
 					#{item.eclpDealTime,jdbcType=TIMESTAMP},
 					#{item.createUserCode,jdbcType=INTEGER},
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateUserCode,jdbcType=INTEGER},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.updateUserName,jdbcType=VARCHAR},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					now(),
+					0,
+					now()
 				)
 			</foreach>
 	</insert>
@@ -229,18 +206,6 @@
 				<if test="eclpDealTime != null">
 					eclp_deal_time = #{eclpDealTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="createUserCode != null">
-					create_user_code = #{createUserCode,jdbcType=INTEGER},
-				</if>
-				<if test="createUser != null">
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createUserName != null">
-					create_user_name = #{createUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
 				<if test="updateUserCode != null">
 					update_user_code = #{updateUserCode,jdbcType=INTEGER},
 				</if>
@@ -250,18 +215,30 @@
 				<if test="updateUserName != null">
 					update_user_name = #{updateUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
+					update_time = now(),
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
+
+	<update id="updateDealStateByWaybillCode" parameterType="com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery">
+		update package_half_redelivery
+		<set>
+			deal_state = 2,
+			<if test="updateUserCode != null">
+				update_user_code = #{updateUserCode,jdbcType=INTEGER},
+			</if>
+			<if test="updateUser != null">
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUserName != null">
+				update_user_name = #{updateUserName,jdbcType=VARCHAR},
+			</if>
+			update_time = now()
+		</set>
+        WHERE is_delete = 0
+        AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        AND deal_state = 1
+    </update>
 
 	<update id="deleteById" parameterType="Long">
 		update package_half_redelivery
@@ -296,26 +273,41 @@
 		limit 1
 	</select>
 
-	<sql id="Base_Condition_Sql" >
-			and is_delete=0 
+	<sql id="where_condition">
+		<where>
+			is_delete = 0
+			<if test="dmsSiteCode != null">
+				AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="startTime != null">
+				AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="endTime != null">
+				AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="dealState != null">
+				AND deal_state = #{dealState,jdbcType=TINYINT}
+			</if>
+		</where>
 	</sql>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
-		  package_half_redelivery 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		  package_half_redelivery
+		<include refid="where_condition"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="PackageHalfRedelivery">
 		select 
 		 <include refid="Base_Column_List"/>
 		from 
-		  package_half_redelivery 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		  package_half_redelivery
+		<include refid="where_condition"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

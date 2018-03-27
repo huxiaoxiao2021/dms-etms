@@ -17,5 +17,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("packageHalfRedeliveryDao")
 public class PackageHalfRedeliveryDaoImpl extends BaseDao<PackageHalfRedelivery> implements PackageHalfRedeliveryDao {
 
-
+    @Override
+    public int updateDealStateByWaybillCode(PackageHalfRedelivery packageHalfRedelivery) {
+        return sqlSession.update(this.nameSpace+".updateDealStateByWaybillCode", packageHalfRedelivery);
+    }
 }

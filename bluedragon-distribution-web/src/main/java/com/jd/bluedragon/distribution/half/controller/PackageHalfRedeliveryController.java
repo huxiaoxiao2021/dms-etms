@@ -1,7 +1,16 @@
 package com.jd.bluedragon.distribution.half.controller;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryDetailDto;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryDto;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,4 +105,5 @@ public class PackageHalfRedeliveryController {
 		rest.setData(packageHalfRedeliveryService.queryByPagerCondition(packageHalfRedeliveryCondition));
 		return rest.getData();
 	}
+
 }

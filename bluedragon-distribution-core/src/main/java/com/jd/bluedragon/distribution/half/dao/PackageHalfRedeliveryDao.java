@@ -13,5 +13,10 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface PackageHalfRedeliveryDao extends Dao<PackageHalfRedelivery> {
 
-
+    /**
+     * 按运单更新协商再投包裹状态（分拣操作半收时调用）
+     * @param packageHalfRedelivery
+     * @return
+     */
+    public int  updateDealStateByWaybillCode(PackageHalfRedelivery packageHalfRedelivery);
 }

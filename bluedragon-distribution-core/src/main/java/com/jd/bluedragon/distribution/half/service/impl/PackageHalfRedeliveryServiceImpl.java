@@ -31,4 +31,21 @@ public class PackageHalfRedeliveryServiceImpl extends BaseService<PackageHalfRed
 		return this.packageHalfRedeliveryDao;
 	}
 
+    /**
+     * 按运单更新协商再投包裹状态（分拣操作半收时调用）
+     * @param waybillCode
+     * @param updateUserCode
+     * @param updateUserErp
+     * @param updateUserName
+     * @return
+     */
+    @Override
+    public int updateDealStateByWaybillCode(String waybillCode, Integer updateUserCode, String updateUserErp, String updateUserName) {
+        PackageHalfRedelivery param = new PackageHalfRedelivery();
+        param.setWaybillCode(waybillCode);
+        param.setUpdateUser(updateUserErp);
+        param.setUpdateUserCode(updateUserCode);
+        param.setUpdateUserName(updateUserName);
+        return packageHalfRedeliveryDao.updateDealStateByWaybillCode(param);
+    }
 }

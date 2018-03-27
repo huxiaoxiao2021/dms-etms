@@ -1,8 +1,5 @@
 $(function() {
-	var saveUrl = '/half/packageHalfRedelivery/save';
-	var deleteUrl = '/half/packageHalfRedelivery/deleteByIds';
-  var detailUrl = '/half/packageHalfRedelivery/detail/';
-  var queryUrl = '/half/packageHalfRedelivery/listData';
+	var queryUrl = '/half/packageHalfRedelivery/listData';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -11,7 +8,7 @@ $(function() {
 				method : 'post', // 请求方式（*）
 				toolbar : '#toolbar', // 工具按钮用哪个容器
 				queryParams : oTableInit.getSearchParams, // 查询参数（*）
-				height : 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+				//height : 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
 				uniqueId : "ID", // 每一行的唯一标识，一般为主键列
 				pagination : true, // 是否显示分页（*）
 				pageNumber : 1, // 初始化加载第一页，默认第一页
@@ -27,7 +24,7 @@ $(function() {
 				showRefresh : true, // 是否显示刷新按钮
 				minimumCountColumns : 2, // 最少允许的列数
 				clickToSelect : true, // 是否启用点击选中行
-				showToggle : true, // 是否显示详细视图和列表视图的切换按钮
+				showToggle : false, // 是否显示详细视图和列表视图的切换按钮
 //				showPaginationSwitch : true, // 是否显示分页关闭按钮
 				strictSearch : true,
 				// icons: {refresh: "glyphicon-repeat", toggle:
@@ -42,6 +39,7 @@ $(function() {
 			});
 		};
 		oTableInit.getSearchParams = function(params) {
+
 			var temp = oTableInit.getSearchCondition();
 			if(!temp){
 				temp={};
@@ -56,133 +54,137 @@ $(function() {
 		 * @param _selector 选择器（默认为'.search-param'）
 		 */
 		oTableInit.getSearchCondition = function(_selector) {
-		    var params = {};
-		    if (!_selector) {
-		        _selector = ".search-param";
-		    }
-		    $(_selector).each(function () {
-		    	var _k = this.id;
-		        var _v = $(this).val();
-		        if(_k && (_v != null && _v != '')){
-		        	params[_k] = _v;
-		        }
-		    });
-		    return params;
+			var params = {};
+			if (!_selector) {
+				_selector = ".search-param";
+			}
+			$(_selector).each(function () {
+				var _k = this.id;
+				var _v = $(this).val();
+				if(_k && _v){
+					if(_k == 'startTime' || _k =='endTime'){
+						params[_k]=new Date(_v).getTime();;
+					}else{
+						params[_k]=_v;
+					}
+				}
+			});
+			return params;
 		};
+
+
 		oTableInit.tableColums = [ {
-				checkbox : true
-			}, {
-				field : 'typeCode',
-				title : '编码'
-			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
+            field: '#',
+            title: '操作',
+            align:'center',
+            formatter:function(value,row,index){
+                return row.dealState == 1? "<a href='javascript:;' onclick='goto(\""+row.waybillCode+"\")'>处理</a>" : "";
+            }
+        },{
+			field : 'waybillCode',
+			title : '运单号'
+		} ,{
+			field : 'packageCode',
+			title : '包裹号'
+		} ,{
+			field : 'dealState',
+			title : '状态',
+			formatter : function(value,row,index){
+				return value==1?'已反馈':'已处理';
+
+			}
+		},{
+			field : 'createUser',
+			title : '操作人ERP'
+		},{
+			field : 'dmsSiteName',
+			title : '所属机构'
+		}, {
+			field : 'packageState',
+			title : 'ECLP反馈结果',
+			formatter : function(value,row,index){
+				return value==570?'待再投':value==580?'待拒收':value==590?'待报废':'其他-'+ value.toString();
+
+			}
+		} ,{
+			field : 'eclpDealTime',
+			title : 'ECLP反馈时间',
+			formatter : function(value,row,index){
+				return $.dateHelper.formateDateTimeOfTs(value);
+			},
+			width:120,
+			class:'min_120'
+		} ];
 		oTableInit.refresh = function() {
-			$('#dataTable').bootstrapTable('refresh');
+			$('#dataTable').bootstrapTable('refreshOptions',{pageNumber:1});
+			//$('#dataTable').bootstrapTable('refresh');
 		};
 		return oTableInit;
 	};
 	var pageInit = function() {
 		var oInit = new Object();
+		var postdata = {};
 		oInit.init = function() {
-			$('#dataEditDiv').hide();		
-		    $('#btn_query').click(function() {
-		    	tableInit().refresh();
-			});
-			$('#btn_add').click(function() {
-			    $('.edit-param').each(function () {
-			    	var _k = this.id;
-			        if(_k){
-			        	$(this).val('');
-			        }
-			    });
-			    $('#edit-form #typeGroup').val(null).trigger('change');
-			    $('#edit-form #parentId').val(null).trigger('change');
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
-			});
-			// 修改操作
-			$('#btn_edit').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length > 1) {
-					alert("修改操作，只能选择一条数据");
-					return;
+			/*起始时间*/ /*截止时间*/
+			$.datePicker.createNew({
+				elem: '#startTime',
+				theme: '#3f92ea',
+				type: 'datetime',
+				min: -60,//最近30天内
+				max: 0,//最近30天内
+				btns: ['now', 'confirm'],
+				done: function(value, date, endDate){
+					/*重置表单验证状态*/
 				}
-				if (rows.length == 0) {
-					alert("请选择一条数据");
-					return;
+			});
+			$.datePicker.createNew({
+				elem: '#endTime',
+				theme: '#3f92ea',
+				type: 'datetime',
+				min: -60,//最近30天内
+				max: 0,//最近30天内
+				btns: ['now', 'confirm'],
+				done: function(value, date, endDate){
+					/*重置表单验证状态*/
 				}
-			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
-			    	if(res&&res.succeed&&res.data){
-					    $('.edit-param').each(function () {
-					    	var _k = this.id;
-					        var _v = res.data[_k];
-					        if(_k){
-					        	if(_v != null && _v != undefined){
-						        	$(this).val(_v);
-						        }else{
-						        	$(this).val('');
-						        }
-					        } 
-					    });
-			    	}
-			    });
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
 			});
 
-			// 删
-			$('#btn_delete').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length < 1) {
-					alert("错误，未选中数据");
-					return;
-				}
-				var flag = confirm("是否删除这些数据?");
-				if (flag == true) {
-					var params = [];
-					for(var i in rows){
-						params.push(rows[i].id);
-				    };
-					$.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
-				    	if(res&&res.succeed&&res.data){
-				    		alert('操作成功,删除'+res.data+'条。');
-				    		tableInit().refresh();
-				    	}else{
-				    		alert('操作异常！');
-				    	}
-				    });
-				}
+			$('#btn_query').click(function() {
+				tableInit().refresh();
 			});
-			$('#btn_submit').click(function() {
-				var params = {};
-				$('.edit-param').each(function () {
-			    	var _k = this.id;
-			        var _v = $(this).val();
-			        if(_k && _v){
-			        	params[_k]=_v;
-			        }
-			    });
-				$.ajaxHelper.doPostSync(saveUrl,JSON.stringify(params),function(res){
-			    	if(res&&res.succeed){
-			    		alert('操作成功');
-			    		tableInit().refresh();
-			    	}else{
-			    		alert('操作异常');
-			    	}
-			    });
-				$('#dataEditDiv').hide();
-				$('#dataTableDiv').show();
-			});	
-			$('#btn_return').click(function() {
-				$('#dataEditDiv').hide();
-				$('#dataTableDiv').show();
-			});		
 		};
 		return oInit;
 	};
-	
+	initDateQuery();
 	tableInit().init();
 	pageInit().init();
+	initSelect();
 });
+
+function initSelect(){
+	$("#query-form #isReceiptSelect").select2({
+		width: '100%',
+		placeholder:'请选择',
+		allowClear:true
+
+	});
+	$("#query-form #isReceiptSelect").val(null).trigger('change');
+	//ID 冲突。。select2插件有问题
+	$("#query-form #isReceiptSelect").on('change',function(e){
+		var v = $("#query-form #isReceiptSelect").val();
+		if(v == 1 || v == 2){
+			$("#query-form #dealState").val(v);
+		}
+	});
+}
+
+function initDateQuery(){
+	var startTime = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
+	var endTime = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
+	$("#startTime").val(startTime);
+	$("#endTime").val(endTime);
+}
+
+function goto(waybillCode){
+    window.location.href = "http://" + window.location.host +"/half/packageHalfDetail/" + waybillCode;
+}

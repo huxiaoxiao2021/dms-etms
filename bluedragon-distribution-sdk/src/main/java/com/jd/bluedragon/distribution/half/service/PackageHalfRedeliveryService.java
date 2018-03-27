@@ -13,5 +13,13 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface PackageHalfRedeliveryService extends Service<PackageHalfRedelivery> {
 
-
+    /**
+     * 按运单更新协商再投包裹状态（分拣操作半收时调用）
+     * @param waybillCode
+     * @param updateUserCode
+     * @param updateUserErp
+     * @param updateUserName
+     * @return
+     */
+    public int  updateDealStateByWaybillCode(String waybillCode, Integer updateUserCode, String updateUserErp, String  updateUserName);
 }
