@@ -160,7 +160,7 @@ public class DmsStorageAreaController {
 			rest.setMessage("获取信息失败");
 			return rest;
 		}
-		if(dmsStorageArea != null && newDmsStorageArea != null && dmsStorageArea.getStorageCode().equals(newDmsStorageArea.getStorageCode()) ){
+		if(newDmsStorageArea != null && dmsStorageArea.getStorageCode().trim().equals(newDmsStorageArea.getStorageCode().trim()) ){
 			rest.setCode(JdResponse.CODE_FAIL);
 			rest.setMessage("同一省+市只对应一个库位号！");
 		}else{
@@ -306,7 +306,7 @@ public class DmsStorageAreaController {
 				}
 			}
 			DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-			if(byProAndCity != null && byProAndCity.getStorageCode() == dmsStorageArea.getStorageCode()){
+			if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
 				errorString = "同一省+市只能对应一个库位号！";
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}

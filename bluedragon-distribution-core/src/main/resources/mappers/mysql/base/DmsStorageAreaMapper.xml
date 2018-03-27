@@ -112,9 +112,6 @@
 				<if test="desCityName != null">
 					#{desCityName,jdbcType=VARCHAR},
 				</if>
-				<if test="createUserCode != null">
-					#{createUserCode,jdbcType=INTEGER},
-				</if>
 				<if test="createUser != null">
 					#{createUser,jdbcType=VARCHAR},
 				</if>
@@ -202,7 +199,7 @@
 					create_time = #{createTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="updateUser != null">
-					update_user = #{updateUserCode,jdbcType=VARCHAR},
+					update_user = #{updateUser,jdbcType=VARCHAR},
 				</if>
 				<if test="updateUserName != null">
 					update_user_name = #{updateUserName,jdbcType=VARCHAR},

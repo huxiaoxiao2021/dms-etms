@@ -42,7 +42,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 		return this.dmsStorageAreaDao;
 	}
 
-	@Cache(key = "sysconfig.cache.@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+	@Cache(key = "dmsStorageAreaServiceImpl.findByProAndCity@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public DmsStorageArea findByProAndCity( Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode){
 
@@ -53,6 +53,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 	public Boolean importExcel(List<DmsStorageArea> dataList, String createUser, String createUserName, Date createTime){
 		List<DmsStorageArea> bufferList = new ArrayList<DmsStorageArea>();
 		for(DmsStorageArea dmsStorageArea : dataList){
+			dmsStorageArea.setStorageType(1);
 			dmsStorageArea.setCreateUser(createUser);
 			dmsStorageArea.setCreateUserName(createUserName);
 			dmsStorageArea.setCreateTime(createTime);

@@ -539,7 +539,7 @@ public class InspectionResource {
         if(BusinessHelper.isPackageCode(packageBarOrWaybillCode)){
             waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(packageBarOrWaybillCode);
         }
-		InspectionResult inspectionResult = getInspectionResult(jdResponse, dmsStorageArea, dmsSiteCode, waybillCode);
+		InspectionResult inspectionResult = getInspectionResult(jdResponse, dmsSiteCode, waybillCode);
         inspectionResult.setHintMessage(getHintMessage(waybillCode));
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);
@@ -566,20 +566,16 @@ public class InspectionResource {
 	/**
 	 *  通过运单号获得库位号
 	 * @param jdResponse
-	 * @param dmsStorageArea
 	 * @param dmsSiteCode 分拣中心ID
 	 * @param waybillCode 运单号ID
 	 * @return
 	 * */
-	private InspectionResult getInspectionResult(com.jd.ql.dms.common.domain.JdResponse jdResponse, DmsStorageArea dmsStorageArea, Integer dmsSiteCode, String waybillCode) {
+	private InspectionResult getInspectionResult(com.jd.ql.dms.common.domain.JdResponse jdResponse, Integer dmsSiteCode, String waybillCode) {
 		try{
 			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
 			if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 				// 获取运单信息
 				Waybill waybill = baseEntity.getData().getWaybill();
-				dmsStorageArea.setDesProvinceCode(waybill.getProvinceId());
-				dmsStorageArea.setDesCityCode(waybill.getCityId());
-				dmsStorageArea.setDmsSiteCode(dmsSiteCode);
 				DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
 				if(newDmsStorageArea != null){
 					String storageCode = newDmsStorageArea.getStorageCode();
