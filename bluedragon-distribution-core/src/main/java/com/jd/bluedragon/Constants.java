@@ -264,6 +264,10 @@ public class Constants {
      */
     public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
     /**
+     * 时间：一月的秒数
+     */
+    public static final int TIME_SECONDS_ONE_MONTH = 30*TIME_SECONDS_ONE_DAY;
+    /**
 	 * 亚一站点
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
@@ -477,6 +481,11 @@ public class Constants {
      * 封车批次号缓存前缀
      */
     public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
+
+    /**
+     * PDA 提示语缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_PDA_HINT ="CACHE_PDA_HINT-";
     /**
      * 字典名称-WaybillSign打标配置标识
      */

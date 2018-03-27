@@ -61,7 +61,7 @@ public class WeighByWaybillController
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/insertWaybillWeight")
     @ResponseBody
-    public InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo) throws WeighByWaybillExcpetion
+    public InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo)
     {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 
@@ -142,7 +142,7 @@ public class WeighByWaybillController
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/verifyWaybillReality")
     @ResponseBody
-    public InvokeResult<Boolean> verifyWaybillReality(@RequestParam(value = "codeStr") String codeStr) throws WeighByWaybillExcpetion
+    public InvokeResult<Boolean> verifyWaybillReality(@RequestParam(value = "codeStr") String codeStr)
     {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setData(true);

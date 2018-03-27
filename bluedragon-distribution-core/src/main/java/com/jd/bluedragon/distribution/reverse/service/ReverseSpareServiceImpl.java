@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReverseSpareDto;
 import com.jd.bluedragon.distribution.api.request.ReverseSpareRequest;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +55,9 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 
     @Autowired
     private WaybillTraceApi waybillTraceApi;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -176,7 +181,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
     public void toQualityControlAndWaybillTrace(SendDetail sendDetail, ReverseSpareRequest request){
         BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
         QualityControl qualityControl = convert2QualityControl(request);
-        logger.warn("分拣中心备件库分拣发质控和全程跟踪开始。运单号 " + request.getWaybillCode());
+        logger.warn("分拣中心备件库分拣发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
         waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
         //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
         bdExceptionToQcMQ.sendOnFailPersistent(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), JsonHelper.toJson(qualityControl));
@@ -206,6 +211,20 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
         qualityControl.setBlameDeptName(request.getSiteName());
         qualityControl.setCreateTime(DateHelper.parseDateTime(request.getOperateTime()));
         qualityControl.setCreateUserId(request.getUserCode());
+        try{
+            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffId(request.getUserCode());
+            if(dto != null){
+                String userErp = dto.getErp();//只有自营人员才有
+                if(StringUtils.isEmpty(userErp)){
+                    userErp = dto.getAccountNumber();
+                }
+                qualityControl.setCreateUserErp(userErp);
+            }else{
+                logger.warn("逆向备件库任务推质控查询用户为空,userCode："+request.getUserCode());
+            }
+        }catch (Exception e){
+            logger.warn("逆向备件库任务推质控查询用户erp异常,userCode："+request.getUserCode()+"，异常原因："+e.getMessage());
+        }
         qualityControl.setCreateUserName(request.getUserName());
         qualityControl.setMessageType(QualityControl.QC_SPARE);
         if (request.getBoxCode() != null) {

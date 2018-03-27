@@ -103,33 +103,33 @@
 
     <!-- 运单系统接口 开始 -->
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false" serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
 
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillSyncApiJsf" interface="com.jd.etms.waybill.api.WaybillSyncApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
-    <jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
-    </jsf:consumer>
+    <!--<jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
+    </jsf:consumer>-->
     <jsf:consumer id="waybillPickupTaskApiJsf" interface="com.jd.etms.waybill.api.WaybillPickupTaskApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillTraceApiJsf" interface="com.jd.etms.waybill.api.WaybillTraceApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillExtendApiJsf" interface="com.jd.etms.waybill.api.WaybillExtendApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="1" check="false"  serialization="hessian">
+                  alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
     <jsf:consumer id="josServiceJsf"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosService" protocol="jsf"
-                  alias="${dms.jsf.alias}" 
+                  alias="${dms.jsf.alias}"
     >
     </jsf:consumer>
     <!-- 运单系统接口 结束 -->

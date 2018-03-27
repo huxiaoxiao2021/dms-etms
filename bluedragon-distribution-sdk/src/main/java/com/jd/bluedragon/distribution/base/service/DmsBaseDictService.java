@@ -22,6 +22,10 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      */
     public static final Integer DIC_ROOT_NODE_LEVEL = 1;
     /**
+     * 页面选择框、业务枚举值的根节点-100
+     */
+    public static final Integer DIC_ROOT_ENUM_SELECT_TYPE_GROUPS = 100;
+    /**
      * 打标配置根节点-101
      */
     public static final Integer DIC_ROOT_TYPE_CODE_TYPE_GROUPS = 101;
