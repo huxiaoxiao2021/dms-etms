@@ -4,25 +4,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
 import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
-import com.jd.bluedragon.distribution.transport.domain.ArBookingSpace;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
@@ -299,14 +294,15 @@ public class DmsStorageAreaController {
 				for (ProvinceAndCity c : cityList){
 					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
 						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
-					}else {
-						errorString = "导入的市不存在！";
-						return ;
+						DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
+						if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
+							errorString = "同一省+市只能对应一个库位号！";
+						}
 					}
-					DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-					if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
-						errorString = "同一省+市只能对应一个库位号！";
-					}
+				}
+				if(dmsStorageArea.getDesCityCode() == null){
+					errorString = "导入的市不存在！";
+					return ;
 				}
 			}
 		}

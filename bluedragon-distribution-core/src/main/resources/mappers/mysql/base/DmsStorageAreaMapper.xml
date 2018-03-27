@@ -138,8 +138,8 @@
 		insert into dms_storage_area
 			(
 				storage_type,storage_code,dms_site_code,dms_site_name,
-				des_province_code,des_province_name,des_city_code,des_city_name,create_user_code,
-				create_user,create_user_name,create_time,update_time,update_user,update_user_name
+				des_province_code,des_province_name,des_city_code,des_city_name,create_user,
+				create_user_name,create_time,update_time,update_user,update_user_name
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
