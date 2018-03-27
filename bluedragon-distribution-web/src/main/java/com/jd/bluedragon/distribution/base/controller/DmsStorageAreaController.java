@@ -244,8 +244,8 @@ public class DmsStorageAreaController {
 
 			dataList = dataResolver.resolver(file.getInputStream(), DmsStorageArea.class, new PropertiesMetaDataFactory("/excel/dmsStorageArea.properties"));
 			//对导入的数据进行校验
-			checkExportData(dataList,dmsSiteCode,dmsSiteName,errorString);
-			if(errorString != ""){
+			errorString = checkExportData(dataList,dmsSiteCode,dmsSiteName);
+			if(!errorString.equals("")){
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
 			if (dataList != null && dataList.size() > 0) {
@@ -280,14 +280,15 @@ public class DmsStorageAreaController {
 	 *	对导入的数据进行校验
 	 * @param dataList
 	 * @return*/
-	private void checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName,String errorString) {
+	private String  checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName) {
+	 	String errorString = "";
      	for (DmsStorageArea dmsStorageArea : dataList){
      		dmsStorageArea.setDmsSiteCode(dmsSiteCode);
 			dmsStorageArea.setDmsSiteName(dmsSiteName);
 			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
 			if(proId == -1){
 				errorString = "导入的省不存在！";
-				return ;
+				return errorString;
 			}else {
 				dmsStorageArea.setDesProvinceCode(proId);
 				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
@@ -295,17 +296,21 @@ public class DmsStorageAreaController {
 					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
 						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
 						DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-						if(byProAndCity != null && byProAndCity.getStorageCode().trim() == dmsStorageArea.getStorageCode().trim()){
+						String oldStorageCode = dmsStorageArea.getStorageCode().trim();
+						String newStorageCode = byProAndCity.getStorageCode().trim();
+						if(byProAndCity != null && oldStorageCode.equals(newStorageCode)){
 							errorString = "同一省+市只能对应一个库位号！";
+							return errorString;
 						}
 					}
 				}
 				if(dmsStorageArea.getDesCityCode() == null){
 					errorString = "导入的市不存在！";
-					return ;
+					return errorString;
 				}
 			}
 		}
+		return errorString;
 	}
 
 }
