@@ -297,7 +297,7 @@ public class DmsStorageAreaController {
 						if(byProAndCity != null){
 							String oldStorageCode = dmsStorageArea.getStorageCode().trim();
 							String newStorageCode = byProAndCity.getStorageCode().trim();
-							errorString = "同一省+市只能对应一个库位号,导入失败！";
+							errorString = "已存在相同的省市"+dmsStorageArea.getDesProvinceName()+";"+dmsStorageArea.getDesCityName();
 							return errorString;
 						}else {
 							break;
