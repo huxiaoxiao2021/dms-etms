@@ -336,7 +336,7 @@ public class BusinessHelper {
 			return Boolean.FALSE;
 		}
 
-		if (soucreCode.toUpperCase().startsWith(BUSI_ORDER_CODE_PRE_ECLP)) {
+		if (soucreCode.toUpperCase().startsWith(SOURCE_CODE_CLPS)) {
 			return Boolean.TRUE;
 		}
 
