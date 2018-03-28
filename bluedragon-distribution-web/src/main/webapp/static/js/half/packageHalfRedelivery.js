@@ -130,8 +130,8 @@ $(function() {
 				elem: '#startTime',
 				theme: '#3f92ea',
 				type: 'datetime',
-				min: -60,//最近30天内
-				max: 0,//最近30天内
+				// min: -60,//最近30天内
+				// max: 0,//最近30天内
 				btns: ['now', 'confirm'],
 				done: function(value, date, endDate){
 					/*重置表单验证状态*/
@@ -141,8 +141,8 @@ $(function() {
 				elem: '#endTime',
 				theme: '#3f92ea',
 				type: 'datetime',
-				min: -60,//最近30天内
-				max: 0,//最近30天内
+				// min: -60,//最近30天内
+				// max: 0,//最近30天内
 				btns: ['now', 'confirm'],
 				done: function(value, date, endDate){
 					/*重置表单验证状态*/
@@ -186,5 +186,5 @@ function initDateQuery(){
 }
 
 function goto(waybillCode){
-    window.location.href = "http://" + window.location.host +"/half/packageHalfDetail/" + waybillCode;
+    window.location.href = "http://" + window.location.host +"/half/packageHalf/toIndex?waybillCode=" + waybillCode;
 }

@@ -158,9 +158,9 @@
         <jmq:listener topic="tms_air_flight_realtime_status" listener="arAirFlightRealTimeConsumer"/>
     </jmq:consumer>
 
-    <!-- 消费运输非常准起飞降落时间 -->
+    <!-- B网半收协商再投MQ -->
     <jmq:consumer id="jmq.packageHalfRedeliveryConsumer" transport="jmq.BlueDragonDistribution.transport">
-        <jmq:listener topic="redeliver_consult_part" listener="packageHalfRedeliveryConsumer"/>
+        <jmq:listener topic="redeliver_checked_part" listener="packageHalfRedeliveryConsumer"/>
     </jmq:consumer>
 
 </beans>
