@@ -217,7 +217,7 @@ $(function () {
                     // console.log(res);
                     if(res.code == ERROR_PARAM_RESULT_CODE)
                     {
-                        $.messager.alert('错误','重量或体积参数输入有误，达到最大值！','error');
+                        $.messager.alert('错误','重量或体积参数输入有误，达到最大值，或者重量体积录入值为0！','error');
                         $('#waybill-weight-btn').linkbutton('enable');
                     } else if(res.data == false)
                     {
@@ -282,7 +282,7 @@ $(function () {
                             involkPostSync(waybill_weight_insert_url,insertParam,function(res){
                                 if(res.code == ERROR_PARAM_RESULT_CODE)
                                 {
-                                    $.messager.alert('错误','重量或体积参数输入有误，超过最大值！','error');
+                                    $.messager.alert('错误','重量或体积参数输入有误，超过最大值或输入的重量体积为0！','error');
                                 }
                                 else if(res.data == false || res.data == undefined)
                                 {
