@@ -142,30 +142,30 @@ public class DmsStorageAreaController {
 				dmsStorageArea.setUpdateUserName(erpUser.getUserName());
 				dmsStorageArea.setCreateTime(new Date());
 				dmsStorageArea.setUpdateTime(new Date());
+				newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
+				if(newDmsStorageArea != null){
+					rest.setCode(JdResponse.CODE_FAIL);
+					rest.setMessage("同一省+市只对应一个库位号！");
+					return rest;
+				}
 			}else {
 				dmsStorageArea.setUpdateTime(new Date());
 				dmsStorageArea.setUpdateUser(erpUser.getUserCode());
 				dmsStorageArea.setUpdateUserName(erpUser.getUserName());
 			}
-			newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
 		}catch (Exception e){
 			this.logger.warn("获取信息失败",e);
 			rest.setCode(JdResponse.CODE_FAIL);
 			rest.setMessage("获取信息失败");
 			return rest;
 		}
-		if(newDmsStorageArea != null && dmsStorageArea.getStorageCode().trim().equals(newDmsStorageArea.getStorageCode().trim()) ){
+		try {
+			rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
+			rest.setCode(JdResponse.CODE_SUCCESS);
+		} catch (Exception e) {
+			logger.error("fail to save！"+e.getMessage(),e);
 			rest.setCode(JdResponse.CODE_FAIL);
-			rest.setMessage("同一省+市只对应一个库位号！");
-		}else{
-			try {
-				rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
-				rest.setCode(JdResponse.CODE_SUCCESS);
-			} catch (Exception e) {
-				logger.error("fail to save！"+e.getMessage(),e);
-				rest.setCode(JdResponse.CODE_FAIL);
-				rest.setMessage("保存失败，服务异常！");
-			}
+			rest.setMessage("保存失败，服务异常！");
 		}
 		return rest;
 	}
@@ -297,10 +297,8 @@ public class DmsStorageAreaController {
 						if(byProAndCity != null){
 							String oldStorageCode = dmsStorageArea.getStorageCode().trim();
 							String newStorageCode = byProAndCity.getStorageCode().trim();
-							if(oldStorageCode.equals(newStorageCode)){
-								errorString = "同一省+市只能对应一个库位号！";
-								return errorString;
-							}
+							errorString = "同一省+市只能对应一个库位号,导入失败！";
+							return errorString;
 						}else {
 							break;
 						}
