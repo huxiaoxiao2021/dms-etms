@@ -26,6 +26,12 @@ public class PackageHalf extends DbEntity {
 	 /** 修改用户 */
 	private String updateUser;
 
+	/** 操作站点编号 */
+	private Long operateSiteCode;
+
+	/** 操作站点名称 */
+	private String operateSiteName;
+
 	/**
 	 * The set method for waybillCode.
 	 * @param waybillCode
@@ -90,5 +96,19 @@ public class PackageHalf extends DbEntity {
 		return this.updateUser;
 	}
 
+	public Long getOperateSiteCode() {
+		return operateSiteCode;
+	}
 
+	public void setOperateSiteCode(Long operateSiteCode) {
+		this.operateSiteCode = operateSiteCode;
+	}
+
+	public String getOperateSiteName() {
+		return operateSiteName;
+	}
+
+	public void setOperateSiteName(String operateSiteName) {
+		this.operateSiteName = operateSiteName;
+	}
 }

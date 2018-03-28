@@ -240,6 +240,9 @@
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterMapper.xml"/>
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterNodeMapper.xml"/>
         <mapper resource="mappers/mysql/weight/DmsWeightFlowMapper.xml"/>
+
+        <mapper resource="mappers/mysql/half/PackageHalfMapper.xml"/>
+        <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfRedeliveryMapper.xml"/>
     </mappers>
 </configuration>

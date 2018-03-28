@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.half.service;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: PackageHalfDetailService
@@ -13,5 +15,6 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface PackageHalfDetailService extends Service<PackageHalfDetail> {
 
+    List<PackageHalfDetail> getPackageHalfDetailByWaybillCode (String waybillCode);
 
 }

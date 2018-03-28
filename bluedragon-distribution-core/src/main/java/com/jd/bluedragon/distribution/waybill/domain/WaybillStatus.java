@@ -119,6 +119,19 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
 
+    /**
+     * 妥投 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_DELIVERED= 8;
+    /**
+     * 拒收 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_REJECT= 19;
+    /**
+     * 部分签收 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7100;
+
     private Long id;
 
     private String sendCode;

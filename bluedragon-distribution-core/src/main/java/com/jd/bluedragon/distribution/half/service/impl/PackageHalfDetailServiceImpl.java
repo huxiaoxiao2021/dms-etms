@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfDetailDao;
 import com.jd.bluedragon.distribution.half.service.PackageHalfDetailService;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: PackageHalfDetailServiceImpl
@@ -31,4 +33,8 @@ public class PackageHalfDetailServiceImpl extends BaseService<PackageHalfDetail>
 		return this.packageHalfDetailDao;
 	}
 
+	@Override
+	public List<PackageHalfDetail> getPackageHalfDetailByWaybillCode(String waybillCode) {
+		return packageHalfDetailDao.getPackageHalfDetailByWaybillCode(waybillCode);
+	}
 }

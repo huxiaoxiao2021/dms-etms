@@ -1,7 +1,14 @@
 package com.jd.bluedragon.distribution.half.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.half.domain.*;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.half.domain.PackageHalf;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfCondition;
 import com.jd.bluedragon.distribution.half.service.PackageHalfService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -33,6 +38,9 @@ public class PackageHalfController {
 
 	@Autowired
 	private PackageHalfService packageHalfService;
+
+	@Autowired
+	BaseMajorManager baseMajorManager;
 
 	/**
 	 * 返回主页面
@@ -59,16 +67,74 @@ public class PackageHalfController {
 	 * @return
 	 */
 	@RequestMapping(value = "/save")
-	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalf packageHalf) {
+	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalfVO packageHalfVO) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		rest.setCode(JdResponse.CODE_SUCCESS);
 		try {
-			rest.setData(packageHalfService.saveOrUpdate(packageHalf));
-	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			//获取基础信息
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			String userCode = "";
+			Long createSiteCode = new Long(-1);
+			String createSiteName = "";
+			if(erpUser!=null){
+				userCode = erpUser.getUserCode();
+				BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+				if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+					createSiteCode = new Long(bssod.getSiteCode());
+					createSiteName = bssod.getSiteName();
+				}
+			}
+
+			//组装插入对象
+			PackageHalf packageHalf = new PackageHalf();
+			List<PackageHalfDetail> packageHalfDetails = new ArrayList<PackageHalfDetail>();
+			makeSavePOJO(packageHalfVO,packageHalf,packageHalfDetails,userCode,createSiteCode,createSiteName);
+			Integer waybillOpeType = packageHalfVO.getWaybillOpeType();
+			Integer OperatorId = erpUser==null?-1:erpUser.getUserId();
+			String OperatorName = erpUser==null?"":erpUser.getUserName();
+			Date operateTime = packageHalfVO.getOperateTime();
+
+			//具体业务处理
+			rest.setData(packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime));
+
+
+
+		} catch (Exception e) {
+			logger.error("half/packageHalf/save  fail to save！"+e.getMessage(),e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
 	}
+
+	private void makeSavePOJO(PackageHalfVO packageHalfVO, PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails,String userCode,Long createSiteCode, String createSiteName){
+
+		packageHalf.setWaybillCode(packageHalfVO.getWaybillCode());
+        packageHalf.setCreateUser(userCode);
+        packageHalf.setHalfType(Integer.valueOf(packageHalfVO.getHalfType()));
+        packageHalf.setOperateSiteCode(createSiteCode);
+        packageHalf.setOperateSiteName(createSiteName);
+
+
+        List<PackageHalfDetailVO> PackageHalfDetailVOs = packageHalfVO.getPackageList();
+        if(PackageHalfDetailVOs != null){
+			for(PackageHalfDetailVO packageHalfDetailVO : PackageHalfDetailVOs){
+				PackageHalfDetail packageHalfDetail = new PackageHalfDetail();
+				packageHalfDetail.setWaybillCode(packageHalfVO.getWaybillCode());
+				packageHalfDetail.setPackageCode(packageHalfDetailVO.getPackageCode());
+				packageHalfDetail.setReasonType(Integer.valueOf(StringUtils.isBlank(packageHalfDetailVO.getReasonType())?"-1":packageHalfDetailVO.getReasonType()));
+				packageHalfDetail.setResultType(Integer.valueOf(packageHalfDetailVO.getResultType()));
+				packageHalfDetail.setCreateUser(userCode);
+				packageHalfDetail.setOperateSiteCode(createSiteCode);
+				packageHalfDetail.setOperateSiteName(createSiteName);
+				packageHalfDetail.setHalfType(Integer.valueOf(packageHalfVO.getHalfType()));
+
+				packageHalfDetails.add(packageHalfDetail);
+			}
+		}
+
+
+	}
+
 	/**
 	 * 根据id删除多条数据
 	 * @param ids

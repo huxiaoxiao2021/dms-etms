@@ -14,7 +14,6 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
  * @date 2018年03月20日 17:33:21
  *
  */
-@Repository("packageHalfDao")
 public class PackageHalfDaoImpl extends BaseDao<PackageHalf> implements PackageHalfDao {
 
 

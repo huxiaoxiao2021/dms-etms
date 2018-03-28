@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfDetailDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: PackageHalfDetailDaoImpl
@@ -14,8 +16,11 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
  * @date 2018年03月20日 17:33:21
  *
  */
-@Repository("packageHalfDetailDao")
 public class PackageHalfDetailDaoImpl extends BaseDao<PackageHalfDetail> implements PackageHalfDetailDao {
 
 
+    @Override
+    public List<PackageHalfDetail> getPackageHalfDetailByWaybillCode(String waybillCode) {
+        return sqlSession.selectList(this.nameSpace+".getPackageHalfDetailByWaybillCode", waybillCode);
+    }
 }

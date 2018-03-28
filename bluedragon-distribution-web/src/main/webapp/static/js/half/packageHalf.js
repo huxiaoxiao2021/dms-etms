@@ -71,13 +71,29 @@ $(function() {
 		};
 		oTableInit.tableColums = [ {
 				checkbox : true
-			}, {
-				field : 'typeCode',
-				title : '编码'
-			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
+				}, {
+					field : 'waybillCode',
+					title : '运单号'
+				}, {
+					field : 'halfType',
+					title : '半收类型',
+					formatter : function(value,row,index){
+						return value==1?'包裹半收':value==2?'明细半收':'未知类型';
+					}
+				} , {
+					field : 'operateSiteName',
+					title : '操作机构'
+				} , {
+					field : 'createUser',
+					title : '提交人'
+				}, {
+					field : 'createTime',
+					title : '提交时间',
+					formatter : function(value,row,index){
+						return $.dateHelper.formateDateTimeOfTs(value);
+					}
+				}
+			];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -86,7 +102,24 @@ $(function() {
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
-			$('#dataEditDiv').hide();		
+			$('#dataEditDiv').hide();
+            $.datePicker.createNew({
+                elem: '#createTimeLE',
+                theme: '#3f92ea',
+                //btns: ['clear','now'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#createTimeGE',
+                theme: '#3f92ea',
+                //btns: ['clear','now'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
+
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
@@ -185,4 +218,253 @@ $(function() {
 	
 	tableInit().init();
 	pageInit().init();
+
+	//绑定 页面按钮事件
+	$("#add-query-btn").on('click',loadPackage);
+    $("#add-delievered-btn").on('click',delievered);
+    $("#add-submit-btn").on('click',addSubmit);
+	$("#add-waybill-code").on('keydown',function(event){
+
+		if (event.keyCode == "13") {
+
+            loadPackage();
+		}
+	});
+
+    // 检查是否URL上是否有运单号
+    var urlParam = $.getQueryString("waybillCode");
+    if(urlParam){
+    	//存在直接跳转
+        $('#dataTableDiv').hide();
+        $('#dataEditDiv').show();
+        $('#add-waybill-code').val(urlParam);
+        loadPackage();
+	}
+
 });
+
+/**
+ * 加载包裹信息
+ */
+function loadPackage(){
+    var waybillCode = $("#add-waybill-code").val().trim();
+    if(waybillCode!=null && waybillCode != ""){
+        //查询运单数据
+        addWaybillCodeTemp = waybillCode;
+        var getWaybillUrl = "/half/packageHalfDetail/getPackageStatus";
+        $.post(getWaybillUrl,{waybillCode:addWaybillCodeTemp},function (data) {
+            //组装页面
+			if(data.code == 200){
+				//包裹操作列表
+                makeTableHtml(data.data);
+				//提示语
+                $("#load-message-p").html(data.message);
+			}else{
+				alert(data.message);
+			}
+
+        });
+
+
+
+    }else{
+        alert('运单号不能为空');
+        $("#add-waybill-code").focus();
+    }
+}
+
+
+
+function makeTableHtml(data){
+	if(data==null || data.length == 0){
+		alert("无包裹信息");
+	}
+    var myRowHtml = "";
+    for(var i in data){
+        var myRow = data[i];
+
+        if( myRow.resultType == 1){
+        	//妥投
+            myRowHtml += "<tr class='success' id='tr-"+myRow.packageCode+"' package-ope-type='8'>";
+            myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td >妥投</td><td ></td>";
+        }else if ( myRow.resultType == 2){
+        	//拒收
+            myRowHtml += "<tr class='danger' id='tr-"+myRow.packageCode+"' package-ope-type='19'>";
+            myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td >拒收</td>";
+            if(myRow.reasonType && rejectReasonData[myRow.reasonType]){
+                myRowHtml += "<td>"+rejectReasonData[myRow.reasonType]+"</td>";
+            }
+
+        }else {
+            myRowHtml += "<tr class='need-submit' id='tr-"+myRow.packageCode+"'>";
+            myRowHtml+="<td><input type='checkbox' name='package-check' value='"+myRow.packageCode+"'/></td>";
+            myRowHtml += "<td>"+myRow.waybillCode+"</td><td submit-value='"+myRow.packageCode+"'>"+myRow.packageCode+"</td><td id='"+myRow.packageCode+"-result'></td><td id='"+myRow.packageCode+"-reason'></td>";
+
+        }
+        myRowHtml += "</tr>";
+    }
+    $("#package-list-tbody").html(myRowHtml);
+
+}
+
+function getSelectTr(){
+	return $("input[name='package-check']:checked");
+}
+
+/**
+ * 妥投
+ */
+function delievered(){
+	//变更页面状态
+	var trs = getSelectTr();
+	$(trs).each(function(){
+		var packageCode = $(this).val();
+		$("#"+packageCode+"-result").html(resultData[1]);
+        $("#"+packageCode+"-result").attr("submit-value","1");
+        $("#"+packageCode+"-reason").html("");
+        $("#"+packageCode+"-reason").attr("submit-value","");
+        $("#tr-"+packageCode).attr("package-ope-type","8");
+
+    });
+}
+
+var resultData = {
+	1:"妥投",
+	2:"拒收"
+}
+
+var rejectReasonData = {
+	1:"破损",
+    2:"丢失",
+	3:"报废",
+	4:"客户原因",
+	5:"其他"
+}
+/**
+ * 拒收
+ * @param type
+ */
+function rejectReason(type){
+	var reasonName = rejectReasonData[type];
+    //变更页面状态
+    var trs = getSelectTr();
+    $(trs).each(function(){
+        var packageCode = $(this).val();
+        $("#"+packageCode+"-result").html(resultData[2]);
+        $("#"+packageCode+"-result").attr("submit-value","2");
+        $("#"+packageCode+"-reason").html(reasonName);
+        $("#"+packageCode+"-reason").attr("submit-value",type);
+        $("#tr-"+packageCode).attr("package-ope-type","19");
+    });
+}
+
+
+var addWaybillCodeTemp = "";
+var submitUrl = "/half/packageHalf/save";
+
+/**
+ * 确认提交
+ */
+function addSubmit(){
+    if($("#package-list-tbody input[type='checkbox']").length == 0){
+        alert("无可操作包裹！");
+        return false;
+    }
+
+	//校验是否所有包裹都有状态
+    if(checkAllPackageHasResult()){
+        disableBtn();
+		//显示一下拒收的包裹数，方便现场人员确认
+        //组装对象
+        var param = {};
+        var packageList = [];
+        param["halfType"] = 1; //先默认包裹半收
+        $("#package-list-tbody .need-submit").each(function(){
+            var packageVo = {};
+            packageVo["packageCode"] = $(this).find("td:eq(2)").attr("submit-value");
+            packageVo["resultType"] = $(this).find("td:eq(3)").attr("submit-value");
+            packageVo["reasonType"] = $(this).find("td:eq(4)").attr("submit-value");
+            packageList.push(packageVo);
+        });
+        param["packageList"] = packageList;
+        param["waybillCode"] = addWaybillCodeTemp;
+		//计算当前运单状态
+		var waybillOpeType;
+		var loopIndex = 1;
+		$("#package-list-tbody tr").each(function(){
+			if(loopIndex == 1){
+                waybillOpeType = $(this).attr("package-ope-type");
+			}else{
+                waybillOpeType = $(this).attr("package-ope-type") == waybillOpeType ? waybillOpeType : "7100";
+			}
+			if(waybillOpeType == "7100"){
+				return false;
+			}
+            loopIndex++;
+		});
+        param["waybillOpeType"] = waybillOpeType;
+
+        $.ajaxHelper.doPostAsync(submitUrl,JSON.stringify(param),function(data){
+        	if(data.code == 200 && data.data){
+                alert('提交成功');
+			}else{
+                alert(data.message?data.message:"提交失败");
+			}
+            enableBtn();
+        });
+
+
+	}else{
+    	alert("所有包裹都有配送结果后才能提交！");
+	}
+
+
+}
+
+
+
+/**
+ * 检查所有包裹是否都有状态
+ */
+function checkAllPackageHasResult(){
+	var checkResult = true;
+
+    $("#package-list-tbody td[id $= 'result']").each(function(){
+    	if($(this).html()=='' || $(this).html()==null){
+            checkResult = false;
+    		return false;
+		}
+	});
+	return checkResult;
+
+}
+
+
+/**
+ * 全选
+ */
+function allSelect(){
+
+    $("input[name='package-check']").prop("checked",true)
+
+}
+
+/**
+ * 反选
+ */
+function turnSelect(){
+    $("input[name='package-check']").each(function(){
+        $(this).prop("checked", !$(this).prop("checked"));
+    });
+
+}
+
+function disableBtn(){
+
+    $("#add-query-btn,#add-delievered-btn,#add-submit-btn,#add-reject-btn,#add-waybill-code").attr("disabled",true);
+
+}
+
+function enableBtn(){
+    $("#add-query-btn,#add-delievered-btn,#add-submit-btn,#add-reject-btn,#add-waybill-code").attr("disabled",false);
+}

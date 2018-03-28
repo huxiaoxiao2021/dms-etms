@@ -24,16 +24,16 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	private String packageCode;
 
 	 /** 操作站点编号 */
-	private String operateSiteCode;
+	private Long operateSiteCode;
 
 	 /** 操作站点名称 */
 	private String operateSiteName;
 
 	 /** 配送结果（1-妥投，2-拒收，3-丢失） */
-	private Long resultType;
+	private Integer resultType;
 
 	 /** 拒收原因（1-破损 ,2- 丢失,3- 报废 ,4-客户原因,5- 其他） */
-	private Long reasonType;
+	private Integer reasonType;
 
 	 /** 创建用户 */
 	private String createUser;
@@ -93,7 +93,7 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	 * The set method for operateSiteCode.
 	 * @param operateSiteCode
 	 */
-	public void setOperateSiteCode(String operateSiteCode) {
+	public void setOperateSiteCode(Long operateSiteCode) {
 		this.operateSiteCode = operateSiteCode;
 	}
 
@@ -101,7 +101,7 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	 * The get method for operateSiteCode.
 	 * @return this.operateSiteCode
 	 */
-	public String getOperateSiteCode() {
+	public Long getOperateSiteCode() {
 		return this.operateSiteCode;
 	}
 
@@ -125,7 +125,7 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	 * The set method for resultType.
 	 * @param resultType
 	 */
-	public void setResultType(Long resultType) {
+	public void setResultType(Integer resultType) {
 		this.resultType = resultType;
 	}
 
@@ -133,7 +133,7 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	 * The get method for resultType.
 	 * @return this.resultType
 	 */
-	public Long getResultType() {
+	public Integer getResultType() {
 		return this.resultType;
 	}
 
@@ -141,7 +141,7 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	 * The set method for reasonType.
 	 * @param reasonType
 	 */
-	public void setReasonType(Long reasonType) {
+	public void setReasonType(Integer reasonType) {
 		this.reasonType = reasonType;
 	}
 
@@ -149,7 +149,7 @@ public class PackageHalfDetailCondition extends BasePagerCondition {
 	 * The get method for reasonType.
 	 * @return this.reasonType
 	 */
-	public Long getReasonType() {
+	public Integer getReasonType() {
 		return this.reasonType;
 	}
 

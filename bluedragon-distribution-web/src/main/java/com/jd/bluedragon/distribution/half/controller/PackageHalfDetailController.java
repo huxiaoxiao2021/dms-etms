@@ -1,7 +1,21 @@
 package com.jd.bluedragon.distribution.half.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfVO;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.WaybillOpe;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +47,9 @@ public class PackageHalfDetailController {
 
 	@Autowired
 	private PackageHalfDetailService packageHalfDetailService;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	/**
 	 * 返回主页面
@@ -96,4 +113,85 @@ public class PackageHalfDetailController {
 		rest.setData(packageHalfDetailService.queryByPagerCondition(packageHalfDetailCondition));
 		return rest.getData();
 	}
+
+
+	/**
+	 *
+	 * @param waybillCode
+	 * @return
+	 */
+	@RequestMapping(value = "/getPackageStatus")
+	public @ResponseBody InvokeResult<List<PackageHalfDetail>> getPackageStatus(String waybillCode) {
+		InvokeResult<List<PackageHalfDetail>> result = new InvokeResult<List<PackageHalfDetail>>();
+
+		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+		List<PackageHalfDetail> packageHalfDetailsOfResult = new ArrayList<PackageHalfDetail>();
+		result.setData(packageHalfDetailsOfResult);
+
+		BaseEntity<BigWaybillDto> getDataByChoiceResult = waybillQueryManager.getDataByChoice(waybillCode,true, true, false, false, true, false, false);
+		if(getDataByChoiceResult.getResultCode() == 1){
+			//成功获取包裹信息
+			BigWaybillDto bigWaybillDto = getDataByChoiceResult.getData();
+			//判断包裹信息是否为半收包裹
+			if(true || BusinessHelper.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
+				//是半收包裹
+
+				//获取操作记录合并
+				List<PackageHalfDetail> packageHalfDetails = packageHalfDetailService.getPackageHalfDetailByWaybillCode(waybillCode);
+
+
+				if (bigWaybillDto != null && bigWaybillDto.getPackageList() != null && bigWaybillDto.getPackageList().size() > 0) {
+					Map<String, PackageHalfDetail> packageResultType = new HashMap<String, PackageHalfDetail>();
+					//组装 已有操作记录的 MAP
+					if (packageHalfDetails.size() > 0) {
+						for (PackageHalfDetail packageHalfDetail : packageHalfDetails) {
+							packageResultType.put(packageHalfDetail.getPackageCode(), packageHalfDetail);
+						}
+
+
+					}
+					//循环处理 运单获取的包裹信息
+					for (DeliveryPackageD deliveryPackageD : bigWaybillDto.getPackageList()) {
+						String packageBarcode = deliveryPackageD.getPackageBarcode();
+						PackageHalfDetail packageHalfDetail = packageResultType.get(packageBarcode);
+						if (packageHalfDetail != null) {
+							packageHalfDetailsOfResult.add(packageHalfDetail);
+						} else {
+							PackageHalfDetail packageHalfDetailNew = new PackageHalfDetail();
+							packageHalfDetailNew.setPackageCode(deliveryPackageD.getPackageBarcode());
+							packageHalfDetailNew.setWaybillCode(deliveryPackageD.getWaybillCode());
+							if (WaybillStatus.WAYBILL_TRACK_FC.equals(deliveryPackageD.getPackageState())) {
+								//妥投
+								packageHalfDetailNew.setResultType(Integer.valueOf(PackageHalfResultTypeEnum.DELIVERED_1.getCode()));
+							} else if (WaybillStatus.WAYBILL_TRACK_RCD.equals(deliveryPackageD.getPackageState())) {
+								//拒收
+								packageHalfDetailNew.setResultType(Integer.valueOf(PackageHalfResultTypeEnum.REJECT_2.getCode()));
+							}
+							packageHalfDetailsOfResult.add(packageHalfDetailNew);
+						}
+
+					}
+				//拼装正确提示语
+					result.setMessage("此运单为包裹半收 总包裹数:"+packageHalfDetailsOfResult.size());
+
+				}else{
+				//无包裹信息
+					result.setCode(InvokeResult.SERVER_ERROR_CODE);
+					result.setMessage("此运单无包裹信息");
+				}
+
+			}else{
+				//不是半收包裹
+				result.setCode(InvokeResult.SERVER_ERROR_CODE);
+				result.setMessage("此运单非包裹半收，不可操作！");
+			}
+
+
+		}else{
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(getDataByChoiceResult.getMessage());
+		}
+		return result;
+	}
+
 }

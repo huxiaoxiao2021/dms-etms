@@ -1,7 +1,12 @@
 package com.jd.bluedragon.distribution.half.service;
 
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfVO;
 import com.jd.ql.dms.common.web.mvc.api.Service;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -13,5 +18,7 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface PackageHalfService extends Service<PackageHalf> {
 
+
+    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime);
 
 }

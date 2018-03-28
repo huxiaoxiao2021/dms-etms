@@ -2,6 +2,10 @@ package com.jd.bluedragon.distribution.half.dao;
 
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+
+import java.util.List;
 
 /**
  *
@@ -12,6 +16,9 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  *
  */
 public interface PackageHalfDetailDao extends Dao<PackageHalfDetail> {
+
+
+    List<PackageHalfDetail> getPackageHalfDetailByWaybillCode(String waybillCode);
 
 
 }

@@ -3,8 +3,14 @@ package com.jd.bluedragon.distribution.waybill.service;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.jd.bluedragon.distribution.half.domain.PackageHalf;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
+import com.jd.etms.waybill.handler.PackageSyncPartParameter;
+import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -583,4 +589,89 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		}
 	}
 
+	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime){
+
+		//妥投或者拒收 走老同步接口
+		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)) {
+
+			//组装更新对象
+			List<WaybillSyncPartParameter> waybillSyncPartParameterList = new ArrayList<WaybillSyncPartParameter>();
+			WaybillSyncPartParameter waybillSyncPartParameter = new WaybillSyncPartParameter();
+			List<PackageSyncPartParameter> packageSyncPartParameterList = new ArrayList<PackageSyncPartParameter>();
+			waybillSyncPartParameter.setPackageSyncPartParameterList(packageSyncPartParameterList);
+			waybillSyncPartParameter.setWaybillOperateType(waybillOpeType);
+			//组装包裹 并且 获取运单的最终状态， 如果有拒收则按部分签收更新运单状态
+
+			for (PackageHalfDetail packageHalfDetail : packageHalfDetails) {
+
+				if (packageSyncPartParameterList.size() == 0) {
+					waybillSyncPartParameter.setWaybillCode(packageHalfDetail.getWaybillCode());
+					waybillSyncPartParameter.setOperateSiteName(packageHalfDetail.getOperateSiteName());
+					waybillSyncPartParameter.setOperateSiteId(packageHalfDetail.getOperateSiteCode().intValue());
+					waybillSyncPartParameter.setOperatorId(operatorId);
+					waybillSyncPartParameter.setOperatorName(operatorName);
+					waybillSyncPartParameter.setOperateTime(operateTime);
+				}
+
+				PackageSyncPartParameter packageSyncPartParameter = new PackageSyncPartParameter();
+				packageSyncPartParameter.setPackageCode(packageHalfDetail.getPackageCode());
+				packageSyncPartParameter.setPackageOperateType(getPackageOperateTypeByResultType(packageHalfDetail.getResultType()));
+				packageSyncPartParameter.setRemark(PackageHalfReasonTypeEnum.getNameByKey(packageHalfDetail.getReasonType().toString()));
+
+				packageSyncPartParameterList.add(packageSyncPartParameter);
+			}
+
+
+			BaseEntity<Map<String, String>> result = this.waybillSyncApi.batchUpdateWaybillPartByOperateType(waybillSyncPartParameterList);
+			if (result.getResultCode() == 1) {
+				//成功
+				return true;
+			} else {
+				//失败的包裹号
+				Set<Map.Entry<String, String>> mapSet = result.getData().entrySet();
+				for (Map.Entry<String, String> entry : mapSet) {
+					entry.getKey();
+					entry.getValue();
+				}
+				return false;
+			}
+		}else{
+			List<WaybillParameter> waybillParameters = new ArrayList<WaybillParameter>();
+			WaybillParameter waybillParameter = new WaybillParameter();
+			waybillParameter.setWaybillCode(packageHalf.getWaybillCode());
+			waybillParameter.setOperatorId(operatorId);
+			waybillParameter.setOperatorName(operatorName);
+			waybillParameter.setOperatorType(waybillOpeType);
+			waybillParameter.setOperateTime(operateTime);
+			waybillParameters.add(waybillParameter);
+
+
+			//老同步接口
+			BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
+			if (result.getResultCode() == 1) {
+				//成功
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	/**
+	 * 根据配送类型 获取相应运单操作码
+	 * @param resultType
+	 * @return
+	 */
+	private Integer getPackageOperateTypeByResultType(Integer resultType){
+		Integer result = new Integer(0);
+		if(PackageHalfResultTypeEnum.DELIVERED_1.getCode().equals(resultType.toString())){
+			result = WaybillStatus.WAYBILL_OPE_TYPE_DELIVERED;
+		}else if(PackageHalfResultTypeEnum.REJECT_2.getCode().equals(resultType.toString())){
+			result = WaybillStatus.WAYBILL_OPE_TYPE_REJECT;
+		}else{
+			throw new RuntimeException("未识别配送结果类型 "+ resultType);
+		}
+		return result;
+	}
 }
+

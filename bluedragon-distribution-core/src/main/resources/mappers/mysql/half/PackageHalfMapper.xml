@@ -6,16 +6,17 @@
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="half_type" property="halfType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="operate_site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,waybill_code,half_type,create_user,update_user,create_time,
+		id,waybill_code,half_type,operate_site_code,operate_site_name,create_user,update_user,create_time,
 		update_time,is_delete,ts
 	</sql>
 
@@ -32,24 +33,28 @@
 				<if test="halfType != null">
 					half_type,
 				</if>
+				<if test="operateSiteCode != null">
+					operate_site_code,
+				</if>
+				<if test="operateSiteName != null">
+					operate_site_name,
+				</if>
 				<if test="createUser != null">
 					create_user,
 				</if>
 				<if test="updateUser != null">
 					update_user,
 				</if>
-				<if test="createTime != null">
+
 					create_time,
-				</if>
-				<if test="updateTime != null">
+
 					update_time,
-				</if>
-				<if test="isDelete != null">
+
 					is_delete,
-				</if>
-				<if test="ts != null">
+
 					ts
-				</if>
+
+
 			</trim>
 			)
 			values
@@ -64,48 +69,33 @@
 				<if test="halfType != null">
 					#{halfType,jdbcType=TINYINT},
 				</if>
+				<if test="operateSiteCode != null">
+					#{operateSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="operateSiteName != null">
+					#{operateSiteName,jdbcType=VARCHAR},
+				</if>
 				<if test="createUser != null">
 					#{createUser,jdbcType=VARCHAR},
 				</if>
 				<if test="updateUser != null">
 					#{updateUser,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+
+					now(),
+
+					now(),
+
+					0,
+
+					now()
+
+
 			</trim>
 			)
 	</insert>
 
-	<insert id="batchInsert" parameterType="List">
-		insert into package_half
-			(
-				waybill_code,half_type,create_user,update_user,
-				create_time,update_time,is_delete,ts
-			)
-			values
-			<foreach collection="list" item="item" index="index" separator=",">
-				(
-					#{item.waybillCode,jdbcType=VARCHAR},
-					#{item.halfType,jdbcType=TINYINT},
-					#{item.createUser,jdbcType=VARCHAR},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
-				)
-			</foreach>
-	</insert>
+
 
 	<update id="update" parameterType="com.jd.bluedragon.distribution.half.domain.PackageHalf">
 		update package_half
@@ -115,6 +105,12 @@
 				</if>
 				<if test="halfType != null">
 					half_type = #{halfType,jdbcType=TINYINT},
+				</if>
+				<if test="operateSiteCode != null">
+					operate_site_code = #{operateSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="operateSiteName != null">
+					operate_site_name = #{operateSiteName,jdbcType=VARCHAR},
 				</if>
 				<if test="createUser != null">
 					create_user = #{createUser,jdbcType=VARCHAR},
@@ -175,13 +171,30 @@
 			and is_delete=0 
 	</sql>
 
+	<sql id="Query_Params_Condition_Sql">
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="createTimeGE != null and createTimeLE !=null">
+			and create_time BETWEEN #{createTimeGE} and #{createTimeLE}
+		</if>
+		<if test="createTimeGE != null and createTimeLE ==null">
+			and  <![CDATA[   create_time >= #{createTimeGE}  ]]>
+		</if>
+		<if test="createTimeGE == null and createTimeLE !=null">
+			and  <![CDATA[   create_time <= #{createTimeLE}  ]]>
+		</if>
+
+	</sql>
+
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
 		  package_half 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		where 1=1
+		<include refid="Query_Params_Condition_Sql" />
+		<include refid="Base_Condition_Sql"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="PackageHalf">
@@ -189,8 +202,9 @@
 		 <include refid="Base_Column_List"/>
 		from 
 		  package_half 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		where 1=1
+		<include refid="Query_Params_Condition_Sql" />
+		<include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

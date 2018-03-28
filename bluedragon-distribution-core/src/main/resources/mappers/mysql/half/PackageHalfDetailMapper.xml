@@ -7,10 +7,10 @@
 		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="half_type" property="halfType" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="operate_site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="result_type" property="resultType" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="reason_type" property="reasonType" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="result_type" property="resultType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="reason_type" property="reasonType" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -59,18 +59,18 @@
 				<if test="updateUser != null">
 					update_user,
 				</if>
-				<if test="createTime != null">
+
 					create_time,
-				</if>
-				<if test="updateTime != null">
+
+
 					update_time,
-				</if>
-				<if test="isDelete != null">
+
+
 					is_delete,
-				</if>
-				<if test="ts != null">
+
+
 					ts
-				</if>
+
 			</trim>
 			)
 			values
@@ -89,16 +89,16 @@
 					#{packageCode,jdbcType=VARCHAR},
 				</if>
 				<if test="operateSiteCode != null">
-					#{operateSiteCode,jdbcType=VARCHAR},
+					#{operateSiteCode,jdbcType=BIGINT},
 				</if>
 				<if test="operateSiteName != null">
 					#{operateSiteName,jdbcType=VARCHAR},
 				</if>
 				<if test="resultType != null">
-					#{resultType,jdbcType=BIGINT},
+					#{resultType,jdbcType=TINYINT},
 				</if>
 				<if test="reasonType != null">
-					#{reasonType,jdbcType=BIGINT},
+					#{reasonType,jdbcType=TINYINT},
 				</if>
 				<if test="createUser != null">
 					#{createUser,jdbcType=VARCHAR},
@@ -106,18 +106,11 @@
 				<if test="updateUser != null">
 					#{updateUser,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+				now(),
+				now(),
+				0,
+				now()
+
 			</trim>
 			)
 	</insert>
@@ -126,7 +119,7 @@
 		insert into package_half_detail
 			(
 				waybill_code,half_type,package_code,operate_site_code,
-				operate_site_name,result_type,reason_type,create_user,update_user,
+				operate_site_name,result_type,reason_type,create_user,
 				create_time,update_time,is_delete,ts
 			)
 			values
@@ -135,16 +128,16 @@
 					#{item.waybillCode,jdbcType=VARCHAR},
 					#{item.halfType,jdbcType=TINYINT},
 					#{item.packageCode,jdbcType=VARCHAR},
-					#{item.operateSiteCode,jdbcType=VARCHAR},
+					#{item.operateSiteCode,jdbcType=BIGINT},
 					#{item.operateSiteName,jdbcType=VARCHAR},
-					#{item.resultType,jdbcType=BIGINT},
-					#{item.reasonType,jdbcType=BIGINT},
+					#{item.resultType,jdbcType=TINYINT},
+					#{item.reasonType,jdbcType=TINYINT},
 					#{item.createUser,jdbcType=VARCHAR},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+
+					now(),
+					now(),
+					0,
+					now()
 				)
 			</foreach>
 	</insert>
@@ -162,16 +155,16 @@
 					package_code = #{packageCode,jdbcType=VARCHAR},
 				</if>
 				<if test="operateSiteCode != null">
-					operate_site_code = #{operateSiteCode,jdbcType=VARCHAR},
+					operate_site_code = #{operateSiteCode,jdbcType=BIGINT},
 				</if>
 				<if test="operateSiteName != null">
 					operate_site_name = #{operateSiteName,jdbcType=VARCHAR},
 				</if>
 				<if test="resultType != null">
-					result_type = #{resultType,jdbcType=BIGINT},
+					result_type = #{resultType,jdbcType=TINYINT},
 				</if>
 				<if test="reasonType != null">
-					reason_type = #{reasonType,jdbcType=BIGINT},
+					reason_type = #{reasonType,jdbcType=TINYINT},
 				</if>
 				<if test="createUser != null">
 					create_user = #{createUser,jdbcType=VARCHAR},
@@ -250,5 +243,15 @@
 		 <include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
+
+	<select id="getPackageHalfDetailByWaybillCode" parameterType="String" resultMap="PackageHalfDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		package_half_detail
+		where
+		waybill_code = #{waybillCode,jdbcType=VARCHAR} and is_delete = 0
+	</select>
+
 
 </mapper>

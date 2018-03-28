@@ -580,4 +580,14 @@ public class BusinessHelper {
 	public static boolean isB2b(String waybillSign){
 		return isSignInChars(waybillSign, 40,'1','2','3');
 	}
+
+	/**
+	 * 包裹半收 标识
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isPackageHalf(String waybillSign){
+		return isSignInChars(waybillSign, 27,'1');
+	}
+
 }
