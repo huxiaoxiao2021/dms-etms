@@ -13,18 +13,27 @@ public class BoardResponse implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    public static final Integer CODE_BOARD_NOT_FOUND = 20101;
-    public static final String MESSAGE_BOARD_NOT_FOUND = "无板号信息";
+    public static final Integer CODE_BOARD_NOT_IRREGULAR = 20100;
+    public static final String  MESSAGE_BOARD_NOT_IRREGULAR = "板号正则校验不通过.";
 
-    public static final Integer CODE_BOARD_FINISHED = 20104;
-    public static final String MESSAGE_BOARD_FINISHED = "此板号已经完结";
+    public static final Integer CODE_BOARD_NOT_FOUND = 20101;
+    public static final String MESSAGE_BOARD_NOT_FOUND = "无板号信息.";
+
+    public static final Integer CODE_BOARD_CLOSED = 20104;
+    public static final String MESSAGE_BOARD_CLOSED = "此板号已经完结.";
 
     public static final Integer CODE_BOX_PACKAGE_SENDED = 20105;
-    public static final String MESSAGE_BOX_PACKAGE_SENDED = "箱号/包裹号已经发货";
+    public static final String MESSAGE_BOX_PACKAGE_SENDED = "箱号/包裹号已经发货.";
 
     public static final Integer CODE_BOX_PACKAGE_BINDINGED = 20106;
-    public static final String MESSAGE_BOX_PACKAGE_BINDINGED = "箱号/包裹号已经绑定到板号";
+    public static final String MESSAGE_BOX_PACKAGE_BINDINGED = "箱号/包裹号已经绑定到其他板号.";
 
+    public static final Integer CODE_BOXORPACKAGE_REACH_LIMIT = 20107;
+    public static final String MESSAGE_BOXORPACKAGE_REACH_LIMIT = "板号绑定的箱号/包裹号已达上限.";
+
+    /**
+     * 一单多件不齐
+     */
     public static final Integer CODE_PACAGES_NOT_ENOUGH=39001;
 
 
@@ -107,5 +116,18 @@ public class BoardResponse implements Serializable{
             statusInfo = new ArrayList<JdResponseStatusInfo>();
         }
         statusInfo.add(new JdResponseStatusInfo(code,message));
+    }
+
+
+    /**
+     * 组装状态信息
+     * @return
+     */
+    public String getStatusMessages(){
+        String statusMessage = "";
+        for(JdResponseStatusInfo status : statusInfo){
+            statusMessage += status.getStatusMessage();
+        }
+        return statusMessage;
     }
 }

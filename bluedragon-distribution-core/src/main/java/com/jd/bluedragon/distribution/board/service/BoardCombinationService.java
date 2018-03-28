@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.board.service;
 
-import com.jd.bluedragon.distribution.board.domain.Board;
+import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.ql.dms.common.domain.JdResponse;
 
 import java.util.List;
 
@@ -13,7 +15,7 @@ public interface BoardCombinationService {
      * 根据板标获取板标基本信息
      * @param boardCode
      */
-    public Board getBoardByBoardCode(String boardCode);
+    public BoardResponse getBoardByBoardCode(String boardCode) throws Exception;
 
     /**
      * 根据板标获取板标绑定的箱号和包裹号
@@ -24,7 +26,7 @@ public interface BoardCombinationService {
     /**
      * 回传板标绑定的箱号或包裹号
      */
-    public String sendBoardBindings();
+    public Integer sendBoardBindings(BoardCombinationRequest request, BoardResponse boardResponse) throws Exception;
 
     /**
      * 回传板标的发货状态

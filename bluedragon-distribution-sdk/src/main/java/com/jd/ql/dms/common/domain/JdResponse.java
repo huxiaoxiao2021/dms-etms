@@ -106,7 +106,7 @@ public class JdResponse<E> extends JdObject {
 		init(CODE_FAIL);
 	}
 	public void toFail(String message) {
-		init(CODE_FAIL,message);;
+		init(CODE_FAIL,message);
 	}
 	public void toError() {
 		init(CODE_ERROR);

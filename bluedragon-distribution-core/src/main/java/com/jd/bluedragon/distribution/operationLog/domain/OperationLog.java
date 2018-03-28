@@ -61,6 +61,10 @@ public class OperationLog implements java.io.Serializable {
     /** 打印包裹标签日志添加　 */
     public static final Integer PRINT_PACKAGE = 136; // 打印包裹标签日志
 
+    /** 分拣中心组板 **/
+    public static final Integer BOARD_COMBINATITON = 166; // 分拣中心组板日志
+
+
     /**
      * 数据异常
      */
@@ -92,6 +96,7 @@ public class OperationLog implements java.io.Serializable {
         logTypes.put(OperationLog.LOG_TYPE_SORTING_INTERCEPT_LOG, "分拣拦截日志");
         logTypes.put(OperationLog.LOG_TYPE_CAN_GLOBAL, "取消预装载");
         logTypes.put(OperationLog.PRINT_PACKAGE, "包裹标签打印");
+        logTypes.put(OperationLog.BOARD_COMBINATITON,"组板");
         logTypes.put(OperationLog.DATA_EXCEPTION,"数据异常");
         return logTypes;
     }

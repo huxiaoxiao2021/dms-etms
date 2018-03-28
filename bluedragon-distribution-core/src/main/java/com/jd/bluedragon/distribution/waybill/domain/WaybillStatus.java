@@ -113,6 +113,11 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_COMPLETE_DELIVERY = 5400;
 
+    /**
+     * 全称跟踪-组板
+     */
+    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION = 0;
+
 
     /**
      * POP打印

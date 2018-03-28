@@ -3,22 +3,16 @@ package com.jd.bluedragon.distribution.rest.board;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
-import com.jd.bluedragon.distribution.board.domain.Board;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.service.DeliveryVerification;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -34,48 +28,30 @@ public class BoardCombinationResource {
     @Autowired
     BoardCombinationService boardCombinationService;
 
-    @Resource(name = "cityDeliveryVerification")
-    private DeliveryVerification cityDeliveryVerification;
 
     @GET
     @Path("/boardCombination/barCodeValidation")
     public JdResponse<BoardResponse> validation(@QueryParam("boardCode") String boardCode) {
-        JdResponse<BoardResponse> response =new JdResponse<BoardResponse>();
-        response.setData(new BoardResponse());
-        BoardResponse boardResponse = response.getData();
+        JdResponse<BoardResponse> result =new JdResponse<BoardResponse>();
 
-        Assert.notNull(boardCode, "boardCode must not be null");
-
-        this.logger.info("boardCode: " + boardCode);
-
-        Board board = null;
-        try {
-            board = this.boardCombinationService.getBoardByBoardCode(boardCode);
-            if (board == null) {
-                boardResponse.setBoardCode(boardCode);
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_NOT_FOUND,BoardResponse.MESSAGE_BOARD_NOT_FOUND);
-                response.toFail();
-                return response;
-            }
-            //板标已完结
-            if (board.getBoardStatus() == 1) {
-                boardResponse.setBoardCode(boardCode);
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_FINISHED, BoardResponse.MESSAGE_BOARD_FINISHED);
-                response.toFail();
-                return response;
-            }
-
-            boardResponse.setBoardCode(boardCode);
-            boardResponse.setReceiveSiteCode(null);
-            boardResponse.setReceiveSiteName(null);
-
-            return response;
-        } catch (Exception e) {
-            logger.error("板号校验失败!",e);
+        //参数为空校验
+        if(StringHelper.isEmpty(boardCode)){
+            result.toError("参数错误.板号为空!");
+            return result;
         }
 
-        response.toError("板号校验失败!");
-        return response;
+        try {
+            BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
+            if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
+                result.toFail(boardResponse.getStatusMessages());
+            }
+            result.setData(boardResponse);
+        } catch (Exception e) {
+            logger.error("板号校验失败!",e);
+            result.toError("板号校验失败，系统异常！");
+        }
+
+        return result;
     }
 
     /**
@@ -84,63 +60,59 @@ public class BoardCombinationResource {
     @POST
     @Path("/boardCombination/combination")
     public JdResponse<BoardResponse> combination(BoardCombinationRequest request) {
-        JdResponse<BoardResponse> response =new JdResponse<BoardResponse>();
-        response.setData(new BoardResponse());
-        BoardResponse boardResponse = response.getData();
+        JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
+        result.setData(new BoardResponse());
+        BoardResponse boardResponse = result.getData();
 
-        try {
-            //基本参数校验
-            if (request == null) {
-                this.logger.error("NewSealVehicleResource seal --> 传入参数非法");
-            }
-
-            //查询发货记录判断是否已经发货
-            SendM sendM = new SendM();
-            sendM.setBoxCode(request.getBoxOrPackageCode());
-            sendM.setCreateSiteCode(request.getSiteCode());
-            sendM.setReceiveSiteCode(request.getReceiveSiteCode());
-
-            List<SendM> sendMList = boardCombinationService.selectBySendSiteCode(sendM);
-
-            if (null != sendMList && sendMList.size() > 0) {
-                logger.error("箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货");
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, "箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次"
-                        + sendMList.get(0).getSendCode() + "中发货");
-                response.toFail();
-                return response;
-            }
-
-            //一单多件不齐校验
-            if(!request.isForceCombination()){
-                DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(request.getBoxOrPackageCode(),null,false);
-                if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
-                    boardResponse.addStatusInfo(BoardResponse.CODE_PACAGES_NOT_ENOUGH,verificationResult.getMessage());
-                    response.toConfirm();
-                    return response;
-                }
-            }
-
-            //将组板数据推送给TC
-             String errStr = boardCombinationService.sendBoardBindings();
-
-            //数量限制校验
-
-            if(errStr.equals("已经绑定")){
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, "箱号/包裹" + request.getBoxOrPackageCode() + "已经绑定了");
-                response.toFail();
-                return response;
-            }else if(StringHelper.isEmpty(errStr)){
-                boardResponse.setBoardCode(request.getBoardCode());
-                boardResponse.setBoxCode(request.getBoxOrPackageCode());
-                return response;
-            }
-
-        } catch (Exception e) {
-            logger.error("组板失败!",e);
+        //参数校验
+        String errStr = this.combinationVertify(request);
+        if(StringHelper.isNotEmpty(errStr)){
+            result.toFail(errStr);
+            return result;
         }
 
-        response.toError("组板失败!");
-        return response;
+        try {
+            //操作组板，返回状态码
+            Integer statusCode = boardCombinationService.sendBoardBindings(request,boardResponse);
+            if(statusCode == JdResponse.CODE_FAIL){
+                result.toFail(boardResponse.getStatusMessages());
+            }else if(statusCode == JdResponse.CODE_CONFIRM){
+                result.toConfirm(boardResponse.getStatusMessages());
+            }else if(statusCode == JdResponse.CODE_SUCCESS){
+                return result;
+            }
+        } catch (Exception e) {
+            logger.error("组板失败!", e);
+            result.toError("组板失败，系统异常！");
+        }
+
+        return result;
     }
 
+    /**
+     * 组板操作参数校验
+     * @param request
+     * @return
+     */
+    private String combinationVertify(BoardCombinationRequest request){
+        //参数为空校验
+        if (request == null) {
+            return "参数为空.";
+        }
+
+        if(StringHelper.isEmpty(request.getBoardCode())){
+            return "参数箱号/包裹号为空.";
+        }
+        if(StringHelper.isEmpty(request.getBoxOrPackageCode())){
+            return "参数箱号/包裹号为空.";
+        }
+        if(request.getSiteCode() == null || request.getSiteCode() == 0){
+            return "参数操作站点为空.";
+        }
+        if(request.getUserCode() == null || request.getUserCode() == 0){
+            return "参数操作人为空.";
+        }
+
+        return null;
+    }
 }
