@@ -149,7 +149,6 @@ public class DmsStorageAreaController {
 			}
 			newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
 		}catch (Exception e){
-			e.printStackTrace();
 			this.logger.warn("获取信息失败",e);
 			rest.setCode(JdResponse.CODE_FAIL);
 			rest.setMessage("获取信息失败");
@@ -163,7 +162,6 @@ public class DmsStorageAreaController {
 				rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
 				rest.setCode(JdResponse.CODE_SUCCESS);
 			} catch (Exception e) {
-				e.printStackTrace();
 				logger.error("fail to save！"+e.getMessage(),e);
 				rest.setCode(JdResponse.CODE_FAIL);
 				rest.setMessage("保存失败，服务异常！");
@@ -198,7 +196,7 @@ public class DmsStorageAreaController {
 		try{
 			rest.setData(dmsStorageAreaService.queryByPagerCondition(dmsStorageAreaCondition));
 		}catch (Exception e){
-			e.printStackTrace();
+			this.logger.error("服务异常查询失败！");
 		}
 		return rest.getData();
 	}
@@ -227,6 +225,7 @@ public class DmsStorageAreaController {
 			dmsSiteCode = bssod.getDmsId();
 			Integer siteType = bssod.getSiteType();
 			if(siteType != 64){
+				this.logger.warn("该操作机构不是分拣中心");
 				errorString = "该操作机构不是分拣中心！";
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
@@ -264,11 +263,10 @@ public class DmsStorageAreaController {
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			if (e instanceof IllegalArgumentException) {
 				errorString = e.getMessage();
 			} else {
-				logger.error("导入异常信息：", e);
+				this.logger.error("导入异常信息：", e);
 				errorString = "导入出现异常";
 			}
 			return new JdResponse(JdResponse.CODE_FAIL,errorString);
