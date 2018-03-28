@@ -69,9 +69,9 @@ $(function() {
 		    });
 		    return params;
 		};
-		oTableInit.tableColums = [ {
+		oTableInit.tableColums = [/* {
 				checkbox : true
-				}, {
+				}, */{
 					field : 'waybillCode',
 					title : '运单号'
 				}, {

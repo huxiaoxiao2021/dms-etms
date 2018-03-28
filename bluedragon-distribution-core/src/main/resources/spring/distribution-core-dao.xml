@@ -416,8 +416,6 @@
     <bean id="packageHalfDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfDetailDaoImpl"/>
 
-    	class="com.jd.bluedragon.distribution.weight.dao.impl.DmsWeightFlowDaoImpl"/>
-
     <bean id="packageHalfRedeliveryDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfRedeliveryDaoImpl"/>
 </beans>
