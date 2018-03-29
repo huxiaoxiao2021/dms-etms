@@ -92,14 +92,6 @@ function editFormValidator(){
                     }
                 }
             },
-            desCityCode:{
-                message: '收件市不能为空',
-                validators: {
-                    notEmpty: {
-
-                    }
-                }
-            },
             storageCode:{
                 message: '库位号不能为空',
                 validators: {

@@ -24,4 +24,12 @@ public class DmsStorageAreaDaoImpl extends BaseDao<DmsStorageArea> implements Dm
         dmsStorageArea.setDesCityCode(dmsCityCode);
         return sqlSession.selectOne(this.getNameSpace() + ".findByProAndCity",dmsStorageArea);
     }
+
+    public DmsStorageArea findByPro(Integer dmsSiteCode,Integer dmsProvinceCode) {
+        DmsStorageArea dmsStorageArea =new DmsStorageArea();
+        dmsStorageArea.setDmsSiteCode(dmsSiteCode);
+        dmsStorageArea.setDesProvinceCode(dmsProvinceCode);
+        return sqlSession.selectOne(this.getNameSpace() + ".findByPro",dmsStorageArea);
+    }
+
 }

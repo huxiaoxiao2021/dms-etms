@@ -15,4 +15,6 @@ public interface DmsStorageAreaDao extends Dao<DmsStorageArea> {
 
     public abstract DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
 
+    public abstract DmsStorageArea findByPro(Integer dmsSiteCode,Integer dmsProvinceCode);
+
 }

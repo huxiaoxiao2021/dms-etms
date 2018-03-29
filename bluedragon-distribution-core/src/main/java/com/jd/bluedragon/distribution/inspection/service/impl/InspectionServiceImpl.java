@@ -558,12 +558,14 @@ public class InspectionServiceImpl implements InspectionService {
 		if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 			// 获取运单信息
 			Waybill waybill = baseEntity.getData().getWaybill();
+			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
+				return new InspectionResult("");
+			}
 			DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
 			if(newDmsStorageArea != null){
 				String storageCode = newDmsStorageArea.getStorageCode();
 				return new InspectionResult(storageCode);
 			}else {
-				this.logger.warn("通过收件省市Id、分拣中心Id获取库位号失败");
 				return new InspectionResult("");
 			}
 		}else{

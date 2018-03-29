@@ -319,6 +319,7 @@ function findCity(selectId,cityListUrl,orgId){
                 allowClear:true,
                 data:result
             });
+            $(selectId).val(null).trigger('change');
         }
     });
 }
