@@ -3732,4 +3732,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.debug("分拣机自动发货-验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
         }
     }
+
+	@Override
+	@JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.doBoardDelivery", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public boolean doBoardDelivery(Task task) {
+    	logger.info("组板任务处理逻辑");
+		return false;
+	}
 }

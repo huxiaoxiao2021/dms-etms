@@ -258,6 +258,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             //发送发货明细MQ任务
             return deliveryService.sendDetailMQ(task);
 
+        } else if (keyword1.equals("7")) {
+            //组板任务处理
+            return deliveryService.doBoardDelivery(task);
         }else {
             //没有找到对应的方法，提供报错信息
             this.logger.error("task id is " + task.getId()+"can not find process method");
