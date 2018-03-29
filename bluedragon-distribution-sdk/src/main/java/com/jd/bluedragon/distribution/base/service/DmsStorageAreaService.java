@@ -15,8 +15,20 @@ import java.util.List;
  *
  */
 public interface DmsStorageAreaService extends Service<DmsStorageArea> {
-
-    DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
+	/**
+	 * 判断是否存在
+	 * @param dmsStorageArea
+	 * @return
+	 */
+	boolean isExist(DmsStorageArea dmsStorageArea);
+	/**
+	 * 根据当前操作的分拣中心id和运单收货地址省市获取库位配置
+	 * @param dmsSiteCode
+	 * @param dmsProvinceCode
+	 * @param dmsCityCode
+	 * @return
+	 */
+    DmsStorageArea findByDmsSiteAndWaybillAdress(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
 
     Boolean importExcel(List<DmsStorageArea>  dataList,String createUserCode,String createUserName,Date createTime);
 

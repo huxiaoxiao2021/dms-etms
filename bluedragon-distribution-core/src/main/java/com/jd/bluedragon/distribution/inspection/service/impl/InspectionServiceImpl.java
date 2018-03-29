@@ -561,7 +561,7 @@ public class InspectionServiceImpl implements InspectionService {
 			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
 				return new InspectionResult("");
 			}
-			DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
+			DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByDmsSiteAndWaybillAdress(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
 			if(newDmsStorageArea != null){
 				String storageCode = newDmsStorageArea.getStorageCode();
 				return new InspectionResult(storageCode);

@@ -1,18 +1,20 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
-import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
-import com.jd.bluedragon.domain.ProvinceNode;
-import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.ql.basic.domain.Assort;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
+import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
+import com.jd.bluedragon.domain.ProvinceNode;
+import com.jd.bluedragon.utils.AreaHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ql.basic.domain.Assort;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 
 /**
  * Created by xumei3 on 2017/5/31.
@@ -30,8 +32,8 @@ public class ProvinceAndCityServiceImpl implements ProvinceAndCityService {
      * @param provinceId 省ID
      * @return
      */
-//    @Cache(key = "ProvinceAndCityServiceImpl.getCityByProvince@args0",memoryEnable = false,
-//            memoryExpiredTime = 30 * 60 * 1000,redisEnable = true,redisExpiredTime = 30 * 60 * 1000)
+    @Cache(key = "ProvinceAndCityServiceImpl.getCityByProvince@args0",memoryEnable = false,
+            memoryExpiredTime = 30 * 60 * 1000,redisEnable = true,redisExpiredTime = 30 * 60 * 1000)
     public List<ProvinceAndCity> getCityByProvince(Integer provinceId){
         List<ProvinceAndCity> cityList = new ArrayList<ProvinceAndCity>();
 

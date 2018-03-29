@@ -12,9 +12,20 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  *
  */
 public interface DmsStorageAreaDao extends Dao<DmsStorageArea> {
-
-    public abstract DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
-
-    public abstract DmsStorageArea findByPro(Integer dmsSiteCode,Integer dmsProvinceCode);
+	/**
+	 * 根据分拣中心和省市查询库位流向配置
+	 * @param dmsSiteCode
+	 * @param dmsProvinceCode
+	 * @param dmsCityCode
+	 * @return
+	 */
+    DmsStorageArea findByDesProvinceAndCityCode(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode);
+    /**
+     * 查询分拣中心下省对应的配置，城市为空
+     * @param dmsSiteCode
+     * @param dmsProvinceCode
+     * @return
+     */
+    DmsStorageArea findByDesProvinceCode(Integer dmsSiteCode,Integer dmsProvinceCode);
 
 }

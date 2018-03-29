@@ -1,26 +1,27 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
-import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
-import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.web.mvc.api.Dao;
-import com.jd.ql.dms.common.web.mvc.BaseService;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
 import com.jd.bluedragon.distribution.base.dao.DmsStorageAreaDao;
+import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
+import com.jd.bluedragon.utils.AreaHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ql.dms.common.web.mvc.BaseService;
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 /**
  *
@@ -50,45 +51,67 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 
 	@Cache(key = "dmsStorageAreaServiceImpl.findByProAndCity@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-	public DmsStorageArea findByProAndCity( Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode){
-		if(dmsCityCode  == null){
-			return dmsStorageAreaDao.findByPro(dmsSiteCode,dmsProvinceCode);
-		}else {
-			return dmsStorageAreaDao.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
+	public DmsStorageArea findByDmsSiteAndWaybillAdress( Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode){
+		if(dmsSiteCode != null
+				&&(dmsProvinceCode != null || dmsCityCode != null)){
+			//没有城市，查询省
+			if(dmsCityCode  == null){
+				return dmsStorageAreaDao.findByDesProvinceCode(dmsSiteCode,dmsProvinceCode);
+			}else {
+				//有城市，先查询城市后查询省的配置
+				if(dmsProvinceCode == null){
+					 return null;
+				}
+				DmsStorageArea dmsStorageArea = dmsStorageAreaDao.findByDesProvinceAndCityCode(dmsSiteCode,dmsProvinceCode,dmsCityCode);
+				if(dmsStorageArea == null){
+					return dmsStorageAreaDao.findByDesProvinceCode(dmsSiteCode,dmsProvinceCode);
+				}
+				return dmsStorageArea;
+			}
 		}
+		return null;
 	}
 
 	public String  checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName) {
 		String errorString = "";
+		int rowIndex = 1;
+		Set<String> keys = new HashSet<String>();
 		for (DmsStorageArea dmsStorageArea : dataList){
+			String msgPre = "第"+rowIndex+"行";
 			dmsStorageArea.setDmsSiteCode(dmsSiteCode);
 			dmsStorageArea.setDmsSiteName(dmsSiteName);
 			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
+			String key = dmsStorageArea.getDesProvinceName() + "_"+dmsStorageArea.getDesCityName();
+			if(keys.contains(key)){
+				errorString = msgPre + "，表格中同一省市存在多条库位配置！";
+				break;
+			}else{
+				keys.add(key);
+			}
 			if(proId == -1){
-				errorString = "导入的省不存在！";
-				return errorString;
+				errorString = msgPre + "，省份不存在！";
 			}else {
 				dmsStorageArea.setDesProvinceCode(proId);
-				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
-				for (ProvinceAndCity c : cityList){
-					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
-						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
-						DmsStorageArea byProAndCity = findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-						if(byProAndCity != null){
-							String oldStorageCode = dmsStorageArea.getStorageCode().trim();
-							String newStorageCode = byProAndCity.getStorageCode().trim();
-							errorString = "已存在相同的省市"+dmsStorageArea.getDesProvinceName()+";"+dmsStorageArea.getDesCityName();
-							return errorString;
-						}else {
+				//城市不为空，设置城市id
+				if(StringHelper.isNotEmpty(dmsStorageArea.getDesCityName())){
+					List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
+					for (ProvinceAndCity c : cityList){
+						if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
+							dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
 							break;
 						}
 					}
+					if(dmsStorageArea.getDesCityCode() == null){
+						errorString = msgPre + "，城市不存在！";
+						break;
+					}
 				}
-				if(dmsStorageArea.getDesCityCode() == null){
-					errorString = "导入的市不存在！";
-					return errorString;
+				if(isExist(dmsStorageArea)){
+					errorString = msgPre + "，已存在该省市的库位配置！";
+					break;
 				}
 			}
+			++ rowIndex;
 		}
 		return errorString;
 	}
@@ -130,13 +153,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 				field.setAccessible(true);
 				Object v = field.get(obj);
 				if(v==null){
-					if(type == Integer.class){
-						field.set(obj,new Integer(0));
-					}else if(type == Double.class){
-						field.set(obj,new Double(0));
-					}else if(type == Long.class){
-						field.set(obj,new Long(0));
-					}else if(type == String.class){
+					if(type == String.class){
 						field.set(obj,"");
 					}
 				}
@@ -144,5 +161,22 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 				logger.error("initObjectValue fail!   "+e.getMessage().toString());
 			}
 		}
+	}
+
+	@Override
+	public boolean isExist(DmsStorageArea dmsStorageArea) {
+		Integer dmsSiteCode = dmsStorageArea.getDmsSiteCode();
+		Integer desProvinceCode = dmsStorageArea.getDesProvinceCode();
+		Integer desCityCode = dmsStorageArea.getDesCityCode();
+		DmsStorageArea oldObject = null;
+		if(dmsSiteCode != null
+			  &&desProvinceCode != null){
+			if(dmsStorageArea.getDesCityCode()  == null){
+				oldObject = dmsStorageAreaDao.findByDesProvinceCode(dmsSiteCode,desProvinceCode);
+			}else {
+				oldObject = dmsStorageAreaDao.findByDesProvinceAndCityCode(dmsSiteCode,desProvinceCode,desCityCode);
+			}
+		}
+		return oldObject!=null;
 	}
 }

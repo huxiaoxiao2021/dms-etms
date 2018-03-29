@@ -17,19 +17,19 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("dmsStorageAreaDao")
 public class DmsStorageAreaDaoImpl extends BaseDao<DmsStorageArea> implements DmsStorageAreaDao {
 
-    public DmsStorageArea findByProAndCity(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode) {
+    public DmsStorageArea findByDesProvinceAndCityCode(Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode) {
         DmsStorageArea dmsStorageArea =new DmsStorageArea();
         dmsStorageArea.setDmsSiteCode(dmsSiteCode);
         dmsStorageArea.setDesProvinceCode(dmsProvinceCode);
         dmsStorageArea.setDesCityCode(dmsCityCode);
-        return sqlSession.selectOne(this.getNameSpace() + ".findByProAndCity",dmsStorageArea);
+        return sqlSession.selectOne(this.getNameSpace() + ".findByDesProvinceAndCityCode",dmsStorageArea);
     }
 
-    public DmsStorageArea findByPro(Integer dmsSiteCode,Integer dmsProvinceCode) {
+    public DmsStorageArea findByDesProvinceCode(Integer dmsSiteCode,Integer dmsProvinceCode) {
         DmsStorageArea dmsStorageArea =new DmsStorageArea();
         dmsStorageArea.setDmsSiteCode(dmsSiteCode);
         dmsStorageArea.setDesProvinceCode(dmsProvinceCode);
-        return sqlSession.selectOne(this.getNameSpace() + ".findByPro",dmsStorageArea);
+        return sqlSession.selectOne(this.getNameSpace() + ".findByDesProvinceCode",dmsStorageArea);
     }
 
 }

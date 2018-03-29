@@ -244,37 +244,27 @@
 		limit 1
 	</select>
 
-	<select id="findByProAndCity" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
+	<select id="findByDesProvinceAndCityCode" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
 		select
 		<include refid="Base_Column_List"/>
 		from
 		dms_storage_area
 		where is_delete=0
-		<if test="desProvinceCode != null">
-			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
-		</if>
-		<if test="desCityCode != null">
-			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
-		</if>
-		<if test="dmsSiteCode != null">
 			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
-		</if>
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
 		limit 1
 	</select>
 
-	<select id="findByPro" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
+	<select id="findByDesProvinceCode" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
 		select
 		<include refid="Base_Column_List"/>
 		from
 		dms_storage_area
-		where 1=1
-		<if test="desProvinceCode != null">
-			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
-		</if>
-		<if test="dmsSiteCode != null">
+		where is_delete=0
 			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
-		</if>
-		<include refid="Base_Condition_Sql"/>
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+			AND des_city_code is null
 		limit 1
 	</select>
 
