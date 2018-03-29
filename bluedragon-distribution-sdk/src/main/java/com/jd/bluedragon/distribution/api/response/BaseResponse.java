@@ -28,7 +28,7 @@ public class BaseResponse extends JdResponse {
 
     //站点id
     private Integer siteId;
-    
+
 	/** 站点编号 */
     private Integer siteCode;
 
@@ -45,72 +45,72 @@ public class BaseResponse extends JdResponse {
 
     /** ERP登录密码 */
     private String password;
-    
+
 	/** 用户ID */
 	private Integer staffId;
-	
+
 	/** 用户名称 */
-	private String staffName;	
-	
+	private String staffName;
+
 	//车牌号
 	private String carId;
 
 	//车牌号条码
 	private String carCode;
-	
+
 	//gps编号
 	private String gpsNo;
-	
+
 	//Sim卡号
 	private String simNo;
-	
+
 	//车辆类型
 	private Integer carType;
-	
+
 	//承载量
 	private Double loadCapacity;
-	
+
 	//所属车队
 	private Integer  carTeam;
-	
+
 	//机构号
 	private Integer orgId;
 
 	//机构名称
 	public String orgName;
-	
+
 	//dmscode
 	private String dmsCode;
-	
+
 	private String dmsName;
-	
+
 	//data分类名称
 	private String typeName;
 
 	//data分类编号
 	private Integer typeCode;
-	
+
 	//data分类备注
 	private String memo;
-	
+
 	//dtat分类parentId
 	private Integer parentId;
-	
+
 	//data节点级别
 	private Integer nodeLevel;
-	
+
 	//datat类型分类
 	private Integer typeGroup;
-	
+
 	//datat更新时间
 	private Date dataUpdate;
-	
+
 	//系统时间
 	private String serverDate;
-	
+
 	//车牌号
 	private String license;
-	
+
 	//承运商部分
 	private Long carrierId;
 
@@ -121,7 +121,7 @@ public class BaseResponse extends JdResponse {
     private String contacter;
 
     private String address;
-	
+
 	/**
 	 * 速递id
 	 */
@@ -130,7 +130,7 @@ public class BaseResponse extends JdResponse {
 	 * 速递名称
 	 */
 	private String parentSiteName;//速递名称
-	
+
 	/** 承运人类型 */
 	private Integer sendUserType;
 
@@ -145,18 +145,6 @@ public class BaseResponse extends JdResponse {
 		this.siteBusinessType = siteBusinessType;
 	}
 
-
-	//    public int getRouteType() {
-//        return routeType;
-//    }
-//
-//    public void setRouteType(int routeType) {
-//        this.routeType = routeType;
-//    }
-//
-//    /** 运输类型 1：干线；2：支线； */
-//    private int routeType;
-	
 	public Integer getParentSiteCode() {
 		return parentSiteCode;
 	}
@@ -177,22 +165,33 @@ public class BaseResponse extends JdResponse {
 	/**
 	 * 分拣中心信息
 	 */
-	
+
 	//三方id (站点CODE)
 	Integer partnerId;
-		
+
 	//三方code (站点DMSCODE)
 	String partnerCode;
 
-    public String getPinyinCode() {
-        return pinyinCode;
-    }
+	/** 运输类型 1：干线；2：支线； */
+	private int routeType;
+
+	public String getPinyinCode() {
+		return pinyinCode;
+	}
 
     public void setPinyinCode(String pinyinCode) {
         this.pinyinCode = pinyinCode;
     }
 
-    public Integer getOrgId() {
+	public int getRouteType() {
+		return routeType;
+	}
+
+	public void setRouteType(int routeType) {
+		this.routeType = routeType;
+	}
+
+	public Integer getOrgId() {
 		return orgId;
 	}
 
@@ -239,7 +238,7 @@ public class BaseResponse extends JdResponse {
 	public void setDmsCode(String dmsCode) {
 		this.dmsCode = dmsCode;
 	}
-	
+
 	public String getDmsName() {
 		return dmsName;
 	}
@@ -422,7 +421,7 @@ public class BaseResponse extends JdResponse {
     public BaseResponse(Integer code, String message) {
         super(code, message);
     }
-    
+
     public Integer getSiteId() {
 		return siteId;
 	}
