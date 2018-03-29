@@ -202,6 +202,7 @@ public class DmsStorageAreaController {
 	}
 
 	/**
+	 *  导入excel表格
      * @param file
      * @return*/
 	@RequestMapping("/uploadExcel")
@@ -243,7 +244,7 @@ public class DmsStorageAreaController {
 
 			dataList = dataResolver.resolver(file.getInputStream(), DmsStorageArea.class, new PropertiesMetaDataFactory("/excel/dmsStorageArea.properties"));
 			//对导入的数据进行校验
-			errorString = checkExportData(dataList,dmsSiteCode,dmsSiteName);
+			errorString = dmsStorageAreaService.checkExportData(dataList,dmsSiteCode,dmsSiteName);
 			if(!errorString.equals("")){
 				return new JdResponse(JdResponse.CODE_FAIL,errorString);
 			}
@@ -273,44 +274,4 @@ public class DmsStorageAreaController {
 		}
 		return new JdResponse();
     }
-
-	/**
-	 *	对导入的数据进行校验
-	 * @param dataList
-	 * @return*/
-	private String  checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName) {
-	 	String errorString = "";
-     	for (DmsStorageArea dmsStorageArea : dataList){
-     		dmsStorageArea.setDmsSiteCode(dmsSiteCode);
-			dmsStorageArea.setDmsSiteName(dmsSiteName);
-			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
-			if(proId == -1){
-				errorString = "导入的省不存在！";
-				return errorString;
-			}else {
-				dmsStorageArea.setDesProvinceCode(proId);
-				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
-				for (ProvinceAndCity c : cityList){
-					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
-						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
-						DmsStorageArea byProAndCity = dmsStorageAreaService.findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
-						if(byProAndCity != null){
-							String oldStorageCode = dmsStorageArea.getStorageCode().trim();
-							String newStorageCode = byProAndCity.getStorageCode().trim();
-							errorString = "已存在相同的省市"+dmsStorageArea.getDesProvinceName()+";"+dmsStorageArea.getDesCityName();
-							return errorString;
-						}else {
-							break;
-						}
-					}
-				}
-				if(dmsStorageArea.getDesCityCode() == null){
-					errorString = "导入的市不存在！";
-					return errorString;
-				}
-			}
-		}
-		return errorString;
-	}
-
 }

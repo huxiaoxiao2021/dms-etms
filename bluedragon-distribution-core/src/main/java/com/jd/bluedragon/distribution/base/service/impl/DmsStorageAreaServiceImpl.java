@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
+import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
+import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -37,6 +40,9 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
+	@Autowired
+	private ProvinceAndCityService provinceAndCityService;
+
 	@Override
 	public Dao<DmsStorageArea> getDao() {
 		return this.dmsStorageAreaDao;
@@ -47,6 +53,41 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 	public DmsStorageArea findByProAndCity( Integer dmsSiteCode,Integer dmsProvinceCode,Integer dmsCityCode){
 
 		return dmsStorageAreaDao.findByProAndCity(dmsSiteCode,dmsProvinceCode,dmsCityCode);
+	}
+
+	public String  checkExportData(List<DmsStorageArea> dataList,Integer dmsSiteCode,String dmsSiteName) {
+		String errorString = "";
+		for (DmsStorageArea dmsStorageArea : dataList){
+			dmsStorageArea.setDmsSiteCode(dmsSiteCode);
+			dmsStorageArea.setDmsSiteName(dmsSiteName);
+			Integer proId = AreaHelper.getProIdByProName(dmsStorageArea.getDesProvinceName());
+			if(proId == -1){
+				errorString = "导入的省不存在！";
+				return errorString;
+			}else {
+				dmsStorageArea.setDesProvinceCode(proId);
+				List<ProvinceAndCity> cityList = provinceAndCityService.getCityByProvince(proId);
+				for (ProvinceAndCity c : cityList){
+					if(c.getAssortName().equals(dmsStorageArea.getDesCityName())){
+						dmsStorageArea.setDesCityCode(Integer.parseInt(c.getAssortCode()));
+						DmsStorageArea byProAndCity = findByProAndCity(dmsSiteCode, dmsStorageArea.getDesProvinceCode(), dmsStorageArea.getDesCityCode());
+						if(byProAndCity != null){
+							String oldStorageCode = dmsStorageArea.getStorageCode().trim();
+							String newStorageCode = byProAndCity.getStorageCode().trim();
+							errorString = "已存在相同的省市"+dmsStorageArea.getDesProvinceName()+";"+dmsStorageArea.getDesCityName();
+							return errorString;
+						}else {
+							break;
+						}
+					}
+				}
+				if(dmsStorageArea.getDesCityCode() == null){
+					errorString = "导入的市不存在！";
+					return errorString;
+				}
+			}
+		}
+		return errorString;
 	}
 
 

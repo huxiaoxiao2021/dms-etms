@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -94,6 +95,9 @@ public class InspectionResource {
 
 	@Autowired
 	private RedisManager redisManager;
+
+	@Autowired
+	private InspectionService inspectionService;
 
 	private final static Logger logger = Logger
 			.getLogger(InspectionResource.class);
@@ -336,7 +340,7 @@ public class InspectionResource {
 	 * 
 	 * @param code
 	 *            运单号或者包裹号
-	 * @param siteCode创建站点
+	 * @param
 	 * @return
 	 */
 	@GET
@@ -527,7 +531,6 @@ public class InspectionResource {
 
 	@GET
 	@Path("/inspection/hintInfo/{packageOrWaybillCode}/{siteCode}")
-    @JProfiler(jKey = "DMSWEB.REST.InspectionResource.getStorageCode",mState = {JProEnum.TP})
 	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
 			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
 			@PathParam("siteCode") Integer siteCode){
@@ -539,65 +542,25 @@ public class InspectionResource {
         if(BusinessHelper.isPackageCode(packageBarOrWaybillCode)){
             waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(packageBarOrWaybillCode);
         }
-		InspectionResult inspectionResult = getInspectionResult(jdResponse, dmsSiteCode, waybillCode);
-        inspectionResult.setHintMessage(getHintMessage(waybillCode));
+		InspectionResult inspectionResult = new InspectionResult("");
+        try{
+			inspectionResult = inspectionService.getInspectionResult(dmsSiteCode, waybillCode);
+		}catch (Exception e){
+			logger.error("获取库位号失败，异常原因：" + e.getMessage());
+		}
+
+		String hintMessage = "";
+		try{
+			hintMessage = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode);
+			inspectionResult.setHintMessage(hintMessage);
+			logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
+		}catch (Exception e){
+			logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
+		}
+		inspectionResult.setHintMessage(hintMessage);
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);
 		return jdResponse;
 	}
 
-    /**
-     * 根据运单号，取一个月内启用的运单提示语
-     * 先从redis中查，查询异常再从DB查
-     * @param waybillCode
-     * @return
-     */
-    private String getHintMessage(String waybillCode){
-        String hintMessage = "";
-        try{
-            hintMessage = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode);
-            logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
-        }catch (Exception e){
-            logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
-        }
-        return hintMessage;
-    }
-
-	/**
-	 *  通过运单号获得库位号
-	 * @param jdResponse
-	 * @param dmsSiteCode 分拣中心ID
-	 * @param waybillCode 运单号ID
-	 * @return
-	 * */
-	private InspectionResult getInspectionResult(com.jd.ql.dms.common.domain.JdResponse jdResponse, Integer dmsSiteCode, String waybillCode) {
-		try{
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
-			if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
-				// 获取运单信息
-				Waybill waybill = baseEntity.getData().getWaybill();
-				DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByProAndCity(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
-				if(newDmsStorageArea != null){
-					String storageCode = newDmsStorageArea.getStorageCode();
-					jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_SUCCESS);
-					return new InspectionResult(storageCode);
-				}else {
-					this.logger.warn("通过收件省市Id、分拣中心Id获取DmsStorageArea对象失败");
-					jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
-					jdResponse.setMessage("未找到对应的库位号");
-					return new InspectionResult("");
-				}
-			}else{
-				this.logger.warn("通过运单号获取运单信息失败：" + waybillCode);
-				jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
-				jdResponse.setMessage("获取库位号失败");
-				return new InspectionResult("");
-			}
-		}catch(Exception e){
-			this.logger.warn("通过运单号获取库位号失败：" + waybillCode,e);
-			jdResponse.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL);
-			jdResponse.setMessage("获取库位号失败");
-			return new InspectionResult("");
-		}
-	}
 }
