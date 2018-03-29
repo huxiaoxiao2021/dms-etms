@@ -95,7 +95,7 @@ public class PackageHalfController {
 			Date operateTime = packageHalfVO.getOperateTime();
 
 			//具体业务处理
-			rest.setData(packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime));
+			rest.setData(packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime,packageHalfVO.getRejectPackageCount()));
 
 
 

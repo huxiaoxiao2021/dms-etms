@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.half.service.impl;
 
+import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfDetailDao;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfVO;
 import com.jd.bluedragon.distribution.transport.domain.ArBookingSpace;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
+import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -43,13 +46,17 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	@Qualifier("waybillStatusService")
 	private WaybillStatusService waybillStatusService;
 
+	@Autowired
+	@Qualifier("ldopManager")
+	private LDOPManager ldopManager;
+
 	@Override
 	public Dao<PackageHalf> getDao() {
 		return this.packageHalfDao;
 	}
 
 	@Override
-	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime) {
+	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount) {
 
 		getDao().insert(packageHalf);
 
@@ -72,9 +79,48 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		}
 		//包裹半收时 同步运单状态
 		waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
+
 		//拒收触发换单
+		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_REJECT)){
+			//整单拒收
+			WaybillReverseDTO waybillReverseDTO  = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,true);
+			ldopManager.waybillReverse(waybillReverseDTO);
+		}else if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)){
+			//包裹拒收
+			WaybillReverseDTO waybillReverseDTO = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,false);
+			ldopManager.waybillReverse(waybillReverseDTO);
+		}
 
 
 		return true;
+	}
+
+	/**
+	 * 组装外单换单入参
+	 * @param waybillCode 运单号
+	 * @param OperatorId 操作人ID
+	 * @param OperatorName 操作人
+	 * @param operateTime 操作时间
+	 * @param packageCount 拒收包裹数量
+	 * @param isTotal 是否是整单拒收
+	 * @return
+	 */
+	private WaybillReverseDTO makeWaybillReverseDTO(String waybillCode,Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,boolean isTotal){
+		WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
+		waybillReverseDTO.setSource(2); //分拣中心
+		if(isTotal){
+			waybillReverseDTO.setReverseType(1);// 整单拒收
+		}else{
+			waybillReverseDTO.setReverseType(2);// 包裹拒收
+		}
+
+		waybillReverseDTO.setWaybillCode(waybillCode);
+		waybillReverseDTO.setOperateUserId(OperatorId);
+		waybillReverseDTO.setOperateUser(OperatorName);
+		waybillReverseDTO.setOperateTime(operateTime);
+		waybillReverseDTO.setReturnType(0);//默认
+		waybillReverseDTO.setPackageCount(packageCount);
+
+		return waybillReverseDTO;
 	}
 }

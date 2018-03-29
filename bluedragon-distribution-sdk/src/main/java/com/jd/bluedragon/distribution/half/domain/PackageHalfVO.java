@@ -12,6 +12,8 @@ public class PackageHalfVO implements Serializable{
 
     private Integer waybillOpeType;
 
+    private Integer rejectPackageCount; //拒收包裹数量
+
     private List<PackageHalfDetailVO> packageList;
 
     private String halfType; //包裹半收类型  /** 半收类型（1-包裹半收，2-明细半收） */
@@ -56,5 +58,13 @@ public class PackageHalfVO implements Serializable{
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getRejectPackageCount() {
+        return rejectPackageCount==null?Integer.valueOf(0):rejectPackageCount;
+    }
+
+    public void setRejectPackageCount(Integer rejectPackageCount) {
+        this.rejectPackageCount = rejectPackageCount;
     }
 }

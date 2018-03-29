@@ -736,6 +736,12 @@
 			<artifactId>ucc-client</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.center</groupId>
+			<artifactId>ldop-center-api</artifactId>
+			<version>1.2.13-test-SNAPSHOT</version>
+		</dependency>
     </dependencies>
 
 	<build>

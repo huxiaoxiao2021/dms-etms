@@ -18,7 +18,17 @@ import java.util.List;
  */
 public interface PackageHalfService extends Service<PackageHalf> {
 
-
-    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime);
+    /**
+     * 提交操作
+     * @param packageHalf
+     * @param packageHalfDetails
+     * @param waybillOpeType 运单操作码
+     * @param OperatorId 操作人ID
+     * @param OperatorName 操作人
+     * @param operateTime 操作时间
+     * @param packageCount 拒收包裹数量
+     * @return
+     */
+    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer packageCount);
 
 }

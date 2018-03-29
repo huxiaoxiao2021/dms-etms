@@ -290,7 +290,7 @@ function makeTableHtml(data){
         }else if ( myRow.resultType == 2){
         	//拒收
             myRowHtml += "<tr class='danger' id='tr-"+myRow.packageCode+"' package-ope-type='19'>";
-            myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td >拒收</td>";
+            myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td>拒收</td>";
             if(myRow.reasonType && rejectReasonData[myRow.reasonType]){
                 myRowHtml += "<td>"+rejectReasonData[myRow.reasonType]+"</td>";
             }
@@ -379,6 +379,9 @@ function addSubmit(){
         var param = {};
         var packageList = [];
         param["halfType"] = 1; //先默认包裹半收
+		//拒收包裹数量
+        param["rejectPackageCount"] = $("#package-list-tbody tr[package-ope-type='19']").length;
+
         $("#package-list-tbody .need-submit").each(function(){
             var packageVo = {};
             packageVo["packageCode"] = $(this).find("td:eq(2)").attr("submit-value");
