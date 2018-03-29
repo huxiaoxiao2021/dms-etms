@@ -205,7 +205,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		        	tWaybillStatus.setReceiveSiteType(bDto.getSiteType());
 		        }
 
-				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
+				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
 				} else if (reverseReceive.getReceiveType() == 4) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
