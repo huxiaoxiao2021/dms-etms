@@ -44,6 +44,9 @@ public class BoardCombinationResource {
     @Path("/boardCombination/barCodeValidation")
     public JdResponse<BoardResponse> validation(@QueryParam("boardCode") String boardCode) {
         JdResponse<BoardResponse> result =new JdResponse<BoardResponse>();
+        result.setData(new BoardResponse());
+        BoardResponse boardResponse = result.getData();
+
 
         //参数为空校验
         if(StringHelper.isEmpty(boardCode)){
@@ -52,13 +55,14 @@ public class BoardCombinationResource {
         }
 
         try {
-            BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
+            boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
                 result.toFail(boardResponse.buildStatusMessages());
             }
             result.setData(boardResponse);
         } catch (Exception e) {
             logger.error("板号校验失败!",e);
+            boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"板号校验失败，系统异常！");
             result.toError("板号校验失败，系统异常！");
         }
 
@@ -79,6 +83,7 @@ public class BoardCombinationResource {
         String errStr = this.combinationVertify(request);
         if(StringHelper.isNotEmpty(errStr)){
             result.toFail(errStr);
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL,errStr);
             return result;
         }
 
@@ -86,6 +91,7 @@ public class BoardCombinationResource {
             //操作组板，返回状态码
             Integer statusCode = boardCombinationService.sendBoardBindings(request,boardResponse);
             if(statusCode == JdResponse.CODE_FAIL){
+                boardResponse.addStatusInfo(JdResponse.CODE_FAIL,boardResponse.buildStatusMessages());
                 result.toFail(boardResponse.buildStatusMessages());
             }else if(statusCode == JdResponse.CODE_CONFIRM){
                 result.toConfirm(boardResponse.buildStatusMessages());
@@ -94,7 +100,7 @@ public class BoardCombinationResource {
             }
         } catch (Exception e) {
             logger.error("组板失败!", e);
-            result.setData(null);
+            boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"板号校验失败，系统异常！");
             result.toError("组板失败，系统异常！");
         }
 
