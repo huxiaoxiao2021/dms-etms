@@ -123,7 +123,7 @@ public class BoardResponse implements Serializable{
      * 组装状态信息
      * @return
      */
-    public String getStatusMessages(){
+    public String buildStatusMessages(){
         String statusMessage = "";
         for(JdResponseStatusInfo status : statusInfo){
             statusMessage += status.getStatusMessage();

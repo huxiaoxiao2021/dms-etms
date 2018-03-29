@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.regex.Pattern;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -27,6 +28,16 @@ public class BoardCombinationResource {
 
     @Autowired
     BoardCombinationService boardCombinationService;
+
+    /**
+     * 箱号正则表达式
+     */
+    private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
+
+    /**
+     * 包裹号正则表达式
+     */
+    private final Pattern RULE_PACKAGE_REGEX = Pattern.compile("^([A-Za-z0-9]{8,})(-(?=[0-9]{1,4}-)|N(?=[0-9]{1,4}S))([1-9]{1}[0-9]{0,3})(-(?=[0-9]{1,4}-)|S(?=[0-9]{1,4}H))([1-9]{1}[0-9]{0,3})([-|H][A-Za-z0-9]*)$");
 
 
     @GET
@@ -43,7 +54,7 @@ public class BoardCombinationResource {
         try {
             BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
-                result.toFail(boardResponse.getStatusMessages());
+                result.toFail(boardResponse.buildStatusMessages());
             }
             result.setData(boardResponse);
         } catch (Exception e) {
@@ -75,14 +86,15 @@ public class BoardCombinationResource {
             //操作组板，返回状态码
             Integer statusCode = boardCombinationService.sendBoardBindings(request,boardResponse);
             if(statusCode == JdResponse.CODE_FAIL){
-                result.toFail(boardResponse.getStatusMessages());
+                result.toFail(boardResponse.buildStatusMessages());
             }else if(statusCode == JdResponse.CODE_CONFIRM){
-                result.toConfirm(boardResponse.getStatusMessages());
+                result.toConfirm(boardResponse.buildStatusMessages());
             }else if(statusCode == JdResponse.CODE_SUCCESS){
                 return result;
             }
         } catch (Exception e) {
             logger.error("组板失败!", e);
+            result.setData(null);
             result.toError("组板失败，系统异常！");
         }
 
@@ -101,7 +113,7 @@ public class BoardCombinationResource {
         }
 
         if(StringHelper.isEmpty(request.getBoardCode())){
-            return "参数箱号/包裹号为空.";
+            return "板号为空.";
         }
         if(StringHelper.isEmpty(request.getBoxOrPackageCode())){
             return "参数箱号/包裹号为空.";
@@ -111,6 +123,13 @@ public class BoardCombinationResource {
         }
         if(request.getUserCode() == null || request.getUserCode() == 0){
             return "参数操作人为空.";
+        }
+
+        //箱号/包裹号是否合法
+        if (!RULE_BOXCODE_REGEX.matcher(request.getBoxOrPackageCode().trim().toUpperCase()).matches()
+                && !RULE_PACKAGE_REGEX.matcher(request.getBoxOrPackageCode().trim().toUpperCase()).matches()) {
+            this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
+           return "箱号/包裹号不合法.";
         }
 
         return null;

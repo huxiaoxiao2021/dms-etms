@@ -158,7 +158,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @Override
     public Integer sendBoardBindings(BoardCombinationRequest request, BoardResponse boardResponse) throws Exception {
         boardResponse.setBoardCode(request.getBoardCode());
-        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
+        if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
             boardResponse.setBoxCode(request.getBoxOrPackageCode());
         } else {
             boardResponse.setPackageCode(request.getBoxOrPackageCode());
@@ -205,8 +205,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             }
         }
 
-        //分拣链校验
-
         //调用TC接口将组板数据推送给TC
         Response<Integer> tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
 
@@ -236,7 +234,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //发送全称跟踪
         //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
-        if (!SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
+        if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
             //先取出box表的始发，然后查sorting表
             List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
             for (Sorting sorting : sortings) {
@@ -339,7 +337,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     public void addOperationLog(BoardCombinationRequest request, Integer logType) {
         OperationLog operationLog = new OperationLog();
-        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
+        if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
             operationLog.setBoxCode(request.getBoxOrPackageCode());
         } else {
             operationLog.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
