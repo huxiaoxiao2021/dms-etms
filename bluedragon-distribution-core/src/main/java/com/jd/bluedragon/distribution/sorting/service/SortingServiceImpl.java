@@ -817,6 +817,7 @@ public class SortingServiceImpl implements SortingService {
 						if (BusinessHelper.isBoxcode(sorting.getBoxCode())) {
 							SendDetail sendDetail1 = this.addTransitSendDetail(sorting, sendDetail, sendM);
 							if (sendDetail1 != null) {
+								sendDetail1.setBoardCode(sendM.getBoardCode());
 								transitSendDs.add(sendDetail1);
 							}
 						}
@@ -890,6 +891,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 		sendDetail.setCreateUser(sendM.getCreateUser());
 		sendDetail.setCreateUserCode(sendM.getCreateUserCode());
+        sendDetail.setBoardCode(sendM.getBoardCode());
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {

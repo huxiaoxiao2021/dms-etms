@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.transboard.api.dto.Response;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public interface BoardCombinationService {
     /**
      * 回传板标的发货状态
      */
-    public void sendBoardSendStatus();
+    public Response<Boolean> closeBoard(String boardCode);
 
 
     /**
@@ -40,4 +41,20 @@ public interface BoardCombinationService {
      * @return
      */
     public List<SendM> selectBySendSiteCode(SendM sendM);
+
+    /**
+     * 获取组板明细
+     * @param boardCode
+     * @return
+     */
+    public Response<List<String>> getBoxesByBoardCode(String boardCode);
+
+    /**
+     * 清除组板时加的板号缓存
+     * @param boardCode
+     * @return
+     */
+    public boolean clearBoardCache(String boardCode);
+
+
 }

@@ -252,9 +252,12 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         return JdResponse.CODE_SUCCESS;
     }
 
+    /**
+     * 回传板标的发货状态
+     */
     @Override
-    public void sendBoardSendStatus() {
-
+    public Response<Boolean> closeBoard(String boardCode) {
+        return groupBoardService.closeBoard(boardCode);
     }
 
     /**
@@ -266,6 +269,27 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     public List<SendM> selectBySendSiteCode(SendM sendM) {
         //加上参数校验
         return this.sendMDao.selectBySendSiteCode(sendM);
+    }
+
+    /**
+     * 获取组板明细
+     * @param boardCode
+     * @return
+     */
+    @Override
+    public Response<List<String>> getBoxesByBoardCode(String boardCode){
+        return groupBoardService.getBoxesByBoardCode(boardCode);
+    }
+
+    /**
+     * 清除组板时加的板号缓存
+     * @param boardCode
+     * @return
+     */
+    @Override
+    public boolean clearBoardCache(String boardCode){
+        redisCommonUtil.del(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);//清除组板时加的板号缓存
+        return true;
     }
 
     /**
