@@ -284,4 +284,10 @@ public interface DeliveryService {
 	 * @param task
 	 */
 	boolean sendDetailMQ(Task task);
+	/**
+	 * 处理组板发货任务
+	 * @param task 任务实体
+	 * @return
+	 */
+	boolean doBoardDelivery(Task task);
 }

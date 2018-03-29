@@ -496,4 +496,14 @@
         <property name="keyType" value="6"/>
         <property name="desc" value="发货明细发送MQ"/>
     </bean>
+    <bean id="BoardDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.BoardDeliveryTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="boardDeliveryTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="7"/>
+        <property name="desc" value="组板发货"/>
+    </bean>    
 </beans>
