@@ -4,11 +4,15 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerification;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -56,7 +60,13 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private TaskService taskService;
 
     @Autowired
+    private BoxService boxService;
+
+    @Autowired
     private OperationLogService operationLogService;
+
+    @Autowired
+    private SortingService sortingService;
 
     @Autowired
     RedisCommonUtil redisCommonUtil;
@@ -146,7 +156,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @throws Exception
      */
     @Override
-    public Integer sendBoardBindings(BoardCombinationRequest request,BoardResponse boardResponse) throws Exception {
+    public Integer sendBoardBindings(BoardCombinationRequest request, BoardResponse boardResponse) throws Exception {
         boardResponse.setBoardCode(request.getBoardCode());
         if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
             boardResponse.setBoxCode(request.getBoxOrPackageCode());
@@ -158,11 +168,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         String boxOrPackageCode = request.getBoxOrPackageCode();
 
         //数量限制校验，每次的数量记录的redis中
-        Integer count= redisCommonUtil.getData(REDIS_PREFIX_BOARD_BINDINGS_COUNT +"-"+ boardCode);
+        Integer count = redisCommonUtil.getData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
         logger.info("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count);
 
         //超上限提示
-        if(count >= boardBindingsMaxCount){
+        if (count >= boardBindingsMaxCount) {
             logger.error("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count + "达到上限.");
             boardResponse.addStatusInfo(BoardResponse.CODE_BOXORPACKAGE_REACH_LIMIT, BoardResponse.MESSAGE_BOXORPACKAGE_REACH_LIMIT);
 
@@ -222,13 +232,24 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //缓存+1
-        redisCommonUtil.cacheData(REDIS_PREFIX_BOARD_BINDINGS_COUNT +"-"+ boardCode,count+1);
+        redisCommonUtil.cacheData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
 
         //发送全称跟踪
-        WaybillStatus waybillStatus = this.getWaybillStatus(request);
+        //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
+        if (!SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
+            //先取出box表的始发，然后查sorting表
+            List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
+            for (Sorting sorting : sortings) {
+                request.setBoxOrPackageCode(sorting.getPackageCode());
+                WaybillStatus waybillStatus = this.getWaybillStatus(request);
+                taskService.add(toTask(waybillStatus));
+            }
 
-        // 添加到task表
-        taskService.add(toTask(waybillStatus));
+        } else {
+            WaybillStatus waybillStatus = this.getWaybillStatus(request);
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+        }
 
         return JdResponse.CODE_SUCCESS;
     }
@@ -272,6 +293,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     /**
      * 转换成全称跟踪的Task
+     *
      * @param waybillStatus
      * @return
      */
@@ -290,6 +312,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     /**
      * 组装回全称跟踪对象
+     *
      * @param request
      * @return
      */
@@ -302,22 +325,15 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         tWaybillStatus.setOperateTime(new Date());
         tWaybillStatus.setOperator(request.getUserName());
         tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
-            tWaybillStatus.setBoxCode(request.getBoxOrPackageCode());
-        } else {
-            tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
-        }
+        tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
 
-        if (StringHelper.isNotEmpty(tWaybillStatus.getBoxCode())) {
-            tWaybillStatus.setRemark("箱号：" + tWaybillStatus.getBoxCode() + "已进行组板，板号" + request.getBoardCode());
-        } else if (StringHelper.isNotEmpty(tWaybillStatus.getPackageCode())) {
-            tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode());
-        }
+        tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode());
         return tWaybillStatus;
     }
 
     /**
      * 增加分拣中心操作日志
+     *
      * @param request
      * @param logType
      */
@@ -339,5 +355,16 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setLogType(logType);
 
         this.operationLogService.add(operationLog);
+    }
+
+    private List<Sorting> getPackagesByBoxCode(String boxCode) {
+        Box box = boxService.findBoxByCode(boxCode);
+        if (box != null) {
+            Sorting sorting = new Sorting();
+            sorting.setBoxCode(boxCode);
+            sorting.setCreateSiteCode(box.getCreateSiteCode());
+            return sortingService.findByBoxCode(sorting);
+        }
+        return null;
     }
 }

@@ -742,6 +742,13 @@
 			<artifactId>ucc-client</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
+		<!-- TC -->
+		<dependency>
+			<groupId>com.jd.transboard</groupId>
+			<artifactId>transboard-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
     </dependencies>
 
 	<build>

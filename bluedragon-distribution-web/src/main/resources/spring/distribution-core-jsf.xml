@@ -266,7 +266,7 @@
 	</jsf:consumer>
 
     <!-- TC jsf 接口-->
-    <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service"
+    <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="5000" retries="3">
     </jsf:consumer>
 </beans>
