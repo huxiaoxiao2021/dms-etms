@@ -14,7 +14,11 @@ public class ProvinceAndCity {
      */
     private String assortName;
 
-    public ProvinceAndCity(String assortCode, String assortName) {
+    public ProvinceAndCity() {
+		super();
+	}
+
+	public ProvinceAndCity(String assortCode, String assortName) {
         this.assortCode = assortCode;
         this.assortName = assortName;
     }

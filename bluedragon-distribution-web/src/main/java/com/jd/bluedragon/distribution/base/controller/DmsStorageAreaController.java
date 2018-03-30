@@ -123,6 +123,7 @@ public class DmsStorageAreaController {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try{
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+
 			BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
 			Integer dmsSiteCode = baseStaffByErpNoCache.getSiteCode();
 			Integer siteType = baseStaffByErpNoCache.getSiteType();

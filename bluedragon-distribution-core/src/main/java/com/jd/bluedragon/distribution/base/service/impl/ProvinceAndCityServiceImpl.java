@@ -32,8 +32,8 @@ public class ProvinceAndCityServiceImpl implements ProvinceAndCityService {
      * @param provinceId 省ID
      * @return
      */
-    @Cache(key = "ProvinceAndCityServiceImpl.getCityByProvince@args0",memoryEnable = false,
-            memoryExpiredTime = 30 * 60 * 1000,redisEnable = true,redisExpiredTime = 30 * 60 * 1000)
+    @Cache(key = "ProvinceAndCityServiceImpl.getCityByProvince@args0",memoryEnable = true,
+            memoryExpiredTime = 10 * 60 * 1000,redisEnable = true,redisExpiredTime = 30 * 60 * 1000)
     public List<ProvinceAndCity> getCityByProvince(Integer provinceId){
         List<ProvinceAndCity> cityList = new ArrayList<ProvinceAndCity>();
 
