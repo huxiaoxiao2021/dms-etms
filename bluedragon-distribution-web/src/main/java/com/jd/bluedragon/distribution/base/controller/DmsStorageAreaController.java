@@ -122,10 +122,7 @@ public class DmsStorageAreaController {
 	public @ResponseBody JdResponse<Boolean> save(DmsStorageArea dmsStorageArea) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try{
-//			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-
-			ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-			erpUser.setUserCode("bjxings");
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 
 			BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
 			Integer dmsSiteCode = baseStaffByErpNoCache.getSiteCode();

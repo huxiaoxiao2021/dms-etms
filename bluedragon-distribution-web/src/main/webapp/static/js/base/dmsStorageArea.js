@@ -141,12 +141,7 @@ $(function() {
                     alert("请选择一条数据");
                     return;
                 }
-                $('.eidt-param,.edit-param').each(function () {
-                    var _k = this.id;
-                    if(_k){
-                        $(this).val('');
-                    }
-                });
+
                 $("#edit-form").data("bootstrapValidator").resetForm();
                 $('#dataEditDiv').show();
                 initProAndCity("#provinceEG","#cityEG");
