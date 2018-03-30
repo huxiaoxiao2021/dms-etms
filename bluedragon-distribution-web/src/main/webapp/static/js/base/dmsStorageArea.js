@@ -141,7 +141,7 @@ $(function() {
                     alert("请选择一条数据");
                     return;
                 }
-                $('.edit-param').each(function () {
+                $('.eidt-param,.edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
                         $(this).val('');
