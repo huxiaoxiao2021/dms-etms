@@ -582,12 +582,12 @@ public class BusinessHelper {
 	}
 
 	/**
-	 * 包裹半收 标识
+	 * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
 	 * @param waybillSign
 	 * @return
 	 */
 	public static boolean isPackageHalf(String waybillSign){
-		return isSignInChars(waybillSign, 27,'1');
+		return isSignInChars(waybillSign, 27,'2');
 	}
 
 }

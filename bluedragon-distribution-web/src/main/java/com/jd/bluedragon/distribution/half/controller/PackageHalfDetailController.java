@@ -133,7 +133,7 @@ public class PackageHalfDetailController {
 			//成功获取包裹信息
 			BigWaybillDto bigWaybillDto = getDataByChoiceResult.getData();
 			//判断包裹信息是否为半收包裹
-			if(true || BusinessHelper.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
+			if(BusinessHelper.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
 				//是半收包裹
 
 				//获取操作记录合并
