@@ -234,7 +234,7 @@ public class DmsStorageAreaController {
 		String errorString = "";
 		try {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-			
+
 			String createUser = "";
 			String createUserName = "";
 			Integer dmsSiteCode ;

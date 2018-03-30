@@ -183,9 +183,7 @@
 				<if test="desProvinceName != null">
 					des_province_name = #{desProvinceName,jdbcType=VARCHAR},
 				</if>
-				<if test="desCityCode != null">
 					des_city_code = #{desCityCode,jdbcType=INTEGER},
-				</if>
 				<if test="desCityName != null">
 					des_city_name = #{desCityName,jdbcType=VARCHAR},
 				</if>

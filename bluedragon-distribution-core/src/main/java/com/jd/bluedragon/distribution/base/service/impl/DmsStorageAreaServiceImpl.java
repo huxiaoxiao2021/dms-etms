@@ -90,6 +90,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 			}
 			if(proId == -1){
 				errorString = msgPre + "，省份不存在！";
+				break;
 			}else {
 				dmsStorageArea.setDesProvinceCode(proId);
 				//城市不为空，设置城市id
