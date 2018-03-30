@@ -19,9 +19,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
@@ -142,11 +140,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardResponse.setReceiveSiteName(tcResponse.getData().getDestination());
 
         return boardResponse;
-    }
-
-    @Override
-    public void getBoxesAndPackagesByBoardCode(String boardCode) {
-
     }
 
     /**

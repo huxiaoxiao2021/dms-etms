@@ -115,10 +115,6 @@
 					<entry key="task_waybill_6667_DMS" value="${jmq.task.topic.waybill.status.done.dms}"/>
 					<entry key="task_waybill_6667_PRE" value="${jmq.task.topic.waybill.status.done.pre}"/>
 
-					<!-- 运单状态-组板 -->
-					<entry key="task_waybill_7000_DMS" value="${jmq.task.topic.waybill.status.board.combination.dms}"/>
-					<entry key="task_waybill_7000_PRE" value="${jmq.task.topic.waybill.status.board.combination.pre}"/>
-
 					<!-- 运单状态-全程跟踪-6666 -->
 					<entry key="task_pop_6666_DMS" value="${jmq.task.topic.waybill.track.dms}"/>
 					<entry key="task_pop_6666_PRE" value="${jmq.task.topic.waybill.track.pre}"/>

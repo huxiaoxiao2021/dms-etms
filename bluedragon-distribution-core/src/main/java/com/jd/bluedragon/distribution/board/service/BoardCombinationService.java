@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.board.service;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.Response;
 
 import java.util.List;
@@ -18,11 +17,6 @@ public interface BoardCombinationService {
      */
     public BoardResponse getBoardByBoardCode(String boardCode) throws Exception;
 
-    /**
-     * 根据板标获取板标绑定的箱号和包裹号
-     * @param boardCode
-     */
-    public void getBoxesAndPackagesByBoardCode(String boardCode);
 
     /**
      * 回传板标绑定的箱号或包裹号
