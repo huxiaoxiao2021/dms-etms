@@ -1,27 +1,19 @@
 package com.jd.bluedragon.utils;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.common.util.StringUtils;
+import org.apache.log4j.Logger;
+
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class StringHelper {
-    
+
     private static Logger logger = Logger.getLogger(StringHelper.class);
-    
+
     public static String getRandomString() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
@@ -30,16 +22,16 @@ public class StringHelper {
         }
         return sb.toString();
     }
-    
+
     public static String getStringValue(Object object) {
         return ObjectHelper.isNotEmpty(object) ? object.toString() : "";
     }
-    
+
     public static Boolean isEmpty(String s) {
         if (s == null || s.trim().length() == 0) {
             return Boolean.TRUE;
         }
-        
+
         return Boolean.FALSE;
     }
 
@@ -51,45 +43,45 @@ public class StringHelper {
         }
         return Boolean.FALSE;
     }
-    
+
     public static boolean isNotEmpty(String s) {
         return !StringHelper.isEmpty(s);
     }
-    
+
     public static String join(Collection<?> objects) {
         return StringHelper.join(objects, Constants.SEPARATOR_COMMA);
     }
-    
+
     public static String join(Collection<?> objects, String separator) {
         StringBuilder sb = new StringBuilder();
-        
+
         for (Iterator<?> iterator = objects.iterator(); iterator.hasNext();) {
             Object o = iterator.next();
-            
+
             if (o != null) {
                 sb.append(o.toString());
             }
-            
+
             if (iterator.hasNext()) {
                 sb.append(separator);
             }
         }
         return sb.toString();
     }
-    
+
     public static String join(Collection<?> objects, String separator, String prefix,
             String postfix, String wrapSeparator) {
         StringBuilder sb = new StringBuilder();
         sb.append(prefix);
         for (Iterator<?> iterator = objects.iterator(); iterator.hasNext();) {
             Object o = iterator.next();
-            
+
             if (o != null) {
                 sb.append(wrapSeparator);
                 sb.append(o.toString());
                 sb.append(wrapSeparator);
             }
-            
+
             if (iterator.hasNext()) {
                 sb.append(separator);
             }
@@ -97,21 +89,21 @@ public class StringHelper {
         sb.append(postfix);
         return sb.toString();
     }
-    
+
     public static String join(Collection<?> objects, String methodName, String separator) {
         StringBuilder sb = new StringBuilder();
-        
+
         for (Iterator<?> iterator = objects.iterator(); iterator.hasNext();) {
             Object o = iterator.next();
-            
+
             try {
                 Method method = o.getClass().getMethod(methodName);
                 String value = String.valueOf(method.invoke(o));
-                
+
                 if (value != null) {
                     sb.append(value);
                 }
-                
+
                 if (iterator.hasNext()) {
                     sb.append(separator);
                 }
@@ -120,27 +112,27 @@ public class StringHelper {
                 continue;
             }
         }
-        
+
         return sb.toString();
     }
-    
+
     public static String join(Collection<?> objects, String methodName, String separator,
             String wrapSeparator) {
         StringBuilder sb = new StringBuilder();
-        
+
         for (Iterator<?> iterator = objects.iterator(); iterator.hasNext();) {
             Object o = iterator.next();
-            
+
             try {
                 Method method = o.getClass().getMethod(methodName);
                 String value = String.valueOf(method.invoke(o));
-                
+
                 if (value != null) {
                     sb.append(wrapSeparator);
                     sb.append(value);
                     sb.append(wrapSeparator);
                 }
-                
+
                 if (iterator.hasNext()) {
                     sb.append(separator);
                 }
@@ -149,28 +141,28 @@ public class StringHelper {
                 continue;
             }
         }
-        
+
         return sb.toString();
     }
-    
+
     public static String join(Collection<?> objects, String methodName, String separator,
             Integer numc) {
         StringBuilder sb = new StringBuilder();
-        
+
         Integer i = 1;
-        
+
         for (Iterator<?> iterator = objects.iterator(); iterator.hasNext() && numc > 0 && i <= numc;) {
             Object o = iterator.next();
-            
+
             try {
                 Method method = o.getClass().getMethod(methodName);
                 String str = String.valueOf(method.invoke(o));
-                
+
                 if (str != null) {
                     sb.append(str);
                     i++;
                 }
-                
+
                 if (iterator.hasNext() && numc > 0 && i <= numc) {
                     sb.append(separator);
                 }
@@ -179,14 +171,14 @@ public class StringHelper {
                 continue;
             }
         }
-        
+
         return sb.toString();
     }
-    
+
     public static String joinIds(Collection<?> objects, String separator) {
         return StringHelper.join(objects, "getId", separator);
     }
-    
+
     public static String padZero(Long number) {
         return String.format("%08d", number);
     }
@@ -200,22 +192,22 @@ public class StringHelper {
         }
     }
 
-    
+
 	/**
 	 * 获取文件名扩展后缀
 	 * @param filename
 	 * @return
 	 */
 	public static String getFileNameSuffix(String filename){
-		if ((filename != null) && (filename.length() > 0)) {   
-            int dot = filename.lastIndexOf('.');   
-            if ((dot >-1) && (dot < (filename.length() - 1))) {   
-                return filename.substring(dot + 1);   
+		if ((filename != null) && (filename.length() > 0)) {
+            int dot = filename.lastIndexOf('.');
+            if ((dot >-1) && (dot < (filename.length() - 1))) {
+                return filename.substring(dot + 1);
             }
         }
-        return filename;   
+        return filename;
 	}
-	
+
 	public static Boolean matchSiteRule(String ruleSite, String receiveSite) {
         if (ruleSite == null || receiveSite == null) {
             return Boolean.FALSE;
@@ -228,14 +220,14 @@ public class StringHelper {
         }
         return Boolean.FALSE;
     }
-	
+
 	/**
 	 * HTML标签转义方法 —— java代码库
 	 * @param content
 	 * @return
 	 */
 	public static String html(String content) {
-		if(content==null) return "";        
+		if(content==null) return "";
 		String html = content;
 		html = StringUtils.replace(html, "'", "&apos;");
 		html = StringUtils.replace(html, "\"", "&quot;");
@@ -245,7 +237,7 @@ public class StringHelper {
 		html = StringUtils.replace(html, ">", "&gt;");
 		return html;
 	}
-	
+
 	public static List<String> parseList(String str, String comma) {
 		if (null == str || str.length() < 1 || comma == null || comma.length() < 1) {
 			return new ArrayList<String>();
@@ -284,7 +276,7 @@ public class StringHelper {
         Pattern pattern = Pattern.compile("^[-\\+]?\\d+(\\.\\d*)?|\\.\\d+$");
         return pattern.matcher(str).matches();
     }
-    
+
     /**
      * 判断字符串是否为邮箱地址****@***.***
      * @param str
@@ -312,4 +304,32 @@ public class StringHelper {
 		Iterable<String> it = Splitter.on(regex).trimResults().omitEmptyStrings().split(str);
 		return Sets.newTreeSet(it);
 	}
+
+    /**
+     * 将字符串中的指定字符串移除
+     *
+     * @param src
+     * @param removeStr
+     * @return
+     */
+    public static String remove(String src, String removeStr) {
+        if (StringUtils.isEmpty(src) || StringUtils.isEmpty(removeStr)) {
+            return src;
+        }
+        src = src.replace(removeStr, "");
+        return src;
+    }
+
+    /**
+     * 移除字符串中的\r、\n、\r\n
+     *
+     * @param src
+     * @return
+     */
+    public static String removeRN(String src) {
+        src = remove(src, "\r");
+        src = remove(src, "\n");
+        return src;
+    }
+
 }

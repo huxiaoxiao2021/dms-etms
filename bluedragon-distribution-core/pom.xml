@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.25</version>
+            <version>1.2.46</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -143,6 +143,12 @@
 			<groupId>org.scannotation</groupId>
 			<artifactId>scannotation</artifactId>
 			<version>1.0.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>javassist</artifactId>
+					<groupId>javassist</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -365,7 +371,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.5.5</version>
+			<version>1.6.5</version>
 		</dependency>
 		
 		<dependency>	

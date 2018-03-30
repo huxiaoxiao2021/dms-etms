@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
 
@@ -108,4 +109,6 @@ public interface InspectionService {
     public void thirdPartyWorker(Inspection inspection);
 
     public void pushOEMToWMS(Inspection inspection);
+
+    public InspectionResult getInspectionResult(Integer dmsSiteCode, String waybillCode);
 }

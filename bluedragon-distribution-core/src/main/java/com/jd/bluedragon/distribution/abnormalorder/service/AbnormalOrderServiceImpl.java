@@ -143,6 +143,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		qualityControl.setBlameDeptName(abnormalOrder.getCreateSiteName());
 		qualityControl.setCreateTime(abnormalOrder.getOperateTime());
 		qualityControl.setCreateUserId(abnormalOrder.getCreateUserCode());
+		qualityControl.setCreateUserErp(abnormalOrder.getCreateUserErp());
 		qualityControl.setCreateUserName(abnormalOrder.getCreateUser());
 		qualityControl.setMessageType(QualityControl.QC_FXM);
 		qualityControl.setBoxCode("null");
