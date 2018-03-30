@@ -435,7 +435,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
             logger.info("组板发货查板号信息：" + JsonHelper.toJson(boardResponse));
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
-                return new SendResult(SendResult.CODE_SENDED, boardResponse.getStatusMessages());
+                return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
             }
         } catch (Exception e) {
             logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
