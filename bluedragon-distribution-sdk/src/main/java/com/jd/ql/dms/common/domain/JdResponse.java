@@ -21,7 +21,7 @@ public class JdResponse<E> extends JdObject {
     public static final Integer CODE_ERROR = 500;
     public static final String MESSAGE_ERROR = "error";
 
-	public static final Integer CODE_CONFIRM = 600;
+	public static final Integer CODE_CONFIRM = 30001;
 	public static final String  MESSAGE_CONFIRM = "confirm";
     
     /** 响应状态码 */
