@@ -91,7 +91,6 @@ public class BoardCombinationResource {
             //操作组板，返回状态码
             Integer statusCode = boardCombinationService.sendBoardBindings(request,boardResponse);
             if(statusCode == JdResponse.CODE_FAIL){
-                boardResponse.addStatusInfo(JdResponse.CODE_FAIL,boardResponse.buildStatusMessages());
                 result.toFail(boardResponse.buildStatusMessages());
             }else if(statusCode == JdResponse.CODE_CONFIRM){
                 result.toConfirm(boardResponse.buildStatusMessages());
@@ -100,7 +99,7 @@ public class BoardCombinationResource {
             }
         } catch (Exception e) {
             logger.error("组板失败!", e);
-            boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"板号校验失败，系统异常！");
+            boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"组板失败，系统异常！");
             result.toError("组板失败，系统异常！");
         }
 

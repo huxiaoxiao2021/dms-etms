@@ -116,7 +116,7 @@ public class WaybillStatus {
     /**
      * 全称跟踪-组板
      */
-    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION = 0;
+    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION = 7000;
 
 
     /**

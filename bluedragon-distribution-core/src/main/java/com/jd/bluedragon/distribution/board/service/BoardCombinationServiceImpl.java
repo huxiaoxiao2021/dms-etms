@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -323,14 +324,19 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     private Task toTask(WaybillStatus waybillStatus) {
         Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_POP);
+        task.setTableName(Task.TABLE_NAME_WAYBILL);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(StringHelper.isNotEmpty(waybillStatus.getBoxCode()) ? waybillStatus.getBoxCode() : waybillStatus.getPackageCode());
-        task.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION));
+        task.setKeyword2(waybillStatus.getPackageCode());
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setCreateTime(waybillStatus.getOperateTime());
         task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
-        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setType(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
         task.setOwnSign(BusinessHelper.getOwnSign());
+
+        task.setFingerprint(Md5Helper.encode(waybillStatus.getCreateSiteCode() + "_"
+                + waybillStatus.getWaybillCode() + "_" + waybillStatus.getPackageCode() + "_"
+                + System.currentTimeMillis()));
         return task;
     }
 
@@ -343,13 +349,17 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private WaybillStatus getWaybillStatus(BoardCombinationRequest request) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
+        tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
+        tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
+
         tWaybillStatus.setCreateSiteCode(request.getSiteCode());
         tWaybillStatus.setCreateSiteName(request.getSiteName());
+
         tWaybillStatus.setOperatorId(request.getUserCode());
-        tWaybillStatus.setOperateTime(new Date());
         tWaybillStatus.setOperator(request.getUserName());
+        tWaybillStatus.setOperateTime(new Date());
         tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-        tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
+
 
         tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode());
         return tWaybillStatus;
