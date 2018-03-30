@@ -261,4 +261,9 @@
     <jsf:consumer id="presortMediumStation" interface="com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI"
                   protocol="jsf" alias="${jsf.presortMediumStationAPI.alias}" timeout="5000" retries="3">
     </jsf:consumer>
+
+    <!-- TC jsf 接口-->
+    <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
+                  protocol="jsf" alias="${jsf.TC.alias}" timeout="5000" retries="3">
+    </jsf:consumer>
 </beans>

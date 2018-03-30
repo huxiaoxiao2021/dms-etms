@@ -209,14 +209,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         //调用TC接口将组板数据推送给TC
         Response<Integer> tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
 
-        if (tcResponse.getCode() != 200 && tcResponse.getCode() != 500) {
-            this.logger.error("组板数据推送给TC失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
-            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
-            addSystemLog(boardResponse);
-
-            return JdResponse.CODE_FAIL;
-        }
-
         if (tcResponse.getCode() == 500) {
             this.logger.error("板号" + boardCode + "已绑定到其他板号下.");
             boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, BoardResponse.MESSAGE_BOX_PACKAGE_BINDINGED);
@@ -224,6 +216,24 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             return JdResponse.CODE_FAIL;
         }
+
+        if (tcResponse.getCode() == 501) {
+            this.logger.error("板号" + boardCode + "已完结,请更换板号.");
+            boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
+            addSystemLog(boardResponse);
+
+            return JdResponse.CODE_FAIL;
+        }
+
+        if (tcResponse.getCode() != 200) {
+            this.logger.error("组板数据推送给TC失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
+            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+            addSystemLog(boardResponse);
+
+            return JdResponse.CODE_FAIL;
+        }
+
+
 
         //组板成功
         logger.info("组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
@@ -276,21 +286,23 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     /**
      * 获取组板明细
+     *
      * @param boardCode
      * @return
      */
     @Override
-    public Response<List<String>> getBoxesByBoardCode(String boardCode){
+    public Response<List<String>> getBoxesByBoardCode(String boardCode) {
         return groupBoardService.getBoxesByBoardCode(boardCode);
     }
 
     /**
      * 清除组板时加的板号缓存
+     *
      * @param boardCode
      * @return
      */
     @Override
-    public boolean clearBoardCache(String boardCode){
+    public boolean clearBoardCache(String boardCode) {
         redisCommonUtil.del(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);//清除组板时加的板号缓存
         return true;
     }
@@ -324,19 +336,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     private Task toTask(WaybillStatus waybillStatus) {
         Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_WAYBILL);
+        task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(StringHelper.isNotEmpty(waybillStatus.getBoxCode()) ? waybillStatus.getBoxCode() : waybillStatus.getPackageCode());
-        task.setKeyword2(waybillStatus.getPackageCode());
+        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION));
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
-        task.setCreateTime(waybillStatus.getOperateTime());
         task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
-        task.setType(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         task.setOwnSign(BusinessHelper.getOwnSign());
-
-        task.setFingerprint(Md5Helper.encode(waybillStatus.getCreateSiteCode() + "_"
-                + waybillStatus.getWaybillCode() + "_" + waybillStatus.getPackageCode() + "_"
-                + System.currentTimeMillis()));
         return task;
     }
 

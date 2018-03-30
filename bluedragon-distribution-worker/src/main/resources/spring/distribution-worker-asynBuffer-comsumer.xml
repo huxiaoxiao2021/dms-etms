@@ -424,7 +424,28 @@
                         <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
                     </bean>
                 </entry>
-                
+
+                <!-- 运单状态-组板 -->
+                <entry key="${jmq.task.topic.waybill.status.board.combination.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <entry key="${jmq.task.topic.waybill.status.board.combination.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target">
+                            <bean class="com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl"/>
+                        </constructor-arg>
+                        <constructor-arg name="methodName" value="doWaybillStatusTask"></constructor-arg>
+                    </bean>
+                </entry>
+
                 <!-- 运单全程跟踪-6666 -->
                 <entry key="${jmq.task.topic.waybill.track.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"

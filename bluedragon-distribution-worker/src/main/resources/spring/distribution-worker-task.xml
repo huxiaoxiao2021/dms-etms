@@ -87,52 +87,52 @@
         <property name="type" value="1110"/>
         <property name="desc" value="分拣中心收货任务"/>
     </bean>
-    <bean id="arReceiveTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
-          parent = "baseDBSingleScheduler">
-        <property name="taskType" value="ArReceiveTask"/>
-        <property name="dmsTaskExecutor" ref="arReceiveTaskExecutor"/>
-        <property name="type" value="1810"/>
-        <property name="desc" value="空铁提货任务"/>
-    </bean>
-    <bean id="sortingTask"
-          class="com.jd.bluedragon.distribution.worker.sorting.SortingTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SortingTaskN"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1200"/>
-    </bean>
+    <!--<bean id="arReceiveTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"-->
+          <!--parent = "baseDBSingleScheduler">-->
+        <!--<property name="taskType" value="ArReceiveTask"/>-->
+        <!--<property name="dmsTaskExecutor" ref="arReceiveTaskExecutor"/>-->
+        <!--<property name="type" value="1810"/>-->
+        <!--<property name="desc" value="空铁提货任务"/>-->
+    <!--</bean>-->
+    <!--<bean id="sortingTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.sorting.SortingTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SortingTaskN"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1200"/>-->
+    <!--</bean>-->
 
-    <bean id="inspectionTask" class="com.jd.bluedragon.distribution.worker.InspectionTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="InspectionTaskN"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1130"/>
-        <property name="desc" value="分拣中心验货任务"/>
-    </bean>
+    <!--<bean id="inspectionTask" class="com.jd.bluedragon.distribution.worker.InspectionTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="InspectionTaskN"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1130"/>-->
+        <!--<property name="desc" value="分拣中心验货任务"/>-->
+    <!--</bean>-->
 
-    <bean id="partnerWaybillTask"
-          class="com.jd.bluedragon.distribution.worker.PartnerWaybillTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PartnerWaybillTaskN"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1600"/>
-        <property name="desc" value="处理运单号关联包裹任务"/>
-    </bean>
+    <!--<bean id="partnerWaybillTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.PartnerWaybillTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PartnerWaybillTaskN"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1600"/>-->
+        <!--<property name="desc" value="处理运单号关联包裹任务"/>-->
+    <!--</bean>-->
 
-    <bean id="popReceiveTask" class="com.jd.bluedragon.distribution.worker.PopReceiveTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PopReceiveTaskN"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1030"/>
-        <property name="desc" value="POP收货Redis任务"/>
-    </bean>
+    <!--<bean id="popReceiveTask" class="com.jd.bluedragon.distribution.worker.PopReceiveTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PopReceiveTaskN"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1030"/>-->
+        <!--<property name="desc" value="POP收货Redis任务"/>-->
+    <!--</bean>-->
 
     <bean id="waybillStatusTask"
           class="com.jd.bluedragon.distribution.worker.waybill.WaybillStatusTask"
@@ -143,367 +143,367 @@
         <property name="ownSign" value="${ownSign}"/>
     </bean>
 
-    <bean id="shieldsBoxErrorTask"
-          class="com.jd.bluedragon.distribution.worker.ShieldsBoxErrorTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ShieldsBoxErrorTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1140"/>
-        <property name="desc" value="封签[封箱]异常任务"/>
-    </bean>
+    <!--<bean id="shieldsBoxErrorTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.ShieldsBoxErrorTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="ShieldsBoxErrorTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1140"/>-->
+        <!--<property name="desc" value="封签[封箱]异常任务"/>-->
+    <!--</bean>-->
 
-    <bean id="sealBoxTask" class="com.jd.bluedragon.distribution.worker.seal.SealBoxTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SealBoxTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1210"/>
-        <property name="desc" value="封箱解封箱任务"/>
-    </bean>
+    <!--<bean id="sealBoxTask" class="com.jd.bluedragon.distribution.worker.seal.SealBoxTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SealBoxTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1210"/>-->
+        <!--<property name="desc" value="封箱解封箱任务"/>-->
+    <!--</bean>-->
 
-    <bean id="sortingReturnTask"
-          class="com.jd.bluedragon.distribution.worker.sorting.SortingReturnTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SortingReturnTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1220"/>
-        <property name="desc" value="分拣退货任务"/>
-    </bean>
+    <!--<bean id="sortingReturnTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.sorting.SortingReturnTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SortingReturnTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1220"/>-->
+        <!--<property name="desc" value="分拣退货任务"/>-->
+    <!--</bean>-->
 
-    <bean id="shieldsCarErrorTask"
-          class="com.jd.bluedragon.distribution.worker.ShieldsCarErrorTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ShieldsCarErrorTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1120"/>
-        <property name="desc" value="封签[封车]异常任务"/>
-    </bean>
+    <!--<bean id="shieldsCarErrorTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.ShieldsCarErrorTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="ShieldsCarErrorTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1120"/>-->
+        <!--<property name="desc" value="封签[封车]异常任务"/>-->
+    <!--</bean>-->
 
-    <bean id="partnerWaybillSynchroTask"
-          class="com.jd.bluedragon.distribution.worker.PartnerWaybillSynchroTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PartnerWaybillSynchroTaskN"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1601"/>
-    </bean>
+    <!--<bean id="partnerWaybillSynchroTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.PartnerWaybillSynchroTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PartnerWaybillSynchroTaskN"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1601"/>-->
+    <!--</bean>-->
 
-    <!-- Notes: the following 9 workers ownSign attribute must be DMS, do not modify it -->
-    <bean id="taskFailQueueTask" class="com.jd.bluedragon.distribution.worker.TaskFailQueueTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="TaskFailQueueTask"/>
-        <property name="ownSign" value="DMS"/>
-    </bean>
+    <!--&lt;!&ndash; Notes: the following 9 workers ownSign attribute must be DMS, do not modify it &ndash;&gt;-->
+    <!--<bean id="taskFailQueueTask" class="com.jd.bluedragon.distribution.worker.TaskFailQueueTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="TaskFailQueueTask"/>-->
+        <!--<property name="ownSign" value="DMS"/>-->
+    <!--</bean>-->
 
-    <!--  下线该WORKER
-    <bean id="toSendwaybillTask" class="com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ToSendwaybillTaskN"/>
-        <property name="ownSign" value="DMS"/>
-    </bean>
-    -->
-    <bean id="reverseDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.ReverseDeliveryToTmsTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="ReverseDeliveryTaskN"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="3"/>
-        <property name="desc" value="发货新老数据同步任务"/>
-    </bean>
+    <!--&lt;!&ndash;  下线该WORKER-->
+    <!--<bean id="toSendwaybillTask" class="com.jd.bluedragon.distribution.worker.delivery.ToSendwaybillTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="ToSendwaybillTaskN"/>-->
+        <!--<property name="ownSign" value="DMS"/>-->
+    <!--</bean>-->
+    <!--&ndash;&gt;-->
+    <!--<bean id="reverseDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.ReverseDeliveryToTmsTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="taskType" value="ReverseDeliveryTaskN"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="3"/>-->
+        <!--<property name="desc" value="发货新老数据同步任务"/>-->
+    <!--</bean>-->
 
-    <bean id="transitSendTask" class="com.jd.bluedragon.distribution.worker.delivery.TransitSendTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="TransitSendTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="5"/>
-        <property name="desc" value="中转发货补全任务"/>
-    </bean>
+    <!--<bean id="transitSendTask" class="com.jd.bluedragon.distribution.worker.delivery.TransitSendTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="taskType" value="TransitSendTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="5"/>-->
+        <!--<property name="desc" value="中转发货补全任务"/>-->
+    <!--</bean>-->
 
-    <bean id="sendDeliveryTotmsTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTotmsTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SendDeliveryTotmsTaskN"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="2"/>
-        <property name="desc" value="回传周转箱项目任务"/>
-    </bean>
+    <!--<bean id="sendDeliveryTotmsTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTotmsTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SendDeliveryTotmsTaskN"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="2"/>-->
+        <!--<property name="desc" value="回传周转箱项目任务"/>-->
+    <!--</bean>-->
 
-    <bean id="sendDeliveryTowaybillTask"
-          class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTowaybillTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SendDeliveryTowaybillTaskN"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="1"/>
-        <property name="desc" value="发货回传运单状态任务"/>
-    </bean>
+    <!--<bean id="sendDeliveryTowaybillTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.delivery.SendDeliveryTowaybillTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SendDeliveryTowaybillTaskN"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="1"/>-->
+        <!--<property name="desc" value="发货回传运单状态任务"/>-->
+    <!--</bean>-->
 
-    <bean id="reverseRejectTask"
-          class="com.jd.bluedragon.distribution.worker.reverse.ReverseRejectTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ReverseRejectTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="3100"/>
-        <property name="desc" value="逆向驳回任务"/>
-    </bean>
+    <!--<bean id="reverseRejectTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.reverse.ReverseRejectTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="ReverseRejectTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="3100"/>-->
+        <!--<property name="desc" value="逆向驳回任务"/>-->
+    <!--</bean>-->
 
-    <!-- be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间  -->
-    <bean id="popSupplementReceiveTask" class="com.jd.bluedragon.distribution.worker.pop.PopSupplementReceiveTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PopSupplementReceiveTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="maxExecuteCount" value="3"/>
-        <property name="limitMin" value="2"/>
-        <property name="limitHour" value="1"/>
-    </bean>
+    <!--&lt;!&ndash; be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间  &ndash;&gt;-->
+    <!--<bean id="popSupplementReceiveTask" class="com.jd.bluedragon.distribution.worker.pop.PopSupplementReceiveTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PopSupplementReceiveTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="maxExecuteCount" value="3"/>-->
+        <!--<property name="limitMin" value="2"/>-->
+        <!--<property name="limitHour" value="1"/>-->
+    <!--</bean>-->
 
-    <bean id="reverseSendTask"
-          class="com.jd.bluedragon.distribution.worker.reverse.ReverseSendTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ReverseSendTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="DMS"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="4"/>
-        <property name="desc" value="逆向发货回传任务"/>
-    </bean>
+    <!--<bean id="reverseSendTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.reverse.ReverseSendTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="ReverseSendTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="DMS"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="4"/>-->
+        <!--<property name="desc" value="逆向发货回传任务"/>-->
+    <!--</bean>-->
 
-    <!-- 备件库相关work -->
-    <bean id="reverseSpareTask" class="com.jd.bluedragon.distribution.worker.reverse.ReverseSpareTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="ReverseSpareTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="3300"/>
-        <property name="desc" value="逆向备件库任务"/>
-    </bean>
+    <!--&lt;!&ndash; 备件库相关work &ndash;&gt;-->
+    <!--<bean id="reverseSpareTask" class="com.jd.bluedragon.distribution.worker.reverse.ReverseSpareTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="ReverseSpareTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="3300"/>-->
+        <!--<property name="desc" value="逆向备件库任务"/>-->
+    <!--</bean>-->
 
-    <bean id="waybillTrackTask"
-          class="com.jd.bluedragon.distribution.worker.waybill.WaybillTrackTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="WaybillTrackTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="6666"/>
-    </bean>
+    <!--<bean id="waybillTrackTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.waybill.WaybillTrackTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="WaybillTrackTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="6666"/>-->
+    <!--</bean>-->
 
-    <bean id="popPickupTask" class="com.jd.bluedragon.distribution.worker.pop.PopPickupTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PopPickupTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1050"/>
-        <property name="desc" value="Pop上门收货任务"/>
-    </bean>
+    <!--<bean id="popPickupTask" class="com.jd.bluedragon.distribution.worker.pop.PopPickupTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PopPickupTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1050"/>-->
+        <!--<property name="desc" value="Pop上门收货任务"/>-->
+    <!--</bean>-->
 
-    <!-- POP收货回传消息 -->
-    <bean id="popRecieveCountTask" class="com.jd.bluedragon.distribution.worker.PopRecieveTaskCount"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PopRecieveCountTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1040"/>
-    </bean>
+    <!--&lt;!&ndash; POP收货回传消息 &ndash;&gt;-->
+    <!--<bean id="popRecieveCountTask" class="com.jd.bluedragon.distribution.worker.PopRecieveTaskCount"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PopRecieveCountTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1040"/>-->
+    <!--</bean>-->
 
-    <!-- 离线 -->
-    <bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
-          parent = "baseDBSingleScheduler">
-        <property name="taskType" value="OfflineCoreTask"/>
-        <property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
-        <property name="type" value="1800"/>
-        <property name="desc" value="离线任务"/>
-    </bean>
+    <!--&lt;!&ndash; 离线 &ndash;&gt;-->
+    <!--<bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"-->
+          <!--parent = "baseDBSingleScheduler">-->
+        <!--<property name="taskType" value="OfflineCoreTask"/>-->
+        <!--<property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>-->
+        <!--<property name="type" value="1800"/>-->
+        <!--<property name="desc" value="离线任务"/>-->
+    <!--</bean>-->
 
-    <!-- 干线发车 -->
-    <bean id="thirdDepartureTask" class="com.jd.bluedragon.distribution.worker.departure.ThirdDepartureTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="thirdDepartureTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1400"/>
-        <property name="keyType" value="5"/>
-        <property name="desc" value="支线发车推送运单任务"/>
-    </bean>
+    <!--&lt;!&ndash; 干线发车 &ndash;&gt;-->
+    <!--<bean id="thirdDepartureTask" class="com.jd.bluedragon.distribution.worker.departure.ThirdDepartureTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="thirdDepartureTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1400"/>-->
+        <!--<property name="keyType" value="5"/>-->
+        <!--<property name="desc" value="支线发车推送运单任务"/>-->
+    <!--</bean>-->
 
-    <!-- 发干线计费系统MQ -->
-    <bean id="pushMQ2ArteryBillingSysTask" class="com.jd.bluedragon.distribution.worker.receive.ReceivePushArteryMQTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PushMQ2ArteryBillingSysTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1150"/>
-        <property name="desc" value="发干线计费系统MQ任务"/>
-    </bean>
+    <!--&lt;!&ndash; 发干线计费系统MQ &ndash;&gt;-->
+    <!--<bean id="pushMQ2ArteryBillingSysTask" class="com.jd.bluedragon.distribution.worker.receive.ReceivePushArteryMQTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PushMQ2ArteryBillingSysTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1150"/>-->
+        <!--<property name="desc" value="发干线计费系统MQ任务"/>-->
+    <!--</bean>-->
 
-    <bean id="sortingPrepareTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingPrepareTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="sortingPrepareTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="7777"/>
-        <property name="desc" value="支线发车推送运单任务"/>
-    </bean>
+    <!--<bean id="sortingPrepareTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingPrepareTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="sortingPrepareTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="7777"/>-->
+        <!--<property name="desc" value="支线发车推送运单任务"/>-->
+    <!--</bean>-->
 
-    <bean id="inspectionPrepareTask" class="com.jd.bluedragon.distribution.worker.inspection.InspectionPrepareTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="InspectionPrepareTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="7778"/>
-        <property name="desc" value="自动分拣交接数据存交接表任务"/>
-    </bean>
+    <!--<bean id="inspectionPrepareTask" class="com.jd.bluedragon.distribution.worker.inspection.InspectionPrepareTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="InspectionPrepareTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="7778"/>-->
+        <!--<property name="desc" value="自动分拣交接数据存交接表任务"/>-->
+    <!--</bean>-->
 
-    <bean id="batchSendCarTask" class="com.jd.bluedragon.distribution.worker.departure.BatchSendCarTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="BatchSendCarTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1410"/>
-        <property name="desc" value="批量发车任务"/>
-    </bean>
+    <!--<bean id="batchSendCarTask" class="com.jd.bluedragon.distribution.worker.departure.BatchSendCarTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="BatchSendCarTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1410"/>-->
+        <!--<property name="desc" value="批量发车任务"/>-->
+    <!--</bean>-->
 
-    <bean id="sortingExceptionTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingExceptionTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SortingExceptionTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1240"/>
-        <property name="desc" value="人工分拣异常记录日志到DB任务"/>
-    </bean>
+    <!--<bean id="sortingExceptionTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingExceptionTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SortingExceptionTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1240"/>-->
+        <!--<property name="desc" value="人工分拣异常记录日志到DB任务"/>-->
+    <!--</bean>-->
 
-    <bean id="qualityControlTask" class="com.jd.bluedragon.distribution.worker.QualityControl.QualityControlTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="QualityControlTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="3340"/>
-        <property name="desc" value="发送质控系统，配送外呼任务"/>
-    </bean>
+    <!--<bean id="qualityControlTask" class="com.jd.bluedragon.distribution.worker.QualityControl.QualityControlTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="QualityControlTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="3340"/>-->
+        <!--<property name="desc" value="发送质控系统，配送外呼任务"/>-->
+    <!--</bean>-->
 
-    <bean id="weightTask" class="com.jd.bluedragon.distribution.worker.weight.WeightTask"
-		init-method="init" lazy-init="false" depends-on="managerFactory">
-		<property name="dataSource" ref="taskDataSource" />
-		<property name="taskType" value="WeightTask" />
-		<property name="managerFactory" ref="managerFactory" />
-		<property name="ownSign" value="${ownSign}" />
-		<property name="type" value="1160" />
-		<property name="desc" value="将称重信息回传到运单中心" />
-	</bean>
-    <bean id="scannerFrameTask" class="com.jd.bluedragon.distribution.worker.ScannerFrameTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource" />
-        <property name="taskType" value="ScannerFrameTask" />
-        <property name="managerFactory" ref="managerFactory" />
-        <property name="ownSign" value="${ownSign}" />
-        <property name="type" value="7779" />
-        <property name="desc" value="龙门架自动发货" />
-    </bean>
+    <!--<bean id="weightTask" class="com.jd.bluedragon.distribution.worker.weight.WeightTask"-->
+		<!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+		<!--<property name="dataSource" ref="taskDataSource" />-->
+		<!--<property name="taskType" value="WeightTask" />-->
+		<!--<property name="managerFactory" ref="managerFactory" />-->
+		<!--<property name="ownSign" value="${ownSign}" />-->
+		<!--<property name="type" value="1160" />-->
+		<!--<property name="desc" value="将称重信息回传到运单中心" />-->
+	<!--</bean>-->
+    <!--<bean id="scannerFrameTask" class="com.jd.bluedragon.distribution.worker.ScannerFrameTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource" />-->
+        <!--<property name="taskType" value="ScannerFrameTask" />-->
+        <!--<property name="managerFactory" ref="managerFactory" />-->
+        <!--<property name="ownSign" value="${ownSign}" />-->
+        <!--<property name="type" value="7779" />-->
+        <!--<property name="desc" value="龙门架自动发货" />-->
+    <!--</bean>-->
 
-	<!-- xumei -->
-	<bean id="crossBoxTask"
-		class="com.jd.bluedragon.distribution.worker.crossbox.CrossBoxTask"
-		init-method="init" lazy-init="false" depends-on="managerFactory">
-		<property name="dataSource" ref="taskDataSource" />
-		<property name="taskType" value="CrossBoxTask" />
-		<property name="managerFactory" ref="managerFactory" />
-		<property name="ownSign" value="${ownSign}" />
-		<property name="type" value="2222" />
-		<property name="desc" value="导入的跨分拣箱号中转信息定时激活" />
-	</bean>
+	<!--&lt;!&ndash; xumei &ndash;&gt;-->
+	<!--<bean id="crossBoxTask"-->
+		<!--class="com.jd.bluedragon.distribution.worker.crossbox.CrossBoxTask"-->
+		<!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+		<!--<property name="dataSource" ref="taskDataSource" />-->
+		<!--<property name="taskType" value="CrossBoxTask" />-->
+		<!--<property name="managerFactory" ref="managerFactory" />-->
+		<!--<property name="ownSign" value="${ownSign}" />-->
+		<!--<property name="type" value="2222" />-->
+		<!--<property name="desc" value="导入的跨分拣箱号中转信息定时激活" />-->
+	<!--</bean>-->
 
-    <bean id="messageTask" class="com.jd.bluedragon.distribution.worker.MessageTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource" />
-        <property name="taskType" value="MessageTask" />
-        <property name="managerFactory" ref="managerFactory" />
-        <property name="ownSign" value="${ownSign}" />
-        <property name="type" value="8000" />
-        <property name="desc" value="补发失败mq" />
-    </bean>
+    <!--<bean id="messageTask" class="com.jd.bluedragon.distribution.worker.MessageTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource" />-->
+        <!--<property name="taskType" value="MessageTask" />-->
+        <!--<property name="managerFactory" ref="managerFactory" />-->
+        <!--<property name="ownSign" value="${ownSign}" />-->
+        <!--<property name="type" value="8000" />-->
+        <!--<property name="desc" value="补发失败mq" />-->
+    <!--</bean>-->
 
-    <bean id="sortingZhipeiTask"
-          class="com.jd.bluedragon.distribution.worker.sorting.SortingZhiPeiTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="SortingZhiPeiTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1250"/>
-        <property name="desc" value="智配中心分拣任务"/>
-    </bean>
+    <!--<bean id="sortingZhipeiTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.sorting.SortingZhiPeiTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="SortingZhiPeiTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1250"/>-->
+        <!--<property name="desc" value="智配中心分拣任务"/>-->
+    <!--</bean>-->
 
-    <!-- 第三方发货数据推送财务 -->
-    <bean id="deliveryToFinanceTask"
-          class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource" />
-        <property name="taskType" value="DeliveryToFinanceTask" />
-        <property name="managerFactory" ref="managerFactory" />
-        <property name="ownSign" value="${ownSign}" />
-        <property name="type" value="1910" />
-        <property name="desc" value="第三方发货数据推送财务" />
-    </bean>
+    <!--&lt;!&ndash; 第三方发货数据推送财务 &ndash;&gt;-->
+    <!--<bean id="deliveryToFinanceTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource" />-->
+        <!--<property name="taskType" value="DeliveryToFinanceTask" />-->
+        <!--<property name="managerFactory" ref="managerFactory" />-->
+        <!--<property name="ownSign" value="${ownSign}" />-->
+        <!--<property name="type" value="1910" />-->
+        <!--<property name="desc" value="第三方发货数据推送财务" />-->
+    <!--</bean>-->
 
-    <bean id="deliveryToFinanceBatchTask"
-          class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceConvertTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource" />
-        <property name="taskType" value="DeliveryToFinanceBatchTask" />
-        <property name="managerFactory" ref="managerFactory" />
-        <property name="ownSign" value="${ownSign}" />
-        <property name="type" value="1900" />
-        <property name="desc" value="第三方发货数据推送财务批处理" />
-    </bean>
+    <!--<bean id="deliveryToFinanceBatchTask"-->
+          <!--class="com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceConvertTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource" />-->
+        <!--<property name="taskType" value="DeliveryToFinanceBatchTask" />-->
+        <!--<property name="managerFactory" ref="managerFactory" />-->
+        <!--<property name="ownSign" value="${ownSign}" />-->
+        <!--<property name="type" value="1900" />-->
+        <!--<property name="desc" value="第三方发货数据推送财务批处理" />-->
+    <!--</bean>-->
 
-    <bean id="sendDetailMQTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDetailMQTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="SendDetailMQTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="6"/>
-        <property name="desc" value="发货明细发送MQ"/>
-    </bean>
-    <bean id="BoardDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.BoardDeliveryTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="boardDeliveryTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="7"/>
-        <property name="desc" value="组板发货"/>
-    </bean>    
+    <!--<bean id="sendDetailMQTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDetailMQTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="taskType" value="SendDetailMQTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="6"/>-->
+        <!--<property name="desc" value="发货明细发送MQ"/>-->
+    <!--</bean>-->
+    <!--<bean id="BoardDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.BoardDeliveryTask"-->
+          <!--init-method="init" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="taskType" value="boardDeliveryTask"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="type" value="1300"/>-->
+        <!--<property name="keyType" value="7"/>-->
+        <!--<property name="desc" value="组板发货"/>-->
+    <!--</bean>    -->
 </beans>
