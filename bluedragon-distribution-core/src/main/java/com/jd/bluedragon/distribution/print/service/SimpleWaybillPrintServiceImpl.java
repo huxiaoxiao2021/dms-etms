@@ -150,6 +150,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
+    /**
+     * 备注合并送，sendpay的第153位为“1”，remark追加【合并送】
+     */
+    private static final String SEND_GATHER_TOGETHER ="【合并送】";
 
 
     @Override
@@ -286,6 +290,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
                 commonWaybill.setRemark(str + scheduleCode);
+            }
+            //合并送订单追加到备注
+            if(tmsWaybill.getSendPay() != null && tmsWaybill.getSendPay().charAt(152) == '1'){
+                commonWaybill.setRemark(commonWaybill.getRemark() + SEND_GATHER_TOGETHER);
             }
         	//路区-为空尝试从运单里获取
         	if(StringHelper.isEmpty(roadCode)){
