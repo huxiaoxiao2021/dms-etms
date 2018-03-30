@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.rest.inspection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,18 +11,29 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.InspectionECRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionFCRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
 import com.jd.bluedragon.distribution.api.response.HandoverDetailResponse;
 import com.jd.bluedragon.distribution.api.response.HandoverResponse;
 import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
@@ -74,6 +83,21 @@ public class InspectionResource {
 
 	@Autowired
 	ReceiveService receiveService;
+
+	@Autowired
+	private DmsStorageAreaService dmsStorageAreaService;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private DmsOperateHintService dmsOperateHintService;
+
+	@Autowired
+	private RedisManager redisManager;
+
+	@Autowired
+	private InspectionService inspectionService;
 
 	private final static Logger logger = Logger
 			.getLogger(InspectionResource.class);
@@ -316,7 +340,7 @@ public class InspectionResource {
 	 * 
 	 * @param code
 	 *            运单号或者包裹号
-	 * @param siteCode创建站点
+	 * @param
 	 * @return
 	 */
 	@GET
@@ -504,4 +528,39 @@ public class InspectionResource {
 					ex);
 		}
 	}
+
+	@GET
+	@Path("/inspection/hintInfo/{packageOrWaybillCode}/{siteCode}")
+	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
+			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
+			@PathParam("siteCode") Integer siteCode){
+		com.jd.ql.dms.common.domain.JdResponse jdResponse = new com.jd.ql.dms.common.domain.JdResponse();
+		DmsStorageArea dmsStorageArea = new DmsStorageArea();
+		//判断是运单号还是包裹号
+		Integer dmsSiteCode = siteCode;
+		String waybillCode = packageBarOrWaybillCode;
+        if(BusinessHelper.isPackageCode(packageBarOrWaybillCode)){
+            waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(packageBarOrWaybillCode);
+        }
+		InspectionResult inspectionResult = new InspectionResult("");
+        try{
+			inspectionResult = inspectionService.getInspectionResult(dmsSiteCode, waybillCode);
+		}catch (Exception e){
+			logger.error("获取库位号失败，异常原因：" + e.getMessage());
+		}
+
+		String hintMessage = "";
+		try{
+			hintMessage = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode);
+			inspectionResult.setHintMessage(hintMessage);
+			logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
+		}catch (Exception e){
+			logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
+		}
+		inspectionResult.setHintMessage(hintMessage);
+        jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
+		jdResponse.setData(inspectionResult);
+		return jdResponse;
+	}
+
 }

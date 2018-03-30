@@ -386,6 +386,8 @@
     <!--空铁基础字典表 -->
     <bean id="dmsBaseDictDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.base.dao.impl.DmsBaseDictDaoImpl"/>
+    <bean id="dmsStorageAreaDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.base.dao.impl.DmsStorageAreaDaoImpl"/> 	
     <!-- 空铁业务表Dao配置 -->
     <bean id="arBookingSpaceDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArBookingSpaceDaoImpl"/>
