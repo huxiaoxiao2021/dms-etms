@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -507,8 +508,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiOrderCode(waybill.getBusiOrderCode());
         }
 
-
-
         //面单打印新增寄件人、电话、手机号、地址信息
         target.setConsigner(waybill.getConsigner());
         target.setConsignerTel(waybill.getConsignerTel());
@@ -521,12 +520,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	priceProtectText = Constants.TEXT_PRICE_PROTECT;
         }
         target.setPriceProtectText(priceProtectText);
-
-        //b2b快运 运输产品类型打标
-        if(waybill.getWaybillSign().length() > 39){
-            String expressType = ExpressTypeEnum.getNameByCode(waybill.getWaybillSign().charAt(39));
-            target.setjZDFlag(expressType);
-        }
         //收件公司名称
         target.setConsigneeCompany(waybill.getReceiveCompany());
         //寄件公司名称
@@ -539,6 +532,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //打印时间,取后台服务器时间
         String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         target.setPrintTime(printTime);
+        //设置运费及货款信息
+        String freightText = "";
+        String goodsPaymentText = "";
+        if(BusinessHelper.isB2b(waybill.getWaybillSign())){
+        	//读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
+        	if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 25, '2')){
+        		freightText = TextConstants.FREIGHT_PAY_CASH;
+        	}
+        	//货款字段金额等于0时，则货款位置显示为【在线支付】
+        	//货款字段金额大于0时，则货款位置显示为【货到付款】
+        	if(NumberHelper.gt0(waybill.getRecMoney())){
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
+        	}else{
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
+        	}
+        	target.setTemplateName("dms-nopaper-b2b-m");
+        }
+        target.setFreightText(freightText);
+        target.setGoodsPaymentText(goodsPaymentText);
         return target;
     }
 

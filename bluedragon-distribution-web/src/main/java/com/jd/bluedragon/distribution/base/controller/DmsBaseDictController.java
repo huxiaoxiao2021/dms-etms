@@ -98,6 +98,19 @@ public class DmsBaseDictController {
     	rest.setData(dmsBaseDictService.queryByPagerCondition(dmsBaseDictCondition));
     	return rest.getData();
     }
+
+    /**
+     * 根据typeCode获取页面选择框、业务枚举值
+     * @return
+     */
+    @RequestMapping(value = "/selectAndEnum/{typeCode}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getSelect(@PathVariable("typeCode") Integer typeCode) {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        Long id = dmsBaseDictService.queryByTypeCodeAndParentId(typeCode, DmsBaseDictService.DIC_ROOT_ENUM_SELECT_TYPE_GROUPS).getId();
+        rest.setData(dmsBaseDictService.queryListByParentId(id.intValue()));
+        return rest;
+    }
+
     /**
      * 根据条件分页查询数据信息
      * @return

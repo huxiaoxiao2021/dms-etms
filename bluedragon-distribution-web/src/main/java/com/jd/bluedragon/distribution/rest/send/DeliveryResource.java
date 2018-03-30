@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.send;
 
+import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
@@ -581,6 +582,41 @@ public class DeliveryResource {
         return result;
     }
 
+    @GET
+    @Path("/delivery/updateWaybillStatus/{sendCode}/{createSiteCode}/{receiveSiteCode}/{senddStatus}")
+    public JdResponse updateWaybillStatus(@PathParam("sendCode") String sendCode,
+                                      @PathParam("createSiteCode") Integer createSiteCode,
+                                      @PathParam("receiveSiteCode") Integer receiveSiteCode,
+                                      @PathParam("senddStatus")  Integer senddStatus) {
+        JdResponse result = new JdResponse();
+        List<SendDetail> sendDetails ;
+        try {
+            sendDetails = deliveryService.queryBySendCodeAndSiteCode(sendCode, createSiteCode, receiveSiteCode, senddStatus);
+            if (sendDetails != null && !sendDetails.isEmpty()) {
+                if(deliveryService.updateWaybillStatus(sendDetails)){
+                    result.setCode(result.CODE_OK);
+                    result.setMessage(result.MESSAGE_OK);
+                }else {
+                    result.setCode(result.CODE_INTERNAL_ERROR);
+                    result.setMessage("更新运单状态失败！");
+                }
+
+            } else{
+                result.setCode(result.CODE_OK_NULL);
+                result.setMessage("未查到符合条件的sendd数据");
+                logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无符合条件的数据" +
+                                "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
+                        sendCode, createSiteCode, receiveSiteCode, senddStatus));
+            }
+        } catch (Exception e) {
+            result.setCode(result.CODE_SERVICE_ERROR);
+            result.setMessage("根据批次号补运单状态全程跟踪异常！");
+            this.logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无sendd补运单信息异常" +
+                            "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
+                    sendCode, createSiteCode, receiveSiteCode, senddStatus), e);
+        }
+        return result;
+    }
     @POST
     @Path("/delivery/sendBatch")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.sendBatch", mState = {JProEnum.TP})

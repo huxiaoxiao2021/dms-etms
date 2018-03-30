@@ -112,6 +112,15 @@
         </foreach>
     </update>
 
+	<update id="updateLoadBillByOrderIds" parameterType="java.util.Map">
+		UPDATE load_bill
+		SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode}, approval_time = NOW()
+		WHERE yn = 1 AND order_id IN
+		<foreach collection="data" item="item" index="index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+
     <select id="selectLoadBillById" parameterType="java.util.List" resultMap="loadBill">
         SELECT id,load_id, warehouse_id,waybill_code,order_id,truck_no,ctno,gjno,approval_code,
         tpl,weight,gen_time,package_time,package_user,package_user_code

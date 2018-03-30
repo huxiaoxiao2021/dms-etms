@@ -125,7 +125,7 @@ public class QualityControlService {
         for(SendDetail sendDetail : sendDetails){
             BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
             QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
-            logger.info("分拣中心异常页面发质控和全程跟踪开始。运单号" + JsonHelper.toJson(qualityControl));
+            logger.info("分拣中心异常页面发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
             waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
             //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
@@ -177,6 +177,7 @@ public class QualityControlService {
         qualityControl.setBlameDeptName(request.getDistCenterName());
         qualityControl.setCreateTime(request.getOperateTime());
         qualityControl.setCreateUserId(request.getUserID());
+        qualityControl.setCreateUserErp(request.getUserERP());
         qualityControl.setCreateUserName(request.getUserName());
         qualityControl.setMessageType(baseDataDict.getTypeGroup());
         if(null != boxCode){

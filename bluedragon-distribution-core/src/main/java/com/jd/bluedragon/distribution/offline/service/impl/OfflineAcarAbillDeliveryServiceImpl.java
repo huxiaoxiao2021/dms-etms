@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -84,8 +85,12 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         Integer receiveSiteCode = null;
         Boolean result = Boolean.TRUE;
         String boxCode = request.getBoxCode();
+        String sendCode = request.getBatchCode();
         if (checkBaseSite(request.getReceiveSiteCode())) {
             receiveSiteCode = request.getReceiveSiteCode();
+        }
+        if(receiveSiteCode == null && StringUtils.isNotBlank(sendCode)){
+            receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         }
         if (receiveSiteCode == null) {
             // 设置目的站点

@@ -262,14 +262,15 @@ public class LoadBillServiceImpl implements LoadBillService {
                     throw new GlobalTradeException("需要装载的订单数量超过数量限制（" + GLOBAL_TRADE_PRELOAD_COUNT_LIMIT + ")");
                 }
 
-                List<Long> preLoadIds = new ArrayList<Long>();
+                Set<String> orderIdSet = new HashSet<String>();
+
                 for (LoadBill loadBill : loadBIlls) {
                     if (loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING
                             && loadBill.getApprovalCode() != LoadBill.FAILED) {
                         throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
-
                     }
-                    preLoadIds.add(loadBill.getId());
+                    // 通过订单号去除重复
+                    orderIdSet.add(loadBill.getOrderId());
                 }
 
                 String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
@@ -284,8 +285,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                     if (SUCCESS == response1.getStatus().intValue()) {
                         logger.error("调用卓志接口预装载成功");
                         try {
-                            updateLoadbillStatusById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
-
+                            this.updateLoadBillStatusByOrderIds(new ArrayList(orderIdSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
                         } catch (Exception ex) {
                             logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
                             throw new GlobalTradeException("预装载操作失败，系统异常");
@@ -573,6 +573,17 @@ public class LoadBillServiceImpl implements LoadBillService {
         return effectCount;
     }
 
+    public Integer updateLoadBillStatusByOrderIds(List<String> orderIds, String trunkNo, String preLoadId, Integer status) {
+        Integer effectCount = 0;
+        Map<Integer, List<String>> splitLoadBill = splitLoadBillByWaybillCode(orderIds);
+        for (Iterator<Integer> iterator = splitLoadBill.keySet().iterator(); iterator.hasNext(); ) {
+            Integer key = iterator.next();
+            List<String> orderIdList = splitLoadBill.get(key);
+            effectCount += loadBillDao.updatePreLoadBillByOrderIds(orderIdList, trunkNo, preLoadId, status);
+        }
+        return effectCount;
+    }
+
     /**
      * 把指定的ID列表分割成 SQL_IN_EXPRESS_LIMIT 大小，避免SQL IN语句数量限制
      *
@@ -594,6 +605,38 @@ public class LoadBillServiceImpl implements LoadBillService {
                 }
             } catch (IndexOutOfBoundsException ex) {
                 subList = id.subList(index, id.size());
+                if (!subList.isEmpty()) {
+                    splitedLoadBillid.put(arrayIndex, subList);
+                }
+                break;
+            }
+            index = index + limit;
+            arrayIndex++;
+        }
+        return splitedLoadBillid;
+    }
+
+    /**
+     * 把指定的ID列表分割成 SQL_IN_EXPRESS_LIMIT 大小，避免SQL IN语句数量限制
+     *
+     * @param waybillCodes
+     * @return
+     * @see #SQL_IN_EXPRESS_LIMIT
+     */
+    public Map<Integer, List<String>> splitLoadBillByWaybillCode(List<String> waybillCodes) {
+        Integer limit = SQL_IN_EXPRESS_LIMIT;
+        Integer index = 0;
+        Integer arrayIndex = 0;
+        List<String> subList;
+        Map<Integer, List<String>> splitedLoadBillid = new HashMap<Integer, List<String>>();
+        for (; ; ) {
+            try {
+                subList = waybillCodes.subList(index, index + limit);
+                if (!subList.isEmpty()) {
+                    splitedLoadBillid.put(arrayIndex, subList);
+                }
+            } catch (IndexOutOfBoundsException ex) {
+                subList = waybillCodes.subList(index, waybillCodes.size());
                 if (!subList.isEmpty()) {
                     splitedLoadBillid.put(arrayIndex, subList);
                 }

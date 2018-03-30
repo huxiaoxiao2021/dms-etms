@@ -45,6 +45,24 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
         return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findWaybillByBoxCode", paramMap);
     }
 
+    /**
+     * @param boxCode
+     * @param createSiteCode
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> getWaybillCodesByBoxCodeAndFetchNum(String boxCode, Integer createSiteCode, Integer fetchNum) {
+        if (boxCode == null || boxCode.isEmpty())
+            return null;
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("boxCode", boxCode);
+        paramMap.put("fetchNum",fetchNum);
+        if (null != createSiteCode && createSiteCode > 0)
+            paramMap.put("createSiteCode", createSiteCode);
+        return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".getWaybillCodesByBoxCodeAndFetchNum", paramMap);
+    }
+
+
     @SuppressWarnings("unchecked")
     public List<SendBoxDetailResponse> findSendBoxByWaybillCode(String waybillCode) {
         if (waybillCode == null || waybillCode.isEmpty()) {
@@ -102,6 +120,16 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
         }
         params.put("dmsList", dmsCodes);
         return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".querySendDetail_3PL", params);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<SendDetail> queryBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode, Integer senddStatus){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sendCode", sendCode);
+        params.put("createSiteCode", createSiteCode);
+        params.put("receiveSiteCode", receiveSiteCode);
+        params.put("senddStatus", senddStatus);
+        return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".queryBySendCodeAndSiteCode", params);
     }
 
 }
