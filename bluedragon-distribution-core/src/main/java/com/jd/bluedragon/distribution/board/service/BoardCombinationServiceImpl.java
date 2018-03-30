@@ -81,7 +81,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     private static final String REDIS_PREFIX_BOARD_BINDINGS_COUNT = "board.combination.bindings.count";
 
-    private static final Integer STATUS_BOARD_CLOSED = 1;
+    private static final Integer STATUS_BOARD_CLOSED = 2;
 
     @Value("${board.combination.allowed.test.sites}")
     private String allowedTestSites;
@@ -232,6 +232,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         //缓存+1
         redisCommonUtil.cacheData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
 
+        //记录操作日志
+        addSystemLog(boardResponse);
+        addOperationLog(request);
+
         //发送全称跟踪
         //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
         if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
@@ -357,9 +361,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * 增加分拣中心操作日志
      *
      * @param request
-     * @param logType
      */
-    public void addOperationLog(BoardCombinationRequest request, Integer logType) {
+    public void addOperationLog(BoardCombinationRequest request) {
         OperationLog operationLog = new OperationLog();
         if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
             operationLog.setBoxCode(request.getBoxOrPackageCode());
@@ -374,7 +377,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setCreateUserCode(request.getUserCode());
         operationLog.setCreateTime(new Date());
         operationLog.setOperateTime(new Date());
-        operationLog.setLogType(logType);
+        operationLog.setLogType(OperationLog.BOARD_COMBINATITON);
 
         this.operationLogService.add(operationLog);
     }
