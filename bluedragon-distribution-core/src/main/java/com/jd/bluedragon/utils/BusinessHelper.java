@@ -29,6 +29,7 @@ public class BusinessHelper {
 	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
 	private static final String BUSI_ORDER_CODE_QWD = "QWD";
 	private static final String SOURCE_CODE_CLPS = "CLPS";
+	private static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 	static{
 		init();
 	}
@@ -325,10 +326,29 @@ public class BusinessHelper {
 		return Boolean.FALSE;
 	}
 
+
 	/**
 	 * 判断是否是CLPS订单
 	 * CLPS : 云仓
-	 * @param busiOrderCode  运单中的sourceCode字段,判断它是不是CLPS开头单号
+	 * @param busiOrderCode  运单中的BusiOrderCode字段,判断它是不是CSL开头单号
+	 * @return
+	 */
+	public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
+		if (StringHelper.isEmpty(busiOrderCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (busiOrderCode.startsWith(BUSI_ORDER_CODE_PRE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的sourceCode字段 是CLPS
 	 * @return
 	 */
 	public static Boolean isCLPSBySoucreCode(String soucreCode) {

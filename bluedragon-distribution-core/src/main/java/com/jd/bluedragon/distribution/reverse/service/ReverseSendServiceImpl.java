@@ -1454,7 +1454,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			return Boolean.TRUE;
 		}
 
-        if (BusinessHelper.isCLPSBySoucreCode(send.getSourceCode())) {
+        if (BusinessHelper.isCLPSByBusiOrderCode(send.getSourceCode())) {
             // CLPS订单 不推送wms ， 发mq
             logger.info("运单号： " + wayBillCode + " 的 sourceCode 【" + send.getSourceCode() + "】 =CLPS ,不掉用库房webservice");
             ReverseSendMQToCLPS sendmodel = new ReverseSendMQToCLPS();
