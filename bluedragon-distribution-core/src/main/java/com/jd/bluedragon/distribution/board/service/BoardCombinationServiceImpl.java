@@ -225,9 +225,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //组板成功
-        if (logger.isInfoEnabled()) {
-            logger.info("组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
-        }
+        logger.info("组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
 
         //缓存+1
         redisCommonUtil.cacheData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
