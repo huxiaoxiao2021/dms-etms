@@ -144,7 +144,7 @@
 		send_type,
 		create_user, create_user_code, create_time,operate_time,
 		update_user_code, updater_user,sendm_status,
-		update_time, yn,shields_car_id,excute_count,excute_time,transport_type
+		update_time, yn,shields_car_id,excute_count,excute_time,transport_type,board_code
 		)
 		VALUES
 			(
@@ -153,7 +153,7 @@
 			#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{carCode,jdbcType=INTEGER},#{sendType,jdbcType=INTEGER},
 			#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},NOW(),#{operateTime,jdbcType=TIMESTAMP},
 			#{updateUserCode,jdbcType=INTEGER},#{updaterUser,jdbcType=VARCHAR},1,#{updateTime,jdbcType=TIMESTAMP},#{yn,jdbcType=TINYINT},#{shieldsCarId,jdbcType=INTEGER}
-			,0,NOW(),#{transporttype,jdbcType=INTEGER})
+			,0,NOW(),#{transporttype,jdbcType=INTEGER},#{boardCode,jdbcType=VARCHAR})
 	</insert>
 	
 	<!--<insert id="addBatch" parameterType="list" >-->
