@@ -406,6 +406,11 @@ public class BaseResource {
 			response.setStaffName(result.getStaffName());
 			response.setOrgId(result.getOrganizationId());
 			response.setOrgName(result.getOrganizationName());
+			// 站点类型
+			response.setSiteType(result.getSiteType());
+			//站点子类型
+			response.setSubType(result.getSubType());
+
 			// dmscode
 			response.setDmsCode(result.getDmsCod());
 			// 返回结果

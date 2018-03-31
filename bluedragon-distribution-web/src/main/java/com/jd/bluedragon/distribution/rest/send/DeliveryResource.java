@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.send;
 
+import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
@@ -103,7 +105,10 @@ public class DeliveryResource {
     
     @Autowired
     private SendDatailDao sendDatailDao;
-    
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -177,6 +182,7 @@ public class DeliveryResource {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("请输入正确的批次号！");
         }else{
+            if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
                 if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车
@@ -194,6 +200,37 @@ public class DeliveryResource {
             }
         }
         return result;
+    }
+
+    /**
+     * 一车一单操作增加提示，如果操作逆向则阻断
+     * @param result 返回结果
+     * @param receiveSiteCode 目的站点号
+     * @return
+     */
+    private boolean forbid(InvokeResult<Map.Entry<Integer, String>> result, Integer receiveSiteCode) {
+        BaseStaffSiteOrgDto bDto = null;
+        try {
+            bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        } catch (Exception e) {
+            this.logger.error("一车一单发货通过站点ID获取基础资料失败:"+receiveSiteCode,e);
+            return false;
+        }
+        Integer siteType=0;
+        if (null != bDto) {
+            siteType = bDto.getSiteType();
+            String asm_type = PropertiesHelper.newInstance().getValue("asm_type");//售后
+            String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
+            String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
+            if(siteType==Integer.parseInt(asm_type)||siteType==Integer.parseInt(wms_type)||siteType==Integer.parseInt(spwms_type)){
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setMessage("禁止逆向操作！");
+                return true;
+            }
+        }else{
+            this.logger.warn("一车一单发获取站点信息为空：" + receiveSiteCode);
+        }
+        return false;
     }
 
     @POST
@@ -587,6 +624,41 @@ public class DeliveryResource {
         return result;
     }
 
+    @GET
+    @Path("/delivery/updateWaybillStatus/{sendCode}/{createSiteCode}/{receiveSiteCode}/{senddStatus}")
+    public JdResponse updateWaybillStatus(@PathParam("sendCode") String sendCode,
+                                      @PathParam("createSiteCode") Integer createSiteCode,
+                                      @PathParam("receiveSiteCode") Integer receiveSiteCode,
+                                      @PathParam("senddStatus")  Integer senddStatus) {
+        JdResponse result = new JdResponse();
+        List<SendDetail> sendDetails ;
+        try {
+            sendDetails = deliveryService.queryBySendCodeAndSiteCode(sendCode, createSiteCode, receiveSiteCode, senddStatus);
+            if (sendDetails != null && !sendDetails.isEmpty()) {
+                if(deliveryService.updateWaybillStatus(sendDetails)){
+                    result.setCode(result.CODE_OK);
+                    result.setMessage(result.MESSAGE_OK);
+                }else {
+                    result.setCode(result.CODE_INTERNAL_ERROR);
+                    result.setMessage("更新运单状态失败！");
+                }
+
+            } else{
+                result.setCode(result.CODE_OK_NULL);
+                result.setMessage("未查到符合条件的sendd数据");
+                logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无符合条件的数据" +
+                                "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
+                        sendCode, createSiteCode, receiveSiteCode, senddStatus));
+            }
+        } catch (Exception e) {
+            result.setCode(result.CODE_SERVICE_ERROR);
+            result.setMessage("根据批次号补运单状态全程跟踪异常！");
+            this.logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无sendd补运单信息异常" +
+                            "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
+                    sendCode, createSiteCode, receiveSiteCode, senddStatus), e);
+        }
+        return result;
+    }
     @POST
     @Path("/delivery/sendBatch")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.sendBatch", mState = {JProEnum.TP})

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.base.dao.DmsStorageAreaDao">
+
+	<resultMap id="DmsStorageArea" type="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="storage_type" property="storageType" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="storage_code" property="storageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="dms_site_code" property="dmsSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="des_province_code" property="desProvinceCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="des_province_name" property="desProvinceName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="des_city_code" property="desCityCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="des_city_name" property="desCityName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user_code" property="updateUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,storage_type,storage_code,dms_site_code,dms_site_name,des_province_code,
+		des_province_name,des_city_code,des_city_name,create_user_code,create_user,
+		create_user_name,create_time,update_user_code,update_user,update_user_name,
+		update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea">
+		insert into dms_storage_area
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="storageType != null">
+					storage_type,
+				</if>
+				<if test="storageCode != null">
+					storage_code,
+				</if>
+				<if test="dmsSiteCode != null">
+					dms_site_code,
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name,
+				</if>
+				<if test="desProvinceCode != null">
+					des_province_code,
+				</if>
+				<if test="desProvinceName != null">
+					des_province_name,
+				</if>
+				<if test="desCityCode != null">
+					des_city_code,
+				</if>
+				<if test="desCityName != null">
+					des_city_name,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="createUserName != null">
+					create_user_name,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="updateUser != null">
+					update_user,
+				</if>
+				<if test="updateUserName != null">
+					update_user_name,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="storageType != null">
+					#{storageType,jdbcType=SMALLINT},
+				</if>
+				<if test="storageCode != null">
+					#{storageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dmsSiteCode != null">
+					#{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null">
+					#{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="desProvinceCode != null">
+					#{desProvinceCode,jdbcType=INTEGER},
+				</if>
+				<if test="desProvinceName != null">
+					#{desProvinceName,jdbcType=VARCHAR},
+				</if>
+				<if test="desCityCode != null">
+					#{desCityCode,jdbcType=INTEGER},
+				</if>
+				<if test="desCityName != null">
+					#{desCityName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null">
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into dms_storage_area
+			(
+				storage_type,storage_code,dms_site_code,dms_site_name,
+				des_province_code,des_province_name,des_city_code,des_city_name,create_user,
+				create_user_name,create_time,update_time,update_user,update_user_name
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.storageType,jdbcType=SMALLINT},
+					#{item.storageCode,jdbcType=VARCHAR},
+					#{item.dmsSiteCode,jdbcType=INTEGER},
+					#{item.dmsSiteName,jdbcType=VARCHAR},
+					#{item.desProvinceCode,jdbcType=INTEGER},
+					#{item.desProvinceName,jdbcType=VARCHAR},
+					#{item.desCityCode,jdbcType=INTEGER},
+					#{item.desCityName,jdbcType=VARCHAR},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.createUserName,jdbcType=VARCHAR},
+					now(),
+					now(),
+					#{item.updateUser,jdbcType=VARCHAR},
+					#{item.updateUserName,jdbcType=VARCHAR}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea">
+		update dms_storage_area
+			<set>
+				<if test="storageType != null">
+					storage_type = #{storageType,jdbcType=SMALLINT},
+				</if>
+				<if test="storageCode != null">
+					storage_code = #{storageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dmsSiteCode != null">
+					dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name = #{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="desProvinceCode != null">
+					des_province_code = #{desProvinceCode,jdbcType=INTEGER},
+				</if>
+				<if test="desProvinceName != null">
+					des_province_name = #{desProvinceName,jdbcType=VARCHAR},
+				</if>
+					des_city_code = #{desCityCode,jdbcType=INTEGER},
+				<if test="desCityName != null">
+					des_city_name = #{desCityName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null">
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update dms_storage_area
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update dms_storage_area
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="DmsStorageArea">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_storage_area 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_storage_area 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<select id="findByDesProvinceAndCityCode" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		dms_storage_area
+		where is_delete=0
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
+		limit 1
+	</select>
+
+	<select id="findByDesProvinceCode" parameterType="com.jd.bluedragon.distribution.base.domain.DmsStorageArea" resultMap="DmsStorageArea">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		dms_storage_area
+		where is_delete=0
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+			AND des_city_code is null
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  dms_storage_area 
+		where 1=1
+		<if test="storageCode != null">
+			AND storage_code = #{storageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="dmsSiteCode != null">
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="desProvinceCode != null">
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+		</if>
+		<if test="desCityCode != null">
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
+		</if>
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsStorageArea">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_storage_area 
+		where 1=1
+		<if test="storageCode != null">
+			AND storage_code = #{storageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="dmsSiteCode != null">
+			AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="desProvinceCode != null">
+			AND des_province_code = #{desProvinceCode,jdbcType=INTEGER}
+		</if>
+		<if test="desCityCode != null">
+			AND des_city_code = #{desCityCode,jdbcType=INTEGER}
+		</if>
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>

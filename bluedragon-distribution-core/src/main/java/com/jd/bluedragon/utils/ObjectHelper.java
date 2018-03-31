@@ -117,7 +117,7 @@ public class ObjectHelper {
      * @return
      */
     public static <T> int compare(T o1,T o2) {
-    	if(o1 != null && o1 != null){
+    	if(o1 != null && o2 != null){
     		if(o1 instanceof Comparable){
     			return ((Comparable)o1).compareTo(((Comparable)o2));
     		}else{

@@ -169,7 +169,9 @@ public interface DeliveryService {
      * 回传运单状态数据后补状态
      */
 	public List<SendDetail> findWaybillStatus(List<String> queryCondition);
-	
+
+	abstract List<SendDetail> queryBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode, Integer senddStatus);
+
 	/**
 	 * 根据条件获取sendM
 	 * @param sendM

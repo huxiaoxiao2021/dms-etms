@@ -2896,6 +2896,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    public List<SendDetail> queryBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode, Integer senddStatus) {
+        return sendDatailReadDao.queryBySendCodeAndSiteCode(sendCode, createSiteCode, receiveSiteCode, senddStatus);
+    }
+
+    @Override
     public List<SendM> queryCountByBox(SendM sendM) {
         return sendMDao.selectBySendSiteCode(sendM);
     }

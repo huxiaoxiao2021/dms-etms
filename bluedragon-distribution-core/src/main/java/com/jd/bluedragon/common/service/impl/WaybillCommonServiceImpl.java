@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.utils.BigDecimalHelper;
@@ -551,6 +552,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         target.setFreightText(freightText);
         target.setGoodsPaymentText(goodsPaymentText);
+        //waybill_sign标识位，第四十六位为2或3，打安字标
+        if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
+        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
+        }
         return target;
     }
 

@@ -1,10 +1,15 @@
 package com.jd.bluedragon.distribution.api.response;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class ReverseReceiveResponse {
+public class ReverseReceiveResponse  implements Serializable{
     
-    public static final Integer RECEIVE_TYPE_SPWMS = 3;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4049452819620497176L;
+	public static final Integer RECEIVE_TYPE_SPWMS = 3;
     public static final Integer RECEIVE = 1;
     public static final Integer REJECT = 0;
     
