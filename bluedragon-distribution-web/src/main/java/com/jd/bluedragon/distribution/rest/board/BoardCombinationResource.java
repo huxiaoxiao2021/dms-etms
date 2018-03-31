@@ -47,6 +47,7 @@ public class BoardCombinationResource {
         result.setData(new BoardResponse());
         BoardResponse boardResponse = result.getData();
 
+        logger.info("组板操作扫描的板号为:" + boardCode);
 
         //参数为空校验
         if(StringHelper.isEmpty(boardCode)){

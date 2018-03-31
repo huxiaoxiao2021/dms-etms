@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.send.domain;
 
 import java.util.Date;
 
-import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 
 

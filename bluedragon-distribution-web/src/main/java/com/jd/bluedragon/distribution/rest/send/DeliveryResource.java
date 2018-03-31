@@ -158,6 +158,7 @@ public class DeliveryResource {
         try {
             if(SerialRuleUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
+                logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
                 result.setData(deliveryService.boardSend(domain));
             }else{//一车一单发货
                 domain.setBoxCode(request.getBoxCode());

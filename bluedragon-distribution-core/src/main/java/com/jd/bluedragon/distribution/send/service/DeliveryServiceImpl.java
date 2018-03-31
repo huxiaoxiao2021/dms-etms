@@ -8,7 +8,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -68,7 +67,6 @@ import com.jd.fastjson.JSON;
 import com.jd.jmq.client.producer.MessageProducer;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1818,30 +1816,33 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(
                     task.getCreateSiteCode(), task.getBoxCode());
         }
-        logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
-        SendDetail tSendDatail = new SendDetail();
-//        List<Message> sendDetailMessageList = new ArrayList<Message>();
-        List<SendDetail> sendDatailListTemp = new ArrayList<SendDetail>();
-        List<SendDetail> sendDatailList = new ArrayList<SendDetail>();
+        if(logger.isInfoEnabled()){
+            logger.info("SEND_M明细" + JsonHelper.toJson(tSendM));
+        }
+        SendDetail tSendDetail = new SendDetail();
+        List<SendDetail> sendDetailListTemp = new ArrayList<SendDetail>();
+        List<SendDetail> sendDetailList = new ArrayList<SendDetail>();
         for (SendM newSendM : tSendM) {
-            tSendDatail.setBoxCode(newSendM.getBoxCode());
-            tSendDatail.setCreateSiteCode(newSendM.getCreateSiteCode());
-            tSendDatail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
-            tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
-            sendDatailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+            tSendDetail.setBoxCode(newSendM.getBoxCode());
+            tSendDetail.setCreateSiteCode(newSendM.getCreateSiteCode());
+            tSendDetail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
+            tSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+            sendDetailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
 
-            for (SendDetail dSendDatail : sendDatailListTemp) {
-            	if(dSendDatail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) continue;//只处理未发货的数据, 如果已发货则跳过
-                dSendDatail.setSendCode(newSendM.getSendCode());
-                dSendDatail.setOperateTime(newSendM.getOperateTime());
-                dSendDatail.setCreateUser(newSendM.getCreateUser());
-                dSendDatail.setCreateUserCode(newSendM.getCreateUserCode());
-                dSendDatail.setBoardCode(newSendM.getBoardCode());
-                sendDatailList.add(dSendDatail);
+            for (SendDetail dSendDetail : sendDetailListTemp) {
+            	if(dSendDetail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) continue;//只处理未发货的数据, 如果已发货则跳过
+                dSendDetail.setSendCode(newSendM.getSendCode());
+                dSendDetail.setOperateTime(newSendM.getOperateTime());
+                dSendDetail.setCreateUser(newSendM.getCreateUser());
+                dSendDetail.setCreateUserCode(newSendM.getCreateUserCode());
+                dSendDetail.setBoardCode(newSendM.getBoardCode());
+                sendDetailList.add(dSendDetail);
 
             }
-            logger.info("SEND_D明细" + JsonHelper.toJson(sendDatailList));
-            updateWaybillStatus(sendDatailList);
+            if(logger.isInfoEnabled()){
+                logger.info("SEND_D明细" + JsonHelper.toJson(sendDetailList));
+            }
+            updateWaybillStatus(sendDetailList);
         }
         return true;
     }

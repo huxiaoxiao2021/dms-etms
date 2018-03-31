@@ -24,6 +24,10 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.service.GroupBoardService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +45,7 @@ import java.util.regex.Pattern;
 
 @Service("boardCombinationService")
 public class BoardCombinationServiceImpl implements BoardCombinationService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private static final Log logger = LogFactory.getLog(BoardCombinationServiceImpl.class);
 
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
@@ -82,9 +86,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
-    @Value("${board.combination.allowed.test.sites}")
-    private String allowedTestSites;
-
     @Value("${board.combination.bindings.count.max}")
     private Integer boardBindingsMaxCount;
 
@@ -97,19 +98,29 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @throws Exception
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoardResponse getBoardByBoardCode(String boardCode) throws Exception {
         BoardResponse boardResponse = new BoardResponse();
         boardResponse.setBoardCode(boardCode);
 
         //板号正则校验
         if (!RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
-            this.logger.error("板号正则校验不通过：" + boardCode);
+            logger.error("板号正则校验不通过：" + boardCode);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_NOT_IRREGULAR, BoardResponse.MESSAGE_BOARD_NOT_IRREGULAR);
             return boardResponse;
         }
 
         //调用TC接口获取板的信息
-        Response<Board> tcResponse = groupBoardService.getBoardByCode(boardCode);
+        Response<Board> tcResponse = null;
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.getBoardByCode.TCJSF", false, true);
+        try {
+            tcResponse = groupBoardService.getBoardByCode(boardCode);
+        }catch (Exception e){
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
 
         if (tcResponse.getCode() != 200) {
             this.logger.error("调用TC接口获取板号信息失败,板号：" + boardCode);
@@ -150,6 +161,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @throws Exception
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.sendBoardBindings", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer sendBoardBindings(BoardCombinationRequest request, BoardResponse boardResponse) throws Exception {
         boardResponse.setBoardCode(request.getBoardCode());
         if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
@@ -162,6 +174,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         String boxOrPackageCode = request.getBoxOrPackageCode();
 
         //数量限制校验，每次的数量记录的redis中
+        //// FIXME: 2018/3/31 前缀放到统一的类
         Integer count = redisCommonUtil.getData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
         logger.info("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count);
 
@@ -174,6 +187,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //查询发货记录判断是否已经发货
+        //// FIXME: 2018/3/31 优化点：发货放在缓存--->组件1   校验流程组装--->组件2
         SendM sendM = new SendM();
         sendM.setBoxCode(request.getBoxOrPackageCode());
         sendM.setCreateSiteCode(request.getSiteCode());
@@ -200,7 +214,16 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //调用TC接口将组板数据推送给TC
-        Response<Integer> tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
+        Response<Integer> tcResponse = null;
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard..TCJSF", false, true);
+        try {
+            tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
+        }catch (Exception e){
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
 
         if (tcResponse.getCode() == 500) {
             this.logger.error("板号" + boardCode + "已绑定到其他板号下.");
@@ -226,8 +249,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             return JdResponse.CODE_FAIL;
         }
 
-
-
         //组板成功
         logger.info("组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
 
@@ -240,6 +261,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //发送全称跟踪
         //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
+        //// FIXME: 2018/3/31 将该逻辑挪到处理的时候
         if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
             //先取出box表的始发，然后查sorting表
             List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
@@ -262,6 +284,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * 回传板标的发货状态
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.closeBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Boolean> closeBoard(String boardCode) {
         return groupBoardService.closeBoard(boardCode);
     }
@@ -284,6 +307,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<String>> getBoxesByBoardCode(String boardCode) {
         return groupBoardService.getBoxesByBoardCode(boardCode);
     }
@@ -390,6 +414,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         this.operationLogService.add(operationLog);
     }
 
+    /**
+     * 根据箱号获取箱内的包裹信息
+     * @param boxCode
+     * @return
+     */
     private List<Sorting> getPackagesByBoxCode(String boxCode) {
         Box box = boxService.findBoxByCode(boxCode);
         if (box != null) {
