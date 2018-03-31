@@ -255,26 +255,30 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         //缓存+1
         redisCommonUtil.cacheData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
 
-        //记录操作日志
-        addSystemLog(boardResponse);
-        addOperationLog(request);
+        try {
+            //记录操作日志
+            addSystemLog(boardResponse);
+            addOperationLog(request);
 
-        //发送全称跟踪
-        //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
-        //// FIXME: 2018/3/31 将该逻辑挪到处理的时候
-        if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
-            //先取出box表的始发，然后查sorting表
-            List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
-            for (Sorting sorting : sortings) {
-                request.setBoxOrPackageCode(sorting.getPackageCode());
+            //发送全称跟踪
+            //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
+            //// FIXME: 2018/3/31 将该逻辑挪到处理的时候
+            if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
+                //先取出box表的始发，然后查sorting表
+                List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
+                for (Sorting sorting : sortings) {
+                    request.setBoxOrPackageCode(sorting.getPackageCode());
+                    WaybillStatus waybillStatus = this.getWaybillStatus(request);
+                    taskService.add(toTask(waybillStatus));
+                }
+
+            } else {
                 WaybillStatus waybillStatus = this.getWaybillStatus(request);
+                // 添加到task表
                 taskService.add(toTask(waybillStatus));
             }
-
-        } else {
-            WaybillStatus waybillStatus = this.getWaybillStatus(request);
-            // 添加到task表
-            taskService.add(toTask(waybillStatus));
+        } catch (Exception e){
+            logger.error("发送全称跟踪失败.",e);
         }
 
         return JdResponse.CODE_SUCCESS;
