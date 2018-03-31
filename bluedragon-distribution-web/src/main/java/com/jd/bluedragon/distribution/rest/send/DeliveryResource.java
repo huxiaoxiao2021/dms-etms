@@ -108,7 +108,7 @@ public class DeliveryResource {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-    
+
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -140,7 +140,7 @@ public class DeliveryResource {
         domain.setReceiveSiteCode(request.getReceiveSiteCode());
         domain.setSendCode(request.getSendCode());
         domain.setCreateSiteCode(request.getSiteCode());
-        domain.setBoxCode(request.getBoxCode());
+
         String turnoverBoxCode = request.getTurnoverBoxCode();
         if(StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30){
             domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
@@ -156,7 +156,14 @@ public class DeliveryResource {
         domain.setOperateTime(new Date(System.currentTimeMillis() + 30000));
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+            if(SerialRuleUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+                domain.setBoardCode(request.getBoxCode());
+                logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
+                result.setData(deliveryService.boardSend(domain));
+            }else{//一车一单发货
+                domain.setBoxCode(request.getBoxCode());
+                result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+            }
         } catch (Exception ex) {
             result.error(ex);
             logger.error("一车一单发货", ex);
@@ -751,7 +758,7 @@ public class DeliveryResource {
     /**
      * 手动获取设备对应的批次号
      *
-     * @param
+     * @param config
      * @return
      */
     @POST

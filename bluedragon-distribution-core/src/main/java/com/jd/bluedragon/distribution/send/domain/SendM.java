@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.send.domain;
 
 import java.util.Date;
 
-import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 
 
@@ -84,7 +83,9 @@ public class SendM implements Cloneable,java.io.Serializable,Comparable<SendM>{
     
     /** 航标发货标示*/
     private Integer transporttype;
-    
+
+	/** 组板板号 */
+	private String boardCode;
 
 	public Long getSendMId() {
 		return sendMId;
@@ -278,7 +279,15 @@ public class SendM implements Cloneable,java.io.Serializable,Comparable<SendM>{
 		this.transporttype = transporttype;
 	}
 
-	@Override
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
