@@ -58,11 +58,11 @@ public class BoardCombinationRequest extends JdRequest {
         this.boxOrPackageCode = boxOrPackageCode;
     }
 
-    public boolean isForceCombination() {
+    public boolean getIsForceCombination() {
         return isForceCombination;
     }
 
-    public void setForceCombination(boolean forceCombination) {
-        isForceCombination = forceCombination;
+    public void setIsForceCombination(boolean isForceCombination) {
+        this.isForceCombination = isForceCombination;
     }
 }

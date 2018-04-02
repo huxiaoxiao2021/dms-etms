@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -74,16 +74,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @Autowired
     RedisCommonUtil redisCommonUtil;
 
-    /**
-     * 板号正则表达式
-     */
-    private static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
-
-    /**
-     * 板号绑定的包裹号/箱号个数
-     */
-    private static final String REDIS_PREFIX_BOARD_BINDINGS_COUNT = "board.combination.bindings.count";
-
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
     @Value("${board.combination.bindings.count.max}")
@@ -104,7 +94,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardResponse.setBoardCode(boardCode);
 
         //板号正则校验
-        if (!RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
+        if (!SerialRuleUtil.isBoardCode(boardCode)) {
             logger.error("板号正则校验不通过：" + boardCode);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_NOT_IRREGULAR, BoardResponse.MESSAGE_BOARD_NOT_IRREGULAR);
             return boardResponse;
@@ -175,7 +165,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //数量限制校验，每次的数量记录的redis中
         //// FIXME: 2018/3/31 前缀放到统一的类
-        Integer count = redisCommonUtil.getData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
+        Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
         logger.info("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count);
 
         //超上限提示
@@ -204,7 +194,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //一单多件不齐校验
-        if (!request.isForceCombination()) {
+        if (!request.getIsForceCombination()) {
             DeliveryVerification.VerificationResult verificationResult = cityDeliveryVerification.verification(request.getBoxOrPackageCode(), null, false);
             if (!verificationResult.getCode()) {//按照箱发货，校验派车单是否齐全，判断是否强制发货
                 boardResponse.addStatusInfo(BoardResponse.CODE_PACAGES_NOT_ENOUGH, verificationResult.getMessage());
@@ -253,13 +243,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         logger.info("组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
 
         //缓存+1
-        redisCommonUtil.cacheData(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
+        redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
 
+        //记录操作日志
+        addSystemLog(boardResponse);
+        addOperationLog(request);
+
+        CallerInfo infoTrace = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", false, true);
         try {
-            //记录操作日志
-            addSystemLog(boardResponse);
-            addOperationLog(request);
-
             //发送全称跟踪
             //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
             //// FIXME: 2018/3/31 将该逻辑挪到处理的时候
@@ -278,7 +269,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 taskService.add(toTask(waybillStatus));
             }
         } catch (Exception e){
+            Profiler.functionError(infoTrace);
             logger.error("发送全称跟踪失败.",e);
+        } finally {
+            Profiler.registerInfoEnd(infoTrace);
         }
 
         return JdResponse.CODE_SUCCESS;
@@ -324,7 +318,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     @Override
     public boolean clearBoardCache(String boardCode) {
-        redisCommonUtil.del(REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);//清除组板时加的板号缓存
+        redisCommonUtil.del(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);//清除组板时加的板号缓存
         return true;
     }
 
@@ -377,7 +371,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private WaybillStatus getWaybillStatus(BoardCombinationRequest request) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
-        tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
         tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
 
         tWaybillStatus.setCreateSiteCode(request.getSiteCode());
