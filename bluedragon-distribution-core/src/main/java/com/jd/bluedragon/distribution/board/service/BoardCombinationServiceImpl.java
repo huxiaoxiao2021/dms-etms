@@ -164,7 +164,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         String boxOrPackageCode = request.getBoxOrPackageCode();
 
         //数量限制校验，每次的数量记录的redis中
-        //// FIXME: 2018/3/31 前缀放到统一的类
         Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
         logger.info("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count);
 
@@ -205,7 +204,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //调用TC接口将组板数据推送给TC
         Response<Integer> tcResponse = null;
-        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard..TCJSF", false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
         try {
             tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
         }catch (Exception e){
@@ -371,6 +370,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private WaybillStatus getWaybillStatus(BoardCombinationRequest request) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
+        tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
         tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
 
         tWaybillStatus.setCreateSiteCode(request.getSiteCode());
