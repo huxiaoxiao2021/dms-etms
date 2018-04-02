@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.regex.Pattern;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -28,17 +28,6 @@ public class BoardCombinationResource {
 
     @Autowired
     BoardCombinationService boardCombinationService;
-
-    /**
-     * 箱号正则表达式
-     */
-    private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
-
-    /**
-     * 包裹号正则表达式
-     */
-    private final Pattern RULE_PACKAGE_REGEX = Pattern.compile("^([A-Za-z0-9]{8,})(-(?=[0-9]{1,4}-)|N(?=[0-9]{1,4}S))([1-9]{1}[0-9]{0,3})(-(?=[0-9]{1,4}-)|S(?=[0-9]{1,4}H))([1-9]{1}[0-9]{0,3})([-|H][A-Za-z0-9]*)$");
-
 
     @GET
     @Path("/boardCombination/barCodeValidation")
@@ -132,8 +121,8 @@ public class BoardCombinationResource {
         }
 
         //箱号/包裹号是否合法
-        if (!RULE_BOXCODE_REGEX.matcher(request.getBoxOrPackageCode().trim().toUpperCase()).matches()
-                && !RULE_PACKAGE_REGEX.matcher(request.getBoxOrPackageCode().trim().toUpperCase()).matches()) {
+        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())
+                && !SerialRuleUtil.isMatchAllPackageNo(request.getBoxOrPackageCode())) {
             this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
            return "箱号/包裹号不合法.";
         }
