@@ -23,8 +23,15 @@ public interface DeliveryService {
      * @return
      */
 	SendResult offlinePackageSend(SendM domain );
-    
+
     /**
+     * 组板发货，写组板发货任务
+     * @param domain
+     * @return
+     */
+	SendResult boardSend(SendM domain);
+
+	/**
      * 龙门架自动发货原包发货，去掉原有的分拣发货拦截验证
      * @param domain 发货对象
      * @return Map.Entiry<code,message> 改到SendResult
@@ -286,4 +293,10 @@ public interface DeliveryService {
 	 * @param task
 	 */
 	boolean sendDetailMQ(Task task);
+	/**
+	 * 处理组板发货任务
+	 * @param task 任务实体
+	 * @return
+	 */
+	boolean doBoardDelivery(Task task);
 }
