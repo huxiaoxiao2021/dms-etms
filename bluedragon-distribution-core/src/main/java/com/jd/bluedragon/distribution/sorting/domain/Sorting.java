@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.sorting.domain;
 
-import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Date;
 
 public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sorting> {
     
@@ -376,8 +375,8 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
     public static Sorting toSorting(SortingRequest request) {
         Sorting sorting = new Sorting();
         
-        String aBoxCode = request.getBoxCode();
-        String aPackageCode = request.getPackageCode();
+        String aBoxCode = StringHelper.removeRN(request.getBoxCode());
+        String aPackageCode = StringHelper.removeRN(request.getPackageCode());
         
         sorting.setCreateSiteCode(request.getSiteCode());
         sorting.setCreateSiteName(request.getSiteName());

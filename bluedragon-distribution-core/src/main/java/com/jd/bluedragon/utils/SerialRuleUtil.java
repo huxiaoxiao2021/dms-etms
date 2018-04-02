@@ -129,6 +129,11 @@ public class SerialRuleUtil {
     private static final Pattern RULE_STORE_CODE_REGEX = Pattern.compile("^([A-z]{1,})-(\\d+)-(\\d+)$");
 
     /**
+     * 板号正则表达式
+     */
+    private static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
+
+    /**
      *对龙门架扫描到的运单号进行简单的正则过滤。
      * 目前过滤条件首字符严格限制（(V|W|T|F|[1-9])）。
      * 根据不同类型限制长度的最小值，最大长度按数据库最大长度30进行过滤。
@@ -568,4 +573,17 @@ public class SerialRuleUtil {
         }
         return null;
     }
+
+    /**
+     * 判断是否板号
+     * @param boardCode
+     * @return
+     */
+    public static final boolean isBoardCode(String boardCode){
+        if (StringUtils.isNotBlank(boardCode) && RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -2,14 +2,18 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
+import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -81,6 +85,12 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+	private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+	private DmsStorageAreaService dmsStorageAreaService;
 
 	/**
 	 * 运单包裹关联信息
@@ -535,4 +545,32 @@ public class InspectionServiceImpl implements InspectionService {
         }
         return bigWaybillDto;
     }
+
+	/**
+	 *  通过运单号获得库位号
+	 * @param dmsSiteCode 分拣中心ID
+	 * @param waybillCode 运单号ID
+	 * @return
+	 * */
+	@JProfiler(jKey = "InspectionServiceImpl.getInspectionResult",mState = {JProEnum.TP,JProEnum.FunctionError})
+	public InspectionResult getInspectionResult(Integer dmsSiteCode, String waybillCode) {
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+		if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+			// 获取运单信息
+			Waybill waybill = baseEntity.getData().getWaybill();
+			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
+				return new InspectionResult("");
+			}
+			DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByDmsSiteAndWaybillAdress(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
+			if(newDmsStorageArea != null){
+				String storageCode = newDmsStorageArea.getStorageCode();
+				return new InspectionResult(storageCode);
+			}else {
+				return new InspectionResult("");
+			}
+		}else{
+			this.logger.warn("通过运单号获取运单信息失败：" + waybillCode);
+			return new InspectionResult("");
+		}
+	}
 }

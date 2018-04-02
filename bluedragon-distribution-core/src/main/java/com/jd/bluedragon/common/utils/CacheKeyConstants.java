@@ -9,4 +9,9 @@ public class CacheKeyConstants {
 	 * */
 	public static final String REDIS_KEY_IS_DELIVERY = "sortingService.getSendMSelective.key";
 
+	/**
+	 * 板号绑定的包裹号/箱号个数 key=前缀-板号
+	 */
+	public static final String REDIS_PREFIX_BOARD_BINDINGS_COUNT = "board.combination.bindings.count";
+
 }
