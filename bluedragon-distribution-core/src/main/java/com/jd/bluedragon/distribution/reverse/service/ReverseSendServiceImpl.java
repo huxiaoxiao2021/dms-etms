@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -40,15 +41,6 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.product.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMCS;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
-import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -130,6 +122,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Qualifier("bdDmsReverseSendEclp")
     @Autowired
     private DefaultJMQProducer bdDmsReverseSendEclp;
+
+    @Qualifier("bdDmsReverseSendCLPS")
+    @Autowired
+    private DefaultJMQProducer bdDmsReverseSendCLPS;
 
     @Autowired
     private DistributionReceiveJsfService distributionReceiveJsfService;//备件库配送入
@@ -1457,6 +1453,38 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 			return Boolean.TRUE;
 		}
+
+        if (BusinessHelper.isCLPSByBusiOrderCode(send.getBusiOrderCode())) {
+            // CLPS订单 不推送wms ， 发mq
+            logger.info("运单号： " + wayBillCode + " 的 sourceCode 【" + send.getSourceCode() + "】 =CLPS ,不掉用库房webservice");
+            ReverseSendMQToCLPS sendmodel = new ReverseSendMQToCLPS();
+            sendmodel.setJdOrderCode(send.getBusiOrderCode());
+            sendmodel.setSendCode(send.getSendCode());
+            sendmodel.setSourceCode("CLPS");
+            sendmodel.setWaybillCode(wayBillCode);
+            sendmodel.setRejType(3);
+            sendmodel.setRejRemark("分拣中心逆向分拣CLPS");
+            String jsonStr = JsonHelper.toJson(sendmodel);
+            logger.info("推送CLPS的 MQ消息体 " + jsonStr);
+
+            // 增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(wayBillCode);
+            sLogDetail.setKeyword2(send.getSendCode());
+            sLogDetail.setKeyword3("CLPS");
+            sLogDetail.setType(Long.valueOf(12004));
+            sLogDetail.setContent(jsonStr);
+            try {
+                bdDmsReverseSendCLPS.send(wayBillCode, jsonStr);
+                sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
+            } catch (Exception e) {
+                logger.error("推送CLPS MQ 发生异常.", e);
+                sLogDetail.setKeyword4(Long.valueOf(-1));// 表示发送失败
+            }
+            SystemLogUtil.log(sLogDetail);
+
+            return Boolean.TRUE;
+        }
 
         return Boolean.FALSE;
     }
