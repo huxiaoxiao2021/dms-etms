@@ -23,4 +23,9 @@ public class PackageHalfDetailDaoImpl extends BaseDao<PackageHalfDetail> impleme
     public List<PackageHalfDetail> getPackageHalfDetailByWaybillCode(String waybillCode) {
         return sqlSession.selectList(this.nameSpace+".getPackageHalfDetailByWaybillCode", waybillCode);
     }
+
+    @Override
+    public void deleteOfSaveFail(String waybillCode) {
+        sqlSession.delete(this.nameSpace+".deleteOfSaveFail", waybillCode);
+    }
 }

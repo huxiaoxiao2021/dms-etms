@@ -391,6 +391,7 @@ function addSubmit(){
         });
         param["packageList"] = packageList;
         param["waybillCode"] = addWaybillCodeTemp;
+        param["operateTime"] = $.dateHelper.formatDateTime(new Date());
 		//计算当前运单状态
 		var waybillOpeType;
 		var loopIndex = 1;
@@ -410,6 +411,8 @@ function addSubmit(){
         $.ajaxHelper.doPostAsync(submitUrl,JSON.stringify(param),function(data){
         	if(data.code == 200 && data.data){
                 alert('提交成功');
+                //
+				$("input[name='package-check']").remove();
 			}else{
                 alert(data.message?data.message:"提交失败");
 			}

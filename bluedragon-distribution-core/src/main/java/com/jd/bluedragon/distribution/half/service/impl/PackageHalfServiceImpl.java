@@ -80,17 +80,24 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		//包裹半收时 同步运单状态
 		waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
 
+		boolean isNeedToLDOP = false;
+		WaybillReverseDTO waybillReverseDTO = null;
 		//拒收触发换单
 		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_REJECT)){
 			//整单拒收
-			WaybillReverseDTO waybillReverseDTO  = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,true);
-			ldopManager.waybillReverse(waybillReverseDTO);
+			 waybillReverseDTO  = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,true);
+			isNeedToLDOP = true;
 		}else if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)){
 			//包裹拒收
-			WaybillReverseDTO waybillReverseDTO = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,false);
-			ldopManager.waybillReverse(waybillReverseDTO);
-		}
+			 waybillReverseDTO = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,false);
+			isNeedToLDOP = true;
 
+		}
+		if(isNeedToLDOP && waybillReverseDTO!=null){
+			if(!ldopManager.waybillReverse(waybillReverseDTO)){
+				return false;
+			}
+		}
 
 		return true;
 	}
@@ -122,5 +129,16 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		waybillReverseDTO.setPackageCount(packageCount);
 
 		return waybillReverseDTO;
+	}
+
+	/**
+	 * 保存失败的时候清除操作记录。。
+	 * 保存数据消息量太大。容易占用过多缓存区。不启用事务
+	 * @param waybillCode
+	 */
+	@Override
+	public void deleteOfSaveFail(String waybillCode){
+		packageHalfDao.deleteOfSaveFail(waybillCode);
+		packageHalfDetailDao.deleteOfSaveFail(waybillCode);
 	}
 }

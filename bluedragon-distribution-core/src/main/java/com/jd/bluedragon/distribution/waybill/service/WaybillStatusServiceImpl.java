@@ -597,6 +597,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			//组装更新对象
 			List<WaybillSyncPartParameter> waybillSyncPartParameterList = new ArrayList<WaybillSyncPartParameter>();
 			WaybillSyncPartParameter waybillSyncPartParameter = new WaybillSyncPartParameter();
+			waybillSyncPartParameterList.add(waybillSyncPartParameter);
 			List<PackageSyncPartParameter> packageSyncPartParameterList = new ArrayList<PackageSyncPartParameter>();
 			waybillSyncPartParameter.setPackageSyncPartParameterList(packageSyncPartParameterList);
 			waybillSyncPartParameter.setWaybillOperateType(waybillOpeType);

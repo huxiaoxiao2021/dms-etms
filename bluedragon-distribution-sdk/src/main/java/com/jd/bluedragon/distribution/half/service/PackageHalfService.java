@@ -31,4 +31,6 @@ public interface PackageHalfService extends Service<PackageHalf> {
      */
     boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer packageCount);
 
+
+    void deleteOfSaveFail(String waybillCode);
 }

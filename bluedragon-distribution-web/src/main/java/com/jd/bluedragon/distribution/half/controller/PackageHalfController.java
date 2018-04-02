@@ -95,12 +95,17 @@ public class PackageHalfController {
 			Date operateTime = packageHalfVO.getOperateTime();
 
 			//具体业务处理
-			rest.setData(packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime,packageHalfVO.getRejectPackageCount()));
-
+			boolean saveResult = packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime,packageHalfVO.getRejectPackageCount());
+			rest.setData(saveResult);
+			if(!saveResult){
+				//保存失败
+				packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
+			}
 
 
 		} catch (Exception e) {
 			logger.error("half/packageHalf/save  fail to save！"+e.getMessage(),e);
+			packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;

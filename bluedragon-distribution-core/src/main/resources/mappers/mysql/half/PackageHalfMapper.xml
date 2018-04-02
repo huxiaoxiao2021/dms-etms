@@ -205,7 +205,11 @@
 		where 1=1
 		<include refid="Query_Params_Condition_Sql" />
 		<include refid="Base_Condition_Sql"/>
+		order by create_time desc
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+	<delete id="deleteOfSaveFail" parameterType="String">
+		delete from package_half where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</delete>
 </mapper>

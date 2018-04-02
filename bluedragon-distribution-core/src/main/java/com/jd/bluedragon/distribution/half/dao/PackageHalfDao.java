@@ -13,5 +13,6 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface PackageHalfDao extends Dao<PackageHalf> {
 
+    void deleteOfSaveFail(String waybillCode);
 
 }

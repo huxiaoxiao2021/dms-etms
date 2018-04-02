@@ -253,5 +253,7 @@
 		waybill_code = #{waybillCode,jdbcType=VARCHAR} and is_delete = 0
 	</select>
 
-
+	<delete id="deleteOfSaveFail" parameterType="String">
+		delete from package_half_detail where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</delete>
 </mapper>

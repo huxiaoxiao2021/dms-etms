@@ -1,6 +1,12 @@
 package com.jd.bluedragon.distribution.half.domain;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +24,7 @@ public class PackageHalfVO implements Serializable{
 
     private String halfType; //包裹半收类型  /** 半收类型（1-包裹半收，2-明细半收） */
 
-    private Date operateTime;
+    private String operateTime;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -53,10 +59,17 @@ public class PackageHalfVO implements Serializable{
     }
 
     public Date getOperateTime() {
-        return operateTime;
+        Date date = new Date();
+        SimpleDateFormat sdm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            date = sdm.parse(operateTime);
+        } catch (ParseException e) {
+
+        }
+        return date;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
     }
 

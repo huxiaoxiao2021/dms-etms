@@ -20,5 +20,5 @@ public interface PackageHalfDetailDao extends Dao<PackageHalfDetail> {
 
     List<PackageHalfDetail> getPackageHalfDetailByWaybillCode(String waybillCode);
 
-
+    void deleteOfSaveFail(String waybillCode);
 }

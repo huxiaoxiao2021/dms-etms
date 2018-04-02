@@ -16,5 +16,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
  */
 public class PackageHalfDaoImpl extends BaseDao<PackageHalf> implements PackageHalfDao {
 
-
+    @Override
+    public void deleteOfSaveFail(String waybillCode) {
+        sqlSession.delete(this.nameSpace+".deleteOfSaveFail", waybillCode);
+    }
 }
