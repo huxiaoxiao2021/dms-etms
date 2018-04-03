@@ -106,6 +106,11 @@ public class SerialRuleUtil {
     private static final Pattern RULE_SLIPNO_OWN_REGEX = Pattern.compile("^W?\\d{10}$");
 
     /**
+     * 逆向箱号正则表达式
+     */
+    private static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^([TC]{2}|[TS]{2}|[FC]{2}|[TW]{2})[A-Z0-9]{14,16}[0-9]{8}$");
+
+    /**
      * 箱号正则表达式
      */
     private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
@@ -581,6 +586,18 @@ public class SerialRuleUtil {
      */
     public static final boolean isBoardCode(String boardCode){
         if (StringUtils.isNotBlank(boardCode) && RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否逆向箱号（TC\TS\TW\FC开头）
+     * @param boxCode
+     * @return
+     */
+    public static final boolean isReverseBoxCode(String boxCode){
+        if (StringUtils.isNotBlank(boxCode) && RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
             return true;
         }
         return false;

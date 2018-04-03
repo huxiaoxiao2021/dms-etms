@@ -3219,6 +3219,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (baseEntity != null && baseEntity.getResultCode() > 0) {
                 List<SendInfoDto> datas = baseEntity.getData();
                 if (datas != null && !datas.isEmpty()) {
+                    //根据箱号判断终端箱子的正逆向
+                    Integer businessType = SerialRuleUtil.isReverseBoxCode(boxCode) ? businessTypeTWO : businessTypeONE;
                     for (SendInfoDto dto : datas) {
                         SendDetail dsendDatail = new SendDetail();
                         dsendDatail.setBoxCode(dto.getBoxCode());
@@ -3241,7 +3243,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         dsendDatail.setCreateUser(dto.getOperatorName());
                         dsendDatail.setCreateUserCode(dto.getOperatorId());
                         dsendDatail.setOperateTime(dto.getHandoverDate());
-                        dsendDatail.setSendType(businessTypeTWO);
+                        dsendDatail.setSendType(businessType);
                         if (dto.getPackageBarcode() != null)
                             dsendDatail.setPackageNum(getPackageNum(dto.getPackageBarcode()));
                         else
