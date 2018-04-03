@@ -3,6 +3,11 @@ package com.jd.bluedragon.distribution.waybill.service;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
 import org.apache.commons.logging.Log;
@@ -48,6 +53,12 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
     
     @Autowired
     private SendDatailDao sendDatailDao;
+
+	@Autowired
+	private BoxService boxService;
+
+	@Autowired
+	private SortingService sortingService;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -553,10 +564,28 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			 * 全程跟踪:组板
 			 */
 			if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION).equals(task.getKeyword2())) {
-				toWaybillStatus(tWaybillStatus, bdTraceDto);
-				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-				waybillQueryManager.sendBdTrace(bdTraceDto);
-				task.setYn(0);
+
+				String boxOrPackageCode = tWaybillStatus.getPackageCode();
+				if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
+					//先取出box表的始发，然后查sorting表
+					List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
+					for (Sorting sorting : sortings) {
+						tWaybillStatus.setWaybillCode(sorting.getWaybillCode());
+						tWaybillStatus.setPackageCode(sorting.getPackageCode());
+						toWaybillStatus(tWaybillStatus, bdTraceDto);
+						bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+						waybillQueryManager.sendBdTrace(bdTraceDto);
+						task.setYn(0);
+					}
+
+				} else {
+					tWaybillStatus.setPackageCode(boxOrPackageCode);
+					tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(boxOrPackageCode));
+					toWaybillStatus(tWaybillStatus, bdTraceDto);
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+					waybillQueryManager.sendBdTrace(bdTraceDto);
+					task.setYn(0);
+				}
 			}
 		}
 
@@ -590,6 +619,22 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 根据箱号获取箱内的包裹信息
+	 * @param boxCode
+	 * @return
+	 */
+	private List<Sorting> getPackagesByBoxCode(String boxCode) {
+		Box box = boxService.findBoxByCode(boxCode);
+		if (box != null) {
+			Sorting sorting = new Sorting();
+			sorting.setBoxCode(boxCode);
+			sorting.setCreateSiteCode(box.getCreateSiteCode());
+			return sortingService.findByBoxCode(sorting);
+		}
+		return null;
 	}
 
 }

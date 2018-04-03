@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.service.GroupBoardService;
@@ -63,13 +64,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private TaskService taskService;
 
     @Autowired
-    private BoxService boxService;
-
-    @Autowired
     private OperationLogService operationLogService;
 
-    @Autowired
-    private SortingService sortingService;
 
     @Autowired
     RedisCommonUtil redisCommonUtil;
@@ -206,7 +202,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         Response<Integer> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
         try {
-            tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
+            AddBoardBox addBoardBox = new AddBoardBox();
+            addBoardBox.setBoardCode(request.getBoardCode());
+            addBoardBox.setBoxCode(request.getBoxOrPackageCode());
+            addBoardBox.setOperatorErp(request.getUserCode()+"");
+            addBoardBox.setOperatorName(request.getUserName());
+            addBoardBox.setSiteCode(request.getSiteCode());
+            addBoardBox.setSiteName(request.getSiteName());
+
         }catch (Exception e){
             Profiler.functionError(info);
             throw e;
@@ -251,22 +254,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         CallerInfo infoTrace = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", false, true);
         try {
             //发送全称跟踪
-            //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
-            //// FIXME: 2018/3/31 将该逻辑挪到处理的时候
-            if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
-                //先取出box表的始发，然后查sorting表
-                List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
-                for (Sorting sorting : sortings) {
-                    request.setBoxOrPackageCode(sorting.getPackageCode());
-                    WaybillStatus waybillStatus = this.getWaybillStatus(request);
-                    taskService.add(toTask(waybillStatus));
-                }
+            WaybillStatus waybillStatus = this.getWaybillStatus(request);
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
 
-            } else {
-                WaybillStatus waybillStatus = this.getWaybillStatus(request);
-                // 添加到task表
-                taskService.add(toTask(waybillStatus));
-            }
         } catch (Exception e){
             Profiler.functionError(infoTrace);
             logger.error("发送全称跟踪失败.",e);
@@ -370,7 +361,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private WaybillStatus getWaybillStatus(BoardCombinationRequest request) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
-        tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
         tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
 
         tWaybillStatus.setCreateSiteCode(request.getSiteCode());
@@ -409,21 +399,5 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setLogType(OperationLog.BOARD_COMBINATITON);
 
         this.operationLogService.add(operationLog);
-    }
-
-    /**
-     * 根据箱号获取箱内的包裹信息
-     * @param boxCode
-     * @return
-     */
-    private List<Sorting> getPackagesByBoxCode(String boxCode) {
-        Box box = boxService.findBoxByCode(boxCode);
-        if (box != null) {
-            Sorting sorting = new Sorting();
-            sorting.setBoxCode(boxCode);
-            sorting.setCreateSiteCode(box.getCreateSiteCode());
-            return sortingService.findByBoxCode(sorting);
-        }
-        return null;
     }
 }
