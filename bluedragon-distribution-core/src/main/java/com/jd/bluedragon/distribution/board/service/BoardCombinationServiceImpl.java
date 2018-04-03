@@ -5,15 +5,11 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerification;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -209,7 +205,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             addBoardBox.setOperatorName(request.getUserName());
             addBoardBox.setSiteCode(request.getSiteCode());
             addBoardBox.setSiteName(request.getSiteName());
-            groupBoardService.addBoxToBoard(addBoardBox);
+            tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
         }catch (Exception e){
             Profiler.functionError(info);
             throw e;
