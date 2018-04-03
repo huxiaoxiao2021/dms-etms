@@ -106,9 +106,12 @@ public class SerialRuleUtil {
     private static final Pattern RULE_SLIPNO_OWN_REGEX = Pattern.compile("^W?\\d{10}$");
 
     /**
-     * 逆向箱号正则表达式
+     * 逆向箱号正则表达式:
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
      */
-    private static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^([TC]{2}|[TS]{2}|[FC]{2}|[TW]{2})[A-Z0-9]{14,16}[0-9]{8}$");
+    private static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^(TC|TS|TW){1}[A-Z0-9]{14,16}[0-9]{8}$");
 
     /**
      * 箱号正则表达式
@@ -591,8 +594,13 @@ public class SerialRuleUtil {
         return false;
     }
 
+
+
     /**
-     * 判断是否逆向箱号（TC\TS\TW\FC开头）
+     * 判断是否逆向箱号（TC\TS\TW)
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
      * @param boxCode
      * @return
      */
