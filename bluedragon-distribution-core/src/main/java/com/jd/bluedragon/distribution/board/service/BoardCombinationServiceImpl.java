@@ -209,7 +209,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             addBoardBox.setOperatorName(request.getUserName());
             addBoardBox.setSiteCode(request.getSiteCode());
             addBoardBox.setSiteName(request.getSiteName());
-
+            groupBoardService.addBoxToBoard(addBoardBox);
         }catch (Exception e){
             Profiler.functionError(info);
             throw e;
