@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dcam.config.ConfigManager;
@@ -66,6 +67,8 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private ConfigManager configManager;
 
+	@Autowired
+    private TBTaskQueueService tbTaskQueueService;
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void addBatch(List<Task> tasks) {
@@ -83,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
-        if (isDynamicProducerOn(task)) {
+        if (false && isDynamicProducerOn(task)) {
             dynamicProducer.send(task);
             return 1;
         }
@@ -98,13 +101,17 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
         TaskDao routerDao = taskDao;
-
+        //获取当前任务类型队列数量
+		//随机生成队列数
+		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
+		int queueSize = task.getTaskQueueSize(allQueueSize);
+		task.setQueueId(new Random().nextInt(queueSize));
         if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
             logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
             return 0;
         }
 
-        if (ifCheckTaskMode && isRedisSwitchON()) {
+        if (false && ifCheckTaskMode && isRedisSwitchON()) {
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */
             if (taskModeAgent.isRedisTaskModeSupported(task)) {
                 boolean isRedisSucc = false;
@@ -187,27 +194,27 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findTasks(type, ownSign);
     }
 
-    public List<Task> findLimitedTasks(Integer fetchNum) {
+    public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
-        return routerDao.findLimitedTasks(fetchNum);
+        return routerDao.findLimitedTasks(fetchNum,queueIds);
     }
 
-    public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
+    public List<Task> findLimitedTasks(Integer type, Integer fetchNum,List<String> queueIds) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
-        return routerDao.findLimitedTasks(type, fetchNum);
+        return routerDao.findLimitedTasks(type, fetchNum, queueIds);
     }
 
-    public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
+    public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign,List<String> queueIds) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
         if(isTableWithoutFetchFailed(type)) {
-            return routerDao.findLimitedTasksWithoutFailed(type, fetchNum, ownSign);
+            return routerDao.findLimitedTasksWithoutFailed(type, fetchNum, ownSign,queueIds);
         }
-        return routerDao.findLimitedTasks(type, fetchNum, ownSign);
+        return routerDao.findLimitedTasks(type, fetchNum, ownSign,queueIds);
     }
 
 
@@ -237,11 +244,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
+	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign ,List<String> queueIds) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;
-		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
+		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign,queueIds);
 	}
 
     public List<Task> findTasksByFingerprint(Task task) {
@@ -321,11 +328,11 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findTasks(task);
 	}
 
-	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
+	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;
-		return routerDao.findSendTasks(type, fetchNum, key);
+		return routerDao.findSendTasks(type, fetchNum, key,queueIds);
 	}
 
 	public Task findReverseSendTask(String sendCode) {
@@ -714,8 +721,8 @@ public class TaskServiceImpl implements TaskService {
      * xumei
      */
     @Override
-	public List<Task> findTaskTypeByStatus(Integer type, int fetchNum) {
-		return taskDao.findTaskTypeByStatus(type, fetchNum);
+	public List<Task> findTaskTypeByStatus(Integer type, int fetchNum ,List<String> queueIds) {
+		return taskDao.findTaskTypeByStatus(type, fetchNum,queueIds);
 	}
     public Integer updateTaskStatus(Task task) {
        return taskDao.updateTaskStatus(task);

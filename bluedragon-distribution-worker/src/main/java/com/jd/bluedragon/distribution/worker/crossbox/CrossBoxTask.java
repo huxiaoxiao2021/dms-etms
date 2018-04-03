@@ -44,7 +44,7 @@ public class CrossBoxTask extends DBSingleScheduler {
 				fetchNum = fetchNum * queueNum / queryCondition.size();
 			}
 
-			List<Task> Tasks = taskService.findTaskTypeByStatus(this.type, fetchNum);
+			List<Task> Tasks = taskService.findTaskTypeByStatus(this.type, fetchNum,queryCondition);
 			for (Task task : Tasks) {
 				Long id = Long.parseLong(task.getCreateSiteCode()+""+task.getReceiveSiteCode());
 				if (!isMyTask(queueNum, id, queryCondition)) {

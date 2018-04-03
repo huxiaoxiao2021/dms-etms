@@ -20,6 +20,7 @@
 		<result column="body" property="body" />
 		<result column="own_sign" property="ownSign" />
 		<result column="yn" property="yn" />
+		<result column="queue_id" property="queueId" />
 	</resultMap>
 
 	<insert id="add" parameterType="task">
@@ -27,7 +28,7 @@
 		 task_type, create_site_code, receive_site_code, box_code,
 		body,
 		keyword1, keyword2, create_time, update_time, execute_count, execute_time,
-		fingerprint, task_status, yn, own_sign)
+		fingerprint, task_status, yn, own_sign ,queue_id)
 		VALUES (
 		 #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER},
@@ -35,7 +36,7 @@
 		#{boxCode,jdbcType=VARCHAR}, #{body,jdbcType=VARCHAR},
 		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
 		NOW(), NOW(), 0, NOW(), #{fingerprint,jdbcType=VARCHAR}, 0, 1,
-		#{ownSign,jdbcType=VARCHAR})
+		#{ownSign,jdbcType=VARCHAR},#{queueId,jdbcType=INTEGER})
 	</insert>
 
 	<insert id="addWithStatus" parameterType="task">
@@ -44,7 +45,7 @@
 		task_type, create_site_code, receive_site_code, box_code, body,
 		keyword1, keyword2, create_time, update_time, execute_count,
 		execute_time,
-		fingerprint, task_status, yn, own_sign)
+		fingerprint, task_status, yn, own_sign ,queue_id)
 		VALUES (
 		 #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
@@ -52,7 +53,7 @@
 		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
 		NOW(), NOW(), #{executeCount,jdbcType=INTEGER}, NOW(),
 		#{fingerprint,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 1,
-		#{ownSign,jdbcType=VARCHAR})
+		#{ownSign,jdbcType=VARCHAR},#{queueId,jdbcType=INTEGER})
 	</insert>
 
 	<select id="findTasksByFingerprint" resultMap="task"
@@ -80,10 +81,16 @@
             SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body,
                  execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
             FROM ${tableName}
-            WHERE yn = 1 AND execute_count < 5 
-                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3) 
+            WHERE yn = 1 AND execute_count < 5
+                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)  ]]>
+            <if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
                  LIMIT #{fetchNum}
-        ]]>
+
 	</select>
 
 	<select id="findSpecifiedTasks" resultMap="task" parameterType="map">
@@ -93,7 +100,7 @@
 		create_time,yn,keyword1,keyword2
 		FROM ${tableName}
 		<where>
-			yn = 1 AND execute_count <![CDATA[<]]>
+			yn = 1  AND execute_count <![CDATA[<]]>
 			5
 			AND (execute_time <![CDATA[<]]>
 			NOW() OR execute_time IS NULL)
@@ -101,6 +108,12 @@
 			task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
 			</if>
 			 LIMIT
 			#{fetchNum}
@@ -114,13 +127,19 @@
 		execute_count,execute_time, task_status, create_time,yn,keyword1,keyword2
 		FROM ${tableName}
 		<where>
-			yn = 1 AND execute_count <![CDATA[<]]>
+			yn = 1  AND execute_count <![CDATA[<]]>
 			5
 			AND (execute_time <![CDATA[<]]>
 			NOW() OR execute_time IS NULL)
 			AND task_status IN (0, 3,4) AND task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
 			</if>
 			 LIMIT
 			#{fetchNum}
@@ -135,7 +154,7 @@
         execute_count,execute_time, task_status, create_time,yn,keyword1,keyword2
         FROM ${tableName}
         <where>
-            yn = 1 AND execute_count <![CDATA[<]]>
+            yn = 1  AND execute_count <![CDATA[<]]>
             5
             AND (execute_time <![CDATA[<]]>
             NOW() OR execute_time IS NULL)
@@ -143,6 +162,12 @@
             <if test="ownSign != null">
                 and own_sign = #{ownSign,jdbcType=VARCHAR}
             </if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
             LIMIT
             #{fetchNum}
         </where>
@@ -182,7 +207,7 @@
 	<select id="findSendTasks" resultMap="task" parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
-		execute_count, task_status, create_time, keyword2
+		execute_count, task_status, create_time, keyword2, queue_id
 		FROM ${tableName}
 		<where>
 			yn = 1 AND (task_status = 0 or task_status=4) AND task_type = #{type}
@@ -190,6 +215,12 @@
 			<if test="key != 1">
 				and create_time <![CDATA[<=]]>
 				timestampadd(minute, -5, now()) 
+			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
 			</if>
 			LIMIT #{fetchNum}
 		</where>
@@ -352,6 +383,12 @@
 		${tableName}
 		<where>
 			yn = 1 AND task_status = 0
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
 		</where>
 	</select>
 

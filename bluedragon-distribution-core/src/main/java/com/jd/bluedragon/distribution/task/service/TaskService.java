@@ -31,15 +31,15 @@ public interface TaskService {
 
     List<Task> findTasks(Integer type, String ownSign);
 
-    List<Task> findLimitedTasks(Integer fetchNum);
+    List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds);
 
-    List<Task> findLimitedTasks(Integer type, Integer fetchNum);
+    List<Task> findLimitedTasks(Integer type, Integer fetchNum,List<String> queueIds);
 
-    List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign);
+    List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign,List<String> queueIds);
 
-    List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign);
+    List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign,List<String> queueIds);
 
-    List<Task> findSendTasks(Integer type, Integer fetchNum, String key);
+    List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds);
 
     List<Task> findTasksByFingerprint(Task task);
 
@@ -105,7 +105,7 @@ public interface TaskService {
 
     Integer doAddTask(Task task, boolean ifCheckTaskMode);
 
-	List<Task> findTaskTypeByStatus(Integer type, int fetchNum);
+	List<Task> findTaskTypeByStatus(Integer type, int fetchNum, List<String> queueIds);
 
 	Integer updateTaskStatus(Task task);
 

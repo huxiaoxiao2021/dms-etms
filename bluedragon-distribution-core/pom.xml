@@ -440,6 +440,10 @@
 					<artifactId>spring</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.taobao.pamirs.schedule</groupId>
+					<artifactId>taobao-pamirs-schedule</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		

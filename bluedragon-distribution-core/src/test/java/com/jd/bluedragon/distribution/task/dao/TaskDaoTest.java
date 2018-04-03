@@ -22,7 +22,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindSpecifiedTasks() {
-        taskDao.findSpecifiedTasks(1120,50,"DMS");
+       // taskDao.findSpecifiedTasks(1120,50,"DMS");
     }
 	
 	@Test
@@ -41,7 +41,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindLimitedTasks() {
-        taskDao.findLimitedTasks(10);
+        //taskDao.findLimitedTasks(10);
     }
 	
 	@Test
@@ -177,7 +177,7 @@ public class TaskDaoTest extends AbstractDaoIntegrationTest{
         parameter.put("type", 1120);
         parameter.put("key", new Object());
         parameter.put("fetchNum", new Object());
-        taskDao.findSendTasks(1120,10,"910");
+        //taskDao.findSendTasks(1120,10,"910");
     }
 	
 	@Test
