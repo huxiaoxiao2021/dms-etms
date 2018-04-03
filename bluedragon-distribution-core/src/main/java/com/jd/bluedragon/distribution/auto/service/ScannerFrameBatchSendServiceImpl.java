@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.auto.service;
 
 import com.alibaba.fastjson.TypeReference;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
 import com.jd.bluedragon.distribution.api.request.BatchSummaryPrintImageRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
@@ -51,6 +53,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     private SiteService siteService;
 
     @Autowired
+    private RedisManager redisManager;
+
+    @Autowired
     private SendPrintService sendPrintService;
 
     @Autowired
@@ -66,22 +71,32 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         }
         ScannerFrameBatchSend batchSend = scannerFrameBatchSendDao.selectCurrentBatchSend(config.getMachineId(), receiveSiteCode, operateTime);
         if (null == batchSend) {
-            batchSend = new ScannerFrameBatchSend();
-            batchSend.setMachineId(config.getMachineId());
-            batchSend.setCreateSiteCode(config.getCreateSiteCode());
-            batchSend.setCreateSiteName(config.getCreateSiteName());
-            batchSend.setReceiveSiteCode(receiveSiteCode);
-            BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
-            if (null != site) {
-                batchSend.setReceiveSiteName(site.getSiteName());
+            batchSend = genarateBatchSend(operateTime,receiveSiteCode,config);
+        }
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(MessageFormat.format("result:{0}", batchSend.toString()));
+        }
+        return batchSend;
+    }
+
+    @Override
+    public ScannerFrameBatchSend getOrGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config) {
+        if (null == config) {
+            throw new RuntimeException("the parameter of config can not be null");
+        }
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(MessageFormat.format("parameters is opeateTime:{0} receiveSiteCode:{1} config:{2}", operateTime, receiveSiteCode, config.toString()));
+        }
+        ScannerFrameBatchSend batchSend = scannerFrameBatchSendDao.selectCurrentBatchSend(config.getMachineId(), receiveSiteCode, operateTime);
+
+        if (null == batchSend) {
+            batchSend = genarateBatchSend(operateTime,receiveSiteCode,config);
+        }else{
+            String send_code = batchSend.getSendCode();
+            if(checkSendCodeIsSealed(send_code)){
+                LOGGER.warn(MessageFormat.format("Current batchSend {0} already sealed，将生成新批次！", send_code));
+                batchSend = genarateBatchSend(operateTime,receiveSiteCode,config);
             }
-            batchSend.setCreateTime(operateTime);
-            batchSend.setCreateUserCode(config.getOperateUserId());
-            batchSend.setCreateUserName(config.getOperateUserName());
-            batchSend.setYn(YN_DEFAULT);
-            batchSend.setUpdateTime(batchSend.getCreateTime());
-            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
-            generateSend(batchSend);
         }
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(MessageFormat.format("result:{0}", batchSend.toString()));
@@ -97,6 +112,45 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     @Override
     public boolean submitPrint(long id, Integer operateUserId, String operateUserName) {
         return scannerFrameBatchSendDao.updatePrintTimes(id) > 0;
+    }
+
+    private ScannerFrameBatchSend genarateBatchSend(Date operateTime, Integer receiveSiteCode,GantryDeviceConfig config){
+        ScannerFrameBatchSend batchSend = new ScannerFrameBatchSend();
+        batchSend.setMachineId(config.getMachineId());
+        batchSend.setCreateSiteCode(config.getCreateSiteCode());
+        batchSend.setCreateSiteName(config.getCreateSiteName());
+        batchSend.setReceiveSiteCode(receiveSiteCode);
+        BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+        if (null != site) {
+            batchSend.setReceiveSiteName(site.getSiteName());
+        }
+        batchSend.setCreateTime(operateTime);
+        batchSend.setCreateUserCode(config.getOperateUserId());
+        batchSend.setCreateUserName(config.getOperateUserName());
+        batchSend.setYn(YN_DEFAULT);
+        batchSend.setUpdateTime(batchSend.getCreateTime());
+        batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
+        generateSend(batchSend);
+        return batchSend;
+    }
+
+    /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendCode
+     * @return
+     */
+    private boolean checkSendCodeIsSealed(String sendCode) {
+        boolean result = false;
+        try {
+            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
+            LOGGER.info("redis取封车批次号"+sendCode+"结果："+isSeal);
+            if(org.apache.commons.lang.StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
+                result = true;
+            }
+        }catch (Throwable e){
+            LOGGER.warn("redis取封车批次号失败："+e.getMessage());
+        }
+        return result;
     }
 
     /**
