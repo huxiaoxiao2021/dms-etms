@@ -68,6 +68,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
+    //操作组板的单位类型 0：分拣中心； 1：TC
+    private static final Integer BOARD_COMBINATION_SITE_TYPE = 0;
+
     @Value("${board.combination.bindings.count.max}")
     private Integer boardBindingsMaxCount;
 
@@ -205,6 +208,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             addBoardBox.setOperatorName(request.getUserName());
             addBoardBox.setSiteCode(request.getSiteCode());
             addBoardBox.setSiteName(request.getSiteName());
+            addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
             tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
         }catch (Exception e){
             Profiler.functionError(info);
@@ -215,7 +219,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         if (tcResponse.getCode() == 500) {
             this.logger.error("板号" + boardCode + "已绑定到其他板号下.");
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, BoardResponse.MESSAGE_BOX_PACKAGE_BINDINGED);
+            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, tcResponse.getMesseage());
             addSystemLog(boardResponse);
 
             return JdResponse.CODE_FAIL;

@@ -568,8 +568,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				String boxOrPackageCode = tWaybillStatus.getPackageCode();
 				if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
 					//先取出box表的始发，然后查sorting表
-					List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
-					for (Sorting sorting : sortings) {
+					List<Sorting> sortingList = getPackagesByBoxCode(boxOrPackageCode);
+					for (Sorting sorting : sortingList) {
 						tWaybillStatus.setWaybillCode(sorting.getWaybillCode());
 						tWaybillStatus.setPackageCode(sorting.getPackageCode());
 						toWaybillStatus(tWaybillStatus, bdTraceDto);
