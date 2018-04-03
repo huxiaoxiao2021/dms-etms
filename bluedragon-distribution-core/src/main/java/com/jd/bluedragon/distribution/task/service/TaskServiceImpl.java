@@ -86,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
-        if (false && isDynamicProducerOn(task)) {
+        if (isDynamicProducerOn(task)) {
             dynamicProducer.send(task);
             return 1;
         }
@@ -111,7 +111,7 @@ public class TaskServiceImpl implements TaskService {
             return 0;
         }
 
-        if (false && ifCheckTaskMode && isRedisSwitchON()) {
+        if (ifCheckTaskMode && isRedisSwitchON()) {
 			/* 如果task支持redis模式，首先考虑redis模式，如果redis模式失败则考虑数据库模式 */
             if (taskModeAgent.isRedisTaskModeSupported(task)) {
                 boolean isRedisSucc = false;
