@@ -5,15 +5,11 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerification;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -22,6 +18,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.service.GroupBoardService;
@@ -63,18 +60,16 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private TaskService taskService;
 
     @Autowired
-    private BoxService boxService;
-
-    @Autowired
     private OperationLogService operationLogService;
 
-    @Autowired
-    private SortingService sortingService;
 
     @Autowired
     RedisCommonUtil redisCommonUtil;
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
+
+    //操作组板的单位类型 0：分拣中心； 1：TC
+    private static final Integer BOARD_COMBINATION_SITE_TYPE = 0;
 
     @Value("${board.combination.bindings.count.max}")
     private Integer boardBindingsMaxCount;
@@ -206,7 +201,15 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         Response<Integer> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
         try {
-            tcResponse = groupBoardService.addBoxToBoard(boardCode, boxOrPackageCode);
+            AddBoardBox addBoardBox = new AddBoardBox();
+            addBoardBox.setBoardCode(request.getBoardCode());
+            addBoardBox.setBoxCode(request.getBoxOrPackageCode());
+            addBoardBox.setOperatorErp(request.getUserCode()+"");
+            addBoardBox.setOperatorName(request.getUserName());
+            addBoardBox.setSiteCode(request.getSiteCode());
+            addBoardBox.setSiteName(request.getSiteName());
+            addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
+            tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
         }catch (Exception e){
             Profiler.functionError(info);
             throw e;
@@ -216,7 +219,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         if (tcResponse.getCode() == 500) {
             this.logger.error("板号" + boardCode + "已绑定到其他板号下.");
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, BoardResponse.MESSAGE_BOX_PACKAGE_BINDINGED);
+            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, tcResponse.getMesseage());
             addSystemLog(boardResponse);
 
             return JdResponse.CODE_FAIL;
@@ -251,22 +254,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         CallerInfo infoTrace = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", false, true);
         try {
             //发送全称跟踪
-            //如果是箱号，取出所有的包裹号，逐个发送全称跟踪
-            //// FIXME: 2018/3/31 将该逻辑挪到处理的时候
-            if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
-                //先取出box表的始发，然后查sorting表
-                List<Sorting> sortings = getPackagesByBoxCode(boxOrPackageCode);
-                for (Sorting sorting : sortings) {
-                    request.setBoxOrPackageCode(sorting.getPackageCode());
-                    WaybillStatus waybillStatus = this.getWaybillStatus(request);
-                    taskService.add(toTask(waybillStatus));
-                }
+            WaybillStatus waybillStatus = this.getWaybillStatus(request);
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
 
-            } else {
-                WaybillStatus waybillStatus = this.getWaybillStatus(request);
-                // 添加到task表
-                taskService.add(toTask(waybillStatus));
-            }
         } catch (Exception e){
             Profiler.functionError(infoTrace);
             logger.error("发送全称跟踪失败.",e);
@@ -370,7 +361,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private WaybillStatus getWaybillStatus(BoardCombinationRequest request) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
-        tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
         tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
 
         tWaybillStatus.setCreateSiteCode(request.getSiteCode());
@@ -409,21 +399,5 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setLogType(OperationLog.BOARD_COMBINATITON);
 
         this.operationLogService.add(operationLog);
-    }
-
-    /**
-     * 根据箱号获取箱内的包裹信息
-     * @param boxCode
-     * @return
-     */
-    private List<Sorting> getPackagesByBoxCode(String boxCode) {
-        Box box = boxService.findBoxByCode(boxCode);
-        if (box != null) {
-            Sorting sorting = new Sorting();
-            sorting.setBoxCode(boxCode);
-            sorting.setCreateSiteCode(box.getCreateSiteCode());
-            return sortingService.findByBoxCode(sorting);
-        }
-        return null;
     }
 }

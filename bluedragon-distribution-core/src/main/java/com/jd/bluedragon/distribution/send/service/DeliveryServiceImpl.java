@@ -447,7 +447,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
             logger.info("组板发货关板板号：" + boardCode + "，关板结果：" + JsonHelper.toJson(closeBoardResponse));
-            if(!JdResponse.CODE_OK.equals(closeBoardResponse.getCode())){//关板失败
+            if(!JdResponse.CODE_OK.equals(closeBoardResponse.getCode()) || !closeBoardResponse.getData()){//关板失败
                 logger.error("组板发货调用TC关板失败：" + JsonHelper.toJson(closeBoardResponse));
             }
         } catch (Exception e) {
