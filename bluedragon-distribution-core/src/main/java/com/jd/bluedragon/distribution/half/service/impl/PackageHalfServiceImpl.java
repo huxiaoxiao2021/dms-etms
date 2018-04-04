@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfDetailDao;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfVO;
+import com.jd.bluedragon.distribution.half.service.PackageHalfRedeliveryService;
 import com.jd.bluedragon.distribution.transport.domain.ArBookingSpace;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
@@ -55,6 +56,9 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		return this.packageHalfDao;
 	}
 
+	@Autowired
+	public PackageHalfRedeliveryService packageHalfRedeliveryService;
+
 	@Override
 	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount) {
 
@@ -98,6 +102,10 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 				return false;
 			}
 		}
+
+		//同步包裹半收协商再投状态
+		packageHalfRedeliveryService.updateDealStateByWaybillCode(packageHalf.getWaybillCode(),OperatorId,"",OperatorName);
+
 
 		return true;
 	}
