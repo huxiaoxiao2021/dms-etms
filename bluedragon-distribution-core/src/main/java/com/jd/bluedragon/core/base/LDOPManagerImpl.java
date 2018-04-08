@@ -30,7 +30,6 @@ public class LDOPManagerImpl implements LDOPManager {
      */
     public boolean waybillReverse(WaybillReverseDTO waybillReverseDTO){
 
-        //body中是批次号,号分割
         CallerInfo info = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.LDOPManagerImpl.waybillReverse",false, true);

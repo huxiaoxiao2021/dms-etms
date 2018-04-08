@@ -82,6 +82,12 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 			}
 		}
 
+		//包裹半收时 同步运单状态
+		boolean waybillResult = waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
+		if(!waybillResult){
+			return false;
+		}
+
 		boolean isNeedToLDOP = false;
 		WaybillReverseDTO waybillReverseDTO = null;
 		//拒收触发换单
@@ -101,11 +107,6 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 			}
 		}
 
-		//包裹半收时 同步运单状态
-		boolean waybillResult = waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
-		if(!waybillResult){
-			return false;
-		}
 
 		//同步包裹半收协商再投状态
 		packageHalfRedeliveryService.updateDealStateByWaybillCode(packageHalf.getWaybillCode(),OperatorId,"",OperatorName);

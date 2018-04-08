@@ -11,6 +11,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -590,7 +592,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	}
 
 	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime){
+		CallerInfo info = null;
 		try{
+			info = Profiler.registerInfo( "DMSWEB.waybillStatusService.batchUpdateWaybillPartByOperateType",false, true);
+
 			//妥投或者拒收 走老同步接口
 			if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)) {
 
@@ -658,7 +663,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 		}catch (Exception e){
 			logger.error("包裹半收运单接口调用失败，"+packageHalf.getWaybillCode()+" 操作码 "+waybillOpeType+" 失败原因："+e.getMessage());
+			Profiler.functionError(info);
 			return false;
+		}finally{
+			Profiler.registerInfoEnd(info);
 		}
 
 	}
