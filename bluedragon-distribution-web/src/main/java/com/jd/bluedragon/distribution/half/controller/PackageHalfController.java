@@ -100,6 +100,7 @@ public class PackageHalfController {
 			if(!saveResult){
 				//保存失败
 				packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
+				rest.toError("保存失败，服务异常！");
 			}
 
 

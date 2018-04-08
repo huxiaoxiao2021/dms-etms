@@ -293,7 +293,9 @@ function makeTableHtml(data){
             myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td>拒收</td>";
             if(myRow.reasonType && rejectReasonData[myRow.reasonType]){
                 myRowHtml += "<td>"+rejectReasonData[myRow.reasonType]+"</td>";
-            }
+            }else{
+                myRowHtml += "<td></td>";
+			}
 
         }else {
             myRowHtml += "<tr class='need-submit' id='tr-"+myRow.packageCode+"'>";

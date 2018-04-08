@@ -590,72 +590,77 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	}
 
 	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime){
+		try{
+			//妥投或者拒收 走老同步接口
+			if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)) {
 
-		//妥投或者拒收 走老同步接口
-		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)) {
+				//组装更新对象
+				List<WaybillSyncPartParameter> waybillSyncPartParameterList = new ArrayList<WaybillSyncPartParameter>();
+				WaybillSyncPartParameter waybillSyncPartParameter = new WaybillSyncPartParameter();
+				waybillSyncPartParameterList.add(waybillSyncPartParameter);
+				List<PackageSyncPartParameter> packageSyncPartParameterList = new ArrayList<PackageSyncPartParameter>();
+				waybillSyncPartParameter.setPackageSyncPartParameterList(packageSyncPartParameterList);
+				waybillSyncPartParameter.setWaybillOperateType(waybillOpeType);
+				//组装包裹 并且 获取运单的最终状态， 如果有拒收则按部分签收更新运单状态
 
-			//组装更新对象
-			List<WaybillSyncPartParameter> waybillSyncPartParameterList = new ArrayList<WaybillSyncPartParameter>();
-			WaybillSyncPartParameter waybillSyncPartParameter = new WaybillSyncPartParameter();
-			waybillSyncPartParameterList.add(waybillSyncPartParameter);
-			List<PackageSyncPartParameter> packageSyncPartParameterList = new ArrayList<PackageSyncPartParameter>();
-			waybillSyncPartParameter.setPackageSyncPartParameterList(packageSyncPartParameterList);
-			waybillSyncPartParameter.setWaybillOperateType(waybillOpeType);
-			//组装包裹 并且 获取运单的最终状态， 如果有拒收则按部分签收更新运单状态
+				for (PackageHalfDetail packageHalfDetail : packageHalfDetails) {
 
-			for (PackageHalfDetail packageHalfDetail : packageHalfDetails) {
+					if (packageSyncPartParameterList.size() == 0) {
+						waybillSyncPartParameter.setWaybillCode(packageHalfDetail.getWaybillCode());
+						waybillSyncPartParameter.setOperateSiteName(packageHalfDetail.getOperateSiteName());
+						waybillSyncPartParameter.setOperateSiteId(packageHalfDetail.getOperateSiteCode().intValue());
+						waybillSyncPartParameter.setOperatorId(operatorId);
+						waybillSyncPartParameter.setOperatorName(operatorName);
+						waybillSyncPartParameter.setOperateTime(operateTime);
+					}
 
-				if (packageSyncPartParameterList.size() == 0) {
-					waybillSyncPartParameter.setWaybillCode(packageHalfDetail.getWaybillCode());
-					waybillSyncPartParameter.setOperateSiteName(packageHalfDetail.getOperateSiteName());
-					waybillSyncPartParameter.setOperateSiteId(packageHalfDetail.getOperateSiteCode().intValue());
-					waybillSyncPartParameter.setOperatorId(operatorId);
-					waybillSyncPartParameter.setOperatorName(operatorName);
-					waybillSyncPartParameter.setOperateTime(operateTime);
+					PackageSyncPartParameter packageSyncPartParameter = new PackageSyncPartParameter();
+					packageSyncPartParameter.setPackageCode(packageHalfDetail.getPackageCode());
+					packageSyncPartParameter.setPackageOperateType(getPackageOperateTypeByResultType(packageHalfDetail.getResultType()));
+					packageSyncPartParameter.setRemark(PackageHalfReasonTypeEnum.getNameByKey(packageHalfDetail.getReasonType().toString()));
+
+					packageSyncPartParameterList.add(packageSyncPartParameter);
 				}
 
-				PackageSyncPartParameter packageSyncPartParameter = new PackageSyncPartParameter();
-				packageSyncPartParameter.setPackageCode(packageHalfDetail.getPackageCode());
-				packageSyncPartParameter.setPackageOperateType(getPackageOperateTypeByResultType(packageHalfDetail.getResultType()));
-				packageSyncPartParameter.setRemark(PackageHalfReasonTypeEnum.getNameByKey(packageHalfDetail.getReasonType().toString()));
 
-				packageSyncPartParameterList.add(packageSyncPartParameter);
-			}
-
-
-			BaseEntity<Map<String, String>> result = this.waybillSyncApi.batchUpdateWaybillPartByOperateType(waybillSyncPartParameterList);
-			if (result.getResultCode() == 1) {
-				//成功
-				return true;
-			} else {
-				//失败的包裹号
-				Set<Map.Entry<String, String>> mapSet = result.getData().entrySet();
-				for (Map.Entry<String, String> entry : mapSet) {
-					entry.getKey();
-					entry.getValue();
+				BaseEntity<Map<String, String>> result = this.waybillSyncApi.batchUpdateWaybillPartByOperateType(waybillSyncPartParameterList);
+				if (result.getResultCode() == 1) {
+					//成功
+					return true;
+				} else {
+					//失败的包裹号
+					Set<Map.Entry<String, String>> mapSet = result.getData().entrySet();
+					for (Map.Entry<String, String> entry : mapSet) {
+						entry.getKey();
+						entry.getValue();
+					}
+					return false;
 				}
-				return false;
-			}
-		}else{
-			List<WaybillParameter> waybillParameters = new ArrayList<WaybillParameter>();
-			WaybillParameter waybillParameter = new WaybillParameter();
-			waybillParameter.setWaybillCode(packageHalf.getWaybillCode());
-			waybillParameter.setOperatorId(operatorId);
-			waybillParameter.setOperatorName(operatorName);
-			waybillParameter.setOperatorType(waybillOpeType);
-			waybillParameter.setOperateTime(operateTime);
-			waybillParameters.add(waybillParameter);
+			}else{
+				List<WaybillParameter> waybillParameters = new ArrayList<WaybillParameter>();
+				WaybillParameter waybillParameter = new WaybillParameter();
+				waybillParameter.setWaybillCode(packageHalf.getWaybillCode());
+				waybillParameter.setOperatorId(operatorId);
+				waybillParameter.setOperatorName(operatorName);
+				waybillParameter.setOperatorType(waybillOpeType);
+				waybillParameter.setOperateTime(operateTime);
+				waybillParameters.add(waybillParameter);
 
 
-			//老同步接口
-			BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
-			if (result.getResultCode() == 1) {
-				//成功
-				return true;
-			} else {
-				return false;
+				//老同步接口
+				BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
+				if (result.getResultCode() == 1) {
+					//成功
+					return true;
+				} else {
+					return false;
+				}
 			}
+		}catch (Exception e){
+			logger.error("包裹半收运单接口调用失败，"+packageHalf.getWaybillCode()+" 操作码 "+waybillOpeType+" 失败原因："+e.getMessage());
+			return false;
 		}
+
 	}
 
 	/**
