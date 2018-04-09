@@ -749,6 +749,13 @@
 			<artifactId>transboard-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
+		<!--路由系统-->
+		<dependency>
+			<groupId>com.jd.etms.vrs</groupId>
+			<artifactId>etms-vrs-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
     </dependencies>
 
 	<build>
