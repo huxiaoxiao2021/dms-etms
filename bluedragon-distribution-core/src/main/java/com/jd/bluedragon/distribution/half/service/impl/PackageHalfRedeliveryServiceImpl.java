@@ -48,4 +48,19 @@ public class PackageHalfRedeliveryServiceImpl extends BaseService<PackageHalfRed
         param.setUpdateUserName(updateUserName);
         return packageHalfRedeliveryDao.updateDealStateByWaybillCode(param);
     }
+
+    /**
+     * 根据运单号和站点ID查询运单是否已经存在
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    @Override
+    public String queryExistsByWaybillCodeAndSiteCode(String waybillCode, Integer siteCode) {
+        PackageHalfRedelivery param = new PackageHalfRedelivery();
+        param.setWaybillCode(waybillCode);
+        param.setDmsSiteCode(siteCode);
+        return packageHalfRedeliveryDao.queryExistsByPagerCondition(param);
+    }
+
 }

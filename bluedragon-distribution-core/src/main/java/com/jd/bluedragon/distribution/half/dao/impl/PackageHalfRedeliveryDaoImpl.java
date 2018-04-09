@@ -21,4 +21,9 @@ public class PackageHalfRedeliveryDaoImpl extends BaseDao<PackageHalfRedelivery>
     public int updateDealStateByWaybillCode(PackageHalfRedelivery packageHalfRedelivery) {
         return sqlSession.update(this.nameSpace+".updateDealStateByWaybillCode", packageHalfRedelivery);
     }
+
+    @Override
+    public String queryExistsByPagerCondition(PackageHalfRedelivery packageHalfRedelivery) {
+        return sqlSession.selectOne(this.nameSpace+".queryExistsByCondition", packageHalfRedelivery);
+    }
 }

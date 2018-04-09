@@ -311,4 +311,10 @@
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+	<select id="queryExistsByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="String">
+		select waybill_code from package_half_redelivery
+		<include refid="where_condition"/>
+		limit 1
+	</select>
+
 </mapper>

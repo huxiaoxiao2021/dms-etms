@@ -47,6 +47,11 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
             logger.warn("[B网半收]消费协商再投MQ-包裹明细为空：" + message.getText());
             return;
         }
+        String wayBillCode = packageHalfRedeliveryService.queryExistsByWaybillCodeAndSiteCode(dto.getWaybillCode(), dto.getOperateSiteId());
+        if(StringUtils.isNotBlank(wayBillCode)){//已消费过改运单的MQ，不再重复消费，打印日志直接返回
+            logger.warn("协商再投运单已消费，不再重复落库：" + message.getText());
+            return;
+        }
         BaseStaffSiteOrgDto user = baseMajorManager.getBaseStaffByStaffId(dto.getOperatorId());
         String erp = "";
         if(user != null){

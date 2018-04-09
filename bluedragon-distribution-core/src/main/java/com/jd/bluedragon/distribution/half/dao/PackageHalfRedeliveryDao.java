@@ -19,4 +19,11 @@ public interface PackageHalfRedeliveryDao extends Dao<PackageHalfRedelivery> {
      * @return
      */
     public int  updateDealStateByWaybillCode(PackageHalfRedelivery packageHalfRedelivery);
+
+    /**
+     * 根据条件查询运单是否已经存在
+     * @param packageHalfRedelivery
+     * @return
+     */
+    public String queryExistsByPagerCondition(PackageHalfRedelivery packageHalfRedelivery);
 }

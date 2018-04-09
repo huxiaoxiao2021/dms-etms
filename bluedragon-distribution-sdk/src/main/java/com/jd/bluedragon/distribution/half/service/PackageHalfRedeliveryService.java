@@ -22,4 +22,12 @@ public interface PackageHalfRedeliveryService extends Service<PackageHalfRedeliv
      * @return
      */
     public int  updateDealStateByWaybillCode(String waybillCode, Integer updateUserCode, String updateUserErp, String  updateUserName);
+
+    /**
+     * 根据运单号和站点ID查询运单是否已经存在
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    public String queryExistsByWaybillCodeAndSiteCode(String waybillCode, Integer siteCode);
 }
