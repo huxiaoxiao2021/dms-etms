@@ -497,7 +497,7 @@ public class CrossBoxServiceImpl implements CrossBoxService {
         StringBuffer fullLineName=new StringBuffer();
         StringBuffer fullLineId=new StringBuffer();
         String[] siteArr=router.split("\\|");
-        //
+        //有路由节点的话，加上发出和接收节点，数量一定会>2个
         if (siteArr.length<2){
             return false;
         }
