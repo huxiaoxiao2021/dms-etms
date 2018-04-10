@@ -82,6 +82,7 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
             redelivery.setCreateUserName(dto.getOperatorName());
             redelivery.setCreateUser(userErp);
             redelivery.setWaybillState(dto.getWaybillState());
+            redelivery.setRedeliverTime(dto.getRedeliverTime());
             redelivery.setPackageCode(packageDto.getPackageCode());
             redelivery.setPackageState(packageDto.getPackageState());
             redelivery.setPackageRemark(packageDto.getRemark());
