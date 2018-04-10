@@ -5,6 +5,7 @@
         <id column="send_m_id" property="sendMId" />
         <result column="send_code" property="sendCode" />
         <result column="box_code" property="boxCode" />
+        <result column="board_code" property="boardCode" />
         <result column="turnoverBox_Code" property="turnoverBoxCode" />
         <result column="send_user" property="sendUser" />
         <result column="send_user_code" property="sendUserCode" />
@@ -43,7 +44,8 @@
         shields_car_id,
         transport_type,
         excute_count,
-        excute_time
+        excute_time,
+        board_code
     </sql>
 
     <select id="findSendMByBoxCode" parameterType="SendM"  resultMap="SendM">

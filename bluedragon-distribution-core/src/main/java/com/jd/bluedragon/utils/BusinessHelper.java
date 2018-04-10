@@ -28,6 +28,8 @@ public class BusinessHelper {
 	private static final String SOURCE_CODE_ECLP = "ECLP";
 	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
 	private static final String BUSI_ORDER_CODE_QWD = "QWD";
+	private static final String SOURCE_CODE_CLPS = "CLPS";
+	private static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 	static{
 		init();
 	}
@@ -324,6 +326,43 @@ public class BusinessHelper {
 		return Boolean.FALSE;
 	}
 
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的BusiOrderCode字段,判断它是不是CSL开头单号
+	 * @return
+	 */
+	public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
+		if (StringHelper.isEmpty(busiOrderCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (busiOrderCode.startsWith(BUSI_ORDER_CODE_PRE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的sourceCode字段 是CLPS
+	 * @return
+	 */
+	public static Boolean isCLPSBySoucreCode(String soucreCode) {
+		if (StringHelper.isEmpty(soucreCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (soucreCode.toUpperCase().equals(SOURCE_CODE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
 	/**
 	 * “QWD”开头的单子 返回true
 	 * @param
@@ -427,6 +466,31 @@ public class BusinessHelper {
 		return false;
 	}
 	/**
+	 * 判断字符串指定的位置是否在指定的字符范围之内
+	 * @param signStr 目标字符串
+	 * @param position 标识位置
+	 * @param chars 字符范围
+	 * @return
+	 */
+	public static boolean isSignInChars(String signStr,int position,char... chars){
+		if(StringHelper.isNotEmpty(signStr) 
+				&& signStr.length() >= position
+				&& chars != null
+				&& chars.length > 0){
+			char positionChar = signStr.charAt(position-1);
+			if(chars.length == 1){
+				return chars[0] == positionChar;
+			}else{
+				for(char tmp:chars){
+					if(positionChar == tmp){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	/**
 	 * 根据waybillSign和sendSign判断是否城配运单
 	 * @param waybillSign 36为1
 	 * @param sendPay 146为1
@@ -442,7 +506,6 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isYHD(String sendPay){
-//		sendPay = "00000000100000000000000002001000030000100000000000000000000036000000000000000000000000000000000000000000003400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 		if(isSignChar(sendPay, 60, '0') && isSignChar(sendPay, 61, '3')){
 			if(isSignChar(sendPay, 62, '4')||isSignChar(sendPay, 62, '5')||isSignChar(sendPay, 62, '6')||
 					isSignChar(sendPay, 62, '7')||isSignChar(sendPay, 62, '8')||isSignChar(sendPay, 62, '9')){
@@ -548,4 +611,12 @@ public class BusinessHelper {
     	}
     	return true;
     }
+	/**
+	 * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isB2b(String waybillSign){
+		return isSignInChars(waybillSign, 40,'1','2','3');
+	}
 }

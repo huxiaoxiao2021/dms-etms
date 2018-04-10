@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.api.response;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -7,11 +8,16 @@ import java.util.Map;
  * 自动分拣机箱号
  * Created by wangtingwei on 2015/10/22.
  */
-public class AutoSortingBoxResult {
+public class AutoSortingBoxResult  implements Serializable{
 
 
 
-    /** 创建时间 */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2948318685839598431L;
+
+	/** 创建时间 */
     private String createTime;
 
     /** 箱号 */

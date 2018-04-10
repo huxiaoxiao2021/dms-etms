@@ -273,7 +273,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
             if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
-                String scheduleCode = tmsWaybill.getImportantHint();
+                String scheduleCode = "";
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null){
                 	if(StringHelper.isNotEmpty(transbillM.getScheduleBillCode())){

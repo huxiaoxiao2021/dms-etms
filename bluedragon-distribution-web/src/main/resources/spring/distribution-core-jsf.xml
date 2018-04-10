@@ -115,9 +115,9 @@
     <jsf:consumer id="waybillSyncApiJsf" interface="com.jd.etms.waybill.api.WaybillSyncApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
-    <jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
+    <!--<jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
-    </jsf:consumer>
+    </jsf:consumer>-->
     <jsf:consumer id="waybillPickupTaskApiJsf" interface="com.jd.etms.waybill.api.WaybillPickupTaskApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="5000" retries="0" check="false">
     </jsf:consumer>
@@ -264,4 +264,9 @@
 	<jsf:consumer id="basicSyncWS" interface="com.jd.tms.basic.ws.BasicSyncWS"
 		protocol="jsf" alias="${jsf.basicSyncWS.alias}" timeout="5000" retries="3">
 	</jsf:consumer>
+
+    <!-- TC jsf 接口-->
+    <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
+                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="3">
+    </jsf:consumer>
 </beans>

@@ -12,9 +12,12 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -23,9 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 一车一单离线发货
@@ -64,7 +65,14 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
 
         if(checkReceiveSiteCode(request)){
             this.logger.info("一车一单离线发货 --> 开始写入发货信息");
-            deliveryService.offlinePackageSend(toSendDatail(request));
+            if(SerialRuleUtil.isBoardCode(request.getBoxCode())) {//一车一单下的组板发货
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(toSendM(request)));
+                deliveryService.doBoardDelivery(task);
+            }else{//一车一单发货
+                deliveryService.offlinePackageSend(toSendM(request));
+            }
+
             offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_SUCCESS));
             operationLogService.add(requestConvertOperationLog(request));
             this.logger.info("一车一单离线发货 --> 结束写入发货信息");
@@ -84,8 +92,12 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         Integer receiveSiteCode = null;
         Boolean result = Boolean.TRUE;
         String boxCode = request.getBoxCode();
+        String sendCode = request.getBatchCode();
         if (checkBaseSite(request.getReceiveSiteCode())) {
             receiveSiteCode = request.getReceiveSiteCode();
+        }
+        if(receiveSiteCode == null && StringUtils.isNotBlank(sendCode)){
+            receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         }
         if (receiveSiteCode == null) {
             // 设置目的站点
@@ -131,10 +143,14 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         return Boolean.TRUE;
     }
 
-    private SendM toSendDatail(OfflineLogRequest offlineLogRequest) {
+    private SendM toSendM(OfflineLogRequest offlineLogRequest) {
 
         SendM sendM = new SendM();
-        sendM.setBoxCode(offlineLogRequest.getBoxCode());
+        if(SerialRuleUtil.isBoardCode(offlineLogRequest.getBoxCode())) {//一车一单下的组板发货
+            sendM.setBoardCode(offlineLogRequest.getBoxCode());
+        }else{//一车一单发货
+            sendM.setBoxCode(offlineLogRequest.getBoxCode());
+        }
         sendM.setCreateSiteCode(offlineLogRequest.getSiteCode());
         sendM.setReceiveSiteCode(offlineLogRequest.getReceiveSiteCode());
         sendM.setCreateUserCode(offlineLogRequest.getUserCode());
