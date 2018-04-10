@@ -1,13 +1,15 @@
 package com.jd.bluedragon.distribution.half.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 /**
  * 包裹半收协商再投之运单状态
  */
-public class PackageHalfRedeliveryDto {
+public class PackageHalfRedeliveryDto implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     /**
      * 运单号
@@ -48,6 +50,8 @@ public class PackageHalfRedeliveryDto {
      * 预计到达时间 格式：HH:mm
      */
     private List<PackageHalfRedeliveryDetailDto> packageSyncPartParameterList;
+
+    private Date redeliverTime;//再投时间
 
     public String getWaybillCode() {
         return waybillCode;
@@ -111,5 +115,13 @@ public class PackageHalfRedeliveryDto {
 
     public void setPackageSyncPartParameterList(List<PackageHalfRedeliveryDetailDto> packageSyncPartParameterList) {
         this.packageSyncPartParameterList = packageSyncPartParameterList;
+    }
+
+    public Date getRedeliverTime() {
+        return redeliverTime;
+    }
+
+    public void setRedeliverTime(Date redeliverTime) {
+        this.redeliverTime = redeliverTime;
     }
 }

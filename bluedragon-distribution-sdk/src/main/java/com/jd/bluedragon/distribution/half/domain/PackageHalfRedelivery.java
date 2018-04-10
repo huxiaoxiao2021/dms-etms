@@ -60,6 +60,8 @@ public class PackageHalfRedelivery extends DbEntity {
 	 /** 更新人名称 */
 	private String updateUserName;
 
+	private Date redeliverTime;//再投时间
+
 	/**
 	 * The set method for dmsSiteCode.
 	 * @param dmsSiteCode
@@ -300,5 +302,11 @@ public class PackageHalfRedelivery extends DbEntity {
 		return this.updateUserName;
 	}
 
+    public Date getRedeliverTime() {
+        return redeliverTime;
+    }
 
+    public void setRedeliverTime(Date redeliverTime) {
+        this.redeliverTime = redeliverTime;
+    }
 }

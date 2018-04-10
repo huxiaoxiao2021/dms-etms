@@ -1,9 +1,14 @@
 package com.jd.bluedragon.distribution.half.domain;
 
+import java.io.Serializable;
+
 /**
  * 包裹半收协商再投之包裹明细
  */
-public class PackageHalfRedeliveryDetailDto {
+public class PackageHalfRedeliveryDetailDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * 运单包裹号
      */

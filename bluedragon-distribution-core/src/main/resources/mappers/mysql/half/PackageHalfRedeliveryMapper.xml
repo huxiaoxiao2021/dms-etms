@@ -21,6 +21,7 @@
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="redeliver_time" property="redeliverTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
@@ -29,7 +30,7 @@
 		id,dms_site_code,dms_site_name,waybill_code,waybill_state,package_code,
 		deal_state,package_remark,package_state,eclp_deal_time,create_user_code,
 		create_user,create_user_name,create_time,update_user_code,update_user,
-		update_user_name,update_time,is_delete,ts
+		update_user_name,update_time,redeliver_time,is_delete,ts
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery">
@@ -85,6 +86,9 @@
 				<if test="updateTime != null">
 					update_time,
 				</if>
+                <if test="redeliverTime != null">
+                    redeliver_time,
+                </if>
 					is_delete,
 					ts
 			</trim>
@@ -141,6 +145,9 @@
 				<if test="updateTime != null">
 					#{updateTime,jdbcType=TIMESTAMP},
 				</if>
+                <if test="redeliverTime != null">
+                    #{redeliverTime,jdbcType=TIMESTAMP},
+                </if>
 					0,
 					now()
 			</trim>
@@ -152,7 +159,7 @@
 			(
 				dms_site_code,dms_site_name,waybill_code,waybill_state,
 				package_code,deal_state,package_remark,package_state,eclp_deal_time,
-				create_user_code,create_user,create_user_name,create_time,is_delete,ts
+				create_user_code,create_user,create_user_name,redeliver_time,create_time,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -169,6 +176,7 @@
 					#{item.createUserCode,jdbcType=INTEGER},
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
+                    #{redeliverTime,jdbcType=TIMESTAMP},
 					now(),
 					0,
 					now()

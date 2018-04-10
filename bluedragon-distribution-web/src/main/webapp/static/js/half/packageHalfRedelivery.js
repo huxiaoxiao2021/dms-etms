@@ -58,6 +58,12 @@ $(function() {
 			if (!_selector) {
 				_selector = ".search-param";
 			}
+            var v = $("#query-form #isReceiptSelect").val();
+            if(v == 1 || v == 2){
+                $("#query-form #dealState").val(v);
+            }else{
+                $("#query-form #dealState").val(null);
+            }
 			$(_selector).each(function () {
 				var _k = this.id;
 				var _v = $(this).val();
