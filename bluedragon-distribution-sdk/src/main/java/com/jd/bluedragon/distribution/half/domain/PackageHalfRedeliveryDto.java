@@ -47,9 +47,9 @@ public class PackageHalfRedeliveryDto implements Serializable {
     private Integer waybillState;
 
     /**
-     * 预计到达时间 格式：HH:mm
+     * 部分签收运单包裹同步参数集合
      */
-    private List<PackageHalfRedeliveryDetailDto> packageSyncPartParameterList;
+    private List<PackageHalfRedeliveryDetailDto> packagePartMsgDTOList;
 
     private Date redeliverTime;//再投时间
 
@@ -110,11 +110,11 @@ public class PackageHalfRedeliveryDto implements Serializable {
     }
 
     public List<PackageHalfRedeliveryDetailDto> getPackageSyncPartParameterList() {
-        return packageSyncPartParameterList;
+        return packagePartMsgDTOList;
     }
 
-    public void setPackageSyncPartParameterList(List<PackageHalfRedeliveryDetailDto> packageSyncPartParameterList) {
-        this.packageSyncPartParameterList = packageSyncPartParameterList;
+    public void setPackageSyncPartParameterList(List<PackageHalfRedeliveryDetailDto> packagePartMsgDTOList) {
+        this.packagePartMsgDTOList = packagePartMsgDTOList;
     }
 
     public Date getRedeliverTime() {

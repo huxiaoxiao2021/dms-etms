@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.packagehalf;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery;
@@ -41,7 +42,7 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
             return;
         }
         logger.info("[B网半收]消费协商再投MQ-消息体：" + message.getText());
-        PackageHalfRedeliveryDto dto = JsonHelper.fromJsonUseGson(message.getText(), PackageHalfRedeliveryDto.class);
+        PackageHalfRedeliveryDto dto = JSON.parseObject(message.getText(), PackageHalfRedeliveryDto.class);
         List<PackageHalfRedeliveryDetailDto> packageList = dto.getPackageSyncPartParameterList();
         if(packageList == null || packageList.isEmpty()){
             logger.warn("[B网半收]消费协商再投MQ-包裹明细为空：" + message.getText());
