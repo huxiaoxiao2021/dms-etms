@@ -1,16 +1,10 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.saf.EmsOrderJosSafService;
 import com.jd.bluedragon.distribution.saf.OrdersResourceSafService;
@@ -19,14 +13,17 @@ import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
-import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
-import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
+import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @Service("dmsExternalReadService")
 public class DmsExternalReadServiceImpl implements DmsExternalReadService {
@@ -50,7 +47,8 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 	@Autowired
 	private OrdersResourceSafService ordersResourceSafService;
-
+	@Autowired
+	private CrossBoxService crossBoxService;
 	/* (non-Javadoc)
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
 	 */
@@ -135,6 +133,12 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.isCancel", mState = {JProEnum.TP})
 	public WaybillSafResponse isCancel(String packageCode) {
 		return waybillSafService.isCancel(packageCode);
+	}
+
+	@Override
+	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.getBoxInfoByCode", mState = {JProEnum.TP})
+	public BoxResponse getBoxInfoByCode(String boxCode) {
+		return crossBoxService.getCrossDmsBoxByBoxCode(boxCode);
 	}
 //
 //	@Override

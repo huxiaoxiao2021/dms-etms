@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.api.request;
 import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
+import java.util.Date;
+
 public class BoxRequest extends JdRequest {
 
 	private static final long serialVersionUID = 8900218370299464985L;
@@ -43,7 +45,27 @@ public class BoxRequest extends JdRequest {
 	/** 1混包0非混包*/
 	private Integer mixBoxType;
 
+	/** 预计发货时间*/
+	private Date predictSendTime ;
 
+	/** 路由信息*/
+	private String router;
+
+	public Date getPredictSendTime() {
+		return predictSendTime;
+	}
+
+	public void setPredictSendTime(Date predictSendTime) {
+		this.predictSendTime = predictSendTime;
+	}
+
+	public String getRouter() {
+		return router;
+	}
+
+	public void setRouter(String router) {
+		this.router = router;
+	}
 
 	public Integer getTransportType() {
 		return transportType;

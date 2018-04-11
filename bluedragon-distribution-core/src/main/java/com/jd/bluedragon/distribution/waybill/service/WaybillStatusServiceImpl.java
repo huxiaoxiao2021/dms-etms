@@ -41,7 +41,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private TaskService taskService;
-	
+
 	@Autowired
     WaybillSyncApi waybillSyncApi;
 
@@ -50,7 +50,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
     @Autowired
     private SiteService siteService;
-    
+
     @Autowired
     private SendDatailDao sendDatailDao;
 
@@ -126,7 +126,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
 
 	}
-	
+
 	// 没有注入运单号和包裹号 (封车)
 	private void toWaybillStatus2(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
 		bdTraceDto.setOperateType(tWaybillStatus.getOperateType());
@@ -136,7 +136,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
 	}
-	
+
 	// 没有注入运单号和包裹号 (解封车)
 	private void toWaybillStatus3(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
 		bdTraceDto.setOperateType(tWaybillStatus.getOperateType());
@@ -259,7 +259,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			return;
 		}
 
-		this.logger.info("向运单系统回传全程跟踪，共计条目数：" + tasks.size()); 
+		this.logger.info("向运单系统回传全程跟踪，共计条目数：" + tasks.size());
 		for (Task task : tasks) {
 			WaybillStatus tWaybillStatus = JsonHelper.fromJson(task.getBody(),
 					WaybillStatus.class);
@@ -270,7 +270,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				//操作单位更改为收货单位
 				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
 				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
-				
+
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已驳回");
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
@@ -312,7 +312,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				//操作单位更改为收货单位
 				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
 				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
-				
+
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已收货");
 				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
@@ -327,13 +327,27 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
+
+			//包裹补打 发全程跟踪 新增节点2400
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
+				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
+				//单独发送全程跟踪消息，供其给前台消费
+				waybillQueryManager.sendOrderTrace(tWaybillStatus.getWaybillCode(),
+						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE,
+						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_MSG,
+						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT,
+						tWaybillStatus.getOperator(), null);
+//				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+
 			//备件库售后 交接拆包
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_AMS_BH))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				//操作单位更改为收货单位
 				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
 				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
-				
+
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已驳回【备件库售后交接拆包】");
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
@@ -347,7 +361,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				//操作单位更改为收货单位
 				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
 				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
-				
+
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已收货【备件库售后交接拆包】");
 				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
@@ -394,7 +408,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
-			
+
             /**
              * 全程跟踪:回传封车信息至运单中心
              */
@@ -421,12 +435,12 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
-            
+
             /**
              * 全程跟踪:回传 解 封车信息至运单中心
              */
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_UNSEAL_VEHICLE).equals(task.getKeyword2())){
-                toWaybillStatus3(tWaybillStatus, bdTraceDto);              
+                toWaybillStatus3(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
                 this.logger.info("向运单系统回传全程跟踪，解封车：" );
                 String sendCodes = tWaybillStatus.getSendCode();
@@ -448,12 +462,12 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
-            
+
             /**
              * 全程跟踪:回传 撤销封车信息至运单中心
              */
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_CANCEL_VEHICLE).equals(task.getKeyword2())){
-                toWaybillStatus2(tWaybillStatus, bdTraceDto);              
+                toWaybillStatus2(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp("货物已取消封车");
                 this.logger.info("向运单系统回传全程跟踪，已撤销封车：" );
                 String sendCodes = tWaybillStatus.getSendCode();
@@ -472,7 +486,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
-            
+
             if(null!=task.getKeyword2()&&String.valueOf(3800).equals(task.getKeyword2())){
                 tWaybillStatus.setOperateType(3800);
 
@@ -487,8 +501,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
-            
-            
+
+
             /**
              * 全球购取消预装载的订单回传全称跟踪
              * */
