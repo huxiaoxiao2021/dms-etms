@@ -72,28 +72,8 @@ public class DmsAbnormalEclpController {
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody DmsAbnormalEclp dmsAbnormalEclp) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
-
             if(SerialRuleUtil.isMatchCommonWaybillCode(dmsAbnormalEclp.getWaybillCode())){
-                //1.2个月内该运单只能发起一次库房拒收外呼申请
-                DmsAbnormalEclpCondition condition = new DmsAbnormalEclpCondition();
-                condition.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
-                // 不限制该运单是否在进行外呼中，即，只能发起一次
-                //condition.setIsReceipt(0);
-                condition.setStartTime(DateHelper.add(new Date(), Calendar.MONTH, -2));
-                PagerResult result = dmsAbnormalEclpService.queryByPagerCondition(condition);
-                //判断当前运单是否有未进行完毕的外呼
-                if(result.getTotal() > 0){
-                    rest.toFail("运单已发起过库房拒收的外呼申请：" + dmsAbnormalEclp.getWaybillCode());
-                }else{
-                    LoginContext loginContext = LoginContext.getLoginContext();
-                    BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-                    dmsAbnormalEclp.setCreateUser(loginContext.getPin());
-                    dmsAbnormalEclp.setCreateUserCode(dto.getStaffNo());
-                    dmsAbnormalEclp.setCreateUserName(loginContext.getNick());
-                    dmsAbnormalEclp.setDmsSiteCode(dto.getSiteCode());
-                    dmsAbnormalEclp.setDmsSiteName(dto.getSiteName());
-                    rest.setData(dmsAbnormalEclpService.saveOrUpdate(dmsAbnormalEclp));
-                }
+               return dmsAbnormalEclpService.save(dmsAbnormalEclp);
             }else{
                 rest.toFail("运单号非法：" + dmsAbnormalEclp.getWaybillCode());
             }

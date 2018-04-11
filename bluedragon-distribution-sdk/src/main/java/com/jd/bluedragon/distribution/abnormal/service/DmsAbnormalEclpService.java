@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.abnormal.service;
 
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 /**
@@ -13,5 +14,11 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface DmsAbnormalEclpService extends Service<DmsAbnormalEclp> {
 
+    /**
+     * 保存并发外呼申请
+     * @param dmsAbnormalEclp
+     * @return
+     */
+    public JdResponse<Boolean> save (DmsAbnormalEclp dmsAbnormalEclp);
 
 }
