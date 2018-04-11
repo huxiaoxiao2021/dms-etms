@@ -14,6 +14,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.vos.dto.SealCarInAreaDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import org.apache.commons.collections.map.HashedMap;
@@ -191,6 +192,7 @@ public class NewSealVehicleResource {
             sealCarDto.setStatus(request.getStatus());
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
+            sealCarDto.setBatchCode(request.getBatchCode());
             //查询7天内的带解任务
             Calendar c = Calendar.getInstance();
             c.add(Calendar.DATE, ROLL_BACK_DAY);
@@ -245,6 +247,31 @@ public class NewSealVehicleResource {
         return sealVehicleResponse;
     }
 
+    /**
+     * 解封车校验
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/new/vehicle/unseal/check")
+    public NewSealVehicleResponse unsealCheck(NewSealVehicleRequest request) {
+        NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        try {
+            if(request.getData().size() > 20){
+                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage("单次解封车最大选择20条数据！");
+            }else{
+                List<String>  unsealCarOutArea = newsealVehicleService.isSealCarInArea(request.getData());
+                if(unsealCarOutArea != null && !unsealCarOutArea.isEmpty()){
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_UNSEAL_CAR_OUT_CHECK);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_CAR_OUT_CHECK+JsonHelper.toJson(unsealCarOutArea));
+                }
+            }
+        } catch (Exception e) {
+            this.logger.error("NewSealVehicleResource.unsealCheck-error", e);
+        }
+        return sealVehicleResponse;
+    }
 
     /**
      * 解封车功能
