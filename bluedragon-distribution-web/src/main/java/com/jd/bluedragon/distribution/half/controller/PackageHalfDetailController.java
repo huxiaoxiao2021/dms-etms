@@ -134,7 +134,7 @@ public class PackageHalfDetailController {
 			packageHalfDetailResponseVO.setPackageList(packageHalfDetailsOfResult);
 			result.setData(packageHalfDetailResponseVO);
 
-			BaseEntity<BigWaybillDto> getDataByChoiceResult = waybillQueryManager.getDataByChoice(waybillCode, true, true, false, false, true, false, false);
+			BaseEntity<BigWaybillDto> getDataByChoiceResult = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false, true, false, false);
 			if (getDataByChoiceResult.getResultCode() == 1) {
 				//成功获取包裹信息
 				BigWaybillDto bigWaybillDto = getDataByChoiceResult.getData();
@@ -159,7 +159,7 @@ public class PackageHalfDetailController {
 					//支持协商在妥投的 并且 没有审核完成的
 					if(BusinessHelper.isConsultationTo(bigWaybillDto.getWaybill().getWaybillSign())) {
 						//不允许操作
-						if(!bigWaybillDto.getWaybillState().equals(WaybillStatus.WAYBILL_STATUS_CONSULT)){
+						if(!WaybillStatus.WAYBILL_STATUS_CONSULT.equals(bigWaybillDto.getWaybillState().getWaybillState())){
 							packageHalfDetailResponseVO.setCanDelievered(false);
 							packageHalfDetailResponseVO.setCanReject(false);
 							result.setMessage("此运单未完成协商再投审核，请在一体机中操作！");

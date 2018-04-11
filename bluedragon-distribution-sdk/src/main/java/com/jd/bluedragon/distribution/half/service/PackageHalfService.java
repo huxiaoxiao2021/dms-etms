@@ -29,7 +29,7 @@ public interface PackageHalfService extends Service<PackageHalf> {
      * @param packageCount 拒收包裹数量
      * @return
      */
-    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer packageCount);
+    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer packageCount,Integer orgId,Integer createSiteCode);
 
 
     void deleteOfSaveFail(String waybillCode);

@@ -60,7 +60,7 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	public PackageHalfRedeliveryService packageHalfRedeliveryService;
 
 	@Override
-	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount) {
+	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode) {
 
 		getDao().insert(packageHalf);
 
@@ -82,22 +82,17 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 			}
 		}
 
-		//包裹半收时 同步运单状态
-		boolean waybillResult = waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
-		if(!waybillResult){
-			return false;
-		}
 
 		boolean isNeedToLDOP = false;
 		WaybillReverseDTO waybillReverseDTO = null;
 		//拒收触发换单
 		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_REJECT)){
 			//整单拒收
-			 waybillReverseDTO  = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,true);
+			 waybillReverseDTO  = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,true);
 			isNeedToLDOP = true;
 		}else if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)){
 			//包裹拒收
-			 waybillReverseDTO = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,false);
+			 waybillReverseDTO = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,false);
 			isNeedToLDOP = true;
 
 		}
@@ -107,6 +102,11 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 			}
 		}
 
+		//包裹半收时 同步运单状态
+		boolean waybillResult = waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
+		if(!waybillResult){
+			return false;
+		}
 
 		//同步包裹半收协商再投状态
 		packageHalfRedeliveryService.updateDealStateByWaybillCode(packageHalf.getWaybillCode(),OperatorId,"",OperatorName);
@@ -125,7 +125,7 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	 * @param isTotal 是否是整单拒收
 	 * @return
 	 */
-	private WaybillReverseDTO makeWaybillReverseDTO(String waybillCode,Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,boolean isTotal){
+	private WaybillReverseDTO makeWaybillReverseDTO(String waybillCode,Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode,boolean isTotal){
 		WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
 		waybillReverseDTO.setSource(2); //分拣中心
 		if(isTotal){
@@ -137,6 +137,8 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		waybillReverseDTO.setWaybillCode(waybillCode);
 		waybillReverseDTO.setOperateUserId(OperatorId);
 		waybillReverseDTO.setOperateUser(OperatorName);
+		waybillReverseDTO.setOrgId(orgId);
+		waybillReverseDTO.setSortCenterId(createSiteCode);
 		waybillReverseDTO.setOperateTime(operateTime);
 		waybillReverseDTO.setReturnType(0);//默认
 		waybillReverseDTO.setPackageCount(packageCount);

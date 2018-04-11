@@ -74,14 +74,16 @@ public class PackageHalfController {
 			//获取基础信息
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			String userCode = "";
-			Long createSiteCode = new Long(-1);
+			Integer createSiteCode = new Integer(-1);
 			String createSiteName = "";
+			Integer orgId  = new Integer(-1);
 			if(erpUser!=null){
 				userCode = erpUser.getUserCode();
 				BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
 				if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
-					createSiteCode = new Long(bssod.getSiteCode());
+					createSiteCode = bssod.getSiteCode();
 					createSiteName = bssod.getSiteName();
+					orgId = bssod.getOrgId();
 				}
 			}
 
@@ -95,7 +97,7 @@ public class PackageHalfController {
 			Date operateTime = packageHalfVO.getOperateTime();
 
 			//具体业务处理
-			boolean saveResult = packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime,packageHalfVO.getRejectPackageCount());
+			boolean saveResult = packageHalfService.save(packageHalf,packageHalfDetails,waybillOpeType,OperatorId,OperatorName,operateTime,packageHalfVO.getRejectPackageCount(),orgId,createSiteCode);
 			rest.setData(saveResult);
 			if(!saveResult){
 				//保存失败
@@ -112,12 +114,12 @@ public class PackageHalfController {
 		return rest;
 	}
 
-	private void makeSavePOJO(PackageHalfVO packageHalfVO, PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails,String userCode,Long createSiteCode, String createSiteName){
+	private void makeSavePOJO(PackageHalfVO packageHalfVO, PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails,String userCode,Integer createSiteCode, String createSiteName){
 
 		packageHalf.setWaybillCode(packageHalfVO.getWaybillCode());
         packageHalf.setCreateUser(userCode);
         packageHalf.setHalfType(Integer.valueOf(packageHalfVO.getHalfType()));
-        packageHalf.setOperateSiteCode(createSiteCode);
+        packageHalf.setOperateSiteCode(Long.valueOf(createSiteCode));
         packageHalf.setOperateSiteName(createSiteName);
 
 
@@ -130,7 +132,7 @@ public class PackageHalfController {
 				packageHalfDetail.setReasonType(Integer.valueOf(StringUtils.isBlank(packageHalfDetailVO.getReasonType())?"-1":packageHalfDetailVO.getReasonType()));
 				packageHalfDetail.setResultType(Integer.valueOf(packageHalfDetailVO.getResultType()));
 				packageHalfDetail.setCreateUser(userCode);
-				packageHalfDetail.setOperateSiteCode(createSiteCode);
+				packageHalfDetail.setOperateSiteCode(Long.valueOf(createSiteCode));
 				packageHalfDetail.setOperateSiteName(createSiteName);
 				packageHalfDetail.setHalfType(Integer.valueOf(packageHalfVO.getHalfType()));
 

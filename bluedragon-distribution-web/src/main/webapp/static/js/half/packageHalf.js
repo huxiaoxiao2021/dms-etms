@@ -434,6 +434,7 @@ function addSubmit(){
                 alert(data.message?data.message:"提交失败");
 			}
             enableBtn();
+        	loadPackage();
         });
 
 
